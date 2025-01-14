@@ -1,4 +1,4 @@
-\documentclass[biblatex]{deltares_memo}
+\documentclass[biblatex]{mooiman_memo}
 \addbibresource{./ref.bib}
 
 \newcommand{\ii}{{\rm i}}
@@ -19,11 +19,8 @@
 \newcommand{\GRADc}{{\it \widehat{GRAD}}_{\it c}}
 \newcommand{\GRADu}{{\it \widehat{GRAD}}_{\it u}}
 \newcommand{\GRADh}{{\it \widehat{GRAD}}_{\it h}}
-\newcommand{\ldiff}[3][1]{\ensuremath{d \ifthenelse{\equal{#1}{1}}{}{^#1} {#2}/d {#3} \ifthenelse{\equal{#1}{1}}{}{^#1}}}
-\newcommand{\lpdiff}[3][1]{\ensuremath{\partial \ifthenelse{\equal{#1}{1}}{}{^#1} {#2}/\partial {#3} \ifthenelse{\equal{#1}{1}}{}{^#1}}}
 
 \newcommand{\deltares}{Deltares\xspace}
-\newcommand{\smartnumerics}{SMART numerics\xspace}
 \newcommand{\maplemath}{\textbf{Some MapleSoft math}}
 
 \begin{document}
@@ -34,10 +31,10 @@
     \memoFrom{Jan Mooiman}
     \memoTelephone{+31\,(0)6\,4691\,4571}
     \memoEmail{jan.mooiman@deltares.nl}
-    \memoSubject{\smartnumerics:\ Atmospheric chemistry}
+    \memoSubject{Atmospheric chemistry}
     \memoCopy{}
 
-    \deltarestitle
+    \mooimantitle
     %------------------------------------------------------------------------------
 
 \section{Atmospheric chemistry}
@@ -80,19 +77,19 @@ where $t_h$ is the time in hours.
 Some results are:
 \begin{figure}[H]
     \begin{subfigure}{0.5\textwidth}
-        \includegraphics[width=\textwidth]{figures/20240908_171334.pdf}
+        \includegraphics[width=\textwidth]{figures/atomic_oxygon_dt0d5.pdf}
         \caption{Concentration of Atomic Oxygen.}
     \end{subfigure}
     \begin{subfigure}{0.5\textwidth}
-        \includegraphics[width=\textwidth]{figures/20240908_171352.pdf}
+        \includegraphics[width=\textwidth]{figures/nitrogen_dioxide_dt0d5.pdf}
         \caption{Concentration of Nitrogen Dioxide.}
     \end{subfigure}
     \begin{subfigure}{0.5\textwidth}
-        \includegraphics[width=\textwidth]{figures/20240908_171404.pdf}
+        \includegraphics[width=\textwidth]{figures/nitrogen_oxide_dt0d5.pdf}
         \caption{Concentration of Nitrogen Oxide.}
     \end{subfigure}
     \begin{subfigure}{0.5\textwidth}
-        \includegraphics[width=\textwidth]{figures/20240908_171422.pdf}
+        \includegraphics[width=\textwidth]{figures/ozon_dt0d5.pdf}
         \caption{Concentration of Ozon.}
     \end{subfigure}
     \caption{Result plots of the different constituents, compute with a Runge-Kutta 4 time integration with a timestep of \SI{0.5}{[second]}.}
@@ -156,21 +153,19 @@ Rearrange tp $\mat{A}\vec{x}=\vec{b}$
 \newpage
 \section{Numerical experiment}
 %
-%--- begin light blue table ---
 \begin{longtable}{>{\bfseries}p{6mm-12pt}|p{\textwidth/4-2mm-12pt}|p{\textwidth/4-2mm-12pt}|p{\textwidth/4-2mm-12pt}|p{\textwidth/4-2mm-12pt}}
-\caption{Light blue theme of table} \\%
-\rowcolor{dblue1}
-& \textbf{Time step\newline [sec]}
-& \textbf{Euler Explicit}
-& \textbf{Runge-Kutta 4}
-& \textbf{Fully Implicit\newline $\Delta$-formulation}
+\caption{Stability of different time integrators for the Air Pollution case.} \\%
+\rowcolor{mgreen1}
+& \textcolor{white}{\textbf{Time step\newline [s]}}
+& \textcolor{white}{\textbf{Euler Explicit}}
+& \textcolor{white}{\textbf{Runge-Kutta 4}}
+& \textcolor{white}{\textbf{Fully Implicit\newline $\Delta$-formulation}}
 \\
 \topline
 \endfirsthead
 \endhead
 \endfoot
 \bottomline
-  &  &  &
 \endlastfoot
 1 & 0.5 & -  & \checkmark & - \\
 \midline
@@ -190,7 +185,6 @@ Rearrange tp $\mat{A}\vec{x}=\vec{b}$
 \midline
 9 & 3600 & - & - & \checkmark \\
 \end{longtable}
-%--- end light blue table ---
 %
 
 %------------------------------------------------------------------------------
