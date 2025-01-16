@@ -15,4 +15,4 @@ echo on
 cmake -B _build > cmake_configure.log 2>&1
 cmake --build _build --verbose > cmake_build.log 2>&1
 
-%exec%
+%exec% --toml ./input_cpp.toml

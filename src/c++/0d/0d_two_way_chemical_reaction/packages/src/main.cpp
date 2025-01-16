@@ -323,7 +323,14 @@ int main(int argc, char* argv[]) {
                 solution = solver.solveWithGuess(rhs, solution);  // solution contains u^{n+1,p+1} - u^{n+1,p}
                 used_bicgstab_iter += int(solver.iterations());
 
-                double dc_max = *std::max_element(solution.begin(), solution.end());
+                dc_max = 0.0;
+                for (int i = 0; i < 2; ++i)
+                {
+                    if (dc_max < std::abs(solution[i]))
+                    {
+                        dc_max = std::abs(solution[i]);
+                    }
+                }
                 for (int i = 0; i < 2; ++i)
                 {
                     up[i] += solution[i];

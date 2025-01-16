@@ -36,8 +36,9 @@ if (MSVC)
     target_include_directories(${exe_name} PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}\\."
         "${CMAKE_CURRENT_SOURCE_DIR}\\include"
-        "${CMAKE_CURRENT_SOURCE_DIR}\\..\\..\\lib\\netcdf"
-        "${CMAKE_CURRENT_SOURCE_DIR}\\..\\..\\lib\\eigen"
+        "c:/Program Files/netCDF 4.9.2/"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../../lib/eigen"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../../lib/toml++"
         "c:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Professional\\VC\\Tools\\MSVC\\14.29.30133\\include\\"
         "c:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22621.0\\ucrt\\"
     )
