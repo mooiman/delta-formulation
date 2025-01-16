@@ -1,0 +1,27 @@
+#
+# Brusselator
+#
+[Time]
+    tstart = 0.0                                  # Start time [s]
+    tstop = 345600.0                               # End time [s] 
+
+[Numerics]
+    dt = 0.5                                    # Time step size [s], if dt == 0: then stationary problem
+    integration = "delta_formulation"  # "delta_formulation", "runge_kutta_4"
+    iter_max = 100                                 # Maximum number of nonlinear iterations
+    theta = 0.501                                 # Implicitness factor (0.5 <= theta <= 1.0)
+    eps_newton = 1.0e-12
+    eps_bicgstab = 1.0e-12
+
+[Physics]
+    k1 = 0.0   # time dependent, k1 is irrelevant                                     
+    k2 = 2.0e-02  # 1.0d05                               
+    k3 = 1.0e-03  # 1.0d-16
+    sigma = 1e-07
+
+[Initial]
+    O = 0.0  # Molecular oxygen
+    NO = 2.0e-01  # Nitrogen oxide
+    NO2 = 2.0e-03  # Nitrogen dioxide
+    O3 = 2.0e-01  # Ozon
+    

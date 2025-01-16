@@ -37,7 +37,6 @@ enum class TIME_INTEGRATOR
 };
 
 int main(int argc, char* argv[]) {
-
     int status = -1;
     std::string toml_file_name;
 
@@ -46,8 +45,8 @@ int main(int argc, char* argv[]) {
     std::filesystem::path current_dir;
     std::filesystem::path output_dir;
 
-        exec_file = argv[0];
-        exec_dir = exec_file.parent_path();
+    exec_file = argv[0];
+    exec_dir = exec_file.parent_path();
 
     toml::table tbl;
     toml::table tbl_chp;  // table for a chapter
@@ -199,11 +198,6 @@ int main(int argc, char* argv[]) {
     k[0] = k1;  // i.e. the 'a' in the equations
     k[1] = k2;  // i.e. the 'b' in the equations
 
-    for (int i = 0; i < 2; ++i)
-    {
-        up[i] = un[i];
-    }
-
     double t0 = tstart * dt;
     double t1 = t0;
 
@@ -229,7 +223,7 @@ int main(int argc, char* argv[]) {
     std::string his_u2_name("u2");
     std::string his_newton_name("newton");
     std::string his_bicgstab_name("bicgstab");
-    his_file->add_variable(his_u1_name, "", "U1", " - ");
+    his_file->add_variable(his_u1_name, "", "U1", "-");
     his_file->add_variable(his_u2_name, "", "U2", "-");
     if (time_integration_type == TIME_INTEGRATOR::FULLY_IMPLICIT)
     {
@@ -266,7 +260,7 @@ int main(int argc, char* argv[]) {
     std::cout << std::setprecision(5) << double(0) * dt << "; " << double(total_time_steps - 1) * dt << std::endl;
 
     for (int nst = 1; nst < total_time_steps; ++nst) {
-        if (fmod(nst, total_time_steps/10) == 0)
+        if (fmod(nst, total_time_steps/100) == 0)
         {
             std::cout << double(nst) * dt << "; " << double(total_time_steps - 1) * dt << std::endl;
         }
@@ -282,11 +276,7 @@ int main(int argc, char* argv[]) {
 
         if (time_integration_type == TIME_INTEGRATOR::FULLY_IMPLICIT)
         {
-            START_TIMER(Newton iteration);
             ////////////////////////////////////////////////////////////////////////////
-
-            double eps_newton = 1e-12;
-            double eps_bicgstab = 1e-12;
             double dc_max = 0.0;
             std::vector<double> tmp(2);
 
@@ -299,7 +289,8 @@ int main(int argc, char* argv[]) {
 
             used_newton_iter = 0;
             used_bicgstab_iter = 0;
-            int iter_max = 100;
+
+            START_TIMER(Newton iteration);
             for (int iter = 0; iter < iter_max; ++iter)
             {
                 for (int i = 0; i < 2; ++i)
@@ -340,7 +331,7 @@ int main(int argc, char* argv[]) {
         if (std::fmod(nst, wrihis) == 0)
         {
             nst_his++;
-            START_TIMER(Writing his - file);
+            START_TIMER(Writing his-file);
             if (stationary)
             {
                 his_file->put_time(nst_his, double(nst));
@@ -390,8 +381,8 @@ int main(int argc, char* argv[]) {
     {
         std::cout << "-------------------------------" << std::endl;
         std::cout << "Time integrator: FULLY_IMPLICIT" << std::endl;
-        std::cout << "Total number of Newton iterations: " << used_newton_iter / total_time_steps << std::endl;
-        std::cout << "Total number of linear iterations: " << used_bicgstab_iter / total_time_steps << std::endl;
+        std::cout << "Total number of Newton iterations: " << used_newton_iter/total_time_steps << std::endl;
+        std::cout << "Total number of linear iterations: " << used_bicgstab_iter/total_time_steps << std::endl;
         std::cout << "-------------------------------" << std::endl;
     }
     std::cout << "Press Enter to finish";
@@ -522,5 +513,3 @@ int get_toml_array(toml::table tbl, std::string keyw, std::vector<bool>& values)
     if (&arr != nullptr) status = 0;
     return status;
 }
-
-

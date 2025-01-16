@@ -5,7 +5,6 @@
 
 #include "cfts.h"
 #include "include/netcdf.h"
-#include <include/ugrid1d.h>
 
 CFTS::CFTS()
 {
