@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "iterativelinearsolvers": "cpp",
+        "xstring": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "enabled"
+}
