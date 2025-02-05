@@ -1,0 +1,53 @@
+%------------------------------------------------------------------------------
+\chapter{Two-step numerical modeling, error minimizing}\label{sec:error_minimizing}
+%{\color{gray}
+%The error-minimizing integration method is based on the assumption that a function can be made smooth (regularized) so that the numerical discretization of the regularized function and the regularized function itself are so close that the numerical error is negligible for that function.
+%Meaning that the numerical solution is close enough to the regularized function and that the error in the regularization step is larger then the numerical error in the discretization step.
+%}
+
+For the realization of our objective, an error analysis is required to gain insight in the relative importance of discretization errors.
+This has to be in the form of power series expansions to be genuinely generally applicable.
+Smoothness is required to ensure fast converging series and dominant lowest-order terms that can be used as a basis for reliable local error approximations.
+Artificial smoothing is added to satisfy this requirement, if necessary.
+To enable the physical interpretation of numerical errors afterwards, smoothing can only involve the artificial enhancement of physical dissipation.
+Taylor-series expansions can be used to determine the leading terms of the residual.
+The residual, however, is not a suitable error measure since it indi-
+cates the local discretization error in the equations, not in the solution. In order
+to be useful, the residual needs to be reformulated in terms of local solution
+errors.
+We did not find any existing scheme that allows for such a transformation, and so we developed a discretization method that does.
+The result turns out to be a method of finite volume type.
+The discretization consists of integrating the model equations over control volumes, using uniquely defined discrete approximations of all variables.
+The proposed numerical modeling technique solves the conceptual model problem in two steps (\autoref{fig:two_step_method}: in the first step the difficult problem to be solved is changed into an easy problem by adding artificial smoothing; in the second step the easy problem is discretized.
+
+Showing the two-step method in general
+%
+\begin{figure}[H]
+    \begin{center}
+        \def\svgwidth{1.0\textwidth} % scaling text
+        \resizebox{0.9\textwidth}{!}{
+            \input{figures/two_step_approach.pdf_tex}
+        }
+        %    \includegraphics[width=0.9\textwidth]{figures/figure_1.png}
+    \end{center}
+    \caption{Graphical presentation of the error-minimizing two step method}\label{fig:two_step_method}
+\end{figure}
+%
+Notation agreements:
+\begin{symbollist}
+    \item[$u$] Non-regularized/non-smoothed function, to be determined numerically.
+    \item[$\widetilde u$] Regularized/smoothed function, denoted by the wavy line.
+    \item[$\overline u$] Piecewise linear function, denoted by the bar.
+    \item[$\widehat u$] Numerical solution on the nodes.
+\end{symbollist}
+
+A tilde ($\widetilde u$) indicates the variables and differential operators of the easy
+problem.
+Their discretizations are indicated by a bar, $\overline {u}$.
+Next, we define the smooth and infinitely differentiable function $\widehat u$ that is a very close approximation of numerical solution $\overline {u}$.
+By means of an error analysis we determine the differential problem that $\widehat u$ is a solution of.
+Note that the data pertaining to the computational model are also included in the procedure.
+Independent variables describing, e.g., the geometry and initial and boundary conditions also need to be discretized and hence need to be sufficiently smooth, to ensure that all higher-order error terms are sufficiently small and can be neglected.
+Sufficient smoothness is obtained automatically by using smoothing coefficients that are a function of the discretization errors.
+See also \citet{Borsboom2001}.
+

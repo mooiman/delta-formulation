@@ -1,0 +1,101 @@
+\documentclass[subfooter]{mooiman_report}
+\hypersetup
+{
+	pdfauthor   = {Mooiman},
+}
+\addbibresource{./common/literature_references.bib}
+
+\usepackage{empheq}
+\allowdisplaybreaks[1]
+
+\newcommand{\ii}{{\rm i}}
+\newcommand{\Dx}{\Delta x}
+\newcommand{\Dxi}{\Delta \xi}
+\newcommand{\Dt}{\Delta t}
+\renewcommand{\vec}[1]{\mbox{\boldmath $#1$} }
+\newcommand{\mat}[1]{\mbox{\boldmath ${\rm #1}$} }
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\quart}{\frac{1}{4}}
+\newcommand{\abs}[1]{\left| #1 \right|}
+\newcommand{\Fabs}{\textsl{Fabs}\xspace}  % Continue function for the absolute value
+\newcommand{\eps}{\varepsilon}
+
+\newcommand{\utilde}{\widetilde{u}}
+\newcommand{\ubar}{\overline{u}}
+\newcommand{\uhat }{\widehat{u}}
+
+\newcommand{\maplesoft}{\textbf{Maplesoft}}
+\newcommand{\deltaformulation}{$\Delta$-formulation\xspace}
+
+\begin{document}
+
+\title{Two step FVE method}
+\subtitle{A numerical modeling technique designed for error insight}
+\contact{J.\ Mooiman}
+\author{Jan Mooiman}
+\partner{Members of the team (dd.\ 22 May 2024) \newline
+Adri Mourits\newline
+Bea Saggiorato\newline
+Frank Platzek\newline
+Jan Mooiman\newline
+Mart Borsboom\newline
+Sven Westerbeek\newline
+Thea Vuik\newline
+}
+
+\documentid{ID-20241205}
+\version{000}
+\date{\today~\currenttime} % start of writing document
+\status{\textbf{Work in progress}}
+
+\mooimantitle
+%------------------------------------------------------------------------------
+\newrefsegment
+\nomenclature{$t$}{\si{\second}}{Time coordinate}
+\nomenclature{$x$}{\si{\metre}}{$x$-coordinate}
+\nomenclature{$i$}{-}{node counter}
+\nomenclature{$\Omega$}{-}{Finite volume}
+\nomenclature{$u$}{\si{\metre\per\second}}{Velocity in $x$-direction}
+\nomenclature{$v$}{\si{\metre\per\second}}{Velocity in $y$-direction}
+\nomenclature{$h$}{\si{\metre}}{Total water depth}
+\nomenclature{$q$}{\si{\square\metre\per\second}}{The water flux in $x$-direction, $q = hu$}
+\nomenclature{$r$}{\si{\square\metre\per\second}}{The water flux in $y$-direction, $r = hv$}
+\nomenclature{$\xi$}{-}{Relative coordinate}
+\nomenclature{$\Dt$}{\si{\second}}{Time increment}
+\nomenclature{$\Dx$}{\si{\metre}}{Space increment, $\Dx_{i+\half} = x_{i+1} - x_{i}$}
+\nomenclature{$\Psi$}{\si{\square\metre\per\second}}{Artificial smoothing coefficient}
+\nomenclature{$c_\Psi$}{$1\ {(.)}^{-1}$}{Artificial smoothing variable}
+\nomenclature{$\vec{E}$}{-}{Error vector function, defined in computational space}
+\nomenclature{$\zeta$}{\si{\metre}}{Water level above reference plane, positive upward}
+\nomenclature{$z_b$}{\si{\metre}}{Bed level above reference plane, positive upward}
+\nomenclature{$g$}{\si{\metre\per\square\second}}{Gravitational constant}
+\nomenclature{$\theta$}{-}{$\theta$-method. If $\theta=1$ then it is a fully implicit method and if $\theta=0$ then it
+     is a fully explicit method.}
+
+
+%------------------------------------------------------------------------------
+\input{chapters/introduction.tex}
+\input{chapters/error_minimizing.tex}
+\input{chapters/space_discretisation}
+\input{chapters/time_integration}
+\input{chapters/shallow_water_equations.tex}
+\input{chapters/numerical_experiments.tex}
+
+%--------------------------------------------------------------------------------
+%\chapter{1D Wave equation}\label{sec:1d_non_linear_wave_equation}
+%\section{Riemann invariants}
+%\section{1D Wave boundary treament}
+%\subsection{1D Wave equation boundary treatment, essential}
+%\subsection{1D Wave equation boundary treatment, natural}
+%--------------------------------------------------------------------------------
+\chapter{2-D Shallow water equations}
+\section{Space discretisation}
+\subsection{Space discretisation, structured}
+\subsection{Space discretisation, unstructured}
+%------------------------------------------------------------------------------
+\printallbibliography
+%------------------------------------------------------------------------------
+\appendix
+\input{chapters/error_estimation_1d.tex}
+\input{chapters/diagonalise_1d_swe}
+\end{document}

@@ -1,0 +1,107 @@
+%------------------------------------------------------------------------------
+\chapter{Introduction}\label{sec:introduction}
+
+
+Nature can be described by mathematical models, these models approximate the behaviour of nature.
+The main question is: "How well will these mathematical models describe nature?".
+This document is based on \citet{Borsboom1998}, where the mathematical model is called the "\textsl{difficult probem}".
+
+To show that the mathematical model does not match with nature by using a numerical method, it is needed that the numerical error of the numerical method can be quantified.
+The numerical errors should be very small compared to the errors made in the mathematical model.
+In that case the results of the numerical model is a reliable approximation of the mathematical model.
+A mismatch in results of the numerical method w.r.t.\ the nature is then fully determined by the mismatch of the mathematical model.
+
+In this report a derivation is reported of a numerical model that automatically is adjusted to assure that the numerical result is close enough to the solution of the mathematical model.
+To obtain such a numerical model the mathematical model should be adjusted to a state which is suitable to determine what and how large the mismatch is.
+The mathematical model is adjusted in that way that the second derivatives of all data is smooth.
+After smoothing of the data the mathematical model is called "\textsl{easy problem}".
+This step in the procedure is called "\textsl{regularization}" and is the first step of the two step FVE method (Finite Volume Elment method).
+
+The regularization step has to ensure that the lowest-order terms of the residual of the discretization step are dominant, so that we can limit ourselves to the analysis of the leading terms of the error expansion.
+The regularization is assumed to be such that the easy problem can be discretized accurately on the available grid, and that the leading terms of the series expansions are dominant.
+
+To obtain this goal the numerical scheme should be central in space, no dissipation is added to the model by the numerical method, just dispersion.
+All examples in this document will be performed with a fully implicit time-integrator using a iteration mechanism based on the Newton-linearization.
+The Newton-iteration process benefits of the regularized data.
+This is the second step of the two step FVE method (Finite Volume Elment method).
+
+When all the mentioned items are fulfilled then the numerical scheme is:
+% accurate, reliable, 2nd order, robust, flexible, efficient, fast
+\begin{enumerate}
+\item accurate (2nd order, due to the requirement that there is no numerical dissipation),
+\item reliable (numerical errors are reduced to be much less then the modelling deviations),
+\item robust (no numerical restrictions on time step other then physical restrictions),
+\item flexible (separation of numerical and physical part, lot of numerical methods can be used without hampering the physical part),
+\item efficient (Newton method is a second order method),
+\item fast (fully implicit).
+\end{enumerate}
+
+The feasibility of this method is shown by performing this method on the 1D shallow water equations.
+Towards these shallow water equations we will look first to the hyperbolic part of these equations.
+The boundary conditions are separated in a stricly outgoing and a strictly ingoing signal.
+When selecting a special combination of these signals a weakly-reflective or absorbing boundary condition can be prescribed, including a prescribed ingoing signal.
+
+
+
+
+In \autoref{sec:error_minimizing}: \nameref{sec:error_minimizing}, the error-minimizing integration method is presented.
+The error-minimizing integration method is based on the assumption that a function can be made smooth so that the numerical discretization and the regularized function are so close that the numerical error is negligible for that function.
+
+In \autoref{sec:1d_space_discretisation}: \nameref{sec:1d_space_discretisation}, the one dimensional space discretisation.
+Which consist of a finite volume method and central discretizations and piecewise linear functions between the nodes.
+Also an estimation of the regularization coefficient for a given function based on the second order of accuracy of the discretization is presented.
+So the user is able to justify the quality of the numerical solution and in that way to judge where to adjust the regularization or adapt the grid in certain regions.
+
+
+In \autoref{sec:time_integration}: \nameref{sec:time_integration}, the fully implicit time integration is based on Newton iteration presented. Due to the regularization of the data the Newton iteration converges extremely well, that is second order in also the more complex areas.
+
+In \autoref{sec:1d_swe}: \nameref{sec:1d_swe}, the fully implicit time integration is presented for one dimensional shallow water equations.
+We start with the implementation of the 1D advection/transport equation, then with the implementation of the wave equation without convection.
+This 1D wave equation consist of two independent advection/transport equation for a right and left going signal.
+We start with 1D advection/transport equation because this equation because this equation has the same nature as the right going signal of the wave equation.
+
+
+
+In \autoref{sec:1d_numerical_experiments}: \nameref{sec:1d_numerical_experiments}, the fully implicit time integration is presented for the advection diffusion equation.
+Showing a flow from left to right with a interface in the diffusion coefficient for the transported constituent.
+
+In \autoref{sec:1d_non_linear_wave_equation}: \nameref{sec:1d_non_linear_wave_equation}, the fully implicit time integration is presented for the non-linear wave equations.
+These equations are separated in a left- and right-going signal represented by a left and right transport equation.
+At the boundary these two equations are coupled and will therefor generate reflections in the numerical model.
+
+
+%\newpage
+%{{\color{gray}
+%        \errornumerics
+%        \begin{itemize}
+%            \item[\textbf{S}] Specific
+%            \item[\textbf{M}] Measurable
+%            \item[\textbf{A}] Achievable
+%            \item[\textbf{R}] Relevant
+%            \item[\textbf{T}] Time bound
+%        \end{itemize}
+%        \fastnumerics (\href{https://sloanreview.mit.edu/article/with-goals-fast-beats-smart/}{With Goals, FAST Beats SMART})
+%        \begin{itemize}
+%            \item[\textbf{F}] Frequently discuss progress
+%            \item[\textbf{A}] Ambitious
+%            \item[\textbf{S}] Specific
+%            \item[\textbf{T}] Transparant
+%        \end{itemize}
+%
+%        Show Heaviside step function.
+%        \begin{itemize}
+%            \item Continue profile $u$, the Heaviside function
+%            \item Smoothed profile $\utilde$, the smoothed function according \citep{Borsboom2003}.
+%        \end{itemize}
+%        \vspace{-\baselineskip}
+%        Showing that $u$ and $\utilde$ does differ.
+%
+%        Show parabolic flow profile between two plates.
+%        \begin{itemize}
+%            \item Continue profile $u$.
+%            \item Smoothed profile $\utilde$, nearly equal to $u$.
+%            \item Piecewise linear $\ubar$.
+%            \item Smoothed piece wise linear function $\uhat$, where the support points from $\ubar$ and $\uhat$ are equal.
+%        \end{itemize}
+%        % \printrefsegment
+%}}

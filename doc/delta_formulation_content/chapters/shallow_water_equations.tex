@@ -1,0 +1,261 @@
+%------------------------------------------------------------------------------
+\chapter{Towards the shallow water equations}\label{sec:1d_swe}
+In this document we will end up with an implementation description of the 1D shallow water equation.
+We start a zero-dimensional implementation of a source term, representing the source and sink of external influences, like a power plant.
+Here we will show the results of a Brusselator \citep{AultHolmgreen2003} and of a air pollution model \citep[ex.\ 1.1 pg.\ 7]{HundsdorferAndVerwer2003}.
+Then we continue with the one dimensional advection/transport equation than a one dimensional wave equation without convection, then with convection and at last with a bottom friction term.
+in this sequence we are missing the viscosity term, that term will be investigated by the advection-diffusion equation.
+
+Because we will handle the shallow water equations in the variables $h$ and  $q$ and not in $\zeta$ and $u$ the equations does have always a non-linear behaviour, only for very small amplitude the behaviour is like a linear system.
+For linear wave equations the behaviour is always linear, even for large amplitudes, which is not the case for the equations we consider.
+%------------------------------------------------------------------------------
+\section{0-D Source/sink term }\label{sec:0d_source_and_sink}
+In this section a zero-dimensional model is implementation of the source term, representing the source and sink of external influences, like a power plant.
+The main (simple) equation will look like:
+\begin{align}
+    \pdiff{\vec{u}}{t} = \vec{f}(\vec{u},t)
+\end{align}
+Here we will show the results of an air pollution model, \autoref{sec:air_pollution} \citep[ex.\ 1.1 pg.\ 7]{HundsdorferAndVerwer2003} and a Brusselator, \autoref{sec:brusselator}  \citep{AultHolmgreen2003}.
+%------------------------------------------------------------------------------
+\subsection{Air pollution}\label{sec:air_pollution}
+%------------------------------------------------------------------------------
+\subsubsection*{Analytic description}
+We illustrate the mass action law by the following three reactions between oxygen $O_2$, atomic oxygen $O$, nitrogen oxide $NO$, and nitrogen dioxide $NO_2$ \citep[eq.\ 1.1, page 7]{HundsdorferAndVerwer2003}:
+\begin{align}
+    NO_2 + h\nu & \xrightarrow{k_1} NO + O, \\
+    O + O_2 & \xrightarrow{k_2} O_3, \\
+    NO + O_3 & \xrightarrow{k_3} O_2 + NO_2.
+\end{align}
+The corresponding ODE system reads:
+\begin{align}
+    \pdiff{u_1}{t} & = k_1 u_3 -k_2 u_1
+    \\
+    \pdiff{u_2}{t} & = k_1 u_3 - k_3 u_2 u_4 +\sigma_2
+    \\
+    \pdiff{u_3}{t} & = k_3 u_2 u_4 - k_1 u_3
+    \\
+    \pdiff{u_4}{t} & = k_2 u_1 - k_3 u_2 u_4
+\end{align}
+with $\vec{u}(0) = (0.0, \num{2.0e-1}, \num{2.0e-3}, \num{2.0e-1})^T$ and $\sigma_2 = \num{e-7}$, and the coefficients $k$ are defined as (the given conditions are different from the conditions as defined in \citet[pg.\ 8]{HundsdorferAndVerwer2003}:
+\begin{align}
+    k_1 & = \begin{cases}
+        10^{-5} \exp{(7\ {\it g}(t))}
+        \\
+        \num{e-40}, \qquad \text{during  night}
+    \end{cases}
+    \\
+    k_2 & = \num{2.0e-2}
+    \\
+    k_3 & = \num{1.0e-3}
+\end{align}
+with
+\begin{align}
+    {\it g}(t) =\left(\sin\left(\frac{\pi}{16} (t_h - 4)\right)\right)^{0.2}, \qquad t_h = \frac{t}{3600};
+\end{align}
+where $t_h$ is the time in hours.
+How these equations are discretized is given in \autoref{sec:air_pollution_discretization}.
+%
+%-------------------------------------------------------------------------------
+\subsubsection*{Numerical discretization}\label{sec:air_pollution_discretization}
+The discretization in $\Delta$-formulation reads:
+\begin{align}
+    \frac{1}{\Dt}\Delta u_1^{n+1, p+1} & = - \frac{1}{\Dt}(u_1^{n+1,p} - u_1^n) + k_1 (u_3^{n+\theta,p+1}) - k_2 (u_1^{n+\theta,p+1})
+    \\
+    \frac{1}{\Dt}\Delta u_2^{n+1, p+1} & = - \frac{1}{\Dt}(u_2^{n+1,p} - u_2^n) + k_1(u_3^{n+\theta,p+1}) - k_3 (u_2^{n+\theta,p+1}) (u_4^{n+\theta,p+1}) +\sigma_2
+    \\
+    \frac{1}{\Dt}\Delta u_3^{n+1, p+1} & = - \frac{1}{\Dt}(u_3^{n+1,p} - u_3^n) + k_3 (u_2^{n+\theta,p+1}) (u_4^{n+\theta,p+1}) - k_1(u_3^{n+\theta,p+1})
+    \\
+    \frac{1}{\Dt}\Delta u_4^{n+1, p+1} & = - \frac{1}{\Dt}(u_4^{n+1,p} - u_4^n) + k_2(u_1^{n+\theta,p+1}) - k_3 (u_2^{n+\theta,p+1}) (u_4^{n+\theta,p+1})
+\end{align}
+with linearization of $\vec{u}^{n+\theta,p+1}$ yields:
+\begin{align}
+    \frac{1}{\Dt}\Delta u_1^{n+1, p+1} & =
+    - \frac{1}{\Dt}(u_1^{n+1,p} - u_1^n) +
+    \nonumber \\*
+    & + k_1 (u_3^{n+\theta,p} + \theta \Delta u_3^{n+1, p+1}) - k_2 (u_1^{n+\theta,p} + \theta \Delta u_1^{n+1, p+1})
+    \\
+    %-----
+    \frac{1}{\Dt}\Delta u_2^{n+1, p+1} & = - \frac{1}{\Dt}(u_2^{n+1,p} - u_2^n) + k_1(u_3^{n+\theta,p} + \theta \Delta u_3^{n+1, p+1}) +
+    \nonumber \\*
+    & - k_3 (u_2^{n+\theta,p} + \theta \Delta u_2^{n+1, p+1}) (u_4^{n+\theta,p} + \theta \Delta u_4^{n+1, p+1}) +\sigma_2
+    \\
+    %-----
+    \frac{1}{\Dt}\Delta u_3^{n+1, p+1} & = - \frac{1}{\Dt}(u_3^{n+1,p} - u_3^n) + k_3 (u_2^{n+\theta,p} + \theta \Delta u_2^{n+1, p+1}) (u_4^{n+\theta,p} +
+    \nonumber \\*
+    & +  \theta \Delta u_4^{n+1, p+1}) - k_1(u_3^{n+\theta,p} + \theta \Delta u_3^{n+1, p+1})
+    \\
+    %-----
+    \frac{1}{\Dt}\Delta u_4^{n+1, p+1} & = - \frac{1}{\Dt}(u_4^{n+1,p} - u_4^n) + k_2(u_1^{n+\theta,p} + \theta \Delta u_1^{n+1, p+1}) +
+    \nonumber \\*
+    & - k_3 (u_2^{n+\theta,p} + \theta \Delta u_2^{n+1, p+1}) (u_4^{n+\theta,p} + \theta \Delta u_4^{n+1, p+1})
+\end{align}
+and rearrange the system of equations to $\mat{A}\vec{x}=\vec{b}$, yields
+\begin{align}
+    \frac{1}{\Dt}\Delta u_1^{n+1, p+1} &  - k_1  \theta \Delta u_3^{n+1, p+1} + k_2  \theta \Delta u_1^{n+1, p+1}  =
+    \nonumber \\*
+    & = - \frac{1}{\Dt}(u_1^{n+1,p} - u_1^n) + k_1 u_3^{n+\theta,p} - k_2 u_1^{n+\theta,p}
+    \\
+    %-----
+    \frac{1}{\Dt}\Delta u_2^{n+1, p+1} & - k_1 \theta \Delta u_3^{n+1, p+1}
+    + k_3 \theta u_4^{n+1,p} \Delta u_2^{n+1, p+1} + k_3 \theta u_2^{n+1,p} \Delta u_4^{n+1, p+1}  =
+    \nonumber \\*
+    & = - \frac{1}{\Dt}(u_2^{n+1,p} - u_2^n) + k_1 u_3^{n+\theta,p} - k_3 u_2^{n+\theta,p} u_4^{n+\theta,p} +\sigma_2
+    \\
+    %-----
+    \frac{1}{\Dt}\Delta u_3^{n+1, p+1} & - k_3 u_2^{n+\theta,p} \theta \Delta u_4^{n+1, p+1} - k_3 u_4^{n+\theta,p} \theta \Delta u_2^{n+1, p+1} + k_1 \theta \Delta u_3^{n+1, p+1}  =
+    \nonumber \\*
+    & = - \frac{1}{\Dt}(u_3^{n+1,p} - u_3^n) + k_3 u_2^{n+\theta,p} u_4^{n+\theta,p} - k_1 u_3^{n+\theta,p}
+    \\
+    \frac{1}{\Dt}\Delta u_4^{n+1, p+1}&  - k_2 \theta \Delta u_1^{n+1, p+1}  + k_3 u_2^{n+\theta,p}\theta \Delta u_4^{n+1, p+1} +k_3 u_4^{n+\theta,p} \theta \Delta u_2^{n+1, p+1} =
+    \nonumber \\*
+    & = - \frac{1}{\Dt}(u_4^{n+1,p} - u_4^n) + k_2 u_1^{n+\theta,p} - k_3 u_2^{n+\theta,p} u_4^{n+\theta,p}
+\end{align}
+%------------------------------------------------------------------------------
+\subsection{Brusselator}\label{sec:brusselator}
+%------------------------------------------------------------------------------
+\subsubsection*{Analytic description}
+The  ODE system for the Brusselator reads \citet[eq.\ 14,15]{AultHolmgreen2003}:
+\begin{align}
+    \pdiff{u_1}{t} & = 1 - (k_2 + 1) u_1 + k_1 u_1^2 u_2,
+    \\
+    \pdiff{u_2}{t} & = k_2 u_1 - k_1 u_1^2 u_2
+    \label{eq:brusselator}
+\end{align}
+with $k_1 =1$ and  $k_2 = 2.5$ and initial values  $u_1(0)=0$ and $u_2(0) = 0$.
+%-------------------------------------------------------------------------------
+\subsubsection*{Numerical discretization}\label{sec:brusselator_discretization}
+
+The  ODE system for the brusselator reads \citep[eq.\ 14,15]{AultHolmgreen2003}:
+\begin{align}
+    \pdiff{u_1}{t} & = 1 - (k_2 + 1) u_1 + k_1 u_1^2 u_2,
+    \\
+    \pdiff{u_2}{t} & = k_2 u_1 - k_1 u_1^2 u_2
+    \label{eq:brusselator}
+\end{align}
+The discretization in $\Delta$-formulation reads:
+\begin{align}
+    \frac{1}{\Dt}\Delta u_1^{n+1, p+1} & = - \frac{1}{\Dt}(u_1^{n+1,p} - u_1^n) + 1 - (k_2 +1) u_1^{n+\theta,p+1} +
+    \nonumber \\*
+    &  + k_1 \left(u_1^{n+\theta,p+1}\right)^2 u_2^{n+\theta,p+1}
+    \\
+    \frac{1}{\Dt}\Delta u_2^{n+1, p+1} & = - \frac{1}{\Dt}(u_2^{n+1,p} - u_2^n) + k_2(u_1^{n+\theta,p+1})  +
+    \nonumber \\*
+    & - k_1 \left(u_1^{n+\theta,p+1}\right)^2 u_2^{n+\theta,p+1}
+\end{align}
+with linearization of $\vec{u}^{n+\theta,p+1}$ yields:
+\begin{align}
+    \frac{1}{\Dt}\Delta u_1^{n+1, p+1} & =
+    - \frac{1}{\Dt}(u_1^{n+1,p} - u_1^n) + 1 - (k_2 +1) \left(u_1^{n+\theta,p} + \theta \Delta u_1^{n+1, p+1}\right)+
+    \nonumber \\*
+    &  + k_1 \left(u_1^{n+\theta,p}+\Delta u_1^{n+1, p+1}\right)^2 \left(u_2^{n+\theta,p}+ \Delta u_1^{n+1, p+1}\right)
+    \\
+    \frac{1}{\Dt}\Delta u_2^{n+1, p+1} & = - \frac{1}{\Dt}(u_2^{n+1,p} - u_2^n) + k_2 (u_1^{n+\theta,p} + \theta \Delta u_1^{n+1, p+1}) +
+    \nonumber \\*
+    &
+    - k_1 \left(u_1^{n+\theta,p}+\Delta u_1^{n+1, p+1}\right)^2 \left(u_2^{n+\theta,p}+ \Delta u_1^{n+1, p+1}\right)
+\end{align}
+and rearrange the system of equations to $\mat{A}\vec{x}=\vec{b}$ and omitting the second order terms, yields
+\begin{align}
+    &\frac{1}{\Dt}\Delta u_1^{n+1, p+1}
+    - \theta \left(\left(k_2 +1\right) + 2  k_1 u_1^{n+\theta,p} u_2^{n+\theta,p}\right)\Delta u_1 ^{n+1, p+1}
+    - \theta k_1 \left(u_1^{n+1, p+1}\right)^2 \Delta u_2 ^{n+1, p+1} =
+    \nonumber \\*
+    & = - \frac{1}{\Dt}(u_1^{n+1,p} - u_1^n) + 1 - (k_2 +1) u_1^{n+\theta,p} + k_1 \left(u_1^{n+\theta,p}\right)^2 u_2^{n+\theta,p}
+    \\
+    & \frac{1}{\Dt}\Delta u_2^{n+1, p+1}
+    + \theta \left( k_2 + 2 k_1 u_1^{n+\theta,p} u_2^{n+\theta,p} \right) \Delta u_1 ^{n+1, p+1}
+    + \theta k_1\left(u_1^{n+1, p+1}\right)^2 \Delta u_2 ^{n+1, p+1}
+    = \nonumber \\*
+    & =- \frac{1}{\Dt}(u_2^{n+1,p} - u_2^n) + k_2 u_1^{n+\theta,p}
+    - k_1 \left(u_1^{n+\theta,p}\right)^2 u_2^{n+\theta,p}
+\end{align}
+This system can be implemented and solved, some results are presented in \autoref{sec:brusselator}.
+%
+%------------------------------------------------------------------------------
+\section{1-D Advection equation}\label{sec:1d_advection_equation}
+The considered advection equation reads:
+\begin{align}
+    \pdiff{c}{t} + \pdiff{uc}{x} = 0, \qquad u>0.
+\end{align}
+A constituent $c$ is transported from the left to the right with  velocity $u\, \si{[\meter\per\second]}$.
+Which is discretised on the grid
+\begin{figure}[H]
+    \centering
+    \begin{center}
+        \resizebox{0.8\textwidth}{!}{
+            \input{figures/water_body_fve_bc_at_node.pdf_tex}
+        }
+    \end{center}
+    \caption{Water body (blue area), finite volumes (green boxes), computational points (open dots), virtual computational points (black dots), boundary points are at $x_{1}$ (inflow/west boundary) and $x_{I+\half}$ (outflow/east boundary)}\label{fig:water_body_fve_bc_at_node_1}
+\end{figure}
+
+An \textbf{essential} boundary condition at left side an inflow boundary is needed.
+And, at the right side an outflow boundary 'condition' is required for numerical reasons (called  a \textbf{natural} boundary condition), i.e.\ a discretization of the model equation at the outflow boundary.
+The natural boundary conditions is fully determined by the outgoing signal and therefor we use \autoref{eq:left_right_going_equations} for the outgoing signal.
+For the advection equation it reads:
+\begin{align}
+    \pdiff{c}{t} + \pdiff{\kern 0.083333em cu}{x} = 0, \qquad u>0. \label{eq:1d_adv_nat_boundary}
+\end{align}
+
+The \textbf{essential} boundary condition at the inflow boundary reads:
+\begin{align}
+    c(0,t) = c_0(t), \quad t > 0 \qquad \text{(essential boundary)}
+\end{align}
+The essential boundary condition is supplied at $x_1$ with the following discretization (\autoref{eq:stencil_ess})
+\begin{align}
+    &\frac{1}{12} \Delta c^{n+1,p+1}_0 + \frac{10}{12} \Delta c^{n+1,p+1}_1 + \frac{1}{12}\Delta c^{n+1,p+1}_2 =
+    \\
+    & =c_0(t) - \left( \frac{1}{12} c^{n+1,p}_0 + \frac{10}{12} c^{n+1,p}_1 + \frac{1}{12} c^{n+1,p}_2 \right)
+\end{align}
+
+The \textbf{natural} is chosen in that way that as less as possible left going spurious numerical waves are generated at the outflow boundary, i.e.\ reflection.
+The natural boundary condition is supplied at $x_I$ with the discretization constants as determined by \autoref{eq:stencil_nat} and boundary condition \autoref{eq:1d_adv_nat_boundary} which yields:
+\begin{align}
+    &\left( \frac{1+\alpha_{bc}}{\Dt} + \theta \frac{u}{\Dx} \right) \Delta c^{n+1,p+1}_{I+1} +
+     \left( \frac{1-2\alpha_{bc}}{\Dt} - \theta \frac{u}{\Dx} \right) \Delta c^{n+1,p+1}_I +
+      \frac{\alpha_{bc}}{\Dt}  \Delta c^{n+1,p+1}_{I-1}  =
+    \\
+    & = - \left\{
+          \frac{1+\alpha_{bc}}{\Dt} \left( c^{n+1,p}_{I+1} - c^n_{I+1} \right)
+        + \frac{1-2\alpha_{bc}}{\Dt} \left( c^{n+1,p}_{I} - c^n_{I} \right)
+        + \frac{\alpha_{bc}}{\Dt} \left( c^{n+1,p}_{I-1}- c^n_{I-1} \right) +
+        \right. \\
+    & \left. + \frac{u}{\Dx} \left(c^{n+\theta,p}_{I+1} - c^{n+\theta,p}_{I} \right)
+        \right\}
+\end{align}
+where $\alpha_{bc} = 2\alpha -\half$ ($\alpha_{bc} = 2 \frac{1}{8}- \half = -\quart$)
+%------------------------------------------------------------------------------
+\section{Diagonalise 1-D wave equation}
+The one dimensional shallow water equations  with convection
+for flat bottom ($\half g\, \lpdiff{h^2}{x} = gh\, \lpdiff{h}{x}$ and $\lpdiff{z_b}{x} = 0$), reads
+%
+\begin{align}
+    \pdiff{h}{t}  + \pdiff{q}{x} & = 0 \qquad \textit{continuity eq.} \\
+    \pdiff{q}{t}  + \pdiff{}{x} \left( \frac{q^2}{h} \right) + g h \pdiff{h}{x} & = 0 \qquad \textit{momentum eq.}
+\end{align}
+These one dimensional shallow water equations can be written in matrix and vector notation as:
+\begin{align}
+    \pdiff{\vec{u}}{t} + \mat{A} \pdiff{\vec{u}}{x} = 0
+\end{align}
+To find the characteristic equations this set of equations should be written in a set of equation representing left and right going waves.
+The diagonalisation is performed as follows:
+\begin{align}
+    &\pdiff{\vec{u}}{t} + \mat{P}\underbrace{\mat{P^{-1}}\mat{A}\mat{P}}_{\mat{\Lambda}}\mat{P^{-1}} \pdiff{\vec{u}}{x} = 0
+\end{align}
+multiply this with $\mat{P^{-1}}$
+\begin{align}
+    &\mat{P^{-1}}\pdiff{\vec{u}}{t} + \mat{\Lambda}\mat{P^{-1}} \pdiff{\vec{u}}{x} = 0
+\end{align}
+with $\mat{\Lambda}$ a diagonal matrix and thus the left and right going signals are independent.
+For the one dimensional shallow water equations the two independent convection equations read:
+\begin{align}
+    \begin{pmatrix}
+        \sqrt{gh} + \frac{q}{h}  &  -1 \\
+        \sqrt{gh} - \frac{q}{h}  &  1
+    \end{pmatrix}
+    \begin{pmatrix} \textit{continuity eq.} \\ \textit{momentum eq.} \end{pmatrix}    = 0
+\end{align}
+See for a derivation \autoref{sec:diagonalise_conservative_wave_with_convection}.
+
+Now we have split the wave equation into a right and left going signal now we are able to apply the \textbf{natural} boundary conditions as described in \autoref{sec:1d_advection_equation} for each of the signals.
+The \textbf{essential} boundaries condition is chosen to be absorbing boundaries, so no reflections at the boundaries will appear.

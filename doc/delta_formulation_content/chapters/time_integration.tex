@@ -1,0 +1,307 @@
+%------------------------------------------------------------------------------
+\chapter{Time integration scheme}\label{sec:time_integration}
+To derive a time integration we start from the PDE:
+\begin{align}
+    \pdiff{\vec{u}}{t} + \vec{f}(\vec{u}) = 0\label{eq:pde}
+\end{align}
+%for the two dimensional linear wave  equations this equation reads
+%\begin{align}
+%    \pdiff{h}{t} + \pdiff{q}{x}  + \pdiff{r}{y}= 0
+%    \\
+%    \pdiff{q}{t} + gh\pdiff{\zeta}{x} = 0
+%    \\
+%    \pdiff{r}{t} + gh \pdiff{\zeta}{y} = 0
+%\end{align}
+For conservation types it can be written as:
+\begin{align}
+    \pdiff{\vec{u}}{t} + \nabla \dotp \vec{f}(\vec{u}) = \mat{S}
+\end{align}
+and when the finite volume approach is applied, we get
+\begin{align}
+    \int_\Omega \pdiff{\vec{u}}{t}\, d\Omega + \int_\Omega \nabla \dotp \vec{f}(\vec{u})\, d\Omega&= \int_\Omega \mat{S}\, d\Omega,
+\end{align}
+and after Green's theorem
+\begin{align}
+    \int_\Omega \pdiff{\vec{u}}{t}\, d\Omega + \int_\Gamma \vec{f}(\vec{u}) \dotp \vec{n}\, d\Gamma&= \int_\Omega \mat{S}\, d\Omega,
+\end{align}
+%--------------------------------------------------------------------------------
+\section{Fully implicit time integration by adding an iteration process}\label{sec:fully_implicit}
+The system of Equations \eqref{eq:pde} can be written as, including the $\theta$ method:
+\begin{align}
+    &\Dt_{inv} \mat{M} \left( \vec{u}^{n+1} - \vec{u}^{n} \right)  +
+    \vec{f} \left( \vec{u}^{n+\theta} \right) = 0 \label{eq:discretized}
+\end{align}
+with $\Dt_{\it inv} = 1/\Dt$, $\mat{M}$ a mass-matrix and $0 \leq \theta \leq 1$.
+
+To reach a fully implicit time integration an iteration process $p$ is added \citep[eqs.\ 15/16]{Borsboom2019a}:
+\begin{align}
+    &\Dt_{inv} \mat{M} \left( \vec{u}^{n+1,p+1} - \vec{u}^{n} \right)  +
+    \vec{f} \left( \vec{u}^{n+\theta, p+1} \right) = 0
+    \label{eq:1D_iteration}
+\end{align}
+iterating from $p \rightarrow p+1$ until convergence.
+
+The \textbf{first} term is split to get a so called "Delta" formulation, taking into account the previous iteration:
+\begin{align}
+    &\Dt_{inv} \mat{M} \left( \vec{u}^{n+1,p+1} - \vec{u}^{n+1,p} + \vec{u}^{n+1,p} - \vec{u}^{n} \right) + \dots = 0
+    \\
+    & \Dt_{inv} \mat{M} \Delta \vec{u}^{n+1,p+1} + \dots  =
+    - \Dt_{inv} \mat{M} \left( \vec{u}^{n+1,p} - \vec{u}^{n} \right)
+\end{align}
+with $\Delta \vec{u}^{n+1,p+1} = \vec{u}^{n+1,p+1} - \vec{u}^{n+1,p}$.
+The right hand side is fully explicit (i.e.\ known at the previous iteration level $p$).
+And if the iteration process is converged, the term at the left hand side is zero (i.e. $\Delta \vec{u}^{n+1,p+1} = 0$) so the right handside represent the time derivative.
+
+The \textbf{second} term of \autoref{eq:discretized}
+\begin{align}
+    &\ldots +
+    \vec{f} \left( \vec{u}^{n+\theta, p+1} \right) = 0
+    \label{eq:second_term}
+\end{align}
+%
+will be linearized around the iteration step $p$ (Newton linearization) and yields
+\begin{align}
+    \vec{f}( \vec{u}^{n+\theta, p+1} ) & = \vec{f}( \vec{u}^{n+\theta, p} ) + \pdiff{\vec{f}(\vec{u}^{n+\theta,p})}{\vec{u}^{n+1,p}} (\vec{u}^{n+\theta,p+1} - \vec{u}^{n+\theta,p})
+    \\
+    & = \vec{f}( \vec{u}^{n+\theta, p} ) + \pdiff{\vec{f}(\vec{u}^{n+\theta,p})}{\vec{u}^{n+1,p}} \Delta\vec{u}^{n+\theta,p+1} \label{eq:NewtonLinearization}
+\end{align}
+with
+\begin{align}
+    \Delta \vec{u}^{n+\theta, p+1} & = \vec{u}^{n+\theta, p+1} - \vec{u}^{n+\theta, p}
+    \\
+    & = \theta \vec{u}^{n+1, p+1} + (1-\theta) \vec{u}^{n} - \theta \vec{u}^{n+1, p} - (1-\theta) \vec{u}^{n}
+    \\
+    & = \theta \vec{u}^{n+1, p+1} - \theta \vec{u}^{n+1, p}
+    \\
+    &= \theta \Delta \vec{u}^{n+1, p+1} \label{eq:delta_n_theta}
+\end{align}
+After subtitution of \autoref{eq:delta_n_theta} into \autoref{eq:NewtonLinearization} we get:
+\begin{align}
+    \vec{f}( \vec{u}^{n+\theta, p+1} ) & = \vec{f}( \vec{u}^{n+\theta, p} ) + \theta \pdiff{\vec{f}(\vec{u}^{n+\theta,p})}{\vec{u}^{n+1,p}} \Delta \vec{u}^{n+1, p+1}
+\end{align}
+The Jacobian
+\begin{align}
+    \mat{J}^{n+1,p} & = \pdiff{\vec{f}(\vec{u}^{n+\theta,p})}{\vec{u}^{n+1,p}}
+     = \pdiff{\vec{f}(\theta \vec{u^{n+1,p}} + (1 - \theta) \vec{u}^{n})}{\vec{u}^{n+1,p}}
+\end{align}
+is the approximate linearization of $\vec{f}$ as a
+function of $\theta \vec{u}^{n+1} + (1-\theta)\vec{u}^{n}$ with respect to $\vec{u}^{n+1, p}$.
+The Jacobians needed for the shallow water equations are described in \autoref{sec:jacobians}.
+
+
+The total time integration method read:
+\begin{empheq}[box=\fbox]{align}
+    &\left(\Dt_{inv} \mat{M} + \theta\mat{J}^{n+1,p}\right)  \Delta \mat{u}^{n+1,p+1} =
+    \nonumber \\
+& \qquad = - \left( \Dt_{inv} \mat{M} \left( \vec{u}^{n+1,p} - \vec{u}^{n} \right) + \vec{f} \left( \theta \vec{u}^{n+1,p} + (1-\theta) \vec{u}^{n} \right) \right) \label{eq:Ax=b_b}
+\end{empheq}
+%
+with $\vec{u}^{n+1,p+1}  = \vec{u}^{n+1,p} + \Delta \vec{u}^{n+1,p+1}$ and right hand side is explicit w.r.t.\  the iterator $p$.
+In case the Newton iteration process converges, i.e.:
+\begin{align}
+    \lim_{p\rightarrow \infty}\left( \Delta \vec{u}^{n+1,p+1}\right) = \lim_{p\rightarrow \infty}\left( \vec{u}^{n+1,p+1} - \vec{u}^{n+1,p} \right) = 0.
+\end{align}
+%
+then the left hand side of \autoref{eq:Ax=b_b} is equal to zero and thus it solves the original system of equations:
+\begin{align}
+    0 = \Dt_{inv} \mat{M} \left( \vec{u}^{n+1,p} - \vec{u}^{n} \right) + \vec{f} \left( \theta \vec{u}^{n+1,p} + (1-\theta) \vec{u}^{n} \right).
+\end{align}
+%
+Because in the previous part we consider only the first derivative (Jacobian) and assumed that the second derivative is nearly zero, which is not always through.
+Therefor we will extend the iteration process, see  \autoref{sec:pseudo_time_steppping}.
+See also: \citet{Borsboom1998,Pulliam2014}
+
+
+%--------------------------------------------------------------------------------
+\subsection{Pseudo time stepping}\label{sec:psuedo_time_step}
+\label{sec:pseudo_time_steppping}
+In  \autoref{sec:fully_implicit} we assumed that only the Jacobian is relevant and the second derivative is negligible.
+But in some case it is not the cases we have to assure that the following inequality is true:
+\begin{align}
+    \abs{ \half \frac{\partial^2 \vec{f}(\theta \vec{u}^{n+1,p}+ (1 - \theta)\vec{u}^n)}{(\partial \vec{u}^{n+1,p})^2} \Delta \vec{u}^{n+1,p+1}}
+    < O\left(
+    \abs{ \pdiff{\vec{f}(\theta \vec{u}^{n+1,p}+ (1 - \theta)\vec{u}^n)}{\vec{u}^{n+1,p} } }
+    \right)
+\end{align}
+Therefor the time integration is extended with a (so called) pseudo timestep method, which read:
+\begin{empheq}[box=\fbox]{align}
+    & \left(\mat{M}_{pseu}\vec{T}^{n+1, p}_{pseu} + \Dt_{inv} \mat{M} + \theta\mat{J}^{n+1,p}\right)  \Delta \mat{u}^{n+1,p+1} =
+    \nonumber \\
+& \qquad = - \left( \Dt_{inv} \mat{M} \left( \vec{u}^{n+1,p} - \vec{u}^{n} \right) + \vec{f} \left( \theta \vec{u}^{n+1,p} + (1-\theta) \vec{u}^{n} \right) \right)
+\end{empheq}
+where $\vec{T}^{n+1, p}_{pseu}$ is a vector containing the inverse of the pseudo timestep, which may vary for all grid nodes, and $\mat{M}_{pseu}$ a mass-matrix operating on the pseudo timestep vector.
+See for a more detailed description and how to choose the term $\mat{M}_{pseu}\vec{T}^{n+1, p}_{pseu}$
+\citet{Borsboom2019a, Buijs2024}.
+
+%--------------------------------------------------------------------------------
+\section{Jacobians}\label{sec:jacobians}
+As seen in \autoref{sec:fully_implicit} Jacobians need to be computed.
+These Jacobians does not contain only derivatives to the major variables but also to place derivatives, which need special attention (\autoref{sec:jacobians_with_operator}).
+For example for the two dimensional convection flux ($\vec{q}{\vec{q}^T}$) and presure term $gh\nabla \zeta$, where $\vec{q} = (q, r)^T$ and $\zeta$ the water level.
+
+As example we take the integral form of the two dimensional non-linear wave equation.
+This equation reads:
+%
+\begin{align}
+    \int_\Omega \pdiff{\vec{u}}{t}\, d\Omega  + \int_\Omega \nabla \dotp \vec{F}\, d\Omega = 0
+    \Leftrightarrow
+    \int_\Omega \pdiff{\vec{u}}{t}\, d\Omega  + \oint_\Gamma \vec{F} \dotp \vec{n} \, d\Gamma = 0
+\end{align}
+with vector $\vec{u} = (h, q, r)^T$ the Jacobian read.
+With
+\begin{symbollist}
+    \item[$h$] The total water depth, [$\si{\metre}$]
+    \item[$q$] The water flux in $x$-direction, [$\si{\square\metre\per\second}$]
+    \item[$r$] The water flux in $y$-direction, [$\si{\square\metre\per\second}$]
+\end{symbollist}
+
+The Jacobian of the function $F(h, q, r)$ as used in the two dimensional shallow water equations reads:
+\begin{align}
+    \mat{J} =
+    \begin{pmatrix}
+        J_{11} & J_{12} & J_{13} \\
+        J_{21} & J_{22} & J_{23} \\
+        J_{31} & J_{32} & J_{33}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        \pdiff{F_1}{h} & \pdiff{F_1}{q} &  \pdiff{F_1}{r} \\
+        \pdiff{F_2}{h} & \pdiff{F_2}{q} &  \pdiff{F_2}{r} \\
+        \pdiff{F_3}{h} & \pdiff{F_3}{q} &  \pdiff{F_3}{r}
+    \end{pmatrix}
+\end{align}
+
+
+%--------------------------------------------------------------------------------
+\subsection{Non-linear term, product}\label{sec:jacobians_with_non_linear_product_term}
+If the Jacobian contains non-linear terms, each variable of $\vec{u}$ is linearized before using it in the non-linear term.
+As an example a product of two quantities is taken, say $q$ and $r$ (like the convection term in two dimensional shallow water equations) and  $\Delta q^{n+1, p+1} = \Delta q$ and  $\Delta r^{n+1, p+1} = \Delta r$:
+\begin{align}
+    \left.(qr)\right|^{n+\theta, p+1} & = \left( q^{n+\theta, p} + \theta  \Delta q \right) \left( r^{n+\theta, p} + \theta  \Delta r\right) \approx
+    \\
+    & \approx  q^{n+\theta, p} r^{n+\theta, p} + \theta q^{n+\theta, p} \Delta r + \theta r^{n+\theta, p} \Delta q
+\end{align}
+omitting the quadratic term $O((\Delta q)^2, \Delta q \Delta r, (\Delta r)^2)$.
+%--------------------------------------------------------------------------------
+\subparagraph*{Jacobian}
+When the Jacobian notation is  used for the function $F(q,r) = qr$
+\begin{align}
+    \mat{J} =
+    \begin{pmatrix}
+        J_{11} & J_{12}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        \pdiff{F}{q} & \pdiff{F}{r}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        \pdiff{qr}{q} & \pdiff{qr}{r}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        r & q
+    \end{pmatrix}
+\end{align}
+ it leads to following approximation
+\begin{align}
+    \left.(qr)\right|^{n+\theta, p+1} &  \approx  q^{n+\theta, p} r^{n+\theta, p}+ \theta J_{11}^{n+\theta, p} \Delta q + \theta J_{12}^{n+\theta, p} \Delta r =
+    \\
+    & = q^{n+\theta, p} r^{n+\theta, p}+ \theta r^{n+\theta, p} \Delta q + q^{n+\theta, p} \Delta r
+\end{align}
+
+%--------------------------------------------------------------------------------
+\subsection{Non-linear term, quotient}\label{sec:jacobians_with_non_linear_quotient_term}
+If the Jacobian contains non-linear terms, each variable of $\vec{u}$ is linearized before using it in the non-linear term.
+in this example a quotient of two quantities is taken, say $q$ and $h$ (representing the velocity in the two dimensional shallow water equations) and  $\Delta q^{n+1, p+1} = \Delta q$ and  $\Delta h^{n+1, p+1} = \Delta h$:
+\begin{align}
+    \left.\left(\frac{q}{h}\right)\right|^{n+\theta, p+1} & = \frac{ q^{n+\theta, p} + \theta  \Delta q }{ h^{n+\theta, p} + \theta  \Delta h} \approx
+    \\
+    & \approx \frac{ q^{n+\theta, p} + \theta  \Delta q }{ h^{n+\theta, p}} \left( 1 - \frac{\theta}{h^{n+\theta, p}} \Delta h  + O\left(  (\Delta h)^2 \right) \right)  \approx
+    \\
+    & \approx \left( \frac{ q^{n+\theta, p}}{ h^{n+\theta, p}} + \frac{\theta}{ h^{n+\theta, p}}  \Delta q \right)
+    \left( 1 - \frac{\theta}{h^{n+\theta, p}} \Delta h  + O\left(  (\Delta h)^2 \right) \right)  \approx
+    \\
+    & \approx  \frac{ q^{n+\theta, p}}{ h^{n+\theta, p}}  - \theta \frac{ q^{n+\theta, p}}{ (h^{n+\theta, p})^2} \Delta h + \theta\frac{1}{ h^{n+\theta, p}}  \Delta q
+\end{align}
+omitting the quadratic term $O((\Delta q)^2, \Delta q \Delta h, (\Delta h)^2)$.
+%--------------------------------------------------------------------------------
+\subparagraph*{Jacobian}
+When the Jacobian notation is  used for the function $F(h,q) = q/h$
+\begin{align}
+    \mat{J} =
+    \begin{pmatrix}
+        J_{11} & J_{12}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        \pdiff{F}{h} & \pdiff{F}{q}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        \pdiff{q/h}{h} & \pdiff{q/h}{q}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        -\frac{q}{h^2} & \frac{1}{h}
+    \end{pmatrix}
+\end{align}
+it leads to following approximation
+\begin{align}
+    \left.(qr)\right|^{n+\theta, p+1} &  \approx  \frac{q^{n+\theta, p}}{r^{n+\theta, p}} + \theta J_{11}^{n+\theta, p} \Delta h + \theta J_{12}^{n+\theta, p} \Delta q =
+    \\
+    & = q^{n+\theta, p} r^{n+\theta, p} - \theta \frac{q^{n+\theta, p}}{(h^{n+\theta, p})^2} \Delta h + \theta \frac{1}{h^{n+\theta, p}} \Delta q
+\end{align}
+%--------------------------------------------------------------------------------
+\subsection{Terms with an operator}\label{sec:jacobians_with_operator}
+The Jacobian of an operator is also applied to the argument of the operator.
+As an example the pressure term of the shallow water equations is taken, where $\Delta h^{n+1, p+1} = \Delta h$ and  $\Delta \zeta^{n+1, p+1} = \Delta \zeta$:
+\begin{align}
+    \left. gh \pdiff{\zeta}{x}\right|^{n+\theta, p+1} & \approx g \left( h^{n+\theta, p} + \theta \Delta h \right) \pdiff{}{x} \left( \zeta^{n+\theta, p} + \theta\Delta \zeta  \right) \approx
+%    & = g h^{n+\theta, p} \pdiff{\zeta^{n+\theta, p}}{x} + gh^{n+\theta, p} \pdiff{\theta\Delta \zeta}{x} + g \theta\Delta h \pdiff{\zeta^{n+\theta, p}}{x} + O(\Delta h \Delta \zeta) \approx
+%    \\
+%    & \approx g h^{n+\theta, p} \pdiff{\zeta^{n+\theta, p}}{x} + gh^{n+\theta, p} \pdiff{\theta\Delta \zeta}{x} + g \pdiff{\zeta^{n+\theta, p}}{x} \theta\Delta h =
+    \\
+    & \approx g h^{n+\theta, p} \pdiff{\zeta^{n+\theta, p}}{x} + \theta gh^{n+\theta, p} \pdiff{\Delta \zeta}{x} + \theta g \pdiff{\zeta^{n+\theta, p}}{x} \Delta h
+\end{align}
+omitting the quadratic  term $O(\Delta h\ \lpdiff{\Delta \zeta}{x})$.
+The term  $\lpdiff{\Delta \zeta}{x}$ is not always small and therefor a psuedo time step method is introduced, see \autoref{sec:psuedo_time_step}.
+In discrete form it reads on location $x_{i+\half}$:
+\begin{align}
+    \left. gh \pdiff{\zeta}{x}\right|^{n+\theta, p+1}_{i+\half} & \approx g h^{n+\theta, p}_{i+\half} \frac{\zeta^{n+\theta, p}_{i+1} - \zeta^{n+\theta, p}_{i}}{\Dx_{i}}
+    + \theta gh^{n+\theta, p}_{n+\half} \frac{\Delta \zeta_{i+1} - \Delta \zeta_{i}}{\Dx_{i}} +
+    \\
+    & \quad
+    + \theta g \frac{\zeta^{n+\theta, p}_{i+1} - \zeta^{n+\theta, p}_{i}}{\Dx_{i}} \Delta h_{i+\half}
+\end{align}
+Remember that the gradient over a grid cell $\Dx_i$ is constant, due to the piecewise linear approximation between two nodes.
+%--------------------------------------------------------------------------------
+\subparagraph*{Jacobian}
+When the Jacobian notation is  used for the function $F(q,h) = gh\, \lpdiff{\zeta}{x}$
+\begin{align}
+    \mat{J} =
+    \begin{pmatrix}
+        J_{11} & J_{12}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        \pdiff{F}{h} & \pdiff{F}{\zeta}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        \pdiff{(gh\, \lpdiff{\zeta}{x})}{h} & \pdiff{(gh\, \lpdiff{\zeta}{x})}{\zeta}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        g\, \pdiff{\zeta}{x} & gh\, \pdiff{}{x}
+    \end{pmatrix}
+\end{align}
+it leads to following approximation
+\begin{align}
+    \left.gh \pdiff{\zeta}{x}\right|^{n+\theta, p+1}_{i+\half} & \approx g h^{n+\theta, p} \pdiff{\zeta^{n+\theta, p}}{x}  + \theta J_{11}\Delta h  + \theta J_{12} \pdiff{}{x}(\Delta \zeta) \approx
+    \\
+    & \approx g h^{n+\theta, p} \frac{\zeta^{n+\theta, p}_{i+1} - \zeta^{n+\theta, p}_{i}}{\Dx_{i}}
+    + \theta g \frac{\zeta^{n+\theta, p}_{i+1} - \zeta^{n+\theta, p}_{i}}{\Dx_{i}} \Delta h_{i+\half} +
+    \\
+    & \quad + \theta gh^{n+\theta, p}_{n+\half} \frac{\Delta \zeta_{i+1} - \Delta \zeta_{i}}{\Dx_{i}}
+\end{align}

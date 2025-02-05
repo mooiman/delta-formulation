@@ -1,0 +1,75 @@
+%--------------------------------------------------------------------------------
+\chapter{Diagonalise 1D wave equation with convection}\label{sec:diagonalise_conservative_wave_with_convection}
+
+The one dimensional shallow water equations  with convection
+for flat bottom ($\half g\, \lpdiff{h^2}{x} = gh\, \lpdiff{h}{x}$ and $\lpdiff{z_b}{x} = 0$), reads
+%
+\begin{align}
+    \pdiff{h}{t}  + \pdiff{q}{x} & = 0 \\
+    \pdiff{q}{t}  + \pdiff{}{x} \left( \frac{q^2}{h} \right) + g h \pdiff{h}{x} & = 0
+\end{align}
+The convection term can rewritten in the linear form for the derivatives as:
+\begin{align}
+    \pdiff{}{x} \left( \frac{q^2}{h} \right) = \frac{2 q}{h} \pdiff{q}{x} - \frac{q^2}{h^2}\pdiff{h}{x}
+    \label{eq:convection_linear_form}
+\end{align}
+In matrix notation it reads:
+\begin{align}
+    \left( \begin{matrix} h \\ q \end{matrix}  \right)_t +
+    \left( \begin{matrix} 0 & 1  \\ gh-\frac{q^2}{h^2} & \frac{2q}{h} \end{matrix}  \right)
+    \left( \begin{matrix} h \\ q \end{matrix} \right)_x = 0
+\end{align}
+To make the system of equations diagonal, we have to find the eigen values and the eigen vectors.
+The eigenvalues of the matrix are (using \maplesoft)
+\begin{align}
+    \lambda_1 = \frac{q}{h} + \sqrt{gh} \qquad \mbox{ and } \qquad
+    \lambda_2 = \frac{q}{h} - \sqrt{gh}
+\end{align}
+The eigenvectors are
+\begin{align}
+    \begin{pmatrix} 1 \\ \frac{q}{h} + \sqrt{gh} \end{pmatrix}  \qquad \mbox{ and } \qquad
+    \begin{pmatrix} 1 \\ \frac{q}{h} - \sqrt{gh} \end{pmatrix}
+\end{align}
+The diagonalised  SWE with convection read (after multiplying by $2\sqrt{gh}$, using  \maplesoft)
+\begin{align}
+    \begin{pmatrix} \sqrt{gh} - \frac{q}{h} & 1  \\ \sqrt{gh} + \frac{q}{h} & -1 \end{pmatrix}
+    \begin{pmatrix} h \\ q \end{pmatrix}_t +
+    \begin{pmatrix} \frac{q}{h} + \sqrt{gh}   & 0  \\
+        0 & \frac{q}{h} - \sqrt{gh}  \end{pmatrix}
+    \begin{pmatrix} \sqrt{gh} - \frac{q}{h} & 1  \\ \sqrt{gh} + \frac{q}{h} & -1 \end{pmatrix}
+    \begin{pmatrix} h \\ q \end{pmatrix}_x = 0
+\end{align}
+%
+Written in two separate equations
+\begin{align}
+    &\left(\sqrt{gh} - \frac{q}{h}\right)\pdiff{h}{t} + \pdiff{q}{t} +  \left( \frac{q}{h} + \sqrt{gh}\right)\left( \left(\sqrt{gh} - \frac{q}{h} \right)\pdiff{h}{x} + \pdiff{q}{x} \right) = 0 \quad \text{right going}
+    \\
+    &\left(\sqrt{gh} + \frac{q}{h}\right)\pdiff{h}{t} - \pdiff{q}{t} +  \left( \frac{q}{h} - \sqrt{gh}\right)\left( \left(\sqrt{gh} + \frac{q}{h} \right)\pdiff{h}{x} - \pdiff{q}{x} \right) = 0 \quad \text{left going}
+\end{align}
+Which can be written as a combination of the continuity and momentum equation \citep[eq.\ 4]{Borsboom2001}, (keep in mind that also \autoref{eq:convection_linear_form} is used)
+\begin{align}
+    \begin{matrix}
+    \quad \text{right going} \\
+    \quad \text{left going}
+\end{matrix}
+\qquad
+    \begin{pmatrix}
+        \sqrt{gh} - \frac{q}{h}  &  1 \\
+        \sqrt{gh} + \frac{q}{h}  &  -1
+    \end{pmatrix}
+    \begin{pmatrix} \textit{continuity eq.} \\ \textit{momentum eq.} \end{pmatrix}    = 0
+    \label{eq:left_right_going_equations}
+\end{align}
+or, after multiplying with $h$
+\begin{align}
+    \begin{matrix}
+    \quad \text{right going} \\
+    \quad \text{left going}
+\end{matrix}
+\qquad
+    \begin{pmatrix}
+        h\sqrt{gh} - q  &  h \\
+        h\sqrt{gh} + q  &  -h
+    \end{pmatrix}
+    \begin{pmatrix} \textit{continuity eq.} \\ \textit{momentum eq.} \end{pmatrix}    = 0
+\end{align}
