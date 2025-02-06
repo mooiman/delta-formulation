@@ -514,12 +514,14 @@ int main(int argc, char* argv[])
     std::string his_q_name("Water_flux");
     std::string his_s_name("Water_level");
     std::string his_u_name("Water_velocity");
+    std::string his_zb_name("Bed_level");
     std::string his_riemann_pos_name("Riemann_right_going");
     std::string his_riemann_neg_name("Riemann_left_going");
     his_file->add_variable(his_h_name, "", "Water depth", "m");
     his_file->add_variable(his_q_name, "", "Water flux", "m2 s-1");
     his_file->add_variable(his_s_name, "", "Water level", "m");
     his_file->add_variable(his_u_name, "", "Water velocity", "m s-1");
+    his_file->add_variable(his_zb_name, "", "Bed level", "m");
     //his_file->add_variable(his_riemann_pos_name, "", "Rieman(+)", "m2 s-1");
     //his_file->add_variable(his_riemann_neg_name, "", "Rieman(-)", "m2 s-1");
 
@@ -540,6 +542,8 @@ int main(int argc, char* argv[])
     his_file->put_variable(his_s_name, nst_his, his_values);
     his_values = { u[i_left], u[i_mid_left], u[i_mid], u[i_mid_right], u[i_right] };
     his_file->put_variable(his_u_name, nst_his, his_values);
+    his_values = { zb[i_left], zb[i_mid_left], zb[i_mid], zb[i_mid_right], zb[i_right] };
+    his_file->put_variable(his_zb_name, nst_his, his_values);
 
     //his_values = { riemann_pos[i_left], riemann_pos[i_mid_left], riemann_pos[i_mid], riemann_pos[i_mid_right], riemann_pos[i_right] };
     //his_file->put_variable(his_riemann_pos_name, nst_his, his_values);
@@ -1069,6 +1073,23 @@ int main(int argc, char* argv[])
                 }
                 if (momentum_bed_shear_stress) // 
                 {
+                    double cf_i = cf[i];
+                    double cf_ip1 = cf[i + 1];
+
+                    double cf_ip14 = scv(cf_i, cf_ip1);
+                    double htheta_ip14 = scv(htheta_i, htheta_ip1);
+                    double qtheta_ip14 = scv(qtheta_i, qtheta_ip1);
+                    double abs_qtheta_ip14 = scv(Fabs(qtheta_i, eps_fabs), Fabs(qtheta_ip1, eps_fabs));
+
+                    double J1_ip14 = cf_ip14 * qtheta_ip14 / (htheta_ip14 * htheta_ip14) * dxinv * (Fabs(qtheta_ip1, eps_fabs) - Fabs(qtheta_i, eps_fabs));
+                    double J2_ip14 = cf_ip14 * abs_qtheta_ip14 / (htheta_ip14 * htheta_ip14);
+                    A.coeffRef(pq, ph) += -theta * J1_ip14 * 0.375;
+                    A.coeffRef(pq, ph_e) += -theta * J1_ip14 * 0.75;
+                    A.coeffRef(pq, ph_ee) += -theta * J1_ip14 * -0.125;
+                    A.coeffRef(pq, ph + 1) += -theta * J2_ip14 * 0.375;
+                    A.coeffRef(pq, ph_e + 1) += -theta * J2_ip14 * 0.75;
+                    A.coeffRef(pq, ph_ee + 1) += -theta * J2_ip14 * -0.125;
+                    rhs[pq] += -(0.5 * dx * cf_ip14 * abs_qtheta_ip14 * qtheta_ip14 / (htheta_ip14 * htheta_ip14));
                 }
                 if (momentum_viscosity) // 
                 {
@@ -1301,6 +1322,26 @@ int main(int argc, char* argv[])
                 }
                 if (momentum_viscosity) // 
                 {
+                    double cf_im1 = cf[i - 1];
+                    double cf_i = cf[i];
+
+                    double htheta_im14 = scv(htheta_i, htheta_im1);
+                    double qtheta_im14 = scv(qtheta_i, qtheta_im1);
+                    double abs_qtheta_im14 = scv(Fabs(qtheta_i, eps_fabs), Fabs(qtheta_im1, eps_fabs));
+
+                    double cf_im14 = scv(cf_i, cf_im1);
+
+                    double J1_im14 = cf_im14 * qtheta_im14 / (htheta_im14 * htheta_im14) * dxinv * (Fabs(qtheta_i, eps_fabs) - Fabs(qtheta_im1, eps_fabs));
+                    double J2_im14 = cf_im14 * abs_qtheta_im14 / (htheta_im14 * htheta_im14);
+
+                    A.coeffRef(pq, ph) += -theta * J1_im14 * 0.375;
+                    A.coeffRef(pq, ph_w) += -theta * J1_im14 * 0.75;
+                    A.coeffRef(pq, ph_ww) += -theta * J1_im14 * -0.125;
+                    A.coeffRef(pq, ph + 1) += -theta * J1_im14 * 0.375;
+                    A.coeffRef(pq, ph_w + 1) += -theta * J1_im14 * 0.75;
+                    A.coeffRef(pq, ph_ww + 1) += -theta * J1_im14 * -0.125;
+
+                    rhs[pq] += -(0.5 * dx * cf_im14 * abs_qtheta_im14 * qtheta_im14 / (htheta_im14 * htheta_im14));
                 }
                 //
                 // continuity part (added and multiplied by +c_wave)
@@ -1505,6 +1546,8 @@ int main(int argc, char* argv[])
             his_file->put_variable(his_s_name, nst_his, his_values);
             his_values = { u[i_left], u[i_mid_left], u[i_mid], u[i_mid_right],  u[i_right]};
             his_file->put_variable(his_u_name, nst_his, his_values);
+            his_values = { zb[i_left], zb[i_mid_left], zb[i_mid], zb[i_mid_right], zb[i_right] };
+            his_file->put_variable(his_zb_name, nst_his, his_values);
 
             //his_values = { riemann_pos[i_left], riemann_pos[i_left], riemann_pos[i_mid], riemann_pos[i_right], riemann_pos[i_right] };
             //his_file->put_variable(his_riemann_pos_name, nst_his, his_values);
