@@ -2,12 +2,6 @@ set(exe_name 1d_wave)
 
 # include_directories(include)
 set(headers_files
-    include/adv_diff_boundary_condition.h
-    include/adv_diff_init_concentration.h
-    include/adv_diff_init_velocity.h
-    include/adv_diff_linear_operator.h
-    include/adv_diff_regularization.h
-    include/adv_diff_source.h
     include/cfts.h
     include/definition_map_file.h
     include/perf_timer.h
@@ -16,12 +10,7 @@ set(headers_files
 )    
 
 set(source_files
-    src/main.cpp
-    src/adv_diff_boundary_condition.cpp
-    src/adv_diff_init_concentration.cpp
-    src/adv_diff_init_velocity.cpp
-    src/adv_diff_regularization.cpp
-    src/adv_diff_source.cpp
+    src/main_1d_wave.cpp
     src/cfts.cpp
     src/definition_map_file.cpp
     src/perf_timer.cpp
