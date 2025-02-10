@@ -277,25 +277,26 @@ void REGULARIZATION::given_function(std::vector<double>& u_out, std::vector<doub
     std::filesystem::create_directory("./output");
     log_file.open("./output/janm.log", std::ios_base::app);
 #endif
-    const auto [u_giv_in_min, u_giv_in_max] = std::minmax_element(u_giv_in.begin(), u_giv_in.end());
-    double min_range = 0.0001;
-    double u_giv_range = *u_giv_in_max - *u_giv_in_min > min_range ? *u_giv_in_max - *u_giv_in_min : min_range;
+    //const auto [u_giv_in_min, u_giv_in_max] = std::minmax_element(u_giv_in.begin(), u_giv_in.end());
+    //double min_range = 0.0001;
+    //double u_giv_range = *u_giv_in_max - *u_giv_in_min > min_range ? *u_giv_in_max - *u_giv_in_min : min_range;
+    double u_giv_range = 1.0;
 
     for (int i = 0; i < nx; ++i)
     {
         // scaling of the input array u_giv_in
-        u0[i] = u_giv_in[i] / u_giv_range;
-        u_giv[i] = u0[i];
+        u_giv[i] = u_giv_in[i];
+        u0[i] = u_giv[i];
     }
     for (int iter = 0; iter < m_iter_max; ++iter)
     {
         //std::cout << "Iteration: " << iter << std::endl;
         //std::cout << "Compute second derivative" << std::endl;
-        double u0xixi_max = 0.0;
+        double u0_xixi_max = 0.0;
         for (int i = 1; i < nx - 1; ++i)
         {
             u0_xixi[i] = (u0[i - 1] - 2. * u0[i] + u0[i + 1]);
-            u0xixi_max = std::max(u0xixi_max, std::abs(u0_xixi[i]));
+            u0_xixi_max = std::max(u0_xixi_max, std::abs(u0_xixi[i]));
         }
         int i = 0;
         u0_xixi[i] = u0_xixi[i + 2];
@@ -305,7 +306,7 @@ void REGULARIZATION::given_function(std::vector<double>& u_out, std::vector<doub
         u0_xixi[i-1] = u0_xixi[i - 2];
 
 //------------------------------------------------------------------------------
-        eq8 = *(this->solve_eq8(dx, c_psi, u0, u0_xixi));
+        eq8 = *(this->solve_eq8(c_psi, u0, u0_xixi));
 //------------------------------------------------------------------------------
 #if LOGFILE == 1
         log_file << "--- eq8 -----------------------------------------------" << std::endl;
@@ -457,7 +458,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(double dx, std::v
 };
 
 
-std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(double dx, double c_error, std::vector<double> u0, std::vector<double> u0_xixi)
+std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(double c_error, std::vector<double> u0, std::vector<double> u0_xixi)
 {
     int nx = u0_xixi.size();
     auto err = std::make_unique<std::vector<double>> ();
@@ -477,7 +478,7 @@ std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(double dx, doubl
     }
     for (int i = 1; i < nx - 1; ++i)
     {
-        tmp[i] = std::abs(u0_xixi[i]);  // +(u_const / dx) / 2.;
+        tmp[i] = std::abs(u0_xixi[i]);
         rhs[i] = tmp[i];
     }
     int i = 0;
