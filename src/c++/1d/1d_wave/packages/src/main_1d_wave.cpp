@@ -222,7 +222,7 @@ int main(int argc, char* argv[])
     // Output
     tbl_chp = *tbl["Output"].as_table();
     double dt_his = tbl_chp["dt_his"].value_or(double(1.0));  // write interval to his-file
-    double dt_map = tbl_chp["dt_map"].value_or(double(10.0));  // write interval to his-file
+    double dt_map = tbl_chp["dt_map"].value_or(double(0.0));  // write interval to his-file
 
     REGULARIZATION* regular = new REGULARIZATION(iter_max);
 
@@ -231,14 +231,12 @@ int main(int argc, char* argv[])
 
     int total_time_steps = int((tstop - tstart) / dt) + 1;  // Number of time steps [-]
     double dtinv;                                         // Inverse of dt, if dt==0 then stationary solution [1/s]
-    double dtinv_stat;                                        // equal to dtinv if dt!=0, else dtinv_stat = 1 [1/s]
     int wrihis;                                           // write interval to his-file
     int wrimap;                                           // write interval to map-file
     if (stationary)
     {
         dt = 0.0;                                         // Time step size [s]
         dtinv = 0.0;                                      // stationary solution
-        dtinv_stat = 1.0;                                 // to support given boundary values
         eps_bc_corr = 1.0;
         iter_max = 2.5 * iter_max;
         theta = 1.0;                                      // Stationary solution
@@ -251,9 +249,15 @@ int main(int argc, char* argv[])
     else
     {
         dtinv = 1. / dt;                                  // Inverse of dt [1/s]
-        dtinv_stat = dtinv;                                     // to support given boundary values
         wrihis = std::max(int(dt * dtinv), int(dt_his * dtinv));      // write interval to his-file (every delta t)
-        wrimap = std::max(int(dt * dtinv), int(dt_map * dtinv));     // write interval to map-file (every 1 sec , or every delta t)
+        if (dt_map == 0.0)
+        {
+            wrimap = total_time_steps - 1;  // write only first and last time step
+        }
+        else
+        {
+            wrimap = std::max(int(dt * dtinv), int(dt_map * dtinv));     // write interval to map-file (every 1 sec , or every delta t)
+        }
     }
     log_file << "=== Used input variables ==============================" << std::endl;
     log_file << "[Domain]" << std::endl;
@@ -450,8 +454,8 @@ int main(int argc, char* argv[])
     }
 
     ////////////////////////////////////////////////////////////////////////////
-    // Define map file 
-    std::cout << "    Define map-file" << std::endl;
+    // Create map file 
+    std::cout << "    Create map-file" << std::endl;
     std::string nc_mapfilename(map_filename);
     UGRID1D* map_file = new UGRID1D();
 
@@ -486,7 +490,7 @@ int main(int argc, char* argv[])
     map_file->put_time_variable(map_names[10], nst_map, pe);
 
     ////////////////////////////////////////////////////////////////////////////
-    // Define time history file
+    // Create time history file
     std::cout << "    Create his-file" << std::endl;
     std::string nc_hisfile(his_filename);
     CFTS* his_file = new CFTS();
@@ -969,18 +973,18 @@ int main(int argc, char* argv[])
                         double corr_term = 0.0;
                         if (bc_vars[BC_WEST] == "zeta")
                         {
-                            A.coeffRef(ph, ph)    += dtinv * w_ess[0] + dtinv_stat * eps_bc_corr * w_ess[0];
-                            A.coeffRef(ph, ph_e)  += dtinv * w_ess[1] + dtinv_stat * eps_bc_corr * w_ess[1];
-                            A.coeffRef(ph, ph_ee) += dtinv * w_ess[2] + dtinv_stat * eps_bc_corr * w_ess[2];
-                            corr_term = -dhdt - dtinv_stat * eps_bc_corr * (hp_ip12 - (wz_bnd - zb_ip12));
+                            A.coeffRef(ph, ph)    += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
+                            A.coeffRef(ph, ph_e)  += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
+                            A.coeffRef(ph, ph_ee) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+                            corr_term = -dhdt - eps_bc_corr * (hp_ip12 - (wz_bnd - zb_ip12));
                             rhs[ph] += corr_term;
                         }
                         if (bc_vars[BC_WEST] == "q")
                         {
-                            A.coeffRef(ph, ph + 1)    += dtinv * w_ess[0] + dtinv_stat * eps_bc_corr * w_ess[0];
-                            A.coeffRef(ph, ph_e + 1)  += dtinv * w_ess[1] + dtinv_stat * eps_bc_corr * w_ess[1];
-                            A.coeffRef(ph, ph_ee + 1) += dtinv * w_ess[2] + dtinv_stat * eps_bc_corr * w_ess[2];
-                            corr_term = -dqdt - dtinv_stat * eps_bc_corr * (qp_ip12 - wq_bnd);
+                            A.coeffRef(ph, ph + 1)    += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
+                            A.coeffRef(ph, ph_e + 1)  += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
+                            A.coeffRef(ph, ph_ee + 1) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+                            corr_term = -dqdt - eps_bc_corr * (qp_ip12 - wq_bnd);
                             rhs[ph] += corr_term;
                         }
                     }
@@ -1213,20 +1217,20 @@ int main(int argc, char* argv[])
                         if (bc_vars[BC_EAST] == "zeta")
                         {
                             if (stationary) { sign = -1.0; }
-                            A.coeffRef(ph, ph)    += dtinv * w_ess[0] + dtinv_stat * eps_bc_corr * w_ess[0];
-                            A.coeffRef(ph, ph_w)  += dtinv * w_ess[1] + dtinv_stat * eps_bc_corr * w_ess[1];
-                            A.coeffRef(ph, ph_ww) += dtinv * w_ess[2] + dtinv_stat * eps_bc_corr * w_ess[2];
-                            corr_term = -dhdt + sign * dtinv_stat * eps_bc_corr * (hp_im12 - (ez_bnd - zb_im12));
+                            A.coeffRef(ph, ph)    += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
+                            A.coeffRef(ph, ph_w)  += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
+                            A.coeffRef(ph, ph_ww) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+                            corr_term = -dhdt + sign * eps_bc_corr * (hp_im12 - (ez_bnd - zb_im12));
                             rhs[ph] += corr_term;
                             sign = 1.0;
                         }
                         if (bc_vars[BC_EAST] == "q")
                         {
                             if (stationary) { sign = -1.0; }
-                            A.coeffRef(ph, ph + 1)    += dtinv * w_ess[0] - dtinv_stat * eps_bc_corr * w_ess[0];
-                            A.coeffRef(ph, ph_w + 1)  += dtinv * w_ess[1] - dtinv_stat * eps_bc_corr * w_ess[1];
-                            A.coeffRef(ph, ph_ww + 1) += dtinv * w_ess[2] - dtinv_stat * eps_bc_corr * w_ess[2];
-                            corr_term = -dqdt - sign * dtinv_stat * eps_bc_corr * (qp_im12 - eq_bnd);
+                            A.coeffRef(ph, ph + 1)    += dtinv * w_ess[0] - eps_bc_corr * w_ess[0];
+                            A.coeffRef(ph, ph_w + 1)  += dtinv * w_ess[1] - eps_bc_corr * w_ess[1];
+                            A.coeffRef(ph, ph_ww + 1) += dtinv * w_ess[2] - eps_bc_corr * w_ess[2];
+                            corr_term = -dqdt - sign * eps_bc_corr * (qp_im12 - eq_bnd);
                             rhs[ph] += corr_term;
                             sign = 1.0;
                         }
