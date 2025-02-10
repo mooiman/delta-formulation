@@ -42,8 +42,8 @@ def compute_regularization(c_psi, ugiv, dx, imax, ugiv_ana, refine):
         u0[i] = ugiv[i]
 
     for it in range(0, iter_max):
-        u_xx_max = 0.
-        u_xixi_max = 0.
+        u0_xx_max = 0.
+        u0_xixi_max = 0.
         ugiv_xx_max = 0.
         ugiv_xixi_max = 0.
         for i in range(1, imax - 1):
@@ -51,8 +51,8 @@ def compute_regularization(c_psi, ugiv, dx, imax, ugiv_ana, refine):
             u0_xixi[i] = (u0[i + 1] - 2. * u0[i] + u0[i - 1])
             ugiv_xx[i] = (ugiv[i + 1] - 2. * ugiv[i] + ugiv[i - 1]) / (dx * dx)
             ugiv_xixi[i] = (ugiv[i + 1] - 2. * ugiv[i] + ugiv[i - 1])
-            u_xx_max = max(u_xx_max, np.abs(u0_xx[i]))
-            u_xixi_max = max(u_xixi_max, np.abs(u0_xixi[i]))
+            u0_xx_max = max(u0_xx_max, np.abs(u0_xx[i]))
+            u0_xixi_max = max(u0_xixi_max, np.abs(u0_xixi[i]))
             ugiv_xx_max = max(ugiv_xx_max, np.abs(ugiv_xx[i]))
             ugiv_xixi_max = max(ugiv_xixi_max, np.abs(ugiv_xixi[i]))
         u0_xixi[0] = u0_xixi[1]
@@ -104,19 +104,18 @@ def compute_regularization(c_psi, ugiv, dx, imax, ugiv_ana, refine):
         b[i] = 1.
         c[i] = 0.
         d[i] = ugiv[i]
-        u1 = thomas_algorithm(a, b, c, d)
+        u0 = thomas_algorithm(a, b, c, d)
 
         diff_max1 = 0.0
         sum_max1 = 0.0
         for i in range(0, imax):
-            diff_abs[i] = np.abs(u1[i] - ugiv[i]) - 25.
-            diff_max1 = max(diff_max1, np.abs(u1[i] - ugiv[i]))
-            sum_max1 += np.abs(u1[i] - ugiv[i])
-        # print("u1 - ugiv:", diff_max1)
+            diff_abs[i] = np.abs(u0[i] - ugiv[i]) - 25.
+            diff_max1 = max(diff_max1, np.abs(u0[i] - ugiv[i]))
+            sum_max1 += np.abs(u0[i] - ugiv[i])
+        # print("u0 - ugiv:", diff_max1)
         diff_max10 = abs(diff_max1 - diff_max0)
         print("diff:", it, diff_max10)
         diff_max0 = diff_max1
-        u0 = u1
 
         if diff_max10 < 1e-8:
             break
