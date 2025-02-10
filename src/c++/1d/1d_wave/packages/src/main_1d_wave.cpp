@@ -1704,7 +1704,7 @@ int initialize_bed_level(BED_LEVEL bed_type, std::vector<double>& x, std::vector
     else if (bed_type == BED_LEVEL::WEIR)
     {
         // Borsboom_development1Derrorminmovingadaptgridmethod_AdaptMethodLinesCRC2001.pdf
-        model_title = "Weir: from -12 [m] to -7 [m] and from -7 [m] to -10 [m] (nearly Borsboom_presCASATUE2023)";
+        model_title = "Weir: from -12 [m] to -5 [m] and from -5 [m] to -10 [m] (Borsboom_presCASATUE2023)";
         double x0 = x[1];
         double zb_def = -12.0;
 
@@ -1713,7 +1713,7 @@ int initialize_bed_level(BED_LEVEL bed_type, std::vector<double>& x, std::vector
         double slope_down_begin = 350.;
         double slope_down_end = 450.;
         double zb_begin = zb_def;
-        double zb_weir = zb_def + 5.0;
+        double zb_weir = zb_def + 7.0;
         double zb_end = zb_def + 2.0;
         for (int i = 0; i < x.size(); ++i)
         {
