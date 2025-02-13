@@ -12,12 +12,13 @@
 \newcommand{\Dx}{\Delta x}
 \newcommand{\Dxi}{\Delta \xi}
 \newcommand{\Dt}{\Delta t}
+\newcommand{\Dtinv}{\Delta t_{\it{inv}}}
 \renewcommand{\vec}[1]{\mbox{\boldmath $#1$} }
 \newcommand{\mat}[1]{\mbox{\boldmath ${\rm #1}$} }
 \newcommand{\half}{\frac{1}{2}}
 \newcommand{\quart}{\frac{1}{4}}
 \newcommand{\abs}[1]{\left| #1 \right|}
-\newcommand{\Fabs}{\textsl{Fabs}\xspace}  % Continue function for the absolute value
+\newcommand{\Fabs}[1]{F_{abs}(#1)\xspace}  % Continue function for the absolute value
 \newcommand{\eps}{\varepsilon}
 
 \newcommand{\utilde}{\widetilde{u}}
@@ -26,6 +27,7 @@
 
 \newcommand{\maplesoft}{\textbf{Maplesoft}}
 \newcommand{\deltaformulation}{$\Delta$-formulation\xspace}
+\newcommand{\notyet}{Not yet documented\xspace}
 
 \begin{document}
 
@@ -66,11 +68,12 @@ Thea Vuik\newline
 \nomenclature{$\Psi$}{\si{\square\metre\per\second}}{Artificial smoothing coefficient}
 \nomenclature{$c_\Psi$}{$1\ {(.)}^{-1}$}{Artificial smoothing variable}
 \nomenclature{$\vec{E}$}{-}{Error vector function, defined in computational space}
-\nomenclature{$\zeta$}{\si{\metre}}{Water level above reference plane, positive upward}
-\nomenclature{$z_b$}{\si{\metre}}{Bed level above reference plane, positive upward}
+\nomenclature{$\zeta$}{\si{\metre}}{Water level w.r.t.\ reference plane, positive upward}
+\nomenclature{$z_b$}{\si{\metre}}{Bed level w.r.t.\ reference plane, positive upward            }
 \nomenclature{$g$}{\si{\metre\per\square\second}}{Gravitational constant}
-\nomenclature{$\theta$}{-}{$\theta$-method. If $\theta=1$ then it is a fully implicit method and if $\theta=0$ then it
-     is a fully explicit method.}
+\nomenclature{$\theta$}{-}{$\theta$-method. If $\theta=1$ then it is a fully implicit method and if $\theta=0$ then it is a fully explicit method.}
+\nomenclature{$\nu$}{\si{\square\metre\per\second}}{Kinematic viscosity}
+
 
 
 %------------------------------------------------------------------------------

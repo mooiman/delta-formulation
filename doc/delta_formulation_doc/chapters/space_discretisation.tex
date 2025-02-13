@@ -119,11 +119,19 @@ equals the piecewise linear function used in the FVE scheme.
 \section{Regularization of given function}
 To get an error-minimizing method we need to regularize all data, as mentioned in \autoref{sec:error_minimizing}.
 Regularization of a given function is performed as described in \citet{Borsboom1998} and \citet{Borsboom2003}.
-The function to regularize reads:
+The given function to regularize reads:
 \begin{align}
-    u(x) = u_{giv}(x).
+    u_{giv}(x).
 \end{align}
-The regularized function $\widetilde u$ reads  \citep[eq.\ 6]{Borsboom1998}:
+Some notation agreements are:
+\begin{symbollist}
+    \item[$u$] Non-regularized/non-smoothed function, to be determined numerically.
+    \item[$\widetilde u$] Regularized/smoothed function, denoted by the wavy line.
+    \item[$\overline u$] Piecewise linear function, denoted by the bar.
+    \item[$u_i$] Value of the numerical value at point $x_i$, denoted by the subscript.
+\end{symbollist}
+
+The regularized function $\widetilde u$ satisfy the next equation \citep[eq.\ 6]{Borsboom1998}:
 \begin{align}
     \widetilde u - \pdiff{}{x} \Psi \pdiff{\widetilde u}{x} = u_{giv}, \qquad \Psi = c_{\Psi}\Delta x^2 E, \label{eq:regularization}
 \end{align}
@@ -135,13 +143,6 @@ where
     \item[$\Dx$] Space discretization, $\Dx_{i+\half} = x_{i+1} - x_{i}$, [\si{\metre}]
     \item[$c_{\Psi}$] Smoothing factor (set by user), [\si{1/\cdot}]
     \item[$E$] Error function, [\si{\cdot}] (see \autoref{sec:determine_psi})
-\end{symbollist}
-With some notation agreements:
-\begin{symbollist}
-    \item[$u$] Non-regularized/non-smoothed function, to be determined numerically.
-    \item[$\widetilde u$] Regularized/smoothed function, denoted by the wavy line.
-    \item[$\overline u$] Piecewise linear function, denoted by the bar.
-    \item[$u_i$] Value of the numerical value at point $x_i$, denoted by the subscript.
 \end{symbollist}
 
 

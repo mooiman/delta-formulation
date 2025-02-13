@@ -32,6 +32,12 @@ The system of Equations \eqref{eq:pde} can be written as, including the $\theta$
     \vec{f} \left( \vec{u}^{n+\theta} \right) = 0 \label{eq:discretized}
 \end{align}
 with $\Dt_{\it inv} = 1/\Dt$, $\mat{M}$ a mass-matrix and $0 \leq \theta \leq 1$.
+The mass-matrix used in this document for three adjacent grid nodes reads:
+\begin{align}
+    \mat{M} = \begin{pmatrix} \frac{1}{8} \quad \frac{6}{8} \quad \frac{1}{8} \end{pmatrix}
+    \label{eq:definition_mass_matrix}
+\end{align}
+representing a piecewise linear approximation of the function between the grid nodes.
 
 To reach a fully implicit time integration an iteration process $p$ is added \citep[eqs.\ 15/16]{Borsboom2019a}:
 \begin{align}
