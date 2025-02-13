@@ -277,16 +277,16 @@ void REGULARIZATION::given_function(std::vector<double>& u_out, std::vector<doub
     std::filesystem::create_directory("./output");
     log_file.open("./output/janm.log", std::ios_base::app);
 #endif
-    //const auto [u_giv_in_min, u_giv_in_max] = std::minmax_element(u_giv_in.begin(), u_giv_in.end());
-    //double min_range = 0.0001;
-    //double u_giv_range = *u_giv_in_max - *u_giv_in_min > min_range ? *u_giv_in_max - *u_giv_in_min : min_range;
-    double u_giv_range = 1.0;
+    const auto [u_giv_in_min, u_giv_in_max] = std::minmax_element(u_giv_in.begin(), u_giv_in.end());
+    double min_range = 0.0001;
+    double u_giv_range = *u_giv_in_max - *u_giv_in_min > min_range ? *u_giv_in_max - *u_giv_in_min : min_range;
+    u_giv_range = 1.0;
 
     for (int i = 0; i < nx; ++i)
     {
         // scaling of the input array u_giv_in
-        u_giv[i] = u_giv_in[i];
-        u0[i] = u_giv[i];
+        u0[i] = u_giv_in[i] / u_giv_range;
+        u_giv[i] = u0[i];        
     }
     for (int iter = 0; iter < m_iter_max; ++iter)
     {

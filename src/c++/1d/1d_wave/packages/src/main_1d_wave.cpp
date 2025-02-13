@@ -21,6 +21,7 @@
 #include "perf_timer.h"
 #include "regularization.h"
 #include "definition_map_file.h"
+#include "boundary_condition.h"
 
 enum class BED_LEVEL
 {
@@ -209,7 +210,7 @@ int main(int argc, char* argv[])
     double alpha = tbl_chp["alpha"].value_or(double(1./8.));  // Linear (spatial) interpolation coefficient
     double eps_newton = tbl_chp["eps_newton"].value_or(double(1.0e-12));  // stop criterium for Newton iteration
     double eps_bicgstab = tbl_chp["eps_bicgstab"].value_or(double(1.0e-12));  // stop criterium for BiCGStab iteratio
-    double eps_fabs = tbl_chp["eps_fabs"].value_or(double(1.0e-4));  // epsilon needed to approximate the abs-function by a continues function
+    double eps_fabs = tbl_chp["eps_fabs"].value_or(double(1.0e-2));  // epsilon needed to approximate the abs-function by a continues function
     bool regularization_init = tbl_chp["regularization_init"].value_or(bool(false));
     bool regularization_iter = tbl_chp["regularization_iter"].value_or(bool(false));
     bool regularization_time = tbl_chp["regularization_time"].value_or(bool(false));
@@ -317,7 +318,6 @@ int main(int argc, char* argv[])
     log_file << "dt_his = " << dt_his << std::endl;
     log_file << "dt_map = " << dt_map << std::endl;
 
- 
     std::vector<double> x(nx, 0.);                      // x-coordinate
     std::vector<double> y(nx, 0.);                      // y-coordinate
     std::vector<double> zb(nx, -10.0);                  // regularized bed level
@@ -425,6 +425,7 @@ int main(int argc, char* argv[])
     log_file << "Nodes  : " << nx << std::endl;
     log_file << "Volumes: " << (nx-1) << std::endl;
     log_file << "CFL    : " << std::sqrt(g * std::abs(min_zb)) * dt / dx << std::endl;
+    STOP_TIMER(Writing log-file);  // but two write statements are not timed
     if (status != 0) {
         log_file.close();
         exit(1);
@@ -453,6 +454,7 @@ int main(int argc, char* argv[])
         solution[2 * i + 1] = 0.0;  // \Delta q; momentum
     }
 
+    double time = double(0) * dt;
     ////////////////////////////////////////////////////////////////////////////
     // Create map file 
     std::cout << "    Create map-file" << std::endl;
@@ -476,7 +478,7 @@ int main(int argc, char* argv[])
 
     // Put data on map file
     int nst_map = 0;
-    map_file->put_time(nst_map, double(0) * dt);
+    map_file->put_time(nst_map, time);
     map_file->put_time_variable(map_names[0], nst_map, hn);
     map_file->put_time_variable(map_names[1], nst_map, qn);
     map_file->put_time_variable(map_names[2], nst_map, s);
@@ -536,7 +538,7 @@ int main(int argc, char* argv[])
 
     // Put data on time history file
     int nst_his = 0;
-    his_file->put_time(nst_his, double(0) * dt);
+    his_file->put_time(nst_his, time);
 
     std::vector<double> his_values = { hn[i_left], hn[i_mid_left], hn[i_mid], hn[i_mid_right], hn[i_right] };
     his_file->put_variable(his_h_name, nst_his, his_values);
@@ -570,7 +572,7 @@ int main(int argc, char* argv[])
     }
 
     std::cout << "Start time-loop" << std::endl;
-    std::cout << std::fixed << std::setprecision(2) << "tstart= " << tstart + dt * double(0) << ";   tstop=" << tstart + tstop << ";   dt= " << dt << std::endl;
+    std::cout << std::fixed << std::setprecision(2) << "tstart= " << tstart + time << ";   tstop=" << tstart + tstop << ";   dt= " << dt << std::endl;
  
     STOP_TIMER(Initialization);
    // Start time loop
@@ -581,6 +583,7 @@ int main(int argc, char* argv[])
     START_TIMER(Time loop);
     for (int nst = 1; nst < total_time_steps; ++nst)
     {
+        time = dt * double(nst);
         // Set the right-hand side (rhs) of the equations (at t = nst*dt)
         //std::cout << std::setprecision(5) << "Time: " << dt*double(nst) << std::endl;
 
@@ -601,6 +604,53 @@ int main(int argc, char* argv[])
         double qtheta_im1, qtheta_im2, qtheta_ip1, qtheta_ip2;
         double qtheta_im12, qtheta_ip12;
 
+
+        double bc0;
+        double bc1;
+        double wh_bnd = 0.0;  // west depth-boundary
+        double wq_bnd = 0.0;  // west discharge discharge
+        double wz_bnd = 0.0;  // west zeta-boundary
+        double wu_bnd = 0.0;  // west u-boundary
+        double eh_bnd = 0.0;  // east depth-boundary
+        double eq_bnd = 0.0;  // east discharge boundary
+        double ez_bnd = 0.0;  // east zeta-boundary
+        double eu_bnd = 0.0;  // east u-boundary
+        int select = 1;  // given value at both sides
+        (void) boundary_condition(bc0, bc1, bc_vals[BC_WEST], bc_vals[BC_EAST], time, treg, select);
+        if (bc_vars[BC_WEST] == "h")
+        {
+            wh_bnd = bc0;
+        }
+        if (bc_vars[BC_WEST] == "q")
+        {
+            wq_bnd = bc0;
+        }
+        if (bc_vars[BC_WEST] == "zeta")
+        {
+            wz_bnd = bc0;
+        }
+        if (bc_vars[BC_WEST] == "u")
+        {
+            wu_bnd = bc0;
+        }
+
+        if (bc_vars[BC_EAST] == "h")
+        {
+            eh_bnd = bc1;
+        }
+        if (bc_vars[BC_EAST] == "q")
+        {
+            eq_bnd = bc1;
+        }
+        if (bc_vars[BC_EAST] == "zeta")
+        {
+            ez_bnd = bc1;
+        }
+        if (bc_vars[BC_EAST] == "u")
+        {
+            eu_bnd = bc1;
+        }
+
         int used_newton_iter = 0;
         int used_lin_solv_iter = 0;
         START_TIMER(Newton iteration);
@@ -610,64 +660,9 @@ int main(int argc, char* argv[])
             {
                 START_TIMER(Matrix initialization);
             }
-            //std::cout << std::setprecision(6) << "Time: " << dt * double(nst) << "    Iter: " << iter + 1 << std::endl;
-
-            double wh_bnd = 0.0;  // west depth-boundary
-            double wq_bnd = 0.0;  // west discharge discharge
-            double wz_bnd = 0.0;  // west zeta-boundary
-            double wu_bnd = 0.0;  // west u-boundary
-            double eh_bnd = 0.0;  // east depth-boundary
-            double eq_bnd = 0.0;  // east discharge boundary
-            double ez_bnd = 0.0;  // east zeta-boundary
-            double eu_bnd = 0.0;  // east u-boundary
             //
-            // Time start smoothing with a cosine profile
-            // Regularization: a + (b-a) * factor;  0 <= factor <= 1.0 
-            //
-            double reg_a = 0.0;
-            double reg_b = 1.0;
-            double reg_factor = 1.0;
-            double reg_interp = 0.0;
-            if (double(nst) * dt < treg)
-            {
-                reg_factor = 0.5 * (std::cos(M_PI * (treg - double(nst) * dt) / treg) + 1.0);
-            }
-            reg_interp = reg_a + (reg_b - reg_a) * reg_factor;
-
-            if (bc_vars[BC_WEST] == "h")
-            {
-                wh_bnd = bc_vals[BC_WEST] * reg_interp;
-            }
-            if (bc_vars[BC_WEST] == "q")
-            {
-                wq_bnd = bc_vals[BC_WEST] * reg_interp;
-            }
-            if (bc_vars[BC_WEST] == "zeta")
-            {
-                wz_bnd = bc_vals[BC_WEST] * reg_interp;
-            }
-            if (bc_vars[BC_WEST] == "u")
-            {
-                wu_bnd = bc_vals[BC_WEST] * reg_interp;
-            }
-
-            if (bc_vars[BC_EAST] == "h")
-            {
-                eh_bnd = bc_vals[BC_EAST] * reg_interp;
-            }
-            if (bc_vars[BC_EAST] == "q")
-            {
-                eq_bnd = bc_vals[BC_EAST] * reg_interp;
-            }
-            if (bc_vars[BC_EAST] == "zeta")
-            {
-                ez_bnd = bc_vals[BC_EAST] * reg_interp;
-            }
-            if (bc_vars[BC_EAST] == "u")
-            {
-                eu_bnd = bc_vals[BC_EAST] * reg_interp;
-            }
             // interior nodes
+            //
             for (int i = 1; i < nx - 1; i++)
             {
                 hn_im1 = hn[i - 1]; // = h^{n}_{i-1}
@@ -716,7 +711,6 @@ int main(int argc, char* argv[])
                 int pq = ph + 1;  // q=hu-momentum equation
                 int pq_e = ph_e + 1;  // q=hu-momentum equation
                 int pq_w = ph_w + 1;  // q=hu-momentum equation
-
                 //
                 // continuity equation (dh/dt ... = 0)
                 //
@@ -1037,7 +1031,6 @@ int main(int argc, char* argv[])
                 //
                 // momentum - c_wave * continuity
                 // 
-                double con_fac = c_wave;
                 double dhdt = dtinv * (hp_i - hn_i) * w_nat[0]
                     + dtinv * (hp_ip1 - hn_ip1) * w_nat[1]
                     + dtinv * (hp_ip2 - hn_ip2) * w_nat[2];
@@ -1080,20 +1073,21 @@ int main(int argc, char* argv[])
                     double cf_i = cf[i];
                     double cf_ip1 = cf[i + 1];
 
-                    double cf_ip14 = scv(cf_i, cf_ip1);
-                    double htheta_ip14 = scv(htheta_i, htheta_ip1);
-                    double qtheta_ip14 = scv(qtheta_i, qtheta_ip1);
-                    double abs_qtheta_ip14 = scv(Fabs(qtheta_i, eps_fabs), Fabs(qtheta_ip1, eps_fabs));
+                    double cf_ip12 = scv(cf_i, cf_ip1);
+                    double htheta_ip12 = scv(htheta_i, htheta_ip1);
+                    double qtheta_ip12 = scv(qtheta_i, qtheta_ip1);
+                    double abs_qtheta_ip12 = scv(Fabs(qtheta_i, eps_fabs), Fabs(qtheta_ip1, eps_fabs));
 
-                    double J1_ip14 = cf_ip14 * qtheta_ip14 / (htheta_ip14 * htheta_ip14) * dxinv * (Fabs(qtheta_ip1, eps_fabs) - Fabs(qtheta_i, eps_fabs));
-                    double J2_ip14 = cf_ip14 * abs_qtheta_ip14 / (htheta_ip14 * htheta_ip14);
-                    A.coeffRef(pq, ph) += -theta * J1_ip14 * 0.375;
-                    A.coeffRef(pq, ph_e) += -theta * J1_ip14 * 0.75;
-                    A.coeffRef(pq, ph_ee) += -theta * J1_ip14 * -0.125;
-                    A.coeffRef(pq, ph + 1) += -theta * J2_ip14 * 0.375;
-                    A.coeffRef(pq, ph_e + 1) += -theta * J2_ip14 * 0.75;
-                    A.coeffRef(pq, ph_ee + 1) += -theta * J2_ip14 * -0.125;
-                    rhs[pq] += -(0.5 * dx * cf_ip14 * abs_qtheta_ip14 * qtheta_ip14 / (htheta_ip14 * htheta_ip14));
+                    A.coeffRef(pq, ph)   += -0.5 * theta * cf_ip12 * 2. * qtheta_ip12 * abs_qtheta_ip12 / (htheta_ip12 * htheta_ip12 * htheta_ip12);
+                    A.coeffRef(pq, ph_e) += -0.5 * theta * cf_ip12 * 2. * qtheta_ip12 * abs_qtheta_ip12 / (htheta_ip12 * htheta_ip12 * htheta_ip12);
+
+                    double J1_ip12 = cf_ip12 * qtheta_ip12 / (htheta_ip12 * htheta_ip12) * dxinv * (Fabs(qtheta_ip1, eps_fabs) - Fabs(qtheta_i, eps_fabs));
+                    double J2_ip12 = cf_ip12 * abs_qtheta_ip12 / (htheta_ip12 * htheta_ip12);
+                    A.coeffRef(pq, ph + 1) += 0.5 * theta * (J1_ip12 + J2_ip12);
+                    A.coeffRef(pq, ph_e + 1) += 0.5 * theta * (J1_ip12 + J2_ip12);
+                    rhs[pq] += -(
+                        cf_ip12 * qtheta_ip12 * abs_qtheta_ip12 / (htheta_ip12 * htheta_ip12)
+                        );
                 }
                 if (momentum_viscosity) // 
                 {
@@ -1101,6 +1095,8 @@ int main(int argc, char* argv[])
                 //
                 // continuity part (added and multiplied by -c_wave)
                 //
+                double con_fac = c_wave;
+                if (momentum_convection) { con_fac = c_wave - qp_ip12 / hp_ip12; }
                 A.coeffRef(pq, ph) += -con_fac * dtinv * w_nat[0];
                 A.coeffRef(pq, ph_e) += -con_fac * dtinv * w_nat[1];
                 A.coeffRef(pq, ph_ee) += -con_fac * dtinv * w_nat[2];
@@ -1283,7 +1279,6 @@ int main(int argc, char* argv[])
                 //
                 // momentum + c_wave * continuity
                 // 
-                double con_fac = c_wave;
                 double dhdt = dtinv * (hp_i - hn_i) * w_nat[0]
                     + dtinv * (hp_im1 - hn_im1) * w_nat[1]
                     + dtinv * (hp_im2 - hn_im2) * w_nat[2];
@@ -1323,33 +1318,36 @@ int main(int argc, char* argv[])
                 }
                 if (momentum_bed_shear_stress) // 
                 {
+                    double cf_im1 = cf[i - 1];
+                    double cf_i = cf[i];
+                    double htheta_im12 = scv(htheta_i, htheta_im1);
+                    double qtheta_im12 = scv(qtheta_i, qtheta_im1);
+                    double abs_qtheta_im12 = scv(Fabs(qtheta_i, eps_fabs), Fabs(qtheta_im1, eps_fabs));
+                    double cf_im12 = scv(cf_i, cf_im1);
+                    //
+                    // bed_shear_stress
+                    //
+                    A.coeffRef(pq, ph  ) += -0.5 * theta * cf_im12 * 2. * qtheta_im12 * abs_qtheta_im12 / (htheta_im12 * htheta_im12 * htheta_im12);
+                    A.coeffRef(pq, ph_w) += -0.5 * theta * cf_im12 * 2. * qtheta_im12 * abs_qtheta_im12 / (htheta_im12 * htheta_im12 * htheta_im12);
+                    //
+                    double J1_im12 = cf_im12 * qtheta_im12 / (htheta_im12 * htheta_im12) * dxinv * (Fabs(qtheta_i, eps_fabs) - Fabs(qtheta_im1, eps_fabs));
+                    double J2_im12 = cf_im12 * abs_qtheta_im12 / (htheta_im12 * htheta_im12);
+                    A.coeffRef(pq, ph + 1) += 0.5 * theta * (J1_im12 + J2_im12);
+                    A.coeffRef(pq, ph_w + 1) += 0.5 * theta * (J1_im12 + J2_im12);
+                    //
+                    double rhs_bed_stress = -(
+                        cf_im12 * qtheta_im12 * abs_qtheta_im12 / (htheta_im12 * htheta_im12)
+                        );
+                    rhs[pq] += rhs_bed_stress;
                 }
                 if (momentum_viscosity) // 
                 {
-                    double cf_im1 = cf[i - 1];
-                    double cf_i = cf[i];
-
-                    double htheta_im14 = scv(htheta_i, htheta_im1);
-                    double qtheta_im14 = scv(qtheta_i, qtheta_im1);
-                    double abs_qtheta_im14 = scv(Fabs(qtheta_i, eps_fabs), Fabs(qtheta_im1, eps_fabs));
-
-                    double cf_im14 = scv(cf_i, cf_im1);
-
-                    double J1_im14 = cf_im14 * qtheta_im14 / (htheta_im14 * htheta_im14) * dxinv * (Fabs(qtheta_i, eps_fabs) - Fabs(qtheta_im1, eps_fabs));
-                    double J2_im14 = cf_im14 * abs_qtheta_im14 / (htheta_im14 * htheta_im14);
-
-                    A.coeffRef(pq, ph) += -theta * J1_im14 * 0.375;
-                    A.coeffRef(pq, ph_w) += -theta * J1_im14 * 0.75;
-                    A.coeffRef(pq, ph_ww) += -theta * J1_im14 * -0.125;
-                    A.coeffRef(pq, ph + 1) += -theta * J1_im14 * 0.375;
-                    A.coeffRef(pq, ph_w + 1) += -theta * J1_im14 * 0.75;
-                    A.coeffRef(pq, ph_ww + 1) += -theta * J1_im14 * -0.125;
-
-                    rhs[pq] += -(0.5 * dx * cf_im14 * abs_qtheta_im14 * qtheta_im14 / (htheta_im14 * htheta_im14));
                 }
                 //
                 // continuity part (added and multiplied by +c_wave)
                 //
+                double con_fac = c_wave;
+                if (momentum_convection) { con_fac = c_wave + qp_im12 / hp_im12; }
                 A.coeffRef(pq, ph) += con_fac * dtinv * w_nat[0];
                 A.coeffRef(pq, ph_w) += con_fac * dtinv * w_nat[1];
                 A.coeffRef(pq, ph_ww) += con_fac * dtinv * w_nat[2];
@@ -1413,17 +1411,20 @@ int main(int argc, char* argv[])
             if (regularization_iter)
             {
                 START_TIMER(Regularization_iter_loop);
-                for (int i = 0; i < nx; ++i)
+                if (momentum_viscosity)
                 {
-                    u[i] = qp[i] / hp[i];
+                    for (int i = 0; i < nx; ++i)
+                    {
+                        u[i] = qp[i] / hp[i];
+                    }
+                    (void)regular->first_derivative(psi, visc_reg, u, dx);
+                    for (int i = 0; i < nx; ++i)
+                    {
+                        visc[i] = visc_reg[i] * std::abs(psi[i]);
+                        pe[i] = qp[i] / hp[i] * dx / visc[i];
+                    }
                 }
-                (void)regular->first_derivative(psi, visc_reg, u, dx);
                 STOP_TIMER(Regularization_iter_loop);
-                for (int i = 0; i < nx; ++i)
-                {
-                    visc[i] = visc_reg[i] * std::abs(psi[i]);
-                    pe[i] = qp[i]/hp[i] * dx / visc[i];
-                }
             }
             if (logging)
             {
@@ -1573,7 +1574,6 @@ int main(int argc, char* argv[])
     log_file.close();
     status = his_file->close();
     status = map_file->close();
-    STOP_TIMER(Writing log-file);
 
     STOP_TIMER(Main);
     PRINT_TIMER(timing_filename.data());

@@ -164,6 +164,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\boundary_condition.cpp" />
     <ClCompile Include="src\cfts.cpp" />
     <ClCompile Include="src\definition_map_file.cpp" />
     <ClCompile Include="src\main_1d_wave.cpp" />
@@ -172,6 +173,7 @@
     <ClCompile Include="src\ugrid1d.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\boundary_condition.h" />
     <ClInclude Include="include\cfts.h" />
     <ClInclude Include="include\definition_map_file.h" />
     <ClInclude Include="include\perf_timer.h" />
