@@ -1,0 +1,7 @@
+openfile '.\output\bed_level_sloped_dx10_dt5_map.nc'
+selectfield 'Water depth'
+hselectiontype '(M,N) point/path'
+editmn '1:1:101'
+colour [ 0 0 1 ]
+plotcoordinate 'x coordinate'
+quickview

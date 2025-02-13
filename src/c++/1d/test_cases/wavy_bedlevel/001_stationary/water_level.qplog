@@ -1,0 +1,7 @@
+openfile '.\output\bed_level_wavy_dx2.5_dt0_map.nc'
+selectfield 'WaterLevel'
+hselectiontype '(M,N) point/path'
+editmn '1:1:403'
+colour [ 0 0 1 ]
+plotcoordinate 'x coordinate'
+quickview
