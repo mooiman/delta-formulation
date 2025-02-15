@@ -343,6 +343,17 @@ We have split the hyperbolic wave equation into a right and left going wave.
 Now we are able to apply the \textbf{natural} boundary conditions as described in \autoref{sec:1d_advection_equation} for each of the waves.
 The \textbf{essential} boundary condition is chosen to be an absorbing boundary, so no reflections at the boundaries will appear.
 
+For the place discretizations for an arbitrary function $u$, the following interpolations are used:
+\begin{align}
+    u_{i+\half} & = \half \left( u_{i+1} + u_{i} \right) &\textit{at interface of sub-control volume}
+    \\
+    u_{i+\quart} & = \quart \left( 3 u_{i} + u_{i+1} \right) &\textit{at quadrature point of sub-control volume}
+    \\
+    u_{i-\quart} & = \quart \left( 3 u_{i} + u_{i-1} \right) &\textit{at quadrature point of sub-control volume}
+\end{align}
+These formulas are visualized in \autoref{fig:1d_integration}.
+
+
 %------------------------------------------------------------------------------
 \subsection{Discretizations continuity equation}
 The discretization of the continuity equation will be presented term by term of \autoref{eq:continuity_equation}.
@@ -397,11 +408,11 @@ q^{n+\theta, p+1}_{i+\half} - q^{n+\theta, p+1}_{i-\half}.
 The linearization of the flux $q$ around iteration level $p$ reads then:
 \begin{align}
     q^{n+1,p}_{i+\half}  + \theta \Delta q^{n+1, p+1}_{i+\half}
-    - q^{n+1,p}_{i-\half}  - \theta \Delta q^{n+1, p+1}_{i-\half}
+    - q^{n+1,p}_{i-\half}  - \theta \Delta q^{n+1, p+1}_{i-\half} = \ldots
 \end{align}
 after rearranging the equation into an implicit left hand side and an explicit right hand side  it reads:
 \begin{align}
-\half  \theta \Delta q^{n+1, p+1}_{i} - \half \theta \Delta q^{n+1, p+1}_{i-1} = -\left\{ \half q^{n+1,p}_{i+1}  - \half q^{n+1,p}_{i-1}     \right\}
+\half  \theta \Delta q^{n+1, p+1}_{i} - \half \theta \Delta q^{n+1, p+1}_{i-1} = -\left\{ \half q^{n+1,p}_{i+1}  - \half q^{n+1,p}_{i-1} \right\} + \ldots
 \end{align}
 
 %------------------------------------------------------------------------------
@@ -441,29 +452,103 @@ after rearranging the equation into an implicit left hand side and an explicit r
     \frac{1}{8}\left(q^{n+1,p}_{i-1} - q^{n}_{i-1} \right) + \frac{3}{8}\left(q^{n+1,p}_{i}- q^{n}_{i}\right)
     \right) + \right.
     \nonumber \\*
-    & \left. +
+    & \qquad \left. +
     \frac{\Delta x_{i+\half}}{\Dt} \left( \frac{3}{8}\left(q^{n+1,p}_{i+1}- q^{n}_{i}\right) + \frac{1}{8}\left(q^{n+1,p}_{i+1}- q^{n}_{i+1}\right)
     \right)\right\}
+    + \dots
 \end{align}
-%------------------------------------------------------------------------------
-\subsubsection{Pressure gradient}
-\notyet
+
+%--------------------------------------------------------------------------------
+\subsubsection{Pressure term} \label{sec:pressure_dependent_on_zeta}
+The pressure term is dependent on the gradient of the water level $\zeta$ and reads:
+\begin{align}
+    & \int_{i-\half}^{i+\half} gh\pdiff{\zeta}{x} \,dx.
+\end{align}
+The acceleration due to gravity is assumed to be constant ($g={\it{constant}}$).
+We first linearize the equation and then discretize in space.
+The linearization of the pressure term around iteration level $p$ reads:
+\begin{align}
+    & g h \left. \pdiff{\zeta}{x} \right|^{n+\theta,p+1}  \approx
+    \\
+    & \approx g h^{n+\theta,p} \pdiff{\zeta^{n+\theta,p}}{x} +
+    \theta g \pdiff{\zeta^{n+\theta,p}}{x} \Delta h^{n+1, p+1} +
+    \theta g h^{n+\theta,p} \pdiff{}{x} \Delta \zeta^{n+1, p+1} \label{eq:pres_grad_zeta}
+\end{align}
+Computing the integral over the finite volume:
+\begin{align}
+    \int_{x_{i-\half}}^{x_{i+\half}} gh\pdiff{\zeta}{x} \,dx & = \int_{x_{i-\half}}^{x_{i}} gh\pdiff{\zeta}{x} \,dx +
+    \int_{x_{i}}^{x_{i+\half}} gh\pdiff{\zeta}{x} \,dx
+    \label{eq:pres_grad_zeta_fv}
+\end{align}
+with piecewise linear $h$ en piecewise linear $\zeta$, thus piecewise constant $\lpdiff{\zeta}{x}$.
+The first term of \autoref{eq:pres_grad_zeta} becomes:
+\begin{align}
+    & \int_{x_{i-\half}}^{x_{i}} g h^{n+\theta,p} \pdiff{\zeta^{n+\theta,p}}{x} \,dx +
+    \int_{x_{i}}^{x_{i+\half}} g h^{n+\theta,p} \pdiff{\zeta^{n+\theta,p}}{x} \,dx \approx
+    \nonumber \\*
+    & \approx \frac{\Dx_{i-\half}}{2}  g  h^{n+\theta,p}_{i-\quart} \frac{\zeta^{n+\theta,p}_i- \zeta^{n+\theta,p}_{i-1}}{\Dx_{i-\half}} +
+    \frac{\Dx_{i+\half}}{2} g h^{n+\theta,p}_{i+\quart} \frac{\zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i}}{\Dx_{i+\half}}
+    \\
+    & = \half g h^{n+\theta,p}_{i-\quart} \left(\zeta^{n+\theta,p}_i- \zeta^{n+\theta,p}_{i-1}\right)
+    +
+    \half g h^{n+\theta,p}_{i+\quart} \left(\zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i}\right)
+\end{align}
+The second term of \autoref{eq:pres_grad_zeta}
+\begin{align}
+    & \int_{x_{i-\half}}^{x_{i}} \theta g \pdiff{\zeta^{n+\theta,p}}{x}\Delta h^{n+1, p+1}_{i-\quart} \, dx +
+    \int_{x_{i}}^{x_{i+\half}} \theta g \pdiff{\zeta^{n+\theta,p}}{x}\Delta h^{n+1, p+1}_{i+\quart} \,dx \approx
+    \\
+    & \approx
+     \half \theta g  (\zeta^{n+\theta,p}_{i}- \zeta^{n+\theta,p}_{i-1}) \Delta h^{n+1, p+1}_{i-\quart} +
+     \half \theta g (\zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i}) \Delta h^{n+1, p+1}_{i+\quart}
+\end{align}
+The third term of \autoref{eq:pres_grad_zeta}
+\begin{align}
+    &\int_{x_{i-\half}}^{x_{i}} \theta g h^{n+\theta,p}_{i-\quart} \pdiff{}{x} \Delta \zeta^{n+1, p+1} \,dx + \int_{x_{i+\half}}^{x_{i}} \theta g h^{n+\theta,p}_{i+\quart} \pdiff{}{x} \Delta \zeta^{n+1, p+1} \,dx =
+    \\
+    & = \half \theta g h^{n+\theta,p}_{i-\quart}
+    \left(\Delta\zeta^{n+1,p+1}_{i}-\Delta\zeta^{n+1,p+1}_{i-1} \right) +
+    \half \theta g h^{n+\theta,p}_{i+\quart}
+    \left(\Delta\zeta^{n+1,p+1}_{i+1}-\Delta\zeta^{n+1,p+1}_{i} \right)
+\end{align}
+In a formulation of the shallow-water equations, where the water level is expressed as $\zeta = h + z_b$.
+The equations can be simplified, because
+\begin{align}
+    \Delta \zeta = \Delta (h + z_b) = \Delta h + \Delta z_b.
+\end{align}
+and if $\Delta z_b=0$, i.e.\ time independent, the contributions to the $\Delta \zeta$-equations need to be incorporated in the $\Delta h$-equations.
+Adjusting the matrix coefficients and right-hand side change accordingly.
 %------------------------------------------------------------------------------
 \subsubsection{Convection}
-\notyet
+The convection term read:
+\begin{align}
+    &  \int_{x_{i-\half}}^{x_{i+\half}} \pdiff{q^2/h}{x} \,dx
+    = \left. \frac{q^2}{h}\right|^{n+\theta, p+1}_{i+\half}
+    - \left. \frac{q^2}{h}\right|^{n+\theta, p+1}_{i-\half}
+\end{align}
+
+The linearization of the convection term around iteration level $p$ reads:
+\begin{align}
+    \left. \frac{q^2}{h}\right|^{n+\theta, p+1}
+    &\approx
+    \frac{(q^{n+\theta,p})^2}{h^{n+\theta,p}} +
+    2 \frac{q^{n+\theta,p}}{h^{n+\theta,p}} \theta \Delta q^{n+1,p+1}
+    - \frac{(q^{n+\theta,p})^2}{(h^{n+\theta,p})^2}  \theta \Delta h^{n+1,p+1}
+\end{align}
+(where $\Delta q^{n+\theta,p+1} = \theta \Delta q^{n+1,p+1}$ and $\Delta h^{n+\theta,p+1} = \theta \Delta h^{n+1,p+1}$, see \autoref{eq:delta_n_theta}).
 %------------------------------------------------------------------------------
 \subsubsection{Bed shear stress}
 The bed shear stress term reads:
 \begin{align}
     \int_{x_{i-\half}}^{x_{i+\half}} c_f\frac{q\abs{q}}{h^2} \,dx  & = \int_{x_{i-\half}}^{x_{i}} c_f\frac{q\abs{q}}{h^2} \,dx +
-    \int_{x_{i}}^{x_{i+\half}} c_f\frac{q\abs{q}}{h^2} \,dx
+    \int_{x_{i}}^{x_{i+\half}} c_f\frac{q\abs{q}}{h^2} \,dx \approx
     \\
-    & = \frac{\Dx_{i-\half}}{2} \left( {c_f}_{i-\quart}\frac{q_{i-\quart}\abs{q_{i-\quart}}}{(h_{i-\quart})^2}  \right)  +
+    & \approx \frac{\Dx_{i-\half}}{2} \left( {c_f}_{i-\quart}\frac{q_{i-\quart}\abs{q_{i-\quart}}}{(h_{i-\quart})^2}  \right)  +
     \frac{\Dx_{i+\half}}{2} \left( {c_f}_{i+\quart}\frac{q_{i+\quart}\abs{q_{i+\quart}}}{(h_{i+\quart})^2} \right)
 \end{align}
 To avoid the discontinue derivative of the abs-function, this function is replaced by the following  $C^2$-continue function:
 \begin{align}
-    \abs{q} = \Fabs(q) \approx \left( q^4 + \eps^4 \right)^{1/4}, \qquad \eps = 0.01
+    \abs{q} = \Fabs{q} \approx \left( q^4 + \eps^4 \right)^{1/4}, \qquad \eps = 0.01
     \label{eq:continue_abs}
 \end{align}
 We first linearize the equation and then discretize/integrate in space.
@@ -471,7 +556,7 @@ The linearization of the bed shear stress term around iteration level $p$ reads 
 %
 \begin{align}
     & \left.  {c_f}_{i-\quart} \Fabs{q_{i-\quart}} \frac{q_{i-\quart}}{(h_{i-\quart})^2} \right|^{n+\theta, p+1} \approx
-    \nonumber \\
+    \\
     & \approx {c_f}_{i-\quart} \Fabs{q^{n+\theta, p}_{i-\quart}}  \frac{q^{n+\theta, p}_{i-\quart}}{(h^{n+\theta, p}_{i-\quart})^2} +
     \nonumber \\
     & + {c_f}_{i-\quart} \pdiff{}{q}\left\{ \Fabs{q^{n+\theta, p}_{i-\quart}} \right\}   \frac{q^{n+\theta, p}_{i-\quart}}{(h^{n+\theta, p}_{i-\quart})^2} \theta \Delta q^{n+1, p+1}_{i-\quart} +
@@ -488,25 +573,44 @@ and
 The integral was split into two parts, both parts are integrated separately.
 For the left part ($x_{i-\quart}$) we use:
 \begin{align}
-    {c_f}_{i-\quart} & = \quart \left( {c_f}_{i-1} + 3 {c_f}_{i} \right)
-    \nonumber \\
+    {c_f}_{i-\quart} & = \quart \left( {c_f}_{i-1} + 3 {c_f}_{i} \right),
+    \\
+    h^{n+\theta, p}_{i-\frac{1}{4}} & = \frac{1}{4} \left( h^{n+\theta, p}_{i-1} + 3 h^{n+\theta, p}_{i} \right),
+    \\
     q^{n+\theta, p}_{i-\frac{1}{4}} & = \frac{1}{4} \left( q^{n+\theta, p}_{i-1} + 3 q^{n+\theta, p}_{i} \right),
-    \nonumber \\
-    h^{n+\theta, p}_{i-\frac{1}{4}} & = \frac{1}{4} \left( h^{n+\theta, p}_{i-1} + 3 h^{n+\theta, p}_{i} \right)
 \end{align}
 and for the right part ($x_{i+\quart}$) we use
 \begin{align}
-    {c_f}_{i+\quart} & = \quart \left( 3{c_f}_{i} + {c_f}_{i+1} \right)
-    \nonumber \\
-    q^{n+\theta, p}_{i+\frac{1}{4}} & = \frac{1}{4} \left( 3 q^{n+\theta, p}_{i} + q^{n+\theta, p}_{i+1} \right),
-    \nonumber \\
-    h^{n+\theta, p}_{i+\frac{1}{4}} & = \frac{1}{4} \left( 3 h^{n+\theta, p}_{i} + h^{n+\theta, p}_{i+1} \right)
+    {c_f}_{i+\quart} & = \quart \left( 3{c_f}_{i} + {c_f}_{i+1} \right),
+    \\
+    h^{n+\theta, p}_{i+\frac{1}{4}} & = \frac{1}{4} \left( 3 h^{n+\theta, p}_{i} + h^{n+\theta, p}_{i+1} \right),
+    \\
+    q^{n+\theta, p}_{i+\frac{1}{4}} & = \frac{1}{4} \left( 3 q^{n+\theta, p}_{i} + q^{n+\theta, p}_{i+1} \right).
 \end{align}
 
 
 %------------------------------------------------------------------------------
 \subsubsection{Viscosity}
-\notyet
+The viscosity term read:
+\begin{align}
+    &  \int^{i+\half}_{i-\half}\pdiff{}{x} \left( \nu h \pdiff{(q/h)}{x} \right)\ dx & =
+    \left. \nu \left( \pdiff{q}{x} - \frac{q}{h} \pdiff{h}{x} \right) \right|_{i+\half} - \left. \nu \left( \pdiff{q}{x} - \frac{q}{h} \pdiff{h}{x} \right) \right|_{i-\half}
+\end{align}
+The linearization of the viscosity term ($\nu = {\it constant}$) around iteration level $p$ read (see \autoref{sec:linearisation_viscosity} for a derivation):
+\begin{align}
+    &\nu \left(\pdiff{q^{n+\theta, p+1}_{i+\half}}{x} - \frac{q^{n+\theta, p+1}_{i+\half}}{h^{n+\theta, p+1}_{i+\half}} \pdiff{h^{n+\theta, p+1}_{i+\half}}{x} \right) \approx
+    \\
+    & \approx \nu  \pdiff{q^{n+\theta, p}_{i+\half}}{x}   -  \nu \frac{q^{n+\theta, p}_{i+\half}}{h^{n+\theta, p}_{i+\half}} \pdiff{h^{n+\theta, p}_{i+\half}}{x}  +
+    \nonumber \\
+    & + \theta \underbrace{\nu}_{\cal{A}} \pdiff{\Delta q^{n+1 p+1}_{i+\half}}{x}
+    -  \theta \underbrace{\nu \frac{1}{h^{n+\theta, p}}\pdiff{h^{n+\theta, p}_{i+\half}}{x}}_{\cal{B}} \Delta q^{n+1 p+1}_{i+\half}  +
+    \nonumber \\
+    & + \theta \underbrace{\nu \frac{q^{n+\theta, p}_{i+\half}}{(h^{n+\theta, p}_{i+\half})^2} \pdiff{h^{n+\theta, p}_{i+\half}}{x}}_{\cal{C}} \Delta h^{n+1 p+1}_{i+\half}
+    - \theta \underbrace{\nu \frac{q^{n+\theta, p}_{i+\half}}{h^{n+\theta, p}_{i+\half}}}_{\cal{D}} \pdiff{\Delta h^{n+1, p+1}_{i+\half}}{x}
+\end{align}
+where $\theta \cal{A}$, $\theta \cal{B}$, $\theta \cal{C}$ and $\theta \cal{D}$ are coefficients in the matrix of the \deltaformulation.
+For the part at $x_{i-\half}$ a similar expression is feasible.
+
 %------------------------------------------------------------------------------
 \subsection{Discretizations at boundary}
 For the 1D linear wave equations (\autoref{eq:1d_non_linear_wave2}) at each boundary one boundary condition need to be prescribed, that is the ingoing wave, called \textbf{essential} boundary condition (Dirichlet or Neumann condition).
@@ -632,7 +736,7 @@ After rearranging the equation into an implicit left hand side and an explicit r
 & \quad \frac{1}{\Dx}  g \left(  \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i} \right) \theta \Delta h^{n+1, p+1}_{i+\half} +   \frac{1}{\Dx} g h^{n+\theta, p}_{i+\half}
 \theta \left( \Delta \zeta^{n+1,p+1}_{i+1}  - \Delta \zeta^{n+1,p+1}_{i}\right) =
 \nonumber \\*
-&\qquad -\left\{
+&= -\left\{
 \frac{1}{\Dx} g h^{n+\theta,p}_{i+\half} \left( \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i}  \right)  \right\} + \ldots
 \end{align}
 %------------------------------------------------------------------------------
@@ -647,7 +751,7 @@ which will be approximated by
 \begin{align}
     & \left. \frac{2q}{h}\pdiff{q}{x}\right|_{i+\half} - \left. \frac{q^2}{h^2}\pdiff{h}{x}\right|_{i+\half}
     \approx
-    \nonumber \\
+    \\
     & \approx \underbrace{\frac{2q^{n+\theta, p}_{i+\half}}{ h^{n+\theta, p}_{i+\half}} \pdiff{}{x}\left( q^{n+\theta, p}_{i+\half} \right)
         - \frac{(q^{n+\theta, p}_{i+\half})^2}{(h^{n+\theta, p}_{i+\half})^2} \pdiff{}{x} \left( h^{n+\theta, p}_{i+\half} \right)}_{\textit{ to right handside}} +
     \nonumber \\

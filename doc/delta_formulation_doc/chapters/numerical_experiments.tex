@@ -192,13 +192,14 @@ The numerical experiment is performed with the following parameters:
 
 
 %--------------------------------------------------------------------------------
-\subsection{1-D Advection equation + $\mathbf{\exp(\phi)}$}
-Due to numerical discretization the value $c$ could become negative, in certain applications a positive value is reguired.
+\paragraph*{Strictly positive values of the constituent}
+When $c$ needs a strickly positive value (like a concentration) then due to numerical discretization the value $c$ could become negative, even if the initial and boundary values are positive.
+In certain applications a positive value is required and even small negative are not allowed.
 To ensure the positivity of the constituent $c$ we will write the equation with variable $\phi$, where $\phi$ is defined as:
 \begin{align}
-    \phi = \ln(c)
+    c = \exp(\ln(c)) =  \exp(\phi), \quad \text{with} \quad \phi = \ln(c)
 \end{align}
-The considered advection equation now reads:
+The considered advection equation (divided by $\exp\phi$) now reads:
 \begin{align}
     \pdiff{\phi}{t} + \pdiff{u\phi}{x} = 0,\label{eq:1d_advec_phi}
 \end{align}
@@ -240,11 +241,14 @@ The numerical experiment is performed with the following parameters:
 \end{itemize}
 %--------------------------------------------------------------------------------
 \section{1-D Wave equation}
+
+\subsection{Gaussian hump}
 The considered 1-D wave equation reads:
 \begin{align}
     \pdiff{h}{t}  + \pdiff{q}{x} & = 0 \qquad \textit{continuity eq.} \\
     \pdiff{q}{t}  + g h \pdiff{h}{x} & = 0 \qquad \textit{momentum eq.}
 \end{align}
+
 With initial conditions
 \begin{align}
     h(x,0) & = \zeta(x,0) - z_b(x),\\

@@ -1,0 +1,50 @@
+%--------------------------------------------------------------------------------
+\chapter{Linearization in time}
+%--------------------------------------------------------------------------------
+\section{Viscosity term}\label{sec:linearisation_viscosity}
+The viscosity term read:
+\begin{align}
+    &  \int^{i+\half}_{i-\half}\pdiff{}{x} \left( \nu h \pdiff{(q/h)}{x} \right)\ dx & =
+    \left. \nu \left( \pdiff{q}{x} - \frac{q}{h} \pdiff{h}{x} \right) \right|_{i+\half} - \left. \nu \left( \pdiff{q}{x} - \frac{q}{h} \pdiff{h}{x} \right) \right|_{i-\half}
+\end{align}
+Linearization of the viscosity term at $x_{i+\half}$ read, where $\Delta h^{n+1, p+1} = \Delta h$ and  $\Delta q^{n+1, p+1} = \Delta q$:
+\begin{align}
+    &\left. \nu h \pdiff{(q/h)}{x} \right|^{n+\theta, p+1}  = \left. \nu \left(\pdiff{q}{x} - \frac{q}{h} \pdiff{h}{x} \right) \right|^{n+\theta, p+1} \approx
+    \\
+    & \approx \nu \pdiff{}{x} \left( q^{n+\theta, p} + \theta \Delta q \right)
+    - \nu \frac{q^{n+\theta, p} + \theta \Delta q}{h^{n+\theta, p} + \theta \Delta h} \pdiff{}{x} \left( h^{n+\theta, p} + \theta \Delta h  \right) \approx
+\end{align}
+with
+\begin{align}
+    \frac{q^{n+\theta, p} + \theta \Delta q}{h^{n+\theta, p} + \theta \Delta h}
+    & \approx \frac{q^{n+\theta, p} + \theta \Delta q}{h^{n+\theta, p}}\left( 1 - \frac{\theta\Delta h}{h^{n+\theta, p}} +
+    \left( \frac{\theta\Delta h}{h^{n+\theta, p}}  \right)^2 - \left( \frac{\theta\Delta h}{h^{n+\theta, p}}  \right)^3 + \ldots \right) =
+    \\
+    & =
+    \frac{q^{n+\theta, p}}{h^{n+\theta, p}} - \frac{q^{n+\theta, p}}{(h^{n+\theta, p})^2}\theta\Delta h + \frac{1}{h^{n+\theta, p}}\theta \Delta q  + O\left( \Delta q\Delta h, \left(\Delta h\right)^2 \right)
+\end{align}
+yields, leaving out the terms of $O\left( \Delta q\Delta h, \left(\Delta h\right)^2 \right)$:
+\begin{align}
+    &\left. \nu h \pdiff{(q/h)}{x} \right|^{n+\theta, p+1}  = \left. \nu \left(\pdiff{q}{x} - \frac{q}{h} \pdiff{h}{x} \right) \right|^{n+\theta, p+1} \approx
+    \\
+    & \approx \nu \pdiff{}{x} \left( q^{n+\theta, p} + \theta\Delta q  \right) +
+    \\
+    & \quad - \nu \left( \frac{q^{n+\theta, p}}{h^{n+\theta, p}} + \frac{1}{h^{n+\theta, p}}\theta\Delta q - \frac{q^{n+\theta, p}}{(h^{n+\theta, p})^2}\theta\Delta h   \right) \pdiff{}{x} \left( h^{n+\theta, p} + \theta\Delta h  \right) =
+    \\
+    & = \nu \pdiff{ q^{n+\theta, p}}{x}  + \nu \pdiff{}{x} \theta \Delta q +
+    \\
+    & \quad - \nu \frac{q^{n+\theta, p}}{h^{n+\theta, p}} \pdiff{h^{n+\theta, p}}{x} - \nu \frac{q^{n+\theta, p}}{h^{n+\theta, p}}\pdiff{}{x} \theta\Delta h - \frac{1}{h^{n+\theta, p}}\pdiff{h^{n+\theta, p}}{x} \theta\Delta q + \frac{q^{n+\theta, p}}{(h^{n+\theta, p})^2} \pdiff{h^{n+\theta, p}}{x} \theta\Delta h
+\end{align}
+rearranged
+\begin{align}
+    &\left. \nu h \pdiff{(q/h)}{x} \right|^{n+\theta, p+1}
+    = \left. \nu \left(\pdiff{q}{x} - \frac{q}{h} \pdiff{h}{x} \right) \right|^{n+\theta, p+1} \approx
+\\
+    & = \nu \pdiff{ q^{n+\theta, p}}{x} - \nu \frac{q^{n+\theta, p}}{h^{n+\theta, p}} \pdiff{h^{n+\theta, p}}{x}  +
+\\
+    & \quad
+    + \nu \theta \pdiff{\Delta q}{x}
+    - \nu \theta \frac{1}{h^{n+\theta, p}}\pdiff{h^{n+\theta, p}}{x} \Delta q
+    + \nu \theta \frac{q^{n+\theta, p}}{(h^{n+\theta, p})^2} \pdiff{h^{n+\theta, p}}{x} \Delta h
+    - \nu \theta \frac{q^{n+\theta, p}}{h^{n+\theta, p}}\pdiff{\Delta h}{x}
+\end{align}
