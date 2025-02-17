@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
     std::string out_file;
     std::stringstream ss;
 
-    bool logging = tbl["Logging"].value_or(bool(false));
+    std::string logging = tbl["Logging"].value_or("None");
 
     bool stationary = false;
     double sign = 1.0;
@@ -820,46 +820,46 @@ int main(int argc, char* argv[])
                     //
                     // viscosity
                     // 
-                    double visc_im12 = 0.5 * (visc[i - 1] + visc[i]);
-                    double visc_ip12 = 0.5 * (visc[i] + visc[i + 1]);
+                    double visc_im12 = -0.5 * (visc[i - 1] + visc[i]);
+                    double visc_ip12 = -0.5 * (visc[i] + visc[i + 1]);
 
                     double A_im12 = visc_im12 * theta;
                     double A_ip12 = visc_ip12 * theta;
-                    double B_im12 = -visc_im12 * theta / (htheta_im12)*dxinv * (htheta_i - htheta_im1);
-                    double B_ip12 = -visc_ip12 * theta / (htheta_ip12)*dxinv * (htheta_ip1 - htheta_i);
+                    double B_im12 = -visc_im12 * theta / (htheta_im12) * dxinv * (htheta_i - htheta_im1);
+                    double B_ip12 = -visc_ip12 * theta / (htheta_ip12) * dxinv * (htheta_ip1 - htheta_i);
                     double C_im12 = visc_im12 * theta * qtheta_im12 / (htheta_im12 * htheta_im12) * dxinv * (htheta_i - htheta_im1);
                     double C_ip12 = visc_ip12 * theta * qtheta_ip12 / (htheta_ip12 * htheta_ip12) * dxinv * (htheta_ip1 - htheta_i);
                     double D_im12 = -visc_im12 * theta * qtheta_im12 / htheta_im12;
                     double D_ip12 = -visc_ip12 * theta * qtheta_ip12 / htheta_ip12;
                     // 
                     // nu theta d(dzeta)/dx
-                    A.coeffRef(pq, ph_w + 1) += dxinv * A_im12;
-                    A.coeffRef(pq, ph + 1) += -dxinv * A_im12;
-                    A.coeffRef(pq, ph + 1) += -dxinv * A_ip12;
-                    A.coeffRef(pq, ph_e + 1) += dxinv * A_ip12;
+                    A.coeffRef(pq, ph_w + 1) +=  dxinv * A_im12;
+                    A.coeffRef(pq, ph + 1)   += -dxinv * A_im12;
+                    A.coeffRef(pq, ph + 1)   += -dxinv * A_ip12;
+                    A.coeffRef(pq, ph_e + 1) +=  dxinv * A_ip12;
                     //
                     // - nu theta q/h dq
                     A.coeffRef(pq, ph_w + 1) += -0.5 * B_im12;
-                    A.coeffRef(pq, ph + 1) += -0.5 * B_im12;
-                    A.coeffRef(pq, ph + 1) += 0.5 * B_ip12;
-                    A.coeffRef(pq, ph_e + 1) += 0.5 * B_ip12;
+                    A.coeffRef(pq, ph + 1)   += -0.5 * B_im12;
+                    A.coeffRef(pq, ph + 1)   +=  0.5 * B_ip12;
+                    A.coeffRef(pq, ph_e + 1) +=  0.5 * B_ip12;
                     //
                     // nu theta q/h^2 d(h)/dx dh
                     A.coeffRef(pq, ph_w) += -0.5 * C_im12;
-                    A.coeffRef(pq, ph) += -0.5 * C_im12;
-                    A.coeffRef(pq, ph) += 0.5 * C_ip12;
-                    A.coeffRef(pq, ph_e) += 0.5 * C_ip12;
+                    A.coeffRef(pq, ph)   += -0.5 * C_im12;
+                    A.coeffRef(pq, ph)   +=  0.5 * C_ip12;
+                    A.coeffRef(pq, ph_e) +=  0.5 * C_ip12;
                     //
                     // - nu theta q/h d(dh)/dx
-                    A.coeffRef(pq, ph) += -dxinv * D_ip12;
-                    A.coeffRef(pq, ph_w) += dxinv * D_im12;
-                    A.coeffRef(pq, ph) += -dxinv * D_im12;
-                    A.coeffRef(pq, ph_e) += dxinv * D_ip12;
+                    A.coeffRef(pq, ph_w) +=  dxinv * D_im12;
+                    A.coeffRef(pq, ph)   += -dxinv * D_im12;
+                    A.coeffRef(pq, ph)   += -dxinv * D_ip12;
+                    A.coeffRef(pq, ph_e) +=  dxinv * D_ip12;
                     //
                     rhs_viscosity[pq] = -(
-                        visc_ip12 * dxinv * (qtheta_ip1 - qtheta_i) - visc_ip12 * qtheta_ip12 / htheta_ip12 * dxinv * (htheta_ip1 - htheta_i)
+                           visc_ip12 * dxinv * (qtheta_ip1 - qtheta_i) - visc_ip12 * qtheta_ip12 / htheta_ip12 * dxinv * (htheta_ip1 - htheta_i)
                         - (visc_im12 * dxinv * (qtheta_i - qtheta_im1) - visc_im12 * qtheta_im12 / htheta_im12 * dxinv * (htheta_i - htheta_im1)
-                            )
+                          )
                         );
                     rhs[pq] += rhs_viscosity[pq];
                 }
@@ -1152,15 +1152,15 @@ int main(int argc, char* argv[])
 
                 double zb_im12 = w_ess[0] * zb[i] + w_ess[1] * zb[i - 1] + w_ess[2] * zb[i - 2];
 
-                A.coeffRef(pq, ph) = 0.0;
-                A.coeffRef(pq, ph_w) = 0.0;
-                A.coeffRef(pq, ph_ww) = 0.0;
+                A.coeffRef(ph, ph) = 0.0;
+                A.coeffRef(ph, ph_w) = 0.0;
+                A.coeffRef(ph, ph_ww) = 0.0;
                 //
-                A.coeffRef(pq, ph + 1) = 0.0;
-                A.coeffRef(pq, ph_w + 1) = 0.0;
-                A.coeffRef(pq, ph_ww + 1) = 0.0;
+                A.coeffRef(ph, ph + 1) = 0.0;
+                A.coeffRef(ph, ph_w + 1) = 0.0;
+                A.coeffRef(ph, ph_ww + 1) = 0.0;
                 //
-                rhs[pq] = 0.0;
+                rhs[ph] = 0.0;
 
                 double h_given = ez_bnd - zb_im12;
                 double h_infty = h_given;  // s_offset - zb_im12;
@@ -1267,13 +1267,13 @@ int main(int argc, char* argv[])
                 qp_im12 = w_nat[0] * qp_i + w_nat[1] * qp_im1 + w_nat[2] * qp_im2;
                 qtheta_im12 = w_nat[0] * qtheta_i + w_nat[1] * qtheta_im1 + w_nat[2] * qtheta_im2;
                 //            
-                A.coeffRef(pq, ph_ww) = 0.0;
-                A.coeffRef(pq, ph_w) = 0.0;
                 A.coeffRef(pq, ph) = 0.0;
+                A.coeffRef(pq, ph_w) = 0.0;
+                A.coeffRef(pq, ph_ww) = 0.0;
                 //
-                A.coeffRef(pq, ph_ww + 1) = 0.0;
-                A.coeffRef(pq, ph_w + 1) = 0.0;
                 A.coeffRef(pq, ph + 1) = 0.0;
+                A.coeffRef(pq, ph_w + 1) = 0.0;
+                A.coeffRef(pq, ph_ww + 1) = 0.0;
                 //
                 rhs[pq] = 0.0;
                 //
@@ -1381,9 +1381,12 @@ int main(int argc, char* argv[])
             {
                 STOP_TIMER(BiCGStab);
             }
-            //log_file << "time [sec]:" << dt * double(nst) 
-            //         << "    iterations     :" << solver.iterations()
-            //         << "    estimated error:" << solver.error() << std::endl;
+            if (logging == "iterations" || logging == "matrix")
+            {
+                log_file << "time [sec]: " << std::setprecision(2) << std::scientific << time
+                         << "    BiCGstab iterations: " << solver.iterations()
+                         << "    estimated error:" << solver.error() << std::endl;
+            }
 
             // The new solution is the previous iterant plus the delta
             dh_max = 0.0;
@@ -1426,7 +1429,7 @@ int main(int argc, char* argv[])
                 }
                 STOP_TIMER(Regularization_iter_loop);
             }
-            if (logging)
+            if (logging == "matrix")
             {
                 log_file << "=== Matrix ============================================" << std::endl;
                 log_file << Eigen::MatrixXd(A) << std::endl;
@@ -1459,25 +1462,31 @@ int main(int argc, char* argv[])
             log_file << std::setprecision(8) << std::scientific
                 << "    Iter: " << used_newton_iter + 1
                 << "    Delta h^{n + 1,p + 1}: " << dh_max << " at: " << dh_maxi
-                << "    Delta q^{n + 1,p + 1}: " << dq_max << " at: " << dq_maxi;
+                << "    Delta q^{n + 1,p + 1}: " << dq_max << " at: " << dq_maxi
+                << std::endl;
         }
         else
         {
-            if (std::fmod(dt * double(nst), 900.) == 0)
+            if (std::fmod(time, 900.) == 0)
             {
-                std::cout << std::fixed << std::setprecision(2) << tstart + dt * double(nst) << ";   " << tstart + tstop << std::endl;
+                std::cout << std::fixed << std::setprecision(2) << tstart + time << ";   " << tstart + tstop << std::endl;
             }
-            //log_file << std::setprecision(8) << std::scientific
-            //    << tstart + dt * double(nst)
-            //    << "    Iter: " << used_newton_iter + 1
-            //    << "    Delta h^{n + 1,p + 1}: " << dh_max << " at: " << dh_maxi
-            //    << "    Delta q^{n + 1,p + 1}: " << dq_max << " at: " << dq_maxi;
+            if (logging == "iterations" || logging == "matrix")
+            {
+                log_file << "time [sec]: " << std::setprecision(2) << std::scientific << time
+                    << std::setprecision(8) << std::scientific
+                    << "    Newton iterations  : " << used_newton_iter + 1
+                    << "    Delta h^{n + 1,p + 1}: " << dh_max << " at: " << dh_maxi
+                    << "    Delta q^{n + 1,p + 1}: " << dq_max << " at: " << dq_maxi
+                    << std::endl;
+            }
+
         }
         if (used_newton_iter + 1 == iter_max)
         {
             if (dh_max > eps_newton || dq_max > eps_newton)
             {
-                log_file << "    ----    maximum number of iterations reached, probably not convergenced" << std::endl;
+                log_file << "    ----    maximum number of iterations reached, probably not converged" << std::endl;
             }
         }
         for (int i = 0; i < nx; ++i)
