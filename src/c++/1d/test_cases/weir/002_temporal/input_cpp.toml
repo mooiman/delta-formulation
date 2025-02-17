@@ -1,3 +1,5 @@
+# Logging = "iterations" # "iterations", "matrix" 
+
 [Domain]
     Lx = 500.0                                    # Domain length [m]
     geometry_type = "WeirBorsboom2000Geometry"
@@ -26,10 +28,10 @@
     momentum_bed_shear_stress = false             # Include bed shear stress
     momentum_viscosity = true                     # Include bed shear stress
     chezy_coefficient = 50.0                      # Chezy coefficient
-    viscosity = 0.1
+    viscosity = 1.0
 
 [Numerics]
-    dt = 0.0                                      # Time step size [s], if dt == 0: then stationary problem
+    dt = 1.0                                      # Time step size [s], if dt == 0: then stationary problem
     dx = 5.0                                      # Grid size [m]
     c_psi = 4.0
     iter_max = 25                                 # Maximum number of nonlinear iterations
