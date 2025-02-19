@@ -1,10 +1,12 @@
+# Logging = "iterations" # "iterations", "matrix" 
+
 [Domain]
     Lx = 500.0                                    # Domain length [m]
     geometry_type = "WeirBorsboom2000Geometry"
 
 [Time]
     tstart = 0.0                                  # Start time [s]
-    tstop = 10800.0                               # End time [s]
+    tstop = 7200.0                               # End time [s]
  
 [Initial]
     ini_vars = ["zeta"]
@@ -26,7 +28,7 @@
     momentum_bed_shear_stress = false             # Include bed shear stress
     momentum_viscosity = true                     # Include bed shear stress
     chezy_coefficient = 50.0                      # Chezy coefficient
-    viscosity = 0.1
+    viscosity = 2.5
 
 [Numerics]
     dt = 0.0                                      # Time step size [s], if dt == 0: then stationary problem
@@ -37,7 +39,7 @@
     use_eq8 = true
     regularization_init = true
     regularization_iter = true
-    regularization_time = true
+    regularization_time = false
     eps_newton = 1.0e-12
     eps_bicgstab = 1.0e-12
 
