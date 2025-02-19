@@ -12,3 +12,10 @@ editmn '1:1:103'
 colour [ 0 1 0 ]
 plotcoordinate 'x coordinate'
 addtoplot
+
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editmn '1:1:103'
+colour [ 0 0 1 ]
+plotcoordinate 'x coordinate'
+quickview
