@@ -225,7 +225,7 @@ int main(int argc, char* argv[])
     double dt_his = tbl_chp["dt_his"].value_or(double(1.0));  // write interval to his-file
     double dt_map = tbl_chp["dt_map"].value_or(double(0.0));  // write interval to his-file
 
-    REGULARIZATION* regular = new REGULARIZATION(iter_max);
+    REGULARIZATION* regularization = new REGULARIZATION(iter_max);
 
     double dxinv = 1./dx;                                 // invers grid size [m]
     int nx = int(Lx * dxinv) + 1 + 2 ;                    // number of nodes; including 2 virtual points
@@ -324,9 +324,8 @@ int main(int argc, char* argv[])
     std::vector<double> zb_ini(nx, -10.0);              // initial bed level
 
     std::vector<double> rhs_viscosity(2 * nx, 0.);      // rhs of the momentum equation for viscosity
-    std::vector<double> rhs_mom(nx, 0.);                // rhs of the momentum equation, t = n
-    std::vector<double> grad_q(nx, 0.);                 // gradient u, continuity equation
-    std::vector<double> grad_h(nx, 0.);                 // gradient zeta, momentum equation
+    std::vector<double> tmp1(nx, 0.);                 // help array
+    std::vector<double> tmp2(nx, 0.);                 // help array
 
     std::vector<double> qn(nx, 0.);                     // flow at (n)
     std::vector<double> hn(nx, 0.);                     // total depth at (n)
@@ -401,7 +400,7 @@ int main(int argc, char* argv[])
     status = initialize_bed_level(bed_level_type, x, zb_ini, model_title, depth);
     if (regularization_init)
     {
-        (void)regular->given_function(zb, psi, eq8, zb_ini, dx, c_psi, use_eq8);
+        (void)regularization->given_function(zb, psi, eq8, zb_ini, dx, c_psi, use_eq8);
     }
     else
     {
@@ -438,20 +437,15 @@ int main(int argc, char* argv[])
     if (regularization_init)
     {
         START_TIMER(Regularization_init);
-        (void)regular->given_function(visc_reg, psi, eq8, visc_given, dx, c_psi, use_eq8);
+        (void)regularization->given_function(visc_reg, psi, eq8, visc_given, dx, c_psi, use_eq8);
         STOP_TIMER(Regularization_init);
-        //log_file << "=== visc_reg ==========================================" << std::endl;
-        //for (int i = 0; i < nx; ++i)
-        //{
-        //    log_file << std::setprecision(15) << std::scientific << visc_reg[i] << std::endl;
-        //}
     }
 
     // Merge delta depth and delta flux in one solution-vector (initial equal to zero)
     for (int i = 0; i < nx; i++)
     {
-        solution[2 * i] = 0.0;  // \Delta h; continuity
-        solution[2 * i + 1] = 0.0;  // \Delta q; momentum
+        solution[2 * i] = 0.0;  // Delta h; continuity
+        solution[2 * i + 1] = 0.0;  // Delta q; momentum
     }
 
     double time = double(0) * dt;
@@ -469,6 +463,7 @@ int main(int argc, char* argv[])
     map_names.push_back("zb_1d");
     map_names.push_back("delta_h");
     map_names.push_back("delta_q");
+    map_names.push_back("visc_reg_1d");
     map_names.push_back("visc_1d");
     map_names.push_back("psi_1d");
     map_names.push_back("eq8_1d");
@@ -486,10 +481,11 @@ int main(int argc, char* argv[])
     map_file->put_time_variable(map_names[4], nst_map, zb);
     map_file->put_time_variable(map_names[5], nst_map, delta_h);
     map_file->put_time_variable(map_names[6], nst_map, delta_q);
-    map_file->put_time_variable(map_names[7], nst_map, visc);
-    map_file->put_time_variable(map_names[8], nst_map, psi);
-    map_file->put_time_variable(map_names[9], nst_map, eq8);
-    map_file->put_time_variable(map_names[10], nst_map, pe);
+    map_file->put_time_variable(map_names[7], nst_map, visc_reg);
+    map_file->put_time_variable(map_names[8], nst_map, visc);
+    map_file->put_time_variable(map_names[9], nst_map, psi);
+    map_file->put_time_variable(map_names[10], nst_map, eq8);
+    map_file->put_time_variable(map_names[11], nst_map, pe);
 
     ////////////////////////////////////////////////////////////////////////////
     // Create time history file
@@ -1420,9 +1416,11 @@ int main(int argc, char* argv[])
                     {
                         u[i] = qp[i] / hp[i];
                     }
-                    (void)regular->first_derivative(psi, visc_reg, u, dx);
+                    //(void)regularization->first_derivative(psi, visc_reg, u, dx);
+                    (void)regularization->given_function(tmp1, psi, eq8, u, dx, c_psi, use_eq8);
                     for (int i = 0; i < nx; ++i)
                     {
+                        qp[i] = tmp1[i] * hp[i];
                         visc[i] = visc_reg[i] * std::abs(psi[i]);
                         pe[i] = qp[i] / hp[i] * dx / visc[i];
                     }
@@ -1501,13 +1499,20 @@ int main(int argc, char* argv[])
 
         if (regularization_time)
         {
-            START_TIMER(Regularization_time_loop);
-            (void)regular->first_derivative(psi, visc_reg, u, dx);
-            STOP_TIMER(Regularization_time_loop);
-            for (int i = 0; i < nx; ++i)
+            if (momentum_viscosity)
             {
-                visc[i] = visc_reg[i] * std::abs(psi[i]);
-                pe[i] = u[i] * dx / visc[i];
+                for (int i = 0; i < nx; ++i)
+                {
+                    u[i] = qp[i] / hp[i];
+                }
+                //(void)regularization->first_derivative(psi, visc_reg, u, dx);
+                (void)regularization->given_function(tmp1, psi, eq8, u, dx, c_psi, use_eq8);
+                for (int i = 0; i < nx; ++i)
+                {
+                    qp[i] = tmp1[i] * hp[i];
+                    visc[i] = visc_reg[i] * std::abs(psi[i]);
+                    pe[i] = qp[i] / hp[i] * dx / visc[i];
+                }
             }
         }
 
@@ -1532,10 +1537,11 @@ int main(int argc, char* argv[])
             map_file->put_time_variable(map_names[4], nst_map, zb);
             map_file->put_time_variable(map_names[5], nst_map, delta_h);
             map_file->put_time_variable(map_names[6], nst_map, delta_q);
-            map_file->put_time_variable(map_names[7], nst_map, visc);
-            map_file->put_time_variable(map_names[8], nst_map, psi);
-            map_file->put_time_variable(map_names[9], nst_map, eq8);
-            map_file->put_time_variable(map_names[10], nst_map, pe);
+            map_file->put_time_variable(map_names[7], nst_map, visc_reg);
+            map_file->put_time_variable(map_names[8], nst_map, visc);
+            map_file->put_time_variable(map_names[9], nst_map, psi);
+            map_file->put_time_variable(map_names[10], nst_map, eq8);
+            map_file->put_time_variable(map_names[11], nst_map, pe);
             STOP_TIMER(Writing map-file);
         }
 

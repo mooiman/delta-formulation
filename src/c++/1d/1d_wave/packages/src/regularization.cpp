@@ -371,22 +371,20 @@ void REGULARIZATION::given_function(std::vector<double>& u_out, std::vector<doub
 void REGULARIZATION::first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx)
 {
     int nx = (int)eps.size();
-    std::vector<double> pe(nx, 0.0);
-    double pe_threshold = 1.8;
+    double peclet = 0.0;
+    double peclet_threshold = 1.9;
 
     for (int i = 0; i < nx; ++i)
     {
-        pe[i] = std::abs(u[i] * dx / eps[i]);
-    }
-    for (int i = 0; i < nx; ++i)
-    {
+        peclet = std::abs(u[i] * dx / eps[i]);
         psi[i] = 1.0;
-        if (pe[i] > pe_threshold)
+        if (peclet > peclet_threshold)
         { 
-            psi[i] = pe[i] / pe_threshold;
+            psi[i] = peclet/ peclet_threshold;
         }
     }
 }
+
 std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(double dx, std::vector<double> psi, std::vector<double> u_giv)
 {
     int nx = psi.size();
@@ -456,7 +454,6 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(double dx, std::v
 
     return u;
 };
-
 
 std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(double c_error, std::vector<double> u0, std::vector<double> u0_xixi)
 {
