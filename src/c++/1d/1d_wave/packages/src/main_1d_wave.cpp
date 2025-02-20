@@ -943,6 +943,7 @@ int main(int argc, char* argv[])
                         // momentum + c_wave * continuity (ingoing signal)
                         // 
                         double con_fac = c_wave;
+                        if (momentum_convection) { con_fac = c_wave + qp_ip12 / hp_ip12; }
                         // 
                         // momentum part
                         // 
@@ -1188,6 +1189,7 @@ int main(int argc, char* argv[])
                         // momentum - c_wave * continuity (ingoing signal)
                         // 
                         double con_fac = c_wave;
+                        if (momentum_convection) { con_fac = c_wave - qp_ip12 / hp_ip12; }
                         // 
                         // momentum part
                         // 
