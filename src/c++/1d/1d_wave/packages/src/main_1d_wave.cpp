@@ -1443,7 +1443,7 @@ int main(int argc, char* argv[])
                 log_file << "=== hp, qp ============================================" << std::endl;
                 for (int i = 0; i < nx; ++i)
                 {
-                    log_file << std::setprecision(8) << std::scientific << hp[i] << "' " << qp[i] << std::endl;
+                    log_file << std::setprecision(8) << std::scientific << hp[i] << ", " << qp[i] << std::endl;
                 }
                 log_file << "=======================================================" << std::endl;
             }
@@ -1524,14 +1524,7 @@ int main(int argc, char* argv[])
             // Put data on time map file
             START_TIMER(Writing map-file);
             nst_map++;
-            if (stationary)
-            {
-                map_file->put_time(nst_map, double(nst));
-            }
-            else
-            {
-                map_file->put_time(nst_map, double(nst) * dt);
-            }
+            map_file->put_time(nst_map, time);
             map_file->put_time_variable(map_names[0], nst_map, hn);
             map_file->put_time_variable(map_names[1], nst_map, qn);
             map_file->put_time_variable(map_names[2], nst_map, s);
@@ -1552,14 +1545,7 @@ int main(int argc, char* argv[])
         {
             START_TIMER(Writing his-file);
             nst_his++;
-            if (stationary)
-            {
-                his_file->put_time(nst_his, double(nst));
-            }
-            else
-            {
-                his_file->put_time(nst_his, double(nst)* dt);
-            }
+            his_file->put_time(nst_his, time);
             std::vector<double> his_values = { hn[i_left], hn[i_mid_left], hn[i_mid], hn[i_mid_right],  hn[i_right] };
             his_file->put_variable(his_h_name, nst_his, his_values);
             his_values = { qn[i_left], qn[i_mid_left], qn[i_mid], qn[i_mid_right],  qn[i_right] };
