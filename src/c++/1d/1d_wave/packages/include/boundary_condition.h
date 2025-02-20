@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <vector>
 #include <cmath>
+#include <string>
 
 void boundary_condition(double&, double&, double&, double&, double&, double&, int);
 
