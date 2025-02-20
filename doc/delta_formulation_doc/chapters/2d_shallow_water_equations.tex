@@ -1,0 +1,67 @@
+%-------------------------------------------------------------------------------
+\chapter{2-D Shallow water equations}
+%-------------------------------------------------------------------------------
+Consider the non-linear wave equation
+\begin{subequations}
+    \begin{align}
+        \pdiff{h}{t} + \nabla \dotp \vec{q} & = 0,
+        \\
+        \pdiff{\vec{q}}{t} +  \nabla \dotp \left( \vec{q}\vec{q}^T/h\right) + \half g \nabla h^2 & = -gh\nabla z_b,
+    \end{align}
+\end{subequations}
+or
+\begin{subequations}
+    \begin{align}
+    \pdiff{h}{t} + \nabla \dotp \vec{q} & = 0,
+    \\
+    \pdiff{\vec{q}}{t} +  \nabla \dotp \left( \vec{q}\vec{q}^T/h\right) + gh \nabla \zeta & = 0,
+    \\
+    \zeta & = h + z_b,
+\end{align}
+\end{subequations}
+with
+\begin{symbollist}
+    \item[$\zeta$] Water level  w.r.t.\ reference plane ($\zeta = h + z_b$), [\si{\metre}].
+    \item[$h$] Water depth ($h = \zeta - z_b$), [\si{\metre}].
+    \item[$z_b$] Bed level  w.r.t.\ reference plane, [\si{\metre}].
+    \item[$\vec{q}$] Flow, defined as $\vec{q} = (q, r)^T = (hu, hv)^T$, [\si{\square\metre\per\second}].
+    \item[$\vec{u}$] Velocity vector, defined as $\vec{u} = (u, v)^T$, [\si{\metre\per\second}].
+    \item[$g$] Acceleration due to gravity, \si{[\metre\per\square\second]}.
+\end{symbollist}
+\subsection*{Finite Volume approach}
+Integrating the equations over a finite volume $\Omega$ yields:
+\begin{subequations}
+    \begin{align}
+        \int_\Omega \pdiff{h}{t}\, d\omega
+        + \int_\Omega \nabla \dotp \vec{q}\, d\omega & = 0,
+        \\
+        \int_\Omega \pdiff{\vec{q}}{t}\, d\omega
+        + \int_\Omega \nabla \dotp \left( \vec{q}\vec{q}^T/h\right)\, d\omega
+        + \int_\Omega \half  \nabla \left( g h^2 \right) \, d\omega & =
+        - \int_\Omega gh\nabla z_b\, d\omega,
+    \end{align}
+    \label{sec:pressure_dependent_on_h}
+\end{subequations}
+or
+\begin{subequations}
+\begin{align}
+    \int_\Omega \pdiff{h}{t}\, d\omega + \int_\Omega \nabla \dotp \vec{q}\, d\omega & = 0,
+    \\
+    \int_\Omega \pdiff{\vec{q}}{t}\, d\omega
+    + \int_\Omega \nabla \dotp \left( \vec{q}\vec{q}^T/h\right)\, d\omega
+    + \int_\Omega gh \nabla \zeta\, d\omega & = 0,
+    \\
+    \int_\Omega \zeta\, d\omega & = \int_\Omega h\, d\omega + \int_\Omega z_b\, d\omega,
+\end{align}
+\label{sec:pressure_dependent_on_zeta}
+\end{subequations}
+
+%-------------------------------------------------------------------------------
+\section{Space discretisation}
+\notyet
+%-------------------------------------------------------------------------------
+\subsection{Space discretisation, structured}
+\notyet
+%-------------------------------------------------------------------------------
+\subsection{Space discretisation, unstructured}
+\notyet
