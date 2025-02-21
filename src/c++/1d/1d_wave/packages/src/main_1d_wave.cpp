@@ -1524,7 +1524,14 @@ int main(int argc, char* argv[])
             // Put data on time map file
             START_TIMER(Writing map-file);
             nst_map++;
-            map_file->put_time(nst_map, time);
+            if (stationary)
+            {
+                map_file->put_time(nst_map, double(nst));
+            }
+            else
+            {
+                map_file->put_time(nst_map, double(nst) * dt);
+            }
             map_file->put_time_variable(map_names[0], nst_map, hn);
             map_file->put_time_variable(map_names[1], nst_map, qn);
             map_file->put_time_variable(map_names[2], nst_map, s);
@@ -1545,7 +1552,14 @@ int main(int argc, char* argv[])
         {
             START_TIMER(Writing his-file);
             nst_his++;
-            his_file->put_time(nst_his, time);
+            if (stationary)
+            {
+                his_file->put_time(nst_his, double(nst));
+            }
+            else
+            {
+                map_file->put_time(nst_his, double(nst) * dt);
+            }
             std::vector<double> his_values = { hn[i_left], hn[i_mid_left], hn[i_mid], hn[i_mid_right],  hn[i_right] };
             his_file->put_variable(his_h_name, nst_his, his_values);
             his_values = { qn[i_left], qn[i_mid_left], qn[i_mid], qn[i_mid_right],  qn[i_right] };
