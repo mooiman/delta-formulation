@@ -267,32 +267,29 @@ Both figures does show the same discretization function (cyan colored) but the s
         \includegraphics[width=1.0\textwidth]{figures/regul_2_1d_scalar_dx100.pdf}
         \caption{Step at boundary of a finite volume, $x = 1050\ [m]$}
     \end{subfigure}
-    \caption{As seen from this figures the function defined on the grid nodes does not see the exact location of the step. Both function through the grid nodes have the same profile, but the step is at an other location. \label{fig:straight_forward_discretization}}
+    \caption{As seen from this figures the function defined on the grid nodes does not see the exact location of the step. Both function through the grid nodes have the same profile, but the step is at another location. \label{fig:straight_forward_discretization}}
 \end{figure}
 %
 A piecewise approximation with a regularization coefficient of zero ($c_\Psi = 0$) is shown in \autoref{fig:ex_step_function_no_regularization}.
-Which looks quite well, but what is the value of the second derivative of the solution.
-For $\Dx=100\ [m]$ the absolute value of the second derivative is
-
-\todo{Determine the value of the second derivative, Dx = 100\ m and Dx = 50\  m}
+%
 \begin{figure}[H]
     \centering
     \begin{subfigure}[t]{0.49\textwidth}
         \centering
         \includegraphics[width=1.0\textwidth]{figures/regul_1_1d_step_function_dx100.0_cpsi1e-06.pdf}
-        \caption{Step at grid node, $x = 500\ [m]$}
+        \caption{Step at grid node, $x = 500\ [m]$}\label{fig:ex_step_function_no_regularization_a}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.49\textwidth}
         \centering
         \includegraphics[width=1.0\textwidth]{figures/regul_2_1d_step_function_dx100.0_cpsi1e-06.pdf}
-        \caption{Step at boundary finite volume, $x = 550\ [m]$}
+        \caption{Step at boundary finite volume, $x = 550\ [m]$}\label{fig:ex_step_function_no_regularization_b}
     \end{subfigure}
     \caption{Step function approximated by a piecewise linear function (red line with dots at the nodes), $c_{\Psi} = 0$, $\Dx = 100\ [m]$ and $\Psi = 0$. The thin green vertical lines indicate the  borders of the finite volumes. \label{fig:ex_step_function_no_regularization}}
 \end{figure}
 As seen from  \autoref{fig:ex_step_function_no_regularization} the step is more taken into account as is presented in \autoref{fig:straight_forward_discretization}.
-For $\Dx=\SI{100}{[\metre]}$ the absolute value of the second derivative is \ldots
-\todo{Determine the value of the second derivative, Dx = 100\ m and Dx = 50\  m}
+Which looks quite well, but what are the values of the second derivative of the solution.
+For $\Dx=\SI{100}{[\metre]}$ the absolute value of the second derivative is $0.5/(100)^2$ (\autoref{fig:ex_step_function_no_regularization_a}) and $1.0/(100)^2$ (\autoref{fig:ex_step_function_no_regularization_b}).
 
 
 There are two options to estimate this step function by a piecewise linear smooth function with the same numerical accuracy:

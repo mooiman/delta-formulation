@@ -34,6 +34,9 @@
     dx = 1.25                                      # Grid size [m]
     iter_max = 25                                 # Maximum number of nonlinear iterations
     theta = 0.501                                 # Implicitness factor (0.5 <= theta <= 1.0)
+    regularization_init = true
+    regularization_iter = false
+    regularization_time = false
     eps_newton = 1.0e-12
     eps_bicgstab = 1.0e-12
 

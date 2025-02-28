@@ -57,11 +57,100 @@ or
 \end{subequations}
 
 %-------------------------------------------------------------------------------
-\section{Space discretisation}
-\notyet
+\section{Space discretisation, structured}
+\begin{figure}[H]
+    \begin{center}
+        \def\svgwidth{0.80\textwidth} % scaling text
+        \resizebox{0.65\textwidth}{!}{
+            \input{figures/2d_cartesian_grid.pdf_tex}
+        }
+    \end{center}
+    \caption{Coefficients for the mass-matrix in 2-dimensions on a structured grid.}
+    \label{fig:2d_structured_grid}
+\end{figure}
+For the space discretizations of an arbitrary function $u$ on the quadrature point of a sub-control volume the following space interpolations are used:
+\begin{align}
+    \left. u\right|_{i+\quart, j+\quart} & \approx \frac{1}{16}\left( 9u_{i, j} + 3 u_{i+1,j}  + 3  u_{i, j+1} + u_{i+1, j+1}\right)
+    \\
+    \left. \pdiff{u}{x}\right|_{i+\quart, j+\quart} & \approx \quart \left( 3 u_{i+1,j} - 3 u_{i,j} + u_{i+1, j+1} - u_{i, j+1} \right)
+    \\
+    \left. \pdiff{u}{y}\right|_{i+\quart, j+\quart} & \approx \quart \left( 3 u_{i, j+1} - 3 u_{i, j} + u_{i+1, j+1} - u_{i+1, j}\right)
+\end{align}
+See \autoref{fig:2d_structured_grid}.
 %-------------------------------------------------------------------------------
-\subsection{Space discretisation, structured}
-\notyet
+\subsection{Discretizations continuity equation}
 %-------------------------------------------------------------------------------
-\subsection{Space discretisation, unstructured}
+\subsection{Discretizations momentum equations}
+%--------------------------------------------------------------------------------
+\subsubsection{Time derivative}
+\notyet
+%--------------------------------------------------------------------------------
+\subsubsection{Pressure term} \label{sec:linearized_pressure_zeta}
+In this section we use that the pressure term is dependent on $\zeta$.
+\begin{align}
+    \int_{\Omega_i} gh \nabla \zeta \, d\omega
+\end{align}
+The integral over a control volume will be a sum of integrals over the sub control volumes.
+On a structured mesh it will be the sum over 4 sub control volumes.
+
+Considering one control volume and only the $x$-direction (assuming a cartesian grid) it reads:
+\begin{align}
+    & \int_{\Omega_{\textit{scv}}} gh \nabla \zeta \, d\omega  \approx
+    \\
+    & \approx \quart \Dx\Dy\, g h^{n+\theta,p+1}_{qp} \pdiff{\zeta^{n+\theta,p+1}_{qp}}{x}
+    \\
+   & \approx \quart  \Dx\Dy\, g \left( h^{n+\theta,p}_{qp} + \theta \Delta h^{n+1,p+1}\right)  \pdiff{}{x}\left(\zeta^{n+\theta,p}_{qp} + \theta \Delta \zeta^{n+1,p+1}_qp\right)
+\end{align}
+with $qp$ the location of the quadrature point in the sub-control volume.
+Assume that the higher order terms are negligible then the discretization for each of the 4 sub-control volumes reads:
+\begin{align}
+        \quart  \Dx\Dy\, g \left(
+        h^{n+\theta,p}_{qp} \pdiff{\zeta^{n+\theta,p}_{qp}}{x}
+        + \theta h^{n+\theta,p}_{qp} \pdiff{\Delta \zeta^{n+1,p+1}_{qp}}{x}
+        + \theta \pdiff{\zeta^{n+\theta,p}_{qp}}{x} \Delta h^{n+1,p+1}_{qp}
+          \right)
+\end{align}
+
+%--------------------------------------------------------------------------------
+\subsubsection{Convection}
+\notyet
+
+%--------------------------------------------------------------------------------
+\subsubsection{Bed shear stress}
+\notyet
+
+%--------------------------------------------------------------------------------
+\subsubsection{Pressure term, dependent on $h$}
+In this section we use that the pressure term is dependent on $h$.
+\begin{align}
+    \int_{\Omega_i} \half  \nabla \left( g h^2\right) \, d\omega & =
+    \int_{\partial\Omega_i} \half  g h^2 \vec{\hat n}\, dl \label{eq:2d_press_term}
+\end{align}
+The linearization of the pressure term in the momentum equation around iteration level $p$ read:
+\begin{align}
+    \half g \left(h^{n+\theta,p+1}_{\partial\Omega_i}\right)^2  & =
+    \half g \left(h^{n+\theta,p+1}_{\partial\Omega_i}\right)^2
+    + g h^{n+\theta,p+1}_{\partial\Omega_i} \left({h}^{n+\theta,p+1} - {h}^{n+\theta,p}\right) =
+    \\
+    & = \half g \left(h^{n+\theta,p+1}_{\partial\Omega_i}\right)^2 + \theta  g h^{n+\theta,p+1}_{\partial\Omega_j} \Delta {h}^{n+1,p+1}
+\end{align}
+
+The component in $x$-direction read:
+\begin{align}
+    \int_{\partial\Omega_i} & \half  g h^2 \vec{\hat n} \dotp \vec{i_x}\, dl \approx
+    \nonumber \\
+    \approx  & \Dy \left( \half g \left(h^{n+\theta,p}_{i+\half,j}\right)^2 + \theta  g h^{n+\theta,p+1}_{i+\half,j} \Delta {h}^{n+1,p+1}_{i+\half,j}  \right) +
+    \nonumber \\
+    - & \Dy \left( \half g \left(h^{n+\theta,p}_{i-\half,j}\right)^2 + \theta  g h^{n+\theta,p+1}_{i-\half,j} \Delta {h}^{n+1,p+1}_{i-\half,j}  \right)
+\end{align}
+The component in $y$-direction read:
+\begin{align}
+    \int_{\partial\Omega_i} & \half  g h^2 \vec{\hat n} \dotp \vec{i_y}\, dl \approx
+    \nonumber \\
+    \approx  & \Dx \left( \half g \left(h^{n+\theta,p}_{i,j+\half}\right)^2 + \theta  g h^{n+\theta,p+1}_{i,j+\half} \Delta {h}^{n+1,p+1}_{i,j+\half}  \right) +
+    \nonumber \\
+    - & \Dx \left( \half g \left(h^{n+\theta,p}_{i,j-\half}\right)^2 + \theta  g h^{n+\theta,p+1}_{i,j-\half} \Delta {h}^{n+1,p+1}_{i,j-\half}  \right)
+\end{align}
+%-------------------------------------------------------------------------------
+\section{Space discretisation, unstructured}
 \notyet

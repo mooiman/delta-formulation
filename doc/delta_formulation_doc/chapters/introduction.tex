@@ -58,16 +58,16 @@ In \autoref{sec:time_integration}: \nameref{sec:time_integration}, the fully imp
 In \autoref{sec:1d_swe}: \nameref{sec:1d_swe}, the fully implicit time integration is presented for one dimensional shallow water equations.
 We start with the implementation of the 1D advection/transport equation, then with the implementation of the wave equation without convection.
 This 1D wave equation consist of two independent advection/transport equation for a right and left going signal.
-We start with 1D advection/transport equation because this equation because this equation has the same nature as the right going signal of the wave equation.
+At the boundary these two equations are coupled and will therefor generate reflections in the numerical model.
+We start with 1D advection/transport equation because this equation has the same nature as the right going signal of the wave equation.
 
 
+In \autoref{sec:numerical_experiments}: \nameref{sec:numerical_experiments}, several numerical experiments will be shown.
+Starting with some examples with just a source/sink-term, so only a time integration and without transport and diffusion (\nameref{sec:air_pollution} and \nameref{sec:brusselator}).
+Followed by numerical experiments of the advection-diffusion equation (with and without diffusion), the 1D-wave equation and 2D-wave equation.
 
 In \autoref{sec:1d_numerical_experiments}: \nameref{sec:1d_numerical_experiments}, the fully implicit time integration is presented for the advection diffusion equation.
 Showing a flow from left to right with a interface in the diffusion coefficient for the transported constituent.
-
-In \autoref{sec:1d_non_linear_wave_equation}: \nameref{sec:1d_non_linear_wave_equation}, the fully implicit time integration is presented for the non-linear wave equations.
-These equations are separated in a left- and right-going signal represented by a left and right transport equation.
-At the boundary these two equations are coupled and will therefor generate reflections in the numerical model.
 
 
 %\newpage

@@ -5,7 +5,7 @@
 
 [Time]
     tstart = 0.0                                  # Start time [s]
-    tstop = 10800.0                               # End time [s]
+    tstop = 21600.0                               # End time [s]
         
 [Initial]
     ini_vars = ["zeta"]
@@ -34,9 +34,12 @@
     dx = 10.0                                      # Grid size [m]
     iter_max = 25                                 # Maximum number of nonlinear iterations
     theta = 0.501                                 # Implicitness factor (0.5 <= theta <= 1.0)
+    regularization_init = true
+    regularization_iter = false
+    regularization_time = false
     eps_newton = 1.0e-12
     eps_bicgstab = 1.0e-12
 
 [Output]
     dt_his = 5.0   # [s]
-    dt_map = 15.0  # [s] 
+    dt_map = 0.0  # [s] 
