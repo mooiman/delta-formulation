@@ -1,6 +1,6 @@
 //
 // Programmer: J. Mooiman
-// Date      : 2024-12-30
+// Date      : 2025-03-01
 // email     : jan.mooiman@outlook.com
 //
 // Advection equation: dc/dt + d(uc)/dx = 0

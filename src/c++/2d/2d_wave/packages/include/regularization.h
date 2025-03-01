@@ -1,10 +1,10 @@
 //
 // programmer: Jan Mooiman
-// Email: jan.mooiman@deltares.nl
+// Email: jan.mooiman@outlook.com
 //
-
 #ifndef __ADV_DIFF_REGULARIZATION_H__
 #define __ADV_DIFF_REGULARIZATION_H__
+
 #include <cstdlib>
 #include <fstream>
 #include <iostream>

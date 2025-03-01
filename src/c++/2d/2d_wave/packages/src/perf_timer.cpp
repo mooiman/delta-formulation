@@ -1,7 +1,6 @@
 //
 // Programmer: Jan Mooiman
-// Date: 14 April 2021
-// Email: jan.mooiman@deltares.nl
+// Email: jan.mooiman@outlook.com
 //
 #include <cstdlib>
 #include <vector>
@@ -110,7 +109,7 @@ void TestTimer::log(std::string out_file)
             function_strlen = std::max(function_strlen, t.functionname.length());
         }
         size_t const total_strlen = 5 + 3 +  // level
-            5 + 3 +  // calls
+            6 + 3 +  // calls
             10 + 3 +  // time[s]
             name_strlen + 3 +  // name
             file_strlen + 3 +  // file
@@ -118,7 +117,7 @@ void TestTimer::log(std::string out_file)
             6;  // line number
 
         os << std::string(total_strlen, '=') << std::endl;
-        os << "level" << "   " << "calls" << "   "
+        os << "level" << "   " << " calls" << "   "
             << std::right << std::setw(10) << " time[s]"
             << "   "
             << std::left << std::setw(name_strlen) << "name"
@@ -141,7 +140,7 @@ void TestTimer::log(std::string out_file)
             std::string t_name = s + t.name;
             os << std::setw(5) << t.level
                 << "   "
-                << std::setw(5) << t.nr_calls
+                << std::setw(6) << t.nr_calls
                 << "   "
                 << std::setw(10) << std::fixed << std::setprecision(3) << t.elapse_time
                 << "   "

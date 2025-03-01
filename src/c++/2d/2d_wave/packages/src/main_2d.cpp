@@ -15,7 +15,7 @@
 #include <toml.h>
 #include <string>
 
-// for bicgstab  solver
+// for BiCGstab  solver
 #include <Eigen/Dense>
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     std::string log_filename(out_file + ".log");
     std::string map_filename(out_file + "_map.nc");
     std::string timing_filename(out_file + "_timing.log");
-    std::string model_title("SMART Numerics: Linear Wave, BiCGSTab");
+    std::string model_title("Linear wave equation, BiCGstab");
 
     std::ofstream log_file;
     log_file.open(log_filename);
@@ -183,31 +183,43 @@ int main(int argc, char *argv[])
     log_file << "do_r_equation = " << do_r_equation << std::endl;
     if (do_q_equation && do_r_equation)
     {
-        model_title = "SMART Numerics 2D: Linear wave equation, BiCGSTab";
+        model_title = "Linear wave equation, BiCGstab";
     }
     else if (do_q_equation)
     {
-        model_title = "SMART Numerics 2D: Only q-equation, BiCGSTab";
+        model_title = "Linear wave equation, only q-equation, BiCGstab";
     }
     else if (do_r_equation)
     {
-        model_title = "SMART Numerics 2D: Only r-equation, BiCGSTab";
+        model_title = "Linear wave equation, only r-equation, BiCGstab";
     }
     else
     {
-        model_title = "SMART Numerics: No q- and no r-equation (=> no waves computed), BiCGSTab";
+        model_title = "No q- and no r-equation (=> no waves computed), BiCGstab";
     }
-    bool do_convection = tbl_chp["do_convection"].value_or(bool(false));  // default, no convection
-    log_file << "do_convection = " << do_convection << std::endl;
-    bool do_viscosity = tbl_chp["do_viscosity"].value_or(bool(false));  // default, no convection
-    double viscosity = tbl_chp["viscosity"].value_or(double(0.0));
-    if (viscosity == 0.0) { do_viscosity = false;  }
-    log_file << "do_viscosity = " << do_viscosity << std::endl;
-    if (do_viscosity) { log_file << "viscosity = " << viscosity << std::endl; }
+    bool do_q_convection = tbl_chp["do_q_convection"].value_or(bool(false));  // default, no convection
+    log_file << "do_q_convection = " << do_q_convection << std::endl;
+    bool do_q_bed_shear_stress = tbl_chp["do_q_bed_shear_stress"].value_or(bool(false));  // default, no convection
+    log_file << "do_q_bed_shear_stress = " << do_q_bed_shear_stress << std::endl;
+    bool do_q_viscosity = tbl_chp["do_q_viscosity"].value_or(bool(false));  // default, no convection
+    double q_viscosity = tbl_chp["q_viscosity"].value_or(double(0.0));
+    if (q_viscosity == 0.0) { q_viscosity = false;  }
+    log_file << "do_q_viscosity = " << do_q_viscosity << std::endl;
+    if (do_q_viscosity) { log_file << "do_q_viscosity = " << do_q_viscosity << std::endl; }
+
+    bool do_r_convection = tbl_chp["do_r_convection"].value_or(bool(false));  // default, no convection
+    log_file << "do_r_convection = " << do_r_convection << std::endl;
+    bool do_r_bed_shear_stress = tbl_chp["do_r_bed_shear_stress"].value_or(bool(false));  // default, no convection
+    log_file << "do_r_bed_shear_stress = " << do_r_bed_shear_stress << std::endl;
+    bool do_r_viscosity = tbl_chp["do_r_viscosity"].value_or(bool(false));  // default, no convection
+    double r_viscosity = tbl_chp["r_viscosity"].value_or(double(0.0));
+    if (r_viscosity == 0.0) { r_viscosity = false; }
+    log_file << "do_r_viscosity = " << do_r_viscosity << std::endl;
+    if (do_r_viscosity) { log_file << "do_r_viscosity = " << do_r_viscosity << std::endl; }
 
     // Boundary
-    tbl_chp = *tbl["Boundary"].as_table();
     log_file << std::endl << "[Boundary]" << std::endl;
+    tbl_chp = *tbl["Boundary"].as_table();
     std::vector<std::string> bc_type;
     status = get_toml_array(tbl_chp, "bc_type", bc_type);
     double treg = tbl_chp["treg"].value_or(double(150.0));
@@ -222,30 +234,32 @@ int main(int argc, char *argv[])
 
     // Numerics
     log_file << std::endl << "[Numerics]" << std::endl;
-    double dx = tbl["Numerics"]["dx"].value_or(double(60.0)); // Grid size [m]
+    tbl_chp = *tbl["Numerics"].as_table();
+    double dx = tbl_chp["dx"].value_or(double(60.0)); // Grid size [m]
     log_file << "dx = " << dx << std::endl;
-    double dy = tbl["Numerics"]["dy"].value_or(double(0.0)); // Grid size [m]
+    double dy = tbl_chp["dy"].value_or(double(0.0)); // Grid size [m]
     if (dy == 0.0) { dy = dx; }
     log_file << "dy = " << dy << std::endl;
-    double theta = tbl["Numerics"]["theta"].value_or(double(0.501));
+    double theta = tbl_chp["theta"].value_or(double(0.501));
     if (stationary) { theta = 1.0; }
     log_file << "theta = " << theta << std::endl;
-    int iter_max = tbl["Numerics"]["iter_max"].value_or(int(50));
+    int iter_max = tbl_chp["iter_max"].value_or(int(50));
     log_file << "iter_max = " << iter_max << std::endl;
-    double eps_newton = tbl["Numerics"]["eps_newton"].value_or(double(1.0e-12));
+    double eps_newton = tbl_chp["eps_newton"].value_or(double(1.0e-12));
     log_file << "eps_newton = " << eps_newton << std::endl;
-    double eps_bicgstab = tbl["Numerics"]["eps_bicgstab"].value_or(double(1.0e-12));
-    log_file << "eps_bicgstab = " << eps_bicgstab << std::endl;
-    bool regularization_init = tbl["Numerics"]["regularization_init"].value_or(bool(true));
+    double eps_BiCGstab = tbl_chp["eps_BiCGstab"].value_or(double(1.0e-12));
+    log_file << "eps_BiCGstab = " << eps_BiCGstab << std::endl;
+    bool regularization_init = tbl_chp["regularization_init"].value_or(bool(true));
     log_file << "regularization_init = " << regularization_init << std::endl;
-    bool regularization_iter = tbl["Numerics"]["regularization_iter"].value_or(bool(true));
+    bool regularization_iter = tbl_chp["regularization_iter"].value_or(bool(true));
     log_file << "regularization_iter = " << regularization_iter << std::endl;
-    bool regularization_time = tbl["Numerics"]["regularization_time"].value_or(bool(true));
+    bool regularization_time = tbl_chp["regularization_time"].value_or(bool(true));
     log_file << "regularization_time = " << regularization_time << std::endl;
 
     // Output
     log_file << std::endl << "[Output]" << std::endl;
-    double dt_his = tbl["Output"]["dt_his"].value_or(double(1.0));
+    tbl_chp = *tbl["Output"].as_table();
+    double dt_his = tbl_chp["dt_his"].value_or(double(1.0));
     if (stationary)
     {
         log_file << "dt_his = " << 1.0 << std::endl;
@@ -254,7 +268,7 @@ int main(int argc, char *argv[])
     {
         log_file << "dt_his = " << dt_his << std::endl;
     }
-    double dt_map = tbl["Output"]["dt_map"].value_or(double(10.0));
+    double dt_map = tbl_chp["dt_map"].value_or(double(10.0));
     if (stationary)
     {
         log_file << "dt_map = " << 1.0 << std::endl;
@@ -403,7 +417,7 @@ int main(int argc, char *argv[])
     std::cout << "    Define map-file" << std::endl;
     std::string nc_mapfile(map_filename);
     UGRID2D* map_file = new UGRID2D();
-    status = map_file->open(nc_mapfile);
+    status = map_file->open(nc_mapfile, model_title);
     status = map_file->mesh2d();
 
     int nr_nodes = nx * ny;
@@ -627,15 +641,15 @@ int main(int argc, char *argv[])
     his_values = { std::numeric_limits<double>::quiet_NaN() };
     his_file->put_variable(his_newton_iter_name, nst_his, his_values);
 
-    std::string his_bicgstab_iter_name("his_bicgstab_iterations");
-    his_file->add_variable_without_location(his_bicgstab_iter_name, "iterations", "BiCGstab iteration", "-");
+    std::string his_BiCGstab_iter_name("his_BiCGstab_iterations");
+    his_file->add_variable_without_location(his_BiCGstab_iter_name, "iterations", "BiCGstab iteration", "-");
     his_values = { std::numeric_limits<double>::quiet_NaN() };
-    his_file->put_variable(his_bicgstab_iter_name, nst_his, his_values);
+    his_file->put_variable(his_BiCGstab_iter_name, nst_his, his_values);
 
-    std::string his_bicgstab_iter_error_name("bicgstab_iteration_error");
-    his_file->add_variable_without_location(his_bicgstab_iter_error_name, "iteration_error", "BiCGstab iteration error", "-");
+    std::string his_BiCGstab_iter_error_name("BiCGstab_iteration_error");
+    his_file->add_variable_without_location(his_BiCGstab_iter_error_name, "iteration_error", "BiCGstab iteration error", "-");
     his_values = { std::numeric_limits<double>::quiet_NaN() };
-    his_file->put_variable(his_bicgstab_iter_error_name, nst_his, his_values);
+    his_file->put_variable(his_BiCGstab_iter_error_name, nst_his, his_values);
     STOP_TIMER(Writing his-file);
     // End define history file
 
@@ -703,10 +717,7 @@ int main(int argc, char *argv[])
         Eigen::BiCGSTAB<Eigen::SparseMatrix<double> > solver;
         for (int iter = 0; iter < iter_max; ++iter)
         {
-            if (logging == "iteration")
-            {
-                log_file << "Iteration: " << iter+1 << std::endl;
-            }
+            used_newton_iter += 1;
             if (nst == 1 && iter == 0)
             {
                 START_TIMER(Matrix initialization);
@@ -1026,6 +1037,24 @@ int main(int argc, char *argv[])
                         //
                         double rhs_q = g * (depth_0 * dzetadx_0 + depth_1 * dzetadx_1 + depth_2 * dzetadx_2 + depth_3 * dzetadx_3);
                         rhs[q_eq] += -rhs_q;
+                        if (do_r_convection)
+                        {
+                            //
+                            // convection
+                            //
+                        }
+                        if (do_r_bed_shear_stress)
+                        {
+                            //
+                            // bed shear stress
+                            //
+                        }
+                        if (do_r_viscosity)
+                        {
+                            //
+                            // viscosity
+                            //
+                        }
                         if (i == nx / 2 && j == ny / 2)
                         {
                             int c = 1;
@@ -1107,6 +1136,24 @@ int main(int argc, char *argv[])
                             A.coeffRef(r_eq, 3 * ph_nw) += fac * (+1. * depth_3);
                             A.coeffRef(r_eq, 3 * ph_w ) += fac * (+1. * depth_0 - 1. * depth_3);
                         }
+                        if (do_r_convection)
+                        {
+                            //
+                            // convection
+                            //
+                        }
+                        if (do_r_bed_shear_stress)
+                        {
+                            //
+                            // bed shear stress
+                            //
+                        }
+                        if (do_r_viscosity)
+                        {
+                            //
+                            // viscosity
+                            //
+                        }
                         // 
                         // RHS r-momentum equation
                         //
@@ -1178,7 +1225,7 @@ int main(int argc, char *argv[])
                                 A.coeffRef(q_eq, 3 * ph_s + 1) = -1.0;
                                 A.coeffRef(q_eq, 3 * ph_0 + 1) = 1.0;
                                 rhs[q_eq] = 0.0;
-                                if (do_convection)
+                                if (do_q_convection)
                                 {
                                     int c = 1;
                                 }
@@ -1191,7 +1238,7 @@ int main(int argc, char *argv[])
                                 A.coeffRef(r_eq, 3 * ph_s + 2) = +c_wave * dy * theta;
                                 rhs[r_eq] = +c_wave * (-dtinv * (hp_jm12 - hn_jm12)
                                     - dy * rtheta_jm1 + dy * rtheta_i);
-                                if (do_convection)
+                                if (do_r_convection)
                                 {
                                     int c = 1;
                                 }
@@ -1334,7 +1381,7 @@ int main(int argc, char *argv[])
                                     - dtinv * 0.5 * (qp_im2 - qn_im2) * alpha_bc
                                     - dy * dxinv * g * htheta_im12 * (htheta_i - htheta_im1)
                                     );
-                                if (do_convection)
+                                if (do_q_convection)
                                 {
                                     int c = 1;
                                 }
@@ -1344,7 +1391,7 @@ int main(int argc, char *argv[])
                                 A.coeffRef(r_eq, 3 * ph_w + 2) = -1.0;
                                 A.coeffRef(r_eq, 3 * ph_0 + 2) = 1.0;
                                 rhs[r_eq] = 0.0;
-                                if (do_convection)
+                                if (do_r_convection)
                                 {
                                     int c = 1;
                                 }
@@ -1445,7 +1492,7 @@ int main(int argc, char *argv[])
                                 A.coeffRef(q_eq, 3 * ph_n + 1) = 1.0;
                                 A.coeffRef(q_eq, 3 * ph_0 + 1) = -1.0;
                                 rhs[q_eq] = 0.0;
-                                if (do_convection)
+                                if (do_q_convection)
                                 {
                                     int c = 1;
                                 }
@@ -1458,7 +1505,7 @@ int main(int argc, char *argv[])
                                 A.coeffRef(r_eq, 3 * ph_n + 2) = -c_wave * dy * theta;
                                 rhs[r_eq] = -c_wave * (-dtinv * (hp_jp12 - hn_jp12)
                                     - dy * rtheta_jp1 + dy * rtheta_i);
-                                if (do_convection)
+                                if (do_r_convection)
                                 {
                                     int c = 1;
                                 }
@@ -1629,7 +1676,7 @@ int main(int argc, char *argv[])
                                         + dtinv * 0.5 * (qp_ip2 - qn_ip2) * w_nat[2]
                                         + dxinv * g * htheta_ip12 * (htheta_ip1 + zb[ph_e] - htheta_i - zb[ph_0])
                                         );
-                                    if (do_convection)
+                                    if (do_q_convection)
                                     {
                                         int c = 1;
                                     }
@@ -1654,7 +1701,7 @@ int main(int argc, char *argv[])
                                     //A.coeffRef(r_eq, 3 * ph + 2) = -1.0;
                                     //A.coeffRef(r_eq, 3 * ph_e + 2) = 1.0;
                                     //rhs[3 * ph + 2] = 0.0;
-                                    if (do_convection)
+                                    if (do_r_convection)
                                     {
                                         int c = 1;
                                     }
@@ -1786,7 +1833,7 @@ int main(int argc, char *argv[])
                 START_TIMER(BiCGstab);
             }
             solver.compute(A);
-            solver.setTolerance(eps_bicgstab);
+            solver.setTolerance(eps_BiCGstab);
             solution = solver.solve(rhs);
             //solution = solver.solveWithGuess(rhs, solution);
             if (nst == 1 && iter == 0)
@@ -1877,7 +1924,6 @@ int main(int argc, char *argv[])
             }
             if (dh_max < eps_newton && dq_max < eps_newton && dr_max < eps_newton)
             {
-                used_newton_iter = iter;
                 break;
             }
             {
@@ -1891,7 +1937,7 @@ int main(int argc, char *argv[])
             std::cout << "stationary solution " << std::endl;
             log_file << "stationary solution " << std::endl;
             log_file << std::setprecision(8) << std::scientific
-                << "    BiCGstab iterations: " << used_newton_iter + 1
+                << "    BiCGstab iterations: " << used_newton_iter
                 << "    Delta h^{n + 1,p + 1}: " << dh_max << " at: " << dh_maxi
                 << "    Delta q^{n + 1,p + 1}: " << dq_max << " at: " << dq_maxi
                 << "    Delta r^{n + 1,p + 1}: " << dr_max << " at: " << dr_maxi
@@ -1907,13 +1953,13 @@ int main(int argc, char *argv[])
             {
                 log_file << "time [sec]: " << std::setprecision(2) << std::scientific << time
                     << std::setprecision(8) << std::scientific
-                    << "    Newton iterations  : " << used_newton_iter + 1
+                    << "    Newton iterations  : " << used_newton_iter
                     << "    Delta h^{n + 1,p + 1}: " << dh_max << " at: " << dh_maxi
                     << "    Delta q^{n + 1,p + 1}: " << dq_max << " at: " << dq_maxi
                     << std::endl;
             }
          }
-        if (used_newton_iter + 1 == iter_max)
+        if (used_newton_iter == iter_max)
         {
             if (dh_max > eps_newton || dq_max > eps_newton || dr_max > eps_newton)
             {
@@ -1980,9 +2026,9 @@ int main(int argc, char *argv[])
             his_values = { double(used_newton_iter) };
             his_file->put_variable(his_newton_iter_name, nst_his, his_values);
             his_values = { double(solver.iterations()) };
-            his_file->put_variable(his_bicgstab_iter_name, nst_his, his_values);
+            his_file->put_variable(his_BiCGstab_iter_name, nst_his, his_values);
             his_values = { solver.error() };
-            his_file->put_variable(his_bicgstab_iter_error_name, nst_his, his_values);
+            his_file->put_variable(his_BiCGstab_iter_error_name, nst_his, his_values);
             STOP_TIMER(Writing his-file);
         }
     } // End of the time loop

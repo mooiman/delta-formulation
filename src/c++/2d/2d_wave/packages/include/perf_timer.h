@@ -1,10 +1,10 @@
-#ifndef __PERF_TIMER_H__
-#define __PERF_TIMER_H__
 //
 // Programmer: Jan Mooiman
-// Date: 14 April 2021
-// Email: jan.mooiman@deltares.nl
+// Email: jan.mooiman@outlook.com
 //
+#ifndef __PERF_TIMER_H__
+#define __PERF_TIMER_H__
+
 #include <cstdlib>
 #include <vector>
 #include <iostream>
@@ -31,6 +31,7 @@
 #   define DELETE_TIMER()
 #   define DELETE_TIMERN()
 #   define STOP_TIMER(x)
+#   define PRINT_TIMER(x)
 #   define PRINT_TIMERN(x)
 #   define PRINT_TIMERS(x)
 #endif
@@ -45,15 +46,18 @@ public:
         level(level), name(std::move(name)), filename(std::move(fileName)), functionname(std::move(functionName)), line_number(lineNumber)
     {
         start = std::chrono::high_resolution_clock::now();
+        elapse_time = 0.0;
+        level = 0;
         nr_calls = 1;
+        running = false;
     }
 
-    bool running = false;
-    std::string name = "";
+    bool running;
+    std::string name;
     int level;
     int line_number;
     int nr_calls;
-    double elapse_time = 0.0;
+    double elapse_time;
     std::string filename;
     std::string functionname;
     std::chrono::high_resolution_clock::time_point start;

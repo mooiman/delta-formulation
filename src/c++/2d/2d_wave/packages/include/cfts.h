@@ -1,7 +1,9 @@
 //
 // programmer: Jan Mooiman
-// Email: jan.mooiman@deltares.nl
+// Email: jan.mooiman@outlook.com
 //
+#ifndef __CFTS_H__
+#define __CFTS_H__
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -35,3 +37,5 @@ private:
     int set_attribute(std::string var, std::string att_name, std::string att_val);
 
 };
+
+#endif __CFTS_H__

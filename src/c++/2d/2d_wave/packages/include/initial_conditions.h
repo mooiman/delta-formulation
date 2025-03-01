@@ -1,3 +1,7 @@
+//
+// programmer: Jan Mooiman
+// Email: jan.mooiman@outlook.com
+//
 #ifndef __INITIAL_CONDITIONS_H__
 #define __INITIAL_CONDITIONS_H__
 

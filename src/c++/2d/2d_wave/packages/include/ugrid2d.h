@@ -1,3 +1,10 @@
+//
+// programmer: Jan Mooiman
+// Email: jan.mooiman@outlook.com
+//
+#ifndef __UGRID2D_H__
+#define __UGRID2D_H__
+
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
@@ -12,7 +19,7 @@ class UGRID2D
 public:
     UGRID2D();
     ~UGRID2D();
-    int open(std::string);
+    int open(std::string, std::string);
     int close();
     int mesh2d();
 
@@ -42,3 +49,4 @@ private:
     int set_attribute(std::string var, std::string att_name, std::string att_val);
 
 };
+#endif __UGRID2D_H__

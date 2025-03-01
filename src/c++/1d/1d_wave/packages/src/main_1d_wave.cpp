@@ -1,7 +1,7 @@
 //
 // programmer: Jan Mooiman
 // Date      : 2025-01-03
-// Email: jan.mooiman@outlook.com
+// Email     : jan.mooiman@outlook.com
 //
 
 #define _USE_MATH_DEFINES

@@ -1,4 +1,8 @@
-            
+//
+// programmer: Jan Mooiman
+// Email: jan.mooiman@outlook.com
+//
+
 #include "cfts.h"
 #include "include/netcdf.h"
 
@@ -15,18 +19,17 @@ int CFTS::open(std::string ncfile, std::string model_title)
 {
     int status = nc_create(ncfile.c_str(), NC_NETCDF4, &m_ncid);
 
-    const auto now = std::chrono::system_clock::now();
+    const std::chrono::zoned_time now{ std::chrono::current_zone(), std::chrono::system_clock::now() };
     //auto date_time = std::format("{:%FT%H:%M:%OSZ%Oz (%Z)}", now);
     auto date_time = std::format("{:%F %H:%M:%OS %Oz}", now);
 
     // Define global attributes
     status = set_global_attribute("Title", model_title);
-    status = set_global_attribute("Model", "SMARTnumerics 2D, C++");
+    status = set_global_attribute("Model", "Delta-formulation 2D, C++");
     status = set_global_attribute("Conventions", "CF-1.8");
     status = set_global_attribute("featureType", "timeSeries");
-    status = set_global_attribute("institution", "Deltares");
     status = set_global_attribute("file_created", date_time);
-    status = set_global_attribute("reference", "https://www.deltares.nl");
+    status = set_global_attribute("reference", "https://www.github.com/mooiman");
 
     int var_id;
     status = nc_def_var(m_ncid, "projected_coordinate_system", NC_INT, 0, nullptr, &var_id);

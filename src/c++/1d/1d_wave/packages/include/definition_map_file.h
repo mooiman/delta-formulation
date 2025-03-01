@@ -1,3 +1,7 @@
+//
+// Programmer: Jan Mooiman
+// Email: jan.mooiman@outlook.com
+//
 #ifndef __DEFINITION_MAP_FILE_H__
 #define __DEFINITION_MAP_FILE_H__
 

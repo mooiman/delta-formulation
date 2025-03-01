@@ -1,3 +1,7 @@
+//
+// Programmer: Jan Mooiman
+// Email: jan.mooiman@outlook.com
+//
 #ifndef __BOUNDARY_CONDITION_H__
 #define __BOUNDARY_CONDITION_H__
 

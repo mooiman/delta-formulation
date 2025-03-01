@@ -27,7 +27,6 @@ public:
     int put_time(int i, double time);
     int put_variable(std::string var_name, int i_time, std::vector<double> values);
 
-
 private:
     int m_ncid;
     int m_times;

@@ -2,8 +2,9 @@
 // Programmer: Jan Mooiman
 // Email: jan.mooiman@outlook.com
 //
-#ifndef PERF_TIMER_H
-#define PERF_TIMER_H
+#ifndef __PERF_TIMER_H__
+#define __PERF_TIMER_H__
+
 #include <cstdlib>
 #include <vector>
 #include <iostream>
@@ -107,4 +108,4 @@ public:
         std::string m_functionname;
         int m_line_number;
 };
-#endif  // PERF_TIMER_H
+#endif  // __PERF_TIMER_H__
