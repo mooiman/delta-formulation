@@ -1558,7 +1558,7 @@ int main(int argc, char* argv[])
             }
             else
             {
-                map_file->put_time(nst_his, double(nst) * dt);
+                his_file->put_time(nst_his, double(nst) * dt);
             }
             std::vector<double> his_values = { hn[i_left], hn[i_mid_left], hn[i_mid], hn[i_mid_right],  hn[i_right] };
             his_file->put_variable(his_h_name, nst_his, his_values);
