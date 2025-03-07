@@ -1,5 +1,5 @@
 %------------------------------------------------------------------------------
-\chapter{1-D Space discretisation}\label{sec:1d_space_discretisation}
+\chapter{1-D Space discretization}\label{sec:1d_space_discretization}
 We are looking for a second order central space discretization together with the finite volume approach.
 So the higher order terms in the Taylor series expansion are negligible.
 For this numerical discretization method no dissipation is added, only there is some dispersion for the shorter waves, i.e.\ dependent on the third derivative in the Taylor expansion.
@@ -392,18 +392,33 @@ Decrease the grid size $\Dx$:
 \section{Compatible initialization}
 To assure that the given initial condition(s) are compatible with the numerical scheme, the given function need to fulfill the follow equation:
 \begin{align}
-    \int_{x_{i-\half}}^{x_{i+\half}} \overline u_{initial}\, dx = \int_{x_{i-\half}}^{x_{i+\half}} u_{given}\, dx
+    \int_{x_{i-\half}}^{x_{i+\half}} \overline u_{initial}\, dx = \int_{x_{i-\half}}^{x_{i+\half}} u_{given}\, dx \label{eq:compatible_initialization}
 \end{align}
 where $\overline{u}$ is the piece wise function and $u_{given}$ the given initial condition.
 In case the function $u_{given}$ is an integrable analytic function the integral can be exact computed.
-In discrete form the equation reads:
+In discrete form the equation for each control volume reads:
 \begin{align}
     \frac{\Dx_{i-\half}}{2}\,\frac{u_{i-1} + 3 u_i}{4} +
-    \frac{\Dx_{i+\half}}{2}\,\frac{3 u_i + u_{i+1}}{4} = \int_{x_{i-\half}}^{x_{i+\half}} u_{initial}\, dx
+    \frac{\Dx_{i+\half}}{2}\,\frac{3 u_i + u_{i+1}}{4} = \int_{x_{i-\half}}^{x_{i+\half}} u_{given}\, dx
 \end{align}
-An illustration is given in \autoref{fig:compatible_initial_condition}
+Extra equations are needed for the boundary conditions, the following boundary treatment is used at $x=2$ (see  \autoref{sec:boundary_conditions}):
+\begin{align}
+	\frac{1}{12} u_0 + \frac{10}{12}u_1 + \frac{1}{12} u_2 = u_{given}(2)
+\end{align}
+and similar at the other boundary ($x=10$).
+An illustration off the result of \autoref{eq:compatible_initialization} is given in \autoref{fig:compatible_initial_condition}.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/compatible_initialization_lx=12.0_dx=2.0.pdf}
     \caption{Illustration of compatible quadratic function. Given function in blue. Compatible function in red. Line through the value on the nodes of the given function in green (dotted). The integral over the control volume of the the given function is better represented by the red-function then the green-function. }\label{fig:compatible_initial_condition}
+    % python script: compatible_initial_function.py
 \end{figure}
+Some numerical items used to generate \autoref{fig:compatible_initial_condition} are $x \in [0, 12]$, $\Dx=2$ and the given function reads:
+\begin{align}
+	&u_{given}(x) =
+	\begin{cases}
+		(x-3)^2 & \qquad x < 6
+		\\ 
+		-(x-3)^2 + 18 & \qquad x \geq 6
+	\end{cases}
+\end{align}
