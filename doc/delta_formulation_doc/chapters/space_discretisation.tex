@@ -388,3 +388,22 @@ Decrease the grid size $\Dx$:
     \end{subfigure}
     \caption{Grid size decreased to $25\ [m]$ ($c_\Psi = 4, \Dx = 25\ [m]$)}
 \end{figure}
+%------------------------------------------------------------------------------
+\section{Compatible initialization}
+To assure that the given initial condition(s) are compatible with the numerical scheme, the given function need to fulfill the follow equation:
+\begin{align}
+    \int_{x_{i-\half}}^{x_{i+\half}} \overline u_{initial}\, dx = \int_{x_{i-\half}}^{x_{i+\half}} u_{given}\, dx
+\end{align}
+where $\overline{u}$ is the piece wise function and $u_{given}$ the given initial condition.
+In case the function $u_{given}$ is an integrable analytic function the integral can be exact computed.
+In discrete form the equation reads:
+\begin{align}
+    \frac{\Dx_{i-\half}}{2}\,\frac{u_{i-1} + 3 u_i}{4} +
+    \frac{\Dx_{i+\half}}{2}\,\frac{3 u_i + u_{i+1}}{4} = \int_{x_{i-\half}}^{x_{i+\half}} u_{initial}\, dx
+\end{align}
+An illustration is given in \autoref{fig:compatible_initial_condition}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/compatible_initialization_lx=12.0_dx=2.0.pdf}
+    \caption{Illustration of compatible quadratic function. Given function in blue. Compatible function in red. Line through the value on the nodes of the given function in green (dotted). The integral over the control volume of the the given function is better represented by the red-function then the green-function. }\label{fig:compatible_initial_condition}
+\end{figure}

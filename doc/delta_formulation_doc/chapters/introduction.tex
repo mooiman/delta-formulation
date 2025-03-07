@@ -15,7 +15,7 @@ In this report a derivation is reported of a numerical model that automatically 
 To obtain such a numerical model the mathematical model should be adjusted to a state which is suitable to determine what and how large the mismatch is.
 The mathematical model is adjusted in that way that the second derivatives of all data is smooth.
 After smoothing of the data the mathematical model is called "\textsl{easy problem}".
-This step in the procedure is called "\textsl{regularization}" and is the first step of the two step FVE method (Finite Volume Elment method).
+This step in the procedure is called "\textsl{regularization}" and is the first step of the two step FVE method (Finite Volume Element method).
 
 The regularization step has to ensure that the lowest-order terms of the residual of the discretization step are dominant, so that we can limit ourselves to the analysis of the leading terms of the error expansion.
 The regularization is assumed to be such that the easy problem can be discretized accurately on the available grid, and that the leading terms of the series expansions are dominant.
@@ -23,7 +23,7 @@ The regularization is assumed to be such that the easy problem can be discretize
 To obtain this goal the numerical scheme should be central in space, no dissipation is added to the model by the numerical method, just dispersion.
 All examples in this document will be performed with a fully implicit time-integrator using a iteration mechanism based on the Newton-linearization.
 The Newton-iteration process benefits of the regularized data.
-This is the second step of the two step FVE method (Finite Volume Elment method).
+This is the second step of the two step FVE method (Finite Volume Element method).
 
 When all the mentioned items are fulfilled then the numerical scheme is:
 % accurate, reliable, 2nd order, robust, flexible, efficient, fast
@@ -38,7 +38,7 @@ When all the mentioned items are fulfilled then the numerical scheme is:
 
 The feasibility of this method is shown by performing this method on the 1D shallow water equations.
 Towards these shallow water equations we will look first to the hyperbolic part of these equations.
-The boundary conditions are separated in a stricly outgoing and a strictly ingoing signal.
+The boundary conditions are separated in a strictly outgoing and a strictly ingoing signal.
 When selecting a special combination of these signals a weakly-reflective or absorbing boundary condition can be prescribed, including a prescribed ingoing signal.
 
 
@@ -47,7 +47,7 @@ When selecting a special combination of these signals a weakly-reflective or abs
 In \autoref{sec:error_minimizing}: \nameref{sec:error_minimizing}, the error-minimizing integration method is presented.
 The error-minimizing integration method is based on the assumption that a function can be made smooth so that the numerical discretization and the regularized function are so close that the numerical error is negligible for that function.
 
-In \autoref{sec:1d_space_discretisation}: \nameref{sec:1d_space_discretisation}, the one dimensional space discretisation.
+In \autoref{sec:1d_space_discretisation}: \nameref{sec:1d_space_discretisation}, the one dimensional space discretization.
 Which consist of a finite volume method and central discretizations and piecewise linear functions between the nodes.
 Also an estimation of the regularization coefficient for a given function based on the second order of accuracy of the discretization is presented.
 So the user is able to justify the quality of the numerical solution and in that way to judge where to adjust the regularization or adapt the grid in certain regions.
@@ -66,7 +66,7 @@ In \autoref{sec:numerical_experiments}: \nameref{sec:numerical_experiments}, sev
 Starting with some examples with just a source/sink-term, so only a time integration and without transport and diffusion (\nameref{sec:air_pollution} and \nameref{sec:brusselator}).
 Followed by numerical experiments of the advection-diffusion equation (with and without diffusion), the 1D-wave equation and 2D-wave equation.
 
-In \autoref{sec:1d_numerical_experiments}: \nameref{sec:1d_numerical_experiments}, the fully implicit time integration is presented for the advection diffusion equation.
+In \autoref{sec:1d_numerical_experiments}: \nameref{sec:1d_numerical_experiments}, the fully implicit time integration is presented for the advection-diffusion equation.
 Showing a flow from left to right with a interface in the diffusion coefficient for the transported constituent.
 
 
