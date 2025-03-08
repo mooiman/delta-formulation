@@ -25,7 +25,7 @@ for the grid shown in  \autoref{fig:water_body_fve_bc_at_node}
         \input{figures/water_body_fve_bc_at_node.pdf_tex}
     }
 \end{center}
-    \caption{Water body (blue area), finite volumes (green boxes), computational points (open dots), virtual computational points (black dots), boundary points are at $i=1$ (west boundary) and $i=I$ (east boundary)}\label{fig:water_body_fve_bc_at_node}
+    \caption{Water body (blue area), finite volumes (green boxes), computational points (open dots), virtual computational points (black dots), boundary points (open squares) are at $i=1$ (west boundary) and $i=I$ (east boundary).}\label{fig:water_body_fve_bc_at_node}
 \end{figure}
 The control volume is defined on the interval $x_{i-\half}$ to $x_{i+\half}$, see \autoref{fig:water_body_fve_bc_at_node}.
 The grid in \autoref{fig:water_body_fve_bc_at_node} is equidistant but that is not necessarily, the method which is described in this document also holds for a non-equidistant grid.
@@ -410,7 +410,7 @@ An illustration off the result of \autoref{eq:compatible_initialization} is give
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/compatible_initialization_lx=12.0_dx=2.0.pdf}
-    \caption{Illustration of compatible quadratic function. Given function in blue. Compatible function in red. Line through the value on the nodes of the given function in green (dotted). The integral over the control volume of the the given function is better represented by the red-function then the green-function. }\label{fig:compatible_initial_condition}
+    \caption[Illustration of compatible quadratic function]{Illustration of compatible quadratic function. Given function in blue. Compatible function in red. In green lines through nodes lying on the given function. Control volumes in between the green vertical lines. And the gray areas are virtual and are not belonging to the water body (see \autoref{fig:water_body_fve_bc_at_node}). The integral over the control volume of the the given function is better represented by the red-function then by the green-function. }\label{fig:compatible_initial_condition}
     % python script: compatible_initial_function.py
 \end{figure}
 Some numerical items used to generate \autoref{fig:compatible_initial_condition} are $x \in [0, 12]$, $\Dx=2$ and the given function reads:

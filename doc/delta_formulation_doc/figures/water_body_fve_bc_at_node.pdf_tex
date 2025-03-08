@@ -64,5 +64,6 @@
     \put(0.42318407,0.12824142){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\Dx_{i}$\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=3]{figures/water_body_fve_bc_at_node.pdf}}%
     \put(0.56747644,0.12771408){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\Dx_{i+\half}$\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{figures/water_body_fve_bc_at_node.pdf}}%
   \end{picture}%
 \endgroup%
