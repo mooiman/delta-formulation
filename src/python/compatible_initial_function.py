@@ -10,7 +10,7 @@ from datetime import datetime, date, time, timedelta
 import math
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator
+from matplotlib.ticker import MultipleLocator, AutoMinorLocator
 import numpy as np
 import PyQt6
 
@@ -75,9 +75,9 @@ def thomas_algorithm_5(a, b, c, d, e, f):
 
 
 def main(Lx=12., dx=2.):
-    nx = int(Lx / dx + 1)
+    nx = int(Lx / dx) + 1 + 2  # two extra virtual points
 
-    refine = 10
+    refine = 32
     x_ana = np.zeros(refine*(nx-1) + 1, dtype=np.float64)
     u_ana = np.zeros(refine*(nx-1) + 1, dtype=np.float64)
     x = np.zeros(nx, dtype=np.float64)
@@ -95,9 +95,9 @@ def main(Lx=12., dx=2.):
     f = np.zeros(nx, dtype=np.float64)
 
     for i in range(0, refine*(nx-1)+1):
-        x_ana[i] = i/(refine*(nx-1)) * Lx
+        x_ana[i] = float(i) * dx/float(refine) - dx
     for i in range(0, nx):
-        x[i] = i/(nx-1) * Lx
+        x[i] = float(i - 1) * dx
 
     mid = Lx/2.
     quart = Lx/4.
@@ -108,7 +108,7 @@ def main(Lx=12., dx=2.):
             #u_ana[i] = a_coef*(x_ana[i] - mid + quart) ** 4.
             #u_ana[i] = x_ana[i]
         else:
-            u_ana[i] = -a_coef*(x_ana[i] - mid - quart) ** 2. + 2. * a_coef*(x_ana[0] - mid + quart)**2.
+            u_ana[i] = -a_coef*(x_ana[i] - mid - quart) ** 2. + 2. * a_coef*(x_ana[refine] - mid + quart)**2.
             #u_ana[i] = -a_coef*(x_ana[i] - mid - quart) ** 4. + 2. * a_coef*(x_ana[0] - mid + quart)**4.
             #u_ana[i] = x_ana[i]
         #u_ana[i] = np.sin(1.* math.pi * x_ana[i]/Lx) +2.
@@ -118,7 +118,7 @@ def main(Lx=12., dx=2.):
             #u0[i] = a_coef*(x[i] - mid + quart) **4.
             #u0[i] = x[i]
         else:
-            u0[i] = -a_coef*(x[i] - mid - quart) ** 2. + 2. * a_coef*(x[0] - mid + quart) **2.
+            u0[i] = -a_coef*(x[i] - mid - quart) ** 2. + 2. * a_coef*(x[1] - mid + quart) **2.
             #u0[i] = -a_coef*(x[i] - mid - quart) ** 4. + 2. * a_coef*(x[0] - mid + quart) **4.
             #u0[i] = x[i]
         #u0[i] = np.sin(1. * math.pi * x[i] / Lx) +2.
@@ -152,16 +152,16 @@ def main(Lx=12., dx=2.):
     c_error = 0.0
     a[0] = 0.
     b[0] = 0.
-    c[0] = 1.
-    d[0] = 0.
-    e[0] = 0.
-    f[0] = u_ana[0]
-    a[nx - 1] = 0.
-    b[nx - 1] = 0.
-    c[nx - 1] = 1.
+    c[0] = 1./12.
+    d[0] = 10./12.
+    e[0] = 1./12.
+    f[0] = u0[1]
+    a[nx - 1] = 1./12.
+    b[nx - 1] = 10./12.
+    c[nx - 1] = 1./12.
     d[nx - 1] = 0.
     e[nx - 1] = 0.
-    f[nx - 1] = u_ana[refine*(nx-1)]
+    f[nx - 1] = u0[(nx-1)-1]
     for i in range(1, nx - 1):
         b[i] = dx * alpha - c_error
         c[i] = dx * (1 - 2. * alpha )+ 2. * c_error
@@ -187,12 +187,12 @@ def main(Lx=12., dx=2.):
     ax2.set_ylabel('Amplitude [m]  $\\longrightarrow$')  # after definition of spines
     ax2.set_xlabel('x [m] $\\longrightarrow$')  # after definition of spines
 
-    major_grid_color = 'c'
-    ax2.xaxis.set_ticks(np.arange(0, Lx+1, dx))
-    ax2.xaxis.set_minor_locator(MultipleLocator(0.5 * dx))
+    major_grid_color = 'black'
+    ax2.xaxis.set_ticks(np.arange(-dx, Lx+2.* dx, dx))
+    ax2.xaxis.set_minor_locator(AutoMinorLocator(2))
     ax2.xaxis.grid(True, 'major', linestyle='-', linewidth=0.0, color=major_grid_color)
-    ax2.xaxis.grid(True, 'minor', linestyle='-', linewidth=0.5, color=major_grid_color)
-    ax2.yaxis.grid(True, 'major', linestyle='-', linewidth=0.5, color=major_grid_color)
+    ax2.xaxis.grid(True, 'minor', linestyle='-', linewidth=1.0, color='g')
+    ax2.yaxis.grid(True, 'major', linestyle='-', linewidth=0.15, color=major_grid_color)
 
     infty = 1e12
     x_min = infty
@@ -204,10 +204,12 @@ def main(Lx=12., dx=2.):
         x_max = max(x_max, x[i])
         u_min = min(u_min, u1[i])
         u_max = max(u_max, u1[i])
-    x_threshold = (x_max - x_min)* 0.05
+    x_threshold = (x_max - x_min)* 0.025
     u_threshold = (u_max - u_min)* 0.05
     ax2.set_xlim([x_min - x_threshold, x_max + x_threshold])
     ax2.set_ylim([u_min - u_threshold, u_max + u_threshold])
+    ax2.axvspan(x_min - x_threshold, x_min + 0.5*dx, color='gray', alpha=0.5)
+    ax2.axvspan(x_max + x_threshold, x_max - 0.5*dx, color='gray', alpha=0.5)
 
     y_formatter = matplotlib.ticker.ScalarFormatter(useOffset=False)
     ax2.yaxis.set_major_formatter(y_formatter)
@@ -221,7 +223,7 @@ def main(Lx=12., dx=2.):
     ax2.plot(x, u1, '-', color='r', marker = 'o', label=tekst3)
 
     handles, labels = ax2.get_legend_handles_labels()
-    ax2.legend(handles, labels, loc='upper left')
+    ax2.legend(handles, labels, loc='lower left')
 
     fig.set_size_inches(cm2inch(35.0), cm2inch(12.5))
     figManager = plt.get_current_fig_manager()
