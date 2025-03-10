@@ -61,8 +61,13 @@ void REGULARIZATION::given_function(int nx, int ny,
         {
             for (int i = 1; i < nx - 1; ++i)
             {
-                u0_xixi[p(i, j, nx)]   = std::abs((u0[p(i + 1, j, nx)] - 2. * u0[p(i, j, nx)] + u0[p(i - 1, j, nx)]));
-                u0_etaeta[p(i, j, nx)] = std::abs((u0[p(i, j + 1, nx)] - 2. * u0[p(i, j, nx)] + u0[p(i, j - 1, nx)]));
+                int p_0 = p_index(i, j, nx);
+                int p_n = p_index(i, j + 1, nx);
+                int p_e = p_index(i + 1, j, nx);
+                int p_s = p_index(i, j - 1, nx);
+                int p_w = p_index(i - 1, j, nx);
+                u0_xixi[p_0]   = std::abs((u0[p_e] - 2. * u0[p_0] + u0[p_w]));
+                u0_etaeta[p_0] = std::abs((u0[p_n] - 2. * u0[p_0] + u0[p_s]));
                 u0xixi_max = std::max(u0xixi_max, std::abs(u0_xixi[i]));
                 u0etaeta_max = std::max(u0etaeta_max, std::abs(u0_etaeta[i]));
             }
@@ -70,20 +75,30 @@ void REGULARIZATION::given_function(int nx, int ny,
         for (int i = 0; i < nx; ++i)  // horizontal direction
         {
             int j = 0;
-            u0_etaeta[p(i, j, nx)] = u0_etaeta[p(i, j+2, nx)];
-            u0_etaeta[p(i, j+1, nx)] = u0_etaeta[p(i, j+2, nx)];
+            int p_0 = p_index(i, j, nx);
+            int p_n = p_index(i, j + 1, nx);
+            int p_nn = p_index(i, j + 2, nx);
+            int p_s = p_index(i, j - 1, nx);
+            int p_ss = p_index(i, j - 2, nx);
+            u0_etaeta[p_0] = u0_etaeta[p_nn];
+            u0_etaeta[p_n] = u0_etaeta[p_nn];
             j = nx - 1;
-            u0_etaeta[p(i, j, nx)] = u0_etaeta[p(i, j-2, nx)];
-            u0_etaeta[p(i, j-1, nx)] = u0_etaeta[p(i, j-2, nx)];
+            u0_etaeta[p_0] = u0_etaeta[p_ss];
+            u0_etaeta[p_s] = u0_etaeta[p_ss];
         }
         for (int j = 0; j < ny; ++j)  // vertical direction
         {
             int i = 0;
-            u0_xixi[p(i, j, nx)] = u0_xixi[p(i+2, j, nx)];
-            u0_xixi[p(i+1, j, nx)] = u0_xixi[p(i+2, j, nx)];
+            int p_0 = p_index(i, j, nx);
+            int p_e = p_index(i + 1, j, nx);
+            int p_ee = p_index(i + 2, j, nx);
+            int p_w = p_index(i - 1, j, nx);
+            int p_ww = p_index(i - 2, j, nx);
+            u0_xixi[p_0] = u0_xixi[p_ee];
+            u0_xixi[p_e] = u0_xixi[p_ee];
             i = nx - 1;
-            u0_xixi[p(i, j, nx)] = u0_xixi[p(i-2, j, nx)];
-            u0_xixi[p(i-1, j, nx)] = u0_xixi[p(i-2, j, nx)];
+            u0_xixi[p_0] = u0_xixi[p_ww];
+            u0_xixi[p_w] = u0_xixi[p_ww];
         }
 
 
@@ -96,7 +111,8 @@ void REGULARIZATION::given_function(int nx, int ny,
             {
                 for (int i = 0; i < nx; ++i)
                 {
-                    psi[p(i, j, nx)] = c_psi * dx * dx * eq8[p(i, j, nx)];
+                    int p_0 = p_index(i, j, nx)
+                    psi[p_0] = c_psi * dx * dx * eq8[p_0];
                 }
             }
         }
@@ -233,20 +249,25 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
     Eigen::VectorXd solution(nxny);           // solution vector u
     Eigen::VectorXd rhs(nxny);                // RHS
 
-    double alpha = 0.125;
+    double alpha = 1. / 8.;                               // Linear (spatial) interpolation coefficient
+    std::vector<double> mass(3, 0);
+    mass[0] = alpha;
+    mass[1] = 1.0 - 2. * alpha;
+    mass[2] = alpha;
+
     for (int j = 1; j < ny - 1; ++j)
     {
         for (int i = 1; i < nx - 1; ++i)
         {
-            A.coeffRef(i-1, j - 1) = alpha * alpha;
-            A.coeffRef(i  , j - 1) = alpha * (1 - 2. * alpha) - c_error;
-            A.coeffRef(i+1, j - 1) = alpha * alpha;
-            A.coeffRef(i-1, j) = alpha * (1 - 2. * alpha) - c_error;
-            A.coeffRef(i  , j) = (1 - 2. * alpha) * (1 - 2. * alpha) + 4. * c_error;
-            A.coeffRef(i+1, j) = alpha * (1 - 2. * alpha) - c_error;
-            A.coeffRef(i-1, j + 1) = alpha * alpha;
-            A.coeffRef(i  , j + 1) = alpha * (1 - 2. * alpha) - c_error;
-            A.coeffRef(i+1, j + 1) = alpha * alpha;
+            A.coeffRef(i-1, j - 1) = mass[0] * mass[0];
+            A.coeffRef(i  , j - 1) = mass[0] * mass[1] - c_error;
+            A.coeffRef(i+1, j - 1) = mass[0] * mass[2];
+            A.coeffRef(i-1, j    ) = mass[1] * mass[0] - c_error;
+            A.coeffRef(i  , j    ) = mass[1] * mass[1] + 4. * c_error;
+            A.coeffRef(i+1, j    ) = mass[1] * mass[2] - c_error;
+            A.coeffRef(i-1, j + 1) = mass[2] * mass[0];
+            A.coeffRef(i  , j + 1) = mass[2] * mass[1] - c_error;
+            A.coeffRef(i+1, j + 1) = mass[2] * mass[2];
         }
     }
     for (int i = 1; i < nx - 1; ++i)  // horizontal direction
@@ -277,31 +298,48 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
     {
         for (int i = 1; i < nx - 1; ++i)
         {
-            rhs[p(i, j, nx)] = alpha * alpha * (dx * u0_xixi[p(i - 1, j - 1, nx)] + dy * u0_etaeta[p(i - 1, j - 1, nx)]);
-            rhs[p(i, j, nx)] += alpha * (1 - 2. * alpha) * (dx * u0_xixi[p(i - 1, j, nx)] + dy * u0_etaeta[p(i - 1, j, nx)]);
-            rhs[p(i, j, nx)] += alpha * alpha * (dx * u0_xixi[p(i - 1, j + 1, nx)] + dy * u0_etaeta[p(i - 1, j + 1, nx)]);
-            rhs[p(i, j, nx)] += alpha * (1 - 2. * alpha) * (dx * u0_xixi[p(i, j - 1, nx)] + dy * u0_etaeta[p(i, j - 1, nx)]);
-            rhs[p(i, j, nx)] += (1 - 2. * alpha) * (1 - 2. * alpha) * (dx * u0_xixi[p(i, j, nx)] + dy * u0_etaeta[p(i, j, nx)]);
-            rhs[p(i, j, nx)] += alpha * (1 - 2. * alpha) * (dx * u0_xixi[p(i, j + 1, nx)] + dy * u0_etaeta[p(i, j + 1, nx)]);
-            rhs[p(i, j, nx)] += alpha * alpha * (dx * u0_xixi[p(i + 1, j - 1, nx)] + dy * u0_etaeta[p(i + 1, j - 1, nx)]);
-            rhs[p(i, j, nx)] += alpha * (1 - 2. * alpha) * (dx * u0_xixi[p(i + 1, j, nx)] + dy * u0_etaeta[p(i + 1, j, nx)]);
-            rhs[p(i, j, nx)] += alpha * alpha * (dx * u0_xixi[p(i + 1, j + 1, nx)] + dy * u0_etaeta[p(i + 1, j + 1, nx)]);
-            rhs[p(i, j, nx)] = std::abs(rhs[p(i, j, nx)]);
+            int p_0  = p_index(i    , j    , nx);
+            int p_n  = p_index(i    , j + 1, nx);
+            int p_ne = p_index(i + 1, j + 1, nx);
+            int p_e  = p_index(i + 1, j    , nx);
+            int p_se = p_index(i + 1, j - 1, nx);
+            int p_s  = p_index(i    , j - 1, nx);
+            int p_sw = p_index(i - 1, j - 1, nx);
+            int p_w  = p_index(i - 1, j    , nx);
+            int p_nw = p_index(i - 1, j + 1, nx);
+            rhs[p_0]  = mass[0] * mass[0] * (dx * u0_xixi[p_sw] + dy * u0_etaeta[p_sw]);
+            rhs[p_0] += mass[0] * mass[1] * (dx * u0_xixi[p_s] + dy * u0_etaeta[p_s]);
+            rhs[p_0] += mass[0] * mass[2] * (dx * u0_xixi[p_se] + dy * u0_etaeta[p_se]);
+            rhs[p_0] += mass[1] * mass[0] * (dx * u0_xixi[p_w] + dy * u0_etaeta[p_w]);
+            rhs[p_0] += mass[1] * mass[1] * (dx * u0_xixi[p_0] + dy * u0_etaeta[p_0]);
+            rhs[p_0] += mass[1] * mass[2] * (dx * u0_xixi[p_e] + dy * u0_etaeta[p_e]);
+            rhs[p_0] += mass[2] * mass[0] * (dx * u0_xixi[p_nw] + dy * u0_etaeta[p_nw]);
+            rhs[p_0] += mass[2] * mass[1] * (dx * u0_xixi[p_n] + dy * u0_etaeta[p_n]);
+            rhs[p_0] += mass[2] * mass[2] * (dx * u0_xixi[p_ne] + dy * u0_etaeta[p_ne]);
+            rhs[p_0] = std::abs(rhs[p_0]);
         }
     }
     for (int i = 1; i < nx - 1; ++i)  // horizontal direction
     {
         int j = 0;
-        rhs[p(i, j, nx)] = rhs[p(i, j + 1, nx)];
+        int p_0 = p_index(i, j, nx);
+        int p_n = p_index(i, j + 1, nx);
+        rhs[p_0] = rhs[p_n];
         j = ny - 1;
-        rhs[p(i, j, nx)] = rhs[p(i, j - 1, nx)];
+        p_0 = p_index(i, j, nx);
+        int p_s = p_index(i, j - 1, nx);
+        rhs[p_0] = rhs[p_s];
     }
     for (int j = 0; j < ny - 1; ++j)  // vertical direction
     {
         int i = 0;
-        rhs[p(i, j, nx)] = rhs[p(i + 1, j, nx)];
+        int p_0 = p_index(i, j, nx);
+        int p_e = p_index(i + 1, j, nx);
+        rhs[p_0] = rhs[p_e];
         i = nx - 1;
-        rhs[p(i, j, nx)] = rhs[p(i - 1, j, nx)];
+        p_0 = p_index(i, j, nx);
+        int p_w = p_index(i - 1, j, nx);
+        rhs[p_0] = rhs[p_w];
     }
     for (int j = 1; j < ny - 1; ++j)
     {
@@ -329,7 +367,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
 }
 
 
-int REGULARIZATION::p(int i, int j, int nx)
+int REGULARIZATION::p_index(int i, int j, int nx)
 {
     return j * nx + i;
 }

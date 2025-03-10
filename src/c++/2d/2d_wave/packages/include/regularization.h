@@ -31,6 +31,7 @@ private:
     std::unique_ptr<std::vector<double>> solve_eq7(double dx, double dy, std::vector<double> psi, std::vector<double> u_giv);
 
     int m_iter_max;
+    int p_index(int i, int j, int nx);
 };
 
 #endif __ADV_DIFF_REGULARIZATION_H__

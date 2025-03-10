@@ -105,7 +105,6 @@ int UGRID2D::add_variable(std::string var_name, std::vector<std::string> dim_nam
     status = set_attribute(var_name, std::string("long_name"), long_name);
     status = set_attribute(var_name, std::string("units"), unit);
     return status;
-
 }
 int UGRID2D::add_variable(std::string var_name, std::vector<std::string> dim_names, std::string std_name, std::string long_name, std::string unit, std::string mesh, std::string location)
 {
@@ -126,6 +125,12 @@ int UGRID2D::add_variable(std::string var_name, std::vector<std::string> dim_nam
     status = set_attribute(var_name, std::string("standard_name"), std_name);
     status = set_attribute(var_name, std::string("long_name"), long_name);
     status = set_attribute(var_name, std::string("units"), unit);
+    return status;
+}
+int UGRID2D::add_attribute(std::string var_name, std::string att_name, std::string att_value)
+{
+    int status = -1;
+    status = set_attribute(var_name, att_name, att_value);
     return status;
 }
 int UGRID2D::add_ntw_edge_nodes(std::string var_name, std::vector<std::string> dim_names, std::string cf_role, std::string long_name)
