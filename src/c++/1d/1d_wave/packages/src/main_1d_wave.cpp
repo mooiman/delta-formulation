@@ -9,12 +9,13 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <chrono>
+#include <thread>
 
 // for bicgstab solver
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 #include <toml.h>
-
 
 #include "cfts.h"
 #include "ugrid1d.h"
@@ -225,7 +226,7 @@ int main(int argc, char* argv[])
     double dt_his = tbl_chp["dt_his"].value_or(double(1.0));  // write interval to his-file
     double dt_map = tbl_chp["dt_map"].value_or(double(0.0));  // write interval to his-file
 
-    REGULARIZATION* regularization = new REGULARIZATION(iter_max);
+    REGULARIZATION* regularization = new REGULARIZATION(iter_max, g);
 
     double dxinv = 1./dx;                                 // invers grid size [m]
     int nx = int(Lx * dxinv) + 1 + 2 ;                    // number of nodes; including 2 virtual points
@@ -652,6 +653,52 @@ int main(int argc, char* argv[])
         START_TIMER(Newton iteration);
         for (int iter = 0; iter < iter_max; ++iter)
         {
+            used_newton_iter += 1;
+            if (regularization_iter)
+            {
+                START_TIMER(Regularization_iter_loop);
+                if (momentum_viscosity)
+                {
+                    switch (2)
+                    {
+                    case 1:
+                    {
+                        // keep cell-peclet number on 1.9
+                        (void)regularization->first_derivative(psi, visc_reg, u, dx);
+                        break;
+                    }
+                    case 2:
+                    {
+                        (void)regularization->artificial_viscosity(psi, hp, qp, zb, c_psi, dx);
+                        //(void)regularization->given_function(tmp1, tmp2, eq8, psi, dx, c_psi, use_eq8);
+                        for (int i = 0; i < nx; ++i)
+                        {
+                            visc[i] = visc_reg[i] + std::abs(psi[i]);
+                        }
+                        break;
+                    }
+                    case 3:
+                    {
+                        // should not be used
+                        for (int i = 0; i < nx; ++i)
+                        {
+                            u[i] = qp[i] / hp[i];
+                        }
+                        (void)regularization->given_function(tmp1, psi, eq8, u, dx, c_psi, use_eq8);
+                        for (int i = 0; i < nx; ++i)
+                        {
+                            qp[i] = tmp1[i] * hp[i];
+                            visc[i] = visc_reg[i] * std::abs(psi[i]);
+                            pe[i] = qp[i] / hp[i] * dx / visc[i];
+                        }
+                    }
+                    default:
+                        break;
+                    }
+                }
+                STOP_TIMER(Regularization_iter_loop);
+            }
+
             if (nst == 1 && iter == 0)
             {
                 START_TIMER(Matrix initialization);
@@ -1368,9 +1415,9 @@ int main(int argc, char* argv[])
             }
             Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
             solver.compute(A);
-            //solution = solver.solve(rhs);
             solver.setTolerance(eps_bicgstab);
-            solution = solver.solveWithGuess(rhs, solution);
+            solution = solver.solve(rhs);
+            //solution = solver.solveWithGuess(rhs, solution);
             if (nst == 1 && iter == 0)
             {
                 STOP_TIMER(BiCGStab_initialization);
@@ -1409,26 +1456,6 @@ int main(int argc, char* argv[])
                 }
             }
 
-            if (regularization_iter)
-            {
-                START_TIMER(Regularization_iter_loop);
-                if (momentum_viscosity)
-                {
-                    for (int i = 0; i < nx; ++i)
-                    {
-                        u[i] = qp[i] / hp[i];
-                    }
-                    //(void)regularization->first_derivative(psi, visc_reg, u, dx);
-                    (void)regularization->given_function(tmp1, psi, eq8, u, dx, c_psi, use_eq8);
-                    for (int i = 0; i < nx; ++i)
-                    {
-                        qp[i] = tmp1[i] * hp[i];
-                        visc[i] = visc_reg[i] * std::abs(psi[i]);
-                        pe[i] = qp[i] / hp[i] * dx / visc[i];
-                    }
-                }
-                STOP_TIMER(Regularization_iter_loop);
-            }
             if (logging == "matrix")
             {
                 log_file << "=== Matrix ============================================" << std::endl;
@@ -1460,7 +1487,7 @@ int main(int argc, char* argv[])
             std::cout << "stationary solution " << std::endl;
             log_file << "stationary solution " << std::endl;
             log_file << std::setprecision(8) << std::scientific
-                << "    Iter: " << used_newton_iter + 1
+                << "    Iter: " << used_newton_iter
                 << "    Delta h^{n + 1,p + 1}: " << dh_max << " at: " << dh_maxi
                 << "    Delta q^{n + 1,p + 1}: " << dq_max << " at: " << dq_maxi
                 << std::endl;
@@ -1475,14 +1502,14 @@ int main(int argc, char* argv[])
             {
                 log_file << "time [sec]: " << std::setprecision(2) << std::scientific << time
                     << std::setprecision(8) << std::scientific
-                    << "    Newton iterations  : " << used_newton_iter + 1
+                    << "    Newton iterations  : " << used_newton_iter
                     << "    Delta h^{n + 1,p + 1}: " << dh_max << " at: " << dh_maxi
                     << "    Delta q^{n + 1,p + 1}: " << dq_max << " at: " << dq_maxi
                     << std::endl;
             }
 
         }
-        if (used_newton_iter + 1 == iter_max)
+        if (used_newton_iter == iter_max)
         {
             if (dh_max > eps_newton || dq_max > eps_newton)
             {
@@ -1512,9 +1539,49 @@ int main(int argc, char* argv[])
                 for (int i = 0; i < nx; ++i)
                 {
                     qp[i] = tmp1[i] * hp[i];
-                    visc[i] = visc_reg[i] * std::abs(psi[i]);
+                    visc[i] = visc_reg[i] + std::abs(psi[i]);
                     pe[i] = qp[i] / hp[i] * dx / visc[i];
                 }
+
+                START_TIMER(Regularization_time_loop);
+                switch (2)
+                {
+                case 1:
+                {
+                    // keep cell-peclet number on 1.9
+                    (void)regularization->first_derivative(psi, visc_reg, u, dx);
+                    break;
+                }
+                case 2:
+                {
+                    (void)regularization->artificial_viscosity(psi, hp, qp, zb, c_psi, dx);
+                    for (int i = 0; i < nx; ++i)
+                    {
+                        visc[i] = visc_reg[i] + std::abs(psi[i]);
+                    }
+                    break;
+                    break;
+                }
+                case 3:
+                {
+                    // should not be used
+                    for (int i = 0; i < nx; ++i)
+                    {
+                        u[i] = qp[i] / hp[i];
+                    }
+                    (void)regularization->given_function(tmp1, psi, eq8, u, dx, c_psi, use_eq8);
+                    for (int i = 0; i < nx; ++i)
+                    {
+                        qp[i] = tmp1[i] * hp[i];
+                        visc[i] = visc_reg[i] * std::abs(psi[i]);
+                        pe[i] = qp[i] / hp[i] * dx / visc[i];
+                    }
+                }
+                default:
+                    break;
+                }
+                STOP_TIMER(Regularization_time_loop);
+
             }
         }
 
@@ -1576,9 +1643,9 @@ int main(int argc, char* argv[])
             //his_values = { riemann_neg[i_left], riemann_neg[i_left], riemann_neg[i_mid], riemann_neg[i_right], riemann_neg[i_right] };
             //his_file->put_variable(his_riemann_neg_name, nst_his, his_values);
 
-            his_values = { double(used_newton_iter + 1) };
+            his_values = { double(used_newton_iter) };
             his_file->put_variable(his_newton_iter_name, nst_his, his_values);
-            //his_values = { double(used_lin_solv_iter) / double(used_newton_iter + 1) };
+            //his_values = { double(used_lin_solv_iter) / double(used_newton_iter) };
             his_values = { double(used_lin_solv_iter)};
             his_file->put_variable(his_lin_solv_iter_name, nst_his, his_values);
 
@@ -1595,6 +1662,8 @@ int main(int argc, char* argv[])
     STOP_TIMER(Main);
     PRINT_TIMER(timing_filename.data());
 
+    std::chrono::duration<int, std::milli> timespan(1000);
+    std::this_thread::sleep_for(timespan);
     return 0;
 }
 int p_index(int i, int j, int nx)

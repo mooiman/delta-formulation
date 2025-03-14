@@ -6,7 +6,7 @@
 
 [Time]
     tstart = 0.0                                  # Start time [s]
-    tstop = 7200.0                               # End time [s]
+    tstop = 3600.0                               # End time [s]
  
 [Initial]
     ini_vars = ["zeta"]
@@ -28,7 +28,7 @@
     momentum_bed_shear_stress = false             # Include bed shear stress
     momentum_viscosity = true                     # Include bed shear stress
     chezy_coefficient = 50.0                      # Chezy coefficient
-    viscosity = 2.5
+    viscosity = 0.01
 
 [Numerics]
     dt = 0.0                                      # Time step size [s], if dt == 0: then stationary problem
