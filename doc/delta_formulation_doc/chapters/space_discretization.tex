@@ -114,7 +114,7 @@ Verification of its correctness by means of integration over the outermost finit
 \end{align}
 In the right-hand side we see the weights of the mass matrix of the piecewise linear FVE
 method, i.e.\ averaged over the left outermost finite volume the quadratic function $c_{opt}$
-equals the piece wise linear function used in the FVE scheme.
+equals the piecewise linear function used in the FVE scheme.
 %------------------------------------------------------------------------------
 \section{Regularization of artificial viscosity $\mathbf{\Psi}$}
 To get an error-minimizing method we need to regularize all data, as mentioned in \autoref{sec:error_minimizing}.
@@ -135,7 +135,7 @@ for $Err_\Psi$ the following expression is used \citep[eq.\ 42]{Borsboom2001}:
 	\half \sqrt{2} \abs{\frac{D_\xi(q)}{h} - \frac{qD_\xi(h)}{h^2}} \right)
 \end{align}
 \todo{Where is this equation coming from, derivation/explanation needed.}
-all variables in this equation are piece wise linear and using \citet[eq.\ 35]{Borsboom2001} for equidistant meshes:
+all variables in this equation are piecewise linear and using \citet[eq.\ 35]{Borsboom2001} for equidistant meshes:
 \begin{align}
 	D_\xi(u) = \Dxi^2 \pdiff[2]{}{\xi} \approx u_{i-1} - 2 u_{i} + u_{i+1}.
 \end{align}
@@ -427,7 +427,7 @@ To assure that the given initial condition(s) are compatible with the numerical 
 \begin{align}
     \int_{x_{i-\half}}^{x_{i+\half}} \overline u_{initial}\, dx = \int_{x_{i-\half}}^{x_{i+\half}} u_{given}\, dx \label{eq:compatible_initialization}
 \end{align}
-where $\overline{u}$ is the piece wise function and $u_{given}$ the given initial condition.
+where $\overline{u}$ is the piecewise function and $u_{given}$ the given initial condition.
 In case the function $u_{given}$ is an integrable analytic function the integral can be exact computed.
 In discrete form the equation for each control volume reads:
 \begin{align}

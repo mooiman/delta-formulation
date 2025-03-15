@@ -367,7 +367,7 @@ The discretization of the continuity equation will be presented term by term of 
 \subsubsection{Time derivative}
 The discretization of the time derivative term of the continuity equation reads:
 \begin{align}
-    & \int^{i+\half}_{i_-\half} \pdiff{h}{t}\, dx
+    & \int^{x_{i+\half}}_{x_{i_-\half}} \pdiff{h}{t}\, dx
 \end{align}
 which will be approximated by
 \begin{align}
@@ -405,7 +405,7 @@ after rearranging the equation into an implicit left hand side and an explicit r
 \subsubsection{Mass flux}
 The discretization of the mass flux term of the continuity equation reads:
 \begin{align}
-    \int_{i-\half}^{i+\half} \pdiff{q}{x} \,dx
+    \int^{x_{i+\half}}_{x_{i_-\half}} \pdiff{q}{x} \,dx
 \end{align}
 which will be approximated by the $\theta$-method and using Green's theorem:
 \begin{align}
@@ -428,7 +428,7 @@ The discretization of the momentum equation will be presented term by term of \a
 \subsubsection{Time derivative}
 The discretization of the time derivative term of the momentum equation reads and is similar as for the continuity equation:
 \begin{align}
-    & \int^{i+\half}_{i_-\half} \pdiff{q}{t}\, dx
+    & \int^{x_{i+\half}}_{x_{i_-\half}} \pdiff{q}{t}\, dx
 \end{align}
 which will be approximated by
 \begin{align}
@@ -599,7 +599,7 @@ and for the right part ($x_{i+\quart}$) we use
 \subsubsection{Viscosity}
 The viscosity term read:
 \begin{align}
-    &  \int^{i+\half}_{i-\half}\pdiff{}{x} \left( \nu h \pdiff{(q/h)}{x} \right)\ dx & =
+    &  \int^{x_{i+\half}}_{x_{i_-\half}} \pdiff{}{x} \left( \nu h \pdiff{(q/h)}{x} \right)\ dx & =
     \left. \nu \left( \pdiff{q}{x} - \frac{q}{h} \pdiff{h}{x} \right) \right|_{i+\half} - \left. \nu \left( \pdiff{q}{x} - \frac{q}{h} \pdiff{h}{x} \right) \right|_{i-\half}
 \end{align}
 The linearization of the viscosity term ($\nu = {\it constant}$) around iteration level $p$ reads (see \autoref{sec:linearisation_viscosity} for a derivation):
