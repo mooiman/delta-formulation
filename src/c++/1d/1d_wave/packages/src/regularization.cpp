@@ -1,6 +1,6 @@
 //---------------------------------------------------------------
 //   programmer: J. Mooiman
-//   date:       2024-07-28
+//   date:       2025-03-15
 //---------------------------------------------------------------
 //   DESCRIPTION
 //
@@ -163,8 +163,8 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     double alpha = 1. / 12.;
     for (int i = 1; i < nx-1; ++i)
     {
-        h_xixi[i] = alpha * h[i - 1] - 2. * h[i] + h[i + 1];
-        q_xixi[i] = alpha * q[i - 1] - 2. * q[i] + q[i + 1];
+        h_xixi[i] = alpha * (h[i - 1] - 2. * h[i] + h[i + 1]);
+        q_xixi[i] = alpha * (q[i - 1] - 2. * q[i] + q[i + 1]);
         s_xixi[i] = alpha * (h[i-1] + zb[i-1]) - 2. * (h[i] + zb[i]) + (h[i + 1] + zb[i + 1]);
     }
     int i = 0;
@@ -194,12 +194,14 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     // eq. 19
     i = 0;
     alpha = 0.0;
-    A.coeffRef(i, i) = -1.0; // 0.5 + alpha;
-    A.coeffRef(i, i + 1) = 1.0; // 0.5 - alpha;
+    A.coeffRef(i, i) = 11.0/24.; // 0.5 + alpha;
+    A.coeffRef(i, i + 1) = 14.0 / 24.; // 0.5 - alpha;
+    A.coeffRef(i, i + 1) = -1.0 / 24.; // 0.5 - alpha;
     rhs[i] = 0.0;
     i = nx - 1;
-    A.coeffRef(i, i-1) = -1.0; // 0.5 - alpha;
-    A.coeffRef(i, i) = 1.0;  // 0.5 + alpha;
+    A.coeffRef(i, i - 1) = -1.0 / 24.; // 0.5 - alpha;
+    A.coeffRef(i, i - 1) = 14.0 / 24.; // 0.5 - alpha;
+    A.coeffRef(i, i) = 11.0 / 24.;  // 0.5 + alpha;
     rhs[i] = 0.0;
 
     Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
