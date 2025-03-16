@@ -122,7 +122,8 @@ Regularization of the artificial viscosity $\Psi$ is performed as described in \
 \begin{align}
 	\int_\Omega \Psi\, d\omega - \alpha \int_\Omega \Dxi^2 \pdiff[2]{\Psi}{\xi}\, d\omega = \int_\Omega c_{\psi} Err_\Psi\, d\omega
 \end{align}
-When discretized it yields:
+\todo{Which value of $\alpha$ need to be used and why?}
+When discretized it yields \citep[eq.\ 18]{Borsboom2001}:
 \begin{align}
 	\left(\frac{1}{8} - \alpha \right)\Psi_{i-1} + 
 	\left(\frac{3}{4} + 2\alpha \right)\Psi_{i} + 
@@ -134,7 +135,7 @@ for $Err_\Psi$ the following expression is used \citep[eq.\ 42]{Borsboom2001}:
 	Err_\Psi = \Dxi \left( \half \sqrt{\frac{g}{h}} \abs{D_\xi(\zeta)} + 
 	\half \sqrt{2} \abs{\frac{D_\xi(q)}{h} - \frac{qD_\xi(h)}{h^2}} \right)
 \end{align}
-\todo{Where is this equation coming from, derivation/explanation needed.}
+\todo{Where is this equation coming from (energy equation?), derivation/explanation needed.}
 all variables in this equation are piecewise linear and using \citet[eq.\ 35]{Borsboom2001} for equidistant meshes:
 \begin{align}
 	D_\xi(u) = \Dxi^2 \pdiff[2]{}{\xi} \approx u_{i-1} - 2 u_{i} + u_{i+1}.
