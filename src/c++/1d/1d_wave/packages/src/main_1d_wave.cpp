@@ -577,6 +577,7 @@ int main(int argc, char* argv[])
     int dh_maxi = 0;
     double dq_max = 0.0;
     int dq_maxi = 0;
+    int case_switch = 2;
     START_TIMER(Time loop);
     for (int nst = 1; nst < total_time_steps; ++nst)
     {
@@ -659,12 +660,22 @@ int main(int argc, char* argv[])
                 START_TIMER(Regularization_iter_loop);
                 if (momentum_viscosity)
                 {
-                    switch (2)
+                    switch (case_switch)
                     {
                     case 1:
                     {
                         // keep cell-peclet number on 1.9
+                        for (int i = 0; i < nx; ++i)
+                        {
+                            u[i] = qp[i] / hp[i];
+                        }
                         (void)regularization->first_derivative(psi, visc_reg, u, dx);
+                        for (int i = 0; i < nx; ++i)
+                        {
+                            qp[i] = tmp1[i] * hp[i];
+                            visc[i] = visc_reg[i] + std::abs(psi[i]);
+                            pe[i] = qp[i] / hp[i] * dx / visc[i];
+                        }
                         break;
                     }
                     case 2:
@@ -674,6 +685,7 @@ int main(int argc, char* argv[])
                         for (int i = 0; i < nx; ++i)
                         {
                             visc[i] = visc_reg[i] + std::abs(psi[i]);
+                            pe[i] = qp[i] / hp[i] * dx / visc[i];
                         }
                         break;
                     }
@@ -1530,26 +1542,23 @@ int main(int argc, char* argv[])
         {
             if (momentum_viscosity)
             {
-                for (int i = 0; i < nx; ++i)
-                {
-                    u[i] = qp[i] / hp[i];
-                }
-                //(void)regularization->first_derivative(psi, visc_reg, u, dx);
-                (void)regularization->given_function(tmp1, psi, eq8, u, dx, c_psi, use_eq8);
-                for (int i = 0; i < nx; ++i)
-                {
-                    qp[i] = tmp1[i] * hp[i];
-                    visc[i] = visc_reg[i] + std::abs(psi[i]);
-                    pe[i] = qp[i] / hp[i] * dx / visc[i];
-                }
-
                 START_TIMER(Regularization_time_loop);
-                switch (2)
+                switch (case_switch)
                 {
                 case 1:
                 {
                     // keep cell-peclet number on 1.9
+                    for (int i = 0; i < nx; ++i)
+                    {
+                        u[i] = qp[i] / hp[i];
+                    }
                     (void)regularization->first_derivative(psi, visc_reg, u, dx);
+                    for (int i = 0; i < nx; ++i)
+                    {
+                        qp[i] = tmp1[i] * hp[i];
+                        visc[i] = visc_reg[i] + std::abs(psi[i]);
+                        pe[i] = qp[i] / hp[i] * dx / visc[i];
+                    }
                     break;
                 }
                 case 2:
@@ -1558,6 +1567,7 @@ int main(int argc, char* argv[])
                     for (int i = 0; i < nx; ++i)
                     {
                         visc[i] = visc_reg[i] + std::abs(psi[i]);
+                        pe[i] = qp[i] / hp[i] * dx / visc[i];
                     }
                     break;
                     break;

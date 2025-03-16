@@ -142,7 +142,7 @@ void REGULARIZATION::given_function(std::vector<double>& u_out, std::vector<doub
 }
 
 void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<double>& h, std::vector<double>& q, 
-    std::vector<double>& zb, double c_psi, double dx)
+    std::vector<double>& zb, double c_psi_in, double dx)
 {
     int nx = (int)h.size();
     std::vector<double> h_xixi(nx, 0.);  // second derivative of total depth in computational space
@@ -154,27 +154,29 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     Eigen::VectorXd solution(nx);               // solution vector 
     Eigen::VectorXd rhs(nx);                // RHS vector
 
+    double c_psi = c_psi_in;
+
     for (int i = 0; i < nx; ++i)
     {
         A.coeffRef(i, i) = 1.0;
         rhs[i] = 0.0;
     }
 
-    double alpha = 1. / 12.;
+
     for (int i = 1; i < nx-1; ++i)
     {
-        h_xixi[i] = alpha * (h[i - 1] - 2. * h[i] + h[i + 1]);
-        q_xixi[i] = alpha * (q[i - 1] - 2. * q[i] + q[i + 1]);
-        s_xixi[i] = alpha * (h[i-1] + zb[i-1]) - 2. * (h[i] + zb[i]) + (h[i + 1] + zb[i + 1]);
+        h_xixi[i] = (h[i - 1] - 2. * h[i] + h[i + 1]);
+        q_xixi[i] = (q[i - 1] - 2. * q[i] + q[i + 1]);
+        s_xixi[i] = ((h[i-1] + zb[i-1]) - 2. * (h[i] + zb[i]) + (h[i + 1] + zb[i + 1]));
     }
     int i = 0;
-    h_xixi[i] = alpha * h_xixi[i + 1];
-    q_xixi[i] = alpha * q_xixi[i + 1];
-    s_xixi[i] = alpha * s_xixi[i + 1];
+    h_xixi[i] = h_xixi[i + 1];
+    q_xixi[i] = q_xixi[i + 1];
+    s_xixi[i] = s_xixi[i + 1];
     i = nx - 1;
-    h_xixi[i] = alpha * h_xixi[i - 1];
-    q_xixi[i] = alpha * q_xixi[i - 1];
-    s_xixi[i] = alpha * s_xixi[i - 1];
+    h_xixi[i] = h_xixi[i - 1];
+    q_xixi[i] = q_xixi[i - 1];
+    s_xixi[i] = s_xixi[i - 1];
     //
     for (int i = 0; i < nx; ++i)
     {
@@ -184,25 +186,23 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     }
 
     // eq. 18
+    double alpha = 4./12.;
     for (int i = 1; i < nx - 1; ++i)
     {
         A.coeffRef(i, i - 1) = m_mass[0] - alpha;
         A.coeffRef(i, i    ) = m_mass[1] + 2. * alpha;
         A.coeffRef(i, i + 1) = m_mass[2] - alpha;
-        rhs[i] = (m_mass[0] * Err_psi[i - 1] + m_mass[1] * Err_psi[i] + m_mass[2] * Err_psi[i + 1]);
+        rhs[i] = c_psi * (m_mass[0] * Err_psi[i - 1] + m_mass[1] * Err_psi[i] + m_mass[2] * Err_psi[i + 1]);
     }
     // eq. 19
     i = 0;
-    alpha = 0.0;
-    A.coeffRef(i, i) = 11.0/24.; // 0.5 + alpha;
-    A.coeffRef(i, i + 1) = 14.0 / 24.; // 0.5 - alpha;
-    A.coeffRef(i, i + 1) = -1.0 / 24.; // 0.5 - alpha;
-    rhs[i] = 0.0;
+    A.coeffRef(i, i) = 0.5 + alpha; 
+    A.coeffRef(i, i + 1) = 0.5 - alpha;  
+    rhs[i] = 0.5 * (Err_psi[i] + Err_psi[i + 1]);
     i = nx - 1;
-    A.coeffRef(i, i - 1) = -1.0 / 24.; // 0.5 - alpha;
-    A.coeffRef(i, i - 1) = 14.0 / 24.; // 0.5 - alpha;
-    A.coeffRef(i, i) = 11.0 / 24.;  // 0.5 + alpha;
-    rhs[i] = 0.0;
+    A.coeffRef(i, i - 1) = 0.5 - alpha; 
+    A.coeffRef(i, i) = 0.5 + alpha;  
+    rhs[i] = 0.5 * (Err_psi[i - 1] + Err_psi[i]);
 
     Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
     solver.compute(A);
