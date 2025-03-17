@@ -11,6 +11,8 @@
 #include <filesystem>
 #include <chrono>
 #include <thread>
+#include <format>
+#include <string_view>
 
 // for bicgstab solver
 #include <Eigen/IterativeLinearSolvers>
@@ -504,12 +506,33 @@ int main(int argc, char* argv[])
     std::vector<double> x_obs = { x[i_left], x[i_mid_left], x[i_mid], x[i_mid_right], x[i_right] };
     std::vector<double> y_obs = { y[i_left], y[i_mid_left], y[i_mid], y[i_mid_right], y[i_right] };
 
+    int nsig = 0;
+    for (int i = 0; i < x_obs.size(); ++i)
+    {
+        nsig = std::max(nsig, (int)std::log10(x_obs[i]));
+    }
+    nsig += 1;
     std::vector<std::string> obs_stations;
-    obs_stations.push_back("West boundary");
-    obs_stations.push_back("Halfway to west boundary");
-    obs_stations.push_back("Centre");
-    obs_stations.push_back("Halfway to east boundary");
-    obs_stations.push_back("East boundary");
+    ss.str(std::string());
+    ss << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << x_obs[0];
+    obs_stations.push_back("x=" + ss.str() + ": West boundary");
+
+    ss.str(std::string());
+    ss << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << x_obs[1];
+    obs_stations.push_back("x=" + ss.str() + ": Halfway to west boundary");
+
+    ss.str(std::string());
+    ss << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << x_obs[2];
+    obs_stations.push_back("x=" + ss.str() + ": Centre");
+
+    ss.str(std::string());
+    ss << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << x_obs[3];
+    obs_stations.push_back("x=" + ss.str() + ": Halfway to east boundary");
+
+    ss.str(std::string());
+    ss << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << x_obs[4];
+    obs_stations.push_back("x=" + ss.str() + ": East boundary");
+
     his_file->add_stations(obs_stations, x_obs, y_obs);
     his_file->add_time_series();
 
@@ -1489,7 +1512,6 @@ int main(int argc, char* argv[])
             used_lin_solv_iter = std::max(used_lin_solv_iter, (int) solver.iterations());
             if (dh_max < eps_newton && dq_max < eps_newton)
             {
-                used_newton_iter = iter;
                 break;
             }
         }
