@@ -2,8 +2,8 @@
 // programmer: Jan Mooiman
 // Email: jan.mooiman@outlook.com
 //
-#ifndef __ADV_DIFF_REGULARIZATION_H__
-#define __ADV_DIFF_REGULARIZATION_H__
+#ifndef __2D_REGULARIZATION_H__
+#define __2D_REGULARIZATION_H__
 
 #include <cstdlib>
 #include <fstream>
@@ -27,11 +27,11 @@ public:
         double dx, double dy, double c_psi, bool without_err);
     void first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx);
 private:
-    std::unique_ptr<std::vector<double>> solve_eq8(double dx, double dy, double c_psi, std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etaeta);
-    std::unique_ptr<std::vector<double>> solve_eq7(double dx, double dy, std::vector<double> psi, std::vector<double> u_giv);
+    std::unique_ptr<std::vector<double>> solve_eq8(int nx, int ny, double dx, double dy, double c_psi, std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etaeta);
+    std::unique_ptr<std::vector<double>> solve_eq7(int nx, int ny, double dx, double dy, std::vector<double> psi, std::vector<double> u_giv);
 
     int m_iter_max;
     int p_index(int i, int j, int nx);
 };
 
-#endif __ADV_DIFF_REGULARIZATION_H__
+#endif __2D_REGULARIZATION_H__

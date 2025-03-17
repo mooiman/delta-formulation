@@ -103,7 +103,7 @@ void REGULARIZATION::given_function(int nx, int ny,
 
 
 //------------------------------------------------------------------------------
-        eq8 = *(this->solve_eq8(dx, dy, c_psi, u0, u0_xixi, u0_etaeta));
+        eq8 = *(this->solve_eq8(nx, ny, dx, dy, c_psi, u0, u0_xixi, u0_etaeta));
 //------------------------------------------------------------------------------
         if (use_eq8)
         {
@@ -111,7 +111,7 @@ void REGULARIZATION::given_function(int nx, int ny,
             {
                 for (int i = 0; i < nx; ++i)
                 {
-                    int p_0 = p_index(i, j, nx)
+                    int p_0 = p_index(i, j, nx);
                     psi[p_0] = c_psi * dx * dx * eq8[p_0];
                 }
             }
@@ -124,7 +124,7 @@ void REGULARIZATION::given_function(int nx, int ny,
             }
         }
 //------------------------------------------------------------------------------
-        u0 = *(this->solve_eq7(dx, dy, psi, u_giv));
+        u0 = *(this->solve_eq7(nx, ny, dx, dy, psi, u_giv));
 //------------------------------------------------------------------------------
 
         diff_max1 = 0.0;
@@ -165,11 +165,9 @@ void REGULARIZATION::first_derivative(std::vector<double>& psi, std::vector<doub
             psi[i] = pe[i] / pe_threshold;
         }
     }
-    int a = 1;
 }
-std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(double dx, std::vector<double> psi, std::vector<double> u_giv)
+std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, double dx, double dy, std::vector<double> psi, std::vector<double> u_giv)
 {
-    int nx = psi.size();
     auto u = std::make_unique<std::vector<double>> ();
     std::vector<double> tmp(nx, 0.0);
 

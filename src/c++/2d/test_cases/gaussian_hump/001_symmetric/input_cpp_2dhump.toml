@@ -7,16 +7,20 @@
 [Time]
     tstart = 0.0                                  # Start time [s]
     tstop = 1800.0                                # End time [s]
-        
+
 [Initial]
     ini_vars = ["zeta", "zeta_GaussHump"]
     gauss_amp = 0.01 # amplitude of the gaussian hump
     gauss_mu = 0.0  # location of the top of the gaussian hump
     gauss_sigma = 350.0  # width of the gaussian hump
 
-[Boundary]
-    bc_absorbing = [false, false, false, false]    # north, east, south, north
+[Boundary] # north, east, south, north
+    bc_type = ["dirichlet", "dirichlet", "dirichlet", "dirichlet"] # Type "mooiman", "borsboom", "dirichlet"
+    bc_vars = ["zeta", "zeta", "zeta", "zeta"]                       # Incoming signal  
+    bc_vals = [0.0, 0.0, 0.0, 0.0]                        
+    bc_absorbing = [false, false, false, false]    
     treg = 150.0                                  # Regularization time boundary signal
+    eps_bc_corr = 1.0e-2
 
 [Physics]
     g = 10.0                                      # Gravitational acceleration
@@ -41,4 +45,4 @@
 
 [Output]
     dt_his = 0.01   # [s]
-    dt_map = 0.01  # [s] 
+    dt_map = 0.01  # [s]

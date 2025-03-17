@@ -38,6 +38,7 @@ double dcdx_scvf_n(double, double, double, double);
 double dcdx_scvf_t(double, double, double, double);
 double dcdy_scvf_n(double, double, double, double);
 double dcdy_scvf_n(double, double, double, double);
+std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs_name);
 
 // Solve the linear wave equation
 // Continuity equation: d(h)/dt + d(q)/dx = 0
@@ -134,15 +135,13 @@ int main(int argc, char *argv[])
     log_file << std::endl;
     log_file << "=== Used input variables ==============================" << std::endl;
 
+    double dt = tbl["Numerics"]["dt"].value_or(double(1.0));  // default stationary
     // Time
     log_file << std::endl << "[Time]" << std::endl;
     double tstart = tbl["Time"]["tstart"].value_or(double(0.0));
     log_file << "tstart = " << tstart << std::endl;
     double tstop = tbl["Time"]["tstop"].value_or(double(1800.));
     log_file << "tstop = " << tstop << std::endl;
-    double dt = tbl["Numerics"]["dt"].value_or(double(5.0));  // default stationary
-    if (dt == 0.0) { stationary = true;  }
-    log_file << "dt = " << dt << std::endl;
     
     // Initial
     log_file << std::endl << "[Initial]" << std::endl;
@@ -236,6 +235,9 @@ int main(int argc, char *argv[])
     // Numerics
     log_file << std::endl << "[Numerics]" << std::endl;
     tbl_chp = *tbl["Numerics"].as_table();
+//    double dt = tbl["Numerics"]["dt"].value_or(double(1.0));  // default stationary
+    if (dt == 0.0) { stationary = true; }
+    log_file << "dt = " << dt << std::endl;
     double dx = tbl_chp["dx"].value_or(double(60.0)); // Grid size [m]
     log_file << "dx = " << dx << std::endl;
     double dy = tbl_chp["dy"].value_or(double(0.0)); // Grid size [m]
@@ -635,21 +637,27 @@ int main(int argc, char *argv[])
 
     std::vector<double> x_obs = { x[p_a], x[p_b], x[p_c], x[p_d], x[centre], x[n_bnd], x[ne_bnd], x[e_bnd], x[se_bnd], x[s_bnd], x[sw_bnd], x[w_bnd], x[nw_bnd] };
     std::vector<double> y_obs = { y[p_a], y[p_b], y[p_c], y[p_d], y[centre], y[n_bnd], y[ne_bnd], y[e_bnd], y[se_bnd], y[s_bnd], y[sw_bnd], y[w_bnd], y[nw_bnd] };
+    int nsig = 0;
+    for (int i = 0; i < x_obs.size(); ++i)
+    {
+        nsig = std::max(nsig, (int)std::log10(x_obs[i]));
+    }
+    nsig += 1;
 
     std::vector<std::string> obs_stations;
-    obs_stations.push_back("A");
-    obs_stations.push_back("B");
-    obs_stations.push_back("C");
-    obs_stations.push_back("D");
-    obs_stations.push_back("Centre");
-    obs_stations.push_back("N station");
-    obs_stations.push_back("NE station");
-    obs_stations.push_back("E station");
-    obs_stations.push_back("SE station");
-    obs_stations.push_back("S station");
-    obs_stations.push_back("SW station");
-    obs_stations.push_back("W station");
-    obs_stations.push_back("NW station");
+    obs_stations.push_back(setup_obs_name(x[p_a], y[p_a], nsig, "A"));
+    obs_stations.push_back(setup_obs_name(x[p_b], y[p_b], nsig, "B"));
+    obs_stations.push_back(setup_obs_name(x[p_c], y[p_c], nsig, "C"));
+    obs_stations.push_back(setup_obs_name(x[p_d], y[p_d], nsig, "D"));
+    obs_stations.push_back(setup_obs_name(x[centre], y[centre], nsig, "Centre"));
+    obs_stations.push_back(setup_obs_name(x[n_bnd] , y[n_bnd] , nsig, "N station"));
+    obs_stations.push_back(setup_obs_name(x[ne_bnd], y[ne_bnd], nsig, "NE station"));
+    obs_stations.push_back(setup_obs_name(x[e_bnd] , y[e_bnd] , nsig, "E station"));
+    obs_stations.push_back(setup_obs_name(x[se_bnd], y[se_bnd], nsig, "SE station"));
+    obs_stations.push_back(setup_obs_name(x[s_bnd] , y[s_bnd] , nsig, "S station"));
+    obs_stations.push_back(setup_obs_name(x[sw_bnd], y[sw_bnd], nsig, "SW station"));
+    obs_stations.push_back(setup_obs_name(x[w_bnd] , y[w_bnd] , nsig, "W station"));
+    obs_stations.push_back(setup_obs_name(x[nw_bnd], y[nw_bnd], nsig, "NW station"));
     his_file->add_stations(obs_stations, x_obs, y_obs);
     his_file->add_time_series();
 
@@ -2221,6 +2229,14 @@ inline double dcdy_scvf_t(double c0, double c1, double c2, double c3)
 {
     // dcdy tangential at subcontrol volume edge
     return 0.5 * (c3 - c0 + c2 - c1);
+}
+std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs_name)
+{
+    std::stringstream ss_x;
+    std::stringstream ss_y;
+    ss_x << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << x_obs;
+    ss_y << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << y_obs;
+    return (obs_name + "(" + ss_x.str() + ", " + ss_y.str() + ") ");
 }
 //------------------------------------------------------------------------------
 /* @@ GetArguments
