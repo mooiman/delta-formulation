@@ -162,7 +162,6 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         rhs[i] = 0.0;
     }
 
-
     for (int i = 1; i < nx-1; ++i)
     {
         h_xixi[i] = (h[i - 1] - 2. * h[i] + h[i + 1]);
@@ -170,13 +169,13 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         s_xixi[i] = ((h[i-1] + zb[i-1]) - 2. * (h[i] + zb[i]) + (h[i + 1] + zb[i + 1]));
     }
     int i = 0;
-    h_xixi[i] = h_xixi[i + 1];
-    q_xixi[i] = q_xixi[i + 1];
-    s_xixi[i] = s_xixi[i + 1];
+    h_xixi[i] = 2. * h_xixi[i + 1] - h_xixi[i + 2];
+    q_xixi[i] = 2. * q_xixi[i + 1] - q_xixi[i + 2];
+    s_xixi[i] = 2. * s_xixi[i + 1] - s_xixi[i + 2];
     i = nx - 1;
-    h_xixi[i] = h_xixi[i - 1];
-    q_xixi[i] = q_xixi[i - 1];
-    s_xixi[i] = s_xixi[i - 1];
+    h_xixi[i] = 2. * h_xixi[i - 1] - h_xixi[i - 2];
+    q_xixi[i] = 2. * q_xixi[i - 1] - q_xixi[i - 2];
+    s_xixi[i] = 2. * s_xixi[i - 1] - s_xixi[i - 2];
     //
     for (int i = 0; i < nx; ++i)
     {
@@ -186,7 +185,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     }
 
     // eq. 18
-    double alpha = 4./12.;
+    double alpha = 2.0;
     for (int i = 1; i < nx - 1; ++i)
     {
         A.coeffRef(i, i - 1) = m_mass[0] - alpha;
