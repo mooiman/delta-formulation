@@ -25,8 +25,6 @@ def cm2inch(cm):
     return cm / 2.54
 
 
-
-
 def main(Lx=1000., dx=20., c_psi = 2.):
     # paragraph after eq. 10 of article
     #Lx = 100. * dx

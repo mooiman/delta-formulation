@@ -22,69 +22,46 @@ def cm2inch(cm):
     return cm / 2.54
 
 
-def thomas_algorithm(a, b, c, d):
-    n = len(d)
-    c_star = np.zeros(n, float)
-    d_star = np.zeros(n, float)
-    f = np.zeros(n, float)
-
-    c_star[0] = c[0] / b[0]
-    d_star[0] = d[0] / b[0]
-
-    for i in range(1, n):
-        m = 1.0 / (b[i] - a[i] * c_star[i - 1])
-        c_star[i] = c[i] * m
-        d_star[i] = (d[i] - a[i] * d_star[i - 1]) * m
-
-    f[n - 1] = d_star[n - 1]
-    for i in range(n - 2, -1, -1):
-        f[i] = d_star[i] - c_star[i] * f[i + 1]
-
-    return f
-
-
-def main(length=6000., dx=10):
+def main(Lx=6000., dx=10):
     #length = 100. * dx
-    nx = int(length / dx + 1)
-    bathymetry = 1
+    nx = int(Lx / dx) + 1 + 2  # two extra virtual points
 
     x = np.zeros(nx, dtype=np.float64)  # x-coordinate
     y = np.zeros(nx, dtype=np.float64)  # y-coordinate
     s = np.zeros(nx, dtype=np.float64)  # initial water level
-    u = np.zeros(nx, dtype=np.float64)  # initial water level
-    v = np.zeros(nx, dtype=np.float64)  # initial water level
 
+    sigma = 350.0
     a0 = 0.001  # Amplitude at boundary
     for i in range(0, nx):
-        x[i] = i * dx - length/2.
-        s[i] = 2.0 * a0 * np.exp(-x[i] * x[i] / (500. * 500.))
+        x[i] = i * dx - Lx/2 - dx
+        s[i] = 2.0 * a0 * np.exp(-x[i] * x[i] / (2. * sigma * sigma))
 
-
+    srange = abs(max(s) - min(s))
+    if srange < 0.01:
+        srange = 0.01
     # -------------------------------------------------------------------
     # plot the series
-    fig, ax1 = plt.subplots(nrows=2, ncols=1, figsize=(1, 1))
-    # plt.ylim(-2, 2)
-    # plt.ylim(0, 4)
-    # ax1[0].set_title('$u_t + u_x = 0$')
-    ax1[0].set_ylabel('Amplitude [m]  $\\longrightarrow$')  # after definition of spines
-    ax1[0].set_xlabel('x [m] $\\longrightarrow$')  # after definition of spines
+    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(1, 1))
+    fig.set_size_inches(cm2inch(35.0), cm2inch(12.5))
+
+    ax1.set_ylabel('Amplitude [m]  $\\longrightarrow$')  # after definition of spines
+    ax1.set_xlabel('x [m] $\\longrightarrow$')  # after definition of spines
 
     major_grid_color = 'c'
-    ax1[0].xaxis.grid(True, 'major', linestyle='-', linewidth=0.5, color=major_grid_color)
-    ax1[0].yaxis.grid(True, 'major', linestyle='-', linewidth=0.5, color=major_grid_color)
-    ax1[0].set_ylim([-0.0005, 0.0025])
+    ax1.xaxis.grid(True, 'major', linestyle='-', linewidth=0.5, color=major_grid_color)
+    ax1.yaxis.grid(True, 'major', linestyle='-', linewidth=0.5, color=major_grid_color)
+    ax1.set_ylim(min(s) - 0.01*srange, max(s) + 0.01 * srange)
 
     y_formatter = matplotlib.ticker.ScalarFormatter(useOffset=False)
-    ax1[0].yaxis.set_major_formatter(y_formatter)
+    ax1.yaxis.set_major_formatter(y_formatter)
 
     tekst1 = 'Initial water level'
-    ax1[0].plot(x, s, '-', color='b', label=tekst1)
+    ax1.plot(x, s, '-', color='b', label=tekst1)
 
-    handles, labels = ax1[0].get_legend_handles_labels()
-    ax1[0].legend(handles, labels, bbox_to_anchor=(0.85, 0.80), loc='lower left')
+    handles, labels = ax1.get_legend_handles_labels()
+    ax1.legend(handles, labels, bbox_to_anchor=(0.80, 0.85), loc='lower left')
 
-    fig.set_size_inches(cm2inch(35.0), cm2inch(17.5))
-    figManager = plt.get_current_fig_manager()
+    #figManager = plt.get_current_fig_manager()
     #figManager.window.showMaximized()
     if not os.path.exists('figures'):
         os.mkdir('figures')
@@ -101,20 +78,6 @@ def main(length=6000., dx=10):
                 tekst = ('%.15f  ' % (s[i]))
                 logfile.write( tekst )
             tekst = ('%.15f\n' % (s[nx-1]))
-            logfile.write(tekst)
-        # u-velocity
-        for j in range(0,3):
-            for i in range(0, nx):
-                tekst = ('%.15f  ' % (u[i]))
-                logfile.write( tekst )
-            tekst = ('%.15f\n' % (u[nx-1]))
-            logfile.write(tekst)
-        # v-velocity
-        for j in range(0,3):
-            for i in range(0, nx):
-                tekst = ('%.15f  ' % (v[i]))
-                logfile.write( tekst )
-            tekst = ('%.15f\n' % (v[nx-1]))
             logfile.write(tekst)
         logfile.close()
     with open("data/initial_water_level_dflowfm.xyz", "w") as logfile:

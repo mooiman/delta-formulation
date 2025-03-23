@@ -23,7 +23,7 @@ def cm2inch(cm):
     return cm / 2.54
 
 
-def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  # c_psi paragraph after eq. 10 of article
+def main(bath_in = 7, Lx_in=1000., dx_in=50., c_psi_in= 16.0, left_in = 0.00):  # c_psi paragraph after eq. 10 of article
     bathymetry = int(bath_in)
     Lx = float(Lx_in)
     dx = float(dx_in)
@@ -37,7 +37,7 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
         print("Grid space is not a integer divider of domain length: Lx/dx = ", Lx/dx)
         return(1)
 
-    imax = int(Lx / dx + 1)
+    nx = int(Lx / dx) + 1 + 2  # two extra virtual points
     # bathymetry:
     # 0: tanh + step, as in the literature
     # 1: tanh with deeper step
@@ -52,35 +52,35 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
     Psi = c_psi * dx *dx
 
     refine = 100
-    x_ana = np.zeros(refine*(imax-1) + 1, dtype=np.float64)
-    ugiv_ana = np.zeros(refine * (imax - 1) + 1, dtype=np.float64)
-    ubar_ana = np.zeros(refine * (imax - 1) + 1, dtype=np.float64)
+    x_ana = np.zeros(refine*(nx-1) + 1, dtype=np.float64)
+    ugiv_ana = np.zeros(refine * (nx - 1) + 1, dtype=np.float64)
+    ubar_ana = np.zeros(refine * (nx - 1) + 1, dtype=np.float64)
 
-    x = np.zeros(imax, dtype=np.float64)
-    u0 = np.zeros(imax, dtype=np.float64)
-    ugiv = np.zeros(imax, dtype=np.float64)
-    ugrid = np.zeros(imax, dtype=np.float64)
-    u0_xixi = np.zeros(imax, dtype=np.float64)
-    u0_xx = np.zeros(imax, dtype=np.float64)
-    ugiv_xixi = np.zeros(imax, dtype=np.float64)
-    ugiv_xx = np.zeros(imax, dtype=np.float64)
-    diff_abs = np.zeros(imax, dtype=np.float64)
-    Err = np.zeros(imax, dtype=np.float64)
-    psi = np.zeros(imax, dtype=np.float64)
+    x = np.zeros(nx, dtype=np.float64)
+    u0 = np.zeros(nx, dtype=np.float64)
+    ugiv = np.zeros(nx, dtype=np.float64)
+    ugrid = np.zeros(nx, dtype=np.float64)
+    u0_xixi = np.zeros(nx, dtype=np.float64)
+    u0_xx = np.zeros(nx, dtype=np.float64)
+    ugiv_xixi = np.zeros(nx, dtype=np.float64)
+    ugiv_xx = np.zeros(nx, dtype=np.float64)
+    diff_abs = np.zeros(nx, dtype=np.float64)
+    Err = np.zeros(nx, dtype=np.float64)
+    psi = np.zeros(nx, dtype=np.float64)
 
-    for i in range(0, refine*(imax-1)+1):
-        x_ana[i] = i/(refine*(imax-1)) * Lx
-    for i in range(0, imax):
-        x[i] = i/(imax-1) * Lx
+    for i in range(0, refine*(nx-1)+1):
+        x_ana[i] = i/(refine*(nx-3)) * Lx - dx
+    for i in range(0, nx):
+        x[i] = i/(nx-3) * Lx - dx
 
     bathymetry_desc = "Not (yet) specified"
     if bathymetry == 0:
         bathymetry_desc = "Standard tanh with step"
-        for i in range(0, imax):
+        for i in range(0, nx):
             ugiv[i] = 1.0
             if x[i] < 0.65 * Lx:
                 ugiv[i] =  0.5 - 0.5 * np.tanh(20. * x[i] / Lx - 6.)
-        for i in range(0, refine*(imax-1)+1):
+        for i in range(0, refine*(nx-1)+1):
             ugiv_ana[i] = 1.0
             if x_ana[i] < 0.65 * Lx:
                 ugiv_ana[i] = 0.5 - 0.5 * np.tanh(20. * x_ana[i] / Lx - 6.)
@@ -89,11 +89,11 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
         step_height = step_right - step_left
     elif bathymetry == 1:
         bathymetry_desc = "Higher standard tanh with step"
-        for i in range(0, imax):
+        for i in range(0, nx):
             ugiv[i] = 10.
             if x[i] < 0.65 * Lx:
                 ugiv[i] = 10. * (0.5 - 0.5 * np.tanh(20. * x[i] / Lx - 6.))
-        for i in range(0, refine * (imax - 1) + 1):
+        for i in range(0, refine * (nx - 1) + 1):
             ugiv_ana[i] = 10.0
             if x_ana[i] <= 0.65 * Lx:
                 ugiv_ana[i] = 10.0 * (0.5 - 0.5 * np.tanh(20. * x_ana[i] / Lx - 6.))
@@ -105,7 +105,7 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
         step_left = 0.
         step_right = 25.
         step_height = step_right - step_left
-        for i in range(0, imax):
+        for i in range(0, nx):
             if x[i] < 0.3 * Lx:
                 ugiv[i] = 20.0
             elif x[i] < 0.5 * Lx:
@@ -114,7 +114,7 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
                 ugiv[i] = 0.0
             else:
                 ugiv[i] = 20.0
-        for i in range(0, refine * (imax - 1) + 1):
+        for i in range(0, refine * (nx - 1) + 1):
             if x_ana[i] < 0.3 * Lx - 0.5 * dx:
                 ugiv_ana[i] = 20.0
             elif x_ana[i] < 0.5 * Lx - 0.5 * dx:
@@ -127,14 +127,14 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
         bathymetry_desc = "Shoaling bedlevel from -10 [m] to -2.5 [m]"
         slope_begin = 250.
         slope_end = 350.
-        for i in range(0, imax):
+        for i in range(0, nx):
             if x[i] < slope_begin:
                 ugiv[i] = -10.0
             elif x[i] < slope_end:
                 ugiv[i] = -10. + (x[i] - slope_begin) / (slope_end - slope_begin) * 7.5
             else:
                 ugiv[i] = -2.5
-        for i in range(0, refine * (imax - 1) + 1):
+        for i in range(0, refine * (nx - 1) + 1):
             if x_ana[i] < slope_begin:
                 ugiv_ana[i] = -10.0
             elif x_ana[i] < slope_end:
@@ -156,7 +156,7 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
         step_left = -12.
         step_right = -5.
         step_height = step_right - step_left
-        for i in range(0, imax):
+        for i in range(0, nx):
             if x[i] < slope_up_begin:
                 ugiv[i] = zb_begin
             elif x[i] < slope_up_end:
@@ -167,7 +167,7 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
                 ugiv[i] = zb_weir + (x[i] - slope_down_begin) / (slope_down_end - slope_down_begin) * (zb_end - zb_weir)
             elif x[i] >= slope_down_end:
                 ugiv[i] = zb_end
-        for i in range(0, refine * (imax - 1) + 1):
+        for i in range(0, refine * (nx - 1) + 1):
             if x_ana[i] < slope_up_begin:
                 ugiv_ana[i] = zb_begin
             elif x_ana[i] < slope_up_end:
@@ -189,11 +189,11 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
         step_at = 0.0
         xc = x[jc] + step_at * dx
 
-        for i in range(0, imax):
+        for i in range(0, nx):
             ugiv[i] = step_left
             if x[i] > xc:
                 ugiv[i] = step_right
-        for i in range(0, refine * (imax - 1) + 1):
+        for i in range(0, refine * (nx - 1) + 1):
             ugiv_ana[i] = step_left
             if x_ana[i] > xc:
                 ugiv_ana[i] = step_right
@@ -202,41 +202,58 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
         step_left = 0.
         step_right = 2.
         step_height = step_right - step_left
-        for i in range(0, imax):
+        for i in range(0, nx):
             ugiv[i] = 1.0
-        for i in range(0, refine * (imax - 1) + 1):
+        for i in range(0, refine * (nx - 1) + 1):
             ugiv_ana[i] = 1.0
     elif bathymetry == 7:
         bathymetry_desc = "Single step (at right)"
         step_left = 0.0
         step_right = 1.0
         step_height = step_right - step_left
-        for i in range(0, imax):
+        for i in range(0, nx):
             if x[i] < 1.0 * Lx:
                 ugiv[i] = step_left
             else:
                 ugiv[i] = step_right
-        for i in range(0, refine * (imax - 1) + 1):
+            ugiv[0] = 1.0
+            ugiv[1] = 1.0
+        for i in range(0, refine * (nx - 1) + 1):
             if x_ana[i] < 1.0 * Lx:
                 ugiv_ana[i] = step_left
             else:
                 ugiv_ana[i] = step_right
+            for j in range(0, refine*(2-1) + 1):
+                ugiv_ana[j] = 1.0
+
+
+    elif bathymetry == 8:
+        bathymetry_desc = "f(x)=0 x<0.5, f(x)=2x x>0.5: Interface problem"
+        for i in range(0, nx):
+            ugiv[i] = 0.0
+            if x[i] > 0.5:
+                ugiv[i] = 2. * x[i]
+        for i in range(0, refine * (nx - 1) + 1):
+            ugiv_ana[i] = 0.0
+            if x_ana[i] > 0.5:
+                ugiv_ana[i] = 2. * x_ana[i]
+
     else:
         print("No valid bathymetry option defined, value '%s' is not supported." % bathymetry)
         return(1)
 
     #---------------------------------------------------------------------------------------
-    u0, Err, psi, diff_max, ugiv_xx_max = regf.compute_regularization(c_psi, ugiv, dx, imax, ugiv_ana, refine)
+    u0, Err, psi, diff_max, ugiv_xx_max = regf.compute_regularization(c_psi, ugiv, dx, nx, ugiv_ana, refine)
     #---------------------------------------------------------------------------------------
     if diff_max < 1e-5:
-        for j in range(0, imax - 1):
+        for j in range(0, nx - 1):
             for i in range(0, refine):
                 k = j * refine + i
                 fac = float(i) / (float(refine))
                 ubar_ana[k] = (1.0 - fac) * u0[j] + fac * u0[j + 1]
-        ubar_ana[refine * (imax - 1)] = u0[imax - 1]
+        ubar_ana[refine * (nx - 1)] = u0[nx - 1]
 
-        for i in range(1, imax - 1):
+        for i in range(1, nx - 1):
             u0_xixi[i] = (u0[i + 1] - 2. * u0[i] + u0[i - 1])
             u0_xx[i] = (u0[i + 1] - 2. * u0[i] + u0[i - 1])/(dx*dx)
             ugiv_xixi[i] = (ugiv[i + 1] - 2. * ugiv[i] + ugiv[i - 1])
@@ -245,21 +262,21 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
         max_u0_xixi = 0.0
         max_ugiv_xixi = 0.0
         max_ubar_ugiv = 0.0
-        for i in range(0, imax):
+        for i in range(0, nx):
             diff_abs[i] = np.abs(u0[i] - ugiv[i])
             max_u0_xixi = max(max_u0_xixi, u0_xixi[i])
             max_ugiv_xixi = max(max_ugiv_xixi, ugiv_xixi[i])
             max_ubar_ugiv = max(max_ubar_ugiv, diff_abs[i])
 
         norm_ubar_ugiv = 0.0
-        for i in range(0, refine * (imax - 1) + 1):
+        for i in range(0, refine * (nx - 1) + 1):
             norm_ubar_ugiv += abs(ubar_ana[i] - ugiv_ana[i])
-        delta_ubar_ugiv = norm_ubar_ugiv / float(imax)
+        delta_ubar_ugiv = norm_ubar_ugiv / float(nx)
 
         # ==================================================================
         # plot the series
-        fig1, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(1, 1))
         fig2, ax2 = plt.subplots(nrows=1, ncols=1, figsize=(1, 1))
+        fig1, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(1, 1))
         # plt.ylim(-2, 2)
         # plt.ylim(0, 4)
         # ax1.set_title('$u_t + u_x = 0$')
@@ -268,10 +285,13 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
 
         u0range = abs(max(u0) - min(u0))
         if u0range < 0.01:
-            u0range = 0.02
+            u0range = 0.01
             if bathymetry == 1:
                 u0range = 20.
-        if imax < 500:
+        u0_xx_range = abs(max(u0_xx) - min(u0_xx))
+        if u0_xx_range < 0.01:
+            u0_xx_range = 0.01
+        if nx < 500:
             ax1.xaxis.set_major_locator(MultipleLocator(dx))
             ax1.xaxis.set_minor_locator(MultipleLocator(dx/2))
             #ax1.yaxis.set_major_locator(MultipleLocator(u0range/10))
@@ -304,8 +324,8 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
             ax2.set_xlim([-dx, Lx+dx])
             ax1.set_ylim([-11., 1.0])
         if bathymetry == 4:
-            ax1.set_xlim([-dx, 500.0+dx])
-            ax2.set_xlim([-dx, 500.0+dx])
+            ax1.set_xlim([-dx, Lx+dx])
+            ax2.set_xlim([-dx, Lx+dx])
             ax1.set_ylim([-12.5, 0.0])
         if bathymetry == 5:
             ax1.set_xlim([0.5 * Lx - x_offset, 0.5 * Lx + x_offset])
@@ -314,7 +334,8 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
             ax2.set_xlim([0., 1000.])
             ax1.set_ylim([step_left - 0.05 * step_height, step_right + 0.05 * step_height])
         if bathymetry == 6:
-            ax1.set_ylim([u0range - 0.03, u0range - 0.01])
+            ax1.set_ylim([max(u0) + u0range*0.05, min(u0) - u0range*0.05])
+            ax2.set_ylim([max(u0_xx) + u0_xx_range * 0.05, min(u0_xx) - u0_xx_range * 0.05])
         if bathymetry == 7:
             ax1.set_xlim([-dx, Lx+dx])
             ax2.set_xlim([-dx, Lx+dx])
@@ -356,8 +377,8 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
         ax2.yaxis.grid(True, 'major', linestyle='-', linewidth=0.5, color=major_grid_color)
         # ax2.set_ylim([step_left - 0.05 * step_height, step_right + 0.05 * step_height])
         text1 = 'psi'
-        text2 = 'ugiv_xx (giv)'
-        text3 = 'u0_xx (reg)'
+        text2 = 'ugiv_xixi (giv)'
+        text3 = 'u0_xixi (reg)'
         text4 = 'Error'
         # ax2.plot(x, psi, '-', color='magenta', label=text1)
         ax2.plot(x, np.abs(ugiv_xixi), '-', color='c', label=text2, marker = 'o')
@@ -371,7 +392,7 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
         tekst = ('$c_{\Psi}$ = %.1f; $\Delta x$ = %.1f [m]; ${\Psi = c_{\Psi}\Delta x^2}$ = %.1f' % (c_psi, dx, Psi))
         fig1.text(0.125, 0.90, tekst, fontsize=10)
         tekst = ('max|$\overline{u}$ - $u_{giv}$|= %.5e; Sum|$\overline{u}$ - $u_{giv}$|= %.5e' % (max_ubar_ugiv, delta_ubar_ugiv))
-        #fig1.text(0.125, 0.90, tekst, fontsize=10)
+        fig1.text(0.125, 0.95, tekst, fontsize=10)
 
         tekst = ('max($ugiv_{xixi}$) = %.4f' % (max_ugiv_xixi))
         fig2.text(0.75, 0.93, tekst, fontsize=10)
@@ -379,7 +400,7 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
         fig2.text(0.75, 0.90, tekst, fontsize=10)
 
         uxx_max = 0.
-        for i in range(1, imax - 1):
+        for i in range(1, nx - 1):
             uxx_max = max(uxx_max, np.abs(u0_xixi[i]))
 
         #tekst = ('max($u_{xixi}$) = %.5f' % (max_u0_xixi))
@@ -400,9 +421,9 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
             logfile.write('* column 1: x-coordinate\n')
             logfile.write('* column 2: z_bed\n')
             logfile.write('bedlevel\n')
-            tekst = ('%.d %.d\n' % (imax, 2))
+            tekst = ('%.d %.d\n' % (nx, 2))
             logfile.write(tekst)
-            for i in range(0, imax):
+            for i in range(0, nx):
                 tekst = ('%.8f %.8f\n' % (x[i], u0[i]))
                 logfile.write( tekst )
             logfile.close()
@@ -411,9 +432,9 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
             logfile.write('* column 1: x-coordinate\n')
             logfile.write('* column 2: z_bed\n')
             logfile.write('bedlevel\n')
-            tekst = ('%.d %.d\n' % (imax, 2))
+            tekst = ('%.d %.d\n' % (nx, 2))
             logfile.write(tekst)
-            for i in range(0, imax):
+            for i in range(0, nx):
                 tekst = ('%.8f %.8f\n' % (x[i], ugiv[i]))
                 logfile.write( tekst )
             logfile.close()
@@ -422,9 +443,9 @@ def main(bath_in = 1, Lx_in=1000., dx_in=25., c_psi_in= 4.0, left_in = 0.00):  #
             logfile.write('* column 1: x-coordinate\n')
             logfile.write('* column 2: z_bed\n')
             logfile.write('bedlevel\n')
-            tekst = ('%.d %.d\n' % (imax, 2))
+            tekst = ('%.d %.d\n' % (nx, 2))
             logfile.write(tekst)
-            for i in range(0, imax):
+            for i in range(0, nx):
                 tekst = ('%.8f %.8f\n' % (x[i], -10.))
                 logfile.write( tekst )
             logfile.close()

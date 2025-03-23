@@ -22,23 +22,36 @@ def cm2inch(cm):
     return cm / 2.54
 
 
-def thomas_algorithm(a, b, c, d):
-    n = len(d)
-    c_star = np.zeros(n, float)
-    d_star = np.zeros(n, float)
-    f = np.zeros(n, float)
+def thomas_algorithm_5(a, b, c, d, e, f):
+    n = len(f)
 
-    c_star[0] = c[0] / b[0]
-    d_star[0] = d[0] / b[0]
+    a[0] = 0.0
+    b[0] = 0.0
+    d[0] = d[0] / c[0]
+    e[0] = e[0] / c[0]
+    f[0] = f[0] / c[0]
+    c[0] = c[0] / c[0]
 
-    for i in range(1, n):
-        m = 1.0 / (b[i] - a[i] * c_star[i - 1])
-        c_star[i] = c[i] * m
-        d_star[i] = (d[i] - a[i] * d_star[i - 1]) * m
+    for i in range(1, n-1):
+        d[i  ] = (d[i]-b[i]*e[i-1])/(c[i]-b[i]*d[i-1])
+        e[i  ] = (e[i]            )/(c[i]-b[i]*d[i-1])
+        f[i  ] = (f[i]-b[i]*f[i-1])/(c[i]-b[i]*d[i-1])
+        c[i  ] =  c[i]-b[i]*d[i-1]
 
-    f[n - 1] = d_star[n - 1]
-    for i in range(n - 2, -1, -1):
-        f[i] = d_star[i] - c_star[i] * f[i + 1]
+        b[i+1] = b[i+1]-a[i+1]*d[i-1]
+        c[i+1] = c[i+1]-a[i+1]*e[i-1]
+        f[i+1] = f[i+1]-a[i+1]*f[i-1]
+
+    i    = n-1
+    f[i] = (f[i]-b[i]*f[i-1])/(c[i]-b[i]*d[i-1])
+    c[i] =  c[i]-b[i]*d[i-1]
+#-----------------------------------------------------------------------
+#     back sweep
+#-----------------------------------------------------------------------
+    i=n-2
+    f[i]=f[i]-d[i]*f[i+1]
+    for i in range(n - 3, -1, -1):
+        f[i] = f[i]-d[i]*f[i+1]-e[i]*f[i+2]
 
     return f
 
@@ -74,6 +87,8 @@ def main(Lx=2000., dx=100., c_psi = 0.125):
     b = np.ones(imax, dtype=np.float64)
     c = np.zeros(imax, dtype=np.float64)
     d = np.zeros(imax, dtype=np.float64)
+    e = np.zeros(imax, dtype=np.float64)
+    f = np.zeros(imax, dtype=np.float64)
     err = np.zeros(imax, dtype=np.float64)
 
     for i in range(0, refine*(imax-1) + 1):
@@ -119,19 +134,27 @@ def main(Lx=2000., dx=100., c_psi = 0.125):
         c_error = c_psi
 
         for i in range(1, imax - 1):
+            a[i] = 0.0
             a[i] = 1./8. - c_error
             b[i] = 6./8. + 2. * c_error
             c[i] = 1./8. - c_error
-            d[i] = np.abs(u0_xx[i])
-        a[0] = 0.
-        b[0] = 1.0
-        c[0] = -1.0
-        d[0] = 0.
-        a[imax - 1] = -1.0
-        b[imax - 1] = 1.0
-        c[imax - 1] = 0.
-        d[imax - 1] = 0.
-        Err = thomas_algorithm(a, b, c, d)
+            e[i] = 0.0
+            f[i] = np.abs(u0_xx[i])
+        i = 0
+        a[i] = 0.0
+        b[i] = 0.0
+        c[i] = 1.0
+        d[i] = -1.0
+        e[i] = 0.0
+        f[0] = 0.0
+        i = imax - 1
+        a[i] = 0.0
+        b[i] = -1.0
+        c[i] = 1.0
+        d[i] = 0.0
+        e[i] = 0.0
+        f[i] = 0.0
+        Err = thomas_algorithm_5(a, b, c, d, e, f)
 
         max_Err = 0.0
         for i in range(0,imax):
@@ -143,19 +166,27 @@ def main(Lx=2000., dx=100., c_psi = 0.125):
         for i in range(1, imax - 1):
             psi_1 = 0.5 * (psi[i - 1] + psi[i])
             psi_2 = 0.5 * (psi[i] + psi[i + 1])
-            a[i] = 1./8. * dx - psi_1 / dx
-            b[i] = 6./8. * dx + psi_1 / dx + psi_2 / dx
-            c[i] = 1./8. * dx - psi_2 / dx
-            d[i] = 1./8. * ugiv[i - 1] + 6./8. * ugiv[i] + 1./8. * ugiv[i + 1]
-        a[0] = 0.
-        b[0] = -1.
-        c[0] = 1.
-        d[0] = 0.
-        a[imax - 1] = -1.
-        b[imax - 1] = 1.
-        c[imax - 1] = 0.
-        d[imax - 1] = 0.
-        u1 = thomas_algorithm(a, b, c, d)
+            a[i] = 0.0
+            b[i] = 1./8. * dx - psi_1 / dx
+            c[i] = 6./8. * dx + psi_1 / dx + psi_2 / dx
+            d[i] = 1./8. * dx - psi_2 / dx
+            e[i] = 0.0
+            f[i] = 1./8. * ugiv[i - 1] + 6./8. * ugiv[i] + 1./8. * ugiv[i + 1]
+        i = 0
+        a[i] = 0.0
+        b[i] = 0.0
+        c[i] = 1.0
+        d[i] = -1.0
+        e[i] = 0.0
+        f[0] = 0.0
+        i = imax - 1
+        a[i] = 0.0
+        b[i] = -1.0
+        c[i] = 1.0
+        d[i] = 0.0
+        e[i] = 0.0
+        f[i] = 0.0
+        u1 = thomas_algorithm_5(a, b, c, d, e, f)
 
         u1_xx_max = 0.
         for i in range(1, imax - 1):

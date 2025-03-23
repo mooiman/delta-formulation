@@ -20,26 +20,6 @@ matplotlib.use('QtAgg')
 def cm2inch(cm):
     return cm / 2.54
 
-def thomas_algorithm_3(a, b, c, d):
-    n = len(d)
-    c_star = np.zeros(n, float)
-    d_star = np.zeros(n, float)
-    f = np.zeros(n, float)
-
-    c_star[0] = c[0] / b[0]
-    d_star[0] = d[0] / b[0]
-
-    for i in range(1, n):
-        m = 1.0 / (b[i] - a[i] * c_star[i - 1])
-        c_star[i] = c[i] * m
-        d_star[i] = (d[i] - a[i] * d_star[i - 1]) * m
-
-    f[n - 1] = d_star[n - 1]
-    for i in range(n - 2, -1, -1):
-        f[i] = d_star[i] - c_star[i] * f[i + 1]
-
-    return f
-
 def thomas_algorithm_5(a, b, c, d, e, f):
     n = len(f)
 
