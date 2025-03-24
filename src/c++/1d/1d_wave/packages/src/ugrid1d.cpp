@@ -129,13 +129,13 @@ int UGRID1D::add_variable(std::string var_name, std::vector<std::string> dim_nam
         dimids.push_back(dim_id);
     }
 
-    status = nc_def_var(m_ncid, var_name.data(), NC_DOUBLE, dimids.size(), dimids.data(), &i_var);
+    status = nc_def_var(m_ncid, var_name.data(), NC_DOUBLE, (int)dimids.size(), dimids.data(), &i_var);
 
     status = set_attribute(var_name, std::string("standard_name"), std_name);
     status = set_attribute(var_name, std::string("long_name"), long_name);
     status = set_attribute(var_name, std::string("units"), unit);
-    return status;
 
+    return status;
 }
 int UGRID1D::add_variable(std::string var_name, std::vector<std::string> dim_names, std::string std_name, std::string long_name, std::string unit, std::string mesh, std::string location)
 {
@@ -149,7 +149,7 @@ int UGRID1D::add_variable(std::string var_name, std::vector<std::string> dim_nam
         dimids.push_back(dim_id);
     }
 
-    status = nc_def_var(m_ncid, var_name.data(), NC_DOUBLE, dimids.size(), dimids.data(), &i_var);
+    status = nc_def_var(m_ncid, var_name.data(), NC_DOUBLE, (int)dimids.size(), dimids.data(), &i_var);
 
     status = set_attribute(var_name, std::string("mesh"), mesh);
     status = set_attribute(var_name, std::string("location"), location);
@@ -170,7 +170,7 @@ int UGRID1D::add_ntw_edge_nodes(std::string var_name, std::vector<std::string> d
         dimids.push_back(dim_id);
     }
 
-    status = nc_def_var(m_ncid, var_name.data(), NC_UINT, dimids.size(), dimids.data(), &i_var);
+    status = nc_def_var(m_ncid, var_name.data(), NC_UINT, (int)dimids.size(), dimids.data(), &i_var);
 
     status = set_attribute(var_name, std::string("cf_role"), cf_role);
     status = set_attribute(var_name, std::string("long_name"), long_name);
@@ -188,7 +188,7 @@ int UGRID1D::add_geom_coordinate(std::string var_name, std::vector<std::string> 
         dimids.push_back(dim_id);
     }
 
-    status = nc_def_var(m_ncid, var_name.data(), NC_DOUBLE, dimids.size(), dimids.data(), &i_var);
+    status = nc_def_var(m_ncid, var_name.data(), NC_DOUBLE, (int)dimids.size(), dimids.data(), &i_var);
 
     status = set_attribute(var_name, std::string("cf_role"), cf_role);
     status = set_attribute(var_name, std::string("standard_name"), std_name);
@@ -209,7 +209,7 @@ int UGRID1D::add_node_count(std::string var_name, std::vector<std::string> dim_n
         dimids.push_back(dim_id);
     }
 
-    status = nc_def_var(m_ncid, var_name.data(), NC_UINT, dimids.size(), dimids.data(), &i_var);
+    status = nc_def_var(m_ncid, var_name.data(), NC_UINT, (int)dimids.size(), dimids.data(), &i_var);
 
     status = set_attribute(var_name, std::string("long_name"), long_name);
     return status;
@@ -227,7 +227,7 @@ int UGRID1D::add_mesh1d_edge_nodes(std::string var_name, std::vector<std::string
         dimids.push_back(dim_id);
     }
 
-    status = nc_def_var(m_ncid, var_name.data(), NC_UINT, dimids.size(), dimids.data(), &i_var);
+    status = nc_def_var(m_ncid, var_name.data(), NC_UINT, (int)dimids.size(), dimids.data(), &i_var);
 
     status = set_attribute(var_name, std::string("long_name"), long_name);
     return status;
@@ -245,7 +245,7 @@ int UGRID1D::add_mesh1d_point_on_branch(std::string var_name, std::vector<std::s
         dimids.push_back(dim_id);
     }
 
-    status = nc_def_var(m_ncid, var_name.data(), NC_UINT, dimids.size(), dimids.data(), &i_var);
+    status = nc_def_var(m_ncid, var_name.data(), NC_UINT, (int)dimids.size(), dimids.data(), &i_var);
 
     status = set_attribute(var_name, std::string("long_name"), long_name);
     return status;
@@ -262,7 +262,7 @@ int UGRID1D::add_mesh1d_offset_on_branch(std::string var_name, std::vector<std::
         dimids.push_back(dim_id);
     }
 
-    status = nc_def_var(m_ncid, var_name.data(), NC_DOUBLE, dimids.size(), dimids.data(), &i_var);
+    status = nc_def_var(m_ncid, var_name.data(), NC_DOUBLE, (int)dimids.size(), dimids.data(), &i_var);
 
     status = set_attribute(var_name, std::string("long_name"), long_name);
     status = set_attribute(var_name, std::string("units"), unit);

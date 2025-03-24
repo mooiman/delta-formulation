@@ -34,7 +34,7 @@ REGULARIZATION::REGULARIZATION(int iter_max, double g) :
 void REGULARIZATION::given_function(std::vector<double>& u_out, std::vector<double>& psi, std::vector<double>& eq8, std::vector<double>& u_giv_in,
     double dx, double c_psi, bool use_eq8)
 {
-    int nx = (int) u_giv_in.size();
+    int nx = (int)u_giv_in.size();
     double diff_max0 = 0.0;
     double diff_max1 = 0.0;
     std::vector<double> u_giv(nx, 0.);
@@ -232,7 +232,7 @@ void REGULARIZATION::first_derivative(std::vector<double>& psi, std::vector<doub
 
 std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(double dx, std::vector<double> psi, std::vector<double> u_giv)
 {
-    int nx = (int) psi.size();
+    int nx = (int)psi.size();
     auto u = std::make_unique<std::vector<double>> ();
     std::vector<double> tmp(nx, 0.0);
 
@@ -302,7 +302,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(double dx, std::v
 
 std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(double c_error, std::vector<double> u0, std::vector<double> u0_xixi)
 {
-    int nx = (int) u0_xixi.size();
+    int nx = (int)u0_xixi.size();
     auto err = std::make_unique<std::vector<double>> ();
     std::vector<double> tmp(nx, 0.0);
 

@@ -242,7 +242,7 @@ int main(int argc, char* argv[])
         dt = 0.0;                                         // Time step size [s]
         dtinv = 0.0;                                      // stationary solution
         eps_bc_corr = 1.0;
-        iter_max = 2.5 * iter_max;
+        iter_max = 2 * iter_max;
         theta = 1.0;                                      // Stationary solution
         tstop = 1.;
         total_time_steps = 2;                             // initial step (step 1), stationary result (step 2)
@@ -378,7 +378,6 @@ int main(int argc, char* argv[])
     }
     status = 0;
     double s_offset = 0.0;
-    double zb_slope = 0.0;
     for (int i = 0; i < nx; i++)
     {
         s_giv[i] = s_offset;
@@ -592,7 +591,7 @@ int main(int argc, char* argv[])
     }
 
     std::cout << "Start time-loop" << std::endl;
-    std::cout << std::fixed << std::setprecision(2) << "tstart= " << tstart + time << ";   tstop=" << tstart + tstop << ";   dt= " << dt << std::endl;
+    std::cout << std::fixed << std::setprecision(2) << "tstart= " << tstart + time << ";   tstop=" << tstart + tstop << ";   dt= " << dt << ";   dx= " << dx << std::endl;
  
     STOP_TIMER(Initialization);
    // Start time loop
@@ -600,7 +599,7 @@ int main(int argc, char* argv[])
     int dh_maxi = 0;
     double dq_max = 0.0;
     int dq_maxi = 0;
-    int case_switch = 2;
+    int psi_switch = 2;
     START_TIMER(Time loop);
     for (int nst = 1; nst < total_time_steps; ++nst)
     {
@@ -683,7 +682,7 @@ int main(int argc, char* argv[])
                 START_TIMER(Regularization_iter_loop);
                 if (momentum_viscosity)
                 {
-                    switch (case_switch)
+                    switch (psi_switch)
                     {
                     case 1:
                     {
@@ -704,7 +703,6 @@ int main(int argc, char* argv[])
                     case 2:
                     {
                         (void)regularization->artificial_viscosity(psi, hp, qp, zb, c_psi, dx);
-                        //(void)regularization->given_function(tmp1, tmp2, eq8, psi, dx, c_psi, use_eq8);
                         for (int i = 0; i < nx; ++i)
                         {
                             visc[i] = visc_reg[i] + std::abs(psi[i]);
@@ -787,8 +785,7 @@ int main(int argc, char* argv[])
                 int ph_e = 2 * p_index(i + 1, 0, nx);  // continuity equation
                 int ph_w = 2 * p_index(i - 1, 0, nx);  // continuity equation
                 int pq = ph + 1;  // q=hu-momentum equation
-                int pq_e = ph_e + 1;  // q=hu-momentum equation
-                int pq_w = ph_w + 1;  // q=hu-momentum equation
+
                 //
                 // continuity equation (dh/dt ... = 0)
                 //
@@ -981,9 +978,11 @@ int main(int argc, char* argv[])
                 hn_ip12 = w_ess[0] * hn_i + w_ess[1] * hn_ip1 + w_ess[2] * hn_ip2;
                 hp_ip12 = w_ess[0] * hp_i + w_ess[1] * hp_ip1 + w_ess[2] * hp_ip2;
                 htheta_ip12 = w_ess[0] * htheta_i + w_ess[1] * htheta_ip1 + w_ess[2] * htheta_ip2;
+
                 qn_ip12 = w_ess[0] * qn_i + w_ess[1] * qn_ip1 + w_ess[2] * qn_ip2;
                 qp_ip12 = w_ess[0] * qp_i + w_ess[1] * qp_ip1 + w_ess[2] * qp_ip2;
                 qtheta_ip12 = w_ess[0] * qtheta_i + w_ess[1] * qtheta_ip1 + w_ess[2] * qtheta_ip2;
+
                 double zb_ip12 = w_ess[0] * zb[i] + w_ess[1] * zb[i + 1] + w_ess[2] * zb[i + 2];
 
                 A.coeffRef(ph, ph) = 0.0;
@@ -1121,11 +1120,12 @@ int main(int argc, char* argv[])
                 // 
                 // momentum part dq/dt + gh d(zeta)/dt
                 // 
-                A.coeffRef(pq, ph) += w_nat[0] * dxinv * theta * g * (htheta_ip1 + zb[i + 1] - htheta_i - zb[i]) - dxinv * theta * g * htheta_ip12;
-                A.coeffRef(pq, ph_e) += w_nat[1] * dxinv * theta * g * (htheta_ip1 + zb[i + 1] - htheta_i - zb[i]) + dxinv * theta * g * htheta_ip12;
+                A.coeffRef(pq, ph   ) += w_nat[0] * dxinv * theta * g * (htheta_ip1 + zb[i + 1] - htheta_i - zb[i]) - dxinv * theta * g * htheta_ip12;
+                A.coeffRef(pq, ph_e ) += w_nat[1] * dxinv * theta * g * (htheta_ip1 + zb[i + 1] - htheta_i - zb[i]) + dxinv * theta * g * htheta_ip12;
                 A.coeffRef(pq, ph_ee) += w_nat[2] * dxinv * theta * g * (htheta_ip1 + zb[i + 1] - htheta_i - zb[i]);
-                A.coeffRef(pq, ph + 1) += dtinv * w_nat[0];
-                A.coeffRef(pq, ph_e + 1) += dtinv * w_nat[1];
+
+                A.coeffRef(pq, ph + 1   ) += dtinv * w_nat[0];
+                A.coeffRef(pq, ph_e + 1 ) += dtinv * w_nat[1];
                 A.coeffRef(pq, ph_ee + 1) += dtinv * w_nat[2];
                 rhs[pq] += -(dqdt + dzetadx);
                 if (momentum_convection) // 
@@ -1176,11 +1176,12 @@ int main(int argc, char* argv[])
                 //
                 double con_fac = c_wave;
                 if (momentum_convection) { con_fac = c_wave - qp_ip12 / hp_ip12; }
-                A.coeffRef(pq, ph) += -con_fac * dtinv * w_nat[0];
-                A.coeffRef(pq, ph_e) += -con_fac * dtinv * w_nat[1];
+                A.coeffRef(pq, ph   ) += -con_fac * dtinv * w_nat[0];
+                A.coeffRef(pq, ph_e ) += -con_fac * dtinv * w_nat[1];
                 A.coeffRef(pq, ph_ee) += -con_fac * dtinv * w_nat[2];
-                A.coeffRef(pq, ph + 1) += -con_fac * -dxinv * theta;
-                A.coeffRef(pq, ph_e + 1) += -con_fac * dxinv * theta;
+
+                A.coeffRef(pq, ph + 1   ) += -con_fac * -dxinv * theta;
+                A.coeffRef(pq, ph_e + 1 ) += -con_fac * dxinv * theta;
                 A.coeffRef(pq, ph_ee + 1) += 0.0;
                 rhs[pq] += con_fac * (dhdt + dqdx);
             }
@@ -1225,6 +1226,7 @@ int main(int argc, char* argv[])
                 hn_im12 = w_ess[0] * hn_i + w_ess[1] * hn_im1 + w_ess[2] * hn_im2;
                 hp_im12 = w_ess[0] * hp_i + w_ess[1] * hp_im1 + w_ess[2] * hp_im2;
                 htheta_im12 = w_ess[0] * htheta_i + w_ess[1] * htheta_im1 + w_ess[2] * htheta_im2;
+
                 qn_im12 = w_ess[0] * qn_i + w_ess[1] * qn_im1 + w_ess[2] * qn_im2;
                 qp_im12 = w_ess[0] * qp_i + w_ess[1] * qp_im1 + w_ess[2] * qp_im2;
                 qtheta_im12 = w_ess[0] * qtheta_i + w_ess[1] * qtheta_im1 + w_ess[2] * qtheta_im2;
@@ -1509,7 +1511,7 @@ int main(int argc, char* argv[])
                 }
                 log_file << "=======================================================" << std::endl;
             }
-            used_lin_solv_iter = std::max(used_lin_solv_iter, (int) solver.iterations());
+            used_lin_solv_iter = std::max(used_lin_solv_iter, (int)solver.iterations());
             if (dh_max < eps_newton && dq_max < eps_newton)
             {
                 break;
@@ -1565,7 +1567,7 @@ int main(int argc, char* argv[])
             if (momentum_viscosity)
             {
                 START_TIMER(Regularization_time_loop);
-                switch (case_switch)
+                switch (psi_switch)
                 {
                 case 1:
                 {
@@ -1592,7 +1594,6 @@ int main(int argc, char* argv[])
                         pe[i] = qp[i] / hp[i] * dx / visc[i];
                     }
                     break;
-                    break;
                 }
                 case 3:
                 {
@@ -1613,7 +1614,6 @@ int main(int argc, char* argv[])
                     break;
                 }
                 STOP_TIMER(Regularization_time_loop);
-
             }
         }
 
@@ -1705,7 +1705,7 @@ int p_index(int i, int j, int nx)
 
 int initialize_scalar(double alpha, std::vector<double>& value_in, std::vector<double>& value_out)
 {
-    int nx = value_in.size();
+    int nx = (int)value_in.size();
     Eigen::SparseMatrix<double> A(nx, nx);
     Eigen::VectorXd solution(nx);           // solution vector
     Eigen::VectorXd rhs(nx);                // RHS vector
@@ -1743,7 +1743,7 @@ int read_bed_level(std::string filename, std::vector<double> & value)
     double dummy;
     std::string record;
 
-    int nx = value.size();
+    int nx = (int)value.size();
     std::ifstream input_file;
 
     input_file.open(filename);
@@ -1813,9 +1813,10 @@ int initialize_bed_level(BED_LEVEL bed_type, std::vector<double>& x, std::vector
         // From -3.9 [m] to -4.0 [m]
         double ib = -1e-04;  // 0.1 mm per meter
         double slope_begin = x[1];
-        double slope_end = x[x.size() - 2];
+        double x0 = x[1];
         for (int i = 0; i < x.size(); ++i)
         {
+            x[i] = x[i] - x0;
             zb[i] = -3.9 + (x[i] - slope_begin) * ib;
         }
     }
@@ -1823,7 +1824,7 @@ int initialize_bed_level(BED_LEVEL bed_type, std::vector<double>& x, std::vector
     {
         // Borsboom_development1Derrorminmovingadaptgridmethod_AdaptMethodLinesCRC2001.pdf
         model_title = "Weir: from -12 [m] to -5 [m] and from -5 [m] to -10 [m] (Borsboom_presCASATUE2023)";
-        double x0 = x[1];
+        double x0 = x[1];  // x[1] = -250. 
         double zb_def = -12.0;
 
         double slope_up_begin = 200.;
@@ -1851,39 +1852,41 @@ int initialize_bed_level(BED_LEVEL bed_type, std::vector<double>& x, std::vector
     else if (bed_type == BED_LEVEL::WAVY)
     {
         model_title = "Wavy bed level (par 5.2, Platzek2019)";
-        int nx = x.size();
-        double Lx = x[nx - 1] - x[0];
-        double dx = Lx / (nx - 1);
+        int nx = (int)x.size();
+        double Lx = x[nx - 2] - x[1];  // 2 virtual nodes
+        double dx = Lx / (nx - 3);
         double zb_ref = -4.0;  // Mean depth for the wave bed level
         double Ab = 0.3;    // Amplitude of the bed forms
         double Nb = 25.0;  // Number of waves in bed level in the domain
         double fb = 2.0 * M_PI * Nb / ((nx-3) * dx);
+        double x0 = x[1];
         for (int i = 0; i < x.size(); ++i)
         {
+            x[i] = x[i] - x0;
             zb[i] = zb_ref - Ab * cos(fb * (x[i]- x[1]));
         }
         zb[0] = zb[1];
         zb[nx - 1] = zb[nx - 2];
-        int a = 1;
     }
     else if (bed_type == BED_LEVEL::WAVY_SLOPED)
     {
         model_title = "Sloped wavy bed level (par 5.3, Platzek2019)";
-        int nx = x.size();
-        double Lx = x[nx - 1] - x[0];
-        double dx = Lx / (nx - 1);
+        int nx = (int)x.size();
+        double Lx = x[nx - 2] - x[1];
+        double dx = Lx / (nx - 3);
         double zb_ref = -3.9;  // Mean depth for the wave bed level
         double Ab = 0.3;    // Amplitude of the bed forms
         double Nb = 25.0;  // Number of waves in bed level in the domain
         double fb = 2.0 * M_PI * Nb / ((nx - 3) * dx);
         double ib = -1e-04;  // 0.1 mm per meter
+        double x0 = x[1];
         for (int i = 0; i < x.size(); ++i)
         {
+            x[i] = x[i] - x0;
             zb[i] = zb_ref - Ab * cos(fb * (x[i] - x[1])) + ib * (x[i] - x[1]);
         }
         zb[0] = zb[1];
         zb[nx - 1] = zb[nx - 2];
-
     }
     else
     {
