@@ -312,7 +312,6 @@ int main(int argc, char* argv[]) {
         {
             START_TIMER(Newton iteration);
             ////////////////////////////////////////////////////////////////////////////
-            double dc_max = 0.0;
             std::vector<double> tmp(4);
 
             k[0] = k0(t0);
