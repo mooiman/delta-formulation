@@ -680,7 +680,7 @@ std::vector<double> quadratic_interpolation_1d(std::vector<double> x, std::vecto
     }
     if (bc_east_west == BC_EAST)
     {
-        int nx = x.size();
+        int nx = (int)x.size();
         x_gp[0] = x[nx - 1];
         x_gp[1] = x[nx - 2];
         x_gp[2] = x[nx - 3];
@@ -689,11 +689,11 @@ std::vector<double> quadratic_interpolation_1d(std::vector<double> x, std::vecto
         f_gp[2] = f[2];
         x_loc = (1.0 - x_loc) * x[nx - 1] + x_loc * x[nx - 2];
     }
-    double b_1 = (f_gp[1] - f_gp[0]) / (x_gp[1] - x_gp[0]);
-    double b_2 = ((f_gp[2] - f_gp[1]) / (x_gp[2] - x_gp[1]) - (f_gp[1] - f_gp[0]) / (x_gp[1] - x_gp[0])) / (x_gp[2] - x_gp[0]);
-    double f_xloc = f_gp[0] + b_1 * (x_loc - x_gp[0]) + b_2 * (x_loc - x_gp[0]) * (x_loc - x_gp[1]);
-    double dfdx_xloc = b_1 + b_2 * (x_loc - x_gp[0]) + b_2 * (x_loc - x_gp[1]);
-    double d2fdx2_xloc = 2 * b_2;
+    //double b_1 = (f_gp[1] - f_gp[0]) / (x_gp[1] - x_gp[0]);
+    //double b_2 = ((f_gp[2] - f_gp[1]) / (x_gp[2] - x_gp[1]) - (f_gp[1] - f_gp[0]) / (x_gp[1] - x_gp[0])) / (x_gp[2] - x_gp[0]);
+    //double f_xloc = f_gp[0] + b_1 * (x_loc - x_gp[0]) + b_2 * (x_loc - x_gp[0]) * (x_loc - x_gp[1]);
+    //double dfdx_xloc = b_1 + b_2 * (x_loc - x_gp[0]) + b_2 * (x_loc - x_gp[1]);
+    //double d2fdx2_xloc = 2 * b_2;
 
     // Calculate interpolation weights at x_loc such that
     // f(x_loc) = w[0] * f_gp[0] + w[1] * f_gp[1] + w[2] * f_gp[2] in non - equidistant grids
@@ -720,7 +720,7 @@ std::vector<double> hermite_interpolation_1d(std::vector<double> x, std::vector<
     }
     if (bc_east_west == BC_EAST)
     {
-        int nx = x.size();
+        int nx = (int)x.size();
         x_gp[0] = x[nx - 1];
         x_gp[1] = x[nx - 2];
         x_gp[2] = x[nx - 3];
@@ -752,7 +752,7 @@ std::vector<double> hermite_interpolation_1d(std::vector<double> x, std::vector<
     double h11 = (t - 1.0) * t * t;
 
     // Define interpolation polynomial
-    double p = h00 * f_cc[0] + h10 * (x_cc[1] - x_cc[0]) * dfdx_cc[0] + h01 * f_cc[1] + h11 * (x_cc[1] - x_cc[0]) * dfdx_cc[1];
+    //double p = h00 * f_cc[0] + h10 * (x_cc[1] - x_cc[0]) * dfdx_cc[0] + h01 * f_cc[1] + h11 * (x_cc[1] - x_cc[0]) * dfdx_cc[1];
 
     // Calculate weights such that p = w[0] * f[0] + w[1] * f[1] + w[0] * f[0] in non - equidistant grids
     // f_cc = 0.5 * (f_gp[0] + f_gp[1]), f_cc[1] = 0.5 * (f_gp[1] + f_gp[0])

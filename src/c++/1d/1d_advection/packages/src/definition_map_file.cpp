@@ -14,7 +14,7 @@ UGRID1D * create_map_file(std::string nc_mapfile, std::vector<double> & x,
 {
 
     int status = -1;
-    int nr_nodes = x.size();
+    int nr_nodes = (int)x.size();
     int nr_edges = nr_nodes - 1;
     std::vector<double> y(nr_nodes, 0.);                      // y-coordinate
 

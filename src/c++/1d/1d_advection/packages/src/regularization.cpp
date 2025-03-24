@@ -1,8 +1,6 @@
 //---------------------------------------------------------------
 //   programmer: J. Mooiman
-//   date:       $date$
-//   version:    $version$
-//   copyright © 2025 Mooiman
+//   date:       2025-03-24
 //---------------------------------------------------------------
 //   DESCRIPTION
 //
@@ -307,7 +305,7 @@ void REGULARIZATION::given_function(std::vector<double>& u_out, std::vector<doub
         u0_xixi[i-1] = u0_xixi[i - 2];
 
 //------------------------------------------------------------------------------
-        eq8 = *(this->solve_eq8(dx, c_psi, u0, u0_xixi));
+        eq8 = *(this->solve_eq8(c_psi, u0, u0_xixi));
 //------------------------------------------------------------------------------
 #if LOGFILE == 1
         log_file << "--- eq8 -----------------------------------------------" << std::endl;
@@ -390,7 +388,7 @@ void REGULARIZATION::first_derivative(std::vector<double>& psi, std::vector<doub
 }
 std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(double dx, std::vector<double> psi, std::vector<double> u_giv)
 {
-    int nx = psi.size();
+    int nx = (int)psi.size();
     auto u = std::make_unique<std::vector<double>> ();
     std::vector<double> tmp(nx, 0.0);
 
@@ -459,9 +457,9 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(double dx, std::v
 };
 
 
-std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(double dx, double c_error, std::vector<double> u0, std::vector<double> u0_xixi)
+std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(double c_error, std::vector<double> u0, std::vector<double> u0_xixi)
 {
-    int nx = u0_xixi.size();
+    int nx = (int)u0_xixi.size();
     auto err = std::make_unique<std::vector<double>> ();
     std::vector<double> tmp(nx, 0.0);
 
