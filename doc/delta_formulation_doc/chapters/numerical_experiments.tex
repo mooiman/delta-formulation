@@ -241,7 +241,7 @@ The numerical experiment is performed with the following parameters:
 \end{itemize}
 %--------------------------------------------------------------------------------
 \section{1-D Wave equation}
-
+%--------------------------------------------------------------------------------
 \subsection{Gaussian hump}
 The considered 1-D wave equation reads:
 \begin{align}
@@ -284,3 +284,63 @@ Therefore two simulation should be performed:
     \item A stationary computation (with $\Dt = \SI{0}{\second}$) and
     \item an temporal computation (with $t_{stop} = \SI{10800}{\second}$)
 \end{enumerate}
+%--------------------------------------------------------------------------------
+\subsection{Weir}
+The model is taken from \citet{Borsboom2001}.
+The considered 1-D wave equation reads:
+\begin{align}
+    \pdiff{h}{t}  + \pdiff{q}{x} & = 0 \qquad \textit{continuity eq.} \\
+    \pdiff{q}{t}  + \pdiff{(q^2/h)}{x} + g h \pdiff{h}{x} - \pdiff{}{x} (\nu+\Psi) h \pdiff{(q/h)}{x}  & = 0 \qquad \textit{momentum eq.}
+\end{align}
+\begin{itemize}
+    \item Length of the domain, $\SI{500}{\metre}$
+\end{itemize}
+Bathymetry:
+\begin{align}
+    z_b(x) =
+    \begin{cases}
+        \num{-12} & 0 < x \leq 200
+        \\
+        \num{-12} + 7 (x - 200)/50 & 200 < x \leq 250
+        \\
+        \num{-5} & 250 < x \leq 350
+        \\
+        \num{-5} - 5(x - 350)/100 & 350 < x \leq 450
+        \\
+        \num{-10} & 450 < x \leq 500
+    \end{cases}
+\end{align}
+Initial conditions
+\begin{align}
+    h(x,0) & = 0,\\
+    q(x,0) & = 0
+\end{align}
+Boundary conditions
+\begin{itemize}
+    \item Prescribed discharge boundary at $\qty{0}{\metre}$: $q(0,t) = \qty{19.8656}{\square\metre\per\second}$.
+    \item Prescribed water level boundary value at $\qty{500}{\metre}$: $\zeta(0,t) = \qty{-3}{\metre}$.
+\end{itemize}
+The numerical experiment is performed with the following parameters:
+\begin{itemize}
+    \item Grid size and time step,
+    \begin{itemize}
+        \item $\Dx = \qty{10}{\metre}$ and $\Dt = \qty{2}{s}$
+        \item $\Dx = \qty{5}{\metre}$ and $\Dt = \qty{1}{s}$
+        \item $\Dx = \qty{2.5}{\metre}$ and $\Dt = \qty{0.5}{s}$
+        \item $\Dx = \qty{1.25}{\metre}$ and $\Dt = \qty{0.25}{s}$
+    \end{itemize}
+    \item Start time, $t_{start} = \qty{0}{\second}$.
+    \item End time, $t_{stop} = \qty{7200}{\second}$.
+    \item Regularization time for time-series, $t_{reg} = \qty{300}{\second}$.
+    \item $\eps_{bc} = \num{1e-02}$
+\end{itemize}
+Results for the four different compuations are shown in \autoref{fig:result_wl_weir}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/Screenshot 2025-03-30 214406.png}
+    \caption{Top graphs present the water level. Lower graphs present the regularized bathymetry. Blue: $\Dx = 10 [m]$, $\Dt = 2 [s]$;
+    Red: $\Dx = 5 [m]$, $\Dt = 1 [s]$;
+    Cyan: $\Dx = 2.5 [m]$, $\Dt = 0.5 [s]$;
+    Black: $\Dx = 1.25 [m]$, $\Dt = 0.25 [s]$}
+    \label{fig:result_wl_weir}
+\end{figure}
