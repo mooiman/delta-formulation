@@ -1,21 +1,21 @@
-openfile '.\output\bed_level_weir_dx5_dt1_map.nc'
+openfile '.\output\bed_level_weir_dx10_dt2_map.nc'
 selectfield 'Psi'
 hselectiontype '(M,N) point/path'
-editmn '1:1:103'
+editmn '1:1:53'
 colour [ 0 0 1 ]
 plotcoordinate 'x coordinate'
 quickview
 
 selectfield 'BadLevel'
 hselectiontype '(M,N) point/path'
-editmn '1:1:103'
+editmn '1:1:53'
 colour [ 0 1 0 ]
 plotcoordinate 'x coordinate'
 quickview
 
 selectfield 'WaterLevel'
 hselectiontype '(M,N) point/path'
-editmn '1:1:103'
+editmn '1:1:53'
 colour [ 0 0 1 ]
 plotcoordinate 'x coordinate'
 addtoplot
