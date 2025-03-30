@@ -70,11 +70,11 @@ void REGULARIZATION::given_function(std::vector<double>& u_out, std::vector<doub
             u0_xixi_max = std::max(u0_xixi_max, std::abs(u0_xixi[i]));
         }
         int i = 0;
-        u0_xixi[i] = u0_xixi[i + 2];
-        u0_xixi[i+1] = u0_xixi[i + 2];
+        u0_xixi[i] = u0_xixi[i + 1];
+        //u0_xixi[i+1] = u0_xixi[i + 2];
         i = nx - 1;
-        u0_xixi[i] = u0_xixi[i - 2];
-        u0_xixi[i-1] = u0_xixi[i - 2];
+        u0_xixi[i] = u0_xixi[i -1];
+        //u0_xixi[i-1] = u0_xixi[i - 2];
         if (u0_xixi_max < 1.001 * m_u0_xixi_smooth) { return; }
 
 //------------------------------------------------------------------------------
@@ -177,31 +177,53 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     q_xixi[i] = 2. * q_xixi[i - 1] - q_xixi[i - 2];
     s_xixi[i] = 2. * s_xixi[i - 1] - s_xixi[i - 2];
     //
-    for (int i = 0; i < nx; ++i)
-    {
-        // From Borsboom 2001, eq 42
-        Err_psi[i] = dx * 0.5 * std::sqrt(m_g * h[i]) * std::abs(s_xixi[i]) +
-            dx * 0.5 * std::sqrt(2.) * std::abs( q_xixi[i] / h[i] - q[i] * h_xixi[i] / (h[i] * h[i]) );
-    }
 
     // eq. 18
-    double alpha = 2.0;
+    double hbar_im14;
+    double hbar_ip14;
+    double qbar_im14;
+    double qbar_ip14;
+
+    double c_error = 2. * c_psi; //same value as for regularization of given function
     for (int i = 1; i < nx - 1; ++i)
     {
-        A.coeffRef(i, i - 1) = m_mass[0] - alpha;
-        A.coeffRef(i, i    ) = m_mass[1] + 2. * alpha;
-        A.coeffRef(i, i + 1) = m_mass[2] - alpha;
-        rhs[i] = c_psi * (m_mass[0] * Err_psi[i - 1] + m_mass[1] * Err_psi[i] + m_mass[2] * Err_psi[i + 1]);
+        A.coeffRef(i, i - 1) = m_mass[0] - c_error;
+        A.coeffRef(i, i    ) = m_mass[1] + 2. * c_error;
+        A.coeffRef(i, i + 1) = m_mass[2] - c_error;
+
+        hbar_im14 = 0.25 * (h[i - 1] + 3. * h[i]);
+        hbar_ip14 = 0.25 * (h[i + 1] + 3. * h[i]);
+        qbar_im14 = 0.25 * (q[i - 1] + 3. * q[i]);
+        qbar_ip14 = 0.25 * (q[i + 1] + 3. * q[i]);
+
+        rhs[i] = 4.0 * c_psi * dx * (
+            0.5 * std::sqrt(m_g / hbar_im14) * std::abs(s_xixi[i]) +
+            0.5 * std::sqrt(2.) * std::abs(q_xixi[i] / hbar_im14 - qbar_im14 * h_xixi[i] / (hbar_im14 * hbar_im14))
+            + 0.5 * std::sqrt(m_g / hbar_ip14) * std::abs(s_xixi[i]) +
+            0.5 * std::sqrt(2.) * std::abs(q_xixi[i] / hbar_ip14 - qbar_ip14 * h_xixi[i] / (hbar_ip14 * hbar_ip14))
+            );
     }
     // eq. 19
     i = 0;
-    A.coeffRef(i, i) = 0.5 + alpha; 
-    A.coeffRef(i, i + 1) = 0.5 - alpha;  
-    rhs[i] = 0.5 * (Err_psi[i] + Err_psi[i + 1]);
+    A.coeffRef(i, i) = 1.; 
+    A.coeffRef(i, i + 1) = -2.0;
+    A.coeffRef(i, i + 2) = 1.;
+    rhs[i] = 0.0;
+    i = 1;
+    A.coeffRef(i, i - 1) = 0;
+    A.coeffRef(i, i) = 1.;
+    A.coeffRef(i, i + 1) = 0;
+    rhs[i] = rhs[i];
     i = nx - 1;
-    A.coeffRef(i, i - 1) = 0.5 - alpha; 
-    A.coeffRef(i, i) = 0.5 + alpha;  
-    rhs[i] = 0.5 * (Err_psi[i - 1] + Err_psi[i]);
+    A.coeffRef(i, i - 2) = 1.;
+    A.coeffRef(i, i - 1) = -2.0;
+    A.coeffRef(i, i) = 1.;
+    rhs[i] = 0.0;
+    i = nx - 2;
+    A.coeffRef(i, i - 1) = 0.0;
+    A.coeffRef(i, i) = 1.0;
+    A.coeffRef(i, i + 1) = 0.0;
+    rhs[i] = rhs[i];
 
     Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
     solver.compute(A);
@@ -232,7 +254,7 @@ void REGULARIZATION::first_derivative(std::vector<double>& psi, std::vector<doub
 
 std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(double dx, std::vector<double> psi, std::vector<double> u_giv)
 {
-    int nx = (int)psi.size();
+    int nx = (int) psi.size();
     auto u = std::make_unique<std::vector<double>> ();
     std::vector<double> tmp(nx, 0.0);
 
@@ -242,8 +264,8 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(double dx, std::v
 
     for (int i = 1; i < nx - 2; ++i)
     {
-        double psi_im12 = 0.5 * (psi[i] + psi[i - 1]);
-        double psi_ip12 = 0.5 * (psi[i + 1] + psi[i]);
+        double psi_im12 = 0.5 * (psi[i - 1] + psi[i]);
+        double psi_ip12 = 0.5 * (psi[i] + psi[i + 1]);
         //psi_im12 = 2. * psi[i] * psi[i - 1] / (psi[i] + psi[i - 1]);
         //psi_ip12 = 2. * psi[i + 1] * psi[i] / (psi[i + 1] + psi[i]);
 
@@ -260,27 +282,27 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(double dx, std::v
     }
     int i = 0;
     B.coeffRef(i, i) = 1.0;
+    B.coeffRef(i, i + 1) = -2.0;
+    B.coeffRef(i, i + 2) = 1.0;
+    rhs[i] = 0.0;
+    i = 1;
+    B.coeffRef(i, i - 1) = 0.0;
+    B.coeffRef(i, i    ) = 1.0;
     B.coeffRef(i, i + 1) = 0.0;
-    B.coeffRef(i, i + 2) = 0.0;
     tmp[i] = u_giv[i];
     rhs[i] = tmp[i];
-    B.coeffRef(i + 1, i) = 0.0;
-    B.coeffRef(i + 1, i + 1) = 1.0;
-    B.coeffRef(i + 1, i + 2) = 0.0;
-    tmp[i + 1] = u_giv[i + 1];
-    rhs[i + 1] = tmp[i + 1];
 
     i = nx - 1;
-    B.coeffRef(i, i - 2) = 0.0;
-    B.coeffRef(i, i - 1) = 0.0;
+    B.coeffRef(i, i - 2) = 1.0;
+    B.coeffRef(i, i - 1) = -2.0;
     B.coeffRef(i, i) = 1.0;
+    rhs[i] = 0.0;
+    i = nx - 2;
+    B.coeffRef(i, i - 1) = 0.0;
+    B.coeffRef(i, i    ) = 1.0;
+    B.coeffRef(i, i + 1) = 0.0;
     tmp[i] = u_giv[i];
     rhs[i] = tmp[i];
-    B.coeffRef(i - 1, i - 2) = 0.0;
-    B.coeffRef(i - 1, i - 1) = 1.0;
-    B.coeffRef(i - 1, i) = 0.0;
-    tmp[i - 1] = u_giv[i - 1];
-    rhs[i - 1] = tmp[i - 1];
 
     //for (int i = 0; i < nx; ++i)
     //{
@@ -302,7 +324,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(double dx, std::v
 
 std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(double c_error, std::vector<double> u0, std::vector<double> u0_xixi)
 {
-    int nx = (int)u0_xixi.size();
+    int nx = (int) u0_xixi.size();
     auto err = std::make_unique<std::vector<double>> ();
     std::vector<double> tmp(nx, 0.0);
 
@@ -324,28 +346,26 @@ std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(double c_error, 
         rhs[i] = tmp[i];
     }
     int i = 0;
-    A.coeffRef(i, i) = 1.;
-    A.coeffRef(i, i + 1) = 0.;
-    A.coeffRef(i, i + 2) = 0.;
-    rhs[i] = rhs[i + 1];
-    //i = 1;
-    //A.coeffRef(i, i - 1) = m_mass[0] - c_error;
-    //A.coeffRef(i, i) = m_mass[1] + 2. * c_error;
-    //A.coeffRef(i, i + 1) = m_mass[2] - c_error;
-    //A.coeffRef(i, i + 2) = 0.0;
-    //rhs[i] = rhs[i];
+    A.coeffRef(i, i    ) = 1.;
+    A.coeffRef(i, i + 1) = -2.;
+    A.coeffRef(i, i + 2) = 1.;
+    rhs[i] = 0.0;
+    i = 1;
+    A.coeffRef(i, i - 1) = 0.0;
+    A.coeffRef(i, i    ) = 1.0;
+    A.coeffRef(i, i + 1) = 0.0;
+    rhs[i] = rhs[i];
 
     i = nx - 1;
-    A.coeffRef(i, i - 2) = 0.;
-    A.coeffRef(i, i - 1) = 0.;
-    A.coeffRef(i, i) = 1.;
-    rhs[i] = rhs[i - 1];
-    //i = nx - 2;
-    //A.coeffRef(i, i - 2) = 0.0;
-    //A.coeffRef(i, i - 1) = m_mass[0] - c_error;
-    //A.coeffRef(i, i) = m_mass[1] + 2. * c_error;
-    //A.coeffRef(i, i + 1) = m_mass[2] - c_error;
-    //rhs[i] = rhs[i];
+    A.coeffRef(i, i - 2) = 1.0;
+    A.coeffRef(i, i - 1) = -2.0;
+    A.coeffRef(i, i    ) = 1.0;
+    rhs[i] = 0.0;
+    i = nx - 2;
+    A.coeffRef(i, i - 1) = 0.0;
+    A.coeffRef(i, i    ) = 1.0;
+    A.coeffRef(i, i + 1) = 0.0;
+    rhs[i] = rhs[i];
 
     for (int i = 0; i < nx; ++i)
     {

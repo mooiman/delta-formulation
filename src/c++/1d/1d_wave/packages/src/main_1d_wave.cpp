@@ -364,9 +364,9 @@ int main(int argc, char* argv[])
     w_nat[1] = 0.5 * (1.0 - 2.0 * alpha_bc);
     w_nat[2] = 0.5 * alpha_bc;
     std::vector<double> w_ess(3, 0.0);
-    w_ess[0] = 1. / 12.;
-    w_ess[1] = 10. / 12.;
-    w_ess[2] = 1. / 12.;
+    w_ess[0] = w_nat[0];
+    w_ess[1] = w_nat[1];
+    w_ess[2] = w_nat[2];
 
     //initialize water level
     std::cout << "    Initialisation" << std::endl;
@@ -440,6 +440,11 @@ int main(int argc, char* argv[])
     {
         START_TIMER(Regularization_init);
         (void)regularization->given_function(visc_reg, psi, eq8, visc_given, dx, c_psi, use_eq8);
+        for (int i = 0; i < nx; ++i)
+        {
+            visc[i] = visc_reg[i] + std::abs(psi[i]);
+            pe[i] = qp[i] / hp[i] * dx / visc[i];
+        }
         STOP_TIMER(Regularization_init);
     }
 
@@ -785,7 +790,6 @@ int main(int argc, char* argv[])
                 int ph_e = 2 * p_index(i + 1, 0, nx);  // continuity equation
                 int ph_w = 2 * p_index(i - 1, 0, nx);  // continuity equation
                 int pq = ph + 1;  // q=hu-momentum equation
-
                 //
                 // continuity equation (dh/dt ... = 0)
                 //
@@ -949,9 +953,9 @@ int main(int argc, char* argv[])
                 int ph_ee = 2 * p_index(i + 2, 0, nx);  // continuity equation (east-east)
                 int pq = ph + 1;  // u-momentum equation 
 
-                w_ess[0] = w_nat[0];
-                w_ess[1] = w_nat[1];
-                w_ess[2] = w_nat[2];
+                //w_ess[0] = 1. / 12.;
+                //w_ess[1] = 10. / 12.;
+                //w_ess[2] = 1. / 12.;
 
                 hn_i = hn[i];       // = h^{n}_{i}
                 hn_ip1 = hn[i + 1];       // = h^{n}_{i+1}
@@ -975,15 +979,15 @@ int main(int argc, char* argv[])
                 //
                 // Essential boundary condition
                 //
-                hn_ip12 = w_ess[0] * hn_i + w_ess[1] * hn_ip1 + w_ess[2] * hn_ip2;
-                hp_ip12 = w_ess[0] * hp_i + w_ess[1] * hp_ip1 + w_ess[2] * hp_ip2;
-                htheta_ip12 = w_ess[0] * htheta_i + w_ess[1] * htheta_ip1 + w_ess[2] * htheta_ip2;
+                hn_ip12 = w_nat[0] * hn_i + w_nat[1] * hn_ip1 + w_nat[2] * hn_ip2;
+                hp_ip12 = w_nat[0] * hp_i + w_nat[1] * hp_ip1 + w_nat[2] * hp_ip2;
+                htheta_ip12 = w_nat[0] * htheta_i + w_nat[1] * htheta_ip1 + w_nat[2] * htheta_ip2;
 
-                qn_ip12 = w_ess[0] * qn_i + w_ess[1] * qn_ip1 + w_ess[2] * qn_ip2;
-                qp_ip12 = w_ess[0] * qp_i + w_ess[1] * qp_ip1 + w_ess[2] * qp_ip2;
-                qtheta_ip12 = w_ess[0] * qtheta_i + w_ess[1] * qtheta_ip1 + w_ess[2] * qtheta_ip2;
+                qn_ip12 = w_nat[0] * qn_i + w_nat[1] * qn_ip1 + w_nat[2] * qn_ip2;
+                qp_ip12 = w_nat[0] * qp_i + w_nat[1] * qp_ip1 + w_nat[2] * qp_ip2;
+                qtheta_ip12 = w_nat[0] * qtheta_i + w_nat[1] * qtheta_ip1 + w_nat[2] * qtheta_ip2;
 
-                double zb_ip12 = w_ess[0] * zb[i] + w_ess[1] * zb[i + 1] + w_ess[2] * zb[i + 2];
+                double zb_ip12 = w_nat[0] * zb[i] + w_nat[1] * zb[i + 1] + w_nat[2] * zb[i + 2];
 
                 A.coeffRef(ph, ph) = 0.0;
                 A.coeffRef(ph, ph_e) = 0.0;
@@ -1197,9 +1201,9 @@ int main(int argc, char* argv[])
                 int ph_ww = 2 * p_index(i - 2, 0, nx);  // continuity equation
                 int pq = ph + 1;  // u-momentum equation
 
-                w_ess[0] = w_nat[0];
-                w_ess[1] = w_nat[1];
-                w_ess[2] = w_nat[2];
+                //w_ess[0] = 1. / 12.;
+                //w_ess[1] = 10. / 12.;
+                //w_ess[2] = 1. / 12.;
 
                 hn_i = hn[i];       // = h^{n}_{i}
                 hn_im1 = hn[i - 1];       // = h^{n}_{i-1}
@@ -1223,15 +1227,15 @@ int main(int argc, char* argv[])
                 //
                 // Essential boundary condition
                 //
-                hn_im12 = w_ess[0] * hn_i + w_ess[1] * hn_im1 + w_ess[2] * hn_im2;
-                hp_im12 = w_ess[0] * hp_i + w_ess[1] * hp_im1 + w_ess[2] * hp_im2;
-                htheta_im12 = w_ess[0] * htheta_i + w_ess[1] * htheta_im1 + w_ess[2] * htheta_im2;
+                hn_im12 = w_nat[0] * hn_i + w_nat[1] * hn_im1 + w_nat[2] * hn_im2;
+                hp_im12 = w_nat[0] * hp_i + w_nat[1] * hp_im1 + w_nat[2] * hp_im2;
+                htheta_im12 = w_nat[0] * htheta_i + w_nat[1] * htheta_im1 + w_nat[2] * htheta_im2;
 
-                qn_im12 = w_ess[0] * qn_i + w_ess[1] * qn_im1 + w_ess[2] * qn_im2;
-                qp_im12 = w_ess[0] * qp_i + w_ess[1] * qp_im1 + w_ess[2] * qp_im2;
-                qtheta_im12 = w_ess[0] * qtheta_i + w_ess[1] * qtheta_im1 + w_ess[2] * qtheta_im2;
+                qn_im12 = w_nat[0] * qn_i + w_nat[1] * qn_im1 + w_nat[2] * qn_im2;
+                qp_im12 = w_nat[0] * qp_i + w_nat[1] * qp_im1 + w_nat[2] * qp_im2;
+                qtheta_im12 = w_nat[0] * qtheta_i + w_nat[1] * qtheta_im1 + w_nat[2] * qtheta_im2;
 
-                double zb_im12 = w_ess[0] * zb[i] + w_ess[1] * zb[i - 1] + w_ess[2] * zb[i - 2];
+                double zb_im12 = w_nat[0] * zb[i] + w_nat[1] * zb[i - 1] + w_nat[2] * zb[i - 2];
 
                 A.coeffRef(ph, ph) = 0.0;
                 A.coeffRef(ph, ph_w) = 0.0;
@@ -1511,7 +1515,7 @@ int main(int argc, char* argv[])
                 }
                 log_file << "=======================================================" << std::endl;
             }
-            used_lin_solv_iter = std::max(used_lin_solv_iter, (int)solver.iterations());
+            used_lin_solv_iter = std::max(used_lin_solv_iter, (int) solver.iterations());
             if (dh_max < eps_newton && dq_max < eps_newton)
             {
                 break;
@@ -1705,7 +1709,7 @@ int p_index(int i, int j, int nx)
 
 int initialize_scalar(double alpha, std::vector<double>& value_in, std::vector<double>& value_out)
 {
-    int nx = (int)value_in.size();
+    int nx = (int) value_in.size();
     Eigen::SparseMatrix<double> A(nx, nx);
     Eigen::VectorXd solution(nx);           // solution vector
     Eigen::VectorXd rhs(nx);                // RHS vector
@@ -1743,7 +1747,7 @@ int read_bed_level(std::string filename, std::vector<double> & value)
     double dummy;
     std::string record;
 
-    int nx = (int)value.size();
+    int nx = (int) value.size();
     std::ifstream input_file;
 
     input_file.open(filename);
@@ -1852,7 +1856,7 @@ int initialize_bed_level(BED_LEVEL bed_type, std::vector<double>& x, std::vector
     else if (bed_type == BED_LEVEL::WAVY)
     {
         model_title = "Wavy bed level (par 5.2, Platzek2019)";
-        int nx = (int)x.size();
+        int nx = (int) x.size();
         double Lx = x[nx - 2] - x[1];  // 2 virtual nodes
         double dx = Lx / (nx - 3);
         double zb_ref = -4.0;  // Mean depth for the wave bed level
