@@ -1,7 +1,7 @@
 \documentclass[subfooter]{mooiman_report}
 \hypersetup
 {
-	pdfauthor   = {Mooiman},
+    pdfauthor   = {Mooiman},
 }
 \addbibresource{./common/literature_references.bib}
 
@@ -24,14 +24,21 @@
 \newcommand{\abs}[1]{\left| #1 \right|}
 \newcommand{\Fabs}[1]{F_{abs}(#1)\xspace}  % Continue function for the absolute value
 \newcommand{\eps}{\varepsilon}
+\newcommand{\norm}[1]{\left|\left| #1 \right|\right|}
 
 \newcommand{\utilde}{\widetilde{u}}
 \newcommand{\ubar}{\overline{u}}
 \newcommand{\uhat }{\widehat{u}}
+\newcommand{\htilde}{\widetilde{h}}
+\renewcommand{\hbar}{\overline{h}}  % overrule the Planck constant
+\newcommand{\hhat }{\widehat{h}}
+\newcommand{\qtilde}{\widetilde{q}}
+\newcommand{\qbar}{\overline{q}}
+\newcommand{\qhat }{\widehat{q}}
 
 \newcommand{\maplesoft}{\textbf{Maplesoft}}
 \newcommand{\deltaformulation}{$\Delta$-formulation\xspace}
-\newcommand{\notyet}{Not yet documented\xspace}
+\newcommand{\notyet}{\textbf{Not yet documented}\newline}
 
 \begin{document}
 
@@ -103,5 +110,6 @@ Thea Vuik\newline
 \appendix
 \input{chapters/error_estimation_1d.tex}
 \input{chapters/diagonalise_1d_swe}
+\input{chapters/error_function_artificial_viscosity.tex}
 \input{chapters/linearization_in_time.tex}
 \end{document}

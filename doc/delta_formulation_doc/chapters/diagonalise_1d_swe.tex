@@ -2,22 +2,29 @@
 \chapter{Diagonalise 1D wave equation with convection}\label{sec:diagonalise_conservative_wave_with_convection}
 
 The one dimensional shallow water equations  with convection
-for flat bottom ($\half g\, \lpdiff{h^2}{x} = gh\, \lpdiff{h}{x}$ and $\lpdiff{z_b}{x} = 0$), reads
+read
 %
 \begin{align}
-    \pdiff{h}{t}  + \pdiff{q}{x} & = 0 \\
-    \pdiff{q}{t}  + \pdiff{}{x} \left( \frac{q^2}{h} \right) + g h \pdiff{h}{x} & = 0
+    \pdiff{h}{t}  + \pdiff{q}{x} & = 0 \label{eq:continuity_for_diagonalisation}\\
+    \pdiff{q}{t}  + \pdiff{}{x} \left( \frac{q^2}{h} \right) + g h \pdiff{\zeta}{x} & = 0 \label{eq:momentum_for_diagonalisation}
+\end{align}
+Using $\zeta = h +z_b$ in the momentum equation the system of equations is written as:
+\begin{align}
+    \pdiff{h}{t}  + \pdiff{q}{x} & = 0 \
+    \pdiff{q}{t}  + \pdiff{}{x} \left( \frac{q^2}{h} \right) + g h \pdiff{h}{x} & = -gh\pdiff{z_b}{x}
 \end{align}
 The convection term can rewritten in the linear form for the derivatives as:
 \begin{align}
     \pdiff{}{x} \left( \frac{q^2}{h} \right) = \frac{2 q}{h} \pdiff{q}{x} - \frac{q^2}{h^2}\pdiff{h}{x}
     \label{eq:convection_linear_form}
 \end{align}
-In matrix notation it reads:
+In matrix notation it reads ($\zeta = h +z_b$ is used):
 \begin{align}
-    \left( \begin{matrix} h \\ q \end{matrix}  \right)_t +
-    \left( \begin{matrix} 0 & 1  \\ gh-\frac{q^2}{h^2} & \frac{2q}{h} \end{matrix}  \right)
-    \left( \begin{matrix} h \\ q \end{matrix} \right)_x = 0
+    \begin{pmatrix} h \\ q \end{pmatrix}_t +
+    \begin{pmatrix} 0 & 1  \\ gh-\frac{q^2}{h^2} & \frac{2q}{h} \end{pmatrix} 
+    \begin{pmatrix} h \\ q \end{pmatrix}_x = 
+    -gh \begin{pmatrix} 0 \\ z_b \end{pmatrix}_x
+    0
 \end{align}
 To make the system of equations diagonal, we have to find the eigen values and the eigen vectors.
 The eigenvalues of the matrix are (using \maplesoft)
@@ -32,21 +39,52 @@ The eigenvectors are
 \end{align}
 The diagonalised  SWE with convection read (after multiplying by $2\sqrt{gh}$, using  \maplesoft)
 \begin{align}
-    \begin{pmatrix} \sqrt{gh} - \frac{q}{h} & 1  \\ \sqrt{gh} + \frac{q}{h} & -1 \end{pmatrix}
+    &\begin{pmatrix} \sqrt{gh} - \frac{q}{h} & 1  \\ \sqrt{gh} + \frac{q}{h} & -1 \end{pmatrix}
     \begin{pmatrix} h \\ q \end{pmatrix}_t +
     \begin{pmatrix} \frac{q}{h} + \sqrt{gh}   & 0  \\
         0 & \frac{q}{h} - \sqrt{gh}  \end{pmatrix}
     \begin{pmatrix} \sqrt{gh} - \frac{q}{h} & 1  \\ \sqrt{gh} + \frac{q}{h} & -1 \end{pmatrix}
-    \begin{pmatrix} h \\ q \end{pmatrix}_x = 0
+    \begin{pmatrix} h \\ q \end{pmatrix}_x = 
+    \nonumber \\*
+&= -gh \begin{pmatrix} \sqrt{gh} - \frac{q}{h} & 1  \\ \sqrt{gh} + \frac{q}{h} & -1 \end{pmatrix}
+  \begin{pmatrix} 0  \\ z_b \end{pmatrix}_x
 \end{align}
 %
 Written in two separate equations
 \begin{align}
-    &\left(\sqrt{gh} - \frac{q}{h}\right)\pdiff{h}{t} + \pdiff{q}{t} +  \left( \frac{q}{h} + \sqrt{gh}\right)\left( \left(\sqrt{gh} - \frac{q}{h} \right)\pdiff{h}{x} + \pdiff{q}{x} \right) = 0 \quad \text{right going}
+    &\left(\sqrt{gh} - \frac{q}{h}\right)\pdiff{h}{t} + \pdiff{q}{t} +  \left( \frac{q}{h} + \sqrt{gh}\right)\left( \left(\sqrt{gh} - \frac{q}{h} \right)\pdiff{h}{x} + \pdiff{q}{x} \right) = 
+    \nonumber \\*
+    &\qquad = -gh\pdiff{z_b}{x} \quad \text{right going}
     \\
-    &\left(\sqrt{gh} + \frac{q}{h}\right)\pdiff{h}{t} - \pdiff{q}{t} +  \left( \frac{q}{h} - \sqrt{gh}\right)\left( \left(\sqrt{gh} + \frac{q}{h} \right)\pdiff{h}{x} - \pdiff{q}{x} \right) = 0 \quad \text{left going}
+    &\left(\sqrt{gh} + \frac{q}{h}\right)\pdiff{h}{t} - \pdiff{q}{t} +  \left( \frac{q}{h} - \sqrt{gh}\right)\left( \left(\sqrt{gh} + \frac{q}{h} \right)\pdiff{h}{x} - \pdiff{q}{x} \right) = 
+    \nonumber \\*
+    & \qquad = gh \pdiff{z_b}{x} \quad \text{left going}
 \end{align}
-Which can be written as a combination of the continuity and momentum equation \citep[eq.\ 4]{Borsboom2001}, (keep in mind that also \autoref{eq:convection_linear_form} is used)
+First rearrange the equation for the right going wave (keep in mind that also \autoref{eq:convection_linear_form} is used):
+\begin{align}
+    &\left(\sqrt{gh} - \frac{q}{h}\right)\pdiff{h}{t} + \pdiff{q}{t} + 
+     \left( gh - \frac{q^2}{h^2} \right)\pdiff{h}{x} + \left( \frac{q}{h} + \sqrt{gh}\right) \pdiff{q}{x} = -gh\pdiff{z_b}{x}
+     \\*
+%    &\left(\sqrt{gh} - \frac{q}{h}\right)\pdiff{h}{t} + \pdiff{q}{t} + 
+% gh\pdiff{\zeta}{x} - \frac{q^2}{h^2}\pdiff{h}{x} + \left( \frac{q}{h} + \sqrt{gh}\right) \pdiff{q}{x} = 0
+%     \\*
+%&\left(\sqrt{gh} - \frac{q}{h}\right)\pdiff{h}{t} + \pdiff{q}{t} + 
+%gh\pdiff{\zeta}{x} - \frac{2 q}{h} \pdiff{q}{x} + \pdiff{}{x} \left( \frac{q^2}{h} \right) + \left( \frac{q}{h} + \sqrt{gh}\right) \pdiff{q}{x} = 0
+%      \\*
+ &\left(\sqrt{gh} - \frac{q}{h}\right)\left(\pdiff{h}{t} + \pdiff{q}{x}\right) + \left( \pdiff{q}{t} + \pdiff{}{x} \left( \frac{q^2}{h} \right) + 
+ gh\pdiff{\zeta}{x}\right)   = 0
+\end{align}
+and second, rearrange the equation for the left going wave:
+\begin{align}
+    &\left(\sqrt{gh} + \frac{q}{h}\right)\pdiff{h}{t} - \pdiff{q}{t} +  \left( \frac{q^2}{h^2} - gh\right)\pdiff{h}{x} - \left( \frac{q}{h} - \sqrt{gh}\right)\pdiff{q}{x} = gh \pdiff{z_b}{x} 
+     \\*
+%    &\left(\sqrt{gh} + \frac{q}{h}\right)\pdiff{h}{t} - \pdiff{q}{t} +  \frac{q^2}{h^2}\pdiff{h}{x} - gh \pdiff{\zeta}{x} - \left( \frac{q}{h} - \sqrt{gh}\right)\pdiff{q}{x} = 0
+%     \\*
+%    &\left(\sqrt{gh} + \frac{q}{h}\right)\pdiff{h}{t} - \pdiff{q}{t} +  \frac{2 q}{h} \pdiff{q}{x} - \pdiff{}{x} \left( \frac{q^2}{h} \right) - gh \pdiff{\zeta}{x} - \left( \frac{q}{h} - \sqrt{gh}\right)\pdiff{q}{x} = 0
+%     \\*
+    &\left(\sqrt{gh} + \frac{q}{h}\right)\left(\pdiff{h}{t} + \pdiff{q}{x}\right)  - \left( \pdiff{q}{t} + \pdiff{}{x} \left( \frac{q^2}{h} \right) + gh \pdiff{\zeta}{x} \right) = 0
+\end{align}
+Which can be written as a combination of the continuity \eqref{eq:continuity_for_diagonalisation} and momentum equation \eqref{eq:momentum_for_diagonalisation} (see also \citet[eq.\ 4]{Borsboom2001}), 
 \begin{align}
     \begin{matrix}
     \quad \text{right going} \\

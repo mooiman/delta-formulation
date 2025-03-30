@@ -116,36 +116,64 @@ In the right-hand side we see the weights of the mass matrix of the piecewise li
 method, i.e.\ averaged over the left outermost finite volume the quadratic function $c_{opt}$
 equals the piecewise linear function used in the FVE scheme.
 %------------------------------------------------------------------------------
-\section{Regularization of artificial viscosity $\mathbf{\Psi}$}
+%\newpage
+\section{Regularization of artificial viscosity $\mathbf{\Psi}$}\label{sec:regularization_artificial_viscosity}
 To get an error-minimizing method we need to regularize all data, as mentioned in \autoref{sec:error_minimizing}.
 Regularization of the artificial viscosity $\Psi$ is performed as described in \citet[eq.\ 14]{Borsboom2001}.
 \begin{align}
-	\int_\Omega \Psi\, d\omega - \alpha \int_\Omega \Dxi^2 \pdiff[2]{\Psi}{\xi}\, d\omega = \int_\Omega c_{\psi} Err_\Psi\, d\omega
+    \int_\Omega \Psi\, d\omega - \alpha \int_\Omega \Dxi^2 \pdiff[2]{\Psi}{\xi}\, d\omega = \int_\Omega c_{\psi} Err_\Psi\, d\omega
 \end{align}
-\todo{Which value of $\alpha$ need to be used and why?}
+%\todo{Which value of $\alpha$ need to be used and why?}
 When discretized it yields \citep[eq.\ 18]{Borsboom2001}:
 \begin{align}
-	\left(\frac{1}{8} - \alpha \right)\Psi_{i-1} + 
-	\left(\frac{3}{4} + 2\alpha \right)\Psi_{i} + 
-	\left(\frac{1}{8} - \alpha \right)\Psi_{i+1} = \frac{c_{\Psi}}{\Dxi} \int^{\xi_{i+\half}}_{\xi_{i-\half}} Err_{\Psi}\, d\xi
-	\label{eq:discrete_regularization_psi}
+    \left(\frac{1}{8} - \alpha \right)\Psi_{i-1} + 
+    \left(\frac{3}{4} + 2\alpha \right)\Psi_{i} + 
+    \left(\frac{1}{8} - \alpha \right)\Psi_{i+1} = \frac{c_{\Psi}}{\Dxi} \int^{\xi_{i+\half}}_{\xi_{i-\half}} Err_{\Psi}\, d\xi
+    \label{eq:discrete_regularization_psi}
 \end{align}
-for $Err_\Psi$ the following expression is used \citep[eq.\ 42]{Borsboom2001}:
+%\todo{Where is this equation coming from (energy equation?), derivation/explanation needed.}
+%Dimension analysis:
+%\begin{align}
+%\si{[\square\metre\per\second]} = [1] [m] \left(  \sqrt{\frac{\si{[\metre\per\square\second]}}{\si{[\metre]}}} \si{[\metre]}
+%    + \frac{1}{\si{[\metre]}} \si{[\square\metre\per\second]} 
+%    - \frac{ \si{[\square\metre\per\second]}}{\si{[\square\metre]} } \si{[\metre]}
+%    \right)
+%\end{align}
+%
+The right hand side of \autoref{eq:discrete_regularization_psi} can be approximated by:
 \begin{align}
-	Err_\Psi = \Dxi\, x_\xi \left( \half \sqrt{\frac{g}{h}} \abs{D_\xi(\zeta)} + 
-	\half \sqrt{2} \abs{\frac{D_\xi(q)}{h} - \frac{qD_\xi(h)}{h^2}} \right)
+    \frac{c_{\Psi}}{\Dxi} \int^{\xi_{i+\half}}_{\xi_{i-\half}} Err_{\Psi}\, d\xi 
+& =
+    \frac{c_{\Psi}}{\Dxi} \int^{\xi_{i}}_{\xi_{i-\half}} Err_{\Psi}\, d\xi 
+    + \frac{c_{\Psi}}{\Dxi} \int^{\xi_{i+\half}}_{\xi_{i}} Err_{\Psi}\, d\xi \approx 
+    \\*
+    &\approx \frac{c_{\Psi}}{\Dxi} \frac{1}{2\Dxi} (Err_{\Psi})_{i-\quart} 
+  + \frac{c_{\Psi}}{\Dxi} \frac{1}{2\Dxi} (Err_{\Psi})_{i+\quart}
+%    \approx \frac{c_{\Psi} }{\Dxi}  (Err_{\Psi})_{i}
+%    &\approx c_{\Psi} \left( \frac{1}{8} (Err_{\Psi})_{i-1}+ \frac{6}{8}  (Err_{\Psi})_{i} + \frac{1}{8}   (Err_{\Psi})_{i+1} \right)
+%\\*
+%&\approx \frac{c_{\Psi} }{2 \Dxi}  \left( (Err_{\Psi})_{i+1} - (Err_{\Psi})_{i-1} \right) 
 \end{align}
-\todo{Where is this equation coming from (energy equation?), derivation/explanation needed.}
-all variables in this equation are piecewise linear and using \citet[eq.\ 35]{Borsboom2001} for equidistant meshes:
+For $Err_\Psi$ the following expression is used (\citet[eq.\ 42]{Borsboom2001}, a derivation of this expression is given in \autoref{sec:error_artificial_viscosity}):
 \begin{align}
-	D_\xi(u) = \Dxi^2 \pdiff[2]{}{\xi} \approx u_{i-1} - 2 u_{i} + u_{i+1}.
+    &Err_\Psi = \Dxi\, \overline{x}_\xi \left( \half \sqrt{\frac{g}{\hbar}} \abs{D_\xi(\overline\zeta)} + 
+    \half \sqrt{2} \abs{\frac{D_\xi(\qbar)}{\hbar} - \frac{\qbar D_\xi(\hbar)}{\hbar^2}} \right)
 \end{align}
-\Autoref{eq:integral_control_volume} (computational space) can be used to compute the right hand side of \autoref{eq:discrete_regularization_psi}, and yields ($\Dxi=1$):
+using (with $\ubar \in \{\hbar, \qbar\}$):
 \begin{align}
-	\frac{c_{\Psi}}{\Dxi} \int^{\xi_{i+\half}}_{\xi_{i-\half}} Err_{\Psi}\, d\xi 
-	\approx
-	c_{\Psi} \left( \frac{1}{8} (Err_{\Psi})_{i-1}+ \frac{6}{8}  (Err_{\Psi})_{i} + \frac{1}{8}   (Err_{\Psi})_{i+1} \right)
+    \ubar_{i-\quart} = \quart(u_{i-1} + 3 u_{i}), \qquad \ubar_{i+\quart} = \quart(u_{i+1} + 3 u_{i})
 \end{align}
+and
+\begin{align}
+    {(\overline{x}_{\xi})}_{i-\quart}= x_i - x_{i-1}, \qquad 
+    {(\overline{x}_{\xi})}_{i+\quart}= x_{i+1} - x_{i}
+\end{align}
+and for equidistant meshes we use \citep[eq.\ 35]{Borsboom2001} :
+\begin{align}
+    D_\xi(\ubar) = \Dxi^2 \pdiff[2]{}{\xi} \approx u_{i-1} - 2 u_{i} + u_{i+1}.
+\end{align}
+\phantom{text}
+%\todo{Find the correct approximation}
 
 
 
@@ -217,7 +245,6 @@ When integrating over a finite volume the sub-grid scale effects will be taken i
     \includegraphics[width=0.9\textwidth]{figures/subgrid_scale_2d.png}
     \caption{Two dimensional example of a lot of data points per grid cell. The data points are used to compute the integral at the righthand side of \autoref{eq:disc_regularization}. \label{fig:subgrid_scale_2d}}
 \end{figure}
-If the function $u_{giv}$ is for example an analytic function this integral can be  computed exact.
 
 %--------------------------------------------------------------------------------
 \paragraph*{Discretization of \autoref{eq:1d_regularization}}
@@ -239,7 +266,7 @@ The error $E$ will be computed in computational space, meaning that a disturbanc
 %
 \begin{align}
     &\left(\frac{\Dxi}{8}-\frac{c_E}{\Dxi}\right) E_{i-1} + \left(\frac{6\Dxi}{8} + \frac{2c_E}{\Dxi}\right) E_i + \left(\frac{\Dxi}{8} - \frac{c_E}{\Dxi}\right)E_{i+1}
-    =  \int_{i-\half}^{i+\half} \abs{D_i} \, d\xi
+    =  \int_{\xi_{i-\half}}^{\xi_{i+\half}} \abs{D_i} \, d\xi
     \label{eq:error_regularization}
 \end{align}
 with $\Dxi =1$ it reads:
@@ -437,7 +464,7 @@ In discrete form the equation for each control volume reads:
 \end{align}
 Extra equations are needed for the boundary conditions, the following boundary treatment is used at $x=2$ (see  \autoref{sec:boundary_conditions}):
 \begin{align}
-	\frac{1}{12} u_0 + \frac{10}{12}u_1 + \frac{1}{12} u_2 = u_{given}(2)
+    \frac{1}{12} u_0 + \frac{10}{12}u_1 + \frac{1}{12} u_2 = u_{given}(2)
 \end{align}
 and similar at the other boundary ($x=10$).
 An illustration off the result of \autoref{eq:compatible_initialization} is given in \autoref{fig:compatible_initial_condition}.
@@ -449,10 +476,10 @@ An illustration off the result of \autoref{eq:compatible_initialization} is give
 \end{figure}
 Some numerical items used to generate \autoref{fig:compatible_initial_condition} are $x \in [0, 12]$, $\Dx=2$ and the given function reads:
 \begin{align}
-	&u_{given}(x) =
-	\begin{cases}
-		(x-3)^2 & \qquad x < 6
-		\\ 
-		-(x-3)^2 + 18 & \qquad x \geq 6
-	\end{cases}
+    &u_{given}(x) =
+    \begin{cases}
+        (x-3)^2 & \qquad x < 6
+        \\ 
+        -(x-3)^2 + 18 & \qquad x \geq 6
+    \end{cases}
 \end{align}

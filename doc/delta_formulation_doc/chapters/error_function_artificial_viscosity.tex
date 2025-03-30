@@ -1,0 +1,43 @@
+%--------------------------------------------------------------------------------
+\chapter{Error function needed to regularize the artificial viscosity} \label{sec:error_artificial_viscosity}
+%--------------------------------------------------------------------------------
+Regularization of the artificial viscosity, assumed to be independent of time, is described in \autoref{sec:regularization_artificial_viscosity}.
+The mentioned error-function is derived in this section and is based on \citet[eq.\ 42]{Borsboom2001}:
+
+We start from the continuity and momentum equation for non-linear waves (i.e. \autoref{eq:continuity_equation} and \eqref{eq:momentum_equation} and combine these two equations to one equation representing the energy. 
+
+The continuity and momentum equation read:
+\begin{align}
+    \pdiff{h}{t}  + \pdiff{q}{x} & = 0 \qquad \textit{continuity eq.} 
+    \\
+    \pdiff{q}{t}  + \pdiff{}{x} \left( \frac{q^2}{h} \right) + g h \pdiff{h}{x} & = 0 \qquad \textit{momentum eq.}
+\end{align}
+a suitable combination of these two equations yields the energy equation.
+The suitable combination is:
+\begin{align}
+    \left( \half \frac{q^2}{h^2} + g \zeta\right)\left(\textit{continuity eq.}\right)  
+    +
+    \frac{q}{h} \left( \textit{momentum eq.} \right)= 0
+\end{align}
+and the energy equation reads:
+\begin{align}
+    \pdiff{}{t}\left( h \left(\half \frac{q^2}{h^2} + g \zeta - \half g h \right) \right) +
+    \pdiff{}{x}\left( q \left( \half \frac{q^2}{h^2} + g\zeta  \right) \right)= 0
+\end{align}
+For a steady state solution ($q=\textit{Constant}$), when have:
+\begin{align}
+    &\pdiff{}{x}\left( \frac{1}{2} \frac{q^2}{h^2} + g\zeta  \right) = 
+\frac{q}{h^2} \pdiff{q}{x} - \frac{q^2}{h^3}  \pdiff{h}{x} + g\pdiff{\zeta}{x} = 0
+\end{align}
+We assume that the artificial viscosity $\Psi$ proportional to the numerical error of the gradient term.
+
+\notyet
+%For stationary situations the artificial viscosity $\Psi$ is proportional the following equation:
+%\begin{align}
+%    &Err_\Psi = \Dxi\, \overline{x}_\xi \left( \half \sqrt{\frac{g}{\hbar}} \abs{D_\xi(\overline\zeta)} + 
+%    \half \sqrt{2} \abs{\frac{D_\xi(\qbar)}{\hbar} - \frac{\qbar D_\xi(\hbar)}{\hbar^2}} \right)
+%\end{align}
+%Take the artificial viscosity $\Psi$ proportional to the numerical error of the gradient term, i.e.:
+%\begin{align}
+%    \Psi \propto \Dx \left( {\it Err} \abs{\sqrt{\half \frac{q^2}{h^2}}}  +  {\it Err} \abs{\sqrt{g\zeta}}  \right)
+%\end{align}
