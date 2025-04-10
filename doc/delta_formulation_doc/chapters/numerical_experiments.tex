@@ -1,10 +1,9 @@
 \chapter{Numerical experiments}\label{sec:numerical_experiments}
 %------------------------------------------------------------------------------
 \section{0-D, sources and sinks}\label{sec:0d_numerical_experiments}
-In this section the time discretization is given for
-the air pollution example as described in \autoref{sec:air_pollution}
-and for
-the Brusselator, as described in \autoref{sec:brusselator}.
+In this section the numerical results are given for the
+0-dimensional air pollution example as described in \autoref{sec:air_pollution}
+and for the Brusselator, as described in \autoref{sec:brusselator}.
 %------------------------------------------------------------------------------
 \subsection{Air pollution}
 %--------------------------------------------------------------------------------
@@ -26,7 +25,7 @@ Some numerical results of the air pollution example (\autoref{sec:air_pollution}
         \includegraphics[width=\textwidth]{figures/ozon_dt0d5.pdf}
         \caption{Concentration of Ozon.}
     \end{subfigure}
-    \caption{Result plots of the different constituents, compute with the fully implicit time integration method with a timestep of \SI{0.5}{[\second]}.}
+    \caption{Result plots of the different constituents, compute with the fully implicit time integration method with a timestep of \bqty{0.5}{\second}.}
 \end{figure}
 
 %------------------------------------------------------------------------------
@@ -36,7 +35,7 @@ Numerical stability for different values of $\Dt$ are studied for Euler-explicit
 \begin{longtable}{|>{\bfseries}p{6mm-12pt}|p{\textwidth/4-2mm-12pt}|p{\textwidth/4-2mm-12pt}|p{\textwidth/4-2mm-12pt}|p{\textwidth/4-2mm-12pt}|}
     \caption{Stability for different time integrators} \\%
     \rowcolor{mgreen1}
-    & \textcolor{white}{\textbf{Time step\newline \si{[\second]}}}
+    & \textcolor{white}{\textbf{Time step\newline \bunit{\second}}}
     & \textcolor{white}{\textbf{Euler explicit}}
     & \textcolor{white}{\textbf{Runge-Kutta 4}}
     & \textcolor{white}{\textbf{Fully Implicit\newline \deltaformulation}}
@@ -44,7 +43,7 @@ Numerical stability for different values of $\Dt$ are studied for Euler-explicit
     \topline
     \endfirsthead
     \rowcolor{mgreen1}
-    & \textcolor{white}{\textbf{Time step\newline \si{[\second]}}}
+    & \textcolor{white}{\textbf{Time step\newline \bunit{\second}}}
     & \textcolor{white}{\textbf{Euler Explicit}}
     & \textcolor{white}{\textbf{Runge-Kutta 4}}
     & \textcolor{white}{\textbf{Fully Implicit\newline \deltaformulation}}
@@ -109,7 +108,7 @@ Extra attention is needed for the Fully Implicit time integration with larger ti
     }
 \end{figure}
 \Autoref{fig:imp_dt=1d00} converge to the equilibrium state $(u_1, u_2) = (1.0, 2.5)$ and
-\Autoref{fig:imp_dt=5d00} looks to converge to the equilibrium state $(u_1, u_2) = (1.0, 2.5)$ but is still wiggling after \SI{5}{\minute} of simulation time (even after one day --- not presented here).
+\Autoref{fig:imp_dt=5d00} looks to converge to the equilibrium state $(u_1, u_2) = (1.0, 2.5)$ but is still wiggling after \bqty{5}{\minute} of simulation time (even after one day --- not presented here).
 How these equations are discretized is given in \autoref{sec:brusselator_discretization}.
 
 %------------------------------------------------------------------------------
@@ -119,14 +118,14 @@ Numerical stability for different values of $\Dt$ are studied for the Runga-Kutt
 \begin{longtable}{|>{\bfseries}p{6mm-12pt}|p{\textwidth/3-2mm-12pt}|p{\textwidth/3-2mm-12pt}|p{\textwidth/3-2mm-12pt}|}
     \caption{Stability of different time integrators for the Brusselator.} \\%
     \rowcolor{mgreen1}
-    & \textcolor{white}{\textbf{Time step\newline \si{[\second]}}}
+    & \textcolor{white}{\textbf{Time step\newline \bunit{\second}}}
     & \textcolor{white}{\textbf{Runge-Kutta 4}}
     & \textcolor{white}{\textbf{Fully Implicit\newline \deltaformulation}}
     \\
     \topline
     \endfirsthead
     \rowcolor{mgreen1}
-    & \textcolor{white}{\textbf{Time step\newline \si{[\second]}}}
+    & \textcolor{white}{\textbf{Time step\newline \bunit{\second}}}
     & \textcolor{white}{\textbf{Runge-Kutta 4}}
     & \textcolor{white}{\textbf{Fully Implicit\newline \deltaformulation}}
     \\
@@ -156,7 +155,7 @@ The considered advection equation reads:
 \begin{align}
     \pdiff{c}{t} + \pdiff{uc}{x} = 0,
 \end{align}
-With initial condition for the velocity $u_{given} = \SI{10}{\metre\per\second}$, which coincide with the wave celerity in the next numerical experiments.
+With initial condition for the velocity $u_{given} = \bqty{10}{\metre\per\second}$, which coincide with the wave celerity in the next numerical experiments.
 \begin{align}
     u(x,0) = u_{given}
 \end{align}
@@ -179,15 +178,15 @@ where
 \paragraph*{Numerical experiment}
 The numerical experiment is performed with the following parameters:
 \begin{itemize}
-    \item Length of the domain, $\SI{12000}{\metre}$
-    \item Grid size, $\Dx = \SI{10}{\metre}$
-    \item Start time, $t_{start} = \SI{0}{\second}$
-    \item End time, $t_{stop} = \SI{3600}{\second}$
-    \item Timestep, $\Dt = \SI{5}{\second}$
-    \item Regularization time for time-series, $t_{reg} = \SI{300}{\second}$
-    \item Prescribed constant velocity, $u_{given}(x,t) = \SI{10}{\metre\per\second}$
-    \item Prescribed initial value of the constituent, $c(x,0)= \SI{0}{[-]}$.
-    \item Prescribed constant constituent on boundary, $c_{given}(0,t) = \SI{1}{[-]}$
+    \item Length of the domain, $\bqty{12000}{\metre}$
+    \item Grid size, $\Dx = \bqty{10}{\metre}$
+    \item Start time, $t_{start} = \bqty{0}{\second}$
+    \item End time, $t_{stop} = \bqty{3600}{\second}$
+    \item Timestep, $\Dt = \bqty{5}{\second}$
+    \item Regularization time for time-series, $t_{reg} = \bqty{300}{\second}$
+    \item Prescribed constant velocity, $u_{given}(x,t) = \bqty{10}{\metre\per\second}$
+    \item Prescribed initial value of the constituent, $c(x,0)= \bqty{0}{-}$.
+    \item Prescribed constant constituent on boundary, $c_{given}(0,t) = \bqty{1}{-}$
 \end{itemize}
 
 
@@ -203,7 +202,7 @@ The considered advection equation (divided by $\exp\phi$) now reads:
 \begin{align}
     \pdiff{\phi}{t} + \pdiff{u\phi}{x} = 0,\label{eq:1d_advec_phi}
 \end{align}
-With initial condition for the velocity $u_{given} = \SI{10}{\metre\per\second}$, which coincide with the wave celerity in the next numerical experiments.
+With initial condition for the velocity $u_{given} = \bqty{10}{\metre\per\second}$, which coincide with the wave celerity in the next numerical experiments.
 \begin{align}
     u(x,0) = u_{given}
 \end{align}
@@ -229,18 +228,18 @@ A value of $c(0,t)=0$ is estimated by, so:
 \paragraph*{Numerical experiment}
 The numerical experiment is performed with the following parameters:
 \begin{itemize}
-    \item Length of the domain, $\SI{12000}{\metre}$
-    \item Grid size, $\Dx = \SI{10}{\metre}$
-    \item Start time, $t_{start} = \SI{0}{\second}$
-    \item End time, $t_{stop} = \SI{3600}{\second}$
-    \item Timestep, $\Dt = \SI{5}{\second}$
-    \item Regularization time for time-series, $t_{reg} = \SI{300}{\second}$
-    \item Prescribed constant velocity, $u_{given}(x,t) = \SI{10}{\metre\per\second}$
-    \item Prescribed initial value of the constituent, $c(x,0)= \num{1e-20}$, \newline so $\phi = \SI{-50}{[-]}$.
-    \item Prescribed constant constituent on boundary $c_{given}(0,t) = 1$, \newline so $\phi = \ln(c_{given}(0,t)) = \ln(1) = \SI{0}{[-]}$
+    \item Length of the domain, $\bqty{12000}{\metre}$
+    \item Grid size, $\Dx = \bqty{10}{\metre}$
+    \item Start time, $t_{start} = \bqty{0}{\second}$
+    \item End time, $t_{stop} = \bqty{3600}{\second}$
+    \item Timestep, $\Dt = \bqty{5}{\second}$
+    \item Regularization time for time-series, $t_{reg} = \bqty{300}{\second}$
+    \item Prescribed constant velocity, $u_{given}(x,t) = \bqty{10}{\metre\per\second}$
+    \item Prescribed initial value of the constituent, $c(x,0)= \num{1e-20}$, \newline so $\phi = \bqty{-50}{-}$.
+    \item Prescribed constant constituent on boundary $c_{given}(0,t) = 1$, \newline so $\phi = \ln(c_{given}(0,t)) = \ln(1) = \bqty{0}{-}$
 \end{itemize}
 %--------------------------------------------------------------------------------
-\section{1-D Wave equation}
+\section{1-D Wave equation}\label{sec:numerical_experiment_gaussian_hump}
 %--------------------------------------------------------------------------------
 \subsection{Gaussian hump}
 The considered 1-D wave equation reads:
@@ -256,58 +255,59 @@ With initial conditions
 \end{align}
 for the the water level a Gaussian hump is prescribed
 \begin{align}
-    \zeta(x) = 2 a_0 \exp\left( \frac{(x - \mu)^2}{2\sigma^2}  \right), \quad [\si{\metre}]
+    \zeta(x) = 2 a_0 \exp\left( \frac{(x - \mu)^2}{2\sigma^2}  \right), \quad \bunit{\metre}
 \end{align}
 At the boundaries no ingoing signals are prescribed, so outgoing signals are leaving the domain unhampered, which means no reflections will be present other then numerical reflections.
 
 The numerical experiment is performed with the following parameters:
 \begin{itemize}
-    \item Length of the domain, $\SI{12000}{\metre}$, ranging from $\SI{-6000}{\metre}$ to $\SI{6000}{\metre}$.
-    \item Bed level, $z_b = \SI{-10}{\metre}$.
-    \item Grid size, $\Dx = \SI{10}{\metre}$.
-    \item Start time, $t_{start} = \SI{0}{\second}$.
-    \item End time, $t_{stop} = \SI{3600}{\second}$.
-    \item Timestep, $\Dt = \SI{10}{\second}$.
-    \item Regularization time for time-series, $t_{reg} = \SI{300}{\second}$.
-    \item Amplitude of the Gaussian hump at the boundary, $a_0 = \SI{0.01}{\metre}$.
-    \item Centre of the Gaussian hump, $\mu = \SI{3000}{\metre}$.
-    \item Spreading of the Gaussian hump, $\sigma = \SI{700}{\metre}$.
+    \item Length of the domain, $\bqty{12000}{\metre}$, ranging from $\bqty{-6000}{\metre}$ to $\bqty{6000}{\metre}$.
+    \item Bed level, $z_b = \bqty{-10}{\metre}$.
+    \item Grid size, $\Dx = \bqty{10}{\metre}$.
+    \item Start time, $t_{start} = \bqty{0}{\second}$.
+    \item End time, $t_{stop} = \bqty{3600}{\second}$.
+    \item Timestep, $\Dt = \bqty{10}{\second}$.
+    \item Regularization time for time-series, $t_{reg} = \bqty{300}{\second}$.
+    \item Amplitude of the Gaussian hump at the boundary, $a_0 = \bqty{0.01}{\metre}$.
+    \item Centre of the Gaussian hump, $\mu = \bqty{3000}{\metre}$.
+    \item Spreading of the Gaussian hump, $\sigma = \bqty{700}{\metre}$.
 \end{itemize}
 And an experiment with given boundary values:
 \begin{itemize}
-    \item Prescribed discharge boundary at $\SI{-6000}{\metre}$: $q(0,t) = \SI{0.05}{\square\metre\per\second}$.
-    \item Prescribed water level boundary value at $\SI{6000}{\metre}$: $\zeta(0,t) = \SI{0.02}{\metre}$.
+    \item Prescribed discharge boundary at $\bqty{-6000}{\metre}$: $q(0,t) = \bqty{0.05}{\square\metre\per\second}$.
+    \item Prescribed water level boundary value at $\bqty{6000}{\metre}$: $\zeta(0,t) = \bqty{0.02}{\metre}$.
 \end{itemize}
 Because the boundary values are constant in time the solution is time-independent.
 Therefore two simulation should be performed:
 \begin{enumerate}
-    \item A stationary computation (with $\Dt = \SI{0}{\second}$) and
-    \item an temporal computation (with $t_{stop} = \SI{10800}{\second}$)
+    \item A stationary computation (with $\Dt = \bqty{0}{\second}$) and
+    \item an temporal computation (with $t_{stop} = \bqty{10800}{\second}$)
 \end{enumerate}
 %--------------------------------------------------------------------------------
-\subsection{Weir}
+\subsection{Weir}\label{sec:numerical_experiment_weir}
 The model is taken from \citet{Borsboom2001}.
 The considered 1-D wave equation reads:
 \begin{align}
-    \pdiff{h}{t}  + \pdiff{q}{x} & = 0 \qquad \textit{continuity eq.} \\
-    \pdiff{q}{t}  + \pdiff{(q^2/h)}{x} + g h \pdiff{h}{x} - \pdiff{}{x} (\nu+\Psi) h \pdiff{(q/h)}{x}  & = 0 \qquad \textit{momentum eq.}
+    \pdiff{h}{t} & + \pdiff{q}{x}  = 0, \qquad \textit{continuity eq.} \\
+    \pdiff{q}{t} & + \pdiff{(q^2/h)}{x} + g h \pdiff{h}{x} - \pdiff{}{x} \left( (\nu+\Psi) h \pdiff{(q/h)}{x} \right) = 0, \qquad \textit{momentum eq.}
 \end{align}
 \begin{itemize}
-    \item Length of the domain, $\SI{500}{\metre}$
+    \item Length of the domain, $\bqty{500}{\metre}$.
+    \item Artificial viscosity $\Psi$ computated as presented in \autoref{sec:regularization_artificial_viscosity}.
 \end{itemize}
-Bathymetry:
+Bathymetry \bunit{\metre}:
 \begin{align}
     z_b(x) =
     \begin{cases}
-        \num{-12} & 0 < x \leq 200
+        \num{-12} & 0 < x \leq 200,
         \\
-        \num{-12} + 7 (x - 200)/50 & 200 < x \leq 250
+        \num{-12} + 7 (x - 200)/50 & 200 < x \leq 250,
         \\
-        \num{-5} & 250 < x \leq 350
+        \num{-5} & 250 < x \leq 350,
         \\
-        \num{-5} - 5(x - 350)/100 & 350 < x \leq 450
+        \num{-5} - 5(x - 350)/100 & 350 < x \leq 450,
         \\
-        \num{-10} & 450 < x \leq 500
+        \num{-10} & 450 < x \leq 500.
     \end{cases}
 \end{align}
 Initial conditions
@@ -317,30 +317,34 @@ Initial conditions
 \end{align}
 Boundary conditions
 \begin{itemize}
-    \item Prescribed discharge boundary at $\qty{0}{\metre}$: $q(0,t) = \qty{19.8656}{\square\metre\per\second}$.
-    \item Prescribed water level boundary value at $\qty{500}{\metre}$: $\zeta(0,t) = \qty{-3}{\metre}$.
+    \item Prescribed discharge boundary at $\bqty{0}{\metre}$: $q(0,t) = \bqty{19.8656}{\square\metre\per\second}$.
+    \item Prescribed water level boundary value at $\bqty{500}{\metre}$: $\zeta(500,t) = \bqty{-3}{\metre}$.
 \end{itemize}
 The numerical experiment is performed with the following parameters:
 \begin{itemize}
     \item Grid size and time step,
     \begin{itemize}
-        \item $\Dx = \qty{10}{\metre}$ and $\Dt = \qty{2}{s}$
-        \item $\Dx = \qty{5}{\metre}$ and $\Dt = \qty{1}{s}$
-        \item $\Dx = \qty{2.5}{\metre}$ and $\Dt = \qty{0.5}{s}$
-        \item $\Dx = \qty{1.25}{\metre}$ and $\Dt = \qty{0.25}{s}$
+        \item $\Dx = \bqty{10}{\metre}$ and $\Dt = \bqty{2}{s}$
+        \item $\Dx = \bqty{5}{\metre}$ and $\Dt = \bqty{1}{s}$
+        \item $\Dx = \bqty{2.5}{\metre}$ and $\Dt = \bqty{0.5}{s}$
+        \item $\Dx = \bqty{1.25}{\metre}$ and $\Dt = \bqty{0.25}{s}$
     \end{itemize}
-    \item Start time, $t_{start} = \qty{0}{\second}$.
-    \item End time, $t_{stop} = \qty{7200}{\second}$.
-    \item Regularization time for time-series, $t_{reg} = \qty{300}{\second}$.
+    \item Start time, $t_{start} = \bqty{0}{\second}$.
+    \item End time, $t_{stop} = \bqty{7200}{\second}$.
+    \item Regularization time for time-series, $t_{reg} = \bqty{300}{\second}$.
+    \item Kinematic viscosity, $\nu = \bqty{0.01}{\square\metre\per\second}$
     \item $\eps_{bc} = \num{1e-02}$
 \end{itemize}
-Results for the four different compuations are shown in \autoref{fig:result_wl_weir}
+Results for the four different computations are shown in \autoref{fig:result_wl_weir}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/Screenshot 2025-03-30 214406.png}
-    \caption{Top graphs present the water level. Lower graphs present the regularized bathymetry. Blue: $\Dx = 10 [m]$, $\Dt = 2 [s]$;
-    Red: $\Dx = 5 [m]$, $\Dt = 1 [s]$;
-    Cyan: $\Dx = 2.5 [m]$, $\Dt = 0.5 [s]$;
-    Black: $\Dx = 1.25 [m]$, $\Dt = 0.25 [s]$}
+    \includegraphics[width=0.9\textwidth]{figures/Screenshot 2025-04-10 233836.png}
+    \caption{Top graphs present the water level. Lower graphs present the regularized bathymetry.
+    Green: $\Dx = \bqty{20}{\metre}$, $\Dt = \bqty{4}{\second}$;
+    Blue: $\Dx = \bqty{10}{\metre}$, $\Dt = \bqty{2}{\second}$;
+    Red: $\Dx = \bqty{5}{\metre}$, $\Dt = \bqty{1}{\second}$;
+    Cyan: $\Dx = \bqty{2.5}{\metre}$, $\Dt = \bqty{0.5}{\second}$;
+    Black: $\Dx = \bqty{1.25}{\metre}$, $\Dt =\bqty{0.25}{\second}$
+    }
     \label{fig:result_wl_weir}
 \end{figure}

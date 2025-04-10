@@ -21,13 +21,13 @@ Consider the non-linear wave equation when the pressure gradient is explicitly e
 %
 with
 \begin{symbollist}
-    \item[$h$] Total water depth ($h = \zeta - z_b$), [\si{\metre}].
-    \item[$z_b$] Bed level w.r.t.\ reference plane, positive upward, [\si{\metre}].
-    \item[$q$] Flow ($q = hu$), [\si{\square\metre\per\second}].
-    \item[$\zeta$] Water level w.r.t.\ reference plane ($\zeta = h + z_b$), positive upward, [\si{\metre}].
-    \item[$u$] Velocity ($u = q/h$), [\si{\metre\per\second}].
-    \item[$g$] Acceleration due to gravity, [\si{\metre\per\square\second}].
-    \item[$\nu$] Kinematic viscosity, [\si{\square\metre\per\second}].
+    \item[$h$] Total water depth ($h = \zeta - z_b$), \bunit{\metre}.
+    \item[$z_b$] Bed level w.r.t.\ reference plane, positive upward, \bunit{\metre}.
+    \item[$q$] Flow ($q = hu$), \bunit{\square\metre\per\second}.
+    \item[$\zeta$] Water level w.r.t.\ reference plane ($\zeta = h + z_b$), positive upward, \bunit{\metre}.
+    \item[$u$] Velocity ($u = q/h$), \bunit{\metre\per\second}.
+    \item[$g$] Acceleration due to gravity, \bunit{\metre\per\square\second}.
+    \item[$\nu$] Kinematic viscosity, \bunit{\square\metre\per\second}.
 \end{symbollist}
 
 If $u$ is needed for other processes (like morphology and/or post processing) it can be computed according the next equation:
@@ -290,19 +290,19 @@ The essential boundary condition is supplied at $x_1$ with the following discret
 The \textbf{natural} is chosen in that way that as less as possible left going spurious numerical waves are generated at the outflow boundary, i.e.\ nearly no reflection.
 The natural boundary condition is supplied at $x_I$ with the discretization constants as determined by \autoref{eq:stencil_nat} and boundary condition \autoref{eq:1d_adv_nat_boundary} which yields:
 \begin{align}
-    &\left( \frac{1+\alpha_{bc}}{\Dt} + \theta \frac{u}{\Dx} \right) \Delta c^{n+1,p+1}_{I+1} +
-     \left( \frac{1-2\alpha_{bc}}{\Dt} - \theta \frac{u}{\Dx} \right) \Delta c^{n+1,p+1}_I +
-      \frac{\alpha_{bc}}{\Dt}  \Delta c^{n+1,p+1}_{I-1}  =
+    &\left( \frac{1+\alpha_{\it bnd}}{\Dt} + \theta \frac{u}{\Dx} \right) \Delta c^{n+1,p+1}_{I+1} +
+     \left( \frac{1-2\alpha_{\it bnd}}{\Dt} - \theta \frac{u}{\Dx} \right) \Delta c^{n+1,p+1}_I +
+      \frac{\alpha_{\it bnd}}{\Dt}  \Delta c^{n+1,p+1}_{I-1}  =
     \\
     & = - \left\{
-          \frac{1+\alpha_{bc}}{\Dt} \left( c^{n+1,p}_{I+1} - c^n_{I+1} \right)
-        + \frac{1-2\alpha_{bc}}{\Dt} \left( c^{n+1,p}_{I} - c^n_{I} \right)
-        + \frac{\alpha_{bc}}{\Dt} \left( c^{n+1,p}_{I-1}- c^n_{I-1} \right) +
+          \frac{1+\alpha_{\it bnd}}{\Dt} \left( c^{n+1,p}_{I+1} - c^n_{I+1} \right)
+        + \frac{1-2\alpha_{\it bnd}}{\Dt} \left( c^{n+1,p}_{I} - c^n_{I} \right)
+        + \frac{\alpha_{\it bnd}}{\Dt} \left( c^{n+1,p}_{I-1}- c^n_{I-1} \right) +
         \right. \\
     & \left. + \frac{u}{\Dx} \left(c^{n+\theta,p}_{I+1} - c^{n+\theta,p}_{I} \right)
         \right\}
 \end{align}
-where $\alpha_{bc} = 2\alpha -\half$ ($\alpha_{bc} = -\quart$ when $\alpha = \frac{1}{8}$)
+where $\alpha_{\it bnd} = 2\alpha -\half$ ($\alpha_{\it bnd} = -\quart$ when $\alpha = \frac{1}{8}$)
 %------------------------------------------------------------------------------
 \section{1-D wave equation}
 
@@ -367,7 +367,7 @@ The discretization of the continuity equation will be presented term by term of 
 \subsubsection{Time derivative}
 The discretization of the time derivative term of the continuity equation reads:
 \begin{align}
-    & \int^{x_{i+\half}}_{x_{i_-\half}} \pdiff{h}{t}\, dx
+    & \int^{x_{i+\half}}_{x_{i-\half}} \pdiff{h}{t}\, dx
 \end{align}
 which will be approximated by
 \begin{align}
@@ -405,7 +405,7 @@ after rearranging the equation into an implicit left hand side and an explicit r
 \subsubsection{Mass flux}
 The discretization of the mass flux term of the continuity equation reads:
 \begin{align}
-    \int^{x_{i+\half}}_{x_{i_-\half}} \pdiff{q}{x} \,dx
+    \int^{x_{i+\half}}_{x_{i-\half}} \pdiff{q}{x} \,dx
 \end{align}
 which will be approximated by the $\theta$-method and using Green's theorem:
 \begin{align}
@@ -428,7 +428,7 @@ The discretization of the momentum equation will be presented term by term of \a
 \subsubsection{Time derivative}
 The discretization of the time derivative term of the momentum equation reads and is similar as for the continuity equation:
 \begin{align}
-    & \int^{x_{i+\half}}_{x_{i_-\half}} \pdiff{q}{t}\, dx
+    & \int^{x_{i+\half}}_{x_{i-\half}} \pdiff{q}{t}\, dx
 \end{align}
 which will be approximated by
 \begin{align}
@@ -599,7 +599,7 @@ and for the right part ($x_{i+\quart}$) we use
 \subsubsection{Viscosity}
 The viscosity term read:
 \begin{align}
-    &  \int^{x_{i+\half}}_{x_{i_-\half}} \pdiff{}{x} \left( \nu h \pdiff{(q/h)}{x} \right)\ dx & =
+    &  \int^{x_{i+\half}}_{x_{i-\half}} \pdiff{}{x} \left( \nu h \pdiff{(q/h)}{x} \right)\ dx & =
     \left. \nu \left( \pdiff{q}{x} - \frac{q}{h} \pdiff{h}{x} \right) \right|_{i+\half} - \left. \nu \left( \pdiff{q}{x} - \frac{q}{h} \pdiff{h}{x} \right) \right|_{i-\half}
 \end{align}
 The linearization of the viscosity term ($\nu = {\it constant}$) around iteration level $p$ reads (see \autoref{sec:linearisation_viscosity} for a derivation):
@@ -626,6 +626,9 @@ The boundary conditions are presented for the left/west boundary.
 First the \textbf{natural} boundary is discussed and after that the \textbf{essential} boundary condition.
 A similar derivation can be given for right/east boundary.
 
+The \textbf{essential} boundary condition is to be assumed somewhere in the first control volume, ($x_{i_{bc}}$ with $i_{bc} \in [i-\half, i+\half]$ ).
+For simplicity the boundary condition is chosen to be on node $i=1$ (location $x_{1}$).
+
 %------------------------------------------------------------------------------
 \subsubsection{Natural boundary condition}
 
@@ -637,20 +640,20 @@ For the \textbf{natural} boundary the values at the boundary ($x_{i+\half}$ with
 %
 \begin{align}
     h_{i+\half} & = \frac{1}{2} \left( h_{i} +  h_{i+1} \right) +
-    \frac{\alpha_{bc}}{2} \left( h_{i}
+    \frac{\alpha_{\it bnd}}{2} \left( h_{i}
     - 2 h_{i+1} + h_{i+2} \right)
     \nonumber \\*
-    & = \half \left( 1 + \alpha_{bc} \right) h_{i} +
-    \half \left( 1 - 2\alpha_{bc} \right) h_{i+1} +
-    \half \alpha_{bc} h_{i+2}\label{eq:h_at_left_boundary}
+    & = \half \left( 1 + \alpha_{\it bnd} \right) h_{i} +
+    \half \left( 1 - 2\alpha_{\it bnd} \right) h_{i+1} +
+    \half \alpha_{\it bnd} h_{i+2}\label{eq:h_at_left_boundary}
     \\
     q_{i+\half} & =  \frac{1}{2} \left( q_{i} + q_{i+1}\right)
-    + \frac{\alpha_{bc}}{2} \left( q_{i}
+    + \frac{\alpha_{\it bnd}}{2} \left( q_{i}
     - 2 q_{i+1} + q_{i+2} \right)
     \nonumber \\*
-    & = \half \left( 1 + \alpha_{bc} \right) q_{i} +
-    \half \left( 1 - 2\alpha_{bc} \right) q_{i+1} +
-    \half \alpha_{bc} q_{i+2}\label{eq:q_at_left_boundary}
+    & = \half \left( 1 + \alpha_{\it bnd} \right) q_{i} +
+    \half \left( 1 - 2\alpha_{\it bnd} \right) q_{i+1} +
+    \half \alpha_{\it bnd} q_{i+2}\label{eq:q_at_left_boundary}
 \end{align}
 
 %------------------------------------------------------------------------------
@@ -660,25 +663,28 @@ At the left/west boundary ($x_{i+\half}$ with $i=0$) the time discretization of 
     \pdiff{h}{t} & \approx \frac{1}{\Dt} \left(  h^{n+1}_{i+\half} - h^{n}_{i+\half} \right)
 \end{align}
 A diffusion like term is added to the boundary equation to damp the reflection of spurious waves.
-A coefficient $\alpha_{bc}$ is placed before that extra term, the optimal value of this coefficient is taken from the analysis in \citet{JanMooiman2025}.
+A coefficient $\alpha_{\it bnd}$ is placed before that extra term, the optimal value of this coefficient is taken from the analysis in \citet{JanMooiman2025}.
 \begin{align}
     & \frac{1}{\Dt}\left( \frac{1}{2} \left( h^{n+1,p+1}_{i} + h^{n+1,p+1}_{i+1} \right)
-    + \frac{\alpha_{bc}}{2} \left( h^{n+1,p+1}_{i} - 2 h^{n+1,p+1}_{i+1} + h^{n+1,p+1}_{i+2}  \right) \right. +
+    + \frac{\alpha_{\it bnd}}{2} \left( h^{n+1,p+1}_{i} - 2 h^{n+1,p+1}_{i+1} + h^{n+1,p+1}_{i+2}  \right) \right. +
     \nonumber \\*
-    & \qquad \,\,\, - \left.
-    \frac{1}{2} \left( h^{n}_{i} + h^{n}_{i+1} \right) - \frac{\alpha_{bc}}{2}  \left( h^{n}_{i} - 2 h^{n}_{i+1} + h^{n}_{i+2}  \right)
+    & \qquad  - \left. \left(
+    \frac{1}{2} \left( h^{n}_{i} + h^{n}_{i+1} \right)
+    + \frac{\alpha_{\it bnd}}{2}  \left( h^{n}_{i} - 2 h^{n}_{i+1} + h^{n}_{i+2}  \right) \right)
     \right)
 \end{align}
-Rearranging the equation into an implicit and an explicit part it reads:
+After rearranging the equation into an implicit and an explicit part it reads:
 \begin{align}
     & \frac{1}{\Dt}  \left( \half \left( \Delta h^{n+1, p+1}_{i} + \Delta h^{n+1, p+1}_{i+1} \right) \right. +
     \nonumber \\*
-    & \qquad + \left. \frac{\alpha_{bc}}{2}\left( \Delta h^{n+1,p+1}_{i} - 2 \Delta h^{n+1,p+1}_{i+1} + \Delta h^{n+1,p+1}_{i+2} \right) \right) +
+    & \qquad + \left. \frac{\alpha_{\it bnd}}{2}\left( \Delta h^{n+1,p+1}_{i} - 2 \Delta h^{n+1,p+1}_{i+1} + \Delta h^{n+1,p+1}_{i+2} \right) \right) +
     \nonumber \\
-    & + \frac{1}{\Dt} \left\{ \half \left( h^{n+1, p}_{i} + h^{n+1, p}_{i+1} \right) + \frac{\alpha_{bc}}{2}\left(  h^{n+1,p}_{i} - 2 h^{n+1,p}_{i+1}  + h^{n+1,p}_{i+2} \right) + \right.
+    & \qquad + \frac{1}{\Dt} \left\{ \half \left( h^{n+1, p}_{i} + h^{n+1, p}_{i+1} \right)
+    + \frac{\alpha_{\it bnd}}{2}\left(  h^{n+1,p}_{i} - 2 h^{n+1,p}_{i+1}  + h^{n+1,p}_{i+2} \right) + \right.
     \nonumber \\*
     &
-    \left. - \frac{1}{2} \left( h^{n}_{i} + h^{n}_{i+1} \right)   - \frac{\alpha_{bc}}{2}  \left( h^{n}_{i} - 2 h^{n}_{i+1} + h^{n}_{i+2}  \right) \right\}
+    \qquad \left. - \left( \frac{1}{2} \left( h^{n}_{i} + h^{n}_{i+1} \right)
+    + \frac{\alpha_{\it bnd}}{2}  \left( h^{n}_{i} - 2 h^{n}_{i+1} + h^{n}_{i+2}  \right) \right) \right\}
 \end{align}
 
 %------------------------------------------------------------------------------
@@ -704,25 +710,26 @@ At the left/west boundary ($x_{i+\half}$ with $i=0$) the time discretization of 
     \pdiff{q}{t} & \approx \frac{1}{\Dt} \left(  q^{n+1}_{i+\half} - q^{n}_{i+\half} \right)
 \end{align}
 A diffusion like term is added to the boundary equation to damp the reflection of spurious waves.
-A coefficient $\alpha_{bc}$ is placed before that extra term, the optimal value of this coefficient is taken from the analysis in \citet{JanMooiman2025}.
+A coefficient $\alpha_{\it bnd}$ is placed before that extra term, the optimal value of this coefficient is taken from the analysis in \citet{JanMooiman2025}.
 \begin{align}
     & \frac{1}{\Dt}\left( \frac{1}{2} \left( q^{n+1,p+1}_{i} + q^{n+1,p+1}_{i+1} \right)
-    + \frac{\alpha_{bc}}{2} \left( q^{n+1,p+1}_{i} - 2 q^{n+1,p+1}_{i+1} + q^{n+1,p+1}_{i+2}  \right) \right. +
+    + \frac{\alpha_{\it bnd}}{2} \left( q^{n+1,p+1}_{i} - 2 q^{n+1,p+1}_{i+1} + q^{n+1,p+1}_{i+2}  \right) \right. +
     \nonumber \\*
-    & \qquad \,\,\, - \left.
-    \frac{1}{2} \left( q^{n}_{i} + q^{n}_{i+1} \right) - \frac{\alpha_{bc}}{2}  \left( q^{n}_{i} - 2 q^{n}_{i+1} + q^{n}_{i+2}  \right)
+    & \qquad  - \left. \left(
+    \frac{1}{2} \left( q^{n}_{i} + q^{n}_{i+1} \right)
+    + \frac{\alpha_{\it bnd}}{2}  \left( q^{n}_{i} - 2 q^{n}_{i+1} + q^{n}_{i+2}  \right) \right)
     \right)
 \end{align}
 After rearranging the equation into an implicit and an explicit part it reads:
 \begin{align}
     & \frac{1}{\Dt}  \left( \half \left( \Delta q^{n+1, p+1}_{i} + \Delta q^{n+1, p+1}_{i+1} \right) \right. +
     \nonumber \\*
-    & \qquad + \left. \frac{\alpha_{bc}}{2}\left( \Delta q^{n+1,p+1}_{i} - 2 \Delta q^{n+1,p+1}_{i+1} + \Delta q^{n+1,p+1}_{i+2} \right) \right) +
+    & \qquad + \left. \frac{\alpha_{\it bnd}}{2}\left( \Delta q^{n+1,p+1}_{i} - 2 \Delta q^{n+1,p+1}_{i+1} + \Delta q^{n+1,p+1}_{i+2} \right) \right) +
     \nonumber \\
-    & +  \frac{1}{\Dt} \left\{ \half \left( q^{n+1, p}_{i} + q^{n+1, p}_{i+1} \right) + \frac{\alpha_{bc}}{2}\left( q^{n+1,p}_{i} - 2 q^{n+1,p}_{i+1}  + q^{n+1,p}_{i+2} \right) + \right.
+    & \qquad +  \frac{1}{\Dt} \left\{ \half \left( q^{n+1, p}_{i} + q^{n+1, p}_{i+1} \right) + \frac{\alpha_{\it bnd}}{2}\left( q^{n+1,p}_{i} - 2 q^{n+1,p}_{i+1}  + q^{n+1,p}_{i+2} \right) + \right.
     \nonumber \\*
     & \qquad
-    \left.  - \frac{1}{2} \left( q^{n}_{i} + q^{n}_{i+1} \right) - \frac{\alpha_{bc}}{2} \left( q^{n}_{i} - 2 q^{n}_{i+1} + q^{n}_{i+2}  \right) \right\}
+    \left.  - \frac{1}{2} \left( q^{n}_{i} + q^{n}_{i+1} \right) - \frac{\alpha_{\it bnd}}{2} \left( q^{n}_{i} - 2 q^{n}_{i+1} + q^{n}_{i+2}  \right) \right\}
 \end{align}
 %------------------------------------------------------------------------------
 \paragraph*{Pressure term, momentum equation}
@@ -737,17 +744,17 @@ The pressure term will then be approximated by
 \begin{align}
 & \frac{1}{\Dx} g h^{n+\theta,p}_{i+\half} \left( \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i}  \right) +
 \nonumber \\*
-& \quad + \frac{1}{\Dx}  g \left(  \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i} \right) \theta \Delta h^{n+1, p+1}_{i+\half} +
+& \qquad + \frac{1}{\Dx}  g \left(  \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i} \right) \theta \Delta h^{n+1, p+1}_{i+\half} +
 \nonumber \\*
-& \quad +   \frac{1}{\Dx} g h^{n+\theta, p}_{i+\half}
+& \qquad +   \frac{1}{\Dx} g h^{n+\theta, p}_{i+\half}
 \theta \left( \Delta \zeta^{n+1,p+1}_{i+1}  - \Delta \zeta^{n+1,p+1}_{i}\right)
 \end{align}
 After rearranging the equation into an implicit and an explicit part it reads:
 \begin{align}
-& \quad \frac{1}{\Dx}  g \left(  \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i} \right) \theta \Delta h^{n+1, p+1}_{i+\half} +   \frac{1}{\Dx} g h^{n+\theta, p}_{i+\half}
+& \frac{1}{\Dx}  g \left(  \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i} \right) \theta \Delta h^{n+1, p+1}_{i+\half} +   \frac{1}{\Dx} g h^{n+\theta, p}_{i+\half}
 \theta \left( \Delta \zeta^{n+1,p+1}_{i+1}  - \Delta \zeta^{n+1,p+1}_{i}\right) +
 \nonumber \\*
-& + \left\{
+& \qquad + \left\{
 \frac{1}{\Dx} g h^{n+\theta,p}_{i+\half} \left( \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i}  \right)  \right\}
 \end{align}
 %------------------------------------------------------------------------------
@@ -763,19 +770,19 @@ which will be approximated by
     & \left. \frac{2q}{h}\pdiff{q}{x}\right|_{i+\half} - \left. \frac{q^2}{h^2}\pdiff{h}{x}\right|_{i+\half}
     \approx
     \\
-    & \approx \underbrace{\frac{2q^{n+\theta, p}_{i+\half}}{ h^{n+\theta, p}_{i+\half}} \pdiff{}{x}\left( q^{n+\theta, p}_{i+\half} \right)
+    & \qquad \approx \underbrace{\frac{2q^{n+\theta, p}_{i+\half}}{ h^{n+\theta, p}_{i+\half}} \pdiff{}{x}\left( q^{n+\theta, p}_{i+\half} \right)
         - \frac{(q^{n+\theta, p}_{i+\half})^2}{(h^{n+\theta, p}_{i+\half})^2} \pdiff{}{x} \left( h^{n+\theta, p}_{i+\half} \right)}_{\textit{ to right handside}} +
     \nonumber \\
-    &+ \theta\ \underbrace{\left( -\frac{2q^{n+\theta, p}_{i+\half}}{ (h^{n+\theta, p}_{i+\half})^2}  \pdiff{}{x} \left( q^{n+\theta,p}_{i+\half}  \right)
+    & \qquad + \theta\ \underbrace{\left( -\frac{2q^{n+\theta, p}_{i+\half}}{ (h^{n+\theta, p}_{i+\half})^2}  \pdiff{}{x} \left( q^{n+\theta,p}_{i+\half}  \right)
         + \frac{2(q^{n+\theta, p}_{i+\half})^2}{(h^{n+\theta, p}_{i+\half})^3} \pdiff{}{x} \left( h^{n+\theta,p} _{i+\half} \right)
         \right)}_{\cal A} \Delta h^{n+1, p+1}_{i+\half} +
     \nonumber \\
-    &+ \theta\ \underbrace{\left( \frac{2}{ h^{n+\theta, p}_{i+\half}} \pdiff{}{x} \left( q^{n+\theta, p}_{i+\half} \right)
+    & \qquad + \theta\ \underbrace{\left( \frac{2}{ h^{n+\theta, p}_{i+\half}} \pdiff{}{x} \left( q^{n+\theta, p}_{i+\half} \right)
         -  \frac{2q^{n+\theta, p}_{i+\half}}{(h^{n+\theta, p}_{i+\half})^2} \pdiff{}{x} \left( h^{n+\theta, p}_{i+\half} \right)
         \right)}_{\cal B} \Delta q^{n+1, p+1}_{i+\half} +
     \nonumber \\
     &
-    + \theta \underbrace{\left(- \frac{(q^{n+\theta, p}_{i+\half})^2}{(h^{n+\theta, p}_{i+\half})^2} \right)}_{\cal C} \pdiff{}{x} \left( \Delta h^{n+1, p+1}_{i+\half} \right)
+    \qquad + \theta \underbrace{\left(- \frac{(q^{n+\theta, p}_{i+\half})^2}{(h^{n+\theta, p}_{i+\half})^2} \right)}_{\cal C} \pdiff{}{x} \left( \Delta h^{n+1, p+1}_{i+\half} \right)
     + \theta \underbrace{\frac{2q^{n+\theta, p}_{i+\half}}{ h^{n+\theta, p}_{i+\half}}}_{\cal D} \pdiff{}{x} \left( \Delta q^{n+1, p+1}_{i+\half} \right)
 \end{align}
 where $\theta\cal{A}$, $\theta\cal{B}$, $\theta\cal{C}$ and $\theta\cal{D}$ are coefficients in the matrix of the \deltaformulation.
@@ -796,13 +803,13 @@ which will be approximated by
     & {c_f}_{i+\half} \frac{q^{n+\theta,p}_{i+\half}\Fabs{q^{n+\theta,p}_{i+\half}}}{(h^{n+\theta,p}_{i+\half})^2}
     +
     \nonumber \\*
-    & + {c_f}_{i+\half} \frac{\Fabs{q^{n+\theta,p}_{i+\half}}}{(h^{n+\theta,p}_{i+\half})^2} \theta \Delta q^{n+1,p+1}_{i+\half}
+    & \qquad + {c_f}_{i+\half} \frac{\Fabs{q^{n+\theta,p}_{i+\half}}}{(h^{n+\theta,p}_{i+\half})^2} \theta \Delta q^{n+1,p+1}_{i+\half}
     +
     \nonumber \\*
-    & + {c_f}_{i+\half} \frac{q^{n+\theta,p}_{i+\half}}{(h^{n+\theta,p}_{i+\half})^2} \pdiff{}{q}\left(\Fabs{q^{n+\theta,p}_{i+\half}}\right)  \theta \Delta q^{n+1,p+1}_{i+\half}
+    & \qquad + {c_f}_{i+\half} \frac{q^{n+\theta,p}_{i+\half}}{(h^{n+\theta,p}_{i+\half})^2} \pdiff{}{q}\left(\Fabs{q^{n+\theta,p}_{i+\half}}\right)  \theta \Delta q^{n+1,p+1}_{i+\half}
     +
     \nonumber \\*
-    & - {c_f}_{i+\half} \frac{2 q^{n+\theta,p}_{i+\half}\Fabs{q^{n+\theta,p}_{i+\half}}}{(h^{n+\theta,p}_{i+\half})^3} \theta \Delta h^{n+1,p+1}_{i+\half}
+    & \qquad - {c_f}_{i+\half} \frac{2 q^{n+\theta,p}_{i+\half}\Fabs{q^{n+\theta,p}_{i+\half}}}{(h^{n+\theta,p}_{i+\half})^3} \theta \Delta h^{n+1,p+1}_{i+\half}
 \end{align}
 with
 \begin{align}
@@ -812,7 +819,7 @@ with
 %------------------------------------------------------------------------------
 \paragraph*{Viscosity term, momentum equation}
 At the left/west boundary ($x_{i+\half}$ with $i=0$) the discretization of the viscosity term for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
-
+%
 \begin{Remark}
     \item Strictly spoken there is no separation between left and right going waves when there is a viscosity term.
 \end{Remark}
@@ -859,7 +866,7 @@ which will be approximated by the following discretizations:
 %------------------------------------------------------------------------------
 \subsubsection{Essential boundary condition}
 The \textbf{essential} boundary condition is to be assumed somewhere in the first control volume, ($x_{i_{bc}}$ with $i_{bc} \in [i-\half, i+\half]$ ).
-For simplicity we boundary condition is chosen to be on node $i=1$ (location $x_{1}$).
+For simplicity the boundary condition is chosen to be on node $i=1$ (location $x_{1}$).
 
 The \textbf{essential} boundary condition for the left/west boundary at $x_{1}$ reads, describing the ingoing wave (indicated with $h^+$, $q^+$) with as less as possible disturbing the outgoing wave (\autoref{eq:left_right_going_equations}):
 \begin{align}
@@ -899,7 +906,7 @@ So the essential boundary condition for incoming signal (if $\lpdiff{z_b}{t} = 0
         }}\label{eq:essential_bc_zeta}
 \end{align}
 a correction term is added, to prevent drifting away of the solution (an integration constant is missing).
-The variable $\eps$ has dimension $[\si{\metre\per\square\second}]$
+The variable $\eps$ has dimension \bunit{\metre\per\square\second}.
 
 The discretization of  boundary \autoref{eq:essential_bc_zeta} at $x=i+\half$ reads
 \begin{align}
@@ -949,7 +956,7 @@ substituting \autoref{eq:essential_conv_4} into the right hand side, yields
 }}\label{eq:essential_bc_q}
 \end{align}
 a correction term is added, to prevent drifting away of the solution (an integration constant is missing).
-The variable $\eps$ has dimension $[\si{\per\second}]$.
+The variable $\eps$ has dimension \bunit{\per\second}.
 The discretization of  boundary \autoref{eq:essential_bc_q} at $x=i+\half$ reads
 \begin{align}
     &\left(\sqrt{gh^{n+\theta,p+1}} - \frac{q^{n+\theta,p+1}}{h^{n+\theta,p+1}} \right) \pdiff{h}{t} + \pdiff{q}{t} =

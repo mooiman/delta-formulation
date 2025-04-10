@@ -1669,9 +1669,9 @@ int main(int argc, char* argv[])
             his_values = { froude[p_a], froude[p_b], froude[p_c], froude[p_d], froude[p_e] };
             his_file->put_variable(his_froude_name, nst_his, his_values);
 
-            //his_values = { riemann_pos[i_left], riemann_pos[i_left], riemann_pos[i_mid], riemann_pos[i_right], riemann_pos[i_right] };
+            //his_values = { riemann_pos[p_a], riemann_pos[p_b], riemann_pos[p_c], riemann_pos[p_d], riemann_pos[p_e] };
             //his_file->put_variable(his_riemann_pos_name, nst_his, his_values);
-            //his_values = { riemann_neg[p_a], riemann_neg[p_a], riemann_neg[p_c], riemann_neg[p_e], riemann_neg[p_e] };
+            //his_values = { riemann_neg[p_a], riemann_neg[p_a], riemann_neg[p_c], riemann_neg[p_d], riemann_neg[p_e] };
             //his_file->put_variable(his_riemann_neg_name, nst_his, his_values);
 
             his_values = { double(used_newton_iter) };

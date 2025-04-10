@@ -7,6 +7,7 @@
 
 \usepackage{empheq}
 \usepackage{cancel}
+\sisetup{mode=math}
 
 \allowdisplaybreaks[1]
 
@@ -22,9 +23,12 @@
 \newcommand{\half}{\frac{1}{2}}
 \newcommand{\quart}{\frac{1}{4}}
 \newcommand{\abs}[1]{\left| #1 \right|}
-\newcommand{\Fabs}[1]{F_{abs}(#1)\xspace}  % Continue function for the absolute value
+\newcommand{\Fabs}[1]{F_{\it abs}(#1)\xspace}  % Continue function for the absolute value
 \newcommand{\eps}{\varepsilon}
 \newcommand{\norm}[1]{\left|\left| #1 \right|\right|}
+\newcommand{\bunit}[1]{\text{\normalfont [}\textit{\unit{#1}}\text{\normalfont ]}}
+\newcommand{\bqty}[2]{\text{\num{#1}}\ \text{\normalfont [}\textit{\unit{#2}}\text{\normalfont ]}}
+
 
 \newcommand{\utilde}{\widetilde{u}}
 \newcommand{\ubar}{\overline{u}}

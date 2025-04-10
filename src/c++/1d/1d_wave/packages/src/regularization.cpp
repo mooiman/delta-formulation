@@ -72,10 +72,8 @@ void REGULARIZATION::given_function(std::vector<double>& u_out, std::vector<doub
         }
         int i = 0;
         u0_xixi[i] = u0_xixi[i + 1];
-        //u0_xixi[i+1] = u0_xixi[i + 2];
         i = nx - 1;
         u0_xixi[i] = u0_xixi[i -1];
-        //u0_xixi[i-1] = u0_xixi[i - 2];
         if (u0_xixi_max < 1.001 * m_u0_xixi_smooth) { return; }
 
 //------------------------------------------------------------------------------
@@ -175,7 +173,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     double qbar_im14;
     double qbar_ip14;
 
-    double c_error = 2. * c_psi; //same value as for regularization of given function
+    double c_error = c_psi; //same value as for regularization of given function
     for (int i = 1; i < nx - 1; ++i)
     {
         A.coeffRef(i, i - 1) = m_mass[0] - c_error;
@@ -187,11 +185,11 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         qbar_im14 = 0.25 * (q[i - 1] + 3. * q[i]);
         qbar_ip14 = 0.25 * (q[i + 1] + 3. * q[i]);
 
-        rhs[i] = 4.0 * c_psi * dx * (
-            0.5 * std::sqrt(m_g / hbar_im14) * std::abs(s_xixi[i])
-            + 0.5 * std::sqrt(2.) * std::abs(q_xixi[i] / hbar_im14 - qbar_im14 * h_xixi[i] / (hbar_im14 * hbar_im14))
-            + 0.5 * std::sqrt(m_g / hbar_ip14) * std::abs(s_xixi[i])
-            + 0.5 * std::sqrt(2.) * std::abs(q_xixi[i] / hbar_ip14 - qbar_ip14 * h_xixi[i] / (hbar_ip14 * hbar_ip14))
+        rhs[i] = 32.0 * c_psi * dx * (
+              0.0625 * std::sqrt(m_g / hbar_im14) * std::abs(s_xixi[i])
+            + 0.0625 * std::sqrt(2.) * std::abs(q_xixi[i] / hbar_im14 - qbar_im14 * h_xixi[i] / (hbar_im14 * hbar_im14))
+            + 0.0625 * std::sqrt(m_g / hbar_ip14) * std::abs(s_xixi[i])
+            + 0.0625 * std::sqrt(2.) * std::abs(q_xixi[i] / hbar_ip14 - qbar_ip14 * h_xixi[i] / (hbar_ip14 * hbar_ip14))
             );
     }
     // eq. 19

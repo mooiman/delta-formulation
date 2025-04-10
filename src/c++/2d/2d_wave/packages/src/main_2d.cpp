@@ -1,6 +1,6 @@
 //
 // Programmer: J. Mooiman
-// Date      : 2025-02-20
+// Date      : 2025-04-03
 //
 //
 
@@ -12,6 +12,7 @@
 #include <fstream>
 #include <iomanip>      // std::setprecision
 #include <filesystem>
+#include <thread>
 #include <toml.h>
 #include <string>
 
@@ -66,15 +67,6 @@ int main(int argc, char *argv[])
     exec_file = argv[0];
     exec_dir = exec_file.parent_path();
 
-    current_dir = "./../..";
-    output_dir = exec_dir.string() + "/../../output/";
-    std::filesystem::create_directory(output_dir);
-
-    std::cout << "Executable directory: " << exec_dir << std::endl;
-    std::cout << "Current directory   : " << std::filesystem::absolute(current_dir) << std::endl;
-    std::cout << "Output directory    : " << output_dir << std::endl;
-    std::cout << std::endl;
-
     toml::table tbl;
     toml::table tbl_chp;
 
@@ -102,6 +94,10 @@ int main(int argc, char *argv[])
         current_dir = ".";
         output_dir = ".";
     }
+    std::cout << "Executable       : " << exec_file << std::endl;
+    std::cout << "Current directory: " << std::filesystem::absolute(current_dir) << std::endl;
+    std::cout << "Output directory : " << output_dir << std::endl;
+    std::cout << std::endl;
 
     START_TIMER(Initialization);
     
@@ -122,7 +118,7 @@ int main(int argc, char *argv[])
     log_file.open(log_filename);
     std::cout << "=== Input file =======================================" << std::endl;
     std::cout << "Executable compiled: " << __DATE__ << ", " << __TIME__ << std::endl;
-    std::cout << std::filesystem::absolute(exec_dir) << std::endl;  
+    std::cout << std::filesystem::absolute(exec_file) << std::endl;  
     std::cout << std::filesystem::absolute(toml_file_name) << std::endl;  
     std::cout << "=======================================================" << std::endl;
     log_file << "======================================================" << std::endl;
@@ -658,6 +654,7 @@ int main(int argc, char *argv[])
     obs_stations.push_back(setup_obs_name(x[sw_bnd], y[sw_bnd], nsig, "SW station"));
     obs_stations.push_back(setup_obs_name(x[w_bnd] , y[w_bnd] , nsig, "W station"));
     obs_stations.push_back(setup_obs_name(x[nw_bnd], y[nw_bnd], nsig, "NW station"));
+
     his_file->add_stations(obs_stations, x_obs, y_obs);
     his_file->add_time_series();
 
@@ -706,7 +703,7 @@ int main(int argc, char *argv[])
     }
     
     std::cout << "Start time-loop" << std::endl;
-    std::cout << std::fixed << std::setprecision(2) << "tstart= " << tstart + time << ";   tstop=" << tstart + tstop << ";   dt= " << dt << std::endl;
+    std::cout << std::fixed << std::setprecision(2) << "tstart= " << tstart + time << ";   tstop= " << tstart + tstop << ";   dt= " << dt << std::endl;
 
     STOP_TIMER(Initialization);
     if (total_time_steps <= 1)
@@ -773,6 +770,10 @@ int main(int argc, char *argv[])
         for (int iter = 0; iter < iter_max; ++iter)
         {
             used_newton_iter += 1;
+            if (logging == "iteration")
+            {
+                log_file << "Iteration: " << used_newton_iter << std::endl;
+            }
             if (nst == 1 && iter == 0)
             {
                 START_TIMER(Matrix initialization);
@@ -1224,372 +1225,586 @@ int main(int argc, char *argv[])
             //
             //boundary nodes
             //
-            if (true)  // yes/no boundary
+            if (true)  // nnorth boundary
             {
-                if (true)  // nnorth boundary
+                int j = ny - 1;
+                for (int i = 1; i < nx - 1; ++i)
                 {
-                    int j = ny - 1;
-                    for (int i = 1; i < nx - 1; ++i)
+                    int ph_0 = p_index(i, j, nx);  // continuity equation
+                    int ph_s = p_index(i, j - 1, nx);  // continuity equation
+                    int ph_ss = p_index(i, j - 2, nx);  // continuity equation
+                    int c_eq = 3 * ph_0;
+                    int q_eq = c_eq + 1;
+                    int r_eq = c_eq + 2;
+                    if (bc_type[BC_NORTH] == "dirichlet" || bc_absorbing[BC_NORTH] == false)
                     {
-                        int ph_0 = p_index(i, j, nx);  // continuity equation
-                        int ph_s = p_index(i, j - 1, nx);  // continuity equation
-                        int ph_ss = p_index(i, j - 2, nx);  // continuity equation
-                        int c_eq = 3 * ph_0;
-                        int q_eq = c_eq + 1;
-                        int r_eq = c_eq + 2;
-                        if (bc_type[BC_NORTH] == "dirichlet")
+                        //
+                        // Dirichlet
+                        //
+                        // continuity equation
+                        //
+                        A.coeffRef(c_eq, 3 * ph_s) = -1.0;
+                        A.coeffRef(c_eq, 3 * ph_0) = 1.0;
+                        rhs[c_eq] = 0.0;
+                        //
+                        // q-momentum
+                        //
+                        A.coeffRef(q_eq, 3 * ph_s + 1) = -1.0;
+                        A.coeffRef(q_eq, 3 * ph_0 + 1) = 1.0;
+                        rhs[q_eq] = 0.0;
+                        //
+                        // r-momentum
+                        //
+                        A.coeffRef(r_eq, 3 * ph_s + 2) = 0.5;
+                        A.coeffRef(r_eq, 3 * ph_0 + 2) = 0.5;
+                        rhs[r_eq] = 0.0;
+                    }
+                    else
+                    {
+                        if (bc_absorbing[BC_NORTH])
                         {
-                            //
-                            // Dirichlet
-                            //
-                            // continuity equation
-                            //
-                            A.coeffRef(c_eq, 3 * ph_s) = -1.0;
-                            A.coeffRef(c_eq, 3 * ph_0) = 1.0;
-                            rhs[c_eq] = 0.0;
-                            //
-                            // q-momentum
-                            //
-                            A.coeffRef(q_eq, 3 * ph_s + 1) = -1.0;
-                            A.coeffRef(q_eq, 3 * ph_0 + 1) = 1.0;
-                            rhs[q_eq] = 0.0;
-                            //
-                            // r-momentum
-                            //
-                            A.coeffRef(r_eq, 3 * ph_s + 2) = 0.5;
-                            A.coeffRef(r_eq, 3 * ph_0 + 2) = 0.5;
-                            rhs[r_eq] = 0.0;
-                        }
-                        else
-                        { 
-                            if (bc_absorbing[BC_NORTH])
+                            if (bc_type[BC_NORTH] == "mooiman")
                             {
-                                if (bc_type[BC_NORTH] == "mooiman")
+                                std::cout << "----------------------------" << std::endl;
+                                std::cout << "North boundary: boundary type \"mooiman\" not yet supported" << std::endl;
+                                std::cout << "Press Enter to finish";
+                                std::cin.ignore();
+                                exit(1);
+                            }
+                            else
+                            {
+                                // weakly reflective
+                                hn_i = hn[ph_0];
+                                hn_jm1 = hn[ph_s];
+                                hn_jm12 = 0.5 * (hn_i + hn_jm1);
+
+                                hp_i = hp[ph_0];
+                                hp_jm1 = hp[ph_s];
+                                hp_jm12 = 0.5 * (hp_i + hp_jm1);
+
+                                rn_i = rn[ph_0];
+                                rn_jm1 = rn[ph_s];
+
+                                rp_i = rp[ph_0];
+                                rp_jm1 = rp[ph_s];
+                                rp_jm12 = 0.5 * (rp_i + rp_jm1);
+
+                                rtheta_i = theta * rp_i + (1.0 - theta) * rn_i;
+                                rtheta_jm1 = theta * rp_jm1 + (1.0 - theta) * rn_jm1;
+                                //
+                                // continuity equation
+                                //
+                                double c_wave = std::sqrt(g * hp_jm12);
+                                A.coeffRef(c_eq, 3 * ph_0) = -0.75 * theta * c_wave;
+                                A.coeffRef(c_eq, 3 * ph_s) = -0.75 * theta * c_wave;
+                                // flow flux
+                                A.coeffRef(c_eq, 3 * ph_0 + 2) = 0.5 * theta;
+                                A.coeffRef(c_eq, 3 * ph_s + 2) = 0.5 * theta;
+                                //
+                                rhs[c_eq] = -rp_jm12 + c_wave * hp_jm12 - c_wave * std::abs(zb[i]);
+                                //
+                                // q-momentum
+                                //
+                                A.coeffRef(q_eq, 3 * ph_s + 1) = -1.0;
+                                A.coeffRef(q_eq, 3 * ph_0 + 1) = 1.0;
+                                rhs[q_eq] = 0.0;
+                                if (do_q_convection)
                                 {
                                     int c = 1;
                                 }
-                                else
+                                //
+                                // r-momentum
+                                //
+                                A.coeffRef(r_eq, 3 * ph_0) = +c_wave * 0.5 * dtinv;
+                                A.coeffRef(r_eq, 3 * ph_s) = +c_wave * 0.5 * dtinv;
+                                A.coeffRef(r_eq, 3 * ph_0 + 2) = -c_wave * dy * theta;
+                                A.coeffRef(r_eq, 3 * ph_s + 2) = +c_wave * dy * theta;
+                                rhs[r_eq] = +c_wave * (-dtinv * (hp_jm12 - hn_jm12)
+                                    - dy * rtheta_jm1 + dy * rtheta_i);
+                                if (do_r_convection)
                                 {
-                                    // weakly reflective
-                                    hn_i = hn[ph_0];
-                                    hn_jm1 = hn[ph_s];
-                                    hn_jm12 = 0.5 * (hn_i + hn_jm1);
-
-                                    hp_i = hp[ph_0];
-                                    hp_jm1 = hp[ph_s];
-                                    hp_jm12 = 0.5 * (hp_i + hp_jm1);
-
-                                    rn_i = rn[ph_0];
-                                    rn_jm1 = rn[ph_s];
-
-                                    rp_i = rp[ph_0];
-                                    rp_jm1 = rp[ph_s];
-                                    rp_jm12 = 0.5 * (rp_i + rp_jm1);
-
-                                    rtheta_i = theta * rp_i + (1.0 - theta) * rn_i;
-                                    rtheta_jm1 = theta * rp_jm1 + (1.0 - theta) * rn_jm1;
-                                    //
-                                    // continuity equation
-                                    //
-                                    double c_wave = std::sqrt(g * hp_jm12);
-                                    A.coeffRef(c_eq, 3 * ph_0) = -0.75 * theta * c_wave;
-                                    A.coeffRef(c_eq, 3 * ph_s) = -0.75 * theta * c_wave;
-                                    // flow flux
-                                    A.coeffRef(c_eq, 3 * ph_0 + 2) = 0.5 * theta;
-                                    A.coeffRef(c_eq, 3 * ph_s + 2) = 0.5 * theta;
-                                    //
-                                    rhs[c_eq] = -rp_jm12 + c_wave * hp_jm12 - c_wave * std::abs(zb[i]);
-                                    //
-                                    // q-momentum
-                                    //
-                                    A.coeffRef(q_eq, 3 * ph_s + 1) = -1.0;
-                                    A.coeffRef(q_eq, 3 * ph_0 + 1) = 1.0;
-                                    rhs[q_eq] = 0.0;
-                                    if (do_q_convection)
-                                    {
-                                        int c = 1;
-                                    }
-                                    //
-                                    // r-momentum
-                                    //
-                                    A.coeffRef(r_eq, 3 * ph_0) = +c_wave * 0.5 * dtinv;
-                                    A.coeffRef(r_eq, 3 * ph_s) = +c_wave * 0.5 * dtinv;
-                                    A.coeffRef(r_eq, 3 * ph_0 + 2) = -c_wave * dy * theta;
-                                    A.coeffRef(r_eq, 3 * ph_s + 2) = +c_wave * dy * theta;
-                                    rhs[r_eq] = +c_wave * (-dtinv * (hp_jm12 - hn_jm12)
-                                        - dy * rtheta_jm1 + dy * rtheta_i);
-                                    if (do_r_convection)
-                                    {
-                                        int c = 1;
-                                    }
+                                    int c = 1;
                                 }
                             }
                         }
                     }
                 }
-                if (true)  // eeast boundary
+            }
+            if (true)  // eeast boundary
+            {
+                int i = nx - 1;
+                for (int j = 1; j < ny - 1; ++j)
                 {
-                    int i = nx - 1;
-                    for (int j = 1; j < ny - 1; ++j)
+                    int ph_0 = p_index(i, j, nx);  // continuity equation
+                    int ph_w = p_index(i - 1, j, nx);  // continuity equation
+                    int ph_ww = p_index(i - 2, j, nx);  // continuity equation
+                    int c_eq = 3 * ph_0;
+                    int q_eq = c_eq + 1;
+                    int r_eq = c_eq + 2;
+                    if (bc_type[BC_EAST] == "dirichlet" || bc_absorbing[BC_EAST] == false)
                     {
-                        int ph_0 = p_index(i, j, nx);  // continuity equation
-                        int ph_w = p_index(i - 1, j, nx);  // continuity equation
-                        int ph_ww = p_index(i - 2, j, nx);  // continuity equation
-                        int c_eq = 3 * ph_0;
-                        int q_eq = c_eq + 1;
-                        int r_eq = c_eq + 2;
-                        if (bc_type[BC_EAST] == "dirichlet")
+                        //
+                        // Dirichlet
+                        //
+                        // continuity equation
+                        //
+                        A.coeffRef(c_eq, 3 * ph_w) = -1.0;
+                        A.coeffRef(c_eq, 3 * ph_0) = 1.0;
+                        rhs[c_eq] = 0.0;
+                        //
+                        // q-momentum
+                        //
+                        A.coeffRef(q_eq, 3 * ph_w + 1) = 0.5;
+                        A.coeffRef(q_eq, 3 * ph_0 + 1) = 0.5;
+                        rhs[q_eq] = 0.0;
+                        //
+                        // r-momentum
+                        //
+                        A.coeffRef(r_eq, 3 * ph_w + 2) = -1.0;
+                        A.coeffRef(r_eq, 3 * ph_0 + 2) = 1.0;
+                        rhs[r_eq] = 0.0;
+                    }
+                    else
+                    {
+                        if (bc_absorbing[BC_EAST])
                         {
-                            //
-                            // Dirichlet
-                            //
-                            // continuity equation
-                            //
-                            A.coeffRef(c_eq, 3 * ph_w) = -1.0;
-                            A.coeffRef(c_eq, 3 * ph_0) = 1.0;
-                            rhs[c_eq] = 0.0;
-                            //
-                            // q-momentum
-                            //
-                            A.coeffRef(q_eq, 3 * ph_w + 1) = 0.5;
-                            A.coeffRef(q_eq, 3 * ph_0 + 1) = 0.5;
-                            rhs[q_eq] = 0.0;
-                            //
-                            // r-momentum
-                            //
-                            A.coeffRef(r_eq, 3 * ph_w + 2) = -1.0;
-                            A.coeffRef(r_eq, 3 * ph_0 + 2) = 1.0;
-                            rhs[r_eq] = 0.0;
-                        }
-                        else
-                        {
-                            if (bc_absorbing[BC_EAST])
+                            if (bc_type[BC_EAST] == "mooiman")
                             {
-                                if (bc_type[BC_EAST] == "mooiman")
+                                std::cout << "----------------------------" << std::endl;
+                                std::cout << "East boundary: boundary type \"mooiman\" not yet supported" << std::endl;
+                                std::cout << "Press Enter to finish";
+                                std::cin.ignore();
+                                exit(1);
+                            }
+                            else
+                            {
+                                // Weakly reflective
+                                hn_i = hn[ph_0];
+                                hn_im1 = hn[ph_w];
+                                hn_im2 = hn[ph_ww];
+                                hn_im12 = 0.5 * (hn_i + hn_im1) + 0.5 * alpha_bc * (hn_im2 - 2. * hn_im1 + hn_i);;
+
+                                hp_i = hp[ph_0];
+                                hp_im1 = hp[ph_w];
+                                hp_im2 = hp[ph_ww];
+                                hp_im12 = 0.5 * (hp_i + hp_im1) + 0.5 * alpha_bc * (hp_im2 - 2. * hp_im1 + hp_i);
+
+                                htheta_i = theta * hp_i + (1.0 - theta) * hn_i;
+                                htheta_im1 = theta * hp_im1 + (1.0 - theta) * hn_im1;
+                                htheta_im2 = theta * hp_im2 + (1.0 - theta) * hn_im2;
+                                htheta_im12 = 0.5 * (htheta_i + htheta_im1) + 0.5 * alpha_bc * (htheta_im2 - 2.0 * htheta_im1 + htheta_i);
+
+                                qn_i = qn[ph_0];
+                                qn_im1 = qn[ph_w];
+                                qn_im2 = qn[ph_ww];
+                                qn_im12 = 0.5 * (qn_i + qn_im1) + 0.5 * alpha_bc * (qn_im2 - 2. * qn_im1 + qn_i);
+
+                                qp_i = qp[ph_0];
+                                qp_im1 = qp[ph_w];
+                                qp_im2 = qp[ph_ww];
+                                qp_im12 = 0.5 * (qp_i + qp_im1) + 0.5 * alpha_bc * (qp_im2 - 2. * qp_im1 + qp_i);
+
+                                qtheta_i = theta * qp_i + (1.0 - theta) * qn_i;
+                                qtheta_im1 = theta * qp_im1 + (1.0 - theta) * qn_im1;
+                                qtheta_im12 = 0.5 * (qtheta_im1 + qtheta_i);
+                                //
+                                A.coeffRef(c_eq, 3 * ph_0) = 0.0;
+                                A.coeffRef(c_eq, 3 * ph_w) = 0.0;
+                                A.coeffRef(c_eq, 3 * ph_ww) = 0.0;
+                                // flow flux
+                                A.coeffRef(c_eq, 3 * ph_0 + 1) = 0.0;
+                                A.coeffRef(c_eq, 3 * ph_w + 1) = 0.0;
+                                A.coeffRef(c_eq, 3 * ph_ww + 1) = 0.0;
+                                //
+                                A.coeffRef(c_eq, 3 * ph_0 + 2) = 0.0;
+                                A.coeffRef(c_eq, 3 * ph_w + 2) = 0.0;
+                                A.coeffRef(c_eq, 3 * ph_ww + 2) = 0.0;
+                                //
+                                rhs[c_eq] = 0.0;
+                                //
+                                //  Essential boundary condition
+                                //
+                                double h_infty = std::abs(0.5 * (zb[ph_w] + zb[ph_0]));
+                                double c_wave = std::sqrt(g * h_infty);
+                                A.coeffRef(c_eq, 3 * ph_ww) = -0.75 * w_nat[2] * theta * c_wave;
+                                A.coeffRef(c_eq, 3 * ph_w) = -0.75 * w_nat[1] * theta * c_wave;
+                                A.coeffRef(c_eq, 3 * ph_0) = -0.75 * w_nat[0] * theta * c_wave;
+                                // flow flux
+                                A.coeffRef(c_eq, 3 * ph_ww + 1) = 0.5 * w_nat[2] * theta;
+                                A.coeffRef(c_eq, 3 * ph_w + 1) = 0.5 * w_nat[1] * theta;
+                                A.coeffRef(c_eq, 3 * ph_0 + 1) = 0.5 * w_nat[0] * theta;
+                                //
+                                rhs[c_eq] = -qp_im12 + c_wave * hp_im12 - c_wave * h_infty;
+                                //
+                                // Natural boundary condition (q-momentum part)
+                                //
+                                A.coeffRef(q_eq, 3 * ph_0) = 0.0;
+                                A.coeffRef(q_eq, 3 * ph_w) = 0.0;
+                                A.coeffRef(q_eq, 3 * ph_ww) = 0.0;
+                                //
+                                A.coeffRef(q_eq, 3 * ph_0 + 1) = 0.0;
+                                A.coeffRef(q_eq, 3 * ph_w + 1) = 0.0;
+                                A.coeffRef(q_eq, 3 * ph_w + 1) = 0.0;
+                                //
+                                A.coeffRef(q_eq, 3 * ph_0 + 2) = 0.0;
+                                A.coeffRef(q_eq, 3 * ph_w + 2) = 0.0;
+                                A.coeffRef(q_eq, 3 * ph_ww + 2) = 0.0;
+                                //
+                                rhs[q_eq] = 0.0;
+                                //
+                                // q-momentum + c_wave * continuity
+                                //
+                                double mom_q_fac = 1.0;
+                                double mom_r_fac = 0.0;
+                                double con_fac = c_wave;
+                                //
+                                // q-momentum part
+                                //
+                                A.coeffRef(q_eq, 3 * ph_ww + 1) = mom_q_fac * 0.5 * dtinv * alpha_bc;
+                                A.coeffRef(q_eq, 3 * ph_w + 1) = mom_q_fac * 0.5 * dtinv * w_nat[1];
+                                A.coeffRef(q_eq, 3 * ph_0 + 1) = mom_q_fac * 0.5 * dtinv * w_nat[0];
+                                A.coeffRef(q_eq, 3 * ph_w) = mom_q_fac * dy * -dxinv * 0.5 * theta * g * htheta_im12;
+                                A.coeffRef(q_eq, 3 * ph_0) = mom_q_fac * dy * dxinv * 0.5 * theta * g * htheta_im12;
+                                rhs[q_eq] = mom_q_fac * (
+                                    -dtinv * 0.5 * (qp_i - qn_i) * w_nat[0]
+                                    - dtinv * 0.5 * (qp_im1 - qn_im1) * w_nat[1]
+                                    - dtinv * 0.5 * (qp_im2 - qn_im2) * alpha_bc
+                                    - dy * dxinv * g * htheta_im12 * (htheta_i - htheta_im1)
+                                    );
+                                if (do_q_convection)
                                 {
                                     int c = 1;
                                 }
-                                else
+                                //
+                                // r-momentum
+                                //
+                                A.coeffRef(r_eq, 3 * ph_w + 2) = -1.0;
+                                A.coeffRef(r_eq, 3 * ph_0 + 2) = 1.0;
+                                rhs[r_eq] = 0.0;
+                                if (do_r_convection)
                                 {
-                                    // Weakly reflective
-                                    hn_i = hn[ph_0];
-                                    hn_im1 = hn[ph_w];
-                                    hn_im2 = hn[ph_ww];
-                                    hn_im12 = 0.5 * (hn_i + hn_im1) + 0.5 * alpha_bc * (hn_im2 - 2. * hn_im1 + hn_i);;
+                                    int c = 1;
+                                }
+                                //
+                                // Natural boundary condition (continuity part added and multiplied by +c_wave)
+                                //
+                                A.coeffRef(q_eq, ph_ww) += con_fac * 0.5 * dtinv * w_nat[2];
+                                A.coeffRef(q_eq, ph_w) += con_fac * 0.5 * dtinv * w_nat[1];
+                                A.coeffRef(q_eq, ph_0) += con_fac * 0.5 * dtinv * w_nat[0];
+                                // flow flux
+                                A.coeffRef(q_eq, ph_w + 1) += con_fac * dy * -dxinv * theta;
+                                A.coeffRef(q_eq, ph_0 + 1) += con_fac * dy * dxinv * theta;
+                                // rhs
+                                rhs[q_eq] += con_fac * (
+                                    -dtinv * 0.5 * (hp_i - hn_i) * w_nat[0]
+                                    - dtinv * 0.5 * (hp_im1 - hn_im1) * w_nat[1]
+                                    - dtinv * 0.5 * (hp_im2 - hn_im2) * w_nat[2]
+                                    - dy * dxinv * (qtheta_i - qtheta_im1)
+                                    );
+                            }
+                        }
+                    }
+                }
+            }
+            if (true)  // ssouth boundary
+            {
+                int j = 0;
+                for (int i = 1; i < nx - 1; ++i)
+                {
+                    int ph_0 = p_index(i, j, nx);  // continuity equation
+                    int ph_n = p_index(i, j + 1, nx);  // continuity equation
+                    int ph_nn = p_index(i, j + 2, nx);  // continuity equation
+                    int c_eq = 3 * ph_0;
+                    int q_eq = c_eq + 1;
+                    int r_eq = c_eq + 2;
+                    if (bc_type[BC_SOUTH] == "dirichlet" || bc_absorbing[BC_SOUTH] == false)
+                    {
+                        //
+                        // Dirichlet
+                        //
+                        // continuity equation
+                        //
+                        A.coeffRef(c_eq, 3 * ph_n) = 1.0;
+                        A.coeffRef(c_eq, 3 * ph_0) = -1.0;
+                        rhs[c_eq] = 0.0;
+                        //
+                        // q-momentum
+                        //
+                        A.coeffRef(q_eq, 3 * ph_n + 1) = 1.0;
+                        A.coeffRef(q_eq, 3 * ph_0 + 1) = -1.0;
+                        rhs[q_eq] = 0.0;
+                        //
+                        // r-momentum
+                        //
+                        A.coeffRef(r_eq, 3 * ph_n + 2) = 0.5;
+                        A.coeffRef(r_eq, 3 * ph_0 + 2) = 0.5;
+                        rhs[r_eq] = 0.0;
+                    }
+                    else
+                    {
+                        if (bc_absorbing[BC_SOUTH])
+                        {
+                            if (bc_type[BC_SOUTH] == "mooiman")
+                            {
+                                std::cout << "----------------------------" << std::endl;
+                                std::cout << "South boundary: boundary type \"mooiman\" not yet supported" << std::endl;
+                                std::cout << "Press Enter to finish";
+                                std::cin.ignore();
+                                exit(1);
+                            }
+                            else
+                            {
+                                // Weakly reflective
+                                hn_i = hn[ph_0];
+                                hn_jp1 = hn[ph_n];
+                                hn_jp12 = 0.5 * (hn_i + hn_jp1);
 
-                                    hp_i = hp[ph_0];
-                                    hp_im1 = hp[ph_w];
-                                    hp_im2 = hp[ph_ww];
-                                    hp_im12 = 0.5 * (hp_i + hp_im1) + 0.5 * alpha_bc * (hp_im2 - 2. * hp_im1 + hp_i);
+                                hp_i = hp[ph_0];
+                                hp_jp1 = hp[ph_n];
+                                hp_jp12 = 0.5 * (hp_i + hp_jp1);
 
-                                    htheta_i = theta * hp_i + (1.0 - theta) * hn_i;
-                                    htheta_im1 = theta * hp_im1 + (1.0 - theta) * hn_im1;
-                                    htheta_im2 = theta * hp_im2 + (1.0 - theta) * hn_im2;
-                                    htheta_im12 = 0.5 * (htheta_i + htheta_im1) + 0.5 * alpha_bc * (htheta_im2 - 2.0 * htheta_im1 + htheta_i);
+                                rn_i = rn[ph_0];
+                                rn_jp1 = rn[ph_n];
 
-                                    qn_i = qn[ph_0];
-                                    qn_im1 = qn[ph_w];
-                                    qn_im2 = qn[ph_ww];
-                                    qn_im12 = 0.5 * (qn_i + qn_im1) + 0.5 * alpha_bc * (qn_im2 - 2. * qn_im1 + qn_i);
+                                rp_i = rp[ph_0];
+                                rp_jp1 = rp[ph_n];
+                                rp_jp12 = 0.5 * (rp_i + rp_jp1);
 
-                                    qp_i = qp[ph_0];
-                                    qp_im1 = qp[ph_w];
-                                    qp_im2 = qp[ph_ww];
-                                    qp_im12 = 0.5 * (qp_i + qp_im1) + 0.5 * alpha_bc * (qp_im2 - 2. * qp_im1 + qp_i);
+                                rtheta_i = theta * rp_i + (1.0 - theta) * rn_i;
+                                rtheta_jp1 = theta * rp_jp1 + (1.0 - theta) * rn_jp1;
+                                // 
+                                // continuity equation
+                                //
+                                double c_wave = std::sqrt(g * hp_jp12);
+                                A.coeffRef(c_eq, 3 * ph_0) = 0.75 * theta * c_wave;
+                                A.coeffRef(c_eq, 3 * ph_n) = 0.75 * theta * c_wave;
+                                // flow flux
+                                A.coeffRef(c_eq, 3 * ph_0 + 2) = 0.5 * theta;
+                                A.coeffRef(c_eq, 3 * ph_n + 2) = 0.5 * theta;
+                                //
+                                rhs[c_eq] = -rp_jp12 - c_wave * hp_jp12 + c_wave * std::abs(zb[i]);
+                                //
+                                // q-momentum
+                                //
+                                A.coeffRef(q_eq, 3 * ph_n + 1) = 1.0;
+                                A.coeffRef(q_eq, 3 * ph_0 + 1) = -1.0;
+                                rhs[q_eq] = 0.0;
+                                if (do_q_convection)
+                                {
+                                    int c = 1;
+                                }
+                                //
+                                // r-momentum
+                                //
+                                A.coeffRef(r_eq, 3 * ph_0) = -c_wave * 0.5 * dtinv;
+                                A.coeffRef(r_eq, 3 * ph_n) = -c_wave * 0.5 * dtinv;
+                                A.coeffRef(r_eq, 3 * ph_0 + 2) = c_wave * dy * theta;
+                                A.coeffRef(r_eq, 3 * ph_n + 2) = -c_wave * dy * theta;
+                                rhs[r_eq] = -c_wave * (-dtinv * (hp_jp12 - hn_jp12)
+                                    - dy * rtheta_jp1 + dy * rtheta_i);
+                                if (do_r_convection)
+                                {
+                                    int c = 1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (true)  // wwest boundary(2D)
+            {
+                int i = 0;
+                for (int j = 1; j < ny - 1; ++j)
+                {
+                    int ph_0  = p_index(i    , j, nx);  // continuity equation
+                    int ph_e  = p_index(i + 1, j, nx);  // q-momentum equation
+                    int ph_ee = p_index(i + 2, j, nx);  // r-momentum equation
+                    int c_eq = 3 * ph_0;
+                    int q_eq = c_eq + 1;
+                    int r_eq = c_eq + 2;
+                    if (bc_type[BC_WEST] == "dirichlet" || bc_absorbing[BC_WEST] == false)
+                    {
+                        //
+                        // Dirichlet
+                        //
+                        // continuity equation
+                        //
+                        A.coeffRef(c_eq, 3 * ph_0) = -1.0;
+                        A.coeffRef(c_eq, 3 * ph_e) = 1.0;
+                        rhs[c_eq] = 0.0;
+                        //
+                        // q-momentum
+                        //
+                        A.coeffRef(q_eq, 3 * ph_0 + 1) = 0.5;
+                        A.coeffRef(q_eq, 3 * ph_e + 1) = 0.5;
+                        rhs[q_eq] = 0.0;
+                        //
+                        // r-momentum
+                        //
+                        A.coeffRef(r_eq, 3 * ph_0 + 2) = -1.0;
+                        A.coeffRef(r_eq, 3 * ph_e + 2) = 1.0;
+                        rhs[r_eq] = 0.0;
+                    }
+                    else
+                    {
+                        if (bc_absorbing[BC_WEST])
+                        {
+                            if (bc_type[BC_WEST] == "mooiman")
+                            {
+                                std::cout << "----------------------------" << std::endl;
+                                std::cout << "West boundary: boundary type \"mooiman\" not yet supported" << std::endl;
+                                std::cout << "Press Enter to finish";
+                                std::cin.ignore();
+                                exit(1);
+                            }
+                            else
+                            {
+                                // Weakly reflective
+                                w_ess[0] = w_nat[0];
+                                w_ess[1] = w_nat[1];
+                                w_ess[2] = w_nat[2];
 
-                                    qtheta_i = theta * qp_i + (1.0 - theta) * qn_i;
-                                    qtheta_im1 = theta * qp_im1 + (1.0 - theta) * qn_im1;
-                                    qtheta_im12 = 0.5 * (qtheta_im1 + qtheta_i);
+                                hn_i = hn[ph_0];
+                                hn_ip1 = hn[ph_e];
+                                hn_ip2 = hn[ph_ee];
+                                hp_i = hp[ph_0];
+                                hp_ip1 = hp[ph_e];
+                                hp_ip2 = hp[ph_ee];
+                                htheta_i = theta * hp_i + (1.0 - theta) * hn_i;
+                                htheta_ip1 = theta * hp_ip1 + (1.0 - theta) * hn_ip1;
+                                htheta_ip2 = theta * hp_ip2 + (1.0 - theta) * hn_ip2;
+
+                                hn_ip12 = w_ess[0] * hn_i + w_ess[1] * hn_ip1 + w_ess[2] * hn_ip2;
+                                hp_ip12 = w_ess[0] * hp_i + w_ess[1] * hp_ip1 + w_ess[2] * hp_ip2;
+                                htheta_ip12 = w_ess[0] * htheta_i + w_ess[1] * htheta_ip1 + w_ess[2] * htheta_ip2;
+
+                                qn_i = qn[ph_0];
+                                qn_ip1 = qn[ph_e];
+                                qn_ip2 = qn[ph_ee];
+                                qp_i = qp[ph_0];
+                                qp_ip1 = qp[ph_e];
+                                qp_ip2 = qp[ph_ee];
+                                qtheta_i = theta * qp_i + (1.0 - theta) * qn_i;
+                                qtheta_ip1 = theta * qp_ip1 + (1.0 - theta) * qn_ip1;
+                                qtheta_ip2 = theta * qp_ip2 + (1.0 - theta) * qn_ip2;
+
+                                qn_ip12 = w_ess[0] * qn_i + w_ess[1] * qn_ip1 + w_ess[2] * qn_ip2;
+                                qp_ip12 = w_ess[0] * qp_i + w_ess[1] * qp_ip1 + w_ess[2] * qp_ip2;
+                                qtheta_ip12 = w_ess[0] * qtheta_i + w_ess[1] * qtheta_ip1 + w_ess[2] * qtheta_ip2;
+
+                                rn_i = rn[ph_0];
+                                rn_ip1 = rn[ph_e];
+                                rn_ip2 = rn[ph_ee];
+                                rp_i = rp[ph_0];
+                                rp_ip1 = rp[ph_e];
+                                rp_ip2 = rp[ph_ee];
+                                rtheta_i = theta * rp_i + (1.0 - theta) * rn_i;
+                                rtheta_ip1 = theta * rp_ip1 + (1.0 - theta) * rn_ip1;
+                                rtheta_ip2 = theta * rp_ip2 + (1.0 - theta) * rn_ip2;
+
+                                rn_ip12 = w_ess[0] * rn_i + w_ess[1] * rn_ip1 + w_ess[2] * rn_ip2;
+                                rp_ip12 = w_ess[0] * rp_i + w_ess[1] * rp_ip1 + w_ess[2] * rp_ip2;
+                                rtheta_ip12 = w_ess[0] * rtheta_i + w_ess[1] * rtheta_ip1 + w_ess[2] * rtheta_ip2;
+                                //
+                                // Essential boundary condition
+                                //
+                                double zb_ip12 = w_ess[0] * zb[i] + w_ess[1] * zb[i + 1] + w_ess[2] * zb[i + 2];;
+                                double h_infty = -zb_ip12;
+                                double c_wave = std::sqrt(g * h_infty);
+                                if (bc_absorbing[BC_WEST])
+                                {
+                                    // weakly reflective 
                                     //
-                                    A.coeffRef(c_eq, 3 * ph_0) = 0.0;
-                                    A.coeffRef(c_eq, 3 * ph_w) = 0.0;
-                                    A.coeffRef(c_eq, 3 * ph_ww) = 0.0;
+                                    A.coeffRef(c_eq, 3 * ph_0) = 0.5 * w_nat[0] * theta * c_wave;
+                                    A.coeffRef(c_eq, 3 * ph_e) = 0.5 * w_nat[1] * theta * c_wave;
+                                    A.coeffRef(c_eq, 3 * ph_ee) = 0.5 * w_nat[2] * theta * c_wave;
                                     // flow flux
-                                    A.coeffRef(c_eq, 3 * ph_0 + 1) = 0.0;
-                                    A.coeffRef(c_eq, 3 * ph_w + 1) = 0.0;
-                                    A.coeffRef(c_eq, 3 * ph_ww + 1) = 0.0;
-                                    //
-                                    A.coeffRef(c_eq, 3 * ph_0 + 2) = 0.0;
-                                    A.coeffRef(c_eq, 3 * ph_w + 2) = 0.0;
-                                    A.coeffRef(c_eq, 3 * ph_ww + 2) = 0.0;
-                                    //
-                                    rhs[c_eq] = 0.0;
-                                    //
-                                    //  Essential boundary condition
-                                    //
-                                    double h_infty = std::abs(0.5 * (zb[ph_w] + zb[ph_0]));
-                                    double c_wave = std::sqrt(g * h_infty);
-                                    A.coeffRef(c_eq, 3 * ph_ww) = -0.75 * w_nat[2] * theta * c_wave;
-                                    A.coeffRef(c_eq, 3 * ph_w) = -0.75 * w_nat[1] * theta * c_wave;
-                                    A.coeffRef(c_eq, 3 * ph_0) = -0.75 * w_nat[0] * theta * c_wave;
-                                    // flow flux
-                                    A.coeffRef(c_eq, 3 * ph_ww + 1) = 0.5 * w_nat[2] * theta;
-                                    A.coeffRef(c_eq, 3 * ph_w + 1) = 0.5 * w_nat[1] * theta;
                                     A.coeffRef(c_eq, 3 * ph_0 + 1) = 0.5 * w_nat[0] * theta;
+                                    A.coeffRef(c_eq, 3 * ph_e + 1) = 0.5 * w_nat[1] * theta;
+                                    A.coeffRef(c_eq, 3 * ph_ee + 1) = 0.5 * w_nat[2] * theta;
                                     //
-                                    rhs[c_eq] = -qp_im12 + c_wave * hp_im12 - c_wave * h_infty;
+                                    rhs[c_eq] = -qtheta_ip12 - c_wave * (htheta_ip12 - h_infty);
                                     //
-                                    // Natural boundary condition (q-momentum part)
+                                    // Natural boundary condition
                                     //
+                                    // on the q-momentum row
                                     A.coeffRef(q_eq, 3 * ph_0) = 0.0;
-                                    A.coeffRef(q_eq, 3 * ph_w) = 0.0;
-                                    A.coeffRef(q_eq, 3 * ph_ww) = 0.0;
-                                    //
+                                    A.coeffRef(q_eq, 3 * ph_e) = 0.0;
+                                    A.coeffRef(q_eq, 3 * ph_ee) = 0.0;
+                                    // flow flux
                                     A.coeffRef(q_eq, 3 * ph_0 + 1) = 0.0;
-                                    A.coeffRef(q_eq, 3 * ph_w + 1) = 0.0;
-                                    A.coeffRef(q_eq, 3 * ph_w + 1) = 0.0;
+                                    A.coeffRef(q_eq, 3 * ph_e + 1) = 0.0;
+                                    A.coeffRef(q_eq, 3 * ph_ee + 1) = 0.0;
                                     //
                                     A.coeffRef(q_eq, 3 * ph_0 + 2) = 0.0;
-                                    A.coeffRef(q_eq, 3 * ph_w + 2) = 0.0;
-                                    A.coeffRef(q_eq, 3 * ph_ww + 2) = 0.0;
+                                    A.coeffRef(q_eq, 3 * ph_e + 2) = 0.0;
+                                    A.coeffRef(q_eq, 3 * ph_ee + 2) = 0.0;
                                     //
                                     rhs[q_eq] = 0.0;
                                     //
-                                    // q-momentum + c_wave * continuity
+                                    // q-momentum - c_wave * continuity
+                                    // 
+                                    double mom_fac = 1.0;
+                                    double con_fac = -c_wave;
                                     //
-                                    double mom_q_fac = 1.0;
-                                    double mom_r_fac = 0.0;
-                                    double con_fac = c_wave;
+                                    // continuity part, Natural boundary condition
                                     //
-                                    // q-momentum part
+                                    A.coeffRef(q_eq, 3 * ph_0) += con_fac * 0.5 * dtinv * w_nat[0];
+                                    A.coeffRef(q_eq, 3 * ph_e) += con_fac * 0.5 * dtinv * w_nat[1];
+                                    A.coeffRef(q_eq, 3 * ph_ee) += con_fac * 0.5 * dtinv * w_nat[2];
+                                    // flow flux
+                                    A.coeffRef(q_eq, 3 * ph_0 + 1) += con_fac * -dxinv * theta;
+                                    A.coeffRef(q_eq, 3 * ph_e + 1) += con_fac * dxinv * theta;
+                                    A.coeffRef(q_eq, 3 * ph_e + 1) += 0.0;
                                     //
-                                    A.coeffRef(q_eq, 3 * ph_ww + 1) = mom_q_fac * 0.5 * dtinv * w_nat[2];
-                                    A.coeffRef(q_eq, 3 * ph_w + 1) = mom_q_fac * 0.5 * dtinv * w_nat[1];
-                                    A.coeffRef(q_eq, 3 * ph_0 + 1) = mom_q_fac * 0.5 * dtinv * w_nat[0];
-                                    A.coeffRef(q_eq, 3 * ph_w) = mom_q_fac * dy * -dxinv * 0.5 * theta * g * htheta_im12;
-                                    A.coeffRef(q_eq, 3 * ph_0) = mom_q_fac * dy * dxinv * 0.5 * theta * g * htheta_im12;
-                                    rhs[q_eq] = mom_q_fac * (
-                                        -dtinv * 0.5 * (qp_i - qn_i) * w_nat[0]
-                                        - dtinv * 0.5 * (qp_im1 - qn_im1) * w_nat[1]
-                                        - dtinv * 0.5 * (qp_im2 - qn_im2) * w_nat[2]
-                                        - dy * dxinv * g * htheta_im12 * (htheta_i - htheta_im1)
+                                    rhs[q_eq] += con_fac * (
+                                        -dtinv * 0.5 * (hp_i - hn_i) * w_nat[0]
+                                        - dtinv * 0.5 * (hp_ip1 - hn_ip1) * w_nat[1]
+                                        - dtinv * 0.5 * (hp_ip2 - hn_ip2) * w_nat[2]
+                                        - dxinv * (qtheta_ip1 - qtheta_i)
+                                        );
+                                    //
+                                    // q-momentum part, Natural boundary condition
+                                    //
+                                    A.coeffRef(q_eq, 3 * ph_0) += 0.5 * w_nat[0] * dxinv * g * theta * (htheta_ip1 + zb[ph_e] - htheta_i - zb[ph_0]) - dxinv * theta * g * htheta_ip12;
+                                    A.coeffRef(q_eq, 3 * ph_e) += 0.5 * w_nat[1] * dxinv * g * theta * (htheta_ip1 + zb[ph_e] - htheta_i - zb[ph_0]) + dxinv * theta * g * htheta_ip12;
+                                    A.coeffRef(q_eq, 3 * ph_ee) += 0.5 * w_nat[2] * dxinv * g * theta * (htheta_ip1 + zb[ph_e] - htheta_i - zb[ph_0]);
+
+                                    A.coeffRef(q_eq, 3 * ph_0 + 1) += 0.5 * w_nat[0] * dtinv;
+                                    A.coeffRef(q_eq, 3 * ph_e + 1) += 0.5 * w_nat[1] * dtinv;
+                                    A.coeffRef(q_eq, 3 * ph_ee + 1) += 0.5 * w_nat[2] * dtinv;
+
+                                    rhs[q_eq] += -(
+                                        +dtinv * 0.5 * (qp_i - qn_i) * w_nat[0]
+                                        + dtinv * 0.5 * (qp_ip1 - qn_ip1) * w_nat[1]
+                                        + dtinv * 0.5 * (qp_ip2 - qn_ip2) * w_nat[2]
+                                        + dxinv * g * htheta_ip12 * (htheta_ip1 + zb[ph_e] - htheta_i - zb[ph_0])
                                         );
                                     if (do_q_convection)
                                     {
                                         int c = 1;
                                     }
                                     //
-                                    // r-momentum
+                                    // r-momentum, tangential to boundary (dr/dt ... = 0) Natural boundary condition)
                                     //
-                                    A.coeffRef(r_eq, 3 * ph_w + 2) = -1.0;
-                                    A.coeffRef(r_eq, 3 * ph_0 + 2) = 1.0;
-                                    rhs[r_eq] = 0.0;
-                                    if (do_r_convection)
-                                    {
-                                        int c = 1;
-                                    }
-                                    //
-                                    // Natural boundary condition (continuity part added and multiplied by +c_wave)
-                                    //
-                                    A.coeffRef(q_eq, ph_ww) += con_fac * 0.5 * dtinv * w_nat[2];
-                                    A.coeffRef(q_eq, ph_w) += con_fac * 0.5 * dtinv * w_nat[1];
-                                    A.coeffRef(q_eq, ph_0) += con_fac * 0.5 * dtinv * w_nat[0];
+                                    // on the r-momentum row
+                                    A.coeffRef(r_eq, 3 * ph_0) = 0.0;
+                                    A.coeffRef(r_eq, 3 * ph_e) = 0.0;
+                                    A.coeffRef(r_eq, 3 * ph_ee) = 0.0;
                                     // flow flux
-                                    A.coeffRef(q_eq, ph_w + 1) += con_fac * dy * -dxinv * theta;
-                                    A.coeffRef(q_eq, ph_0 + 1) += con_fac * dy * dxinv * theta;
-                                    // rhs
-                                    rhs[q_eq] += con_fac * (
-                                        - dtinv * 0.5 * (hp_i - hn_i) * w_nat[0]
-                                        - dtinv * 0.5 * (hp_im1 - hn_im1) * w_nat[1]
-                                        - dtinv * 0.5 * (hp_im2 - hn_im2) * w_nat[2]
-                                        - dy * dxinv * (qtheta_i - qtheta_im1));
-                                }
-                            }
-                        }
-                    }
-                }
-                if (true)  // ssouth boundary
-                {
-                    int j = 0;
-                    for (int i = 1; i < nx - 1; ++i)
-                    {
-                        int ph_0 = p_index(i, j, nx);  // continuity equation
-                        int ph_n = p_index(i, j + 1, nx);  // continuity equation
-                        int ph_nn = p_index(i, j + 2, nx);  // continuity equation
-                        int c_eq = 3 * ph_0;
-                        int q_eq = c_eq + 1;
-                        int r_eq = c_eq + 2;
-                        if (bc_type[BC_SOUTH] == "dirichlet")
-                        {
-                            //
-                            // Dirichlet
-                            //
-                            // continuity equation
-                            //
-                            A.coeffRef(c_eq, 3 * ph_n) = 1.0;
-                            A.coeffRef(c_eq, 3 * ph_0) = -1.0;
-                            rhs[c_eq] = 0.0;
-                            //
-                            // q-momentum
-                            //
-                            A.coeffRef(q_eq, 3 * ph_n + 1) = 1.0;
-                            A.coeffRef(q_eq, 3 * ph_0 + 1) = -1.0;
-                            rhs[q_eq] = 0.0;
-                            //
-                            // r-momentum
-                            //
-                            A.coeffRef(r_eq, 3 * ph_n + 2) = 0.5;
-                            A.coeffRef(r_eq, 3 * ph_0 + 2) = 0.5;
-                            rhs[r_eq] = 0.0;
-                        }
-                        else
-                        {
-                            if (bc_absorbing[BC_SOUTH])
-                            {
-                                if (bc_type[BC_SOUTH] == "mooiman")
-                                {
-                                    int c = 1;
-                                }
-                                else
-                                {
-                                    // Weakly reflective
-                                    hn_i = hn[ph_0];
-                                    hn_jp1 = hn[ph_n];
-                                    hn_jp12 = 0.5 * (hn_i + hn_jp1);
+                                    A.coeffRef(r_eq, 3 * ph_0 + 1) = 0.0;
+                                    A.coeffRef(r_eq, 3 * ph_e + 1) = 0.0;
+                                    A.coeffRef(r_eq, 3 * ph_ee + 1) = 0.0;
+                                    //
+                                    A.coeffRef(r_eq, 3 * ph_0 + 2) = -theta * w_nat[0];
+                                    A.coeffRef(r_eq, 3 * ph_e + 2) = theta * w_nat[1];
+                                    A.coeffRef(r_eq, 3 * ph_ee + 2) = 0.0;
 
-                                    hp_i = hp[ph_0];
-                                    hp_jp1 = hp[ph_n];
-                                    hp_jp12 = 0.5 * (hp_i + hp_jp1);
+                                    rhs[r_eq] = -(rtheta_ip1 - rtheta_i);
 
-                                    rn_i = rn[ph_0];
-                                    rn_jp1 = rn[ph_n];
-
-                                    rp_i = rp[ph_0];
-                                    rp_jp1 = rp[ph_n];
-                                    rp_jp12 = 0.5 * (rp_i + rp_jp1);
-
-                                    rtheta_i = theta * rp_i + (1.0 - theta) * rn_i;
-                                    rtheta_jp1 = theta * rp_jp1 + (1.0 - theta) * rn_jp1;
-                                    // 
-                                    // continuity equation
-                                    //
-                                    double c_wave = std::sqrt(g * hp_jp12);
-                                    A.coeffRef(c_eq, 3 * ph_0) = 0.75 * theta * c_wave;
-                                    A.coeffRef(c_eq, 3 * ph_n) = 0.75 * theta * c_wave;
-                                    // flow flux
-                                    A.coeffRef(c_eq, 3 * ph_0 + 2) = 0.5 * theta;
-                                    A.coeffRef(c_eq, 3 * ph_n + 2) = 0.5 * theta;
-                                    //
-                                    rhs[c_eq] = -rp_jp12 - c_wave * hp_jp12 + c_wave * std::abs(zb[i]);
-                                    //
-                                    // q-momentum
-                                    //
-                                    A.coeffRef(q_eq, 3 * ph_n + 1) = 1.0;
-                                    A.coeffRef(q_eq, 3 * ph_0 + 1) = -1.0;
-                                    rhs[q_eq] = 0.0;
-                                    if (do_q_convection)
-                                    {
-                                        int c = 1;
-                                    }
-                                    //
-                                    // r-momentum
-                                    //
-                                    A.coeffRef(r_eq, 3 * ph_0) = -c_wave * 0.5 * dtinv;
-                                    A.coeffRef(r_eq, 3 * ph_n) = -c_wave * 0.5 * dtinv;
-                                    A.coeffRef(r_eq, 3 * ph_0 + 2) = c_wave * dy * theta;
-                                    A.coeffRef(r_eq, 3 * ph_n + 2) = -c_wave * dy * theta;
-                                    rhs[r_eq] = -c_wave * (-dtinv * (hp_jp12 - hn_jp12)
-                                        - dy * rtheta_jp1 + dy * rtheta_i);
+                                    //A.coeffRef(r_eq, 3 * ph + 2) = -1.0;
+                                    //A.coeffRef(r_eq, 3 * ph_e + 2) = 1.0;
+                                    //rhs[3 * ph + 2] = 0.0;
                                     if (do_r_convection)
                                     {
                                         int c = 1;
@@ -1599,374 +1814,90 @@ int main(int argc, char *argv[])
                         }
                     }
                 }
-                if (true)  // wwest boundary(2D)
-                {
-                    int i = 0;
-                    for (int j = 1; j < ny - 1; ++j)
-                    {
-                        int ph_0  = p_index(i    , j, nx);  // continuity equation
-                        int ph_e  = p_index(i + 1, j, nx);  // q-momentum equation
-                        int ph_ee = p_index(i + 2, j, nx);  // r-momentum equation
-                        int c_eq = 3 * ph_0;
-                        int q_eq = c_eq + 1;
-                        int r_eq = c_eq + 2;
-
-                        w_ess[0] = w_nat[0];
-                        w_ess[1] = w_nat[1];
-                        w_ess[2] = w_nat[2];
-
-                        hn_i = hn[ph_0];
-                        hn_ip1 = hn[ph_e];
-                        hn_ip2 = hn[ph_ee];
-                        hp_i = hp[ph_0];
-                        hp_ip1 = hp[ph_e];
-                        hp_ip2 = hp[ph_ee];
-                        htheta_i = theta * hp_i + (1.0 - theta) * hn_i;
-                        htheta_ip1 = theta * hp_ip1 + (1.0 - theta) * hn_ip1;
-                        htheta_ip2 = theta * hp_ip2 + (1.0 - theta) * hn_ip2;
-
-                        qn_i = qn[ph_0];
-                        qn_ip1 = qn[ph_e];
-                        qn_ip2 = qn[ph_ee];
-                        qp_i = qp[ph_0];
-                        qp_ip1 = qp[ph_e];
-                        qp_ip2 = qp[ph_ee];
-                        qtheta_i = theta * qp_i + (1.0 - theta) * qn_i;
-                        qtheta_ip1 = theta * qp_ip1 + (1.0 - theta) * qn_ip1;
-                        qtheta_ip2 = theta * qp_ip2 + (1.0 - theta) * qn_ip2;
-
-                        rn_i = rn[ph_0];
-                        rn_ip1 = rn[ph_e];
-                        rn_ip2 = rn[ph_ee];
-                        rp_i = rp[ph_0];
-                        rp_ip1 = rp[ph_e];
-                        rp_ip2 = rp[ph_ee];
-                        rtheta_i = theta * rp_i + (1.0 - theta) * rn_i;
-                        rtheta_ip1 = theta * rp_ip1 + (1.0 - theta) * rn_ip1;
-                        rtheta_ip2 = theta * rp_ip2 + (1.0 - theta) * rn_ip2;
-
-                        hn_ip12 = w_ess[0] * hn_i + w_ess[1] * hn_ip1 + w_ess[2] * hn_ip2;
-                        hp_ip12 = w_ess[0] * hp_i + w_ess[1] * hp_ip1 + w_ess[2] * hp_ip2;
-                        htheta_ip12 = w_ess[0] * htheta_i + w_ess[1] * htheta_ip1 + w_ess[2] * htheta_ip2;
-
-                        qn_ip12 = w_ess[0] * qn_i + w_ess[1] * qn_ip1 + w_ess[2] * qn_ip2;
-                        qp_ip12 = w_ess[0] * qp_i + w_ess[1] * qp_ip1 + w_ess[2] * qp_ip2;
-                        qtheta_ip12 = w_ess[0] * qtheta_i + w_ess[1] * qtheta_ip1 + w_ess[2] * qtheta_ip2;
-
-                        rn_ip12 = w_ess[0] * rn_i + w_ess[1] * rn_ip1 + w_ess[2] * rn_ip2;
-                        rp_ip12 = w_ess[0] * rp_i + w_ess[1] * rp_ip1 + w_ess[2] * rp_ip2;
-                        rtheta_ip12 = w_ess[0] * rtheta_i + w_ess[1] * rtheta_ip1 + w_ess[2] * rtheta_ip2;
-
-                        double zb_ip12 = w_ess[0] * zb[ph_0] + w_ess[1] * zb[ph_e] + w_ess[2] * zb[ph_ee];
-
-                        if (bc_type[BC_WEST] == "dirichlet")
-                        {
-                            //
-                            // Dirichlet
-                            //
-                            // continuity equation
-                            //
-                            A.coeffRef(c_eq, 3 * ph_0) = -1.0;
-                            A.coeffRef(c_eq, 3 * ph_e) = 1.0;
-                            rhs[c_eq] = 0.0;
-                            //
-                            // q-momentum
-                            //
-                            A.coeffRef(q_eq, 3 * ph_0 + 1) = 0.5;
-                            A.coeffRef(q_eq, 3 * ph_e + 1) = 0.5;
-                            rhs[q_eq] = 0.0;
-                            //
-                            // r-momentum
-                            //
-                            A.coeffRef(r_eq, 3 * ph_0 + 2) = -1.0;
-                            A.coeffRef(r_eq, 3 * ph_e + 2) = 1.0;
-                            rhs[r_eq] = 0.0;
-                        }
-                        else
-                        {
-                            double h_given = wz_bnd - zb_ip12;
-                            double h_infty = h_given;  // s_offset - zb_ip12;
-                            double c_wave = std::sqrt(g * h_infty);
-                            if (bc_absorbing[BC_WEST])
-                            {
-                                if (bc_type[BC_WEST] == "mooiman")
-                                {
-                                    // q
-                                    A.coeffRef(c_eq, ph_0 + 1) = w_ess[0];
-                                    A.coeffRef(c_eq, ph_e + 1) = w_ess[1];
-                                    A.coeffRef(c_eq, ph_ee + 1) = w_ess[2];
-                                    //  c_wave * h
-                                    A.coeffRef(c_eq, ph_0) = w_ess[0] * c_wave;
-                                    A.coeffRef(c_eq, ph_e) = w_ess[1] * c_wave;
-                                    A.coeffRef(c_eq, ph_ee) = w_ess[2] * c_wave;
-                                    //
-                                    rhs[c_eq] = -(qp_ip12 + c_wave * (hp_ip12 - h_infty))
-                                        + 2. * c_wave * wz_bnd
-                                        + 2. * h_infty * wu_bnd
-                                        + 2. * wq_bnd
-                                        + 2. * wh_bnd
-                                        ;
-                                    int c = 1;
-                                }
-                                else
-                                {
-                                    //
-                                    // momentum + c_wave * continuity (ingoing signal)
-                                    // 
-                                    double con_fac = c_wave;
-                                    if (do_q_convection) { con_fac = c_wave + qp_ip12 / hp_ip12; }
-                                    // 
-                                    // momentum part
-                                    // 
-                                    A.coeffRef(c_eq, ph_0 + 1) = dtinv * w_ess[0];
-                                    A.coeffRef(c_eq, ph_e + 1) = dtinv * w_ess[1];
-                                    A.coeffRef(c_eq, ph_ee + 1) = dtinv * w_ess[2];
-                                    //
-                                    // continuity part (added and multiplied by c_wave)
-                                    //
-                                    A.coeffRef(c_eq, ph_0) = dtinv * con_fac * w_ess[0];
-                                    A.coeffRef(c_eq, ph_e) = dtinv * con_fac * w_ess[1];
-                                    A.coeffRef(c_eq, ph_ee) = dtinv * con_fac * w_ess[2];
-                                    //
-                                    double dhdt = dtinv * (hp_ip12 - hn_ip12);
-                                    double dqdt = dtinv * (qp_ip12 - qn_ip12);
-                                    rhs[c_eq] = -(dqdt + con_fac * dhdt);
-
-                                    double corr_term = 0.0;
-                                    if (bc_vars[BC_WEST] == "zeta")
-                                    {
-                                        A.coeffRef(c_eq, ph_0) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
-                                        A.coeffRef(c_eq, ph_e) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
-                                        A.coeffRef(c_eq, ph_ee) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
-                                        corr_term = -dhdt - eps_bc_corr * (hp_ip12 - (wz_bnd - zb_ip12));
-                                        rhs[c_eq] += corr_term;
-                                    }
-                                    if (bc_vars[BC_WEST] == "q")
-                                    {
-                                        A.coeffRef(c_eq, ph_0 + 1) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
-                                        A.coeffRef(c_eq, ph_e + 1) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
-                                        A.coeffRef(c_eq, ph_ee + 1) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
-                                        corr_term = -dqdt - eps_bc_corr * (qp_ip12 - wq_bnd);
-                                        rhs[c_eq] += corr_term;
-                                    }
-                                    A.coeffRef(c_eq, 3 * ph_0 + 2) = -1.0;
-                                    A.coeffRef(c_eq, 3 * ph_e + 2) = 1.0;
-                                    A.coeffRef(c_eq, 3 * ph_ee + 2) = 0.0;
-                                }
-                            }
-                            else
-                            {
-                                // Not absorbing
-                                double corr_term = 0.0;
-                                w_ess[0] = 1. / 12.;
-                                w_ess[1] = 10. / 12.;
-                                w_ess[2] = 1. / 12.;
-
-                                if (bc_vars[BC_WEST] == "zeta")
-                                {
-                                    A.coeffRef(c_eq, ph_0) = eps_bc_corr * w_ess[0];
-                                    A.coeffRef(c_eq, ph_e) = eps_bc_corr * w_ess[1];
-                                    A.coeffRef(c_eq, ph_ee) = eps_bc_corr * w_ess[2];
-                                    corr_term = -eps_bc_corr * (hp_ip12 - (wz_bnd - zb_ip12));
-                                    rhs[c_eq] += corr_term;
-                                }
-                                if (bc_vars[BC_WEST] == "q")
-                                {
-                                    A.coeffRef(c_eq, ph_0 + 1) = eps_bc_corr * w_ess[0];
-                                    A.coeffRef(c_eq, ph_e + 1) = eps_bc_corr * w_ess[1];
-                                    A.coeffRef(c_eq, ph_ee + 1) = eps_bc_corr * w_ess[2];
-                                    corr_term = -eps_bc_corr * (qp_ip12 - wq_bnd);
-                                    rhs[c_eq] += corr_term;
-                                }
-                                A.coeffRef(c_eq, 3 * ph_0 + 2) = -1.0;
-                                A.coeffRef(c_eq, 3 * ph_e + 2) = 1.0;
-                                A.coeffRef(c_eq, 3 * ph_ee + 2) = 0.0;
-                                rhs[c_eq] += 0.0;
-                            }
-                            //
-                            // Natural boundary condition
-                            //
-                            hn_ip12 = w_nat[0] * hn_i + w_nat[1] * hn_ip1 + w_nat[2] * hn_ip2;
-                            hp_ip12 = w_nat[0] * hp_i + w_nat[1] * hp_ip1 + w_nat[2] * hp_ip2;
-                            htheta_ip12 = w_nat[0] * htheta_i + w_nat[1] * htheta_ip1 + w_nat[2] * htheta_ip2;
-
-                            qn_ip12 = w_nat[0] * qn_i + w_nat[1] * qn_ip1 + w_nat[2] * qn_ip2;
-                            qp_ip12 = w_nat[0] * qp_i + w_nat[1] * qp_ip1 + w_nat[2] * qp_ip2;
-                            qtheta_ip12 = w_nat[0] * qtheta_i + w_nat[1] * qtheta_ip1 + w_nat[2] * qtheta_ip2;
-
-                            rn_ip12 = w_nat[0] * rn_i + w_nat[1] * rn_ip1 + w_nat[2] * rn_ip2;
-                            rp_ip12 = w_nat[0] * rp_i + w_nat[1] * rp_ip1 + w_nat[2] * rp_ip2;
-                            rtheta_ip12 = w_nat[0] * rtheta_i + w_nat[1] * rtheta_ip1 + w_nat[2] * rtheta_ip2;
-                            //
-                            // on the q-momentum row
-                            //
-                            A.coeffRef(q_eq, 3 * ph_0) = 0.0;
-                            A.coeffRef(q_eq, 3 * ph_e) = 0.0;
-                            A.coeffRef(q_eq, 3 * ph_ee) = 0.0;
-                            // flow flux
-                            A.coeffRef(q_eq, 3 * ph_0 + 1) = 0.0;
-                            A.coeffRef(q_eq, 3 * ph_e + 1) = 0.0;
-                            A.coeffRef(q_eq, 3 * ph_ee + 1) = 0.0;
-                            //
-                            A.coeffRef(q_eq, 3 * ph_0 + 2) = 0.0;
-                            A.coeffRef(q_eq, 3 * ph_e + 2) = 0.0;
-                            A.coeffRef(q_eq, 3 * ph_ee + 2) = 0.0;
-                            //
-                            rhs[q_eq] = 0.0;
-                            //
-                            // q-momentum - c_wave * continuity
-                            // 
-                            double dhdt = dtinv * (hp_i - hn_i) * w_nat[0]
-                                + dtinv * (hp_ip1 - hn_ip1) * w_nat[1]
-                                + dtinv * (hp_ip2 - hn_ip2) * w_nat[2];
-                            double dqdx = dxinv * (qtheta_ip1 - qtheta_i);
-                            double dqdt = dtinv * (qp_i - qn_i) * w_nat[0]
-                                + dtinv * (qp_ip1 - qn_ip1) * w_nat[1]
-                                + dtinv * (qp_ip2 - qn_ip2) * w_nat[2];
-                            double dzetadx = dxinv * g * htheta_ip12 * (htheta_ip1 + zb[i + 1] - htheta_i - zb[i]);
-                            //
-                            // q-momentum part, dq/dt + gh d(zeta)/dx
-                            //
-                            A.coeffRef(q_eq, 3 * ph_0 ) += w_nat[0] * dxinv * theta * g * (htheta_ip1 + zb[i + 1] - htheta_i - zb[i]) - dxinv * theta * g * htheta_ip12;
-                            A.coeffRef(q_eq, 3 * ph_e ) += w_nat[1] * dxinv * theta * g * (htheta_ip1 + zb[i + 1] - htheta_i - zb[i]) + dxinv * theta * g * htheta_ip12;
-                            A.coeffRef(q_eq, 3 * ph_ee) += w_nat[2] * dxinv * theta * g * (htheta_ip1 + zb[i + 1] - htheta_i - zb[i]);
-
-                            A.coeffRef(q_eq, 3 * ph_0  + 1) += dtinv * w_nat[0];
-                            A.coeffRef(q_eq, 3 * ph_e  + 1) += dtinv * w_nat[1];
-                            A.coeffRef(q_eq, 3 * ph_ee + 1) += dtinv * w_nat[2];
-
-                            rhs[q_eq] += -(dqdt + dzetadx);
-                            if (do_q_convection)
-                            {
-                                int c = 1;
-                            }
-                            //
-                            // continuity part (added and multiplied by -c_wave)
-                            //
-                            double con_fac = c_wave;
-                            if (do_q_convection) { con_fac = c_wave - qp_ip12 / hp_ip12; }
-                            A.coeffRef(q_eq, ph_0 ) += -con_fac * dtinv * w_nat[0];
-                            A.coeffRef(q_eq, ph_e ) += -con_fac * dtinv * w_nat[1];
-                            A.coeffRef(q_eq, ph_ee) += -con_fac * dtinv * w_nat[2];
-                            A.coeffRef(q_eq, ph_0 + 1) += -con_fac * -dxinv * theta;
-                            A.coeffRef(q_eq, ph_e + 1) += -con_fac * dxinv * theta;
-                            A.coeffRef(q_eq, ph_ee + 1) += 0.0;
-                            rhs[q_eq] += con_fac * (dhdt + dqdx);
-                            //
-                            // r-momentum, tangential to boundary (dr/dt ... = 0) Natural boundary condition)
-                            //
-                            // on the r-momentum row
-                            A.coeffRef(r_eq, 3 * ph_0) = 0.0;
-                            A.coeffRef(r_eq, 3 * ph_e) = 0.0;
-                            A.coeffRef(r_eq, 3 * ph_ee) = 0.0;
-                            // flow flux
-                            A.coeffRef(r_eq, 3 * ph_0 + 1) = 0.0;
-                            A.coeffRef(r_eq, 3 * ph_e + 1) = 0.0;
-                            A.coeffRef(r_eq, 3 * ph_ee + 1) = 0.0;
-                            //
-                            A.coeffRef(r_eq, 3 * ph_0 + 2) = 1.0;
-                            A.coeffRef(r_eq, 3 * ph_e + 2) = 0.0;
-                            A.coeffRef(r_eq, 3 * ph_ee + 2) = 0.0;
-                            //
-                            rhs[r_eq] = 0.0;
-                            //
-                            //A.coeffRef(r_eq, 3 * ph_0 + 2) = -1.0;
-                            //A.coeffRef(r_eq, 3 * ph_e + 2) = 1.0;
-                            //rhs[r_eq] = 0.0;
-                            if (do_r_convection)
-                            {
-                                int c = 1;
-                            }
-                        }
-                    }
-                }
-            }  // end boundary nodes
+            }
             //
             //corner nodes
             //
-            if (true)  // yes/no corners
+            if (true)  // NE-corner
             {
-                if (true)  // NE-corner
-                {
-                    int i = nx - 1;
-                    int j = ny - 1;
-                    int ph = 3 * p_index(i, j, nx);  // continuity equation
-                    int pq = 3 * p_index(i, j, nx) + 1;  // q-momentum equation
-                    int pr = 3 * p_index(i, j, nx) + 2;  // r-momentum equation
-                    A.coeffRef(ph, ph - 3) = 0.5;
-                    A.coeffRef(ph, ph) = -1.0;
-                    A.coeffRef(ph, ph - 3 * nx) = 0.5;
-                    rhs[ph] = 0.0;
-                    A.coeffRef(pq, pq - 3) = 0.5;
-                    A.coeffRef(pq, pq) = -1.0;
-                    A.coeffRef(pq, pq - 3 * nx) = 0.5;
-                    rhs[pq] = 0.0;
-                    A.coeffRef(pr, pr - 3) = 0.5;
-                    A.coeffRef(pr, pr) = -1.0;
-                    A.coeffRef(pr, pr - 3 * nx) = 0.5;
-                    rhs[pr] = 0.0;
-                }
-                if (true)  // SE-corner
-                {
-                    int i = nx - 1;
-                    int j = 0;
-                    int ph = 3 * p_index(i, j, nx);  // continuity equation
-                    int pq = 3 * p_index(i, j, nx) + 1;  // q-momentum equation
-                    int pr = 3 * p_index(i, j, nx) + 2;  // r-momentum equation
-                    A.coeffRef(ph, ph - 3) = 0.5;
-                    A.coeffRef(ph, ph) = -1.0;
-                    A.coeffRef(ph, ph + 3 * nx) = 0.5;
-                    rhs[ph] = 0.0;
-                    A.coeffRef(pq, pq - 3) = 0.5;
-                    A.coeffRef(pq, pq) = -1.0;
-                    A.coeffRef(pq, pq + 3 * nx) = 0.5;
-                    rhs[pq] = 0.0;
-                    A.coeffRef(pr, pr - 3) = 0.5;
-                    A.coeffRef(pr, pr) = -1.0;
-                    A.coeffRef(pr, pr + 3 * nx) = 0.5;
-                    rhs[pr] = 0.0;
-                }
-                if (true)  // SW-corner
-                {
-                    int i = 0;
-                    int j = 0;
-                    int ph = 3 * p_index(i, j, nx);  // continuity equation
-                    int pq = 3 * p_index(i, j, nx) + 1;  // q-momentum equation
-                    int pr = 3 * p_index(i, j, nx) + 2;  // r-momentum equation
-                    A.coeffRef(ph, ph + 3) = 0.5;
-                    A.coeffRef(ph, ph) = -1.0;
-                    A.coeffRef(ph, ph + 3 * nx) = 0.5;
-                    rhs[ph] = 0.0;
-                    A.coeffRef(pq, pq + 3) = 0.5;
-                    A.coeffRef(pq, pq) = -1.0;
-                    A.coeffRef(pq, pq + 3 * nx) = 0.5;
-                    rhs[pq] = 0.0;
-                    A.coeffRef(pr, pr + 3) = 0.5;
-                    A.coeffRef(pr, pr) = -1.0;
-                    A.coeffRef(pr, pr + 3 * nx) = 0.5;
-                    rhs[pr] = 0.0;
-                }
-                if (true)  // NW-corner
-                {
-                    int i = 0;
-                    int j = ny - 1;
-                    int ph = 3 * p_index(i, j, nx);  // continuity equation
-                    int pq = 3 * p_index(i, j, nx) + 1;  // q-momentum equation
-                    int pr = 3 * p_index(i, j, nx) + 2;  // r-momentum equation
-                    A.coeffRef(ph, ph - 3 * nx) = 0.5;
-                    A.coeffRef(ph, ph) = -1.0;
-                    A.coeffRef(ph, ph + 3) = 0.5;
-                    rhs[ph] = 0.0;
-                    A.coeffRef(pq, pq - 3 * nx) = 0.5;
-                    A.coeffRef(pq, pq) = -1.0;
-                    A.coeffRef(pq, pq + 3) = 0.5;
-                    rhs[pq] = 0.0;
-                    A.coeffRef(pr, pr - 3 * nx) = 0.5;
-                    A.coeffRef(pr, pr) = -1.0;
-                    A.coeffRef(pr, pr + 3) = 0.5;
-                    rhs[pr] = 0.0;
-                }
-            }  // end corner nodes
+                int i = nx - 1;
+                int j = ny - 1;
+                int ph = 3 * p_index(i, j, nx);  // continuity equation
+                int pq = 3 * p_index(i, j, nx) + 1;  // q-momentum equation
+                int pr = 3 * p_index(i, j, nx) + 2;  // r-momentum equation
+                A.coeffRef(ph, ph - 3) = 0.5;
+                A.coeffRef(ph, ph) = -1.0;
+                A.coeffRef(ph, ph - 3 * nx) = 0.5;
+                rhs[ph] = 0.0;
+                A.coeffRef(pq, pq - 3) = 0.5;
+                A.coeffRef(pq, pq) = -1.0;
+                A.coeffRef(pq, pq - 3 * nx) = 0.5;
+                rhs[pq] = 0.0;
+                A.coeffRef(pr, pr - 3) = 0.5;
+                A.coeffRef(pr, pr) = -1.0;
+                A.coeffRef(pr, pr - 3 * nx) = 0.5;
+                rhs[pr] = 0.0;
+            }
+            if (true)  // SE-corner
+            {
+                int i = nx - 1;
+                int j = 0;
+                int ph = 3 * p_index(i, j, nx);  // continuity equation
+                int pq = 3 * p_index(i, j, nx) + 1;  // q-momentum equation
+                int pr = 3 * p_index(i, j, nx) + 2;  // r-momentum equation
+                A.coeffRef(ph, ph - 3) = 0.5;
+                A.coeffRef(ph, ph) = -1.0;
+                A.coeffRef(ph, ph + 3 * nx) = 0.5;
+                rhs[ph] = 0.0;
+                A.coeffRef(pq, pq - 3) = 0.5;
+                A.coeffRef(pq, pq) = -1.0;
+                A.coeffRef(pq, pq + 3 * nx) = 0.5;
+                rhs[pq] = 0.0;
+                A.coeffRef(pr, pr - 3) = 0.5;
+                A.coeffRef(pr, pr) = -1.0;
+                A.coeffRef(pr, pr + 3 * nx) = 0.5;
+                rhs[pr] = 0.0;
+            }
+            if (true)  // SW-corner
+            {
+                int i = 0;
+                int j = 0;
+                int ph = 3 * p_index(i, j, nx);  // continuity equation
+                int pq = 3 * p_index(i, j, nx) + 1;  // q-momentum equation
+                int pr = 3 * p_index(i, j, nx) + 2;  // r-momentum equation
+                A.coeffRef(ph, ph + 3) = 0.5;
+                A.coeffRef(ph, ph) = -1.0;
+                A.coeffRef(ph, ph + 3 * nx) = 0.5;
+                rhs[ph] = 0.0;
+                A.coeffRef(pq, pq + 3) = 0.5;
+                A.coeffRef(pq, pq) = -1.0;
+                A.coeffRef(pq, pq + 3 * nx) = 0.5;
+                rhs[pq] = 0.0;
+                A.coeffRef(pr, pr + 3) = 0.5;
+                A.coeffRef(pr, pr) = -1.0;
+                A.coeffRef(pr, pr + 3 * nx) = 0.5;
+                rhs[pr] = 0.0;
+            }
+            if (true)  // NW-corner
+            {
+                int i = 0;
+                int j = ny - 1;
+                int ph = 3 * p_index(i, j, nx);  // continuity equation
+                int pq = 3 * p_index(i, j, nx) + 1;  // q-momentum equation
+                int pr = 3 * p_index(i, j, nx) + 2;  // r-momentum equation
+                A.coeffRef(ph, ph - 3 * nx) = 0.5;
+                A.coeffRef(ph, ph) = -1.0;
+                A.coeffRef(ph, ph + 3) = 0.5;
+                rhs[ph] = 0.0;
+                A.coeffRef(pq, pq - 3 * nx) = 0.5;
+                A.coeffRef(pq, pq) = -1.0;
+                A.coeffRef(pq, pq + 3) = 0.5;
+                rhs[pq] = 0.0;
+                A.coeffRef(pr, pr - 3 * nx) = 0.5;
+                A.coeffRef(pr, pr) = -1.0;
+                A.coeffRef(pr, pr + 3) = 0.5;
+                rhs[pr] = 0.0;
+            }
             if (nst == 1 && iter == 0)
             {
                 STOP_TIMER(Matrix initialization);
@@ -2189,6 +2120,8 @@ int main(int argc, char *argv[])
     STOP_TIMER(Main);
     PRINT_TIMER(timing_filename.data());
 
+    std::chrono::duration<int, std::milli> timespan(1000);
+    std::this_thread::sleep_for(timespan);
     return 0;
 }
 inline int p_index(int i, int j, int nx)
@@ -2236,7 +2169,7 @@ std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs
     std::stringstream ss_y;
     ss_x << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << x_obs;
     ss_y << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << y_obs;
-    return (obs_name + "(" + ss_x.str() + ", " + ss_y.str() + ") ");
+    return (obs_name + " - (" + ss_x.str() + ", " + ss_y.str() + ") ");
 }
 //------------------------------------------------------------------------------
 /* @@ GetArguments

@@ -121,51 +121,53 @@ equals the piecewise linear function used in the FVE scheme.
 To get an error-minimizing method we need to regularize all data, as mentioned in \autoref{sec:error_minimizing}.
 Regularization of the artificial viscosity $\Psi$ is performed as described in \citet[eq.\ 14]{Borsboom2001}.
 \begin{align}
-    \int_\Omega \Psi\, d\omega - \alpha \int_\Omega \Dxi^2 \pdiff[2]{\Psi}{\xi}\, d\omega = \int_\Omega c_{\psi} Err_\Psi\, d\omega
+    \int_\Omega \Psi\, d\omega - \alpha_{\psi} \int_\Omega \Dxi^2 \pdiff[2]{\Psi}{\xi}\, d\omega = \int_\Omega \beta_{\psi} Err_{\beta_{\psi}}\, d\omega
 \end{align}
-%\todo{Which value of $\alpha$ need to be used and why?}
 When discretized it yields \citep[eq.\ 18]{Borsboom2001}:
 \begin{align}
-    \left(\frac{1}{8} - \alpha \right)\Psi_{i-1} + 
-    \left(\frac{3}{4} + 2\alpha \right)\Psi_{i} + 
-    \left(\frac{1}{8} - \alpha \right)\Psi_{i+1} = \frac{c_{\Psi}}{\Dxi} \int^{\xi_{i+\half}}_{\xi_{i-\half}} Err_{\Psi}\, d\xi
+    \left(\frac{1}{8} - \alpha_{\psi} \right)\Psi_{i-1} +
+    \left(\frac{3}{4} + 2\alpha_{\psi} \right)\Psi_{i} +
+    \left(\frac{1}{8} - \alpha_{\psi} \right)\Psi_{i+1} = \frac{\beta_{\psi}}{\Dxi} \int^{\xi_{i+\half}}_{\xi_{i-\half}} Err_{\beta_{\psi}}\, d\xi
     \label{eq:discrete_regularization_psi}
 \end{align}
 %\todo{Where is this equation coming from (energy equation?), derivation/explanation needed.}
 %Dimension analysis:
 %\begin{align}
 %\si{[\square\metre\per\second]} = [1] [m] \left(  \sqrt{\frac{\si{[\metre\per\square\second]}}{\si{[\metre]}}} \si{[\metre]}
-%    + \frac{1}{\si{[\metre]}} \si{[\square\metre\per\second]} 
+%    + \frac{1}{\si{[\metre]}} \si{[\square\metre\per\second]}
 %    - \frac{ \si{[\square\metre\per\second]}}{\si{[\square\metre]} } \si{[\metre]}
 %    \right)
 %\end{align}
 %
 The right hand side of \autoref{eq:discrete_regularization_psi} can be approximated by:
 \begin{align}
-    \frac{c_{\Psi}}{\Dxi} \int^{\xi_{i+\half}}_{\xi_{i-\half}} Err_{\Psi}\, d\xi 
+    \frac{\beta_{\psi}}{\Dxi} \int^{\xi_{i+\half}}_{\xi_{i-\half}} Err_{\beta_{\psi}}\, d\xi
 & =
-    \frac{c_{\Psi}}{\Dxi} \int^{\xi_{i}}_{\xi_{i-\half}} Err_{\Psi}\, d\xi 
-    + \frac{c_{\Psi}}{\Dxi} \int^{\xi_{i+\half}}_{\xi_{i}} Err_{\Psi}\, d\xi \approx 
+    \frac{\beta_{\psi}}{\Dxi} \int^{\xi_{i}}_{\xi_{i-\half}} Err_{\beta_{\psi}}\, d\xi
+    + \frac{\beta_{\psi}}{\Dxi} \int^{\xi_{i+\half}}_{\xi_{i}} Err_{\beta_{\psi}}\, d\xi \approx
     \\*
-    &\approx \frac{c_{\Psi}}{\Dxi} \frac{1}{2\Dxi} (Err_{\Psi})_{i-\quart} 
-  + \frac{c_{\Psi}}{\Dxi} \frac{1}{2\Dxi} (Err_{\Psi})_{i+\quart}
-%    \approx \frac{c_{\Psi} }{\Dxi}  (Err_{\Psi})_{i}
+    &\approx \frac{\beta_{\psi}}{\Dxi} \frac{1}{2\Dxi} (Err_{\beta_{\psi}})_{i-\quart}
+  + \frac{\beta_{\psi}}{\Dxi} \frac{1}{2\Dxi} (Err_{\beta_{\psi}})_{i+\quart}
+%    \approx \frac{\beta_{\psi}}{\Dxi}  (Err_{\Psi})_{i}
 %    &\approx c_{\Psi} \left( \frac{1}{8} (Err_{\Psi})_{i-1}+ \frac{6}{8}  (Err_{\Psi})_{i} + \frac{1}{8}   (Err_{\Psi})_{i+1} \right)
 %\\*
-%&\approx \frac{c_{\Psi} }{2 \Dxi}  \left( (Err_{\Psi})_{i+1} - (Err_{\Psi})_{i-1} \right) 
+%&\approx \frac{c_{\Psi} }{2 \Dxi}  \left( (Err_{\Psi})_{i+1} - (Err_{\Psi})_{i-1} \right)
 \end{align}
-For $Err_\Psi$ the following expression is used (\citet[eq.\ 42]{Borsboom2001}, a derivation of this expression is given in \autoref{sec:error_artificial_viscosity}):
+For $Err_{\beta_{\psi}}$ the following expression is used (comparable to \citet[eq.\ 42]{Borsboom2001}, a derivation of this expression is given in \autoref{sec:error_artificial_viscosity}):
 \begin{align}
-    &Err_\Psi = \Dxi\, \overline{x}_\xi \left( \half \sqrt{\frac{g}{\hbar}} \abs{D_\xi(\overline\zeta)} + 
-    \half \sqrt{2} \abs{\frac{D_\xi(\qbar)}{\hbar} - \frac{\qbar D_\xi(\hbar)}{\hbar^2}} \right)
+    &Err_{\beta_{\psi}} = \Dxi\, \overline{x}_\xi \left( \frac{1}{16} \sqrt{\frac{g}{\hbar}} \abs{D_\xi(\overline\zeta)} +
+    \frac{1}{16} \sqrt{2} \abs{\frac{D_\xi(\qbar)}{\hbar} - \frac{\qbar D_\xi(\hbar)}{\hbar^2}} \right)
 \end{align}
-using (with $\ubar \in \{\hbar, \qbar\}$):
+For the Weir experiment (\autoref{sec:numerical_experiment_weir}) the following parameters are used, $\alpha_{\psi} = c_{\Psi}$ and $\beta_{\psi} = 32 c_{\Psi}$
+\emph{which are educational guesses!}.
+
+Using (with $\ubar \in \{\hbar, \qbar\}$):
 \begin{align}
     \ubar_{i-\quart} = \quart(u_{i-1} + 3 u_{i}), \qquad \ubar_{i+\quart} = \quart(u_{i+1} + 3 u_{i})
 \end{align}
 and
 \begin{align}
-    {(\overline{x}_{\xi})}_{i-\quart}= x_i - x_{i-1}, \qquad 
+    {(\overline{x}_{\xi})}_{i-\quart}= x_i - x_{i-1}, \qquad
     {(\overline{x}_{\xi})}_{i+\quart}= x_{i+1} - x_{i}
 \end{align}
 and for equidistant meshes we use \citep[eq.\ 35]{Borsboom2001} :
@@ -479,7 +481,7 @@ Some numerical items used to generate \autoref{fig:compatible_initial_condition}
     &u_{given}(x) =
     \begin{cases}
         (x-3)^2 & \qquad x < 6
-        \\ 
+        \\
         -(x-3)^2 + 18 & \qquad x \geq 6
     \end{cases}
 \end{align}
