@@ -38,16 +38,18 @@ enum class BED_LEVEL
     NR_BED_LEVELS
 };
 
+double Fabs(double, double);
+void GetArguments(long argc, char** argv, std::string* file_name);
+int get_toml_array(toml::table, std::string, std::vector<std::string>&);
+int get_toml_array(toml::table, std::string, std::vector<double>&);
+int get_toml_array(toml::table, std::string, std::vector<bool>&);
+
 int p_index(int i, int j, int nx);
 int read_bed_level(std::string filename, std::vector<double> & value);
 int initialize_bed_level(BED_LEVEL, std::vector<double>&, std::vector<double>&, std::string&, double);
 int initialize_scalar(double, std::vector<double>&, std::vector<double>&);
 double scv(double, double);
-double Fabs(double, double);
-void GetArguments(long argc, char** argv, std::string *file_name);
-int get_toml_array(toml::table, std::string, std::vector<std::string> &);
-int get_toml_array(toml::table, std::string, std::vector<double>&);
-int get_toml_array(toml::table, std::string, std::vector<bool>&);
+std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs_name);
 
 
 // Solve the linear wave equation
@@ -217,11 +219,6 @@ int main(int argc, char* argv[])
     bool regularization_init = tbl_chp["regularization_init"].value_or(bool(false));
     bool regularization_iter = tbl_chp["regularization_iter"].value_or(bool(false));
     bool regularization_time = tbl_chp["regularization_time"].value_or(bool(false));
-    bool use_eq8 = tbl_chp["use_eq8"].value_or(bool(false));
-    if (!use_eq8 && (regularization_init || regularization_iter || regularization_time))
-    {
-        output_dir = current_dir.string() + "/output_eq8_not_used/";
-    }
 
     // Output
     tbl_chp = *tbl["Output"].as_table();
@@ -312,7 +309,6 @@ int main(int argc, char* argv[])
     log_file << "eps_newton  = " << eps_newton << std::endl;
     log_file << "eps_bicgstab  = " << eps_bicgstab << std::endl;
     log_file << "eps_abs_function  = " << eps_fabs << std::endl;
-    log_file << "use_eq8  = " << use_eq8 << std::endl;
     log_file << "regularization_init = " << regularization_init << std::endl;
     log_file << "regularization_iter = " << regularization_iter << std::endl;
     log_file << "regularization_time = " << regularization_time << std::endl;
@@ -348,7 +344,7 @@ int main(int argc, char* argv[])
     std::vector<double> cf(nx, 0.);  // Bed sheart stress coefficient
     std::vector<double> pe(nx, 0.);  // peclet number [-]
     std::vector<double> psi(nx, 0.);  //
-    std::vector<double> eq8(nx, 0.);  //
+    std::vector<double> froude(nx, 0.);  //
     std::vector<double> mass(3, 0.);  // weighting coefficients of the mass-matrix
 
     Eigen::VectorXd solution(2 * nx);               // solution vector [h, q]^{n}
@@ -402,7 +398,7 @@ int main(int argc, char* argv[])
     status = initialize_bed_level(bed_level_type, x, zb_ini, model_title, depth);
     if (regularization_init)
     {
-        (void)regularization->given_function(zb, psi, eq8, zb_ini, dx, c_psi, use_eq8);
+        (void)regularization->given_function(zb, psi, zb_ini, dx, c_psi);
     }
     else
     {
@@ -439,10 +435,11 @@ int main(int argc, char* argv[])
     if (regularization_init)
     {
         START_TIMER(Regularization_init);
-        (void)regularization->given_function(visc_reg, psi, eq8, visc_given, dx, c_psi, use_eq8);
+        (void)regularization->given_function(visc_reg, psi, visc_given, dx, c_psi);
         for (int i = 0; i < nx; ++i)
         {
             visc[i] = visc_reg[i] + std::abs(psi[i]);
+            froude[i] = qp[i] / hp[i] / std::sqrt(g * hp[i]);
             pe[i] = qp[i] / hp[i] * dx / visc[i];
         }
         STOP_TIMER(Regularization_init);
@@ -473,7 +470,7 @@ int main(int argc, char* argv[])
     map_names.push_back("visc_reg_1d");
     map_names.push_back("visc_1d");
     map_names.push_back("psi_1d");
-    map_names.push_back("eq8_1d");
+    map_names.push_back("froude_1d");
     map_names.push_back("pe_id");
 
     map_file = create_map_file(nc_mapfilename, model_title, x, map_names);
@@ -491,7 +488,7 @@ int main(int argc, char* argv[])
     map_file->put_time_variable(map_names[7], nst_map, visc_reg);
     map_file->put_time_variable(map_names[8], nst_map, visc);
     map_file->put_time_variable(map_names[9], nst_map, psi);
-    map_file->put_time_variable(map_names[10], nst_map, eq8);
+    map_file->put_time_variable(map_names[10], nst_map, froude);
     map_file->put_time_variable(map_names[11], nst_map, pe);
 
     ////////////////////////////////////////////////////////////////////////////
@@ -502,13 +499,13 @@ int main(int argc, char* argv[])
     status = his_file->open(nc_hisfile, model_title);
 
     // Initialize observation station locations (corrected for virtual points)
-    int i_left = 1;
-    int i_mid_left = nx / 4 + 1;
-    int i_mid = nx / 2;
-    int i_mid_right = 3 * nx / 4 - 1;
-    int i_right = nx - 2;
-    std::vector<double> x_obs = { x[i_left], x[i_mid_left], x[i_mid], x[i_mid_right], x[i_right] };
-    std::vector<double> y_obs = { y[i_left], y[i_mid_left], y[i_mid], y[i_mid_right], y[i_right] };
+    int p_a = 1;
+    int p_b = nx / 4 + 1;
+    int p_c = nx / 2;
+    int p_d = 3 * nx / 4 - 1;
+    int p_e = nx - 2;
+    std::vector<double> x_obs = { x[p_a], x[p_b], x[p_c], x[p_d], x[p_e] };
+    std::vector<double> y_obs = { y[p_a], y[p_b], y[p_c], y[p_d], y[p_e] };
 
     int nsig = 0;
     for (int i = 0; i < x_obs.size(); ++i)
@@ -517,25 +514,11 @@ int main(int argc, char* argv[])
     }
     nsig += 1;
     std::vector<std::string> obs_stations;
-    ss.str(std::string());
-    ss << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << x_obs[0];
-    obs_stations.push_back("x=" + ss.str() + ": West boundary");
-
-    ss.str(std::string());
-    ss << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << x_obs[1];
-    obs_stations.push_back("x=" + ss.str() + ": Halfway to west boundary");
-
-    ss.str(std::string());
-    ss << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << x_obs[2];
-    obs_stations.push_back("x=" + ss.str() + ": Centre");
-
-    ss.str(std::string());
-    ss << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << x_obs[3];
-    obs_stations.push_back("x=" + ss.str() + ": Halfway to east boundary");
-
-    ss.str(std::string());
-    ss << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << x_obs[4];
-    obs_stations.push_back("x=" + ss.str() + ": East boundary");
+    obs_stations.push_back(setup_obs_name(x[p_a], y[p_a], nsig, ": West boundary"));
+    obs_stations.push_back(setup_obs_name(x[p_b], y[p_b], nsig, ": Halfway to west boundary"));
+    obs_stations.push_back(setup_obs_name(x[p_c], y[p_c], nsig, ": Centre"));
+    obs_stations.push_back(setup_obs_name(x[p_d], y[p_d], nsig, ": Halfway to east boundary"));
+    obs_stations.push_back(setup_obs_name(x[p_e], y[p_e], nsig, ": East boundary"));
 
     his_file->add_stations(obs_stations, x_obs, y_obs);
     his_file->add_time_series();
@@ -545,6 +528,7 @@ int main(int argc, char* argv[])
     std::string his_s_name("Water_level");
     std::string his_u_name("Water_velocity");
     std::string his_zb_name("Bed_level");
+    std::string his_froude_name("Froude");
     std::string his_riemann_pos_name("Riemann_right_going");
     std::string his_riemann_neg_name("Riemann_left_going");
     his_file->add_variable(his_h_name, "", "Water depth", "m");
@@ -552,6 +536,7 @@ int main(int argc, char* argv[])
     his_file->add_variable(his_s_name, "", "Water level", "m");
     his_file->add_variable(his_u_name, "", "Water velocity", "m s-1");
     his_file->add_variable(his_zb_name, "", "Bed level", "m");
+    his_file->add_variable(his_froude_name, "", "Froude", "-");
     //his_file->add_variable(his_riemann_pos_name, "", "Rieman(+)", "m2 s-1");
     //his_file->add_variable(his_riemann_neg_name, "", "Rieman(-)", "m2 s-1");
 
@@ -564,20 +549,22 @@ int main(int argc, char* argv[])
     int nst_his = 0;
     his_file->put_time(nst_his, time);
 
-    std::vector<double> his_values = { hn[i_left], hn[i_mid_left], hn[i_mid], hn[i_mid_right], hn[i_right] };
+    std::vector<double> his_values = { hn[p_a], hn[p_b], hn[p_c], hn[p_d], hn[p_e] };
     his_file->put_variable(his_h_name, nst_his, his_values);
-    his_values = { qn[i_left], qn[i_mid_left], qn[i_mid], qn[i_mid_right], qn[i_right] };
+    his_values = { qn[p_a], qn[p_b], qn[p_c], qn[p_d], qn[p_e] };
     his_file->put_variable(his_q_name, nst_his, his_values);
-    his_values = { s[i_left], s[i_mid_left], s[i_mid], s[i_mid_right], s[i_right] };
+    his_values = { s[p_a], s[p_b], s[p_c], s[p_d], s[p_e] };
     his_file->put_variable(his_s_name, nst_his, his_values);
-    his_values = { u[i_left], u[i_mid_left], u[i_mid], u[i_mid_right], u[i_right] };
+    his_values = { u[p_a], u[p_b], u[p_c], u[p_d], u[p_e] };
     his_file->put_variable(his_u_name, nst_his, his_values);
-    his_values = { zb[i_left], zb[i_mid_left], zb[i_mid], zb[i_mid_right], zb[i_right] };
+    his_values = { zb[p_a], zb[p_b], zb[p_c], zb[p_d], zb[p_e] };
     his_file->put_variable(his_zb_name, nst_his, his_values);
+    his_values = { froude[p_a], froude[p_b], froude[p_c], froude[p_d], froude[p_e] };
+    his_file->put_variable(his_froude_name, nst_his, his_values);
 
-    //his_values = { riemann_pos[i_left], riemann_pos[i_mid_left], riemann_pos[i_mid], riemann_pos[i_mid_right], riemann_pos[i_right] };
+    //his_values = { riemann_pos[p_a], riemann_pos[p_b], riemann_pos[p_c], riemann_pos[p_d], riemann_pos[p_e] };
     //his_file->put_variable(his_riemann_pos_name, nst_his, his_values);
-    //his_values = { riemann_neg[i_left], riemann_neg[i_mid_left], riemann_neg[i_mid], riemann_neg[i_mid_right], riemann_neg[i_right] };
+    //his_values = { riemann_neg[p_a], riemann_neg[p_b], riemann_neg[p_c], riemann_neg[p_d], riemann_neg[p_e] };
     //his_file->put_variable(his_riemann_neg_name, nst_his, his_values);
 
     his_values = { 0 };
@@ -701,6 +688,7 @@ int main(int argc, char* argv[])
                         {
                             qp[i] = tmp1[i] * hp[i];
                             visc[i] = visc_reg[i] + std::abs(psi[i]);
+                            froude[i] = qp[i] / hp[i] / std::sqrt(g * hp[i]);
                             pe[i] = qp[i] / hp[i] * dx / visc[i];
                         }
                         break;
@@ -711,6 +699,7 @@ int main(int argc, char* argv[])
                         for (int i = 0; i < nx; ++i)
                         {
                             visc[i] = visc_reg[i] + std::abs(psi[i]);
+                            froude[i] = qp[i] / hp[i] / std::sqrt(g * hp[i]);
                             pe[i] = qp[i] / hp[i] * dx / visc[i];
                         }
                         break;
@@ -722,11 +711,12 @@ int main(int argc, char* argv[])
                         {
                             u[i] = qp[i] / hp[i];
                         }
-                        (void)regularization->given_function(tmp1, psi, eq8, u, dx, c_psi, use_eq8);
+                        (void)regularization->given_function(tmp1, psi, froude, dx, c_psi);
                         for (int i = 0; i < nx; ++i)
                         {
                             qp[i] = tmp1[i] * hp[i];
                             visc[i] = visc_reg[i] * std::abs(psi[i]);
+                            froude[i] = qp[i] / hp[i] / std::sqrt(g * hp[i]);
                             pe[i] = qp[i] / hp[i] * dx / visc[i];
                         }
                     }
@@ -1585,6 +1575,7 @@ int main(int argc, char* argv[])
                     {
                         qp[i] = tmp1[i] * hp[i];
                         visc[i] = visc_reg[i] + std::abs(psi[i]);
+                        froude[i] = qp[i] / hp[i] / std::sqrt(g * hp[i]);
                         pe[i] = qp[i] / hp[i] * dx / visc[i];
                     }
                     break;
@@ -1595,6 +1586,7 @@ int main(int argc, char* argv[])
                     for (int i = 0; i < nx; ++i)
                     {
                         visc[i] = visc_reg[i] + std::abs(psi[i]);
+                        froude[i] = qp[i] / hp[i] / std::sqrt(g * hp[i]);
                         pe[i] = qp[i] / hp[i] * dx / visc[i];
                     }
                     break;
@@ -1606,11 +1598,12 @@ int main(int argc, char* argv[])
                     {
                         u[i] = qp[i] / hp[i];
                     }
-                    (void)regularization->given_function(tmp1, psi, eq8, u, dx, c_psi, use_eq8);
+                    (void)regularization->given_function(tmp1, psi, froude, dx, c_psi);
                     for (int i = 0; i < nx; ++i)
                     {
                         qp[i] = tmp1[i] * hp[i];
                         visc[i] = visc_reg[i] * std::abs(psi[i]);
+                        froude[i] = qp[i] / hp[i] / std::sqrt(g * hp[i]);
                         pe[i] = qp[i] / hp[i] * dx / visc[i];
                     }
                 }
@@ -1645,7 +1638,7 @@ int main(int argc, char* argv[])
             map_file->put_time_variable(map_names[7], nst_map, visc_reg);
             map_file->put_time_variable(map_names[8], nst_map, visc);
             map_file->put_time_variable(map_names[9], nst_map, psi);
-            map_file->put_time_variable(map_names[10], nst_map, eq8);
+            map_file->put_time_variable(map_names[10], nst_map, froude);
             map_file->put_time_variable(map_names[11], nst_map, pe);
             STOP_TIMER(Writing map-file);
         }
@@ -1663,20 +1656,22 @@ int main(int argc, char* argv[])
             {
                 his_file->put_time(nst_his, double(nst) * dt);
             }
-            std::vector<double> his_values = { hn[i_left], hn[i_mid_left], hn[i_mid], hn[i_mid_right],  hn[i_right] };
+            std::vector<double> his_values = { hn[p_a], hn[p_b], hn[p_c], hn[p_d],  hn[p_e] };
             his_file->put_variable(his_h_name, nst_his, his_values);
-            his_values = { qn[i_left], qn[i_mid_left], qn[i_mid], qn[i_mid_right],  qn[i_right] };
+            his_values = { qn[p_a], qn[p_b], qn[p_c], qn[p_d],  qn[p_e] };
             his_file->put_variable(his_q_name, nst_his, his_values);
-            his_values = { s[i_left], s[i_mid_left], s[i_mid], s[i_mid_right],  s[i_right] };
+            his_values = { s[p_a], s[p_b], s[p_c], s[p_d],  s[p_e] };
             his_file->put_variable(his_s_name, nst_his, his_values);
-            his_values = { u[i_left], u[i_mid_left], u[i_mid], u[i_mid_right],  u[i_right]};
+            his_values = { u[p_a], u[p_b], u[p_c], u[p_d],  u[p_e]};
             his_file->put_variable(his_u_name, nst_his, his_values);
-            his_values = { zb[i_left], zb[i_mid_left], zb[i_mid], zb[i_mid_right], zb[i_right] };
+            his_values = { zb[p_a], zb[p_b], zb[p_c], zb[p_d], zb[p_e] };
             his_file->put_variable(his_zb_name, nst_his, his_values);
+            his_values = { froude[p_a], froude[p_b], froude[p_c], froude[p_d], froude[p_e] };
+            his_file->put_variable(his_froude_name, nst_his, his_values);
 
             //his_values = { riemann_pos[i_left], riemann_pos[i_left], riemann_pos[i_mid], riemann_pos[i_right], riemann_pos[i_right] };
             //his_file->put_variable(his_riemann_pos_name, nst_his, his_values);
-            //his_values = { riemann_neg[i_left], riemann_neg[i_left], riemann_neg[i_mid], riemann_neg[i_right], riemann_neg[i_right] };
+            //his_values = { riemann_neg[p_a], riemann_neg[p_a], riemann_neg[p_c], riemann_neg[p_e], riemann_neg[p_e] };
             //his_file->put_variable(his_riemann_neg_name, nst_his, his_values);
 
             his_values = { double(used_newton_iter) };
@@ -1911,6 +1906,14 @@ double Fabs(double q, double eps_abs)
 {
     // absolute value as continue function
     return pow( pow(q, 4.) + pow(eps_abs, 4.), 0.25);
+}
+std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs_name)
+{
+    std::stringstream ss_x;
+    std::stringstream ss_y;
+    ss_x << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << x_obs;
+    ss_y << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << y_obs;
+    return( "x=" + ss_x.str() + obs_name);  // ss_y not used
 }
 
 //------------------------------------------------------------------------------

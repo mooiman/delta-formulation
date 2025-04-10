@@ -31,8 +31,8 @@ REGULARIZATION::REGULARIZATION(int iter_max, double g) :
     m_u0_xixi_smooth = 0.0;
 }
 
-void REGULARIZATION::given_function(std::vector<double>& u_out, std::vector<double>& psi, std::vector<double>& eq8, std::vector<double>& u_giv_in,
-    double dx, double c_psi, bool use_eq8)
+void REGULARIZATION::given_function(std::vector<double>& u_out, std::vector<double>& psi, std::vector<double>& u_giv_in,
+    double dx, double c_psi)
 {
     int nx = (int)u_giv_in.size();
     double diff_max0 = 0.0;
@@ -41,6 +41,7 @@ void REGULARIZATION::given_function(std::vector<double>& u_out, std::vector<doub
     std::vector<double> u0(nx, 0.);
     std::vector<double> u1(nx, 0.);
     std::vector<double> u0_xixi(nx, 0.);
+    std::vector<double> eq8(nx, 0.);
     std::vector<double> tmp(nx, 0.);
 
     std::ofstream log_file;
@@ -88,19 +89,9 @@ void REGULARIZATION::given_function(std::vector<double>& u_out, std::vector<doub
         }
 #endif
 
-        if (use_eq8)
+        for (int i = 0; i < nx; ++i)
         {
-            for (int i = 0; i < nx; ++i)
-            {
-                psi[i] = c_psi * dx * dx * eq8[i];
-            }
-        }
-        else
-        {
-            for (int i = 0; i < nx; ++i)
-            {
-                psi[i] = c_psi * dx * dx;
-            }
+            psi[i] = c_psi * dx * dx * eq8[i];
         }
 //------------------------------------------------------------------------------
         u0 = *(this->solve_eq7(dx, psi, u_giv));
@@ -197,10 +188,10 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         qbar_ip14 = 0.25 * (q[i + 1] + 3. * q[i]);
 
         rhs[i] = 4.0 * c_psi * dx * (
-            0.5 * std::sqrt(m_g / hbar_im14) * std::abs(s_xixi[i]) +
-            0.5 * std::sqrt(2.) * std::abs(q_xixi[i] / hbar_im14 - qbar_im14 * h_xixi[i] / (hbar_im14 * hbar_im14))
-            + 0.5 * std::sqrt(m_g / hbar_ip14) * std::abs(s_xixi[i]) +
-            0.5 * std::sqrt(2.) * std::abs(q_xixi[i] / hbar_ip14 - qbar_ip14 * h_xixi[i] / (hbar_ip14 * hbar_ip14))
+            0.5 * std::sqrt(m_g / hbar_im14) * std::abs(s_xixi[i])
+            + 0.5 * std::sqrt(2.) * std::abs(q_xixi[i] / hbar_im14 - qbar_im14 * h_xixi[i] / (hbar_im14 * hbar_im14))
+            + 0.5 * std::sqrt(m_g / hbar_ip14) * std::abs(s_xixi[i])
+            + 0.5 * std::sqrt(2.) * std::abs(q_xixi[i] / hbar_ip14 - qbar_ip14 * h_xixi[i] / (hbar_ip14 * hbar_ip14))
             );
     }
     // eq. 19

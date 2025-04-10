@@ -20,8 +20,8 @@ class REGULARIZATION
 public:
     REGULARIZATION();
     REGULARIZATION(int, double);
-    void given_function(std::vector<double>& u_out, std::vector<double>& psi, std::vector<double>& eq8, std::vector<double>& u_giv_in,
-        double dx, double c_psi, bool use_eq8);
+    void given_function(std::vector<double>& u_out, std::vector<double>& psi, std::vector<double>& u_giv_in,
+        double dx, double c_psi);
 
     void artificial_viscosity(std::vector<double>& psi, std::vector<double>& h, std::vector<double>& q,
         std::vector<double>& zb, double c_psi, double dx);
