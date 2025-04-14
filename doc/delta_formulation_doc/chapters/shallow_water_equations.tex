@@ -3,10 +3,10 @@
 Consider the non-linear wave equation when the pressure gradient is explicitly expressed as the gradient of the water level ($\zeta$):
 \begin{subequations}
     \begin{align}
-        \underbrace{\pdiff{h}{t}}_{\textsl{Time derivative}} &  +
+        &\underbrace{\pdiff{h}{t}}_{\textsl{Time derivative}}  +
         \underbrace{\pdiff{q}{x}}_{\textsl{Mass flux}} =0,
         \\
-        \underbrace{\pdiff{q}{t}}_{\textsl{Time derivative}} & +
+        &\underbrace{\pdiff{q}{t}}_{\textsl{Time derivative}}  +
         \underbrace{\pdiff{q^2/h}{x}}_{\textsl{Convection}} +
         \underbrace{gh \pdiff{\zeta}{x}}_{\textsl{Pressure gradient}} +
         \nonumber \\*
@@ -14,7 +14,7 @@ Consider the non-linear wave equation when the pressure gradient is explicitly e
         \underbrace{c_f\frac{q\abs{q}}{h^2}}_{\textsl{Bed shear stress}}
         -\underbrace{\pdiff{}{x}\left( \nu h \pdiff{q/h}{x}\right)}_{\textsl{Viscosity}} = 0,
         \\
-        \zeta & = h + z_b
+        &\zeta = h + z_b
     \end{align}
     \label{eq:1d_non_linear_wave2}
 \end{subequations}

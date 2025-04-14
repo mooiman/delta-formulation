@@ -353,7 +353,7 @@ int main(int argc, char* argv[])
     mass[0] = alpha;
     mass[1] = 1.0 - 2. * alpha;
     mass[2] = alpha;
-    
+
     double alpha_bc = 2. * alpha - 1. / 2.;
     std::vector<double> w_nat(3, 0.0);
     w_nat[0] = 0.5 * (1.0 + alpha_bc);
@@ -1444,6 +1444,7 @@ int main(int argc, char* argv[])
             {
                 START_TIMER(BiCGStab);
             }
+
             Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
             solver.compute(A);
             solver.setTolerance(eps_bicgstab);
@@ -1461,7 +1462,8 @@ int main(int argc, char* argv[])
             {
                 log_file << "time [sec]: " << std::setprecision(2) << std::scientific << time
                          << "    BiCGstab iterations: " << solver.iterations()
-                         << "    estimated error:" << solver.error() << std::endl;
+                         << "    estimated error:" << solver.error()
+                         << std::endl;
             }
 
             // The new solution is the previous iterant plus the delta

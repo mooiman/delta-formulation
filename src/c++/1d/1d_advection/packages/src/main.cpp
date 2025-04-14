@@ -39,14 +39,16 @@ int get_toml_array(toml::table, std::string, std::vector<bool>&);
 #include "perf_timer.h"
 #include "definition_map_file.h"
 
-
 int BC_WEST = 0;
 int BC_EAST = 1;
+
+std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs_name);
 
 int main(int argc, char* argv[])
 {
     bool stationary = false;
     std::string toml_file_name("--- not-defined ---");
+
     int status = -1;
 
     std::filesystem::path exec_file;
@@ -58,7 +60,7 @@ int main(int argc, char* argv[])
     exec_dir = exec_file.parent_path();
 
     toml::table tbl;
-    toml::table tbl_chp;
+    toml::table tbl_chp;  // table for a chapter
     if (argc == 3)
     {
         (void)GetArguments(argc, argv, &toml_file_name);
@@ -75,6 +77,7 @@ int main(int argc, char* argv[])
         file_toml = toml_file_name;
         current_dir = file_toml.parent_path();
         output_dir = current_dir.string() + "/output/";
+        std::filesystem::create_directory(output_dir);
     }
     else
     {
@@ -83,7 +86,6 @@ int main(int argc, char* argv[])
         output_dir = ".";
     }
 
-    std::filesystem::create_directory(output_dir);
 
     START_TIMERN(main);
     START_TIMER(Simulation initialization);
@@ -241,7 +243,7 @@ int main(int argc, char* argv[])
     log_file << "Nodes  : " << nx << std::endl;
     log_file << "Volumes: " << (nx - 1) << std::endl;
     log_file << "CFL    : " << u_const * dt / dx << std::endl;
-    STOP_TIMER(Writing log - file);  // but two write statements are not timed
+    STOP_TIMER(Writing log-file);  // but two write statements are not timed
     if (status != 0) {
         log_file.close();
         exit(1);
@@ -292,6 +294,8 @@ int main(int argc, char* argv[])
     // initial concentration
     (void)adv_diff_init_concentration(mass, x, Lx, shape_conc, cn);
     (void)adv_diff_init_velocity(u, u_const, x, shape_conc);
+
+    double time = tstart + dt * double(0);
     ////////////////////////////////////////////////////////////////////////////
     // Define map file 
     std::cout << "    Create map-file" << std::endl;
@@ -305,12 +309,12 @@ int main(int argc, char* argv[])
     UGRID1D* map_file = create_map_file(nc_mapfilename, x, map_c_name, map_u_name, map_eps_name, map_psi_name, map_eq8_name, map_pe_name);
     // Put data on map file
     int nst_map = 0;
-    map_file->put_time(nst_map, double(0)* dt);
+    map_file->put_time(nst_map, time);
     map_file->put_time_variable(map_c_name, nst_map, cn);
     map_file->put_time_variable(map_u_name, nst_map, u);
     map_file->put_time_variable(map_psi_name, nst_map, psi);
     map_file->put_time_variable(map_eq8_name, nst_map, eq8);
-    // End definition of map file
+
     ////////////////////////////////////////////////////////////////////////////
     // Define time history file
     std::cout << "    Create his-file" << std::endl;
@@ -319,20 +323,27 @@ int main(int argc, char* argv[])
     status = his_file->open(nc_hisfile, model_title);
 
     // Initialize observation station locations (corrected for virtual points)
-    int i_left = 1;
-    int i_mid_left = nx / 4 + 1;
-    int i_mid = nx / 2;
-    int i_mid_right = 3 * nx / 4 - 1;
-    int i_right = nx - 2;
-    std::vector<double> x_obs = { x[i_left], x[i_mid_left], x[i_mid], x[i_mid_right], x[i_right] };
-    std::vector<double> y_obs = { y[i_left], y[i_mid_left], y[i_mid], y[i_mid_right], y[i_right] };
+    int p_a = 1;
+    int p_b = nx / 4 + 1;
+    int p_c = nx / 2;
+    int p_d = 3 * nx / 4 - 1;
+    int p_e = nx - 2;
+    std::vector<double> x_obs = { x[p_a], x[p_b], x[p_c], x[p_d], x[p_e] };
+    std::vector<double> y_obs = { y[p_a], y[p_b], y[p_c], y[p_d], y[p_e] };
 
+    int nsig = 0;
+    for (int i = 0; i < x_obs.size(); ++i)
+    {
+        nsig = std::max(nsig, (int)std::log10(x_obs[i]));
+    }
+    nsig += 1;
     std::vector<std::string> obs_stations;
-    obs_stations.push_back("West boundary");
-    obs_stations.push_back("Halfway to west boundary");
-    obs_stations.push_back("Centre");
-    obs_stations.push_back("Halfway to east boundary");
-    obs_stations.push_back("East boundary");
+    obs_stations.push_back(setup_obs_name(x[p_a], y[p_a], nsig, ": West boundary"));
+    obs_stations.push_back(setup_obs_name(x[p_b], y[p_b], nsig, ": Halfway to west boundary"));
+    obs_stations.push_back(setup_obs_name(x[p_c], y[p_c], nsig, ": Centre"));
+    obs_stations.push_back(setup_obs_name(x[p_d], y[p_d], nsig, ": Halfway to east boundary"));
+    obs_stations.push_back(setup_obs_name(x[p_e], y[p_e], nsig, ": East boundary"));
+
     his_file->add_stations(obs_stations, x_obs, y_obs);
     his_file->add_time_series();
 
@@ -346,9 +357,9 @@ int main(int argc, char* argv[])
 
     // Put data on time history file
     int nst_his = 0;
-    his_file->put_time(nst_his, double(0)* dt);
+    his_file->put_time(nst_his, time);
 
-    std::vector<double> his_values = { cn[i_left], cn[i_mid_left], cn[i_mid], cn[i_mid_right], cn[i_right] };
+    std::vector<double> his_values = { cn[p_a], cn[p_b], cn[p_c], cn[p_d], cn[p_e] };
     his_file->put_variable(his_cn_name, nst_his, his_values);
 
     his_values = { 0 };
@@ -361,7 +372,6 @@ int main(int argc, char* argv[])
 
     (void)adv_diff_source(q, select_src);
 
-    double time = tstart + dt * double(0);
     //(void)adv_diff_boundary_condition(cn[0], cn[nx - 1], time, treg, select_bc);
     // compute Peclet number
     for (int i = 0; i < nx; i++)
@@ -398,9 +408,6 @@ int main(int argc, char* argv[])
         START_TIMER(Newton iteration);
         for (int iter = 0; iter < iter_max; ++iter)
         {
-#if defined(DEBUG)   
-            //log_file << "====== Start iteration ================================" << std::endl;
-#endif
             used_newton_iter += 1;
             if (nst == 1 && iter == 0)
             {
@@ -504,8 +511,8 @@ int main(int argc, char* argv[])
 
             Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
             solver.compute(A);
-            //solution = solver.solve(rhs);
             solver.setTolerance(eps_bicgstab);
+            //solution = solver.solve(rhs);
             solution = solver.solveWithGuess(rhs, solution);
             START_TIMER(Set solution);
             if (nst == 1 && iter == 0)
@@ -518,8 +525,8 @@ int main(int argc, char* argv[])
             }
             if (logging == "iterations" || logging == "matrix")
             {
-                log_file << "time [sec]:" << dt * double(nst) 
-                         << "    iterations     :" << solver.iterations()
+                log_file << "time [sec]: " << std::setprecision(2) << std::scientific << time
+                         << "    BiCGstab iterations: " << solver.iterations()
                          << "    estimated error:" << solver.error() 
                          << std::endl;
             }
@@ -569,10 +576,6 @@ int main(int argc, char* argv[])
             }
         }
         STOP_TIMER(Newton iteration);
-        if (std::fmod(nst, 100) == 0)
-        {
-            std::cout << std::fixed << std::setprecision(2) << tstart + time << ";   " << tstart + tstop << std::endl;
-        }
         if (stationary)
         {
             std::cout << "stationary solution " << std::endl;
@@ -584,7 +587,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-            if (std::fmod(time, 900.) == 0)
+            if (std::fmod(nst, 100) == 0)
             {
                 std::cout << std::fixed << std::setprecision(2) << tstart + time << ";   " << tstart + tstop << std::endl;
             }
@@ -621,7 +624,7 @@ int main(int argc, char* argv[])
         if (std::fmod(nst, wrimap) == 0)
         {
             // Put data on time map file
-            START_TIMER(Writing map - file);
+            START_TIMER(Writing map-file);
             nst_map++;
             if (stationary)
             {
@@ -635,13 +638,13 @@ int main(int argc, char* argv[])
             map_file->put_time_variable(map_u_name, nst_map, u);
             map_file->put_time_variable(map_psi_name, nst_map, psi);
             map_file->put_time_variable(map_eq8_name, nst_map, eq8);
-            STOP_TIMER(Writing map - file);
+            STOP_TIMER(Writing map-file);
         }
 
         // His-files
         if (std::fmod(nst, wrihis) == 0)
         {
-            START_TIMER(Writing his - file);
+            START_TIMER(Writing his-file);
             nst_his++;
             if (stationary)
             {
@@ -651,14 +654,14 @@ int main(int argc, char* argv[])
             {
                 his_file->put_time(nst_his, double(nst) * dt);
             }
-            std::vector<double> his_values = { cn[i_left], cn[i_mid_left], cn[i_mid], cn[i_mid_right],  cn[i_right] };
+            std::vector<double> his_values = { cn[p_a], cn[p_b], cn[p_c], cn[p_d],  cn[p_e] };
             his_file->put_variable(his_cn_name, nst_his, his_values);
 
             his_values = { double(used_newton_iter) };
             his_file->put_variable(his_newton_iter_name, nst_his, his_values);
             his_values = { double(used_lin_solv_iter) };
             his_file->put_variable(his_lin_solv_iter_name, nst_his, his_values);
-            STOP_TIMER(Writing his - file);
+            STOP_TIMER(Writing his-file);
         }
     } // End of the time loop
     STOP_TIMER(Time loop);
@@ -666,7 +669,7 @@ int main(int argc, char* argv[])
     log_file.close();
     (void)map_file->close();
     (void)his_file->close();
-    STOP_TIMER(Writing log - file);
+    STOP_TIMER(Writing log-file);
 
     STOP_TIMER(main);
     PRINT_TIMER(timing_filename.data());
@@ -786,6 +789,14 @@ std::vector<double> hermite_interpolation_1d(std::vector<double> x, std::vector<
     w[2] = h01 * 0.5 + h11 * (x_cc[1] - x_cc[0]) / (x_gp[0] - x_gp[1]);
 
     return w;
+}
+std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs_name)
+{
+    std::stringstream ss_x;
+    std::stringstream ss_y;
+    ss_x << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << x_obs;
+    ss_y << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << y_obs;
+    return( "x=" + ss_x.str() + obs_name);  // ss_y not used
 }
 
 //------------------------------------------------------------------------------
