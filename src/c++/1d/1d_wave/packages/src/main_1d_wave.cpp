@@ -1679,7 +1679,6 @@ int main(int argc, char* argv[])
             //his_values = { double(used_lin_solv_iter) / double(used_newton_iter) };
             his_values = { double(used_lin_solv_iter)};
             his_file->put_variable(his_lin_solv_iter_name, nst_his, his_values);
-
             STOP_TIMER(Writing his-file);
         }
     } // End of the time loop
