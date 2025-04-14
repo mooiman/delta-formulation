@@ -164,13 +164,13 @@ and with a prescribed boundary condition at the left side of the domain
     c(0,t) = f_c(t).
 \end{align}
 %--------------------------------------------------------------------------------
-\subsection{Transport of constant constituent} \label{sec:numerical_experiment_1dadv_constant_boundary}
+\subsection{Transport of a constant constituent at the boundary} \label{sec:numerical_experiment_1d_adv_constant_boundary}
 The prescribed boundary condition for the constituent reads
 % reg_factor = 0.5 * (std::cos(M_PI * (treg - double(nst) * dt) / treg) + 1.0);
 \begin{align}
     c(0,t) = c_{\it given}
     \begin{cases}
-        \half \cos\left(\pi \left(\frac{t_{reg} - t}{t_{reg}}\right)+ 1\right) &\quad \text{if } t < t_{reg},
+        \half \left(\cos\left(\pi \frac{t_{reg} - t}{t_{reg}} \right) + 1\right) &\quad \text{if } t < t_{reg},
         \\
         1 &\quad \text{if } t \geq t_{reg},
     \end{cases}
@@ -185,12 +185,12 @@ where
 \paragraph*{Numerical experiment}
 The numerical experiment is performed with the following parameters:
 \begin{itemize}
-    \item Length of the domain, $\bqty{12000}{\metre}$
+    \item Length of the domain, $L_x = \bqty{12000}{\metre}$
     \item Grid size, $\Dx = \bqty{10}{\metre}$
     \item Start time, $t_{start} = \bqty{0}{\second}$
     \item End time, $t_{stop} = \bqty{3600}{\second}$
     \item Timestep, $\Dt = \bqty{5}{\second}$
-    \item Regularization time for time-series, $t_{reg} = \bqty{300}{\second}$
+    \item Regularization time for time-series, $t_{reg} = \bqty{600}{\second}$
     \item Prescribed constant velocity, $u_{\it given}(x,t) = \bqty{10}{\metre\per\second}$
     \item Prescribed initial value of the constituent, $c(x,0)= \bqty{0}{-}$.
     \item Prescribed constituent on boundary at $x=0$ is given by \autoref{eq:1d_adv_boundary_condition}.
@@ -207,21 +207,68 @@ because the continuous advection equation does \textbf{not} allow information tr
     \includegraphics[width=0.9\textwidth]{figures/constant_3600s.png}
     \caption{Spurious waves at $t=\bqty{3600}{\second}$. Range from $ 1 \pm \num{8e-09}$ }
 \end{figure}
+Results for several observation stations along the channel are shown in \autoref{fig:result_1d_adv_constant_bc}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/time-series-advection-constant.pdf}
     \caption{Time-series for several stations in the model, showing the transition behavior between the initial situation and the time-independent solution.}
+    \label{fig:result_1d_adv_constant_bc}
+\end{figure}
+%--------------------------------------------------------------------------------
+\subsection{Transport of a time-dependent constituent at the boundary}
+\label{sec:numerical_experiment_1d_adv_constant_boundary}
+The prescribed boundary condition for the constituent reads
+% reg_factor = 0.5 * (std::cos(M_PI * (treg - double(nst) * dt) / treg) + 1.0);
+\begin{align}
+    c(0,t) = c_{\it given}
+    \begin{cases}
+        \half \left(\cos\left(\pi \frac{t_{reg} - t}{t_{reg}}\right) + 1  \right) &\quad \text{if } t < t_{reg},
+        \\
+        -\cos\left(\pi \frac{t}{t_{\it reg}} \right) &\quad \text{if } t \geq t_{reg},
+    \end{cases}
+    \label{eq:1d_adv_sine_boundary_condition}
+\end{align}
+where
+\begin{symbollist}
+    \item[$t_{reg}$] The regularization time for the given time-series, [\si{\second}]
+    \nomenclature{$t_{reg}$}{\si{\second}}{The regularization time for the given time-series}
+\end{symbollist}
+%--------------------------------------------------------------------------------
+\paragraph*{Numerical experiment}
+The numerical experiment is performed with the following parameters:
+\begin{itemize}
+    \item Length of the domain, $\bqty{12000}{\metre}$
+    \item Grid size, $\Dx = \bqty{10}{\metre}$
+    \item Start time, $t_{start} = \bqty{0}{\second}$
+    \item End time, $t_{stop} = \bqty{3600}{\second}$
+    \item Timestep, $\Dt = \bqty{10}{\second}$
+    \item Regularization time for time-series, $t_{reg} = \bqty{600}{\second}$
+    \item Prescribed constant velocity, $u_{\it given}(x,t) = \bqty{10}{\metre\per\second}$
+    \item Prescribed initial value of the constituent, $c(x,0)= \bqty{0}{-}$.
+    \item Prescribed constituent on boundary at $x=0$ is given by \autoref{eq:1d_adv_boundary_condition}.
+    \item No boundary is prescribed at $x=\bqty{12000}{\metre}$.
+\end{itemize}
+%--------------------------------------------------------------------------------
+\paragraph*{Results of the numerical experiments}
+Results for several observation stations along the channel are shown in  \autoref{fig:result_1d_adv_sine_bc}:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/1d_advec_sine_dx10d0.pdf}
+    \caption{Time-series for several stations in the model, showing the transition behavior between the initial situation and the time-independent solution.}
+    \label{fig:result_1d_adv_sine_bc}
 \end{figure}
 %--------------------------------------------------------------------------------
 \subsection{Transport of a wave package inside the domain}
 The initial condition are computed as described in \autoref{sec:compatible_initialization}
-and is illustrated in the following figure:
+and is illustrated in \autoref{fig:1d_adv_initial_wave_package}:
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/wave_package_000s.png}
     \caption{Compatible initial condition of the wave package. Blue: Initial condition when  $\Dx=\bqty{5}{\metre}$, Black: Initial condition when  $\Dx=\bqty{50}{\metre}$}
+    \label{fig:1d_adv_initial_wave_package}
 \end{figure}
-and is defined by:
+The graphs in \autoref{fig:1d_adv_initial_wave_package} do not coincide on the grid points because the profiles are computed according \autoref{sec:compatible_initialization}.
+The initial condition is defined by:
 \begin{align}
     u_{it given} =
     \begin{cases}
@@ -235,14 +282,17 @@ and is defined by:
 \end{align}
 with
 \begin{symbollist}
-    \item[$x_{\it cent}$] Location of the centre of the envelope, \bqty{2500}{\metre}
-    \item[$L_{\it env}$] Length of the envelope, \bqty{2500}{\metre}
-    \item[$k_{\it env}$] $k_{\it env} = 2\pi / L_{\it env}$
+    \item[$x_{\it cent}$] Location of the centre of the envelope.
+    \item[$L_{\it env}$] Length of the envelope.
+    \item[$k_{\it env}$] $k_{\it env} = 2\pi / L_{\it env}$.
 \end{symbollist}
+
 %--------------------------------------------------------------------------------
 \paragraph*{Numerical experiment}
 The numerical experiment is performed with the following parameters:
 \begin{itemize}
+    \item Length of the domain $L_x = \bqty{10000}{\metre}$.
+    \item Length of the envelope \bqty{2500}{\metre}, ranging from \bqty{1250}{\metre} to \bqty{3750}{\metre}.
     \item Grid size and time step,
     \begin{itemize}
         \item $\Dx = \bqty{5}{\metre}$ and $\Dt = \bqty{0.01}{s}$
@@ -252,6 +302,7 @@ The numerical experiment is performed with the following parameters:
     \end{itemize}
     \item Start time, $t_{start} = \bqty{0}{\second}$.
     \item End time, $t_{stop} = \bqty{250}{\second}$.
+    \item Prescribed boundary conditions: $c(0,t) = c(L_x,t) = 0$.
 \end{itemize}
 %--------------------------------------------------------------------------------
 \paragraph*{Results of the numerical experiments}
@@ -329,11 +380,11 @@ The considered 1-D wave equation reads:
     \pdiff{h}{t}  + \pdiff{q}{x} & = 0 \qquad \textit{continuity eq.} \\
     \pdiff{q}{t}  + g h \pdiff{h}{x} & = 0 \qquad \textit{momentum eq.}
 \end{align}
-
+%
 With initial conditions
 \begin{align}
-    h(x,0) & = \zeta(x,0) - z_b(x),\\
-    q(x,0) & = 0
+    h(x,0) & = \zeta(x,0) - z_b(x), \quad \bunit{\metre} \\
+    q(x,0) & = 0, \quad \bunit{\square\metre\per\second}
 \end{align}
 for the the water level a Gaussian hump is prescribed
 \begin{align}
@@ -344,7 +395,7 @@ At the boundaries no ingoing signals are prescribed, so outgoing signals are lea
 \paragraph*{Numerical experiment}
 The numerical experiment is performed with the following parameters:
 \begin{itemize}
-    \item Length of the domain, $\bqty{12000}{\metre}$, ranging from $\bqty{-6000}{\metre}$ to $\bqty{6000}{\metre}$.
+    \item Length of the domain, $L_x = \bqty{12000}{\metre}$, ranging from $\bqty{-6000}{\metre}$ to $\bqty{6000}{\metre}$.
     \item Bed level, $z_b = \bqty{-10}{\metre}$.
     \item Grid size, $\Dx = \bqty{10}{\metre}$.
     \item Start time, $t_{start} = \bqty{0}{\second}$.
@@ -355,7 +406,7 @@ The numerical experiment is performed with the following parameters:
     \item Centre of the Gaussian hump, $\mu = \bqty{3000}{\metre}$.
     \item Spreading of the Gaussian hump, $\sigma = \bqty{700}{\metre}$.
 \end{itemize}
-And an experiment with given boundary values:
+And a second experiment with given boundary values:
 \begin{itemize}
     \item Prescribed discharge boundary at $\bqty{-6000}{\metre}$: $q(0,t) = \bqty{0.05}{\square\metre\per\second}$.
     \item Prescribed water level boundary value at $\bqty{6000}{\metre}$: $\zeta(0,t) = \bqty{0.02}{\metre}$.
@@ -367,10 +418,10 @@ Therefore two simulation should be performed:
     \item an temporal computation (with $t_{stop} = \bqty{10800}{\second}$)
 \end{enumerate}
 %--------------------------------------------------------------------------------
-\paragraph*{Numerical experiment}
+\paragraph*{Results of the numerical experiments 1}
 \notyet
 %--------------------------------------------------------------------------------
-\paragraph*{Results of the numerical experiments}
+\paragraph*{Results of the numerical experiments 2}
 \notyet
 %--------------------------------------------------------------------------------
 \subsection{Weir}\label{sec:numerical_experiment_weir}
