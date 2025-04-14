@@ -130,24 +130,31 @@ def main(Lx=12., dx=2.):
 
     alpha = 0.125
     c_error = 0.0
-    a[0] = 0.
-    b[0] = 0.
-    c[0] = 1./12.
-    d[0] = 10./12.
-    e[0] = 1./12.
-    f[0] = u0[1]
-    a[nx - 1] = 1./12.
-    b[nx - 1] = 10./12.
-    c[nx - 1] = 1./12.
-    d[nx - 1] = 0.
-    e[nx - 1] = 0.
-    f[nx - 1] = u0[(nx-1)-1]
     for i in range(1, nx - 1):
         b[i] = dx * alpha - c_error
         c[i] = dx * (1 - 2. * alpha )+ 2. * c_error
         d[i] = dx * alpha - c_error
         f[i] = cv_ana[i]
-    #u1 = thomas_algorithm_3(b, c, d, f)
+    i = 0
+    a[i] = 0.
+    b[i] = 0.
+    c[i] = 1./12.
+    d[i] = 10./12.
+    e[i] = 1./12.
+    f[i] = u0[i+1]
+    i = nx-1
+    a[i] = 1./12.
+    b[i] = 10./12.
+    c[i] = 1./12.
+    d[i] = 0.
+    e[i] = 0.
+    f[i] = u0[i-1]
+
+    ibnd = refine
+    jan = x_ana[ibnd]
+    i_bnd = len(x_ana)-refine-1
+    jan = x_ana[i_bnd]
+
     u1 = thomas_algorithm_5(a, b, c, d, e, f)
 
     for i in range(1, nx-1):
