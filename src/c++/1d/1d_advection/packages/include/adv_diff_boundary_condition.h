@@ -6,6 +6,14 @@
 #include <vector>
 #include <cmath>
 
-void adv_diff_boundary_condition(double&, double&, double&, double&, int);
+enum class BND_TYPE
+{
+    NONE = 0,
+    Constant,
+    Sine,
+    NR_BND_TYPES
+};
+
+void adv_diff_boundary_condition(double&, double&, double&, double&, double&, double&, BND_TYPE bnd_type);
 
 #endif __ADV_DIFF_BOUNDARY_CONDITION_H__

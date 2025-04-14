@@ -13,6 +13,7 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+#include <thread>
 
 // for bicgstab  solver
 #include <Eigen/IterativeLinearSolvers>
@@ -38,6 +39,7 @@ int get_toml_array(toml::table, std::string, std::vector<bool>&);
 #include "perf_timer.h"
 #include "definition_map_file.h"
 
+
 int BC_WEST = 0;
 int BC_EAST = 1;
 
@@ -46,7 +48,6 @@ int main(int argc, char* argv[])
     bool stationary = false;
     std::string toml_file_name("--- not-defined ---");
     int status = -1;
-    int nst_print_matrix = -1;
 
     std::filesystem::path exec_file;
     std::filesystem::path exec_dir;
@@ -82,21 +83,19 @@ int main(int argc, char* argv[])
         output_dir = ".";
     }
 
-    bool regularization_init = tbl["regularization_init"].value_or(bool(false));
-    bool regularization_iter = tbl["regularization_iter"].value_or(bool(false));
-    bool regularization_time = tbl["regularization_time"].value_or(bool(false));
-    bool use_eq8 = tbl["use_eq8"].value_or(bool(false));
-    if (!use_eq8 && (regularization_init || regularization_iter || regularization_time))
-    {
-        output_dir = current_dir.string() + "/output_eq8_not_used/";
-    }
     std::filesystem::create_directory(output_dir);
 
     START_TIMERN(main);
     START_TIMER(Simulation initialization);
+    SHAPE_CONC shape_conc = SHAPE_CONC::NONE;
+    BND_TYPE bnd_type = BND_TYPE::NONE;
+    int select_src = 0;  // 0: constant source == 0
 
     std::string out_file;
     std::stringstream ss;
+
+    std::string logging = tbl["Logging"].value_or("None");
+
     ss << "advection";
     out_file = output_dir.string() + ss.str();
     std::string his_filename(out_file + "_his.nc");
@@ -108,6 +107,7 @@ int main(int argc, char* argv[])
     std::ofstream log_file;
     log_file.open(log_filename);
     std::cout << "=== Input file =======================================" << std::endl;
+    std::cout << "Executable compiled: " << __DATE__ << ", " << __TIME__ << std::endl;
     std::cout << std::filesystem::absolute(toml_file_name) << std::endl;
     std::cout << "======================================================" << std::endl;
     log_file << "======================================================" << std::endl;
@@ -118,109 +118,60 @@ int main(int argc, char* argv[])
     log_file << tbl << "\n";  // Write input TOML file to log_file
     log_file << "=======================================================" << std::endl;
     log_file << std::endl;
-    log_file << "=== Used input variables ==============================" << std::endl;
 
     // Domain
-    log_file << "[Domain]" << std::endl;
     tbl_chp = *tbl["Domain"].as_table();
     double Lx = tbl_chp["Lx"].value_or(double(1.0));
-    log_file << "Lx = " << Lx << std::endl;
-    double Interface = tbl_chp["Interface"].value_or(double(0.5));  // Location of interface[-], fraction of Lx
-    log_file << "Interface = " << Interface << std::endl;
 
     // Time
-    log_file << std::endl << "[Time]" << std::endl;
     tbl_chp = *tbl["Time"].as_table();
     double tstart = tbl_chp["tstart"].value_or(double(0.0));
-    log_file << "tstart = " << tstart << std::endl;
     double tstop = tbl_chp["tstop"].value_or(double(2.0 * 3600.));
-    log_file << "tstop = " << tstop << std::endl;
-    double dt = tbl_chp["dt"].value_or(double(0.0));  // default stationary
-    if (dt == 0.0) { stationary = true;  }
-    log_file << "dt = " << dt << std::endl;
+
+    // Initial
+    tbl_chp = *tbl["Initial"].as_table();
+    std::string shape_type = tbl_chp["shape"].value_or("None");
+    if (shape_type == "Constant") { shape_conc = SHAPE_CONC::Constant; }
+    else if (shape_type == "Envelope") { shape_conc = SHAPE_CONC::Envelope; }
+    else { shape_conc = SHAPE_CONC::NONE; }
 
     // Boundary
-    log_file << std::endl << "[Boundary]" << std::endl;
     tbl_chp = *tbl["Boundary"].as_table();
+    std::vector<std::string> bc_type;
+    status = get_toml_array(tbl_chp, "bc_type", bc_type);
+    if (bc_type[0] == "Constant") { bnd_type = BND_TYPE::Constant; }
+    else if (bc_type[0] == "Sine") { bnd_type = BND_TYPE::Sine; }
+    else { bnd_type = BND_TYPE::NONE; }
     std::vector<double> bc_vals;
     status = get_toml_array(tbl_chp, "bc_vals", bc_vals);
     double treg = tbl_chp["treg"].value_or(double(300.0));
-    if (stationary)
-    {
-        log_file << "treg = " << 0.0 << std::endl;
-    }
-    else
-    {
-        log_file << "treg = " << treg << std::endl;
-    }
 
     //Physics
     tbl_chp = *tbl["Physics"].as_table();
-    log_file << std::endl << "[Physics]" << std::endl;
     double u_const = tbl_chp["u_const"].value_or(double(0.0));  // default, no velocitty
-    log_file << "u_const = " << u_const << std::endl;
 
     // Numerics
-    log_file << std::endl << "[Numerics]" << std::endl;
     tbl_chp = *tbl["Numerics"].as_table();
+    double dt = tbl_chp["dt"].value_or(double(0.0));  // default stationary
+    if (dt == 0.0) { stationary = true; }
     double dx = tbl_chp["dx"].value_or(double(0.01));
-    log_file << "dx = " << dx << std::endl;
     double c_psi = tbl_chp["c_psi"].value_or(double(4.0));
-    log_file << "c_psi = " << c_psi << std::endl;
     double theta = tbl_chp["theta"].value_or(double(0.501));
-    if (stationary)
-    {
-        log_file << "theta = " << 1.0 << std::endl;
-    }
-    else
-    {
-        log_file << "theta = " << theta << std::endl;
-    }
     double alpha = tbl_chp["alpha"].value_or(double(0.125));  // 0.125 (Mass matrix)
-    log_file << "alpha = " << alpha << std::endl;
     int iter_max = tbl_chp["iter_max"].value_or(int(150));
-    log_file << "iter_max = " << iter_max << std::endl;
     double eps_newton = tbl_chp["eps_newton"].value_or(double(1.0e-12));
-    log_file << "eps_newton = " << eps_newton << std::endl;
     double eps_bicgstab = tbl_chp["eps_bicgstab"].value_or(double(1.0e-12));
-    log_file << "eps_bicgstab = " << eps_bicgstab << std::endl;
-    // already read: bool use_eq8 = tbl_chp["use_eq8"].value_or(bool(false));
-    log_file << "use_eq8  = " << use_eq8 << std::endl;
-    // bool regularization_init = tbl_chp["regularization_init"].value_or(bool(false));
-    log_file << "regularization_int  = " << regularization_init << std::endl;
-    // bool regularization_iter = tbl_chp["regularization_iter"].value_or(bool(false));
-    log_file << "regularization_iter = " << regularization_iter << std::endl;
-    // bool regularization_time = tbl_chp["regularization_time"].value_or(bool(false));
-    log_file << "regularization_time = " << regularization_time << std::endl;
 
     //Output
     log_file << std::endl << "[Output]" << std::endl;
     tbl_chp = *tbl["Output"].as_table();
     double dt_his = tbl_chp["dt_his"].value_or(double(1.0));
-    if (stationary)
-    {
-        log_file << "dt_his = " << 1.0 << std::endl;
-    }
-    else
-    {
-        log_file << "dt_his = " << dt_his << std::endl;
-    }
     double dt_map = tbl_chp["dt_map"].value_or(double(10.0));
-    if (stationary)
-    {
-        log_file << "dt_map = " << 1.0 << std::endl;
-    }
-    else
-    {
-        log_file << "dt_map = " << dt_map << std::endl;
-    }
 
     //  select 
-    //      1 uniform u>0
-    //      2 uniform u>0, sine function at west boundary
-    int select = 0;
-    select = 2;
-
+    //      Constant c, u>0
+    //      Sine c(0,t)= sine at west boundary, uniform u>0
+    //      Envelope  uniform u>0, sine within cosine envelope
 
     double dxinv = 1. / dx;
     int nx = int(Lx * dxinv) + 1 + 2; // nr nodes; including 2 virtual points
@@ -249,6 +200,54 @@ int main(int argc, char* argv[])
         wrimap = std::max(int(dt * dtinv), int(dt_map * dtinv));     // write interval to map-file (every 1 sec , or every delta t)
     }
 
+    log_file << "=== Used input variables ==============================" << std::endl;
+    log_file << "[Domain]" << std::endl;
+    log_file << "Lx = " << Lx << std::endl;
+
+    log_file << std::endl << "[Time]" << std::endl;
+    log_file << "tstart = " << tstart << std::endl;
+    log_file << "tstop = " << tstop << std::endl;
+
+    log_file << std::endl << "[Initial]" << std::endl;
+    log_file << "shape = " << shape_type << std::endl;
+
+    log_file << std::endl << "[Boundary]" << std::endl;
+    log_file << "bc_type = ";
+    for (int i = 0; i < bc_type.size() - 1; ++i) { log_file << bc_type[i] << ", "; }
+    log_file << bc_type[bc_type.size() - 1] << std::endl;
+    log_file << "bc_vals = ";
+    for (int i = 0; i < bc_vals.size() - 1; ++i) { log_file << bc_vals[i] << ", "; }
+    log_file << bc_vals[bc_vals.size() - 1] << std::endl;
+    log_file << "treg = " << treg << std::endl;
+
+    log_file << std::endl << "[Physics]" << std::endl;
+    log_file << "u_const = " << u_const << std::endl;
+
+    log_file << std::endl << "[Numerics]" << std::endl;
+    log_file << "dt  = " << dt << std::endl;
+    log_file << "dx  = " << dx << std::endl;
+    log_file << "c_psi  = " << c_psi << std::endl;
+    log_file << "iter_max  = " << iter_max << std::endl;
+    log_file << "theta  = " << theta << std::endl;
+    log_file << "alpha  = " << alpha << std::endl;
+    log_file << "eps_newton  = " << eps_newton << std::endl;
+    log_file << "eps_bicgstab  = " << eps_bicgstab << std::endl;
+
+    log_file << std::endl << "[Output]" << std::endl;
+    log_file << "dt_his = " << dt_his << std::endl;
+    log_file << "dt_map = " << dt_map << std::endl;
+
+    log_file << "-------------------------------------------------------" << std::endl;
+    log_file << "Nodes  : " << nx << std::endl;
+    log_file << "Volumes: " << (nx - 1) << std::endl;
+    log_file << "CFL    : " << u_const * dt / dx << std::endl;
+    STOP_TIMER(Writing log - file);  // but two write statements are not timed
+    if (status != 0) {
+        log_file.close();
+        exit(1);
+    }
+    log_file << "=======================================================" << std::endl;
+
     double bc0;
     double bc1;
 
@@ -274,10 +273,15 @@ int main(int argc, char* argv[])
     mass[1] = 1.0 - 2. * alpha;
     mass[2] = alpha;
 
-    double alpha_bc = (2. * alpha - 1. / 2.);
-    w_bc[0] = 1. + alpha_bc;  // 0.75
-    w_bc[1] = 1. - 2. * alpha_bc; // 1.5
-    w_bc[2] = alpha_bc;  // -0.25
+    double alpha_bc = 2. * alpha - 1. / 2.;
+    std::vector<double> w_nat(3, 0.0);
+    w_nat[0] = 0.5 * (1.0 + alpha_bc);
+    w_nat[1] = 0.5 * (1.0 - 2.0 * alpha_bc);
+    w_nat[2] = 0.5 * alpha_bc;
+    std::vector<double> w_ess(3, 0.0);
+    w_ess[0] = w_nat[0];
+    w_ess[1] = w_nat[1];
+    w_ess[2] = w_nat[2];
 
     //initialize x-coordinate
     for (int i = 0; i < nx; i++)
@@ -286,8 +290,8 @@ int main(int argc, char* argv[])
     }
 
     // initial concentration
-    (void)adv_diff_init_concentration(cn, select);
-    (void)adv_diff_init_velocity(u, u_const, x, select);
+    (void)adv_diff_init_concentration(mass, x, Lx, shape_conc, cn);
+    (void)adv_diff_init_velocity(u, u_const, x, shape_conc);
     ////////////////////////////////////////////////////////////////////////////
     // Define map file 
     std::cout << "    Create map-file" << std::endl;
@@ -355,11 +359,10 @@ int main(int argc, char* argv[])
 
     ////////////////////////////////////////////////////////////////////////////
 
-    // source term q
-    (void)adv_diff_source(q, select);
+    (void)adv_diff_source(q, select_src);
 
     double time = tstart + dt * double(0);
-    //(void)adv_diff_boundary_condition(cn[0], cn[nx - 1], time, treg, select);
+    //(void)adv_diff_boundary_condition(cn[0], cn[nx - 1], time, treg, select_bc);
     // compute Peclet number
     for (int i = 0; i < nx; i++)
     {
@@ -376,7 +379,7 @@ int main(int argc, char* argv[])
 
     // start time loop
     std::cout << "Start time-loop" << std::endl;
-    std::cout << time << ";   " << dt << ";   " << tstart + tstop << std::endl;
+    std::cout << std::fixed << std::setprecision(3) << "tstart= " << tstart + time << ";   tstop= " << tstart + tstop << ";   dt= " << dt << ";   dx= " << dx << std::endl;
 
     double dc_max = 0.0;
     int dc_maxi = 0;
@@ -384,26 +387,29 @@ int main(int argc, char* argv[])
     START_TIMER(Time loop);
     for (int nst = 1; nst < total_time_steps; ++nst)
     {
-        int used_iter = 0;
-        int used_lin_iter = 0;
+        int used_newton_iter = 0;
+        int used_lin_solv_iter = 0;
         time = dt * double(nst);
 #if defined(DEBUG)
         log_file << "=== Start time step ===================================" << std::endl;
         log_file << std::setprecision(4) << time << std::endl;
 #endif
-        adv_diff_boundary_condition(bc0, bc1, time, treg, select);
+        adv_diff_boundary_condition(bc0, bc1, bc_vals[BC_WEST], bc_vals[BC_EAST], time, treg, bnd_type);
         START_TIMER(Newton iteration);
         for (int iter = 0; iter < iter_max; ++iter)
         {
 #if defined(DEBUG)   
             //log_file << "====== Start iteration ================================" << std::endl;
 #endif
+            used_newton_iter += 1;
             if (nst == 1 && iter == 0)
             {
                 START_TIMER(Matrix initialization);
             }
             START_TIMER(Matrix set up);
+            //
             // interior nodes
+            //
             for (int i = 1; i < nx - 1; ++i)
             {
                 double cn_im12 = 0.5 * (cn[i - 1] + cn[i]);
@@ -433,46 +439,35 @@ int main(int argc, char* argv[])
             }
             {
                 //
-                // wwest boundary
+                // wwest boundary (u>0; essential boundary)
                 //
                 int i = 0;
 
-                double cp_i = cp[i];       // = c^{n+1,p}_{i}
+                double cp_i = cp[i];             // = c^{n+1,p}_{i}
                 double cp_ip1 = cp[i + 1];       // = c^{n+1,p}_{i+1}
                 double cp_ip2 = cp[i + 2];       // = c^{n+1,p}_{i+2}
 
-                // Dirichlet
-                // double bc_location_ess = 1.0;
-                // w_bc = bc_val(bc_location_ess);
                 w_bc[0] = 1. / 12.;
                 w_bc[1] = 10. / 12.;
                 w_bc[2] = 1. / 12.;
-                w_bc[0] = 0.5 * (1. + alpha_bc);
-                w_bc[1] = 0.5 * (1. - 2. * alpha_bc);
-                w_bc[2] = 0.5 * (alpha_bc);
-                A.coeffRef(i, i    ) = w_bc[0];
-                A.coeffRef(i, i + 1) = w_bc[1];
-                A.coeffRef(i, i + 2) = w_bc[2];
-                rhs[i] = +bc0 - (w_bc[0] * cp_i + w_bc[1] * cp_ip1 + w_bc[2] * cp_ip2);  // if u>0 this is upwind
+                w_ess[0] = w_nat[0];
+                w_ess[1] = w_nat[1];
+                w_ess[2] = w_nat[2];
+                A.coeffRef(i, i    ) = w_ess[0];
+                A.coeffRef(i, i + 1) = w_ess[1];
+                A.coeffRef(i, i + 2) = w_ess[2];
+                rhs[i] = +bc0 - (w_ess[0] * cp_i + w_ess[1] * cp_ip1 + w_ess[2] * cp_ip2);  // if u>0 this is upwind
             }
             {
                 //
-                // eeast boundary
+                // eeast boundary (u>0; natural boundary)
                 //
                 int i = nx - 1;
-                // bc_location_nat = 0.5;  // boundary location between node i+1 and i
-                // w_bc = bc_val(bc_location_ess);
-                w_bc[0] = 11. / 24.;
-                w_bc[1] = 14. / 24.;
-                w_bc[2] = -1. / 24.;
-                w_bc[0] = 1. + alpha_bc;
-                w_bc[1] = 1. - 2. * alpha_bc;
-                w_bc[2] = alpha_bc;
 
-                double cn_i = cn[i];       // = h^{n}_{i}
+                double cn_i = cn[i];             // = h^{n}_{i}
                 double cn_im1 = cn[i - 1];       // = h^{n}_{i-1}
                 double cn_im2 = cn[i - 2];       // = h^{n}_{i-2}
-                double cp_i = cp[i];       // = h^{n+1,p}_{i}
+                double cp_i = cp[i];             // = h^{n+1,p}_{i}
                 double cp_im1 = cp[i - 1];       // = h^{n+1,p}_{i-1}
                 double cp_im2 = cp[i - 2];       // = h^{n+1,p}_{i-2}
                 double ctheta_i = theta * cp_i + (1.0 - theta) * cn_i;
@@ -480,17 +475,17 @@ int main(int argc, char* argv[])
 
                 // Outflow boundary (natural boundary)
                 double dcdt = dtinv * (
-                    w_bc[0] * (cp_i - cn_i) +
-                    w_bc[1] * (cp_im1 - cn_im1) +
-                    w_bc[2] * (cp_im2 - cn_im2)
+                    w_nat[0] * (cp_i - cn_i) +
+                    w_nat[1] * (cp_im1 - cn_im1) +
+                    w_nat[2] * (cp_im2 - cn_im2)
                     );
 
                 double u_im12 = 0.5 * (u[i] + u[i - 1]);
                 double udcdx =  u_im12 * (ctheta_i - ctheta_im1) * dxinv;
 
-                A.coeffRef(i, i) = dtinv * w_bc[0] + u_im12 * theta * dxinv;
-                A.coeffRef(i, i - 1) = dtinv * w_bc[1] - u_im12 * theta * dxinv;
-                A.coeffRef(i, i - 2) = dtinv * w_bc[2];
+                A.coeffRef(i, i    ) = dtinv * w_nat[0] + theta * dxinv * u_im12;
+                A.coeffRef(i, i - 1) = dtinv * w_nat[1] - theta * dxinv * u_im12;
+                A.coeffRef(i, i - 2) = dtinv * w_nat[2];
                 rhs[i] = - (dcdt + udcdx);
             }
             STOP_TIMER(Matrix set up);
@@ -521,13 +516,15 @@ int main(int argc, char* argv[])
             {
                 STOP_TIMER(BiCGStab);
             }
-#if defined(DEBUG)
-            //log_file << "time [sec]:" << dt * double(nst) 
-            //         << "    iterations     :" << solver.iterations()
-            //         << "    estimated error:" << solver.error() 
-            //         << std::endl;
-#endif
+            if (logging == "iterations" || logging == "matrix")
+            {
+                log_file << "time [sec]:" << dt * double(nst) 
+                         << "    iterations     :" << solver.iterations()
+                         << "    estimated error:" << solver.error() 
+                         << std::endl;
+            }
 
+            // The new solution is the previous iterant plus the delta
             dc_max = 0.0;
             dc_maxi = 0;
             for (int i = 0; i < nx; ++i)
@@ -541,14 +538,14 @@ int main(int argc, char* argv[])
                 }
             }
 
-            if (nst <= nst_print_matrix)
+            if (logging == "matrix")
             {
                 log_file << "=== Matrix ============================================" << std::endl;
                 log_file << std::setprecision(4) << std::scientific << Eigen::MatrixXd(A) << std::endl;
                 log_file << "=== RHS ===============================================" << std::endl;
                 log_file << std::setprecision(8) << std::scientific << rhs << std::endl;
             }
-            if (nst <= nst_print_matrix)
+            if (logging == "matrix")
             {
                 log_file << "=== cn, delta_c, cp ===================================" << std::endl;
                 for (int i = 0; i < nx; ++i)
@@ -557,45 +554,67 @@ int main(int argc, char* argv[])
                 }
                 //log_file << "=== Eigen values ======================================" << std::endl;
                 //log_file << std::setprecision(8) << std::scientific << Eigen::MatrixXd(A).eigenvalues() << std::endl;
-                //log_file << "====== End iteration ==================================" << std::endl;
-                //log_file << "time [sec]: " << dt * double(nst)
-                //         << ";    iterations     : " << solver.iterations()
-                //         << ";    estimated error: " << solver.error() 
-                //         << std::endl;
+                log_file << "====== End iteration ==================================" << std::endl;
+                log_file << "time [sec]: " << dt * double(nst)
+                         << ";    iterations     : " << solver.iterations()
+                         << ";    estimated error: " << solver.error() 
+                         << std::endl;
             }
 
-            used_iter = iter+1;
-            used_lin_iter += (int) solver.iterations();
             STOP_TIMER(Set solution);
-            if (dc_max < eps_newton || iter == iter_max - 1)
+            used_lin_solv_iter = std::max(used_lin_solv_iter, (int)solver.iterations());
+            if (dc_max < eps_newton)
             {
-                if (iter == iter_max - 1)
-                {
-                    log_file << "=======================================================" << std::endl;
-                    log_file << std::fixed << std::setprecision(2) << tstart + dt * double(nst) << ";   " << tstart + tstop << ";   " << used_iter << std::endl;
-                    log_file << std::scientific << std::setprecision(10) <<  "maximum delta c at index " << dc_maxi << " is " << dc_max << std::endl;
-                }
                 break;
             }
         }
         STOP_TIMER(Newton iteration);
+        if (std::fmod(nst, 100) == 0)
+        {
+            std::cout << std::fixed << std::setprecision(2) << tstart + time << ";   " << tstart + tstop << std::endl;
+        }
+        if (stationary)
+        {
+            std::cout << "stationary solution " << std::endl;
+            log_file << "stationary solution " << std::endl;
+            log_file << std::setprecision(8) << std::scientific
+                << "    Iter: " << used_newton_iter
+                << "    Delta c^{n + 1,p + 1}: " << dc_max << " at: " << dc_maxi
+                << std::endl;
+        }
+        else
+        {
+            if (std::fmod(time, 900.) == 0)
+            {
+                std::cout << std::fixed << std::setprecision(2) << tstart + time << ";   " << tstart + tstop << std::endl;
+            }
+            if (logging == "iterations" || logging == "matrix")
+            {
+                log_file << "time [sec]: " << std::setprecision(2) << std::scientific << time
+                    << std::setprecision(8) << std::scientific
+                    << "    Newton iterations  : " << used_newton_iter
+                    << "    Delta c^{n + 1,p + 1}: " << dc_max << " at: " << dc_maxi
+                    << std::endl;
+            }
+        }
+        if (used_newton_iter == iter_max)
+        {
+            if (dc_max > eps_newton || dc_max > eps_newton)
+            {
+                log_file << "    ----    maximum number of iterations reached, probably not converged" << std::endl;
+            }
+        }
         for (int i = 0; i < nx; ++i)
         {
             cn[i] = cp[i];
         }
-        if (nst <= nst_print_matrix)
+        if (logging == "matrix")
         {
             log_file << "=== cp, cn, cp-cn =====================================" << std::endl;
             for (int i = 0; i < nx; ++i)
             {
                 log_file << std::setprecision(15) << std::scientific << cp[i] << ",   " << cn[i] << ",   " << cp[i] - cn[i] << std::endl;
             }
-        }
-        std::cout << std::fixed << std::setprecision(2) << tstart + dt * double(nst) << ";   " << tstart + tstop << ";   " << used_iter << std::endl;
-        if (nst <= nst_print_matrix)
-        {
-            log_file << "=======================================================" << std::endl;
-            log_file << std::fixed << std::setprecision(2) << tstart + dt * double(nst) << ";   " << tstart + tstop << ";   " << used_iter << std::endl;
         }
 
         // Map-files
@@ -618,6 +637,7 @@ int main(int argc, char* argv[])
             map_file->put_time_variable(map_eq8_name, nst_map, eq8);
             STOP_TIMER(Writing map - file);
         }
+
         // His-files
         if (std::fmod(nst, wrihis) == 0)
         {
@@ -634,15 +654,15 @@ int main(int argc, char* argv[])
             std::vector<double> his_values = { cn[i_left], cn[i_mid_left], cn[i_mid], cn[i_mid_right],  cn[i_right] };
             his_file->put_variable(his_cn_name, nst_his, his_values);
 
-            his_values = { double(used_iter) };
+            his_values = { double(used_newton_iter) };
             his_file->put_variable(his_newton_iter_name, nst_his, his_values);
-            his_values = { double(used_lin_iter) };
+            his_values = { double(used_lin_solv_iter) };
             his_file->put_variable(his_lin_solv_iter_name, nst_his, his_values);
             STOP_TIMER(Writing his - file);
         }
     } // End of the time loop
     STOP_TIMER(Time loop);
-    log_file << "=======================================================" << std::endl;
+
     log_file.close();
     (void)map_file->close();
     (void)his_file->close();
@@ -650,6 +670,10 @@ int main(int argc, char* argv[])
 
     STOP_TIMER(main);
     PRINT_TIMER(timing_filename.data());
+
+    std::chrono::duration<int, std::milli> timespan(1000);
+    std::this_thread::sleep_for(timespan);
+    return 0;
 }
 //------------------------------------------------------------------------------
 std::vector<double> bc_val(double xi)

@@ -9,13 +9,11 @@
 //   Boundary conditions for the Advection-Diffusion equation
 //
 
+#include "adv_diff_init_concentration.h"
 #include "adv_diff_boundary_condition.h"
 
-void adv_diff_boundary_condition(double& bc0, double& bc1, double& time, double& treg, int select)
+void adv_diff_boundary_condition(double& bc0_out, double& bc1_out, double& bc0_in, double& bc1_in, double& time, double& treg, BND_TYPE bnd_type)
 {
-    bc0 = 1.0;
-    bc1 = 0.0;
-    //
     double reg_a = 0.0;
     double reg_b = 1.0;
     double reg_factor = 1.0;
@@ -26,28 +24,28 @@ void adv_diff_boundary_condition(double& bc0, double& bc1, double& time, double&
     }
     reg_interp = reg_a + (reg_b - reg_a) * reg_factor;  // 0 <= reg_factor <= 1
 
-    switch (select)
+    switch (bnd_type)
     {
-    case 1:
+    case BND_TYPE::Constant:
         //
         // Given value at both sides
         //
-        bc0 = reg_interp * bc0;
-        bc1 = reg_interp * bc1;
+        bc0_out = reg_interp * bc0_in;
+        bc1_out = reg_interp * bc1_in;
         break;
-    case 2:
+    case BND_TYPE::Sine:
         //
         // given sine function at left boundary
         //
         if (time < treg) 
         {
-            bc0 = reg_interp;
+            bc0_out = reg_interp;
         }
         else
         {
-            bc0 = -std::cos(M_PI * (time) / treg);
+            bc0_out = -std::cos(M_PI * (time) / treg);
         }
-        bc1 = reg_interp * bc1;
+        bc1_out = reg_interp * bc1_in;
         break;
     }
 }

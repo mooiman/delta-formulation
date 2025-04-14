@@ -1,0 +1,247 @@
+﻿  main.cpp
+C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\Matrix.h(48,40): warning C5054: operator '&': deprecated between enumerations of different types
+  (compiling source file 'src/main.cpp')
+      C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\Matrix.h(48,40):
+      the template instantiation context (the oldest one first) is
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\SparseLU\SparseLU.h(805,8):
+          while compiling class template 'Eigen::SparseLUMatrixLReturnType'
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\SparseLU\SparseLU.h(824,33):
+          see reference to class template instantiation 'Eigen::Array<int,-1,1,0,-1,1>' being compiled
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\Array.h(48,12):
+          see reference to class template instantiation 'Eigen::PlainObjectBase<Eigen::Array<int,-1,1,0,-1,1>>' being compiled
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\util\XprHelper.h(459,73):
+          see reference to class template instantiation 'Eigen::internal::traits<Derived>' being compiled
+          with
+          [
+              Derived=Eigen::Array<int,-1,1,0,-1,1>
+          ]
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\Array.h(19,78):
+          see reference to class template instantiation 'Eigen::internal::traits<Eigen::Matrix<int,-1,1,0,-1,1>>' being compiled
+  
+C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection\packages\src\main.cpp(617,33): warning C4456: declaration of 'his_values' hides previous local declaration
+      C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection\packages\src\main.cpp(327,25):
+      see declaration of 'his_values'
+  
+C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\TriangularMatrix.h(212,29): warning C5054: operator '&': deprecated between enumerations of different types
+  (compiling source file 'src/main.cpp')
+      C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\TriangularMatrix.h(212,29):
+      the template instantiation context (the oldest one first) is
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection\packages\src\main.cpp(493,22):
+          see reference to function template instantiation 'Eigen::Matrix<double,-1,1,0,-1,1> &Eigen::Matrix<double,-1,1,0,-1,1>::operator =<Derived>(const Eigen::DenseBase<Derived> &)' being compiled
+          with
+          [
+              Derived=Eigen::SolveWithGuess<Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>,Eigen::Matrix<double,-1,1,0,-1,1>,Eigen::VectorXd>
+          ]
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection\packages\src\main.cpp(493,22):
+              see the first reference to 'Eigen::Matrix<double,-1,1,0,-1,1>::operator =' in 'main'
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\Matrix.h(227,20):
+          see reference to function template instantiation 'Derived &Eigen::PlainObjectBase<Derived>::_set<Eigen::SolveWithGuess<Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>,Derived,Eigen::VectorXd>>(const Eigen::DenseBase<Eigen::SolveWithGuess<Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>,Derived,Eigen::VectorXd>> &)' being compiled
+          with
+          [
+              Derived=Eigen::Matrix<double,-1,1,0,-1,1>
+          ]
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\PlainObjectBase.h(752,17):
+          see reference to function template instantiation 'void Eigen::internal::call_assignment<Derived,Eigen::SolveWithGuess<Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>,Derived,Eigen::VectorXd>>(Dst &,const Src &)' being compiled
+          with
+          [
+              Derived=Eigen::Matrix<double,-1,1,0,-1,1>,
+              Dst=Eigen::Matrix<double,-1,1,0,-1,1>,
+              Src=Eigen::SolveWithGuess<Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>,Eigen::Matrix<double,-1,1,0,-1,1>,Eigen::VectorXd>
+          ]
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\AssignEvaluator.h(861,3):
+          see reference to function template instantiation 'void Eigen::internal::call_assignment<Dst,Src,Eigen::internal::assign_op<double,double>>(Dst &,const Src &,const Func &,void *)' being compiled
+          with
+          [
+              Dst=Eigen::Matrix<double,-1,1,0,-1,1>,
+              Src=Eigen::SolveWithGuess<Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>,Eigen::Matrix<double,-1,1,0,-1,1>,Eigen::VectorXd>,
+              Func=Eigen::internal::assign_op<double,double>
+          ]
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\AssignEvaluator.h(883,3):
+          see reference to function template instantiation 'void Eigen::internal::call_assignment_no_alias<Dst,Src,Func>(Dst &,const Src &,const Func &)' being compiled
+          with
+          [
+              Dst=Eigen::Matrix<double,-1,1,0,-1,1>,
+              Src=Eigen::SolveWithGuess<Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>,Eigen::Matrix<double,-1,1,0,-1,1>,Eigen::VectorXd>,
+              Func=Eigen::internal::assign_op<double,double>
+          ]
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\AssignEvaluator.h(915,46):
+          see reference to class template instantiation 'Eigen::internal::Assignment<Eigen::internal::call_assignment_no_alias::ActualDstTypeCleaned,Src,Func,Eigen::internal::AssignmentKind<Eigen::DenseShape,Eigen::DenseShape>::Kind,void>' being compiled
+          with
+          [
+              Src=Eigen::SolveWithGuess<Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>,Eigen::Matrix<double,-1,1,0,-1,1>,Eigen::VectorXd>,
+              Func=Eigen::internal::assign_op<double,double>
+          ]
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\IterativeLinearSolvers\SolveWithGuess.h(103,15):
+          while compiling class template member function 'void Eigen::internal::Assignment<Eigen::internal::call_assignment_no_alias::ActualDstTypeCleaned,Src,Func,Eigen::internal::AssignmentKind<Eigen::DenseShape,Eigen::DenseShape>::Kind,void>::run(DstXprType &,const Eigen::SolveWithGuess<Derived,Eigen::Matrix<double,-1,1,0,-1,1>,Eigen::VectorXd> &,const Eigen::internal::assign_op<double,double> &)'
+          with
+          [
+              Src=Eigen::SolveWithGuess<Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>,Eigen::Matrix<double,-1,1,0,-1,1>,Eigen::VectorXd>,
+              Func=Eigen::internal::assign_op<double,double>,
+              DstXprType=Eigen::internal::call_assignment_no_alias::ActualDstTypeCleaned,
+              Derived=Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>
+          ]
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\AssignEvaluator.h(915,49):
+              see the first reference to 'Eigen::internal::Assignment<Eigen::internal::call_assignment_no_alias::ActualDstTypeCleaned,Src,Func,Eigen::internal::AssignmentKind<Eigen::DenseShape,Eigen::DenseShape>::Kind,void>::run' in 'Eigen::internal::call_assignment_no_alias'
+          with
+          [
+              Src=Eigen::SolveWithGuess<Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>,Eigen::Matrix<double,-1,1,0,-1,1>,Eigen::VectorXd>,
+              Func=Eigen::internal::assign_op<double,double>
+          ]
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\AssignEvaluator.h(883,3):
+              see the first reference to 'Eigen::internal::call_assignment_no_alias' in 'Eigen::internal::call_assignment'
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\AssignEvaluator.h(861,3):
+              see the first reference to 'Eigen::internal::call_assignment' in 'Eigen::internal::call_assignment'
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\PlainObjectBase.h(752,17):
+              see the first reference to 'Eigen::internal::call_assignment' in 'Eigen::PlainObjectBase<Eigen::Matrix<double,-1,1,0,-1,1>>::_set'
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\Matrix.h(227,7):
+              see the first reference to 'Eigen::PlainObjectBase<Eigen::Matrix<double,-1,1,0,-1,1>>::_set' in 'Eigen::Matrix<double,-1,1,0,-1,1>::operator ='
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection\packages\src\main.cpp(493,22):
+              see the first reference to 'Eigen::Matrix<double,-1,1,0,-1,1>::operator =' in 'main'
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\IterativeLinearSolvers\SolveWithGuess.h(111,15):
+          see reference to function template instantiation 'void Eigen::IterativeSolverBase<Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>>::_solve_with_guess_impl<RhsType,Derived>(const Rhs &,Eigen::MatrixBase<Derived> &) const' being compiled
+          with
+          [
+              RhsType=Eigen::Matrix<double,-1,1,0,-1,1>,
+              Derived=Eigen::Matrix<double,-1,1,0,-1,1>,
+              Rhs=Eigen::Matrix<double,-1,1,0,-1,1>
+          ]
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\IterativeLinearSolvers\IterativeSolverBase.h(400,15):
+          see reference to function template instantiation 'void Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>::_solve_vector_with_guess_impl<Rhs,Derived>(const Rhs &,Dest &) const' being compiled
+          with
+          [
+              Rhs=Eigen::Matrix<double,-1,1,0,-1,1>,
+              Derived=Eigen::Matrix<double,-1,1,0,-1,1>,
+              Dest=Eigen::Matrix<double,-1,1,0,-1,1>
+          ]
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\IterativeLinearSolvers\BiCGSTAB.h(201,26):
+          see reference to function template instantiation 'bool Eigen::internal::bicgstab<Eigen::Ref<const MatrixType,0,Eigen::OuterStride<-1>>,Rhs,Dest,Eigen::IncompleteLUT<double,int>>(const Eigen::Ref<const MatrixType,0,Eigen::OuterStride<-1>> &,const Rhs &,Dest &,const Preconditioner &,Eigen::Index &,double &)' being compiled
+          with
+          [
+              MatrixType=Eigen::SparseMatrix<double,0,int>,
+              Rhs=Eigen::Matrix<double,-1,1,0,-1,1>,
+              Dest=Eigen::Matrix<double,-1,1,0,-1,1>,
+              Preconditioner=Eigen::IncompleteLUT<double,int>
+          ]
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\IterativeLinearSolvers\BiCGSTAB.h(87,7):
+          see reference to function template instantiation 'Eigen::Matrix<double,-1,1,0,-1,1> &Eigen::Matrix<double,-1,1,0,-1,1>::operator =<Derived>(const Eigen::DenseBase<Derived> &)' being compiled
+          with
+          [
+              Derived=Eigen::Solve<Eigen::IncompleteLUT<double,int>,Eigen::Matrix<double,-1,1,0,-1,1>>
+          ]
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\Matrix.h(227,20):
+          see reference to function template instantiation 'Derived &Eigen::PlainObjectBase<Derived>::_set<Eigen::Solve<Eigen::IncompleteLUT<double,int>,Derived>>(const Eigen::DenseBase<Eigen::Solve<Eigen::IncompleteLUT<double,int>,Derived>> &)' being compiled
+          with
+          [
+              Derived=Eigen::Matrix<double,-1,1,0,-1,1>
+          ]
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\PlainObjectBase.h(752,17):
+          see reference to function template instantiation 'void Eigen::internal::call_assignment<Derived,Eigen::Solve<Eigen::IncompleteLUT<double,int>,Derived>>(Dst &,const Src &)' being compiled
+          with
+          [
+              Derived=Eigen::Matrix<double,-1,1,0,-1,1>,
+              Dst=Eigen::Matrix<double,-1,1,0,-1,1>,
+              Src=Eigen::Solve<Eigen::IncompleteLUT<double,int>,Eigen::Matrix<double,-1,1,0,-1,1>>
+          ]
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\AssignEvaluator.h(861,3):
+          see reference to function template instantiation 'void Eigen::internal::call_assignment<Dst,Src,Eigen::internal::assign_op<double,double>>(Dst &,const Src &,const Func &,void *)' being compiled
+          with
+          [
+              Dst=Eigen::Matrix<double,-1,1,0,-1,1>,
+              Src=Eigen::Solve<Eigen::IncompleteLUT<double,int>,Eigen::Matrix<double,-1,1,0,-1,1>>,
+              Func=Eigen::internal::assign_op<double,double>
+          ]
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\AssignEvaluator.h(883,3):
+          see reference to function template instantiation 'void Eigen::internal::call_assignment_no_alias<Dst,Src,Func>(Dst &,const Src &,const Func &)' being compiled
+          with
+          [
+              Dst=Eigen::Matrix<double,-1,1,0,-1,1>,
+              Src=Eigen::Solve<Eigen::IncompleteLUT<double,int>,Eigen::Matrix<double,-1,1,0,-1,1>>,
+              Func=Eigen::internal::assign_op<double,double>
+          ]
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\AssignEvaluator.h(915,46):
+          see reference to class template instantiation 'Eigen::internal::Assignment<Eigen::internal::call_assignment_no_alias::ActualDstTypeCleaned,Src,Func,Eigen::internal::AssignmentKind<Eigen::DenseShape,Eigen::DenseShape>::Kind,void>' being compiled
+          with
+          [
+              Src=Eigen::Solve<Eigen::IncompleteLUT<double,int>,Eigen::Matrix<double,-1,1,0,-1,1>>,
+              Func=Eigen::internal::assign_op<double,double>
+          ]
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\Solve.h(142,15):
+          while compiling class template member function 'void Eigen::internal::Assignment<Eigen::internal::call_assignment_no_alias::ActualDstTypeCleaned,Src,Func,Eigen::internal::AssignmentKind<Eigen::DenseShape,Eigen::DenseShape>::Kind,void>::run(DstXprType &,const Eigen::Solve<Derived,Eigen::Matrix<double,-1,1,0,-1,1>> &,const Eigen::internal::assign_op<double,double> &)'
+          with
+          [
+              Src=Eigen::Solve<Eigen::IncompleteLUT<double,int>,Eigen::Matrix<double,-1,1,0,-1,1>>,
+              Func=Eigen::internal::assign_op<double,double>,
+              DstXprType=Eigen::internal::call_assignment_no_alias::ActualDstTypeCleaned,
+              Derived=Eigen::IncompleteLUT<double,int>
+          ]
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\AssignEvaluator.h(915,49):
+              see the first reference to 'Eigen::internal::Assignment<Eigen::internal::call_assignment_no_alias::ActualDstTypeCleaned,Src,Func,Eigen::internal::AssignmentKind<Eigen::DenseShape,Eigen::DenseShape>::Kind,void>::run' in 'Eigen::internal::call_assignment_no_alias'
+          with
+          [
+              Src=Eigen::Solve<Eigen::IncompleteLUT<double,int>,Eigen::Matrix<double,-1,1,0,-1,1>>,
+              Func=Eigen::internal::assign_op<double,double>
+          ]
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\AssignEvaluator.h(883,3):
+              see the first reference to 'Eigen::internal::call_assignment_no_alias' in 'Eigen::internal::call_assignment'
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\AssignEvaluator.h(861,3):
+              see the first reference to 'Eigen::internal::call_assignment' in 'Eigen::internal::call_assignment'
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\PlainObjectBase.h(752,17):
+              see the first reference to 'Eigen::internal::call_assignment' in 'Eigen::PlainObjectBase<Eigen::Matrix<double,-1,1,0,-1,1>>::_set'
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\Matrix.h(227,7):
+              see the first reference to 'Eigen::PlainObjectBase<Eigen::Matrix<double,-1,1,0,-1,1>>::_set' in 'Eigen::Matrix<double,-1,1,0,-1,1>::operator ='
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\IterativeLinearSolvers\BiCGSTAB.h(87,7):
+              see the first reference to 'Eigen::Matrix<double,-1,1,0,-1,1>::operator =' in 'Eigen::internal::bicgstab'
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\IterativeLinearSolvers\BiCGSTAB.h(201,26):
+              see the first reference to 'Eigen::internal::bicgstab' in 'Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>::_solve_vector_with_guess_impl'
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\IterativeLinearSolvers\IterativeSolverBase.h(400,44):
+              see the first reference to 'Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>::_solve_vector_with_guess_impl' in 'Eigen::IterativeSolverBase<Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>>::_solve_with_guess_impl'
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\IterativeLinearSolvers\SolveWithGuess.h(111,37):
+              see the first reference to 'Eigen::IterativeSolverBase<Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>>::_solve_with_guess_impl' in 'Eigen::internal::Assignment<Eigen::internal::call_assignment_no_alias::ActualDstTypeCleaned,Src,Func,Eigen::internal::AssignmentKind<Eigen::DenseShape,Eigen::DenseShape>::Kind,void>::run'
+          with
+          [
+              Src=Eigen::SolveWithGuess<Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>,Eigen::Matrix<double,-1,1,0,-1,1>,Eigen::VectorXd>,
+              Func=Eigen::internal::assign_op<double,double>
+          ]
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\AssignEvaluator.h(915,49):
+              see the first reference to 'Eigen::internal::Assignment<Eigen::internal::call_assignment_no_alias::ActualDstTypeCleaned,Src,Func,Eigen::internal::AssignmentKind<Eigen::DenseShape,Eigen::DenseShape>::Kind,void>::run' in 'Eigen::internal::call_assignment_no_alias'
+          with
+          [
+              Src=Eigen::SolveWithGuess<Eigen::BiCGSTAB<Eigen::SparseMatrix<double,0,int>,Eigen::IncompleteLUT<double,int>>,Eigen::Matrix<double,-1,1,0,-1,1>,Eigen::VectorXd>,
+              Func=Eigen::internal::assign_op<double,double>
+          ]
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\AssignEvaluator.h(883,3):
+              see the first reference to 'Eigen::internal::call_assignment_no_alias' in 'Eigen::internal::call_assignment'
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\AssignEvaluator.h(861,3):
+              see the first reference to 'Eigen::internal::call_assignment' in 'Eigen::internal::call_assignment'
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\PlainObjectBase.h(752,17):
+              see the first reference to 'Eigen::internal::call_assignment' in 'Eigen::PlainObjectBase<Eigen::Matrix<double,-1,1,0,-1,1>>::_set'
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\Matrix.h(227,7):
+              see the first reference to 'Eigen::PlainObjectBase<Eigen::Matrix<double,-1,1,0,-1,1>>::_set' in 'Eigen::Matrix<double,-1,1,0,-1,1>::operator ='
+              C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection\packages\src\main.cpp(493,22):
+              see the first reference to 'Eigen::Matrix<double,-1,1,0,-1,1>::operator =' in 'main'
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\Solve.h(149,15):
+          see reference to function template instantiation 'void Eigen::IncompleteLUT<double,int>::_solve_impl<RhsType,DstXprType>(const Rhs &,Dest &) const' being compiled
+          with
+          [
+              RhsType=Eigen::Matrix<double,-1,1,0,-1,1>,
+              DstXprType=Eigen::internal::call_assignment_no_alias::ActualDstTypeCleaned,
+              Rhs=Eigen::Matrix<double,-1,1,0,-1,1>,
+              Dest=Eigen::internal::call_assignment_no_alias::ActualDstTypeCleaned
+          ]
+          C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\IterativeLinearSolvers\IncompleteLUT.h(176,25):
+          see reference to class template instantiation 'Eigen::TriangularView<const Derived,5>' being compiled
+          with
+          [
+              Derived=Eigen::SparseMatrix<double,1,int>
+          ]
+  
+C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\TriangularMatrix.h(213,29): warning C5054: operator '&': deprecated between enumerations of different types
+  (compiling source file 'src/main.cpp')
+  
+C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\TriangularMatrix.h(214,29): warning C5054: operator '&': deprecated between enumerations of different types
+  (compiling source file 'src/main.cpp')
+  
+C:\Users\janmo\checkouts\git\delta-formulation\src\c++\lib\eigen\Eigen\src\Core\TriangularMatrix.h(215,29): warning C5054: operator '&': deprecated between enumerations of different types
+  (compiling source file 'src/main.cpp')
+  
+  1d_adv.vcxproj -> C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection\bin\x64\Debug\1d_adv.exe

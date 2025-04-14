@@ -9,20 +9,125 @@
 //   Initial concentration for the Advection-Diffusion equation
 //
 
+#include "compatible_function.h"
 #include "adv_diff_init_concentration.h"
 
-void adv_diff_init_concentration(std::vector<double>& d, int select)
+void adv_diff_init_concentration(std::vector<double>& mass, std::vector<double> & x, double Lx, SHAPE_CONC shape, std::vector<double>& u_out)
 {
-    switch (select)
+    double L_envelope;
+    double fcent;
+    double shift;
+    size_t refine = 128;
+
+    size_t nx = x.size();
+    std::vector<double> x_ana(refine * (nx - 1) + 1, 0.0);
+    std::vector<double> u_ana(refine * (nx - 1) + 1, 0.0);
+    std::vector<double> cv(nx, 0.0);
+
+    double dx = x[1] - x[0];
+    
+    for (size_t i = 0; i < refine * (nx - 1) + 1; ++i)
     {
-    case 1 or 2:
-        for (int i = 0; i < d.size(); ++i)
+        x_ana[i] = double(i) * dx / double(refine) - dx;
+    }
+
+    switch (shape)
+    {
+    case SHAPE_CONC::Constant:
+        for (size_t i = 0; i < nx; ++i)
         {
-            d[i] = 0.0;
+            u_out[i] = 0.0;
         }
-        d[2 * d.size() / 4] = 0.0;
+        break;
+    case SHAPE_CONC::Envelope:
+        // Special function, as supplied by Mart Borsboom
+        L_envelope = 0.25 * Lx;
+        shift = 0.125 * Lx;
+        fcent = 1. / 2. * L_envelope + shift;
+
+        L_envelope = 0.25 * Lx;
+        shift = 0.125 * Lx;
+        fcent = 1. / 2. * L_envelope + shift;
+        for (int i = 1; i < refine * (nx - 1) + 1; ++i)
+        {
+            if (x_ana[i] > 0 + shift and x_ana[i] < Lx / 4. + shift)
+            {
+                u_ana[i] = (0.5 + 0.5 * cos(2.0 * M_PI * 5. * (x_ana[i] - fcent) / L_envelope)) *
+                    (0.5 + 0.5 * cos(2.0 * M_PI * 1. * (x_ana[i] - fcent) / L_envelope));
+            }
+        }
+        (void) control_volumes(u_ana, cv, dx, refine);
+        (void) compatible_function(mass, cv, u_ana, u_out, dx, refine);
         break;
     default:
         break;
     }
 }
+void control_volumes(std::vector<double>& u_ana, std::vector<double>& cv, double dx, size_t refine)
+{
+    size_t k;
+    size_t nx = cv.size();
+    for (size_t i = 1; i < nx - 1; ++i)
+    {
+        cv[i] = 0.;
+        for (size_t j = 0; j < refine; ++j)
+        {
+            k = i * refine + j - size_t(refine / 2);
+            cv[i] += dx / double(refine) * 0.5 * (u_ana[k] + u_ana[k + 1]);
+        }
+    }
+    size_t i = 0;
+    cv[i] = 0.;
+    for (size_t j = 0; j < (size_t)refine / 2; ++j)
+    {
+        k = i * refine + j;
+        cv[i] += dx / double(refine) * 0.5 * (u_ana[k] + u_ana[k + 1]);
+    }
+    i = nx - 1;
+    cv[i] = 0.;
+    for (int j = 0; j < (size_t)refine / 2; ++j)
+    {
+        k = i * refine + j - size_t(refine / 2);
+        cv[i] += dx / double(refine) * 0.5 * (u_ana[k] + u_ana[k + 1]);
+    }
+
+    return;
+}
+void compatible_function(std::vector<double>& mass, std::vector<double>& cv, std::vector<double>& u_ana, std::vector<double>& u_out, 
+    double dx, size_t refine)
+{
+    size_t nx = cv.size();
+    size_t nx_ana = u_ana.size();
+
+    Eigen::SparseMatrix<double> A(nx, nx);
+    Eigen::VectorXd solution(nx);               // solution vector 
+    Eigen::VectorXd rhs(nx);                // RHS vector
+
+    for (size_t i = 1; i < nx - 1; ++i)
+    {
+        A.coeffRef(i, i - 1) = dx * mass[0];
+        A.coeffRef(i, i) = dx * mass[1];
+        A.coeffRef(i, i + 1) = dx * mass[2];
+        rhs[i] = cv[i];
+    }
+    size_t i = 0;
+    A.coeffRef(i, i) = 1. / 12.;
+    A.coeffRef(i, i + 1) = 10. / 12.;
+    A.coeffRef(i, i + 2) = 1. / 12.;
+    rhs[i] = u_ana[refine];
+    i = nx - 1;
+    A.coeffRef(i, i - 2) = 1. / 12.;
+    A.coeffRef(i, i - 1) = 10. / 12.;
+    A.coeffRef(i, i) = 1. / 12.;
+    rhs[i] = u_ana[nx_ana - refine - 1];
+
+    Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
+    solver.compute(A);
+    solver.setTolerance(1e-12);
+    solution = solver.solve(rhs);
+    for (size_t i = 0; i < nx; ++i)
+    {
+        u_out[i] = solution[i];
+    }
+}
+

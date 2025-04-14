@@ -4,6 +4,6 @@
 #include <cstdlib>
 #include <vector>
 
-void adv_diff_init_velocity(std::vector<double>&, const double, const std::vector<double>&, int);
+void adv_diff_init_velocity(std::vector<double>&, const double, const std::vector<double>&, SHAPE_CONC);
 
 #endif __ADV_DIFF_INIT_VELOCITY_H__
