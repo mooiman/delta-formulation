@@ -74,6 +74,29 @@ We illustrate the mass action law by the following three reactions between oxyge
     O + O_2 & \xrightarrow{k_2} O_3, \\
     NO + O_3 & \xrightarrow{k_3} O_2 + NO_2.
 \end{align}
+These reactions are basic to any tropospheric air pollution model.
+The firstreaction is photochemical and says that $NO$ and $O$ are formed from $N02$ by
+photo-dissociation caused by solar radiation, indicated by $h\nu$.
+This depends on the time of the day and therefore $k_l = k_l(t)$.
+We consider the concentrations $u_1 = \bunit{O}$, $u_2 = \bunit{NO}$, $u_3 = \bunit{NO2}$, $u_4 = \bunit{O3}$. The oxygen concentration $\bunit{O_2}$ is treated as constant, and we assume there is a constant source term $\sigma_2$ simulating emission of nitrogen oxide.
+The rate functions and stoichiometric matrix are
+\begin{align}
+    g(t,u) =
+    \begin{pmatrix}
+        k_1(t) u_3 \\
+        k_2u_1 \\
+        k_3u_2u_4
+    \end{pmatrix}
+    ,
+    \qquad
+    S =
+\begin{pmatrix}
+    1 & -1 & 0 \\
+    1 & 0 & -1 \\
+    -1 & 0 & 1 \\
+    0 & 1 & -1
+\end{pmatrix}
+\end{align}
 The corresponding ODE system reads:
 \begin{align}
     \pdiff{u_1}{t} & = k_1 u_3 -k_2 u_1
@@ -84,7 +107,17 @@ The corresponding ODE system reads:
     \\
     \pdiff{u_4}{t} & = k_2 u_1 - k_3 u_2 u_4
 \end{align}
-with $\vec{u}(0) = (0.0, \num{2.0e-1}, \num{2.0e-3}, \num{2.0e-1})^T$ and $\sigma_2 = \num{e-7}$, and the coefficients $k$ are defined as (the given conditions are different from the conditions as defined in \citet[pg.\ 8]{HundsdorferAndVerwer2003}:
+We see immediately that
+\begin{align}
+\pdiff{u_1}{t} + \pdiff{u_3}{t} + \pdiff{u_4}{t} = 0, \qquad
+\pdiff{u_2}{t} + \pdiff{u_3}{t} = \sigma_2 t
+\end{align}
+hence $\bunit{O} + \bunit{NO2} + \bunit{O3}$ is a conserved quantity while $\bunit{NO} + \bunit{NO2}$ growths
+with $\sigma_2t$.
+By considering the null-space of $S^T$ it is seen that these are the two
+mass laws for this chemical model.
+
+With $\vec{u}(0) = (0.0, \num{2.0e-1}, \num{2.0e-3}, \num{2.0e-1})^T$ and $\sigma_2 = \num{e-7}$, and the coefficients $k$ are defined as (the given conditions are different from the conditions as defined in \citet[pg.\ 8]{HundsdorferAndVerwer2003}:
 \begin{align}
     k_1 & = \begin{cases}
         10^{-5} \exp{(7\ {\it g}(t))}
