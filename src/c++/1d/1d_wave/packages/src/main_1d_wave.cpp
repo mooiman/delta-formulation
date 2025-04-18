@@ -398,7 +398,9 @@ int main(int argc, char* argv[])
     status = initialize_bed_level(bed_level_type, x, zb_ini, model_title, depth);
     if (regularization_init)
     {
+        START_TIMER(Regularization_init);
         (void)regularization->given_function(zb, psi, zb_ini, dx, c_psi);
+        STOP_TIMER(Regularization_init);
     }
     else
     {
