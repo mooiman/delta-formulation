@@ -9,13 +9,15 @@
     shape = "Constant"                                 # "Constant", "Envelope"
     
 [Boundary]
-    bc_type = ["Constant", "Constant"]            # Type "Constant"
+    bc_type = ["dirichlet", "borsboom"]          # Type "dirichlet", "borsboom" 
+    bc_signal = ["constant", "constant"]          # Type "constant", "sine" 
     bc_vals = [1.0, 0.0]                          # The inflow discharge
     treg = 600.0                                  # Regularization time on boundary
 
 [Physics]
     u_const = 10.0                              # constant velocity over the whole domain            
-
+    momentum_viscosity = true                     # include viscosity
+    viscosity = 0.01
 [Numerics]
     dt = 20.0                                    # Time step size [s], if dt == 0: then stationary problem
     dx = 100.0                                     # Grid size [m]
@@ -25,7 +27,10 @@
     iter_max = 50                               # Maximum number of nonlinear iterations
     eps_newton = 1.0e-12
     eps_bicgstab = 1.0e-12
-
+    regularization_init = true
+    regularization_iter = true
+    regularization_time = false
+    
 [Output]
     dt_his = 1.0   # [s]
     dt_map = 1.0   # [s] 

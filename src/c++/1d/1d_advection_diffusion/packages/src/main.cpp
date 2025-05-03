@@ -574,9 +574,9 @@ int main(int argc, char* argv[])
 
                 if (bc_type[BC_WEST] == "dirichlet")
                 {
-                    w_ess[0] = 1. / 12.;
-                    w_ess[1] = 10. / 12.;
-                    w_ess[2] = 1. / 12.;
+                    w_ess[0] = 11. / 24.;
+                    w_ess[1] = 14. / 24.;
+                    w_ess[2] = -1. / 24.;
                     //w_ess[0] = w_nat[0];
                     //w_ess[1] = w_nat[1];
                     //w_ess[2] = w_nat[2];
@@ -620,7 +620,7 @@ int main(int argc, char* argv[])
                     A.coeffRef(i, i) = w_ess[0];
                     A.coeffRef(i, i - 1) = w_ess[1];
                     A.coeffRef(i, i - 2) = w_ess[2];
-                    rhs[i] = +bc1 - (w_ess[0] * cp_i + w_ess[1] * cp_im1 + w_ess[2] * cp_im2);  // if u>0 this is upwind
+                    rhs[i] = +bc1 - (w_nat[0] * cp_i + w_nat[1] * cp_im1 + w_nat[2] * cp_im2);  // if u>0 this is upwind
                 }
                 else if (bc_type[BC_EAST] == "borsboom")
                 {

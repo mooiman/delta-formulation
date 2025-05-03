@@ -32,7 +32,7 @@ void adv_diff_init_concentration(std::vector<double>& mass, std::vector<double> 
     double L_envelope;
     double fcent;
     double shift;
-    size_t refine = 4;
+    size_t refine = 100;
 
     size_t nx = x.size();
     std::vector<double> x_ana(refine * (nx - 1) + 1, 0.0);

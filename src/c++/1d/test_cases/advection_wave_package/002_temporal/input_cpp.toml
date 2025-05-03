@@ -9,7 +9,10 @@
     shape = "Envelope"                                 # "Constant", "Envelope"
     
 [Boundary]
-    treg = 300.0                                 # Regularization time on boundary
+    bc_type = ["dirichlet", "dirichlet"]          # Type "dirichlet", "borsboom" 
+    bc_signal = ["constant", "constant"]          # Type "constant", "sine" 
+    bc_vals = [0.0, 0.0]                          # The inflow discharge
+    treg = 600.0                                  # Regularization time on boundary
 
 [Physics]
     u_const = 10.0                              # constant velocity over the whole domain            
@@ -20,7 +23,7 @@
     c_psi = 4.0                                  
     theta = 0.501                                # Implicitness factor (0.5 <= theta <= 1.0)
     alpha = 0.125                                # Linear (spatial) interpolation coefficient
-    iter_max = 50                               # Maximum number of nonlinear iterations
+    iter_max = 50                              # Maximum number of nonlinear iterations
     eps_newton = 1.0e-12
     eps_bicgstab = 1.0e-12
 

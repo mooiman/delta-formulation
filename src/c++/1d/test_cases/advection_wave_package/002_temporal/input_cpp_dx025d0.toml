@@ -9,7 +9,10 @@
     shape = "Envelope"                                 # "Constant", "Envelope"
     
 [Boundary]
-    treg = 300.0                                 # Regularization time on boundary
+    bc_type = ["dirichlet", "borsboom"]          # Type "dirichlet", "borsboom" 
+    bc_signal = ["constant", "constant"]          # Type "constant", "sine" 
+    bc_vals = [0.0, 0.0]                          # The inflow discharge
+    treg = 600.0                                  # Regularization time on boundary
 
 [Physics]
     u_const = 10.0                              # constant velocity over the whole domain            

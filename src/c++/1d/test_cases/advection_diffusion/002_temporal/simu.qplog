@@ -1,0 +1,9 @@
+openfile '.\output\advection_diffusion_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '3601'
+editmn '1:1:13'
+colour [ 1 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview

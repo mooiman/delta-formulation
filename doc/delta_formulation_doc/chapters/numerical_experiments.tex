@@ -328,9 +328,11 @@ To ensure the positivity of the constituent $c$ we will write the equation with 
 \begin{align}
     c = \exp(\ln(c)) =  \exp(\phi), \quad \text{with} \quad \phi = \ln(c)
 \end{align}
-The considered advection equation (divided by $\exp\phi$) now reads:
+The considered advection-diffusion equation than reads:
 \begin{align}
-    \pdiff{\phi}{t} + \pdiff{u\phi}{x} = 0,\label{eq:1d_advec_phi}
+    \int_\Omega\pdiff{{e^\phi}}{t} \, d\omega
+    + \int_\Omega\pdiff{\left(u{e^\phi}\right)}{x} \, d\omega
+    - \int_\Omega\pdiff{}{x}\left(\eps \pdiff{{e^\phi}}{x}\right)\, d\omega = 0,\label{eq:1d_advec_phi}
 \end{align}
 With initial condition for the velocity $u_{\it given} = \bqty{10}{\metre\per\second}$, which coincide with the wave celerity in the next numerical experiments.
 \begin{align}

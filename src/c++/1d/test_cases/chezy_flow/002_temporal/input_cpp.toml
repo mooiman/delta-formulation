@@ -36,7 +36,10 @@
     theta = 0.501                                 # Implicitness factor (0.5 <= theta <= 1.0)
     eps_newton = 1.0e-12
     eps_bicgstab = 1.0e-12
-
+    regularization_init = true
+    regularization_iter = false
+    regularization_time = true
+    
 [Output]
     dt_his = 0.25   # [s]
     dt_map = 0.25  # [s] 

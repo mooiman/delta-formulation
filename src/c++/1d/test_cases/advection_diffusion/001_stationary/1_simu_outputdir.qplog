@@ -1,0 +1,34 @@
+openfile '.\output\advection_diffusion_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '92:1:103'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+#===================================================================
+
+openfile '.\output\advection_diffusion_map.nc'
+selectfield 'Peclet'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '52:1:103'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+#===================================================================
+
+openfile '.\output\advection_diffusion_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '92:1:103'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+

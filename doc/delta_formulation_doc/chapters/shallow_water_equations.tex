@@ -107,9 +107,12 @@ The corresponding ODE system reads:
     \\
     \pdiff{u_4}{t} & = k_2 u_1 - k_3 u_2 u_4
 \end{align}
-We see immediately that
+We see that
 \begin{align}
-\pdiff{u_1}{t} + \pdiff{u_3}{t} + \pdiff{u_4}{t} = 0, \qquad
+\pdiff{u_1}{t} + \pdiff{u_3}{t} + \pdiff{u_4}{t} = 0,
+\end{align}
+and
+\begin{align}
 \pdiff{u_2}{t} + \pdiff{u_3}{t} = \sigma_2 t
 \end{align}
 hence $\bunit{O} + \bunit{NO2} + \bunit{O3}$ is a conserved quantity while $\bunit{NO} + \bunit{NO2}$ growths
@@ -117,7 +120,7 @@ with $\sigma_2t$.
 By considering the null-space of $S^T$ it is seen that these are the two
 mass laws for this chemical model.
 
-With $\vec{u}(0) = (0.0, \num{2.0e-1}, \num{2.0e-3}, \num{2.0e-1})^T$ and $\sigma_2 = \num{e-7}$, and the coefficients $k$ are defined as (the given conditions are different from the conditions as defined in \citet[pg.\ 8]{HundsdorferAndVerwer2003}:
+With $\vec{u}(0) = (0.0, \num{2.0e-1}, \num{2.0e-3}, \num{2.0e-1})^T$ and $\sigma_2 = \num{e-7}$, and the coefficients $k$ are defined as (this given conditions are different from the conditions as defined in \citet[pg.\ 8]{HundsdorferAndVerwer2003}:
 \begin{align}
     k_1 & = \begin{cases}
         10^{-5} \exp{(7\ {\it g}(t))}
@@ -253,12 +256,16 @@ and rearrange the system of equations to $\mat{A}\vec{x}=\vec{b}$ and omitting t
 This system can be implemented and solved, some results are presented in \autoref{sec:brusselator}.
 %
 %------------------------------------------------------------------------------
-\section{1-D Advection equation}\label{sec:1d_advection_equation}
-The considered advection equation reads:
+\section{1-D Advection-diffusion equation}
+In this section we will discuss the discretization of an advection-diffusion equation when the constituent does not need to be positive and when the constiuent must be positive.
+
+%------------------------------------------------------------------------------
+\subsection{1-D Advection-diffusion equation}\label{sec:1d_adv_diff_equation}
+The considered advection-diffusion equation reads:
 \begin{align}
-    \pdiff{c}{t} + \pdiff{uc}{x} = 0, \qquad u>0. \label{eq:1d_advection}
+    \pdiff{c}{t} + \pdiff{uc}{x} - \pdiff{}{x}\left( \eps \pdiff{c}{x}\right)= 0, \qquad u>0. \label{eq:1d_advection}
 \end{align}
-A constituent $c$ is transported from the left to the right with  velocity $u\, \si{[\meter\per\second]}$.
+A constituent $c$ is transported from the left to the right with the constant  velocity $u\, \bunit{\meter\per\second}$.
 Which is discretised on the grid
 \begin{figure}[H]
     \centering
@@ -267,13 +274,19 @@ Which is discretised on the grid
             \input{figures/water_body_fve_bc_at_node.pdf_tex}
         }
     \end{center}
-    \caption[Definition of the grid to solve the 1D-advection equation]{Water body (blue area), finite volumes (green boxes), computational points (open dots), virtual computational points (black dots), boundary points are at $x_{1}$ (inflow/west boundary) and $x_{I+\half}$ (outflow/east boundary)}\label{fig:water_body_fve_bc_at_node_1}
+    \caption[Definition of the grid to solve the 1D-advection equation]{Water body (blue area), finite volumes (green boxes), computational points (open dots), virtual computational points (black dots), boundary points are at $x_{1}$ (inflow/west boundary) and $x_{I+\half}$ (outflow/east boundary).}\label{fig:water_body_fve_bc_at_node_1}
 \end{figure}
-The finite volume approach for volume $i$ of \autoref{eq:1d_advection} reads:
+The finite volume approach for control volume $\Dx_{i+\half}$ of \autoref{eq:1d_advection} reads:
 \begin{align}
-    \int_{\Omega_i} \pdiff{c}{t}\, d\Omega + \int_{\Omega_i} \pdiff{uc}{x} \, d\Omega = 0
+    \int^{x_{i+\half}}_{x_{i-\half}} \pdiff{c}{t}\, dx
+    + \int^{x_{i+\half}}_{x_{i-\half}} \pdiff{uc}{x} \, dx
+    - \int^{x_{i+\half}}_{x_{i-\half}} \pdiff{}{x}\left( \eps\pdiff{c}{x} \right)\, dx &= 0
     \\
-    \int_{\Omega_i} \pdiff{c}{t}\, d\Omega + \left. (uc) \right|_{i+\half} -  \left. (uc) \right|_{i-\half} = 0
+    \int^{x_{i+\half}}_{x_{i-\half}} \pdiff{c}{t}\, dx + \left. (uc) \right|_{i+\half} -  \left. (uc) \right|_{i-\half}
+    -  \left(
+    \left. \eps\pdiff{c}{x}\right|_{i+\half} -
+    \left. \eps\pdiff{c}{x}\right|_{i-\half}
+     \right) & = 0
 \end{align}
 
 %------------------------------------------------------------------------------
@@ -281,32 +294,34 @@ The finite volume approach for volume $i$ of \autoref{eq:1d_advection} reads:
 The discretization in \deltaformulation in the interior of domain $\Omega$ and
 for equidistant grid and the mass-matrix as given in \autoref{eq:definition_mass_matrix} reads
 \begin{align}
-    \Dt_{inv} & \left(\frac{1}{8} \Delta c^{n+1,p+1}_{i-1} + \frac{6}{8} \Delta c^{n+1,p+1}_{i} + \frac{1}{8} \Delta c^{n+1,p+1}_{i+1}\right)  =
+    \Dx \Dt_{inv} & \left(\frac{1}{8} \Delta c^{n+1,p+1}_{i-1} + \frac{6}{8} \Delta c^{n+1,p+1}_{i} + \frac{1}{8} \Delta c^{n+1,p+1}_{i+1}\right)  +
     \nonumber \\*
-    & = -\left\{ \Dt_{inv} \left( \frac{1}{8}\left( c^{n+1,p}_{i-1} - c^{n}_{i-1} \right) + \frac{6}{8}\left( c^{n+1,p}_{i} - c^{n}_{i} \right) + \frac{1}{8}\left( c^{n+1,p}_{i+1} - c^{n}_{i+1} \right)\right) + \right.
+    & +  u \left( \half (c^{n+\theta, p+1}_{i} + c^{n+\theta,p+1}_{i+1}) -  \half (c^{n+\theta, p+1}_{i-1} +c^{n+\theta,p+1}_{i}) \right) +
     \nonumber \\*
-    & \qquad + \left. u \frac{\half(c^{n+\theta, p+1}_{i} + c^{n+\theta,p+1}_{i+1}) -  \half (c^{n+\theta, p+1}_{i-1} +c^{n+\theta,p+1}_{i})}{\Dx} \right\}
+    &- \left( \eps_{i+\half} \frac{c^{n+\theta}_{i+1} - c^{n+\theta}_{i}}{\Dx} - \eps_{i-\half} \frac{c^{n+\theta}_{i} - c^{n+\theta}_{i-1}}{\Dx}\right) =
+    \nonumber \\*
+    & = -\left\{ \Dx \Dt_{inv} \left( \frac{1}{8}\left( c^{n+1,p}_{i-1} - c^{n}_{i-1} \right) + \frac{6}{8}\left( c^{n+1,p}_{i} - c^{n}_{i} \right) + \frac{1}{8}\left( c^{n+1,p}_{i+1} - c^{n}_{i+1} \right) \right)  \right\}
 \end{align}
 After linearization of $c^{n+\theta,p+1}$ the discretization reads:
 \begin{align}
-    \Dt_{inv} & \left(\frac{1}{8} \Delta c^{n+1,p+1}_{i-1} + \frac{6}{8} \Delta c^{n+1,p+1}_{i} + \frac{1}{8} \Delta c^{n+1,p+1}_{i+1}\right)
+    \Dx \Dt_{inv} & \left(\frac{1}{8} \Delta c^{n+1,p+1}_{i-1} + \frac{6}{8} \Delta c^{n+1,p+1}_{i} + \frac{1}{8} \Delta c^{n+1,p+1}_{i+1}\right)
     \nonumber \\*
-    & \theta \frac{u}{2\Dx}\left(  \Delta c^{n+1,p+1}_{i} + \Delta c^{n+1,p+1}_{i+1} - \left( \Delta c^{n+1,p+1}_{i-1} + \Delta c^{n+1,p+1}_{i}  \right)\right)=
+    & \half \theta u \left(  \Delta c^{n+1,p+1}_{i} + \Delta c^{n+1,p+1}_{i+1} - \left( \Delta c^{n+1,p+1}_{i-1} + \Delta c^{n+1,p+1}_{i}  \right)\right)=
     \nonumber \\*
-    & = -\left\{ \Dt_{inv} \left( \frac{1}{8}\left( c^{n+1,p}_{i-1} - c^{n}_{i-1} \right) + \frac{6}{8}\left( c^{n+1,p}_{i} - c^{n}_{i} \right) + \frac{1}{8}\left( c^{n+1,p}_{i+1} - c^{n}_{i+1} \right)\right) + \right.
+    & = -\left\{ \Dx \Dt_{inv} \left( \frac{1}{8}\left( c^{n+1,p}_{i-1} - c^{n}_{i-1} \right) + \frac{6}{8}\left( c^{n+1,p}_{i} - c^{n}_{i} \right) + \frac{1}{8}\left( c^{n+1,p}_{i+1} - c^{n}_{i+1} \right)\right) + \right.
     \nonumber \\*
-    & \qquad + \left. \frac{u}{2\Dx} \left((c^{n+\theta, p}_{i} + c^{n+\theta,p}_{i+1}) -  (c^{n+\theta, p}_{i-1} +c^{n+\theta,p}_{i}) \right) \right\}
+    & \qquad + \left. \half u \left((c^{n+\theta, p}_{i} + c^{n+\theta,p}_{i+1}) -  (c^{n+\theta, p}_{i-1} +c^{n+\theta,p}_{i}) \right) \right\}
 \end{align}
-
+\todo{Viscosity term}
 
 %------------------------------------------------------------------------------
 \paragraph*{Discretization at boundaries}
 An \textbf{essential} boundary condition at the inflow boundary is needed, left side of the domain.
 And, at the right side an outflow boundary 'condition' is required for numerical reasons (called  a \textbf{natural} boundary condition), i.e.\ a discretization of the model equation at the outflow boundary.
 The natural boundary conditions is fully determined by the outgoing signal and therefor we use the equation of the outgoing signal, i.e.\ \autoref{eq:left_right_going_equations}.
-For the 1-D advection equation it reads:
+For the 1-D advection-diffusion equation when omitting the viscosity term it reads:
 \begin{align}
-    \pdiff{c}{t} + \pdiff{uc}{x} = 0, \qquad u>0. \label{eq:1d_adv_nat_boundary}
+    \pdiff{c}{t} + \pdiff{uc}{x}  = 0, \qquad u>0. \label{eq:1d_adv_nat_boundary}
 \end{align}
 
 The \textbf{essential} boundary condition at the inflow boundary reads:
@@ -336,6 +351,28 @@ The natural boundary condition is supplied at $x_I$ with the discretization cons
         \right\}
 \end{align}
 where $\alpha_{\it bnd} = 2\alpha -\half$ ($\alpha_{\it bnd} = -\quart$ when $\alpha = \frac{1}{8}$)
+
+%------------------------------------------------------------------------------
+\subsection{Strictly positive constituent}\label{sec:1d_adv_diff_poss_equation}
+
+When $c$ needs a strickly positive value (like a concentration) then due to numerical discretization the value $c$ could become negative, even if the initial and boundary values are positive.
+In certain applications a positive value is required and even small negative are not allowed.
+To ensure the positivity of the constituent $c$ we will write the equation with variable $\phi$, where $\phi$ is defined as:
+\begin{align}
+    c = \exp(\ln(c)) =  \exp(\phi), \quad \text{with} \quad \phi = \ln(c)
+\end{align}
+The considered advection-diffusion equation than reads:
+\begin{align}
+    \int_\Omega\pdiff{{e^\phi}}{t} \, d\omega
+    + \int_\Omega\pdiff{\left(u{e^\phi}\right)}{x} \, d\omega
+    - \int_\Omega\pdiff{}{x}\left(\eps \pdiff{{e^\phi}}{x}\right)\, d\omega = 0,\label{eq:1d_advec_phi}
+\end{align}
+%------------------------------------------------------------------------------
+\paragraph*{Discretization interior}
+\notyet
+%------------------------------------------------------------------------------
+\paragraph*{Discretization at boundaries}
+\notyet
 %------------------------------------------------------------------------------
 \section{1-D wave equation}
 
@@ -447,11 +484,11 @@ q^{n+\theta, p+1}_{i+\half} - q^{n+\theta, p+1}_{i-\half}.
 The linearization of the flux $q$ around iteration level $p$ reads then:
 \begin{align}
     q^{n+1,p}_{i+\half}  + \theta \Delta q^{n+1, p+1}_{i+\half}
-    - q^{n+1,p}_{i-\half}  - \theta \Delta q^{n+1, p+1}_{i-\half} = \ldots
+    - q^{n+1,p}_{i-\half}  - \theta \Delta q^{n+1, p+1}_{i-\half}
 \end{align}
 after rearranging the equation into an implicit left hand side and an explicit right hand side  it reads:
 \begin{align}
-\half  \theta \Delta q^{n+1, p+1}_{i} - \half \theta \Delta q^{n+1, p+1}_{i-1} = -\left\{ \half q^{n+1,p}_{i+1}  - \half q^{n+1,p}_{i-1} \right\} + \ldots
+\half  \theta \Delta q^{n+1, p+1}_{i} - \half \theta \Delta q^{n+1, p+1}_{i-1} + \left\{ \half q^{n+1,p}_{i+1}  - \half q^{n+1,p}_{i-1} \right\}
 \end{align}
 
 %------------------------------------------------------------------------------
@@ -484,9 +521,9 @@ after rearranging the equation into an implicit left hand side and an explicit r
     \frac{1}{8}\Delta q^{n+1,p+1}_{i-1} + \frac{3}{8}\Delta q^{n+1,p+1}_{i}
     \right) +
     \frac{\Delta x_{i+\half}}{\Dt} \left( \frac{3}{8}\Delta q^{n+1,p+1}_{i} + \frac{1}{8}\Delta q^{n+1,p+1}_{i+1}
-    \right) =
+    \right) +
     \nonumber \\
-    &  = -\left\{
+    & + \left\{
     \frac{\Delta x_{i-\half}}{\Dt} \left(
     \frac{1}{8}\left(q^{n+1,p}_{i-1} - q^{n}_{i-1} \right) + \frac{3}{8}\left(q^{n+1,p}_{i}- q^{n}_{i}\right)
     \right) + \right.
@@ -494,7 +531,6 @@ after rearranging the equation into an implicit left hand side and an explicit r
     & \qquad \left. +
     \frac{\Delta x_{i+\half}}{\Dt} \left( \frac{3}{8}\left(q^{n+1,p}_{i+1}- q^{n}_{i}\right) + \frac{1}{8}\left(q^{n+1,p}_{i+1}- q^{n}_{i+1}\right)
     \right)\right\}
-    + \dots
 \end{align}
 
 %--------------------------------------------------------------------------------

@@ -1,3 +1,5 @@
+# Logging = "matrix"
+
 [Domain]
     Lx = 10000.0                                  # Domain length [m]
 
@@ -9,7 +11,8 @@
     shape = "Constant"                                 # "Constant", "Envelope"
     
 [Boundary]
-    bc_type = ["Constant", "Constant"]            # Type "Constant"
+    bc_type = ["dirichlet", "borsboom"]          # Type "dirichlet", "borsboom" 
+    bc_signal = ["constant", "constant"]          # Type "constant", "sine" 
     bc_vals = [1.0, 0.0]                          # The inflow discharge
     treg = 600.0                                  # Regularization time on boundary
 
