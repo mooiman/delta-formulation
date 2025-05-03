@@ -1,8 +1,6 @@
 //---------------------------------------------------------------
-//   programmer: J. Mooiman
-//   date:       $date$
-//   version:    $version$
-//   copyright © 2025 Mooiman
+// programmer: Jan Mooiman
+// Email: jan.mooiman@outlook.com
 //
 //    Solving the 1D advection/diffusion equation, fully implicit with delta-formuation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
@@ -34,7 +32,7 @@ void adv_diff_init_concentration(std::vector<double>& mass, std::vector<double> 
     double L_envelope;
     double fcent;
     double shift;
-    size_t refine = 128;
+    size_t refine = 4;
 
     size_t nx = x.size();
     std::vector<double> x_ana(refine * (nx - 1) + 1, 0.0);
@@ -75,6 +73,39 @@ void adv_diff_init_concentration(std::vector<double>& mass, std::vector<double> 
         }
         (void) control_volumes(u_ana, cv, dx, refine);
         (void) compatible_function(mass, cv, u_ana, u_out, dx, refine);
+        break;
+    case SHAPE_CONC::EnvelopePhi:
+        // Special function, as supplied by Mart Borsboom
+        L_envelope = 0.25 * Lx;
+        shift = 0.125 * Lx;
+        fcent = 1. / 2. * L_envelope + shift;
+
+        L_envelope = 0.25 * Lx;
+        shift = 0.125 * Lx;
+        fcent = 1. / 2. * L_envelope + shift;
+        for (int i = 1; i < refine * (nx - 1) + 1; ++i)
+        {
+            if (x_ana[i] > 0 + shift and x_ana[i] < Lx / 4. + shift)
+            {
+                u_ana[i] = (0.5 + 0.5 * cos(2.0 * M_PI * 5. * (x_ana[i] - fcent) / L_envelope)) *
+                    (0.5 + 0.5 * cos(2.0 * M_PI * 1. * (x_ana[i] - fcent) / L_envelope));
+            }
+        }
+        (void)control_volumes(u_ana, cv, dx, refine);
+        (void)compatible_function(mass, cv, u_ana, u_out, dx, refine);
+
+        for (int i = 0; i < nx; ++i)
+        {
+            if (u_out[i] < 1.e-12)
+            {
+                u_out[i] = -25.;  // $ln(1e-12) \pm -27.0$
+            }
+            else
+            {
+                u_out[i] = std::log(u_out[i]);
+            }
+        }
+
         break;
     default:
         break;

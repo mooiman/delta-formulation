@@ -1,8 +1,6 @@
 //---------------------------------------------------------------
-//   programmer: J. Mooiman
-//   date:       $date$
-//   version:    $version$
-//   copyright © 2025 Mooiman
+// programmer: Jan Mooiman
+// Email: jan.mooiman@outlook.com
 //
 //    Solving the 1D advection/diffusion equation, fully implicit with delta-formuation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
@@ -31,17 +29,22 @@
 #include "adv_diff_init_concentration.h"
 #include "adv_diff_init_velocity.h"
 
-void adv_diff_init_velocity(std::vector<double>& u, const double u_in,  const std::vector<double>& x, SHAPE_CONC shape_conc)
+void adv_diff_init_velocity(std::vector<double>& u, const double u_const, const double g,  const std::vector<double>& zb, const std::vector<double>& x, SHAPE_CONC shape_conc)
 {
     switch (shape_conc)
     {
     case SHAPE_CONC::Constant:
     case SHAPE_CONC::Envelope:
+    case SHAPE_CONC::EnvelopePhi:
     {
         for (size_t i = 0; i < x.size(); ++i)
         {
-            u[i] = u_in;
+            u[i] = sqrt(g*std::abs(zb[i]));
+            if (u_const > 0.0)
+            {
+                u[i] = u_const;
             }
+        }
         break;
     }
     case SHAPE_CONC::NONE:

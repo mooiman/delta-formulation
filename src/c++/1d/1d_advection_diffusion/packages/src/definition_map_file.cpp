@@ -1,7 +1,6 @@
-//
+//---------------------------------------------------------------
 // programmer: Jan Mooiman
 // Email: jan.mooiman@outlook.com
-//
 //
 //    Solving the 1D advection/diffusion equation, fully implicit with delta-formuation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
@@ -20,14 +19,10 @@
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
 
-//#include "definition_map_file.h"
-#include "ugrid1d.h"
 #include "include/netcdf.h"
+#include "definition_map_file.h"
 
-UGRID1D* create_map_file(std::string, std::vector<double>&, std::string, std::string, std::string, std::string, std::string, std::string);
-
-UGRID1D * create_map_file(std::string nc_mapfile, std::vector<double> & x, 
-    std::string map_c_name, std::string map_u_name, std::string map_eps_name, std::string map_psi_name, std::string map_eq8_name, std::string map_pe_name)
+UGRID1D * create_map_file(std::string nc_mapfile, std::string model_title, std::vector<double> & x, std::vector<std::string>& map_names)
 {
 
     int status = -1;
@@ -36,7 +31,6 @@ UGRID1D * create_map_file(std::string nc_mapfile, std::vector<double> & x,
     std::vector<double> y(nr_nodes, 0.);                      // y-coordinate
 
     UGRID1D * map_file = new UGRID1D();
-    std::string model_title("Advection diffusion");
     status = map_file->open(nc_mapfile, model_title);
     status = map_file->network();
 
@@ -135,12 +129,12 @@ UGRID1D * create_map_file(std::string nc_mapfile, std::vector<double> & x,
     dim_names.clear();
     dim_names.push_back("time");
     dim_names.push_back("nMesh1DNodes");
-    status = map_file->add_variable(map_c_name, dim_names, "-", "Constituent", "-", "mesh1D", "node");
-    status = map_file->add_variable(map_u_name, dim_names, "-", "Velocity", "m s-1", "mesh1D", "node");
-    status = map_file->add_variable(map_eps_name, dim_names, "-", "Epsilon", "m2 s-1", "mesh1D", "node");
-    status = map_file->add_variable(map_psi_name, dim_names, "-", "Psi", "m2 s-1", "mesh1D", "node");
-    status = map_file->add_variable(map_eq8_name, dim_names, "-", "Eq8", "-", "mesh1D", "node");
-    status = map_file->add_variable(map_pe_name, dim_names, "-", "Peclet", "-", "mesh1D", "node");
+
+    status = map_file->add_variable(map_names[0], dim_names, "-", "Constituent", "-", "mesh1D", "node");
+    status = map_file->add_variable(map_names[1], dim_names, "", "Water velocity", "m s-1", "mesh1D", "node");
+    status = map_file->add_variable(map_names[2], dim_names, "-", "Viscosity (reg)", "m2 s-1", "mesh1D", "node");
+    status = map_file->add_variable(map_names[3], dim_names, "-", "Psi", "m2 s-1", "mesh1D", "node");
+    status = map_file->add_variable(map_names[4], dim_names, "-", "Peclet", "-", "mesh1D", "node");
 
     return map_file;
 }

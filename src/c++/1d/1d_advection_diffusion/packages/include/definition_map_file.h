@@ -1,5 +1,9 @@
 //
-//    Solving the 1D advection/diffusion equation, fully implicit with delta-formuation and Modified Newton iteration 
+// Programmer: Jan Mooiman
+// Email: jan.mooiman@outlook.com
+//
+//
+//    Solving the 1D wave equation, fully implicit with delta-formuation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -15,12 +19,13 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
-#ifndef __ADV_DIFF_INIT_VELOCITY_H__
-#define __ADV_DIFF_INIT_VELOCITY_H__
+#ifndef __DEFINITION_MAP_FILE_H__
+#define __DEFINITION_MAP_FILE_H__
 
 #include <cstdlib>
 #include <vector>
+#include "ugrid1d.h"
 
-void adv_diff_init_velocity(std::vector<double>&, const double, const std::vector<double>&, SHAPE_CONC);
+UGRID1D * create_map_file(std::string, std::string, std::vector<double> &, std::vector<std::string>&);
 
-#endif __ADV_DIFF_INIT_VELOCITY_H__
+#endif __DEFINITION_MAP_FILE_H__

@@ -1,6 +1,6 @@
 //
 // Programmer: J. Mooiman
-// Date      : 2025-03-01
+// Date      : 2025-04-30
 // email     : jan.mooiman@outlook.com
 //
 //    Solving the 1D advection/diffusion equation, fully implicit with delta-formuation and Modified Newton iteration 
@@ -103,11 +103,9 @@ int main(int argc, char* argv[])
         output_dir = ".";
     }
 
-
     START_TIMERN(main);
     START_TIMER(Simulation initialization);
     SHAPE_CONC shape_conc = SHAPE_CONC::NONE;
-    BND_TYPE bnd_type = BND_TYPE::NONE;
     int select_src = 0;  // 0: constant source == 0
 
     std::string out_file;
@@ -115,32 +113,10 @@ int main(int argc, char* argv[])
 
     std::string logging = tbl["Logging"].value_or("None");
 
-    ss << "advection";
-    out_file = output_dir.string() + ss.str();
-    std::string his_filename(out_file + "_his.nc");
-    std::string log_filename(out_file + ".log");
-    std::string map_filename(out_file + "_map.nc");
-    std::string timing_filename(out_file + "_timing.log");
-    std::string model_title("Advection, BiCGSTab");
-
-    std::ofstream log_file;
-    log_file.open(log_filename);
-    std::cout << "=== Input file =======================================" << std::endl;
-    std::cout << "Executable compiled: " << __DATE__ << ", " << __TIME__ << std::endl;
-    std::cout << std::filesystem::absolute(toml_file_name) << std::endl;
-    std::cout << "======================================================" << std::endl;
-    log_file << "======================================================" << std::endl;
-    log_file << "Executable compiled: " << __DATE__ << ", " << __TIME__ << std::endl;
-    log_file << "=== Input file =======================================" << std::endl;
-    log_file << toml_file_name << std::endl;
-    log_file << "=== Copy of the input file ============================" << std::endl;
-    log_file << tbl << "\n";  // Write input TOML file to log_file
-    log_file << "=======================================================" << std::endl;
-    log_file << std::endl;
-
     // Domain
     tbl_chp = *tbl["Domain"].as_table();
     double Lx = tbl_chp["Lx"].value_or(double(1.0));
+    double depth = tbl_chp["depth"].value_or(double(10.));
 
     // Time
     tbl_chp = *tbl["Time"].as_table();
@@ -158,16 +134,18 @@ int main(int argc, char* argv[])
     tbl_chp = *tbl["Boundary"].as_table();
     std::vector<std::string> bc_type;
     status = get_toml_array(tbl_chp, "bc_type", bc_type);
-    if (bc_type[0] == "Constant") { bnd_type = BND_TYPE::Constant; }
-    else if (bc_type[0] == "Sine") { bnd_type = BND_TYPE::Sine; }
-    else { bnd_type = BND_TYPE::NONE; }
+    std::vector<std::string> bc_signal;
+    status = get_toml_array(tbl_chp, "bc_signal", bc_signal);
     std::vector<double> bc_vals;
     status = get_toml_array(tbl_chp, "bc_vals", bc_vals);
     double treg = tbl_chp["treg"].value_or(double(300.0));
 
     //Physics
     tbl_chp = *tbl["Physics"].as_table();
+    double g = tbl_chp["g"].value_or(double(10.));  // Gravitational acceleration
     double u_const = tbl_chp["u_const"].value_or(double(0.0));  // default, no velocitty
+    bool momentum_viscosity = tbl_chp["momentum_viscosity"].value_or(bool(false));
+    double visc_const = tbl_chp["viscosity"].value_or(double(0.0));
 
     // Numerics
     tbl_chp = *tbl["Numerics"].as_table();
@@ -180,12 +158,47 @@ int main(int argc, char* argv[])
     int iter_max = tbl_chp["iter_max"].value_or(int(150));
     double eps_newton = tbl_chp["eps_newton"].value_or(double(1.0e-12));
     double eps_bicgstab = tbl_chp["eps_bicgstab"].value_or(double(1.0e-12));
+    bool regularization_init = tbl_chp["regularization_init"].value_or(bool(false));
+    bool regularization_iter = tbl_chp["regularization_iter"].value_or(bool(false));
+    bool regularization_time = tbl_chp["regularization_time"].value_or(bool(false));
 
     //Output
-    log_file << std::endl << "[Output]" << std::endl;
     tbl_chp = *tbl["Output"].as_table();
     double dt_his = tbl_chp["dt_his"].value_or(double(1.0));
     double dt_map = tbl_chp["dt_map"].value_or(double(10.0));
+
+    std::string model_title("not defined");
+    if (momentum_viscosity) { 
+        ss << "advection_diffusion"; 
+        model_title = "Advection diffusion, 1D, BiCGSTab";
+    }
+    else 
+    { 
+        ss << "advection"; 
+        model_title = "Advection, 1D, BiCGSTab";
+    }
+    out_file = output_dir.string() + ss.str();
+    std::string his_filename(out_file + "_his.nc");
+    std::string log_filename(out_file + ".log");
+    std::string map_filename(out_file + "_map.nc");
+    std::string timing_filename(out_file + "_timing.log");
+
+    std::ofstream log_file;
+    log_file.open(log_filename);
+    std::cout << "=== Input file =======================================" << std::endl;
+    std::cout << "Executable compiled: " << __DATE__ << ", " << __TIME__ << std::endl;
+    std::cout << std::filesystem::absolute(toml_file_name) << std::endl;
+    std::cout << "======================================================" << std::endl;
+    log_file << "======================================================" << std::endl;
+    log_file << "Executable compiled: " << __DATE__ << ", " << __TIME__ << std::endl;
+    log_file << "=== Input file =======================================" << std::endl;
+    log_file << toml_file_name << std::endl;
+    log_file << "=== Copy of the input file ============================" << std::endl;
+    log_file << tbl << "\n";  // Write input TOML file to log_file
+    log_file << "=======================================================" << std::endl;
+    log_file << std::endl;
+
+    REGULARIZATION* regularization = new REGULARIZATION(iter_max, g);
 
     //  select 
     //      Constant c, u>0
@@ -222,6 +235,7 @@ int main(int argc, char* argv[])
     log_file << "=== Used input variables ==============================" << std::endl;
     log_file << "[Domain]" << std::endl;
     log_file << "Lx = " << Lx << std::endl;
+    log_file << "depth = " << depth << std::endl;
 
     log_file << std::endl << "[Time]" << std::endl;
     log_file << "tstart = " << tstart << std::endl;
@@ -234,13 +248,19 @@ int main(int argc, char* argv[])
     log_file << "bc_type = ";
     for (int i = 0; i < bc_type.size() - 1; ++i) { log_file << bc_type[i] << ", "; }
     log_file << bc_type[bc_type.size() - 1] << std::endl;
+    log_file << "bc_type = ";
+    for (int i = 0; i < bc_signal.size() - 1; ++i) { log_file << bc_signal[i] << ", "; }
+    log_file << bc_signal[bc_signal.size() - 1] << std::endl;
     log_file << "bc_vals = ";
     for (int i = 0; i < bc_vals.size() - 1; ++i) { log_file << bc_vals[i] << ", "; }
     log_file << bc_vals[bc_vals.size() - 1] << std::endl;
     log_file << "treg = " << treg << std::endl;
 
     log_file << std::endl << "[Physics]" << std::endl;
-    log_file << "u_const = " << u_const << std::endl;
+    log_file << "u_const= " << u_const << std::endl;
+    log_file << "g = " << g << std::endl;
+    log_file << "momentum_viscosity = " << momentum_viscosity << std::endl;
+    log_file << "viscosity = " << visc_const << std::endl;
 
     log_file << std::endl << "[Numerics]" << std::endl;
     log_file << "dt  = " << dt << std::endl;
@@ -251,6 +271,9 @@ int main(int argc, char* argv[])
     log_file << "alpha  = " << alpha << std::endl;
     log_file << "eps_newton  = " << eps_newton << std::endl;
     log_file << "eps_bicgstab  = " << eps_bicgstab << std::endl;
+    log_file << "regularization_init = " << regularization_init << std::endl;
+    log_file << "regularization_iter = " << regularization_iter << std::endl;
+    log_file << "regularization_time = " << regularization_time << std::endl;
 
     log_file << std::endl << "[Output]" << std::endl;
     log_file << "dt_his = " << dt_his << std::endl;
@@ -274,11 +297,16 @@ int main(int argc, char* argv[])
     std::vector<double> y(nx, 0.);  // y-coordinate
     std::vector<double> cn(nx, 0.0);  // constituent [-]
     std::vector<double> cp(nx, 0.);  // constituent [-]
+    std::vector<double> zb(nx, -10.0);                  // regularized bed level
+    std::vector<double> zb_given(nx, -10.0);              // initial bed level
     std::vector<double> q(nx, 0.);  // source
     std::vector<double> u(nx, u_const);  // advection velocity [m s-1], adv_diff_init_velocity
     std::vector<double> psi(nx, 0.);  //
-    std::vector<double> eq8(nx, 0.);  //
     std::vector<double> delta_c(nx, 0.);
+    std::vector<double> pe(nx, 0.);
+    std::vector<double> visc_given(nx, visc_const);  // Initial viscosity array with given value
+    std::vector<double> visc_reg(nx, visc_const);  // Initial given viscosity array with regularized value
+    std::vector<double> visc(nx, visc_const);  // Viscosity array used for computation, adjusted with artificial viscosity
     std::vector<double> mass(3, 0.);  // weighting coefficients of the mass-matrix
     std::vector<double> w_bc(3, 0.);  // weighting coefficients on boundary
     std::vector<double> w_gp(3, 0.);  // weighting coefficients on grid point
@@ -310,27 +338,47 @@ int main(int argc, char* argv[])
 
     // initial concentration
     (void)adv_diff_init_concentration(mass, x, Lx, shape_conc, cn);
-    (void)adv_diff_init_velocity(u, u_const, x, shape_conc);
+    (void)adv_diff_init_velocity(u, u_const, g, zb, x, shape_conc);  // g = 10., zb = -10 -> u = sqrt(g*zb) = 10.
+    if (regularization_init)
+    {
+        START_TIMER(Regularization_init);
+        (void)regularization->given_function(zb, psi, zb_given, dx, c_psi);
+        (void)regularization->given_function(visc_reg, psi, visc_given, dx, c_psi);
+        for (int i = 0; i < nx; ++i)
+        {
+            visc[i] = visc_reg[i] + std::abs(psi[i]);
+        }
+        STOP_TIMER(Regularization_init);
+    }
+    for (int i = 0; i < nx; ++i)
+    {
+        pe[i] = u[i] * dx / visc[i];
+    }
+
 
     double time = tstart + dt * double(0);
     ////////////////////////////////////////////////////////////////////////////
     // Define map file 
     std::cout << "    Create map-file" << std::endl;
     std::string nc_mapfilename(map_filename);
-    std::string map_c_name("cn_1d");
-    std::string map_u_name("u_1d");
-    std::string map_eps_name("eps_1d");
-    std::string map_psi_name("psi_1d");
-    std::string map_eq8_name("eq8_1d");
-    std::string map_pe_name("pe_1d");
-    UGRID1D* map_file = create_map_file(nc_mapfilename, x, map_c_name, map_u_name, map_eps_name, map_psi_name, map_eq8_name, map_pe_name);
+    UGRID1D* map_file = new UGRID1D();
+
+    std::vector<std::string> map_names;
+    map_names.push_back("cn_1d");
+    map_names.push_back("u_1d");
+    map_names.push_back("visc_1d");
+    map_names.push_back("psi_1d");
+    map_names.push_back("pe_1d");
+    map_file = create_map_file(nc_mapfilename, model_title, x, map_names);
+    
     // Put data on map file
     int nst_map = 0;
     map_file->put_time(nst_map, time);
-    map_file->put_time_variable(map_c_name, nst_map, cn);
-    map_file->put_time_variable(map_u_name, nst_map, u);
-    map_file->put_time_variable(map_psi_name, nst_map, psi);
-    map_file->put_time_variable(map_eq8_name, nst_map, eq8);
+    map_file->put_time_variable(map_names[0], nst_map, cn);
+    map_file->put_time_variable(map_names[1], nst_map, u);
+    map_file->put_time_variable(map_names[2], nst_map, visc);
+    map_file->put_time_variable(map_names[3], nst_map, psi);
+    map_file->put_time_variable(map_names[4], nst_map, pe);
 
     ////////////////////////////////////////////////////////////////////////////
     // Define time history file
@@ -381,16 +429,12 @@ int main(int argc, char* argv[])
 
     his_values = { 0 };
     his_file->put_variable(his_newton_iter_name, nst_his, his_values);
-
     his_values = { 0 };
     his_file->put_variable(his_lin_solv_iter_name, nst_his, his_values);
 
     ////////////////////////////////////////////////////////////////////////////
 
     (void)adv_diff_source(q, select_src);
-
-    //(void)adv_diff_boundary_condition(cn[0], cn[nx - 1], time, treg, select_bc);
-    // compute Peclet number
     for (int i = 0; i < nx; i++)
     {
         cp[i] = cn[i];  // place the old solution in the new one, needed for the iteration procedure
@@ -421,11 +465,38 @@ int main(int argc, char* argv[])
         log_file << "=== Start time step ===================================" << std::endl;
         log_file << std::setprecision(4) << time << std::endl;
 #endif
-        adv_diff_boundary_condition(bc0, bc1, bc_vals[BC_WEST], bc_vals[BC_EAST], time, treg, bnd_type);
+        adv_diff_boundary_condition(bc0, bc1, bc_vals[BC_WEST], bc_vals[BC_EAST], time, treg, bc_signal[BC_WEST]);
+        if (regularization_time)
+        {
+            START_TIMER(Regularization_time_loop);
+            if (momentum_viscosity)
+            {
+                (void)regularization->artificial_viscosity(psi, u, cp, c_psi, dx);
+                for (int i = 0; i < nx; ++i)
+                {
+                    visc[i] = visc_reg[i] + std::abs(psi[i]);
+                }
+            }
+            STOP_TIMER(Regularization_time_loop);
+        }
+
         START_TIMER(Newton iteration);
         for (int iter = 0; iter < iter_max; ++iter)
         {
             used_newton_iter += 1;
+            if (regularization_iter)
+            {
+                START_TIMER(Regularization_iter_loop);
+                if (momentum_viscosity)
+                {
+                    (void)regularization->artificial_viscosity(psi, u, cp, c_psi, dx);
+                    for (int i = 0; i < nx; ++i)
+                    {
+                        visc[i] = visc_reg[i] + std::abs(psi[i]);
+                    }
+                }
+                STOP_TIMER(Regularization_iter_loop);
+            }
             if (nst == 1 && iter == 0)
             {
                 START_TIMER(Matrix initialization);
@@ -436,30 +507,60 @@ int main(int argc, char* argv[])
             //
             for (int i = 1; i < nx - 1; ++i)
             {
+                double cn_i = cn[i];
+                double cn_im1 = cn[i - 1];
+                double cn_ip1 = cn[i + 1];
+                double cp_i = cp[i];
+                double cp_im1 = cp[i - 1];
+                double cp_ip1 = cp[i + 1];
+
                 double cn_im12 = 0.5 * (cn[i - 1] + cn[i]);
                 double cn_ip12 = 0.5 * (cn[i] + cn[i + 1]);
 
                 double cp_im12 = 0.5 * (cp[i - 1] + cp[i]);
                 double cp_ip12 = 0.5 * (cp[i] + cp[i + 1]);
 
+                double ctheta_i = theta * cp_i + (1.0 - theta) * cn_i;
+                double ctheta_im1 = theta * cp_im1 + (1.0 - theta) * cn_im1;
+                double ctheta_ip1 = theta * cp_ip1 + (1.0 - theta) * cn_ip1;
                 double ctheta_im12 = theta * cp_im12 + (1.0 - theta) * cn_im12;
                 double ctheta_ip12 = theta * cp_ip12 + (1.0 - theta) * cn_ip12;
 
-                double u_im12 = 0.5 * (u[i - 1] + u[i]);
-                double u_ip12 = 0.5 * (u[i] + u[i + 1]);
-
-                A.coeffRef(i, i - 1) = dx * dtinv * mass[0]
-                    - 0.5 * u_im12 * theta;
-                A.coeffRef(i, i) = dtinv_pseu + dx * dtinv * mass[1]
-                    - 0.5 * u_im12 * theta + 0.5 * u_ip12 * theta;
-                A.coeffRef(i, i + 1) = dx * dtinv * mass[2]
-                    + 0.5 * u_ip12 * theta;
+                // dx * d(c)/dt
+                A.coeffRef(i, i - 1) = dx * dtinv * mass[0];
+                A.coeffRef(i, i) = dtinv_pseu + dx * dtinv * mass[1];
+                A.coeffRef(i, i + 1) = dx * dtinv * mass[2];
                 rhs[i] = -(
                       dx * dtinv * mass[0] * (cp[i - 1] - cn[i - 1])
                     + dx * dtinv * mass[1] * (cp[i] - cn[i])
                     + dx * dtinv * mass[2] * (cp[i + 1] - cn[i + 1])
+                    );
+
+                //
+                // dx * d(uc)/dx
+                double u_im12 = 0.5 * (u[i - 1] + u[i]);
+                double u_ip12 = 0.5 * (u[i] + u[i + 1]);
+
+                A.coeffRef(i, i - 1) += - 0.5 * u_im12 * theta;
+                A.coeffRef(i, i) += - 0.5 * u_im12 * theta + 0.5 * u_ip12 * theta;
+                A.coeffRef(i, i + 1) += + 0.5 * u_ip12 * theta;
+                rhs[i] += -(
                     + u_ip12 * ctheta_ip12 - u_im12 * ctheta_im12
                     );
+                //
+                // dx * d(visc(dc/dx))/dx
+                if (momentum_viscosity)
+                {
+                    double visc_im12 = 0.5 * (visc[i - 1] + visc[i]);
+                    double visc_ip12 = 0.5 * (visc[i] + visc[i + 1]);
+
+                    A.coeffRef(i, i - 1) += -visc_im12 * theta * dxinv;
+                    A.coeffRef(i, i) += +visc_im12 * theta * dxinv + visc_ip12 * theta * dxinv;
+                    A.coeffRef(i, i + 1) += -visc_ip12 * theta * dxinv;
+                    rhs[i] += -(
+                        visc_im12 * dxinv * (ctheta_i - ctheta_im1) - visc_ip12 * dxinv * (ctheta_ip1 - ctheta_i)
+                        );
+                }
             }
             {
                 //
@@ -471,16 +572,27 @@ int main(int argc, char* argv[])
                 double cp_ip1 = cp[i + 1];       // = c^{n+1,p}_{i+1}
                 double cp_ip2 = cp[i + 2];       // = c^{n+1,p}_{i+2}
 
-                w_bc[0] = 1. / 12.;
-                w_bc[1] = 10. / 12.;
-                w_bc[2] = 1. / 12.;
-                w_ess[0] = w_nat[0];
-                w_ess[1] = w_nat[1];
-                w_ess[2] = w_nat[2];
-                A.coeffRef(i, i    ) = w_ess[0];
-                A.coeffRef(i, i + 1) = w_ess[1];
-                A.coeffRef(i, i + 2) = w_ess[2];
-                rhs[i] = +bc0 - (w_ess[0] * cp_i + w_ess[1] * cp_ip1 + w_ess[2] * cp_ip2);  // if u>0 this is upwind
+                if (bc_type[BC_WEST] == "dirichlet")
+                {
+                    w_ess[0] = 1. / 12.;
+                    w_ess[1] = 10. / 12.;
+                    w_ess[2] = 1. / 12.;
+                    //w_ess[0] = w_nat[0];
+                    //w_ess[1] = w_nat[1];
+                    //w_ess[2] = w_nat[2];
+                    A.coeffRef(i, i    ) = w_ess[0];
+                    A.coeffRef(i, i + 1) = w_ess[1];
+                    A.coeffRef(i, i + 2) = w_ess[2];
+                    rhs[i] = +bc0 - (w_nat[0] * cp_i + w_nat[1] * cp_ip1 + w_nat[2] * cp_ip2);  // if u>0 this is upwind
+                }
+                else
+                {
+                    std::cout << "----------------------------" << std::endl;
+                    std::cout << "West boundary: boundary type \"" << bc_type[BC_WEST] << "\" not yet supported" << std::endl;
+                    std::cout << "Press Enter to finish";
+                    std::cin.ignore();
+                    exit(1);
+                }
             }
             {
                 //
@@ -497,20 +609,44 @@ int main(int argc, char* argv[])
                 double ctheta_i = theta * cp_i + (1.0 - theta) * cn_i;
                 double ctheta_im1 = theta * cp_im1 + (1.0 - theta) * cn_im1;
 
-                // Outflow boundary (natural boundary)
-                double dcdt = dtinv * (
-                    w_nat[0] * (cp_i - cn_i) +
-                    w_nat[1] * (cp_im1 - cn_im1) +
-                    w_nat[2] * (cp_im2 - cn_im2)
-                    );
+                if (bc_type[BC_EAST] == "dirichlet")
+                {
+                    w_ess[0] = 11. / 24.;
+                    w_ess[1] = 14. / 24.;
+                    w_ess[2] = -1. / 24.;
+                    //w_ess[0] = w_nat[0];
+                    //w_ess[1] = w_nat[1];
+                    //w_ess[2] = w_nat[2];
+                    A.coeffRef(i, i) = w_ess[0];
+                    A.coeffRef(i, i - 1) = w_ess[1];
+                    A.coeffRef(i, i - 2) = w_ess[2];
+                    rhs[i] = +bc1 - (w_ess[0] * cp_i + w_ess[1] * cp_im1 + w_ess[2] * cp_im2);  // if u>0 this is upwind
+                }
+                else if (bc_type[BC_EAST] == "borsboom")
+                {
+                    // Outflow boundary (natural boundary)
+                    double dcdt = dtinv * (
+                        w_nat[0] * (cp_i - cn_i) +
+                        w_nat[1] * (cp_im1 - cn_im1) +
+                        w_nat[2] * (cp_im2 - cn_im2)
+                        );
 
-                double u_im12 = 0.5 * (u[i] + u[i - 1]);
-                double udcdx =  u_im12 * (ctheta_i - ctheta_im1) * dxinv;
+                    double u_im12 = 0.5 * (u[i] + u[i - 1]);
+                    double udcdx =  u_im12 * (ctheta_i - ctheta_im1) * dxinv;
 
-                A.coeffRef(i, i    ) = dtinv * w_nat[0] + theta * dxinv * u_im12;
-                A.coeffRef(i, i - 1) = dtinv * w_nat[1] - theta * dxinv * u_im12;
-                A.coeffRef(i, i - 2) = dtinv * w_nat[2];
-                rhs[i] = - (dcdt + udcdx);
+                    A.coeffRef(i, i    ) = dtinv * w_nat[0] + theta * dxinv * u_im12;
+                    A.coeffRef(i, i - 1) = dtinv * w_nat[1] - theta * dxinv * u_im12;
+                    A.coeffRef(i, i - 2) = dtinv * w_nat[2];
+                    rhs[i] = - (dcdt + udcdx);
+                }
+                else
+                {
+                    std::cout << "----------------------------" << std::endl;
+                    std::cout << "East boundary: boundary type \"" << bc_type[BC_EAST] << "\" not yet supported" << std::endl;
+                    std::cout << "Press Enter to finish";
+                    std::cin.ignore();
+                    exit(1);
+                }
             }
             STOP_TIMER(Matrix set up);
             if (nst == 1 && iter == 0)
@@ -604,7 +740,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-            if (std::fmod(nst, 100) == 0)
+            if (std::fmod(time, 900) == 0)
             {
                 std::cout << std::fixed << std::setprecision(2) << tstart + time << ";   " << tstart + tstop << std::endl;
             }
@@ -619,7 +755,7 @@ int main(int argc, char* argv[])
         }
         if (used_newton_iter == iter_max)
         {
-            if (dc_max > eps_newton || dc_max > eps_newton)
+            if (dc_max > eps_newton)
             {
                 log_file << "    ----    maximum number of iterations reached, probably not converged" << std::endl;
             }
@@ -651,10 +787,15 @@ int main(int argc, char* argv[])
             {
                 map_file->put_time(nst_map, double(nst)* dt);
             }
-            map_file->put_time_variable(map_c_name, nst_map, cn);
-            map_file->put_time_variable(map_u_name, nst_map, u);
-            map_file->put_time_variable(map_psi_name, nst_map, psi);
-            map_file->put_time_variable(map_eq8_name, nst_map, eq8);
+            for (int i = 0; i < nx; ++i)
+            {
+                pe[i] = u[i] * dx / visc[i];
+            }
+            map_file->put_time_variable(map_names[0], nst_map, cn);
+            map_file->put_time_variable(map_names[1], nst_map, u);
+            map_file->put_time_variable(map_names[2], nst_map, visc);
+            map_file->put_time_variable(map_names[3], nst_map, psi);
+            map_file->put_time_variable(map_names[4], nst_map, pe);
             STOP_TIMER(Writing map-file);
         }
 

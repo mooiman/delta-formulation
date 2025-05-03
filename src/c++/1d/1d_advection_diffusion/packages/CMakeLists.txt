@@ -1,4 +1,4 @@
-set(exe_name 1d_adv)
+set(exe_name 1d_adv_diff)
 
 # include_directories(include)
 set(headers_files

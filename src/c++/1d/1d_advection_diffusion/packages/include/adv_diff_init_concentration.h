@@ -1,3 +1,6 @@
+//---------------------------------------------------------------
+// programmer: Jan Mooiman
+// Email: jan.mooiman@outlook.com
 //
 //    Solving the 1D advection/diffusion equation, fully implicit with delta-formuation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
@@ -15,12 +18,27 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
-#ifndef __DEFINITION_MAP_FILE_H__
-#define __DEFINITION_MAP_FILE_H__
+#ifndef __ADV_DIFF_INIT_CONCENTRATION_H__
+#define __ADV_DIFF_INIT_CONCENTRATION_H__
 
+#define _USE_MATH_DEFINES
 #include <cstdlib>
 #include <vector>
+#include <cmath>
 
-UGRID1D * create_map_file(std::string, std::vector<double> &, std::string, std::string, std::string, std::string, std::string, std::string);
+enum class SHAPE_CONC
+{
+    NONE = 0,
+    Constant,
+    Envelope,
+    EnvelopePhi,
+    NR_SHAPES
+};
 
-#endif __DEFINITION_MAP_FILE_H__
+void adv_diff_init_concentration(std::vector<double>& mass, std::vector<double>& x, double Lx, SHAPE_CONC shape, std::vector<double>& d);
+void control_volumes(std::vector<double>& u_ana, std::vector<double>& cv, double dx, size_t refine);
+void compatible_function(std::vector<double>& mass, std::vector<double>& cv, std::vector<double>& u_ana, std::vector<double>& u_out, 
+    double dx, size_t refine);
+
+
+#endif __ADV_DIFF_INIT_CONCENTRATION_H__
