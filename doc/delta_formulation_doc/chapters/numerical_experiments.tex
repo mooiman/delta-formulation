@@ -303,6 +303,7 @@ The numerical experiment is performed with the following parameters:
     \item Start time, $t_{start} = \bqty{0}{\second}$.
     \item End time, $t_{stop} = \bqty{250}{\second}$.
     \item Prescribed boundary conditions: $c(0,t) = c(L_x,t) = 0$.
+    \item \textbf{No} regularization applied.
 \end{itemize}
 %--------------------------------------------------------------------------------
 \paragraph*{Results of the numerical experiments}
@@ -367,12 +368,145 @@ The numerical experiment is performed with the following parameters:
     \item Timestep, $\Dt = \bqty{5}{\second}$
     \item Regularization time for time-series, $t_{reg} = \bqty{300}{\second}$
     \item Prescribed constant velocity, $u_{\it given}(x,t) = \bqty{10}{\metre\per\second}$
-    \item Prescribed initial value of the constituent, $c(x,0)= \num{1e-20}$, \newline so $\phi = \bqty{-50}{-}$.
+    \item Prescribed initial value of the constituent, $c(x,0)= \num{1.4e-11}$, \newline so $\phi = \bqty{-25}{-}$.
     \item Prescribed constant constituent on boundary $c_{\it given}(0,t) = 1$, \newline so $\phi = \ln(c_{\it given}(0,t)) = \ln(1) = \bqty{0}{-}$
 \end{itemize}
 %--------------------------------------------------------------------------------
 \paragraph*{Results of the numerical experiments}
 \notyet
+%--------------------------------------------------------------------------------
+\section{1-D Advection-diffusion equation}
+In this section we will show the resuls of the advection-diffusion equation with a Dirichlet boundary conditions at both sides of the domain and an interface problem, i.e.\ a large jump of the diffusion coefficiebt in the middle of the domain.
+
+The considered advection-diffusion equation reads:
+\begin{align}
+    \pdiff{c}{t} + \pdiff{uc}{x} - \pdiff{}{x}\left( (\eps+\Psi) \pdiff{c}{x}\right)= 0, \qquad u>0. \label{eq:1d_advection}
+\end{align}
+where
+\begin{symbollist}
+    \item[$c$] Constituent, $\bunit{-}$.
+    \item[$u$] Advection velocity, $\bunit{\metre\per\second}$.
+    \item[$\eps$] Diffusion coefficient, $\bunit{\square\metre\per\second}$.
+    \item[$\Psi$] Artificial diffusion, $\bunit{\square\metre\per\second}$.
+\end{symbollist}
+
+%--------------------------------------------------------------------------------
+\subsection{Outflow boundary layer}\label{sec:1d_numerical_outflow_boundary_layer_experiment}
+The Dirichlet value at the outflow boundary is so chosen that there will appear an outflow boundary layer.
+Due to this outflow boundary the numerical scheme need to have a cell P\'eclet number ($\Pe = u\Dx/\eps$) smaller then two in the vicinity of that layer.
+In the \deltaformulation that will be reach by a regularization step, i.e. increase the diffusion in the vicinity of the boundary layer.
+To force a outflow boundary layer at both boundaries a Dirichlet boundary is prescribed.
+With the boundary conditions
+$c(0,t) = a$ and $c(L,t) = b$ the analytic solution read:
+\begin{align}
+    c(x) = a + (b-a) \frac{e^{\frac{(x-L)}{L}\Pe} -  e^{-\Pe}}{1 - e^{-\Pe}},
+\end{align}
+with $\Pe = u L/\eps$.
+
+%--------------------------------------------------------------------------------
+\paragraph*{Numerical experiment}
+The numerical experiment is performed with the following parameters:
+\begin{itemize}
+    \item Length of the domain $L_x = \bqty{1000}{\metre}$.
+    \item Stationary simulation, $\lpdiff{c}{t}=0$.
+    \item Prescribed boundary conditions: $c(0,t) = 0$ and $c(L_x,t) = 1$.
+    \item Grid size $\Dx = \bqty{10}{\metre}$,
+    \item Diffusion coefficient $\eps = \bqty{10}{\square\metre\per\second}$
+    \item Advection velocities, $\Pe = u\Dx/\eps$:
+    \begin{itemize}
+        \item $u = \bqty{1}{\metre\per\second} \rightarrow \Pe = 1.0$
+        \item $u = \bqty{1.9}{\metre\per\second} \rightarrow \Pe = 1.9$
+        \item $u = \bqty{2.1}{\metre\per\second} \rightarrow \Pe = 2.1$
+        \item $u = \bqty{5.0}{\metre\per\second} \rightarrow \Pe = 5.0$
+    \end{itemize}
+    \item Smoothing factor, $c_{\Psi} = 4$
+    \item Right hand side to compute artificial viscosity, $\frac{1}{32} c_{\Psi} u \Dx \lpdiff[2]{c}{\xi}$ (educational guess).
+\end{itemize}
+%--------------------------------------------------------------------------------
+\paragraph*{Results of the numerical experiments}
+Map results are presented for the constituent $c$ and the artificial diffusion $\Psi$.
+\begin{figure}[H]
+    \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/analytic_boundary_layer.png}
+    \caption{Analytic solution}
+    \end{subfigure}
+    \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/adv_diff_constituent.png}
+    \caption{Numerical solution}
+    \end{subfigure}
+    \caption{Map results for different values of the advection velocity (thus P\'eclet number). The graphs with an  asterix represent results with a cell P\'eclet number larger then two. Black: $\Pe = 1.0$; Blue: $\Pe = 1.9$, Green: $\Pe = 2.1$; Cyan: $\Pe = 5.0$.}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/adv_diff_psi.png}
+\caption{Map results for the used artificial diffusion $\Psi$. Black: $\Pe = 1.0$; Blue: $\Pe = 1.9$, Green: $\Pe = 2.1$; Cyan: $\Pe = 5.0$.}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/adv_diff_peclet.png}
+    \caption{Map results for the used cell P\'eclet number. Black: $\Pe = 1.0$; Blue: $\Pe = 1.9$, Green: $\Pe = 2.1$; Cyan: $\Pe = 5.0$.}
+\end{figure}
+
+%--------------------------------------------------------------------------------
+\subsection{Interface problem}\label{sec:1d_numerical_interface_experiment}
+A numerical experiments is performed for the stationary advection-diffusion equation with a jump in the diffusion coefficient as described by:
+\begin{align}
+    \eps(x) &=
+    \begin{cases}
+        \check{\eps}, & \quad \text{if} \quad 0 < x \leq x^*, \\
+        10, & \quad \text{if} \quad x^* < x < 1
+    \end{cases}
+\end{align}
+An analytical solution exists in case $u=0$ and read \citep[eq.\ 3.11]{Wesseling2001}:
+\begin{align}
+    c(x)& =
+    \begin{cases}
+        \alpha x, & \quad \text{if} \quad 0 < x \leq x^*, \\
+        \check{\eps}\alpha x + 1 - \check{\eps}\alpha, & \quad \text{if} \quad x^*<x<1
+    \end{cases} \\
+    \alpha & = \frac{1}{x^* -\check{\eps} x^* + \check{\eps}}
+\end{align}
+
+\begin{itemize}
+    \item If $\eps \pdiff{c}{x} \equiv 0$ then either $\eps=0$ or $\pdiff{c}{x}=0$. Where $\eps=0$ is not a feasible option.
+\end{itemize}
+
+Some numerical experiments are performed with several values of $u$.
+
+%--------------------------------------------------------------------------------
+\paragraph*{Numerical experiment}
+The numerical experiment is performed with the following parameters:
+\begin{itemize}
+    \item Length of the domain $L_x = \bqty{1}{\metre}$.
+    \item Stationary simulation, $\lpdiff{c}{t}=0$.
+    \item Prescribed boundary conditions: $c(0,t) = 0$ and $c(L_x,t) = 1$.
+    \item Grid size $\Dx = \bqty{0.05}{\metre}$,
+    \item Diffusion coefficient $\check{\eps} = \bqty{1}{\square\metre\per\second}$
+    \item Advection velocities, $\Pe = u\Dx/\eps$:
+    \begin{itemize}
+        \item $u = \bqty{0}{\metre\per\second} \rightarrow \Pe = 0.0$
+        \item $u = \bqty{0.9}{\metre\per\second} \rightarrow \Pe = 0.045 \text{ and } \Pe = 4.5$
+    \end{itemize}
+\end{itemize}
+%--------------------------------------------------------------------------------
+\paragraph*{Results of numerical experiment}
+Map results are presented for the constituent $c$ and the artificial diffusion $\Psi$.
+\begin{figure}[H]
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{figures/maze.pdf}
+        \caption{High resolution solution for $u =\bqty{0}{\metre\per\second}$ and $u = \bqty{0.9}{\metre\per\second}$ and $\Dx=\bqty{0.001}{\metre}$.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{figures/maze.pdf}
+        \caption{Numerical solution.\newline $\Dx = \bqty{0.001}{\metre} \rightarrow \Pe= 0.045$ and \newline $\Dx = \bqty{0.1}{\metre} \rightarrow \Pe = 4.5$}
+    \end{subfigure}
+    \caption{Map results.}
+\end{figure}
 %--------------------------------------------------------------------------------
 \section{1-D Wave equation}
 %--------------------------------------------------------------------------------

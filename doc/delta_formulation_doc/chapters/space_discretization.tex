@@ -65,16 +65,16 @@ When no reflection at an open boundary is required then at the west boundary a s
 And at the east boundary the other way around.
 
 Further more we have the prescribed boundary signal at the boundary node of the grid.
-This assumption is made because user are acquitained with the fact that open boundaries are given at nodes.
+This assumption is made because the users are acquainted with the fact that open boundaries are given at nodes.
 But for the outgoing signal this is not necessarily, for the outgoing signal we stick to the finite volume approach.
 
-When we first consider a right going one dimensional advection equation (see \autoref{sec:1d_advection_equation}) the boundary at the west side is located at $x_1$ and the outflow condition is located at $x_{I+\half}$.
+When we consider a one dimensional right going signal (see \autoref{sec:1d_adv_diff_equation}) the boundary at the west side is located at $x_1$ and the outflow condition is located at $x_{I+\half}$.
 The prescribed function reads:
 \begin{align}
     c(0,t) = f(t)
 \end{align}
 Because we use a 3-point stencil for the interior, we aim for a 3-point stencil for the essential boundary condition.
-One possible quadratic interpolation is a parabolic fit through the grid points, giving an underspecification of the solution at the boundary regardless of its position.
+One possible quadratic interpolation is a parabolic fit through the grid points, giving an under specification of the solution at the boundary regardless of its position.
 \begin{align}
     c_{GP}(\xi) & = c_0 \,  (1 - \xi) + c_1 \,  \xi + \half(c_0 - 2\, c_1 + c_2) \,  (\xi - 1) \,  \xi
     =

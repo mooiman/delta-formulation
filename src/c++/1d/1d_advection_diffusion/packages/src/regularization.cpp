@@ -184,7 +184,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         A.coeffRef(i, i - 1) = m_mass[0] - c_error;
         A.coeffRef(i, i) = m_mass[1] + 2. * c_error;
         A.coeffRef(i, i + 1) = m_mass[2] - c_error;
-        rhs[i] =  dx * ( // 1./32. * c_psi * dx  look the best for wave_package
+        rhs[i] = 1. / 32. * c_psi * dx * ( // 1./32. * c_psi * dx  look the best for wave_package
             u[i] * std::abs(u0_xixi[i])
             );
     }

@@ -13,7 +13,7 @@ selectfield 'Constituent'
 hselectiontype '(M,N) point/path'
 editt '2'
 editmn '92:1:103'
-colour [ 0 1 0 ]
+colour [ 0 0 1 ]
 marker '.'
 plotcoordinate 'x coordinate'
 addtoplot
@@ -28,42 +28,42 @@ marker '*'
 plotcoordinate 'x coordinate'
 addtoplot
 
-openfile '.\output_pe02d4\advection_diffusion_map.nc'
-selectfield 'Constituent'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '92:1:103'
-colour [ 0 0 1 ]
-marker '*'
-plotcoordinate 'x coordinate'
-addtoplot
-
-openfile '.\output_pe02d5\advection_diffusion_map.nc'
-selectfield 'Constituent'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '92:1:103'
-colour [ 1 0 0 ]
-marker '*'
-plotcoordinate 'x coordinate'
-addtoplot
-
-openfile '.\output_pe02d6\advection_diffusion_map.nc'
-selectfield 'Constituent'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '92:1:103'
-colour [ 0 0 1 ]
-marker '*'
-plotcoordinate 'x coordinate'
-addtoplot
+# openfile '.\output_pe02d4\advection_diffusion_map.nc'
+# selectfield 'Constituent'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '92:1:103'
+# colour [ 1 0 0 ]
+# marker '*'
+# plotcoordinate 'x coordinate'
+# addtoplot
+# 
+# openfile '.\output_pe02d5\advection_diffusion_map.nc'
+# selectfield 'Constituent'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '92:1:103'
+# colour [ 0 0 1 ]
+# marker '*'
+# plotcoordinate 'x coordinate'
+# addtoplot
+# 
+# openfile '.\output_pe02d6\advection_diffusion_map.nc'
+# selectfield 'Constituent'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '92:1:103'
+# colour [ 1 0 1 ]
+# marker '*'
+# plotcoordinate 'x coordinate'
+# addtoplot
 
 openfile '.\output_pe05d0\advection_diffusion_map.nc'
 selectfield 'Constituent'
 hselectiontype '(M,N) point/path'
 editt '2'
 editmn '92:1:103'
-colour [ 0 0 0 ]
+colour [ 1 0 0 ]
 marker '*'
 plotcoordinate 'x coordinate'
 addtoplot
@@ -85,7 +85,7 @@ selectfield 'Peclet'
 hselectiontype '(M,N) point/path'
 editt '2'
 editmn '52:1:103'
-colour [ 0 1 0 ]
+colour [ 0 0 1 ]
 marker '.'
 plotcoordinate 'x coordinate'
 addtoplot
@@ -100,42 +100,42 @@ marker '*'
 plotcoordinate 'x coordinate'
 addtoplot
 
-openfile '.\output_pe02d4\advection_diffusion_map.nc'
-selectfield 'Peclet'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '52:1:103'
-colour [ 0 0 1 ]
-marker '*'
-plotcoordinate 'x coordinate'
-addtoplot
-
-openfile '.\output_pe02d5\advection_diffusion_map.nc'
-selectfield 'Peclet'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '52:1:103'
-colour [ 1 0 0 ]
-marker '*'
-plotcoordinate 'x coordinate'
-addtoplot
-
-openfile '.\output_pe02d6\advection_diffusion_map.nc'
-selectfield 'Peclet'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '52:1:103'
-colour [ 0 0 1 ]
-marker '*'
-plotcoordinate 'x coordinate'
-addtoplot
+# openfile '.\output_pe02d4\advection_diffusion_map.nc'
+# selectfield 'Peclet'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '52:1:103'
+# colour [ 0 0 1 ]
+# marker '*'
+# plotcoordinate 'x coordinate'
+# addtoplot
+# 
+# openfile '.\output_pe02d5\advection_diffusion_map.nc'
+# selectfield 'Peclet'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '52:1:103'
+# colour [ 1 0 0 ]
+# marker '*'
+# plotcoordinate 'x coordinate'
+# addtoplot
+# 
+# openfile '.\output_pe02d6\advection_diffusion_map.nc'
+# selectfield 'Peclet'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '52:1:103'
+# colour [ 0 0 1 ]
+# marker '*'
+# plotcoordinate 'x coordinate'
+# addtoplot
 
 openfile '.\output_pe05d0\advection_diffusion_map.nc'
 selectfield 'Peclet'
 hselectiontype '(M,N) point/path'
 editt '2'
 editmn '52:1:103'
-colour [ 0 0 0 ]
+colour [ 1 0 0 ]
 marker '*'
 plotcoordinate 'x coordinate'
 addtoplot
@@ -157,7 +157,7 @@ selectfield 'Psi'
 hselectiontype '(M,N) point/path'
 editt '2'
 editmn '92:1:103'
-colour [ 0 1 0 ]
+colour [ 0 0 1 ]
 marker '.'
 plotcoordinate 'x coordinate'
 addtoplot
@@ -172,42 +172,42 @@ marker '*'
 plotcoordinate 'x coordinate'
 addtoplot
 
-openfile '.\output_pe02d4\advection_diffusion_map.nc'
-selectfield 'Psi'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '92:1:103'
-colour [ 0 0 1 ]
-marker '*'
-plotcoordinate 'x coordinate'
-addtoplot
-
-openfile '.\output_pe02d5\advection_diffusion_map.nc'
-selectfield 'Psi'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '92:1:103'
-colour [ 1 0 0 ]
-marker '*'
-plotcoordinate 'x coordinate'
-addtoplot
-
-openfile '.\output_pe02d6\advection_diffusion_map.nc'
-selectfield 'Psi'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '92:1:103'
-colour [ 0 0 1 ]
-marker '*'
-plotcoordinate 'x coordinate'
-addtoplot
+# openfile '.\output_pe02d4\advection_diffusion_map.nc'
+# selectfield 'Psi'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '92:1:103'
+# colour [ 1 0 0 ]
+# marker '*'
+# plotcoordinate 'x coordinate'
+# addtoplot
+# 
+# openfile '.\output_pe02d5\advection_diffusion_map.nc'
+# selectfield 'Psi'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '92:1:103'
+# colour [ 0 0 1 ]
+# marker '*'
+# plotcoordinate 'x coordinate'
+# addtoplot
+# 
+# openfile '.\output_pe02d6\advection_diffusion_map.nc'
+# selectfield 'Psi'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '92:1:103'
+# colour [ 1 0 1 ]
+# marker '*'
+# plotcoordinate 'x coordinate'
+# addtoplot
 
 openfile '.\output_pe05d0\advection_diffusion_map.nc'
 selectfield 'Psi'
 hselectiontype '(M,N) point/path'
 editt '2'
 editmn '92:1:103'
-colour [ 0 0 0 ]
+colour [ 1 0 0 ]
 marker '*'
 plotcoordinate 'x coordinate'
 addtoplot
