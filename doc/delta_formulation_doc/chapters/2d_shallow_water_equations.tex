@@ -62,10 +62,10 @@ or
     \begin{center}
         \def\svgwidth{0.80\textwidth} % scaling text
         \resizebox{0.65\textwidth}{!}{
-            \input{figures/2d_cartesian_grid.pdf_tex}
+            \input{figures/cartesian_grid_interior_2d.pdf_tex}
         }
     \end{center}
-    \caption[Definition of the grid to solve the 2D-shallow water equations (interior area)]{Coefficients for the mass-matrix and the control volume in 2-dimensions, on a structured grid. The white circles indicate the location of the quadrature points, and white diamonds the flux points.}
+    \caption[Definition of the grid to solve the 2D-shallow water equations in the interior area]{Coefficients for the mass-matrix and the control volume in 2-dimensions in the interior area, on a structured grid. The black dots indicate the location of the quadrature points, and black diamonds the flux points.}
     \label{fig:2d_structured_grid}
 \end{figure}
 For the space discretizations of an arbitrary function $u$ on the quadrature point of a sub-control volume the following space interpolations are used, $u \in \{h,q,r\}$:
@@ -99,15 +99,15 @@ Considering one control volume and only the $x$-direction (assuming a cartesian 
     \\
     & \approx \quart \Dx\Dy\, g h^{n+\theta,p+1}_{qp} \pdiff{\zeta^{n+\theta,p+1}_{qp}}{x}
     \\
-   & \approx \quart  \Dx\Dy\, g \left( h^{n+\theta,p}_{qp} + \theta \Delta h^{n+1,p+1}\right)  \pdiff{}{x}\left(\zeta^{n+\theta,p}_{qp} + \theta \Delta \zeta^{n+1,p+1}_qp\right)
+   & \approx \quart  \Dx\Dy\, g \left( h^{n+1,p}_{qp} + \theta \Delta h^{n+1,p+1}\right)  \pdiff{}{x}\left(\zeta^{n+1,p}_{qp} + \theta \Delta \zeta^{n+1,p+1}_qp\right)
 \end{align}
 with $qp$ the location of the quadrature point in the sub-control volume.
 Assume that the higher order terms are negligible then the discretization for each of the 4 sub-control volumes reads:
 \begin{align}
         \quart  \Dx\Dy\, g \left(
-        h^{n+\theta,p}_{qp} \pdiff{\zeta^{n+\theta,p}_{qp}}{x}
-        + \theta h^{n+\theta,p}_{qp} \pdiff{\Delta \zeta^{n+1,p+1}_{qp}}{x}
-        + \theta \pdiff{\zeta^{n+\theta,p}_{qp}}{x} \Delta h^{n+1,p+1}_{qp}
+        h^{n+1,p}_{qp} \pdiff{\zeta^{n+1, p}_{qp}}{x}
+        + \theta h^{n+1, p}_{qp} \pdiff{\Delta \zeta^{n+1, p+1}_{qp}}{x}
+        + \theta \pdiff{\zeta^{n+1, p}_{qp}}{x} \Delta h^{n+1,p+1}_{qp}
           \right)
 \end{align}
 
@@ -155,13 +155,35 @@ The component in $y$-direction read:
 %\section{Space discretization, unstructured}
 %\notyet
 %------------------------------------------------------------------------------
-\subsection{Discretizations at boundary}
-For the 2D non-linear wave equations (\autoref{eq:pressure_dependent_on_zeta}) at each boundary boundary-conditions need to be prescribed, the number of boundary-conditions depends on the flow direction on the boundary.
+\subsection{Discretization at boundary}
+\begin{figure}[H]
+    \begin{center}
+        \def\svgwidth{0.80\textwidth} % scaling text
+        \resizebox{0.65\textwidth}{!}{
+            \input{figures/cartesian_grid_along_straight_boundary_essential.pdf_tex}
+        }
+    \end{center}
+    \caption[Definition of the grid to solve the 2D-shallow water equations at the boundary]{Coefficients of the mass-matrix in 2-dimensions on a structured grid along a straight boundary. The essential boundary condition is located at the cyan-colored line and the natural boundary condition at the orange line.}
+    \label{fig:structured_grid_along_straight_boundary}
+\end{figure}
+For the 2D non-linear wave equations (\autoref{eq:pressure_dependent_on_zeta}) at each boundary boundary conditions need to be prescribed, the number of boundary conditions depends on the flow direction on the boundary.
 Considering a hyperbolic system, if the flow is flowing into the domain two boundary conditions need to prescribed and when the flow is flowing out the domain just one boundary need to prescribed.
 This is according the characteristic theory of 2D hyperbolic systems \citep{DaubertEtGraffe1967}.
 The ingoing information is called the \textbf{essential} boundary condition (Dirichlet or Neumann condition).
-And a boundary condition to handle the outgoing wave, called \textbf{natural} boundary condition.
-
+And a boundary condition to handle the outgoing wave is called the \textbf{natural} boundary condition.
+%------------------------------------------------------------------------------
+\subsection{Discretization at corner}
+\begin{figure}[H]
+    \begin{center}
+        \def\svgwidth{0.8\textwidth} % scaling text
+        \resizebox{0.65\textwidth}{!}{
+            \input{figures/cartesian_grid_at_corner_point_essential.pdf_tex}
+        }
+    \end{center}
+    \caption{Coefficients for the mass-matrix in 2-dimensions on a structured grid at a corner. No line integrals are performed in the corner.}
+    \label{fig:structured_grid_at_corner}
+\end{figure}
+%------------------------------------------------------------------------------
 \subsubsection{Weakly reflective boundary conditions}
 Consider the following weakly reflective boundary conditions:
 \begin{align}
