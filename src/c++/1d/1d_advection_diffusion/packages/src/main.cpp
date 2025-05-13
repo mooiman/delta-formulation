@@ -170,12 +170,12 @@ int main(int argc, char* argv[])
     std::string model_title("not defined");
     if (momentum_viscosity) { 
         ss << "advection_diffusion"; 
-        model_title = "Advection diffusion, 1D, BiCGSTab";
+        model_title = "Advection diffusion, 1D, BiCGstab";
     }
     else 
     { 
         ss << "advection"; 
-        model_title = "Advection, 1D, BiCGSTab";
+        model_title = "Advection, 1D, BiCGstab";
     }
     out_file = output_dir.string() + ss.str();
     std::string his_filename(out_file + "_his.nc");
@@ -577,13 +577,13 @@ int main(int argc, char* argv[])
                     w_ess[0] = 11. / 24.;
                     w_ess[1] = 14. / 24.;
                     w_ess[2] = -1. / 24.;
-                    //w_ess[0] = w_nat[0];
-                    //w_ess[1] = w_nat[1];
-                    //w_ess[2] = w_nat[2];
+                    //w_ess[0] = 1. / 12.;
+                    //w_ess[1] = 10. / 12.;
+                    //w_ess[2] = 1. / 12.;
                     A.coeffRef(i, i    ) = w_ess[0];
                     A.coeffRef(i, i + 1) = w_ess[1];
                     A.coeffRef(i, i + 2) = w_ess[2];
-                    rhs[i] = +bc0 - (w_nat[0] * cp_i + w_nat[1] * cp_ip1 + w_nat[2] * cp_ip2);  // if u>0 this is upwind
+                    rhs[i] = +bc0 - (w_ess[0] * cp_i + w_ess[1] * cp_ip1 + w_ess[2] * cp_ip2);  // if u>0 this is upwind
                 }
                 else
                 {
@@ -614,13 +614,13 @@ int main(int argc, char* argv[])
                     w_ess[0] = 11. / 24.;
                     w_ess[1] = 14. / 24.;
                     w_ess[2] = -1. / 24.;
-                    //w_ess[0] = w_nat[0];
-                    //w_ess[1] = w_nat[1];
-                    //w_ess[2] = w_nat[2];
+                    //w_ess[0] = 1. / 12.;
+                    //w_ess[1] = 10. / 12.;
+                    //w_ess[2] = 1. / 12.;
                     A.coeffRef(i, i) = w_ess[0];
                     A.coeffRef(i, i - 1) = w_ess[1];
                     A.coeffRef(i, i - 2) = w_ess[2];
-                    rhs[i] = +bc1 - (w_nat[0] * cp_i + w_nat[1] * cp_im1 + w_nat[2] * cp_im2);  // if u>0 this is upwind
+                    rhs[i] = +bc1 - (w_ess[0] * cp_i + w_ess[1] * cp_im1 + w_ess[2] * cp_im2);  // if u>0 this is upwind
                 }
                 else if (bc_type[BC_EAST] == "borsboom")
                 {
@@ -655,11 +655,11 @@ int main(int argc, char* argv[])
             }
             if (nst == 1 && iter == 0)
             {
-                START_TIMER(BiCGStab_initialization);
+                START_TIMER(BiCGstab_initialization);
             }
             else
             {
-                START_TIMER(BiCGStab);
+                START_TIMER(BiCGstab);
             }
 
             Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
@@ -670,11 +670,11 @@ int main(int argc, char* argv[])
             START_TIMER(Set solution);
             if (nst == 1 && iter == 0)
             {
-                STOP_TIMER(BiCGStab_initialization);
+                STOP_TIMER(BiCGstab_initialization);
             }
             else
             {
-                STOP_TIMER(BiCGStab);
+                STOP_TIMER(BiCGstab);
             }
             if (logging == "iterations" || logging == "matrix")
             {
@@ -757,7 +757,10 @@ int main(int argc, char* argv[])
         {
             if (dc_max > eps_newton)
             {
-                log_file << "    ----    maximum number of iterations reached, probably not converged" << std::endl;
+                log_file.setf(std::ios::fixed, std::ios::floatfield);
+                log_file
+                    << "time [sec]: " << std::setw(8) << std::setprecision(3) << time
+                    << "    ----    maximum number of iterations reached, probably not converged" << std::endl;
             }
         }
         for (int i = 0; i < nx; ++i)

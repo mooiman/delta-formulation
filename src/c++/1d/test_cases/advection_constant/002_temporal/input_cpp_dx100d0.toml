@@ -16,7 +16,7 @@
 
 [Physics]
     u_const = 10.0                              # constant velocity over the whole domain            
-    momentum_viscosity = true                     # include viscosity
+    momentum_viscosity = false                     # include viscosity
     viscosity = 0.01
 [Numerics]
     dt = 20.0                                    # Time step size [s], if dt == 0: then stationary problem
