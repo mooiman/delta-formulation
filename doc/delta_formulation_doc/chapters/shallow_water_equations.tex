@@ -315,9 +315,9 @@ After linearization of $c^{n+\theta,p+1}$ the discretization reads:
     \nonumber \\*
     & = -\left\{ \Dx \Dt_{inv} \left( \frac{1}{8}\left( c^{n+1,p}_{i-1} - c^{n}_{i-1} \right) + \frac{6}{8}\left( c^{n+1,p}_{i} - c^{n}_{i} \right) + \frac{1}{8}\left( c^{n+1,p}_{i+1} - c^{n}_{i+1} \right)\right) + \right.
     \nonumber \\*
-    & \qquad + \half u \left((c^{n+1, p}_{i} + c^{n+1,p}_{i+1}) -  (c^{n+1, p}_{i-1} +c^{n+1,p}_{i}) \right) +
+    & \qquad + \half u \left((c^{n+\theta, p}_{i} + c^{n+\theta,p}_{i+1}) -  (c^{n+\theta, p}_{i-1} +c^{n+\theta,p}_{i}) \right) +
     \nonumber \\*
-    &\qquad - \left. \left( \eps_{i+\half} \frac{c^{n+1,p}_{i+1} - c^{n+1,p}_{i}}{\Dx} - \eps_{i-\half} \frac{c^{n+1,p}_{i} - c^{n+1,p}_{i-1}}{\Dx}\right) \right\}
+    &\qquad - \left. \left( \eps_{i+\half} \frac{c^{n+\theta,p}_{i+1} - c^{n+\theta,p}_{i}}{\Dx} - \eps_{i-\half} \frac{c^{n+\theta,p}_{i} - c^{n+\theta,p}_{i-1}}{\Dx}\right) \right\}
 \end{align}
 
 %------------------------------------------------------------------------------
@@ -489,12 +489,12 @@ q^{n+\theta, p+1}_{i+\half} - q^{n+\theta, p+1}_{i-\half}.
 \end{align}
 The linearization of the flux $q$ around iteration level $p$ reads then:
 \begin{align}
-    q^{n+1,p}_{i+\half}  + \theta \Delta q^{n+1, p+1}_{i+\half}
-    - q^{n+1,p}_{i-\half}  - \theta \Delta q^{n+1, p+1}_{i-\half}
+    q^{n+\theta,p}_{i+\half}  + \theta \Delta q^{n+1, p+1}_{i+\half}
+    - q^{n+\theta,p}_{i-\half}  - \theta \Delta q^{n+1, p+1}_{i-\half}
 \end{align}
 after rearranging the equation into an implicit left hand side and an explicit right hand side  it reads:
 \begin{align}
-\half  \theta \Delta q^{n+1, p+1}_{i} - \half \theta \Delta q^{n+1, p+1}_{i-1} + \left\{ \half q^{n+1,p}_{i+1}  - \half q^{n+1,p}_{i-1} \right\}
+\half  \theta \Delta q^{n+1, p+1}_{i} - \half \theta \Delta q^{n+1, p+1}_{i-1} + \left\{ \half q^{n+\theta,p}_{i+1}  - \half q^{n+\theta,p}_{i-1} \right\}
 \end{align}
 
 %------------------------------------------------------------------------------
