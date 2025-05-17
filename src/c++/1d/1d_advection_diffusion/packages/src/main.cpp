@@ -35,6 +35,7 @@
 // for bicgstab  solver
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
+#include <Eigen/Eigenvalues> 
 #include <toml.h>
 
 void GetArguments(long argc, char** argv, std::string* file_name);
@@ -70,11 +71,12 @@ int main(int argc, char* argv[])
 
     std::filesystem::path exec_file;
     std::filesystem::path exec_dir;
-    std::filesystem::path current_dir;
+    std::filesystem::path start_dir;
     std::filesystem::path output_dir;
 
     exec_file = argv[0];
     exec_dir = exec_file.parent_path();
+    start_dir = std::filesystem::current_path();
 
     toml::table tbl;
     toml::table tbl_chp;  // table for a chapter
@@ -86,22 +88,26 @@ int main(int argc, char* argv[])
             std::cout << "----------------------------" << std::endl;
             std::cout << "Input file \'" << toml_file_name << "\' can not be opened." << std::endl;
             std::cout << "Press Enter to finish";
-            std::cin.ignore();
+            //std::cin.ignore();
             exit(1);
         }
         tbl = toml::parse_file(toml_file_name);
-        std::filesystem::path file_toml;
-        file_toml = toml_file_name;
-        current_dir = file_toml.parent_path();
-        output_dir = current_dir.string() + "/output/";
+        std::cout << tbl << "\n";
+        output_dir = start_dir;
+        output_dir += "/output/";
         std::filesystem::create_directory(output_dir);
     }
     else
     {
         std::cout << "No \'toml\' file is read." << std::endl;
-        current_dir = ".";
         output_dir = ".";
     }
+
+    std::cout << "----------------------------" << std::endl;
+    std::cout << "Executable directory: " << exec_dir << std::endl;
+    std::cout << "Start directory     : " << start_dir << std::endl;
+    std::cout << "Output directory    : " << output_dir << std::endl;
+    std::cout << "----------------------------" << std::endl;
 
     START_TIMERN(main);
     START_TIMER(Simulation initialization);
@@ -530,12 +536,12 @@ int main(int argc, char* argv[])
                 A.coeffRef(i, i - 1) = dx * dtinv * mass[0];
                 A.coeffRef(i, i) = dtinv_pseu + dx * dtinv * mass[1];
                 A.coeffRef(i, i + 1) = dx * dtinv * mass[2];
-                rhs[i] = -(
+                tmp[i] = -(
                       dx * dtinv * mass[0] * (cp[i - 1] - cn[i - 1])
                     + dx * dtinv * mass[1] * (cp[i] - cn[i])
                     + dx * dtinv * mass[2] * (cp[i + 1] - cn[i + 1])
                     );
-
+                rhs[i] = tmp[i];
                 //
                 // dx * d(uc)/dx
                 double u_im12 = 0.5 * (u[i - 1] + u[i]);
@@ -544,9 +550,10 @@ int main(int argc, char* argv[])
                 A.coeffRef(i, i - 1) += - 0.5 * u_im12 * theta;
                 A.coeffRef(i, i) += - 0.5 * u_im12 * theta + 0.5 * u_ip12 * theta;
                 A.coeffRef(i, i + 1) += + 0.5 * u_ip12 * theta;
-                rhs[i] += -(
+                tmp[i] += -(
                     + u_ip12 * ctheta_ip12 - u_im12 * ctheta_im12
                     );
+                rhs[i] = tmp[i];
                 //
                 // dx * d(visc(dc/dx))/dx
                 if (momentum_viscosity)
@@ -583,7 +590,8 @@ int main(int argc, char* argv[])
                     A.coeffRef(i, i    ) = w_ess[0];
                     A.coeffRef(i, i + 1) = w_ess[1];
                     A.coeffRef(i, i + 2) = w_ess[2];
-                    rhs[i] = +bc0 - (w_ess[0] * cp_i + w_ess[1] * cp_ip1 + w_ess[2] * cp_ip2);  // if u>0 this is upwind
+                    tmp[i] = +bc0 - (w_ess[0] * cp_i + w_ess[1] * cp_ip1 + w_ess[2] * cp_ip2);
+                    rhs[i] = tmp[i];
                 }
                 else
                 {
@@ -620,7 +628,8 @@ int main(int argc, char* argv[])
                     A.coeffRef(i, i) = w_ess[0];
                     A.coeffRef(i, i - 1) = w_ess[1];
                     A.coeffRef(i, i - 2) = w_ess[2];
-                    rhs[i] = +bc1 - (w_ess[0] * cp_i + w_ess[1] * cp_im1 + w_ess[2] * cp_im2);  // if u>0 this is upwind
+                    tmp[i] = +bc1 - (w_nat[0] * cp_i + w_nat[1] * cp_im1 + w_nat[2] * cp_im2);
+                    rhs[i] = tmp[i];
                 }
                 else if (bc_type[BC_EAST] == "borsboom")
                 {
@@ -710,12 +719,20 @@ int main(int argc, char* argv[])
                 log_file << "=== cn, delta_c, cp ===================================" << std::endl;
                 for (int i = 0; i < nx; ++i)
                 {
-                    log_file << std::setprecision(15) << std::scientific << cn[i] << "  -----  " << delta_c[i] << "  -----  " << cp[i]  << std::endl;
+                    log_file << std::setw(17) << std::setprecision(15) << std::scientific << cn[i] << "  -----  " << delta_c[i] << "  -----  " << cp[i] << std::endl;
+
                 }
-                //log_file << "=== Eigen values ======================================" << std::endl;
-                //log_file << std::setprecision(8) << std::scientific << Eigen::MatrixXd(A).eigenvalues() << std::endl;
+            }
+            if (logging == "eigen_values")
+            {
+                log_file << "=== Eigen values ======================================" << std::endl;
+                log_file << std::setprecision(8) << std::scientific << Eigen::MatrixXd(A).eigenvalues() << std::endl;
+            }
+            if (logging == "matrix")
+            {
                 log_file << "====== End iteration ==================================" << std::endl;
-                log_file << "time [sec]: " << dt * double(nst)
+                log_file << "time [sec]: " << std::setw(8) << std::setprecision(3) << time
+                         << std::setprecision(8) << std::scientific
                          << ";    iterations     : " << solver.iterations()
                          << ";    estimated error: " << solver.error() 
                          << std::endl;

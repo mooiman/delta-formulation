@@ -24,19 +24,16 @@
 #include "cfts.h"
 #include "perf_timer.h"
 
-double rhsfev(int ispecie, const std::vector<double>& u, const std::vector<double>& k);
-void runge_kutta_4(double t0, double& t1, const std::vector<double>& u0, std::vector<double>& u1, const std::vector<double>& k, double dt);
+double rhsfev(int ispecie, const std::vector<double>& u, const std::vector<double>& k, double);
+void explicit_euler(double t0, double& t1, std::vector<double>& u0, std::vector<double>& u1, std::vector<double>& k, 
+    double dt, double sigma2);
+void runge_kutta_4 (double t0, double& t1, const std::vector<double>& u0, std::vector<double>& u1, const std::vector<double>& k,
+    double dt, double sigma2);
+double k0(double t0);
 void GetArguments(long argc, char** argv, std::string* file_name);
 int get_toml_array(toml::table, std::string, std::vector<std::string>&);
 int get_toml_array(toml::table, std::string, std::vector<double>&);
 int get_toml_array(toml::table, std::string, std::vector<bool>&);
-
-double k0(double t0);
-void explicit_euler(double t0, double& t1, std::vector<double>& u0, std::vector<double>& u1, std::vector<double>& k, 
-    double dt, double sigma2);
-void runge_kutta_4 (double t0, double& t1, std::vector<double>& u0, std::vector<double>& u1, std::vector<double>& k,
-    double dt, double sigma2);
-double rhsfev(int, std::vector<double>&, std::vector<double>&, double);
 
 enum class TIME_INTEGRATOR
 {
@@ -47,15 +44,16 @@ enum class TIME_INTEGRATOR
 
 int main(int argc, char* argv[]) {
     int status = -1;
-    std::string toml_file_name;
+    std::string toml_file_name("--- not-defined ---");
 
     std::filesystem::path exec_file;
     std::filesystem::path exec_dir;
-    std::filesystem::path current_dir;
+    std::filesystem::path start_dir;
     std::filesystem::path output_dir;
 
     exec_file = argv[0];
     exec_dir = exec_file.parent_path();
+    start_dir = std::filesystem::current_path();
 
     toml::table tbl;
     toml::table tbl_chp;  // table for a chapter
@@ -63,31 +61,28 @@ int main(int argc, char* argv[]) {
     {
         (void)GetArguments(argc, argv, &toml_file_name);
         if (!std::filesystem::exists(toml_file_name))
-    {
-        std::cout << "----------------------------" << std::endl;
+        {
+            std::cout << "----------------------------" << std::endl;
             std::cout << "Input file \'" << toml_file_name << "\' can not be opened." << std::endl;
-        std::cout << "Press Enter to finish";
-        std::cin.ignore();
-        exit(1);
-    }
+            std::cout << "Press Enter to finish";
+            //std::cin.ignore();
+            exit(1);
+        }
         tbl = toml::parse_file(toml_file_name);
         std::cout << tbl << "\n";
-        std::filesystem::path file_toml;
-        file_toml = toml_file_name;
-        current_dir = file_toml.parent_path();
-        output_dir = current_dir.string() + "/output/";
+        output_dir = start_dir;
+        output_dir += "/output/";
         std::filesystem::create_directory(output_dir);
     }
     else
     {
         std::cout << "No \'toml\' file is read." << std::endl;
-        current_dir = ".";
         output_dir = ".";
     }
 
     std::cout << "----------------------------" << std::endl;
     std::cout << "Executable directory: " << exec_dir << std::endl;
-    std::cout << "Current directory   : " << std::filesystem::absolute(current_dir) << std::endl;
+    std::cout << "Start directory     : " << start_dir << std::endl;
     std::cout << "Output directory    : " << output_dir << std::endl;
     std::cout << "----------------------------" << std::endl;
 
@@ -223,7 +218,7 @@ int main(int argc, char* argv[]) {
     k[2] = k3; 
 
     double t0 = tstart * dt;
-    double t1 =  t0;
+    double t1 = t0;
 
     ////////////////////////////////////////////////////////////////////////////
     // Define time history file
@@ -312,6 +307,7 @@ int main(int argc, char* argv[]) {
         {
             START_TIMER(Newton iteration);
             ////////////////////////////////////////////////////////////////////////////
+            double dc_max = 0.0;
             std::vector<double> tmp(4);
 
             k[0] = k0(t0);
@@ -369,7 +365,7 @@ int main(int argc, char* argv[]) {
                 solution = solver.solveWithGuess(rhs, solution);  // solution contains u^{n+1,p+1} - u^{n+1,p}
                 used_bicgstab_iter += int(solver.iterations());
 
-                double dc_max = 0.0;
+                dc_max = 0.0;
                 for (int i = 0; i < 4; ++i)
                 {
                     if (dc_max < std::abs(solution[i]))
@@ -426,7 +422,7 @@ int main(int argc, char* argv[]) {
         }
     }
     STOP_TIMER(Time loop);
-    STOP_TIMER(main);
+    STOP_TIMER(Main);
     PRINT_TIMER(timing_filename.data());
 
     (void)his_file->close();
@@ -447,12 +443,12 @@ int main(int argc, char* argv[]) {
     {
         std::cout << "-------------------------------" << std::endl;
         std::cout << "Time integrator: FULLY_IMPLICIT" << std::endl;
-        std::cout << "Total number of Newton iterations: " << used_newton_iter/total_time_steps << std::endl;
-        std::cout << "Total number of linear iterations: " << used_bicgstab_iter/total_time_steps << std::endl;
+        std::cout << "Total number of Newton iterations: " << used_newton_iter / total_time_steps << std::endl;
+        std::cout << "Total number of linear iterations: " << used_bicgstab_iter / total_time_steps << std::endl;
         std::cout << "-------------------------------" << std::endl;
     }
-    std::cout << "Press Enter to finish";
-    std::cin.ignore();
+    //std::cout << "Press Enter to finish";
+    //std::cin.ignore();
 
     return 0;
 }
@@ -488,7 +484,7 @@ void explicit_euler(double t0, double& t1, std::vector<double>& u0, std::vector<
     t1 = t0 + dt;
 }
 //------------------------------------------------------------------------------
-void runge_kutta_4(double t0, double& t1, std::vector<double>& u0, std::vector<double>& u1, std::vector<double>& k, double dt, double sigma2) {
+void runge_kutta_4(double t0, double& t1, const std::vector<double>& u0, std::vector<double>& u1, const std::vector<double>& k, double dt, double sigma2) {
     double at, nul1, nul2;
     std::vector<double> au(4), k1(4), k2(4), k3(4), k4(4);
 
@@ -538,7 +534,7 @@ void runge_kutta_4(double t0, double& t1, std::vector<double>& u0, std::vector<d
     t1 = t0 + dt;
 }
 //------------------------------------------------------------------------------
-double rhsfev(int ispecie, std::vector<double>& u, std::vector<double>& k, double sigma2) {
+double rhsfev(int ispecie, const std::vector<double>& u, const std::vector<double>& k, double sigma2) {
     double result = 0.0;
 
     if (ispecie == 0) {

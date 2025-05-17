@@ -1,9 +1,9 @@
 #
-# Brusselator
+# Air pollution
 #
 [Time]
     tstart = 0.0                                  # Start time [s]
-    tstop = 345600.0                               # End time [s] 
+    tstop = 345600.0                              # End time [s] (4 days)
 
 [Numerics]
     dt = 0.5                                    # Time step size [s], if dt == 0: then stationary problem

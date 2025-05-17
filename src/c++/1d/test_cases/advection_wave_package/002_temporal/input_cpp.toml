@@ -3,7 +3,7 @@
 
 [Time]
     tstart = 0.0                                 # Start time [s]
-    tstop = 250.0                                # End time [s]
+    tstop = 500.0                                # End time [s]
         
 [Initial]
     shape = "Envelope"                                 # "Constant", "Envelope"
@@ -19,11 +19,11 @@
 
 [Numerics]
     dt = 0.01                                    # Time step size [s], if dt == 0: then stationary problem
-    dx = 100.0                                     # Grid size [m]
+    dx = 5.0                                     # Grid size [m]
     c_psi = 4.0                                  
     theta = 0.501                                # Implicitness factor (0.5 <= theta <= 1.0)
     alpha = 0.125                                # Linear (spatial) interpolation coefficient
-    iter_max = 25                               # Maximum number of nonlinear iterations
+    iter_max = 50                                # Maximum number of nonlinear iterations
     eps_newton = 1.0e-12
     eps_bicgstab = 1.0e-12
 

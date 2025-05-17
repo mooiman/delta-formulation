@@ -38,15 +38,16 @@ enum class TIME_INTEGRATOR
 
 int main(int argc, char* argv[]) {
     int status = -1;
-    std::string toml_file_name;
-
+    std::string toml_file_name("--- not-defined ---");
+    
     std::filesystem::path exec_file;
     std::filesystem::path exec_dir;
-    std::filesystem::path current_dir;
+    std::filesystem::path start_dir;
     std::filesystem::path output_dir;
 
     exec_file = argv[0];
     exec_dir = exec_file.parent_path();
+    start_dir = std::filesystem::current_path();
 
     toml::table tbl;
     toml::table tbl_chp;  // table for a chapter
@@ -54,31 +55,28 @@ int main(int argc, char* argv[]) {
     {
         (void)GetArguments(argc, argv, &toml_file_name);
         if (!std::filesystem::exists(toml_file_name))
-    {
-        std::cout << "----------------------------" << std::endl;
+        {
+            std::cout << "----------------------------" << std::endl;
             std::cout << "Input file \'" << toml_file_name << "\' can not be opened." << std::endl;
-        std::cout << "Press Enter to finish";
-        std::cin.ignore();
-        exit(1);
-    }
+            std::cout << "Press Enter to finish";
+            //std::cin.ignore();
+            exit(1);
+        }
         tbl = toml::parse_file(toml_file_name);
         std::cout << tbl << "\n";
-        std::filesystem::path file_toml;
-        file_toml = toml_file_name;
-        current_dir = file_toml.parent_path();
-    output_dir = current_dir.string() + "/output/";
-    std::filesystem::create_directory(output_dir);
+        output_dir = start_dir;
+        output_dir += "/output/";
+        std::filesystem::create_directory(output_dir);
     }
     else
     {
         std::cout << "No \'toml\' file is read." << std::endl;
-        current_dir = ".";
         output_dir = ".";
     }
 
     std::cout << "----------------------------" << std::endl;
     std::cout << "Executable directory: " << exec_dir << std::endl;
-    std::cout << "Current directory   : " << std::filesystem::absolute(current_dir) << std::endl;
+    std::cout << "Start directory     : " << start_dir << std::endl;
     std::cout << "Output directory    : " << output_dir << std::endl;
     std::cout << "----------------------------" << std::endl;
 
@@ -135,7 +133,7 @@ int main(int argc, char* argv[]) {
     log_file << "theta  = " << theta << std::endl;
     double eps_newton = tbl_chp["eps_newton"].value_or(double(1.0e-12));  // stop criterium for Newton iteration
     log_file << "eps_newton  = " << eps_newton << std::endl;
-    double eps_bicgstab = tbl_chp["eps_bicgstab"].value_or(double(1.0e-12));  // stop criterium for BiCGStab iteratio
+    double eps_bicgstab = tbl_chp["eps_bicgstab"].value_or(double(1.0e-12));  // stop criterium for BiCGStab iteration
     log_file << "eps_bicgstab  = " << eps_bicgstab << std::endl;
 
     // Physics
@@ -158,11 +156,11 @@ int main(int argc, char* argv[]) {
 
     if (time_integration_type == TIME_INTEGRATOR::RUNGE_KUTTA_4)
     {
-        model_title = "Two way chemical reaction, Runge-Kutta 4 (RK4)";
+        model_title = "Brusselator, Runge-Kutta 4 (RK4)";
     }
     if (time_integration_type == TIME_INTEGRATOR::FULLY_IMPLICIT)
     {
-        model_title = "Two way chemical reaction, Delta formulation";
+        model_title = "Brusselator, Delta formulation";
     }
 
     START_TIMERN(Main);
@@ -250,6 +248,7 @@ int main(int argc, char* argv[]) {
         his_values[0] = used_bicgstab_iter;
         his_file->put_variable(his_bicgstab_name, nst_his, his_values);
     }
+
     for (int i = 0; i < 2; ++i)
     {
         up[i] = un[i];
@@ -276,6 +275,7 @@ int main(int argc, char* argv[]) {
 
         if (time_integration_type == TIME_INTEGRATOR::FULLY_IMPLICIT)
         {
+            START_TIMER(Newton iteration);
             ////////////////////////////////////////////////////////////////////////////
             double dc_max = 0.0;
             std::vector<double> tmp(2);
@@ -358,7 +358,7 @@ int main(int argc, char* argv[]) {
                 his_values[0] = used_bicgstab_iter / used_newton_iter;
                 his_file->put_variable(his_bicgstab_name, nst_his, his_values);
             }
-            STOP_TIMER(Writing his - file);
+            STOP_TIMER(Writing his-file);
         }
         t0 = t1;
         for (int i = 0; i < 2; ++i)
@@ -370,7 +370,7 @@ int main(int argc, char* argv[]) {
     STOP_TIMER(Main);
     PRINT_TIMER(timing_filename.data());
 
-    his_file->close();
+    (void)his_file->close();
 
     if (time_integration_type == TIME_INTEGRATOR::EULER_EXPLICIT)
     {
@@ -388,12 +388,12 @@ int main(int argc, char* argv[]) {
     {
         std::cout << "-------------------------------" << std::endl;
         std::cout << "Time integrator: FULLY_IMPLICIT" << std::endl;
-        std::cout << "Total number of Newton iterations: " << used_newton_iter/total_time_steps << std::endl;
-        std::cout << "Total number of linear iterations: " << used_bicgstab_iter/total_time_steps << std::endl;
+        std::cout << "Total number of Newton iterations: " << used_newton_iter / total_time_steps << std::endl;
+        std::cout << "Total number of linear iterations: " << used_bicgstab_iter / total_time_steps << std::endl;
         std::cout << "-------------------------------" << std::endl;
     }
-    std::cout << "Press Enter to finish";
-    std::cin.ignore();
+    //std::cout << "Press Enter to finish";
+    //std::cin.ignore();
 
     return 0;
 }
