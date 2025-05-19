@@ -1,0 +1,7 @@
+openfile '.\output\bed_level_flat10_dx10_dt2_map.nc'
+selectfield 'WaterLevel'
+hselectiontype '(M,N) point/path'
+editmn '1:1:603'
+colour [ 0 0 1 ]
+plotcoordinate 'x coordinate'
+quickview
