@@ -1,0 +1,106 @@
+\documentclass{mooiman_memo}
+\newcommand{\ii}{{\rm i}}
+\newcommand{\Dx}{\Delta x}
+\newcommand{\Dy}{\Delta y}
+\newcommand{\Dxi}{\Delta \xi}
+\newcommand{\Deta}{\Delta \eta}
+\newcommand{\Dt}{\Delta t}
+\newcommand{\Dtinv}{\Delta t_{\it{inv}}}
+\renewcommand{\vec}[1]{\mbox{\boldmath $#1$} }
+\newcommand{\mat}[1]{\mbox{\boldmath ${\rm #1}$} }
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\quart}{\frac{1}{4}}
+\newcommand{\abs}[1]{\left| #1 \right|}
+\newcommand{\Fabs}[1]{F_{abs}(#1)\xspace}  % Continue function for the absolute value
+\newcommand{\eps}{\varepsilon}
+
+\begin{document}
+\memoTo{to whom it may concern}
+\memoDate{\today~\currenttime}
+\memoVersion{001}
+\memoFrom{Jan Mooiman}
+\memoTelephone{+31\,(0)6\,4691\,4571}
+\memoEmail{jan.mooiman@outlook.com}
+\memoSubject{Wavy sloped bedlevel, convergence tables}
+\memoCopy{}
+
+\mooimantitle
+%------------------------------------------------------------------------------
+
+%
+%--- begin table with altered row color---
+\rowcolors{2}{white}{mgreen2}
+\begin{longtable}{|>{\bfseries}p{8mm-12pt}|p{\textwidth/5-2mm-12pt}|p{\textwidth/5-2mm-12pt}|p{\textwidth/5-2mm-12pt}|p{\textwidth/5-2mm-12pt}|p{\textwidth/5-2mm-12pt}|}
+\hiderowcolors%
+\caption{Wiggle on discharge when a stationary simulation is performed($\Dt =  \SI{0}{[\second]}$)} \\%
+\showrowcolors
+\rowcolor{mgreen1}
+& \textcolor{white}{$\Dx$ \si{[\meter]}}
+& \textcolor{white}{$\mathbf{q_{\max}}$}
+& \textcolor{white}{$\mathbf{q_{\min}}$}
+& \textcolor{white}{$\mathbf{q_{\max} - q_{\min}}$}
+& \textcolor{white}{Order}
+\\
+\topline
+\endfirsthead
+\endhead
+\endfoot
+\bottomline
+\endlastfoot
+1 & 0.625 & 4.000000056 & 3.999999831 & \num{2.2500e-7} & ---\\
+2 & 1.25 & 4.000000386 & 3.999998843 & \num{1.5430e-6}  &  \num{6.8578} \\
+3 & 2.5 & 4.000002111 & 3.999993667 & \num{8.4440e-6}   & \num{5.4725} \\
+4 & 5.0 & 4.000008004 & 3.999975988 & \num{3.2016e-5}   & \num{3.7916} \\
+5 & 10.0 & 4.000012326 & 3.999963021 & \num{4.9305e-5}  & \num{1.5400} \\
+&&&&&\\
+1 & 0.625 & 4.000000056 & 3.999999831 & \num{2.2500e-7} & ---\\
+2 & 1.25 & 4.000000386 & 3.999998843 & \num{1.5430e-6}  &  \num{2.6187} \\
+3 & 2.5 & 4.000002111 & 3.999993667 & \num{8.4440e-6}   & \num{2.3393} \\
+4 & 5.0 & 4.000008004 & 3.999975988 & \num{3.2016e-5}   & \num{1.9472} \\
+5 & 10.0 & 4.000012326 & 3.999963021 & \num{4.9305e-5}  & \num{1.2410} \\
+\hiderowcolors%
+\end{longtable}
+\rowcolors{2}{white}{white}
+%--- end green table ---
+%
+\rowcolors{2}{white}{mgreen2}
+\begin{longtable}{|>{\bfseries}p{8mm-12pt}|p{\textwidth/5-2mm-12pt}|p{\textwidth/5-2mm-12pt}|p{\textwidth/5-2mm-12pt}|p{\textwidth/5-2mm-12pt}|p{\textwidth/5-2mm-12pt}|}
+	\hiderowcolors%
+	\caption{Wiggle on discharge when a temporal simulation is performed($\Dt =  \SI{5}{[\second]}$). Same results as for the stationary simulation (little difference for $\Dx=\SI{10}{\meter}$)} \\%
+	\showrowcolors
+	\rowcolor{mgreen1}
+	& \textcolor{white}{$\Dx$ \si{[\meter]}}
+	& \textcolor{white}{$\mathbf{q_{\max}}$}
+	& \textcolor{white}{$\mathbf{q_{\min}}$}
+	& \textcolor{white}{$\mathbf{q_{\max} - q_{\min}}$}
+	& \textcolor{white}{Order}
+	\\
+	\topline
+	\endfirsthead
+	\endhead
+	\endfoot
+	\bottomline
+	\endlastfoot
+	1 & 0.625 & 4.000000056 & 3.999999831 & \num{2.2500e-7} & ---\\
+	2 & 1.25 & 4.000000386 & 3.999998843 & \num{1.5430e-6}  & \num{2.6187} \\
+	3 & 2.5 & 4.000002111 & 3.999993667 & \num{8.4440e-6}   & \num{2.3393} \\
+	4 & 5.0 & 4.000008004 & 3.999975988 & \num{3.2016e-5}   & \num{1.9472} \\
+	5 & 10.0 & 4.000012327 & 3.999963021 & \num{4.9306e-5}  & \num{1.2410} \\
+	\hiderowcolors%
+\end{longtable}
+\rowcolors{2}{white}{white}
+
+Computation of order:
+\begin{align}
+&\frac{\left(q_{\max} - q_{\min}\right)_{coarse}}{\left(q_{\max} - q_{\min}\right)_{fine}}
+\\
+&\sqrt{ \frac{\left(q_{\max} - q_{\min}\right)_{coarse}}{\left(q_{\max} - q_{\min}\right)_{fine}} }
+\end{align}
+and perhaps
+\begin{align}
+&\frac{\left(q_{\max} - q_{\min}\right)_{a}-\left(q_{\max} - q_{\min}\right)_{b}}
+{\left(q_{\max} - q_{\min}\right)_{b}-\left(q_{\max} - q_{\min}\right)_{c}}
+\end{align}
+    %------------------------------------------------------------------------------
+
+\end{document}
