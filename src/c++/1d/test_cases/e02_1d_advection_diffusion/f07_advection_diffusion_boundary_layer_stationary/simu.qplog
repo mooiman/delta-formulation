@@ -1,0 +1,50 @@
+openfile '.\c05_dx005d0\output\advection_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '3601'
+editmn '1:1:2003'
+colour [ 1 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\c04_dx010d0\output\advection_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '1801'
+editmn '1:1:1003'
+colour [ 0 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c03_dx025d0\output\advection_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '721'
+editmn '1:1:403'
+colour [ 0 1 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c02_dx050d0\output\advection_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '361'
+editmn '1:1:203'
+colour [ 0 0 0]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c01_dx100d0\output\advection_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '181'
+editmn '1:1:103'
+colour [ 1 0 1]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+

@@ -1,0 +1,41 @@
+# Logging = "matrix"
+
+[Domain]
+    Lx = 1.0                                  # Domain length [m]
+    depth = 1.0                                  # bathymetry below reference level [m]
+
+[Time]
+    tstart = 0.0                                 # Start time [s]
+    tstop = 360000.0                                # End time [s]
+        
+[Initial]
+    shape = "Interface"                                 # "Constant", "Envelope", "Interface"
+    
+[Boundary]
+    bc_type = ["dirichlet", "dirichlet"]          # Type "dirichlet", "borsboom" 
+    bc_signal = ["constant", "constant"]          # Type "constant", "sine" 
+    bc_vals = [0.0, 1.0]                          # The inflow discharge
+    treg = 600.0                                  # Regularization time on boundary
+
+[Physics]
+    g = 1.0                              # acceleration due to gravity            
+    u_const = 0.9                   
+    momentum_viscosity = true                     # include viscosity
+    viscosity = 1.0
+    
+[Numerics]
+    dt = 0.0                                    # Time step size [s], if dt == 0: then stationary problem
+    dx = 0.1                                    # Grid size [m]
+    c_psi = 4.0                                  
+    theta = 0.501                                # Implicitness factor (0.5 <= theta <= 1.0)
+    alpha = 0.125                                # Linear (spatial) interpolation coefficient
+    iter_max = 50                               # Maximum number of nonlinear iterations
+    eps_newton = 1.0e-12
+    eps_bicgstab = 1.0e-12
+    regularization_init = true
+    regularization_iter = true
+    regularization_time = false
+
+[Output]
+    dt_his = 1.0   # [s]
+    dt_map = 1.0   # [s] 
