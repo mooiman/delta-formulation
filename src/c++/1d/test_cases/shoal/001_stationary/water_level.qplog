@@ -1,7 +1,0 @@
-openfile '.\output\bed_level_shoal_dx10_dt0_map.nc'
-selectfield 'WaterLevel'
-hselectiontype '(M,N) point/path'
-editmn '1:1:1203'
-colour [ 0 0 1 ]
-plotcoordinate 'x coordinate'
-quickview
