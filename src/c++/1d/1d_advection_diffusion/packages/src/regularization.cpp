@@ -184,9 +184,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         A.coeffRef(i, i - 1) = m_mass[0] - c_error;
         A.coeffRef(i, i) = m_mass[1] + 2. * c_error;
         A.coeffRef(i, i + 1) = m_mass[2] - c_error;
-        rhs[i] = 1. / 32. * c_psi * dx * ( // 1./32. * c_psi * dx  look the best for wave_package
-            u[i] * std::abs(u0_xixi[i])
-            );
+        rhs[i] = 0.5 * u[i] * std::abs(u0_xixi[i]);
     }
     i = 0;
     A.coeffRef(i, i) = 1.;
@@ -197,7 +195,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     A.coeffRef(i, i - 1) = 11. / 24.;
     A.coeffRef(i, i) = 14. / 24.;
     A.coeffRef(i, i + 1) = -1. / 24.;
-    rhs[i] = rhs[i];
+    rhs[i] = c_psi * rhs[i];
     i = nx - 1;
     A.coeffRef(i, i - 2) = 1.;
     A.coeffRef(i, i - 1) = -2.0;
@@ -207,7 +205,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     A.coeffRef(i, i - 1) = -1. / 24.;
     A.coeffRef(i, i) = 14. / 24.;
     A.coeffRef(i, i + 1) = 11. / 24.;
-    rhs[i] = rhs[i];
+    rhs[i] = c_psi * rhs[i];
 
     Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
     solver.compute(A);

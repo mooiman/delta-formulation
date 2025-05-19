@@ -32,6 +32,7 @@ enum class SHAPE_CONC
     Constant,
     Envelope,
     EnvelopePhi,
+    Interface,
     NR_SHAPES
 };
 

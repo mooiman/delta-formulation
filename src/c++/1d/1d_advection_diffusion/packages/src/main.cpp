@@ -134,6 +134,7 @@ int main(int argc, char* argv[])
     std::string shape_type = tbl_chp["shape"].value_or("None");
     if (shape_type == "Constant") { shape_conc = SHAPE_CONC::Constant; }
     else if (shape_type == "Envelope") { shape_conc = SHAPE_CONC::Envelope; }
+    else if (shape_type == "Interface") { shape_conc = SHAPE_CONC::Interface; }
     else { shape_conc = SHAPE_CONC::NONE; }
 
     // Boundary
@@ -345,6 +346,22 @@ int main(int argc, char* argv[])
     // initial concentration
     (void)adv_diff_init_concentration(mass, x, Lx, shape_conc, cn);
     (void)adv_diff_init_velocity(u, u_const, g, zb, x, shape_conc);  // g = 10., zb = -10 -> u = sqrt(g*zb) = 10.
+    if (shape_conc == SHAPE_CONC::Interface)
+    {
+        for (int i = 0; i < nx; i++)
+        {
+            double tmp = 0.6 * Lx;
+            if (x[i] < tmp)
+            {
+                visc_given[i] = 0.01 * visc_const;
+            }
+            else
+            {
+                visc_given[i] = 1.0 * visc_const;
+            }
+        }
+
+    }
     if (regularization_init)
     {
         START_TIMER(Regularization_init);
@@ -352,7 +369,7 @@ int main(int argc, char* argv[])
         (void)regularization->given_function(visc_reg, psi, visc_given, dx, c_psi);
         for (int i = 0; i < nx; ++i)
         {
-            visc[i] = visc_reg[i] + std::abs(psi[i]);
+            visc[i] = visc_reg[i];
         }
         STOP_TIMER(Regularization_init);
     }
@@ -418,7 +435,7 @@ int main(int argc, char* argv[])
     his_file->add_stations(obs_stations, x_obs, y_obs);
     his_file->add_time_series();
 
-    std::string his_cn_name("constituent");
+    std::string his_cn_name("cn_1d");
     his_file->add_variable(his_cn_name, "", "Constituent", "-");
 
     std::string his_newton_iter_name("newton_iterations");
@@ -608,12 +625,12 @@ int main(int argc, char* argv[])
                 //
                 int i = nx - 1;
 
-                double cn_i = cn[i];             // = h^{n}_{i}
-                double cn_im1 = cn[i - 1];       // = h^{n}_{i-1}
-                double cn_im2 = cn[i - 2];       // = h^{n}_{i-2}
-                double cp_i = cp[i];             // = h^{n+1,p}_{i}
-                double cp_im1 = cp[i - 1];       // = h^{n+1,p}_{i-1}
-                double cp_im2 = cp[i - 2];       // = h^{n+1,p}_{i-2}
+                double cn_i = cn[i];             // = c^{n}_{i}
+                double cn_im1 = cn[i - 1];       // = c^{n}_{i-1}
+                double cn_im2 = cn[i - 2];       // = c^{n}_{i-2}
+                double cp_i = cp[i];             // = c^{n+1,p}_{i}
+                double cp_im1 = cp[i - 1];       // = c^{n+1,p}_{i-1}
+                double cp_im2 = cp[i - 2];       // = c^{n+1,p}_{i-2}
                 double ctheta_i = theta * cp_i + (1.0 - theta) * cn_i;
                 double ctheta_im1 = theta * cp_im1 + (1.0 - theta) * cn_im1;
 
