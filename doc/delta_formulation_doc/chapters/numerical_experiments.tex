@@ -216,7 +216,7 @@ Results for several observation stations along the channel are shown in \autoref
 \end{figure}
 %--------------------------------------------------------------------------------
 \subsection{Transport of a time-dependent constituent at the boundary}
-\label{sec:numerical_experiment_1d_adv_constant_boundary}
+\label{sec:numerical_experiment_1d_adv_time_dependent_boundary}
 The prescribed boundary condition for the constituent reads
 % reg_factor = 0.5 * (std::cos(M_PI * (treg - double(nst) * dt) / treg) + 1.0);
 \begin{align}
@@ -334,7 +334,7 @@ The considered advection-diffusion equation than reads:
 \begin{align}
     \int_\Omega\pdiff{{e^\phi}}{t} \, d\omega
     + \int_\Omega\pdiff{\left(u{e^\phi}\right)}{x} \, d\omega
-    - \int_\Omega\pdiff{}{x}\left(\eps \pdiff{{e^\phi}}{x}\right)\, d\omega = 0,\label{eq:1d_advec_phi}
+    - \int_\Omega\pdiff{}{x}\left(\eps \pdiff{{e^\phi}}{x}\right)\, d\omega = 0,\label{eq:1d_advec_phi_num}
 \end{align}
 With initial condition for the velocity $u_{\it given} = \bqty{10}{\metre\per\second}$, which coincide with the wave celerity in the next numerical experiments.
 \begin{align}
@@ -354,9 +354,9 @@ where
     \item[$t_{reg}$] The regularization time for the given time-series, [\si{\second}]
     \nomenclature{$t_{reg}$}{\si{\second}}{The regularization time for the given time-series}
 \end{symbollist}
-A value of $c(0,t)=0$ is estimated by, so:
+A value of $c(0,t)=0$ is estimated by:
 \begin{align}
-    \phi(0,t) = \ln(c(0,t)) \gtrsim -50
+    \phi(0,t) = \ln(c(0,t)) \gtrsim -25
 \end{align}
 %--------------------------------------------------------------------------------
 \paragraph*{Numerical experiment}
@@ -381,7 +381,7 @@ In this section we will show the resuls of the advection-diffusion equation with
 
 The considered advection-diffusion equation reads:
 \begin{align}
-    \pdiff{c}{t} + \pdiff{uc}{x} - \pdiff{}{x}\left( (\eps+\Psi) \pdiff{c}{x}\right)= 0, \qquad u>0. \label{eq:1d_advection}
+    \pdiff{c}{t} + \pdiff{uc}{x} - \pdiff{}{x}\left( (\eps+\Psi) \pdiff{c}{x}\right)= 0, \qquad u>0. \label{eq:1d_advection_art_diff}
 \end{align}
 where
 \begin{symbollist}
@@ -457,7 +457,7 @@ A numerical experiments is performed for the stationary advection-diffusion equa
     \eps(x) &=
     \begin{cases}
         \check{\eps}, & \quad \text{if} \quad 0 < x \leq x^*, \\
-        10, & \quad \text{if} \quad x^* < x < 1
+        1, & \quad \text{if} \quad x^* < x < 1
     \end{cases}
 \end{align}
 An analytical solution exists in case $u=0$ and read \citep[eq.\ 3.11]{Wesseling2001}:
@@ -471,7 +471,7 @@ An analytical solution exists in case $u=0$ and read \citep[eq.\ 3.11]{Wesseling
 \end{align}
 
 \begin{itemize}
-    \item If $\eps \pdiff{c}{x} \equiv 0$ then either $\eps=0$ or $\pdiff{c}{x}=0$. Where $\eps=0$ is not a feasible option.
+    \item If $\eps \pdiff{c}{x} \equiv 0$ then either $\eps=0$ or $\pdiff{c}{x}=0$. Where $\eps=0$ is not feasible.
 \end{itemize}
 
 Some numerical experiments are performed with several values of $u$.
@@ -483,12 +483,17 @@ The numerical experiment is performed with the following parameters:
     \item Length of the domain $L_x = \bqty{1}{\metre}$.
     \item Stationary simulation, $\lpdiff{c}{t}=0$.
     \item Prescribed boundary conditions: $c(0,t) = 0$ and $c(L_x,t) = 1$.
-    \item Grid size $\Dx = \bqty{0.05}{\metre}$,
-    \item Diffusion coefficient $\check{\eps} = \bqty{1}{\square\metre\per\second}$
+    \item Grid size: %  , $u = \bqty{0.9}{\metre\per\second}$
+    \begin{itemize}
+        \item $\Dx = \bqty{0.001}{\metre} \rightarrow \Pe = 0.09$,
+        \item $\Dx = \bqty{0.01}{\metre} \rightarrow \Pe = 0.9$,
+        \item $\Dx = \bqty{0.05}{\metre} \rightarrow \Pe = 4.5$,
+    \end{itemize}
+    \item Diffusion coefficient $\check{\eps} = \bqty{0.01}{\square\metre\per\second}$
     \item Advection velocities, $\Pe = u\Dx/\eps$:
     \begin{itemize}
         \item $u = \bqty{0}{\metre\per\second} \rightarrow \Pe = 0.0$
-        \item $u = \bqty{0.9}{\metre\per\second} \rightarrow \Pe = 0.045 \text{ and } \Pe = 4.5$
+        \item $u = \bqty{0.9}{\metre\per\second} \rightarrow \Pe = 0.09, \Pe = 0.9\text{ and } \Pe = 4.5$
     \end{itemize}
 \end{itemize}
 %--------------------------------------------------------------------------------
@@ -497,16 +502,16 @@ Map results are presented for the constituent $c$ and the artificial diffusion $
 \begin{figure}[H]
     \begin{subfigure}[t]{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/maze.pdf}
-        \caption{High resolution solution for $u =\bqty{0}{\metre\per\second}$ and $u = \bqty{0.9}{\metre\per\second}$ and $\Dx=\bqty{0.001}{\metre}$.}
+        \includegraphics[width=0.9\textwidth]{figures/interface_u0d0_u0d9.png}
+        \caption{High numerical resolution solution $\Dx=\bqty{0.001}{\metre}$.  Blue $u =\bqty{0}{\metre\per\second}$ and Black $u = \bqty{0.9}{\metre\per\second}$.}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/maze.pdf}
-        \caption{Numerical solution.\newline $\Dx = \bqty{0.001}{\metre} \rightarrow \Pe= 0.045$ and \newline $\Dx = \bqty{0.1}{\metre} \rightarrow \Pe = 4.5$}
+        \includegraphics[width=0.9\textwidth]{figures/interface_pe0d09_pe0d9_pe4d5.png}
+        \caption{Numerical solution, $u = \bqty{0.9}{\metre\per\second}$. Black: $\Dx = \bqty{0.001}{\metre} \rightarrow \Pe= 0.09$; Blue: $\Dx = \bqty{0.01}{\metre} \rightarrow \Pe = 0.9$ and Red: $\Dx = \bqty{0.05}{\metre} \rightarrow \Pe = 4.5$.}
     \end{subfigure}
-    \caption{Map results.}
+    \caption{Map results for different values of the P\'eclet number.}
 \end{figure}
 %--------------------------------------------------------------------------------
 \section{1-D Wave equation}

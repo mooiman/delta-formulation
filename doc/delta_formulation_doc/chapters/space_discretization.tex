@@ -93,12 +93,12 @@ Another possible quadratic fit is the one through Cell-Centered values:
     \left(   \half \left(\xi - \half\right)^2\right) c_2       \label{eq:20231214-5}
 \end{align}
 The parabolic fit that gives neither underspecification nor overspecification of
-imposed values at boundaries is a combination of Equation (45) and (49). It is easy to show
-that that combination consists of $1/3$ times \autoref{eq:20231214-1} plus $2/3$ times \autoref{eq:20231214-5}:
+imposed values at boundaries is a combination of Equation (45) and (49).
+It is easy to show that that combination consists of $1/3$ times \autoref{eq:20231214-1} plus $2/3$ times \autoref{eq:20231214-5}:
 \begin{align}
     c_{opt}(\xi) & = \left( \frac{13}{12} - \frac{3}{2}\xi - \half \xi^2 \right) c_0 +
     \left( -\frac{1}{6} + 2 \xi - \xi^2 \right) c_1  +
-    \left( \frac{1}{12} - \half \xi +  \half \xi^2  \right) c_2       \label{eq:20231214-5}
+    \left( \frac{1}{12} - \half \xi +  \half \xi^2  \right) c_2
 \end{align}
 Which lead to the following interpolations for $\xi=\half$ and $\xi=1$:
 \begin{align}
@@ -275,7 +275,6 @@ with $\Dxi =1$ it reads:
 \begin{align}
     &\left(\frac{1}{8}-c_E\right) E_{i-1} + \left(\frac{6}{8} + 2c_E\right) E_i + \left(\frac{1}{8} - c_E\right)E_{i+1}
     =   \abs{D_i}
-    \label{eq:error_regularization}
 \end{align}
 \textbf{Choose $\mathbf{c_E}$ equal to $\mathbf{c_{\psi}}$} and take into account that $D_i$ is constant over a control volume
 \begin{align}
