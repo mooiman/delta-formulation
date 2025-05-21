@@ -1,8 +1,7 @@
 //
-// programmer: Jan Mooiman
+// Programmer: Jan Mooiman
 // Date      : 2025-01-03
 // Email     : jan.mooiman@outlook.com
-//
 //
 //    Solving the 1D wave equation, fully implicit with delta-formuation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
@@ -91,11 +90,12 @@ int main(int argc, char* argv[])
 
     std::filesystem::path exec_file;
     std::filesystem::path exec_dir;
-    std::filesystem::path current_dir;
+    std::filesystem::path start_dir;
     std::filesystem::path output_dir;
 
     exec_file = argv[0];
     exec_dir = exec_file.parent_path();
+    start_dir = std::filesystem::current_path();
 
     toml::table tbl;
     toml::table tbl_chp;  // table for a chapter
@@ -107,22 +107,26 @@ int main(int argc, char* argv[])
             std::cout << "----------------------------" << std::endl;
             std::cout << "Input file \'" << toml_file_name << "\' can not be opened." << std::endl;
             std::cout << "Press Enter to finish";
-            std::cin.ignore();
+            //std::cin.ignore();
             exit(1);
         }
         tbl = toml::parse_file(toml_file_name);
-        std::filesystem::path file_toml;
-        file_toml = toml_file_name;
-        current_dir = file_toml.parent_path();
-        output_dir = current_dir.string() + "/output/";
+        std::cout << tbl << "\n";
+        output_dir = start_dir;
+        output_dir += "/output/";
         std::filesystem::create_directory(output_dir);
     }
     else
     {
         std::cout << "No \'toml\' file is read." << std::endl;
-        current_dir = ".";
         output_dir = ".";
     }
+
+    std::cout << "----------------------------" << std::endl;
+    std::cout << "Executable directory: " << exec_dir << std::endl;
+    std::cout << "Start directory     : " << start_dir << std::endl;
+    std::cout << "Output directory    : " << output_dir << std::endl;
+    std::cout << "----------------------------" << std::endl;
 
     START_TIMERN(Main);
     START_TIMER(Writing log-file);

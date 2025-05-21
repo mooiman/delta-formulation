@@ -1,7 +1,7 @@
 [Domain]
     Lx = 1000.0    # Domain length [m]
     depth = 4.0    # bathymetry below reference level [m]
-    geometry_type = "SlopedWavyBedGeometry"
+    geometry_type = "WavyBedGeometry"
 
 [Time]
     tstart = 0.0                                  # Start time [s]
