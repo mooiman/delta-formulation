@@ -35,8 +35,8 @@
 
 [Numerics]
     dt = 2.0                                      # Time step size [s], if dt == 0: then stationary problem
-    dx = 50.0                                    # Grid size [m]
-    dy = 50.0                                    # Grid size [m]
+    dx = 100.0                                    # Grid size [m]
+    dy = 100.0                                    # Grid size [m]
     iter_max = 25                                 # Maximum number of nonlinear iterations
     theta = 0.501                                 # Implicitness factor (0.5 <= theta <= 1.0)
     regularization_init = true

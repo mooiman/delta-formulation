@@ -130,6 +130,7 @@ int main(int argc, char* argv[])
 
     START_TIMERN(Main);
     START_TIMER(Writing log-file);
+    START_TIMER(Initialization);
     BED_LEVEL bed_level_type = BED_LEVEL::NONE;
 
     std::string out_file;
@@ -298,7 +299,7 @@ int main(int argc, char* argv[])
 
     log_file << std::endl << "[Boundary]" << std::endl;
     log_file << "bc_type = ";
-    for (int i = 0; i < bc_type.size() - 1; ++i) { log_file << bc_type[i] << ", ";}
+    for (int i = 0; i < bc_type.size() - 1; ++i) { log_file << bc_type[i] << ", "; }
     log_file << bc_type[bc_type.size() - 1] << std::endl;
     log_file << "bc_vars = ";
     for (int i = 0; i < bc_vars.size() - 1; ++i) { log_file << bc_vars[i] << ", "; }
@@ -321,19 +322,19 @@ int main(int argc, char* argv[])
     log_file << "viscosity = " << visc_const << std::endl;
 
     log_file << std::endl << "[Numerics]" << std::endl;
-    log_file << "dt  = " << dt << std::endl;
-    log_file << "dx  = " << dx << std::endl;
-    log_file << "c_psi  = " << c_psi << std::endl;
-    log_file << "iter_max  = " << iter_max << std::endl;
-    log_file << "theta  = " << theta << std::endl;
-    log_file << "alpha  = " << alpha << std::endl;
-    log_file << "eps_newton  = " << eps_newton << std::endl;
-    log_file << "eps_bicgstab  = " << eps_bicgstab << std::endl;
-    log_file << "eps_abs_function  = " << eps_fabs << std::endl;
+    log_file << "dt = " << dt << std::endl;
+    log_file << "dx = " << dx << std::endl;
+    log_file << "c_psi = " << c_psi << std::endl;
+    log_file << "theta = " << theta << std::endl;
+    log_file << "iter_max = " << iter_max << std::endl;
+    log_file << "alpha = " << alpha << std::endl;
+    log_file << "eps_newton = " << eps_newton << std::endl;
+    log_file << "eps_bicgstab = " << eps_bicgstab << std::endl;
+    log_file << "eps_abs_function = " << eps_fabs << std::endl;
     log_file << "regularization_init = " << regularization_init << std::endl;
     log_file << "regularization_iter = " << regularization_iter << std::endl;
     log_file << "regularization_time = " << regularization_time << std::endl;
-    
+
     log_file << std::endl << "[Output]" << std::endl;
     log_file << "dt_his = " << dt_his << std::endl;
     log_file << "dt_map = " << dt_map << std::endl;
@@ -442,15 +443,17 @@ int main(int argc, char* argv[])
     }
 
     log_file << "-------------------------------------------------------" << std::endl;
-    log_file << "Nodes  : " << nx << std::endl;
-    log_file << "Volumes: " << (nx-1) << std::endl;
-    log_file << "CFL    : " << std::sqrt(g * std::abs(min_zb)) * dt / dx << std::endl;
+    log_file << "Nodes   : " << nx << std::endl;
+    log_file << "Elements: " << (nx-1) << std::endl;
+    log_file << "Volumes : " << (nx-2) << std::endl;
+    log_file << "CFL     : " << std::sqrt(g * std::abs(min_zb)) * dt / dx << std::endl;
+    log_file << "=======================================================" << std::endl;
     STOP_TIMER(Writing log-file);  // but two write statements are not timed
     if (status != 0) {
         log_file.close();
         exit(1);
     }
-    log_file << "=======================================================" << std::endl;
+
 
 
     //status = initialize_scalar(alpha, s_giv, s);
@@ -499,6 +502,7 @@ int main(int argc, char* argv[])
     map_file = create_map_file(nc_mapfilename, model_title, x, map_names);
 
     // Put data on map file
+    START_TIMER(Writing map-file);
     int nst_map = 0;
     map_file->put_time(nst_map, time);
     map_file->put_time_variable(map_names[0], nst_map, hn);
@@ -513,7 +517,8 @@ int main(int argc, char* argv[])
     map_file->put_time_variable(map_names[9], nst_map, psi);
     map_file->put_time_variable(map_names[10], nst_map, froude);
     map_file->put_time_variable(map_names[11], nst_map, pe);
-
+    STOP_TIMER(Writing map-file);
+    // End define map file
     ////////////////////////////////////////////////////////////////////////////
     // Create time history file
     std::cout << "    Create his-file" << std::endl;
@@ -536,6 +541,7 @@ int main(int argc, char* argv[])
         nsig = std::max(nsig, (int)std::log10(x_obs[i]));
     }
     nsig += 1;
+
     std::vector<std::string> obs_stations;
     obs_stations.push_back(setup_obs_name(x[p_a], y[p_a], nsig, ": West boundary"));
     obs_stations.push_back(setup_obs_name(x[p_b], y[p_b], nsig, ": Halfway to west boundary"));
@@ -569,6 +575,7 @@ int main(int argc, char* argv[])
     his_file->add_variable_without_location(his_lin_solv_iter_name, "", "Lin. solver iterations", "-");
 
     // Put data on time history file
+    START_TIMER(Writing his-file);
     int nst_his = 0;
     his_file->put_time(nst_his, time);
 
@@ -595,7 +602,8 @@ int main(int argc, char* argv[])
 
     his_values = { 0 };
     his_file->put_variable(his_lin_solv_iter_name, nst_his, his_values);
-
+    STOP_TIMER(Writing his-file);
+    // End define history file
     ////////////////////////////////////////////////////////////////////////////
 
     Eigen::SparseMatrix<double> A(2 * nx, 2 * nx);
@@ -606,16 +614,17 @@ int main(int argc, char* argv[])
     }
 
     std::cout << "Start time-loop" << std::endl;
-    std::cout << std::fixed << std::setprecision(2) << "tstart= " << tstart + time << ";   tstop=" << tstart + tstop << ";   dt= " << dt << ";   dx= " << dx << std::endl;
+    std::cout << std::fixed << std::setprecision(2) << "tstart= " << tstart + time << ";   tstop= " << tstart + tstop << ";   dt= " << dt << ";   dx= " << dx << std::endl;
  
     STOP_TIMER(Initialization);
    // Start time loop
+    START_TIMER(Time loop);
     double dh_max = 0.0;
-    int dh_maxi = 0;
     double dq_max = 0.0;
+    int dh_maxi = 0;
     int dq_maxi = 0;
     int psi_switch = 2;
-    START_TIMER(Time loop);
+
     for (int nst = 1; nst < total_time_steps; ++nst)
     {
         time = dt * double(nst);
@@ -689,6 +698,7 @@ int main(int argc, char* argv[])
         int used_newton_iter = 0;
         int used_lin_solv_iter = 0;
         START_TIMER(Newton iteration);
+        Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
         for (int iter = 0; iter < iter_max; ++iter)
         {
             used_newton_iter += 1;
@@ -1468,7 +1478,6 @@ int main(int argc, char* argv[])
                 START_TIMER(BiCGStab);
             }
 
-            Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
             solver.compute(A);
             solver.setTolerance(eps_bicgstab);
             solution = solver.solve(rhs);
@@ -1484,12 +1493,13 @@ int main(int argc, char* argv[])
             if (logging == "iterations" || logging == "matrix")
             {
                 log_file << "time [sec]: " << std::setprecision(2) << std::scientific << time
-                         << "    BiCGstab iterations: " << solver.iterations()
-                         << "    estimated error:" << solver.error()
-                         << std::endl;
+                    << "    BiCGstab iterations: " << solver.iterations()
+                    << "    estimated error:" << solver.error()
+                    << std::endl;
             }
-
+            // 
             // The new solution is the previous iterant plus the delta
+            //
             dh_max = 0.0;
             dh_maxi = 0;
             dq_max = 0.0;
@@ -1515,7 +1525,7 @@ int main(int argc, char* argv[])
             if (logging == "matrix")
             {
                 log_file << "=== Matrix ============================================" << std::endl;
-                log_file << Eigen::MatrixXd(A) << std::endl;
+                log_file << std::setprecision(4) << std::scientific << Eigen::MatrixXd(A) << std::endl;
                 //log_file << "=== Eigen values ======================================" << std::endl;
                 //log_file << std::setprecision(8) << std::scientific << Eigen::MatrixXd(A).eigenvalues() << std::endl;
                 log_file << "=== RHS, solution  ====================================" << std::endl;
@@ -1530,13 +1540,14 @@ int main(int argc, char* argv[])
                 }
                 log_file << "=======================================================" << std::endl;
             }
-            used_lin_solv_iter = std::max(used_lin_solv_iter, (int) solver.iterations());
+            used_lin_solv_iter = std::max(used_lin_solv_iter, (int)solver.iterations());
             if (dh_max < eps_newton && dq_max < eps_newton)
             {
                 break;
             }
         }
         STOP_TIMER(Newton iteration);
+
         if (stationary)
         {
             std::cout << "stationary solution " << std::endl;
@@ -1562,13 +1573,12 @@ int main(int argc, char* argv[])
                     << "    Delta q^{n + 1,p + 1}: " << dq_max << " at: " << dq_maxi
                     << std::endl;
             }
-
         }
         if (used_newton_iter == iter_max)
         {
             if (dh_max > eps_newton || dq_max > eps_newton)
             {
-                log_file << "    ----    maximum number of iterations reached, probably not converged" << std::endl;
+                log_file << "    ----    maximum number of iterations reached, probably not converged, at time: " <<  time << std::endl;
             }
         }
         for (int i = 0; i < nx; ++i)
@@ -1721,7 +1731,7 @@ int main(int argc, char* argv[])
     std::this_thread::sleep_for(timespan);
     return 0;
 }
-int p_index(int i, int j, int nx)
+inline int p_index(int i, int j, int nx)
 {
     return j * nx + i;
 }
@@ -1947,8 +1957,8 @@ std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs
 */
 void GetArguments(long argc,   /* I Number of command line arguments */
     char** argv,
-    std::string * file_name)   
-                                           /* Returns nothing */
+    std::string* file_name)
+    /* Returns nothing */
 {
     long  i;
     i = 0;
@@ -1967,7 +1977,7 @@ void GetArguments(long argc,   /* I Number of command line arguments */
     }
     return;
 }
-int get_toml_array(toml::table tbl, std::string keyw, std::vector<std::string> & values)
+int get_toml_array(toml::table tbl, std::string keyw, std::vector<std::string>& values)
 {
     int status = 1;
     toml::array& arr = *tbl.get_as<toml::array>(keyw);
@@ -1983,7 +1993,7 @@ int get_toml_array(toml::table tbl, std::string keyw, std::vector<std::string> &
     if (&arr != nullptr) status = 0;
     return status;
 }
-int get_toml_array(toml::table tbl, std::string keyw, std::vector<double> & values)
+int get_toml_array(toml::table tbl, std::string keyw, std::vector<double>& values)
 {
     int status = 1;
     toml::array& arr = *tbl.get_as<toml::array>(keyw);

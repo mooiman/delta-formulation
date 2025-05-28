@@ -57,6 +57,7 @@ double dcdy_scvf_n(double, double, double, double);
 double dcdy_scvf_n(double, double, double, double);
 std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs_name);
 
+
 // Solve the linear wave equation
 // Continuity equation: d(h)/dt + d(q)/dx = 0
 // Momentum equation: d(q)/dt + 1/2  d(h^2)/dx = 0
@@ -64,8 +65,6 @@ std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs
 
 int main(int argc, char *argv[])
 {
-    START_TIMERN(Main);
-
     bool stationary = false;
     std::string toml_file_name("---not-defined---");
     int status = -1;
@@ -77,16 +76,16 @@ int main(int argc, char *argv[])
 
     std::filesystem::path exec_file;
     std::filesystem::path exec_dir;
-    std::filesystem::path current_dir;
+    std::filesystem::path start_dir;
     std::filesystem::path output_dir;
 
     exec_file = argv[0];
     exec_dir = exec_file.parent_path();
+    start_dir = std::filesystem::current_path();
 
     toml::table tbl;
-    toml::table tbl_chp;
-
-    if (argc == 3 )
+    toml::table tbl_chp;  // table for a chapter
+    if (argc == 3)
     {
         (void)GetArguments(argc, argv, &toml_file_name);
         if (!std::filesystem::exists(toml_file_name))
@@ -94,27 +93,29 @@ int main(int argc, char *argv[])
             std::cout << "----------------------------" << std::endl;
             std::cout << "Input file \'" << toml_file_name << "\' can not be opened." << std::endl;
             std::cout << "Press Enter to finish";
-            std::cin.ignore();
+            //std::cin.ignore();
             exit(1);
         }
         tbl = toml::parse_file(toml_file_name);
-        std::filesystem::path file_toml;
-        file_toml = toml_file_name;
-        current_dir = file_toml.parent_path();
-        output_dir = current_dir.string() + "/output/";
+        std::cout << tbl << "\n";
+        output_dir = start_dir;
+        output_dir += "/output/";
         std::filesystem::create_directory(output_dir);
     }
     else
     {
         std::cout << "No \'toml\' file is read." << std::endl;
-        current_dir = ".";
         output_dir = ".";
     }
-    std::cout << "Executable       : " << exec_file << std::endl;
-    std::cout << "Current directory: " << std::filesystem::absolute(current_dir) << std::endl;
-    std::cout << "Output directory : " << output_dir << std::endl;
-    std::cout << std::endl;
 
+    std::cout << "----------------------------" << std::endl;
+    std::cout << "Executable directory: " << exec_dir << std::endl;
+    std::cout << "Start directory     : " << start_dir << std::endl;
+    std::cout << "Output directory    : " << output_dir << std::endl;
+    std::cout << "----------------------------" << std::endl;
+
+    START_TIMERN(Main);
+    START_TIMER(Writing log-file);
     START_TIMER(Initialization);
     
     std::string out_file;
@@ -134,64 +135,41 @@ int main(int argc, char *argv[])
     log_file.open(log_filename);
     std::cout << "=== Input file =======================================" << std::endl;
     std::cout << "Executable compiled: " << __DATE__ << ", " << __TIME__ << std::endl;
-    std::cout << std::filesystem::absolute(exec_file) << std::endl;  
-    std::cout << std::filesystem::absolute(toml_file_name) << std::endl;  
-    std::cout << "=======================================================" << std::endl;
+    std::cout << std::filesystem::absolute(toml_file_name) << std::endl;
+    std::cout << "======================================================" << std::endl;
     log_file << "======================================================" << std::endl;
     log_file << "Executable compiled: " << __DATE__ << ", " << __TIME__ << std::endl;
     log_file << "=== Input file =======================================" << std::endl;
-    log_file << std::filesystem::absolute(toml_file_name) << std::endl;
+    log_file << toml_file_name << std::endl;
     log_file << "=== Copy of the input file ============================" << std::endl;
-    log_file << tbl << std::endl;  // Write input TOML file to log_file
+    log_file << tbl << "\n";  // Write input TOML file to log_file
     log_file << "=======================================================" << std::endl;
     log_file << std::endl;
-    log_file << "=== Used input variables ==============================" << std::endl;
 
     double dt = tbl["Numerics"]["dt"].value_or(double(1.0));  // default stationary
     // Time
-    log_file << std::endl << "[Time]" << std::endl;
     double tstart = tbl["Time"]["tstart"].value_or(double(0.0));
-    log_file << "tstart = " << tstart << std::endl;
     double tstop = tbl["Time"]["tstop"].value_or(double(1800.));
-    log_file << "tstop = " << tstop << std::endl;
     
     // Initial
-    log_file << std::endl << "[Initial]" << std::endl;
     std::vector<std::string> ini_vars; // { "velocity", "zeta", "viscosity", "zeta_GaussHump" };  // get the element as an array
     auto vars = tbl["Initial"];
     status = get_toml_array(*vars.as_table(), "ini_vars", ini_vars);
-    log_file << "ini_vars = ";
-    for (int i = 0; i < ini_vars.size(); ++i)
-    {
-        log_file << ini_vars[i];
-        if (i < ini_vars.size() - 1) { log_file << ", "; }
-    }
-    log_file << std::endl;
     double gauss_amp = tbl["Initial"]["gauss_amp"].value_or(double(0.0));   // amplitude of the gaussian hump at the boundary
-    log_file << "Gauss_amp = " << gauss_amp << std::endl;
     double gauss_mu = tbl["Initial"]["gauss_mu"].value_or(double(0.0));
-    log_file << "Gauss_mu = " << gauss_mu << std::endl;
     double gauss_sigma = tbl["Initial"]["gauss_sigma"].value_or(double(1.0));
-    log_file << "Gauss_sigma = " << gauss_sigma << std::endl;
 
     // Domain
-    log_file << std::endl << "[Domain]" << std::endl;
     double Lx = tbl["Domain"]["Lx"].value_or(double(6000.0));
-    log_file << "Lx = " << Lx << std::endl;
     double Ly = tbl["Domain"]["Ly"].value_or(double(0.0));
     if (Ly == 0.0) { Ly = Lx; }
-    log_file << "Ly = " << Ly << std::endl;
 
     //Physics
-    log_file << std::endl << "[Physics]" << std::endl;
     tbl_chp = *tbl["Physics"].as_table();
     double g = tbl_chp["g"].value_or(double(9.81));  // Gravitational acceleration
     bool do_continuity = tbl_chp["do_continuity"].value_or(bool(true));  // default, continuity
-    log_file << "do_continuity = " << do_continuity << std::endl;
     bool do_q_equation = tbl_chp["do_q_equation"].value_or(bool(true));  // default, q_equation
-    log_file << "do_q_equation = " << do_q_equation << std::endl;
     bool do_r_equation = tbl_chp["do_r_equation"].value_or(bool(true));  // default, r_equation
-    log_file << "do_r_equation = " << do_r_equation << std::endl;
     if (do_q_equation && do_r_equation)
     {
         model_title = "Linear wave equation, BiCGstab";
@@ -209,34 +187,24 @@ int main(int argc, char *argv[])
         model_title = "No q- and no r-equation (=> no waves computed), BiCGstab";
     }
     bool do_q_convection = tbl_chp["do_q_convection"].value_or(bool(false));  // default, no convection
-    log_file << "do_q_convection = " << do_q_convection << std::endl;
     bool do_q_bed_shear_stress = tbl_chp["do_q_bed_shear_stress"].value_or(bool(false));  // default, no convection
-    log_file << "do_q_bed_shear_stress = " << do_q_bed_shear_stress << std::endl;
     bool do_q_viscosity = tbl_chp["do_q_viscosity"].value_or(bool(false));  // default, no convection
     double q_viscosity = tbl_chp["q_viscosity"].value_or(double(0.0));
     if (q_viscosity == 0.0) { q_viscosity = false;  }
-    log_file << "do_q_viscosity = " << do_q_viscosity << std::endl;
-    if (do_q_viscosity) { log_file << "do_q_viscosity = " << do_q_viscosity << std::endl; }
 
     bool do_r_convection = tbl_chp["do_r_convection"].value_or(bool(false));  // default, no convection
-    log_file << "do_r_convection = " << do_r_convection << std::endl;
     bool do_r_bed_shear_stress = tbl_chp["do_r_bed_shear_stress"].value_or(bool(false));  // default, no convection
-    log_file << "do_r_bed_shear_stress = " << do_r_bed_shear_stress << std::endl;
     bool do_r_viscosity = tbl_chp["do_r_viscosity"].value_or(bool(false));  // default, no convection
     double r_viscosity = tbl_chp["r_viscosity"].value_or(double(0.0));
     if (r_viscosity == 0.0) { r_viscosity = false; }
-    log_file << "do_r_viscosity = " << do_r_viscosity << std::endl;
-    if (do_r_viscosity) { log_file << "do_r_viscosity = " << do_r_viscosity << std::endl; }
 
     // Boundary
-    log_file << std::endl << "[Boundary]" << std::endl;
     tbl_chp = *tbl["Boundary"].as_table();
     double eps_bc_corr = tbl_chp["eps_bc_corr"].value_or(double(0.0001));  // default 1e-4
     std::vector<std::string> bc_type;
     status = get_toml_array(tbl_chp, "bc_type", bc_type);
     double treg = tbl_chp["treg"].value_or(double(150.0));
     if (stationary) { treg = 0.0; }
-    log_file << "treg = " << treg << std::endl;
     std::vector<std::string> bc_vars;  // get the element as an array
     status = get_toml_array(tbl_chp, "bc_vars", bc_vars);
     std::vector<double> bc_vals;
@@ -245,56 +213,30 @@ int main(int argc, char *argv[])
     status = get_toml_array(tbl_chp, "bc_absorbing", bc_absorbing);
 
     // Numerics
-    log_file << std::endl << "[Numerics]" << std::endl;
     tbl_chp = *tbl["Numerics"].as_table();
 //    double dt = tbl["Numerics"]["dt"].value_or(double(1.0));  // default stationary
     if (dt == 0.0) { stationary = true; }
-    log_file << "dt = " << dt << std::endl;
     double dx = tbl_chp["dx"].value_or(double(60.0)); // Grid size [m]
-    log_file << "dx = " << dx << std::endl;
     double dy = tbl_chp["dy"].value_or(double(0.0)); // Grid size [m]
     if (dy == 0.0) { dy = dx; }
-    log_file << "dy = " << dy << std::endl;
     double theta = tbl_chp["theta"].value_or(double(0.501));
     if (stationary) { theta = 1.0; }
-    log_file << "theta = " << theta << std::endl;
     int iter_max = tbl_chp["iter_max"].value_or(int(50));
-    log_file << "iter_max = " << iter_max << std::endl;
     double eps_newton = tbl_chp["eps_newton"].value_or(double(1.0e-12));
-    log_file << "eps_newton = " << eps_newton << std::endl;
-    double eps_BiCGstab = tbl_chp["eps_BiCGstab"].value_or(double(1.0e-12));
-    log_file << "eps_BiCGstab = " << eps_BiCGstab << std::endl;
+    double eps_bicgstab = tbl_chp["eps_bicgstab"].value_or(double(1.0e-12));
+    double eps_fabs = tbl_chp["eps_fabs"].value_or(double(1.0e-2));  // epsilon needed to approximate the abs-function by a continues function
     bool regularization_init = tbl_chp["regularization_init"].value_or(bool(true));
-    log_file << "regularization_init = " << regularization_init << std::endl;
     bool regularization_iter = tbl_chp["regularization_iter"].value_or(bool(true));
-    log_file << "regularization_iter = " << regularization_iter << std::endl;
     bool regularization_time = tbl_chp["regularization_time"].value_or(bool(true));
-    log_file << "regularization_time = " << regularization_time << std::endl;
 
     // Output
     log_file << std::endl << "[Output]" << std::endl;
     tbl_chp = *tbl["Output"].as_table();
-    double dt_his = tbl_chp["dt_his"].value_or(double(1.0));
-    if (stationary)
-    {
-        log_file << "dt_his = " << 1.0 << std::endl;
-    }
-    else
-    {
-        log_file << "dt_his = " << dt_his << std::endl;
-    }
-    double dt_map = tbl_chp["dt_map"].value_or(double(10.0));
-    if (stationary)
-    {
-        log_file << "dt_map = " << 1.0 << std::endl;
-    }
-    else
-    {
-        log_file << "dt_map = " << dt_map << std::endl;
-    }
+    double dt_his = tbl_chp["dt_his"].value_or(double(1.0));  // write interval to his-file
+    double dt_map = tbl_chp["dt_map"].value_or(double(0.0));  // write interval to his-file
     
-    double dxinv = 1. / dx;                               // invers grid size [m]
-    double dyinv = 1. / dy;                               // invers grid size [m]
+    double dxinv = 1./dx;                               // invers grid size [m]
+    double dyinv = 1./dy;                               // invers grid size [m]
     int nx = int(Lx*dxinv) + 1 + 2;                          // number of nodes in x-direction; including 2 virtual points
     int ny = int(Ly*dyinv) + 1 + 2;                          // number of nodes in y-direction; including 2 virtual points
     int nxny = nx * ny;                                   // total number of nodes
@@ -304,32 +246,57 @@ int main(int argc, char *argv[])
     //    viscosity = 0.2 * std::sqrt(dx*dx + dy*dy);
     //}
 
-    // Time 
-    int total_time_steps = 0;  // Number of time steps [-]
+    int total_time_steps = int((tstop - tstart) / dt) + 1;  // Number of time steps [-]
     double dtinv;                                         // Inverse of dt, if dt==0 then stationary solution [1/s]
     int wrihis;                                           // write interval to his-file
     int wrimap;                                           // write interval to map-file
-
     if (stationary)
     {
-        dt = 0.0;
+        dt = 0.0;                                         // Time step size [s]
         dtinv = 0.0;                                      // stationary solution
+        eps_bc_corr = 1.0;
+        iter_max = 2 * iter_max;
         theta = 1.0;                                      // Stationary solution
         tstop = 1.;
         total_time_steps = 2;                             // initial step (step 1), stationary result (step 2)
+        treg = 0.0;                                       // Thatcher-Harleman return time [s], when zero supply boundary value immediately
         wrihis = 1;                                       // write interval to his-file
         wrimap = 1;                                       // write interval to map-file
     }
     else
     {
         dtinv = 1. / dt;                                  // Inverse of dt [1/s]
-        total_time_steps = int((tstop - tstart) * dtinv) + 1;  // Number of time steps [-]
-        theta = 0.501;                                    // Implicitness factor (0.5 <= theta <= 1.0)
         wrihis = std::max(int(dt * dtinv), int(dt_his * dtinv));      // write interval to his-file (every delta t)
-        wrimap = std::max(int(dt * dtinv), int(dt_map * dtinv));     // write interval to map-file (every 1 sec , or every delta t)
+        if (dt_map == 0.0)
+        {
+            wrimap = total_time_steps - 1;  // write only first and last time step
+        }
+        else
+        {
+            wrimap = std::max(int(dt * dtinv), int(dt_map * dtinv));     // write interval to map-file (every 1 sec , or every delta t)
+        }
     }
+    log_file << "=== Used input variables ==============================" << std::endl;
+    log_file << "[Domain]" << std::endl;
+    log_file << "Lx = " << Lx << std::endl;
+    log_file << "Ly = " << Ly << std::endl;
 
-    // Coefficients used in the boundary discretization
+    log_file << std::endl << "[Time]" << std::endl;
+    log_file << "tstart = " << tstart << std::endl;
+    log_file << "tstop = " << tstop << std::endl;
+
+    log_file << std::endl << "[Initial]" << std::endl;
+    log_file << "ini_vars = ";
+    for (int i = 0; i < ini_vars.size(); ++i)
+    {
+        log_file << ini_vars[i];
+        if (i < ini_vars.size() - 1) { log_file << ", "; }
+    }
+    log_file << std::endl;
+    log_file << "Gauss_amp = " << gauss_amp << std::endl;
+    log_file << "Gauss_mu = " << gauss_mu << std::endl;
+    log_file << "Gauss_sigma = " << gauss_sigma << std::endl;
+
     log_file << std::endl << "[Boundary]" << std::endl;
     log_file << "bc_type = ";
     for (int i = 0; i < bc_type.size() - 1; ++i) { log_file << bc_type[i] << ", "; }
@@ -345,7 +312,37 @@ int main(int argc, char *argv[])
     log_file << bc_absorbing[bc_absorbing.size() - 1] << std::endl;
     log_file << "treg = " << treg << std::endl;
     log_file << "eps_bc_corr = " << eps_bc_corr << std::endl;
-    log_file << std::endl;
+
+    log_file << std::endl << "[Physics]" << std::endl;
+    log_file << "do_continuity = " << do_continuity << std::endl;
+    log_file << "do_q_equation = " << do_q_equation << std::endl;
+    log_file << "do_r_equation = " << do_r_equation << std::endl;
+    log_file << "do_q_convection = " << do_q_convection << std::endl;
+    log_file << "do_q_bed_shear_stress = " << do_q_bed_shear_stress << std::endl;
+    log_file << "do_q_viscosity = " << do_q_viscosity << std::endl;
+    if (do_q_viscosity) { log_file << "do_q_viscosity = " << do_q_viscosity << std::endl; }
+    log_file << "do_r_convection = " << do_r_convection << std::endl;
+    log_file << "do_r_bed_shear_stress = " << do_r_bed_shear_stress << std::endl;
+    log_file << "do_r_viscosity = " << do_r_viscosity << std::endl;
+    if (do_r_viscosity) { log_file << "do_r_viscosity = " << do_r_viscosity << std::endl; }
+
+    log_file << std::endl << "[Numerics]" << std::endl;
+    log_file << "dt = " << dt << std::endl;
+    log_file << "dx = " << dx << std::endl;
+    log_file << "dy = " << dy << std::endl;
+    log_file << "theta = " << theta << std::endl;
+    log_file << "iter_max = " << iter_max << std::endl;
+    log_file << "eps_newton = " << eps_newton << std::endl;
+    log_file << "eps_bicgstab = " << eps_bicgstab << std::endl;
+    log_file << "eps_abs_function = " << eps_fabs << std::endl;
+    log_file << "regularization_init = " << regularization_init << std::endl;
+    log_file << "regularization_iter = " << regularization_iter << std::endl;
+    log_file << "regularization_time = " << regularization_time << std::endl;
+
+    log_file << std::endl << "[Output]" << std::endl;
+    log_file << "dt_his = " << dt_his << std::endl;
+    log_file << "dt_map = " << dt_map << std::endl;
+
 
     std::vector<double> x(nxny, 0.);                      // x-coordinate
     std::vector<double> y(nxny, 0.);                      // y-coordinate
@@ -384,9 +381,9 @@ int main(int argc, char *argv[])
     w_nat[1] = 0.5 * (1.0 - 2.0 * alpha_bc);
     w_nat[2] = 0.5 * alpha_bc;
     std::vector<double> w_ess(3, 0.0);
-    w_ess[0] = 1. / 12.;
-    w_ess[1] = 10. / 12.;
-    w_ess[2] = 1. / 12.;
+    w_ess[0] = w_nat[0];
+    w_ess[1] = w_nat[1];
+    w_ess[2] = w_nat[2];
 
     //initialize water level
     std::cout << "Initialisation" << std::endl;
@@ -403,6 +400,13 @@ int main(int argc, char *argv[])
     std::cout << "    LxLy: " << Lx << "x" << Ly << std::endl;
     std::cout << "    dxdy: " << dx << "x" << dy << "=" << dxdy << " [m2]" << std::endl;
     std::cout << "    nxny: " << nx << "x" << ny << "=" << nxny << std::endl;
+
+    log_file << "=======================================================" << std::endl;
+    STOP_TIMER(Writing log-file);  // but two write statements are not timed
+    if (status != 0) {
+        log_file.close();
+        exit(1);
+    }
 
     //initialize x- and y-coordinate
     int k = 0;
@@ -444,11 +448,11 @@ int main(int argc, char *argv[])
 
     double time = double(0) * dt;
     ////////////////////////////////////////////////////////////////////////////
-    // Define map file 
-    std::cout << "    Define map-file" << std::endl;
-    std::string nc_mapfile(map_filename);
+    // Create map file 
+    std::cout << "    Create map-file" << std::endl;
+    std::string nc_mapfilename(map_filename);
     UGRID2D* map_file = new UGRID2D();
-    status = map_file->open(nc_mapfile, model_title);
+    status = map_file->open(nc_mapfilename, model_title);
     status = map_file->mesh2d();
 
     int nr_nodes = nx * ny;
@@ -604,8 +608,8 @@ int main(int argc, char *argv[])
     STOP_TIMER(Writing map-file);
     // End define map file
     ////////////////////////////////////////////////////////////////////////////
-    // Define time history file
-    std::cout << "    Define his-file" << std::endl;
+    // Create time history file
+    std::cout << "    Create his-file" << std::endl;
     std::string nc_hisfile(his_filename);
     CFTS* his_file = new CFTS();
     status = his_file->open(nc_hisfile, model_title);
@@ -631,7 +635,7 @@ int main(int argc, char *argv[])
         std::cout << "----------------------------" << std::endl;
         std::cout << "dx=" << dx << " or dy=" << dy << " is not a divider of 2500 [m]" << std::endl;
         std::cout << "Press Enter to finish";
-        std::cin.ignore();
+        //std::cin.ignore();
         exit(1);
     }
     double x_a = std::min(Lx / 2., 2500.);
@@ -674,11 +678,12 @@ int main(int argc, char *argv[])
     his_file->add_stations(obs_stations, x_obs, y_obs);
     his_file->add_time_series();
 
-    std::string his_s_name("water_level");
+    std::string his_s_name("Water_level");
+    std::string his_u_name("U-velocity");
+    std::string his_v_name("V-velocity");
+
     his_file->add_variable(his_s_name, "sea_surface_height", "Water level", "m");
-    std::string his_u_name("u-velocity");
     his_file->add_variable(his_u_name, "sea_water_x_velocity", "Velocity xdir", "m s-1");
-    std::string his_v_name("v-velocity");
     his_file->add_variable(his_v_name, "sea_water_y_velocity", "Velocity ydir", "m s-1");
 
     // Put data on time history file
@@ -710,6 +715,7 @@ int main(int argc, char *argv[])
     his_file->put_variable(his_BiCGstab_iter_error_name, nst_his, his_values);
     STOP_TIMER(Writing his-file);
     // End define history file
+    ////////////////////////////////////////////////////////////////////////////
 
     Eigen::SparseMatrix<double> A(3 * nxny, 3 * nxny);
     for (int i = 0; i < 3 * nxny; ++i)
@@ -726,7 +732,7 @@ int main(int argc, char *argv[])
     {
         std::cout << "No time loop performed, due to total_time_steps <= 1" << std::endl;
         std::cout << "Press Enter to finish";
-        std::cin.ignore();
+        //std::cin.ignore();
     }
 
     // Start time loop
@@ -782,7 +788,7 @@ int main(int argc, char *argv[])
         int used_newton_iter = 0;
         int used_lin_solv_iter = 0;
         START_TIMER(Newton iteration);
-        Eigen::BiCGSTAB<Eigen::SparseMatrix<double> > solver;
+        Eigen::BiCGSTAB< Eigen::SparseMatrix<double> > solver;
         for (int iter = 0; iter < iter_max; ++iter)
         {
             used_newton_iter += 1;
@@ -2046,29 +2052,31 @@ int main(int argc, char *argv[])
             }
             if (nst == 1 && iter == 0)
             {
-                START_TIMER(BiCGstab initialization);
+                START_TIMER(BiCGStab_initialization);
             }
             else if (nst != 1)
             {
-                START_TIMER(BiCGstab);
+                START_TIMER(BiCGStab);
             }
+
             solver.compute(A);
-            solver.setTolerance(eps_BiCGstab);
+            solver.setTolerance(eps_bicgstab);
             solution = solver.solve(rhs);
             //solution = solver.solveWithGuess(rhs, solution);
             if (nst == 1 && iter == 0)
             {
-                STOP_TIMER(BiCGstab initialization);
+                STOP_TIMER(BiCGStab_initialization);
             }
             else if (nst != 1)
             {
-                STOP_TIMER(BiCGstab);
+                STOP_TIMER(BiCGStab);
             }
             if (logging == "iterations" || logging == "matrix")
             {
                 log_file << "time [sec]: " << std::setprecision(2) << std::scientific << time
                     << "    BiCGstab iterations: " << solver.iterations()
-                    << "    estimated error:" << solver.error() << std::endl;
+                    << "    estimated error:" << solver.error()
+                    << std::endl;
             }
             // 
             // The new solution is the previous iterant plus the delta
@@ -2157,7 +2165,7 @@ int main(int argc, char *argv[])
             std::cout << "stationary solution " << std::endl;
             log_file << "stationary solution " << std::endl;
             log_file << std::setprecision(8) << std::scientific
-                << "    BiCGstab iterations: " << used_newton_iter
+                << "    Iter: " << used_newton_iter
                 << "    Delta h^{n + 1,p + 1}: " << dh_max << " at: " << dh_maxi
                 << "    Delta q^{n + 1,p + 1}: " << dq_max << " at: " << dq_maxi
                 << "    Delta r^{n + 1,p + 1}: " << dr_max << " at: " << dr_maxi
@@ -2178,7 +2186,7 @@ int main(int argc, char *argv[])
                     << "    Delta q^{n + 1,p + 1}: " << dq_max << " at: " << dq_maxi
                     << std::endl;
             }
-         }
+        }
         if (used_newton_iter == iter_max)
         {
             if (dh_max > eps_newton || dq_max > eps_newton || dr_max > eps_newton)
@@ -2215,7 +2223,14 @@ int main(int argc, char *argv[])
             // Put data on time map file
             START_TIMER(Writing map-file);
             nst_map++;
-            map_file->put_time(nst_map, time);
+            if (stationary)
+            {
+                map_file->put_time(nst_map, double(nst));
+            }
+            else
+            {
+                map_file->put_time(nst_map, double(nst) * dt);
+            }
             map_file->put_time_variable(map_h_name, nst_map, hn);
             map_file->put_time_variable(map_q_name, nst_map, qn);
             map_file->put_time_variable(map_r_name, nst_map, rn);
@@ -2233,7 +2248,14 @@ int main(int argc, char *argv[])
         {
             START_TIMER(Writing his-file);
             nst_his++;
-            his_file->put_time(nst_his, time);
+            if (stationary)
+            {
+                his_file->put_time(nst_his, double(nst));
+            }
+            else
+            {
+                his_file->put_time(nst_his, double(nst) * dt);
+            }
             his_values = { s[p_a], s[p_b], s[p_c], s[p_d], s[centre], s[n_bnd], s[ne_bnd], s[e_bnd], s[se_bnd], s[s_bnd], s[sw_bnd], s[w_bnd], s[nw_bnd] };
             his_file->put_variable(his_s_name, nst_his, his_values);
 
@@ -2255,9 +2277,9 @@ int main(int argc, char *argv[])
     STOP_TIMER(Time loop);
 
     // Finalization
+    log_file.close();
     status = his_file->close();
     status = map_file->close();
-    log_file.close();
 
     STOP_TIMER(Main);
     PRINT_TIMER(timing_filename.data());
@@ -2313,6 +2335,7 @@ std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs
     ss_y << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << y_obs;
     return (obs_name + " - (" + ss_x.str() + ", " + ss_y.str() + ") ");
 }
+
 //------------------------------------------------------------------------------
 /* @@ GetArguments
 *
