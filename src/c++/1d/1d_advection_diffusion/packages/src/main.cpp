@@ -688,7 +688,7 @@ int main(int argc, char* argv[])
                 START_TIMER(BiCGstab);
             }
 
-            Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
+            Eigen::BiCGSTAB< Eigen::SparseMatrix<double> > solver;
             solver.compute(A);
             solver.setTolerance(eps_bicgstab);
             //solution = solver.solve(rhs);

@@ -358,7 +358,7 @@ int main(int argc, char* argv[]) {
                 //tmp[3] = rhsfev(3, up, k, sigma2);
                 rhs[3] += rhsfev(3, up, k, sigma2);
 
-                Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
+                Eigen::BiCGSTAB< Eigen::SparseMatrix<double> > solver;
                 solver.compute(A);
                 //solution = solver.solve(rhs);
                 solver.setTolerance(eps_bicgstab);

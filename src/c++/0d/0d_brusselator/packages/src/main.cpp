@@ -307,7 +307,7 @@ int main(int argc, char* argv[]) {
                 A.coeffRef(1, 1) += -theta * (-k[0] * up[0] * up[0]);
                 rhs[1] += rhsfev(1, up, k);
 
-                Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
+                Eigen::BiCGSTAB< Eigen::SparseMatrix<double> > solver;
                 solver.compute(A);
                 //solution = solver.solve(rhs);
                 solver.setTolerance(eps_bicgstab);

@@ -698,7 +698,7 @@ int main(int argc, char* argv[])
         int used_newton_iter = 0;
         int used_lin_solv_iter = 0;
         START_TIMER(Newton iteration);
-        Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
+        Eigen::BiCGSTAB< Eigen::SparseMatrix<double> > solver;
         for (int iter = 0; iter < iter_max; ++iter)
         {
             used_newton_iter += 1;
