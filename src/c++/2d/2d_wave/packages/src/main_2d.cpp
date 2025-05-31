@@ -701,17 +701,17 @@ int main(int argc, char *argv[])
 
     std::string his_newton_iter_name("his_newton_iterations");
     his_file->add_variable_without_location(his_newton_iter_name, "iterations", "Newton iteration", "-");
-    his_values = { std::numeric_limits<double>::quiet_NaN() };
+    his_values = { 0 };
     his_file->put_variable(his_newton_iter_name, nst_his, his_values);
 
     std::string his_BiCGstab_iter_name("his_BiCGstab_iterations");
     his_file->add_variable_without_location(his_BiCGstab_iter_name, "iterations", "BiCGstab iteration", "-");
-    his_values = { std::numeric_limits<double>::quiet_NaN() };
+    his_values = { 0 };
     his_file->put_variable(his_BiCGstab_iter_name, nst_his, his_values);
 
     std::string his_BiCGstab_iter_error_name("BiCGstab_iteration_error");
     his_file->add_variable_without_location(his_BiCGstab_iter_error_name, "iteration_error", "BiCGstab iteration error", "-");
-    his_values = { std::numeric_limits<double>::quiet_NaN() };
+    his_values = { 0 };
     his_file->put_variable(his_BiCGstab_iter_error_name, nst_his, his_values);
     STOP_TIMER(Writing his-file);
     // End define history file
