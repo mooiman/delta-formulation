@@ -1,4 +1,4 @@
-set exe_dir=..\..\..\2d_wave\bin\x64\Release\
+set exe_dir=..\..\..\..\2d_wave\bin\x64\Release\
 
 del /q ".\output"
 del /q ".\output_2dhump"
