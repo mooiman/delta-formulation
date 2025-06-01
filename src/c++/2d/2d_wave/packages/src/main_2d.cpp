@@ -1296,17 +1296,17 @@ int main(int argc, char *argv[])
                                 //
                                 rhs[c_eq] = -(rp_jm12 - c_wave * (hp_jm12 - h_infty));
                             }
-                            if (bc_type[BC_SOUTH] == "borsboom")
+                            if (bc_type[BC_NORTH] == "borsboom")
                             {
                                 //
                                 // Essential boundary condition
                                 // ----------------------------
                                 //
                                 double con_fac = c_wave;
-                                if (do_r_equation) { con_fac = c_wave + rp_jm12 / hp_jm12; }
-                                A.coeffRef(c_eq, 3 * ph_0) = dtinv * con_fac * w_ess[0];
-                                A.coeffRef(c_eq, 3 * ph_s) = dtinv * con_fac * w_ess[1];
-                                A.coeffRef(c_eq, 3 * ph_ss) = dtinv * con_fac * w_ess[2];
+                                if (do_r_convection) { con_fac = c_wave - rp_jm12 / hp_jm12; }
+                                A.coeffRef(c_eq, 3 * ph_0)  = dtinv * -con_fac * w_ess[0];
+                                A.coeffRef(c_eq, 3 * ph_s)  = dtinv * -con_fac * w_ess[1];
+                                A.coeffRef(c_eq, 3 * ph_ss) = dtinv * -con_fac * w_ess[2];
                                 //
                                 A.coeffRef(c_eq, 3 * ph_0 + 1) = 0.0;
                                 A.coeffRef(c_eq, 3 * ph_s + 1) = 0.0;
@@ -1318,7 +1318,7 @@ int main(int argc, char *argv[])
                                 //
                                 double dhdt = dtinv * (hp_jm12 - hn_jm12);
                                 double drdt = dtinv * (rp_jm12 - rn_jm12);
-                                rhs[c_eq] = -(drdt + con_fac * dhdt);
+                                rhs[c_eq] = -(drdt - con_fac * dhdt);
                             }
                             //
                             // natural boundary condition
@@ -1477,14 +1477,14 @@ int main(int argc, char *argv[])
                                 //
                                 rhs[c_eq] = -(qp_im12 - c_wave * (hp_im12 - h_infty));
                             }
-                            if (bc_type[BC_EAST] == " borsboom")
+                            if (bc_type[BC_EAST] == "borsboom")
                             {
                                 //
                                 // Essential boundary condition
                                 // ----------------------------
                                 //
                                 double con_fac = c_wave;
-                                if (do_q_equation) { con_fac = c_wave - qp_im12 / hp_im12; }
+                                if (do_q_convection) { con_fac = c_wave - qp_im12 / hp_im12; }
                                 A.coeffRef(c_eq, 3 * ph_0) = dtinv * -con_fac * w_ess[0];
                                 A.coeffRef(c_eq, 3 * ph_w) = dtinv * -con_fac * w_ess[1];
                                 A.coeffRef(c_eq, 3 * ph_ww) = dtinv * -con_fac * w_ess[2];
@@ -1667,7 +1667,7 @@ int main(int argc, char *argv[])
                                 // ----------------------------
                                 //
                                 double con_fac = c_wave;
-                                if (do_r_equation) { con_fac = c_wave + rp_jp12 / hp_jp12; }
+                                if (do_r_convection) { con_fac = c_wave + rp_jp12 / hp_jp12; }
                                 A.coeffRef(c_eq, 3 * ph_0) = dtinv * con_fac * w_ess[0];
                                 A.coeffRef(c_eq, 3 * ph_n) = dtinv * con_fac * w_ess[1];
                                 A.coeffRef(c_eq, 3 * ph_nn) = dtinv * con_fac * w_ess[2];
@@ -1847,7 +1847,7 @@ int main(int argc, char *argv[])
                                 // ----------------------------
                                 //
                                 double con_fac = c_wave;
-                                if (do_q_equation) { con_fac = c_wave + qp_ip12 / hp_ip12; }
+                                if (do_q_convection) { con_fac = c_wave + qp_ip12 / hp_ip12; }
                                 A.coeffRef(c_eq, 3 * ph_0) = dtinv * con_fac * w_ess[0];
                                 A.coeffRef(c_eq, 3 * ph_e) = dtinv * con_fac * w_ess[1];
                                 A.coeffRef(c_eq, 3 * ph_ee) = dtinv * con_fac * w_ess[2];
