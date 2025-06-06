@@ -36,18 +36,25 @@ class REGULARIZATION
 {
 public:
     REGULARIZATION();
-    REGULARIZATION(int);
+    REGULARIZATION(int iter_max, double g);
 
-    void given_function(int nx, int ny, 
+    void given_function(
         std::vector<double>& u_out, std::vector<double>& psi, 
-        std::vector<double>& err, std::vector<double>& u_giv,
-        double dx, double dy, double c_psi, bool without_err);
+        std::vector<double>& u_giv,
+        int nx, int ny, double dx, double dy, double c_psi);
+
     void first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx);
 private:
     std::unique_ptr<std::vector<double>> solve_eq8(int nx, int ny, double dx, double dy, double c_psi, std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etaeta);
     std::unique_ptr<std::vector<double>> solve_eq7(int nx, int ny, double dx, double dy, std::vector<double> psi, std::vector<double> u_giv);
 
     int m_iter_max;
+    double m_g;
+
+    double m_alpha;
+    std::vector<double> m_mass;
+    double eps_smooth;  // epsilon of regularization process
+    double m_u0_is_smooth;  // is function u0 is smooth enough, 
     int p_index(int i, int j, int nx);
 };
 

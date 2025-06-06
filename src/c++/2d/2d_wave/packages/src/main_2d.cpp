@@ -31,6 +31,8 @@
 #include <thread>
 #include <toml.h>
 #include <string>
+#include <algorithm>
+
 
 // for BiCGstab  solver
 #include <Eigen/Dense>
@@ -41,8 +43,11 @@
 #include "ugrid2d.h"
 #include "perf_timer.h"
 #include "initial_conditions.h"
+#include "regularization.h"
+#include "grid.h"
+#include "bed_level.h"
 
-void GetArguments(long argc, char** argv, std::string* file_name);
+void GetArguments(long argc, char** argv, std::filesystem::path & file_name);
 int get_toml_array(toml::table, std::string, std::vector<std::string>&);
 int get_toml_array(toml::table, std::string, std::vector<double>&);
 int get_toml_array(toml::table, std::string, std::vector<bool>&);
@@ -58,6 +63,7 @@ double dcdy_scvf_n(double, double, double, double);
 std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs_name);
 
 
+
 // Solve the linear wave equation
 // Continuity equation: d(h)/dt + d(q)/dx = 0
 // Momentum equation: d(q)/dt + 1/2  d(h^2)/dx = 0
@@ -66,7 +72,7 @@ std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs
 int main(int argc, char *argv[])
 {
     bool stationary = false;
-    std::string toml_file_name("---not-defined---");
+    std::filesystem::path toml_file_name("---not-defined---");
     int status = -1;
 
     int BC_NORTH = 0;
@@ -78,6 +84,7 @@ int main(int argc, char *argv[])
     std::filesystem::path exec_dir;
     std::filesystem::path start_dir;
     std::filesystem::path output_dir;
+    std::filesystem::path input_dir;
 
     exec_file = argv[0];
     exec_dir = exec_file.parent_path();
@@ -87,7 +94,7 @@ int main(int argc, char *argv[])
     toml::table tbl_chp;  // table for a chapter
     if (argc == 3)
     {
-        (void)GetArguments(argc, argv, &toml_file_name);
+        (void)GetArguments(argc, argv, toml_file_name);
         if (!std::filesystem::exists(toml_file_name))
         {
             std::cout << "----------------------------" << std::endl;
@@ -96,9 +103,11 @@ int main(int argc, char *argv[])
             //std::cin.ignore();
             exit(1);
         }
-        tbl = toml::parse_file(toml_file_name);
+        input_dir = toml_file_name;
+        input_dir.remove_filename();
+        tbl = toml::parse_file(toml_file_name.c_str());
         std::cout << tbl << "\n";
-        output_dir = start_dir;
+        output_dir = input_dir;
         output_dir += "/output/";
         std::filesystem::create_directory(output_dir);
     }
@@ -111,6 +120,7 @@ int main(int argc, char *argv[])
     std::cout << "----------------------------" << std::endl;
     std::cout << "Executable directory: " << exec_dir << std::endl;
     std::cout << "Start directory     : " << start_dir << std::endl;
+    std::cout << "Input directory     : " << input_dir << std::endl;
     std::cout << "Output directory    : " << output_dir << std::endl;
     std::cout << "----------------------------" << std::endl;
 
@@ -152,7 +162,7 @@ int main(int argc, char *argv[])
     double tstop = tbl["Time"]["tstop"].value_or(double(1800.));
     
     // Initial
-    std::vector<std::string> ini_vars; // { "velocity", "zeta", "viscosity", "zeta_GaussHump" };  // get the element as an array
+    std::vector<std::string> ini_vars;  // get the element as an array
     auto vars = tbl["Initial"];
     status = get_toml_array(*vars.as_table(), "ini_vars", ini_vars);
     double gauss_amp = tbl["Initial"]["gauss_amp"].value_or(double(0.0));   // amplitude of the gaussian hump at the boundary
@@ -160,9 +170,13 @@ int main(int argc, char *argv[])
     double gauss_sigma = tbl["Initial"]["gauss_sigma"].value_or(double(1.0));
 
     // Domain
-    double Lx = tbl["Domain"]["Lx"].value_or(double(6000.0));
-    double Ly = tbl["Domain"]["Ly"].value_or(double(0.0));
-    if (Ly == 0.0) { Ly = Lx; }
+    tbl_chp = *tbl["Domain"].as_table();
+    std::string grid_filename = tbl_chp["mesh_file"].value_or("--none--");
+    std::filesystem::path full_grid_filename = input_dir;
+    full_grid_filename += grid_filename;
+    std::string bed_level_filename = tbl_chp["bed_level_file"].value_or("--none--");
+    std::filesystem::path full_bed_level_filename = input_dir;
+    full_bed_level_filename += bed_level_filename;
 
     //Physics
     tbl_chp = *tbl["Physics"].as_table();
@@ -187,16 +201,13 @@ int main(int argc, char *argv[])
         model_title = "No q- and no r-equation (=> no waves computed), BiCGstab";
     }
     bool do_q_convection = tbl_chp["do_q_convection"].value_or(bool(false));  // default, no convection
-    bool do_q_bed_shear_stress = tbl_chp["do_q_bed_shear_stress"].value_or(bool(false));  // default, no convection
-    bool do_q_viscosity = tbl_chp["do_q_viscosity"].value_or(bool(false));  // default, no convection
-    double q_viscosity = tbl_chp["q_viscosity"].value_or(double(0.0));
-    if (q_viscosity == 0.0) { q_viscosity = false;  }
-
     bool do_r_convection = tbl_chp["do_r_convection"].value_or(bool(false));  // default, no convection
-    bool do_r_bed_shear_stress = tbl_chp["do_r_bed_shear_stress"].value_or(bool(false));  // default, no convection
-    bool do_r_viscosity = tbl_chp["do_r_viscosity"].value_or(bool(false));  // default, no convection
-    double r_viscosity = tbl_chp["r_viscosity"].value_or(double(0.0));
-    if (r_viscosity == 0.0) { r_viscosity = false; }
+    
+    bool do_viscosity = tbl_chp["do_viscosity"].value_or(bool(false));  // default, no convection
+    double visc_const = tbl_chp["viscosity"].value_or(double(0.0001));  // default 1e-4
+
+    bool do_bed_shear_stress = tbl_chp["do_r_bed_shear_stress"].value_or(bool(false));  // default, no convection
+    double chezy_coefficient = tbl_chp["chezy_coefficient"].value_or(double(50.0));
 
     // Boundary
     tbl_chp = *tbl["Boundary"].as_table();
@@ -216,29 +227,55 @@ int main(int argc, char *argv[])
     tbl_chp = *tbl["Numerics"].as_table();
 //    double dt = tbl["Numerics"]["dt"].value_or(double(1.0));  // default stationary
     if (dt == 0.0) { stationary = true; }
-    double dx = tbl_chp["dx"].value_or(double(60.0)); // Grid size [m]
-    double dy = tbl_chp["dy"].value_or(double(0.0)); // Grid size [m]
-    if (dy == 0.0) { dy = dx; }
     double theta = tbl_chp["theta"].value_or(double(0.501));
     if (stationary) { theta = 1.0; }
+    double c_psi = tbl_chp["c_psi"].value_or(double(4.));
     int iter_max = tbl_chp["iter_max"].value_or(int(50));
     double eps_newton = tbl_chp["eps_newton"].value_or(double(1.0e-12));
     double eps_bicgstab = tbl_chp["eps_bicgstab"].value_or(double(1.0e-12));
     double eps_fabs = tbl_chp["eps_fabs"].value_or(double(1.0e-2));  // epsilon needed to approximate the abs-function by a continues function
-    bool regularization_init = tbl_chp["regularization_init"].value_or(bool(true));
-    bool regularization_iter = tbl_chp["regularization_iter"].value_or(bool(true));
-    bool regularization_time = tbl_chp["regularization_time"].value_or(bool(true));
+    bool regularization_init = tbl_chp["regularization_init"].value_or(bool(false));
+    bool regularization_iter = tbl_chp["regularization_iter"].value_or(bool(false));
+    bool regularization_time = tbl_chp["regularization_time"].value_or(bool(false));
 
     // Output
-    log_file << std::endl << "[Output]" << std::endl;
     tbl_chp = *tbl["Output"].as_table();
     double dt_his = tbl_chp["dt_his"].value_or(double(1.0));  // write interval to his-file
     double dt_map = tbl_chp["dt_map"].value_or(double(0.0));  // write interval to his-file
-    
+
+                          
+    REGULARIZATION* regularization = new REGULARIZATION(iter_max, g);
+
+    struct _mesh2d * mesh2d;
+    SGRID* sgrid = new SGRID();
+    status = sgrid->open(full_grid_filename.string());
+    status = sgrid->read();  // reading mesh
+    mesh2d = sgrid->get_mesh_2d();
+
+    int nx = mesh2d->node[0]->dims[0]; // including virtual points
+    int ny = mesh2d->node[0]->dims[1]; // including virtual points
+
+    std::vector<double>& x = mesh2d->node[0]->x; // reference to original x-coordinate
+    std::vector<double>& y = mesh2d->node[0]->y; // reference to original y-coordinate
+
+    BED_LEVEL * bed = new BED_LEVEL();
+    status = bed->open(full_bed_level_filename.string());
+    if (status != 0)
+    {
+        std::cout << "Failed to open file: " << full_bed_level_filename.string() << std::endl;
+        log_file << "Failed to open file: " << full_bed_level_filename.string() << std::endl;
+        exit(1);
+    }
+    status = bed->read(nx, ny);
+    std::vector<double> zb_giv = bed->get_bed_level();
+
+    double dx = x[ny] - x[0];
+    double dy = y[1] - y[0];
+    double Lx = dx * mesh2d->face[0]->dims[0];
+    double Ly = dx * mesh2d->face[0]->dims[1];
+
     double dxinv = 1./dx;                               // invers grid size [m]
     double dyinv = 1./dy;                               // invers grid size [m]
-    int nx = int(Lx*dxinv) + 1 + 2;                          // number of nodes in x-direction; including 2 virtual points
-    int ny = int(Ly*dyinv) + 1 + 2;                          // number of nodes in y-direction; including 2 virtual points
     int nxny = nx * ny;                                   // total number of nodes
     double dxdy = dx * dy ;                               // area of control volume
     //if (viscosity == 0.0)
@@ -278,8 +315,8 @@ int main(int argc, char *argv[])
     }
     log_file << "=== Used input variables ==============================" << std::endl;
     log_file << "[Domain]" << std::endl;
-    log_file << "Lx = " << Lx << std::endl;
-    log_file << "Ly = " << Ly << std::endl;
+    log_file << "mesh_file = " << grid_filename << std::endl;
+    log_file << "bed_level_file = " << bed_level_filename << std::endl;
 
     log_file << std::endl << "[Time]" << std::endl;
     log_file << "tstart = " << tstart << std::endl;
@@ -318,19 +355,18 @@ int main(int argc, char *argv[])
     log_file << "do_q_equation = " << do_q_equation << std::endl;
     log_file << "do_r_equation = " << do_r_equation << std::endl;
     log_file << "do_q_convection = " << do_q_convection << std::endl;
-    log_file << "do_q_bed_shear_stress = " << do_q_bed_shear_stress << std::endl;
-    log_file << "do_q_viscosity = " << do_q_viscosity << std::endl;
-    if (do_q_viscosity) { log_file << "do_q_viscosity = " << do_q_viscosity << std::endl; }
     log_file << "do_r_convection = " << do_r_convection << std::endl;
-    log_file << "do_r_bed_shear_stress = " << do_r_bed_shear_stress << std::endl;
-    log_file << "do_r_viscosity = " << do_r_viscosity << std::endl;
-    if (do_r_viscosity) { log_file << "do_r_viscosity = " << do_r_viscosity << std::endl; }
+    log_file << "do_bed_shear_stress = " << do_bed_shear_stress << std::endl;
+    log_file << "chezy_coefficient = " << chezy_coefficient << std::endl;
+    log_file << "do_viscosity = " << do_viscosity << std::endl;
+    log_file << "viscosity = " << visc_const << std::endl;
 
     log_file << std::endl << "[Numerics]" << std::endl;
     log_file << "dt = " << dt << std::endl;
     log_file << "dx = " << dx << std::endl;
     log_file << "dy = " << dy << std::endl;
     log_file << "theta = " << theta << std::endl;
+    log_file << "c_psi = " << c_psi << std::endl;
     log_file << "iter_max = " << iter_max << std::endl;
     log_file << "eps_newton = " << eps_newton << std::endl;
     log_file << "eps_bicgstab = " << eps_bicgstab << std::endl;
@@ -343,12 +379,9 @@ int main(int argc, char *argv[])
     log_file << "dt_his = " << dt_his << std::endl;
     log_file << "dt_map = " << dt_map << std::endl;
 
+    std::vector<double> mass(3, 0.);  // weighting coefficients of the mass-matrix in x-direction
 
-    std::vector<double> x(nxny, 0.);                      // x-coordinate
-    std::vector<double> y(nxny, 0.);                      // y-coordinate
     std::vector<double> zb(nxny, 0.);                     // regularized bed level
-    std::vector<double> zb_giv(nxny, -10.);               // initial bed level
-
     std::vector<double> hn(nxny, 0.);                     // water depth at (n)
     std::vector<double> qn(nxny, 0.);                     // q-flux at (n)
     std::vector<double> rn(nxny, 0.);                     // r-flux at (n)
@@ -364,7 +397,7 @@ int main(int argc, char *argv[])
     std::vector<double> delta_h(nxny, 0.);
     std::vector<double> delta_q(nxny, 0.);
     std::vector<double> delta_r(nxny, 0.);
-    std::vector<double> mass(3, 0.);  // weighting coefficients of the mass-matrix in x-direction
+    std::vector<double> psi(nxny, 0.);
 
     Eigen::VectorXd solution(3 * nxny);                         // solution vector [h, q, r]^{n}
     Eigen::VectorXd rhs(3 * nxny);                          // RHS vector [h, q, r]^{n}
@@ -388,7 +421,6 @@ int main(int argc, char *argv[])
     //initialize water level
     std::cout << "Initialisation" << std::endl;
     status = 0;
-    //status = read_bed_level(bed_filename, zb);
     double min_zb = *std::min_element(zb_giv.begin(), zb_giv.end());
 
     log_file << "=======================================================" << std::endl;
@@ -408,35 +440,31 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    //initialize x- and y-coordinate
-    int k = 0;
-    for (int j = 0; j < ny; j++)
-    {
-        for (int i = 0; i < nx; i++)
-        {
-            k = j * nx + i;
-            x[k] = double(i) * dx - Lx / 2 - dx;
-            y[k] = double(j) * dy - Ly / 2 - dx;
-        }
-    }
     (void) initial_conditions(x, y, nx, ny,
         hn, qn, rn, 
         hp, qp, rp, zb_giv,
         ini_vars, gauss_amp, gauss_mu, gauss_sigma);
 
-    for (int i = 0; i < nx*ny; ++i)
-    {
-        zb[i] = zb_giv[i];
-        s[i] = hn[i] + zb[i];
-        u[i] = qn[i] / hn[i];
-        v[i] = rn[i] / hn[i];
-    }
-
     if (regularization_init)
     {
         START_TIMER(Regularization_init);
-        //(void)regular->given_function(visc_reg, psi, eq8, visc_given, dx, c_psi, use_eq8);
+        regularization->given_function(zb, psi, zb_giv, nx, ny, dx, dy, c_psi);
+        //regularization->given_function(visc_reg, psi, visc_giv, nx, ny, dx, dy, c_psi);
         STOP_TIMER(Regularization_init);
+    }
+    else
+    {
+        for (int i = 0; i < zb_giv.size(); ++i)
+        {
+            zb[i] = zb_giv[i];
+        }
+    }
+
+    for (int i = 0; i < nx*ny; ++i)
+    {
+        s[i] = hn[i] + zb[i];
+        u[i] = qn[i] / hn[i];
+        v[i] = rn[i] / hn[i];
     }
 
     // Merge water depth (h) and (q,r) flux in one solution-vector
@@ -453,7 +481,7 @@ int main(int argc, char *argv[])
     std::string nc_mapfilename(map_filename);
     UGRID2D* map_file = new UGRID2D();
     status = map_file->open(nc_mapfilename, model_title);
-    status = map_file->mesh2d();
+    status = map_file->mesh2d();  // initialize the mesh2D variable
 
     int nr_nodes = nx * ny;
     int nr_edges = (nx - 1) * ny + nx * (ny - 1);
@@ -1062,13 +1090,13 @@ int main(int argc, char *argv[])
                             // convection
                             //
                         }
-                        if (do_r_bed_shear_stress)
+                        if (do_bed_shear_stress)
                         {
                             //
                             // bed shear stress
                             //
                         }
-                        if (do_r_viscosity)
+                        if (do_viscosity)
                         {
                             //
                             // viscosity
@@ -1161,13 +1189,13 @@ int main(int argc, char *argv[])
                             // convection
                             //
                         }
-                        if (do_r_bed_shear_stress)
+                        if (do_bed_shear_stress)
                         {
                             //
                             // bed shear stress
                             //
                         }
-                        if (do_r_viscosity)
+                        if (do_viscosity)
                         {
                             //
                             // viscosity
@@ -1364,7 +1392,6 @@ int main(int argc, char *argv[])
                             A.coeffRef(r_eq, 3 * ph_ss + 2) = dtinv * w_nat[2];
                             //
                             rhs[r_eq] = -(drdt + g * htheta_jm12 * dzetady);
-
                         }
                     }
                 }
@@ -2036,6 +2063,7 @@ int main(int argc, char *argv[])
             dh_maxi = 0;
             dq_maxi = 0;
             dr_maxi = 0;
+            int k = 0;
             for (int j = 0; j < ny; j++)
             {
                 for (int i = 0; i < nx; i++)
@@ -2293,7 +2321,7 @@ std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs
 */
 void GetArguments(long argc,   /* I Number of command line arguments */
     char** argv,
-    std::string* file_name)
+    std::filesystem::path & file_name)
     /* Returns nothing */
 {
     long  i;
@@ -2303,7 +2331,7 @@ void GetArguments(long argc,   /* I Number of command line arguments */
         if (strcmp(argv[i], "--toml") == 0)
         {
             i = i + 1;
-            if (i < argc) *file_name = std::string(argv[i]);
+            if (i < argc) file_name = std::string(argv[i]);
         }
         else if (i != 0)
         {

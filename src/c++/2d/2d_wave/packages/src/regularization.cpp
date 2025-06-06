@@ -37,16 +37,31 @@
 REGULARIZATION::REGULARIZATION()
 {
     m_iter_max = 100;
+    m_g = 10.0;
+
+    m_alpha = 1./8.;
+    m_mass.push_back(m_alpha);
+    m_mass.push_back(1.0 - 2. * m_alpha);
+    m_mass.push_back(m_alpha);
+    eps_smooth = 1e-12;
+    m_u0_is_smooth = 1.e-10;
 }
-REGULARIZATION::REGULARIZATION(int iter_max) :
-    m_iter_max(iter_max)
+REGULARIZATION::REGULARIZATION(int iter_max, double g) :
+    m_iter_max(iter_max),
+    m_g(g)
 {
+    m_alpha = 1./8.;
+    m_mass.push_back(m_alpha);
+    m_mass.push_back(1.0 - 2. * m_alpha);
+    m_mass.push_back(m_alpha);
+    eps_smooth = 1e-12;
+    m_u0_is_smooth = 1.e-10;
 }
 
-void REGULARIZATION::given_function(int nx, int ny, 
+void REGULARIZATION::given_function( 
     std::vector<double>& u_out, std::vector<double>& psi, 
-    std::vector<double>& eq8, std::vector<double>& u_giv_in, 
-    double dx, double dy, double c_psi, bool use_eq8)
+    std::vector<double>& u_giv_in, 
+    int nx, int ny, double dx, double dy, double c_psi)
 {
     double diff_max0 = 0.0;
     double diff_max1 = 0.0;
@@ -56,12 +71,14 @@ void REGULARIZATION::given_function(int nx, int ny,
     std::vector<double> u1(nxny, 0.);
     std::vector<double> u0_xixi(nxny, 0.);
     std::vector<double> u0_etaeta(nxny, 0.);
+    std::vector<double> eq8(nxny, 0.);
     std::vector<double> tmp(nxny, 0.);
 
     const auto [u_giv_in_min, u_giv_in_max] = std::minmax_element(u_giv_in.begin(), u_giv_in.end());
     double min_range = 0.0001;
     double u_giv_range = *u_giv_in_max - *u_giv_in_min > min_range ? *u_giv_in_max - *u_giv_in_min : min_range;
-
+    u_giv_range = 1.0;
+    
     for (int i = 0; i < nxny; ++i)
     {
         // scaling of the input array u_giv_in
@@ -72,8 +89,8 @@ void REGULARIZATION::given_function(int nx, int ny,
     {
         //std::cout << "Iteration: " << iter << std::endl;
         //std::cout << "Compute second derivative" << std::endl;
-        double u0xixi_max = 0.0;
-        double u0etaeta_max = 0.0;
+        double u0_xixi_max = 0.0;
+        double u0_etaeta_max = 0.0;
         for (int j = 1; j < ny - 1; ++j)
         {
             for (int i = 1; i < nx - 1; ++i)
@@ -85,10 +102,20 @@ void REGULARIZATION::given_function(int nx, int ny,
                 int p_w = p_index(i - 1, j, nx);
                 u0_xixi[p_0]   = std::abs((u0[p_e] - 2. * u0[p_0] + u0[p_w]));
                 u0_etaeta[p_0] = std::abs((u0[p_n] - 2. * u0[p_0] + u0[p_s]));
-                u0xixi_max = std::max(u0xixi_max, std::abs(u0_xixi[i]));
-                u0etaeta_max = std::max(u0etaeta_max, std::abs(u0_etaeta[i]));
+                u0_xixi_max = std::max(u0_xixi_max, std::abs(u0_xixi[p_0]));
+                u0_etaeta_max = std::max(u0_etaeta_max, std::abs(u0_etaeta[p_0]));
             }
         }
+        double smooth= std::max(u0_xixi_max, u0_etaeta_max);
+        if (smooth < m_u0_is_smooth)
+        {
+            for (int i = 0; i < nx * ny; ++i)
+            {
+                u_out[i] = u_giv_in[i];
+            }
+            return;
+        }
+
         for (int i = 0; i < nx; ++i)  // horizontal direction
         {
             int j = 0;
@@ -118,43 +145,29 @@ void REGULARIZATION::given_function(int nx, int ny,
             u0_xixi[p_w] = u0_xixi[p_ww];
         }
 
-
 //------------------------------------------------------------------------------
         eq8 = *(this->solve_eq8(nx, ny, dx, dy, c_psi, u0, u0_xixi, u0_etaeta));
 //------------------------------------------------------------------------------
-        if (use_eq8)
+        for (int i = 0; i < nxny; ++i)
         {
-            for (int j = 0; j < ny; ++j)
-            {
-                for (int i = 0; i < nx; ++i)
-                {
-                    int p_0 = p_index(i, j, nx);
-                    psi[p_0] = c_psi * dx * dx * eq8[p_0];
-                }
-            }
-        }
-        else
-        {
-            for (int i = 0; i < nxny; ++i)
-            {
-                psi[i] = c_psi * dx * dx;
-            }
+            psi[i] = c_psi * (dx * dx + dy * dy) * eq8[i];
         }
 //------------------------------------------------------------------------------
         u0 = *(this->solve_eq7(nx, ny, dx, dy, psi, u_giv));
 //------------------------------------------------------------------------------
 
         diff_max1 = 0.0;
-        for (int i = 0; i < nxny; ++i)
+        for (int i = 0; i < nx*ny; ++i)
         {
             diff_max1 = std::max(diff_max1, std::abs(u0[i] - u_giv[i]));
         }
-        if (std::abs(diff_max1 - diff_max0) > 1e-12)
+        if (std::abs(diff_max1 - diff_max0) > eps_smooth)
         {
             diff_max0 = diff_max1;
         }
         else
         {
+            m_u0_is_smooth = std::max(u0_xixi_max, u0_etaeta_max);
             break;
         }
     }
@@ -192,52 +205,130 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
     Eigen::VectorXd solution(nx);           // solution vector u
     Eigen::VectorXd rhs(nx);                // RHS
 
-    for (int i = 1; i < nx - 2; ++i)
+    for (int j = 1; j < ny - 1; ++j)
     {
-        double psi_im12 = 0.5 * (psi[i] + psi[i - 1]);
-        double psi_ip12 = 0.5 * (psi[i + 1] + psi[i]);
-        //psi_im12 = 2. * psi[i] * psi[i - 1] / (psi[i] + psi[i - 1]);
-        //psi_ip12 = 2. * psi[i + 1] * psi[i] / (psi[i + 1] + psi[i]);
+        for (int i = 1; i < nx - 1; ++i)
+        {
+            int p_0  = p_index(i    , j    , nx);
+            int p_n  = p_index(i    , j + 1, nx);
+            int p_ne = p_index(i + 1, j + 1, nx);
+            int p_e  = p_index(i + 1, j    , nx);
+            int p_se = p_index(i + 1, j - 1, nx);
+            int p_s  = p_index(i    , j - 1, nx);
+            int p_sw = p_index(i - 1, j - 1, nx);
+            int p_w  = p_index(i - 1, j    , nx);
+            int p_nw = p_index(i - 1, j + 1, nx);
+            
+            B.coeffRef(p_0, p_sw) = dx * dy * m_mass[0] * m_mass[0];
+            B.coeffRef(p_0, p_s ) = dx * dy * m_mass[0] * m_mass[1];
+            B.coeffRef(p_0, p_se) = dx * dy * m_mass[0] * m_mass[2];
+            
+            B.coeffRef(p_0, p_w) = dx * dy * m_mass[1] * m_mass[0];
+            B.coeffRef(p_0, p_0) = dx * dy * m_mass[1] * m_mass[1];
+            B.coeffRef(p_0, p_e) = dx * dy * m_mass[1] * m_mass[2];
+            
+            B.coeffRef(p_0, p_nw) = dx * dy * m_mass[2] * m_mass[0];
+            B.coeffRef(p_0, p_n ) = dx * dy * m_mass[2] * m_mass[1];
+            B.coeffRef(p_0, p_ne) = dx * dy * m_mass[2] * m_mass[2];
 
-        //B.coeffRef(i, i - 2) = 0.0;
-        B.coeffRef(i, i - 1) = dx * 1. / 8. - psi_im12 / dx;
-        B.coeffRef(i, i) = dx * 6. / 8. + psi_ip12 / dx + psi_im12 / dx;
-        B.coeffRef(i, i + 1) = dx * 1. / 8. - psi_ip12 / dx;
-        //B.coeffRef(i, i + 2) = 0.0;
+            // psi should be computed on the 8 interfaces of the control volume
+            double psi_n = 0.5 * (psi[p_n] + psi[p_0]);
+            double psi_e = 0.5 * (psi[p_e] + psi[p_0]);
+            double psi_s = 0.5 * (psi[p_s] + psi[p_0]);
+            double psi_w = 0.5 * (psi[p_w] + psi[p_0]);
+            //psi_im12 = 2. * psi[i] * psi[i - 1] / (psi[i] + psi[i - 1]);
+            //psi_ip12 = 2. * psi[i + 1] * psi[i] / (psi[i + 1] + psi[i]);
+
+            B.coeffRef(p_0, p_s) += -psi_s * dx / dy;
+            B.coeffRef(p_0, p_w) += -psi_w * dy / dx;
+            B.coeffRef(p_0, p_0) +=  psi_s * dx / dy + psi_w * dy / dx + psi_n * dy / dx + psi_e * dx / dy;
+            B.coeffRef(p_0, p_e) += -psi_e * dy / dx;
+            B.coeffRef(p_0, p_n) += -psi_n * dx / dy;
+        }
     }
-    for (int i = 1; i < nx - 1; ++i)
+    for (int i = 1; i < nx - 1; ++i)  // horizontal direction
     {
-        tmp[i] = dx * (1. / 8. * u_giv[i - 1] + 6. / 8. * u_giv[i] + 1. / 8. * u_giv[i + 1]);
-        rhs[i] = tmp[i];
+        int j = 0;
+        B.coeffRef(i  , j    ) = 1.0;
+        B.coeffRef(i  , j + 1) = 0.0;
+        B.coeffRef(i  , j + 2) = 0.0;
+        j = ny - 1;
+        B.coeffRef(i  , j    ) = 1.0;
+        B.coeffRef(i  , j - 1) = 0.0;
+        B.coeffRef(i  , j - 2) = 0.0;
     }
-    int i = 0;
-    B.coeffRef(i, i) = 1.0;
-    B.coeffRef(i, i + 1) = 0.0;
-    B.coeffRef(i, i + 2) = 0.0;
-    tmp[i] = u_giv[i];
-    rhs[i] = tmp[i];
-    B.coeffRef(i + 1, i) = 0.0;
-    B.coeffRef(i + 1, i + 1) = 1.0;
-    B.coeffRef(i + 1, i + 2) = 0.0;
-    tmp[i + 1] = u_giv[i + 1];
-    rhs[i + 1] = tmp[i + 1];
+    for (int j = 0; j < ny; ++j)  // vertical direction
+    {
+        int i = 0;
+        B.coeffRef(i    , j) = 1.0;
+        B.coeffRef(i + 1, j) = 0.0;
+        B.coeffRef(i + 2, j) = 0.0;
+        i = nx - 1;
+        B.coeffRef(i    , j) = 1.0;
+        B.coeffRef(i - 1, j) = 0.0;
+        B.coeffRef(i - 2, j) = 0.0;
+    }
 
-    i = nx - 1;
-    B.coeffRef(i, i - 2) = 0.0;
-    B.coeffRef(i, i - 1) = 0.0;
-    B.coeffRef(i, i) = 1.0;
-    tmp[i] = u_giv[i];
-    rhs[i] = tmp[i];
-    B.coeffRef(i - 1, i - 2) = 0.0;
-    B.coeffRef(i - 1, i - 1) = 1.0;
-    B.coeffRef(i - 1, i) = 0.0;
-    tmp[i - 1] = u_giv[i - 1];
-    rhs[i - 1] = tmp[i - 1];
+    for (int j = 1; j < nx - 1; ++j)
+    {
+        for (int i = 1; i < nx - 1; ++i)
+        {
+            int p_0  = p_index(i    , j    , nx);
+            int p_n  = p_index(i    , j + 1, nx);
+            int p_ne = p_index(i + 1, j + 1, nx);
+            int p_e  = p_index(i + 1, j    , nx);
+            int p_se = p_index(i + 1, j - 1, nx);
+            int p_s  = p_index(i    , j - 1, nx);
+            int p_sw = p_index(i - 1, j - 1, nx);
+            int p_w  = p_index(i - 1, j    , nx);
+            int p_nw = p_index(i - 1, j + 1, nx);
+            
+            rhs[p_0]  = dx * dy * m_mass[0] * m_mass[0] * u_giv[p_sw];
+            rhs[p_0] += dx * dy * m_mass[0] * m_mass[1] * u_giv[p_s ];
+            rhs[p_0] += dx * dy * m_mass[0] * m_mass[2] * u_giv[p_se];
 
-    //for (int i = 0; i < nx; ++i)
-    //{
-    //    solution[i] = u0[i];
-    //}
+            rhs[p_0] += dx * dy * m_mass[1] * m_mass[0] * u_giv[p_w];
+            rhs[p_0] += dx * dy * m_mass[1] * m_mass[1] * u_giv[p_0];
+            rhs[p_0] += dx * dy * m_mass[1] * m_mass[2] * u_giv[p_e];
+
+            rhs[p_0] += dx * dy * m_mass[2] * m_mass[0] * u_giv[p_nw];
+            rhs[p_0] += dx * dy * m_mass[2] * m_mass[1] * u_giv[p_n ];
+            rhs[p_0] += dx * dy * m_mass[2] * m_mass[2] * u_giv[p_ne];
+        }
+    }
+    for (int i = 1; i < nx - 1; ++i)  // horizontal direction
+    {
+        int j = 0;
+        int p_0 = p_index(i, j, nx);
+        rhs[p_0] = 0.;
+        j = 1;
+        p_0 = p_index(i, j, nx);
+        rhs[p_0] = u_giv[p_0];
+        
+        j = ny - 1;
+        p_0 = p_index(i, j, nx);
+        rhs[p_0] = 0.;
+        j = ny - 2;
+        p_0 = p_index(i, j, nx);
+        rhs[p_0] = u_giv[p_0];
+    }
+    for (int j = 0; j < ny - 1; ++j)  // vertical direction
+    {
+        int i = 0;
+        int p_0 = p_index(i, j, nx);
+        rhs[p_0] = 0.;
+        i = 1;
+        p_0 = p_index(i, j, nx);
+        rhs[p_0] = u_giv[p_0];
+        
+        i = nx - 1;
+        p_0 = p_index(i, j, nx);
+        rhs[p_0] = 0.;
+        i = nx - 2;
+        p_0 = p_index(i, j, nx);
+        rhs[p_0] = u_giv[p_0];
+    }
+    // TODO: corner points
 
     Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solverB;
     solverB.compute(B);
@@ -264,49 +355,64 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
     Eigen::VectorXd solution(nxny);           // solution vector u
     Eigen::VectorXd rhs(nxny);                // RHS
 
-    double alpha = 1. / 8.;                               // Linear (spatial) interpolation coefficient
-    std::vector<double> mass(3, 0);
-    mass[0] = alpha;
-    mass[1] = 1.0 - 2. * alpha;
-    mass[2] = alpha;
-
     for (int j = 1; j < ny - 1; ++j)
     {
         for (int i = 1; i < nx - 1; ++i)
         {
-            A.coeffRef(i-1, j - 1) = mass[0] * mass[0];
-            A.coeffRef(i  , j - 1) = mass[0] * mass[1] - c_error;
-            A.coeffRef(i+1, j - 1) = mass[0] * mass[2];
-            A.coeffRef(i-1, j    ) = mass[1] * mass[0] - c_error;
-            A.coeffRef(i  , j    ) = mass[1] * mass[1] + 4. * c_error;
-            A.coeffRef(i+1, j    ) = mass[1] * mass[2] - c_error;
-            A.coeffRef(i-1, j + 1) = mass[2] * mass[0];
-            A.coeffRef(i  , j + 1) = mass[2] * mass[1] - c_error;
-            A.coeffRef(i+1, j + 1) = mass[2] * mass[2];
+            A.coeffRef(i - 1, j - 1) = m_mass[0] * m_mass[0];
+            A.coeffRef(i    , j - 1) = m_mass[0] * m_mass[1] - c_error;
+            A.coeffRef(i + 1, j - 1) = m_mass[0] * m_mass[2];
+            
+            A.coeffRef(i - 1, j    ) = m_mass[1] * m_mass[0] - c_error;
+            A.coeffRef(i    , j    ) = m_mass[1] * m_mass[1] + 4. * c_error;
+            A.coeffRef(i + 1, j    ) = m_mass[1] * m_mass[2] - c_error;
+            
+            A.coeffRef(i - 1, j + 1) = m_mass[2] * m_mass[0];
+            A.coeffRef(i    , j + 1) = m_mass[2] * m_mass[1] - c_error;
+            A.coeffRef(i + 1, j + 1) = m_mass[2] * m_mass[2];
         }
     }
     for (int i = 1; i < nx - 1; ++i)  // horizontal direction
     {
         int j = 0;
         A.coeffRef(i  , j    ) = 1.0;
+        A.coeffRef(i  , j + 1) = -2.0;
+        A.coeffRef(i  , j + 2) = 1.0;
+        j = 1;
+        A.coeffRef(i  , j - 1) = 0.0;
+        A.coeffRef(i  , j    ) = 1.0;
         A.coeffRef(i  , j + 1) = 0.0;
-        A.coeffRef(i  , j + 2) = 0.0;
+
         j = ny - 1;
         A.coeffRef(i  , j    ) = 1.0;
+        A.coeffRef(i  , j - 1) = -2.0;
+        A.coeffRef(i  , j - 2) = 1.0;
+        j = ny - 2;
         A.coeffRef(i  , j - 1) = 0.0;
-        A.coeffRef(i  , j - 2) = 0.0;
+        A.coeffRef(i  , j    ) = 1.0;
+        A.coeffRef(i  , j + 1) = 0.0;
     }
     for (int j = 0; j < ny; ++j)  // vertical direction
     {
         int i = 0;
         A.coeffRef(i    , j) = 1.0;
+        A.coeffRef(i + 1, j) = -2.0;
+        A.coeffRef(i + 2, j) = 1.0;
+        i = 2;
+        A.coeffRef(i - 1, j) = 0.0;
+        A.coeffRef(i    , j) = 1.0;
         A.coeffRef(i + 1, j) = 0.0;
-        A.coeffRef(i + 2, j) = 0.0;
+
         i = nx - 1;
         A.coeffRef(i    , j) = 1.0;
+        A.coeffRef(i - 1, j) = -2.0;
+        A.coeffRef(i - 2, j) = 1.0;
+        i = nx - 2;
         A.coeffRef(i - 1, j) = 0.0;
-        A.coeffRef(i - 2, j) = 0.0;
+        A.coeffRef(i    , j) = 1.0;
+        A.coeffRef(i + 1, j) = 0.0;
     }
+    // TODO: corner points
     
     
     for (int j = 1; j < ny - 1; ++j)
@@ -322,47 +428,49 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
             int p_sw = p_index(i - 1, j - 1, nx);
             int p_w  = p_index(i - 1, j    , nx);
             int p_nw = p_index(i - 1, j + 1, nx);
-            rhs[p_0]  = mass[0] * mass[0] * (dx * u0_xixi[p_sw] + dy * u0_etaeta[p_sw]);
-            rhs[p_0] += mass[0] * mass[1] * (dx * u0_xixi[p_s] + dy * u0_etaeta[p_s]);
-            rhs[p_0] += mass[0] * mass[2] * (dx * u0_xixi[p_se] + dy * u0_etaeta[p_se]);
-            rhs[p_0] += mass[1] * mass[0] * (dx * u0_xixi[p_w] + dy * u0_etaeta[p_w]);
-            rhs[p_0] += mass[1] * mass[1] * (dx * u0_xixi[p_0] + dy * u0_etaeta[p_0]);
-            rhs[p_0] += mass[1] * mass[2] * (dx * u0_xixi[p_e] + dy * u0_etaeta[p_e]);
-            rhs[p_0] += mass[2] * mass[0] * (dx * u0_xixi[p_nw] + dy * u0_etaeta[p_nw]);
-            rhs[p_0] += mass[2] * mass[1] * (dx * u0_xixi[p_n] + dy * u0_etaeta[p_n]);
-            rhs[p_0] += mass[2] * mass[2] * (dx * u0_xixi[p_ne] + dy * u0_etaeta[p_ne]);
+            rhs[p_0]  = m_mass[0] * m_mass[0] * (dx * u0_xixi[p_sw] + dy * u0_etaeta[p_sw]);
+            rhs[p_0] += m_mass[0] * m_mass[1] * (dx * u0_xixi[p_s ] + dy * u0_etaeta[p_s]);
+            rhs[p_0] += m_mass[0] * m_mass[2] * (dx * u0_xixi[p_se] + dy * u0_etaeta[p_se]);
+            
+            rhs[p_0] += m_mass[1] * m_mass[0] * (dx * u0_xixi[p_w] + dy * u0_etaeta[p_w]);
+            rhs[p_0] += m_mass[1] * m_mass[1] * (dx * u0_xixi[p_0] + dy * u0_etaeta[p_0]);
+            rhs[p_0] += m_mass[1] * m_mass[2] * (dx * u0_xixi[p_e] + dy * u0_etaeta[p_e]);
+            
+            rhs[p_0] += m_mass[2] * m_mass[0] * (dx * u0_xixi[p_nw] + dy * u0_etaeta[p_nw]);
+            rhs[p_0] += m_mass[2] * m_mass[1] * (dx * u0_xixi[p_n] + dy * u0_etaeta[p_n]);
+            rhs[p_0] += m_mass[2] * m_mass[2] * (dx * u0_xixi[p_ne] + dy * u0_etaeta[p_ne]);
             rhs[p_0] = std::abs(rhs[p_0]);
         }
     }
     for (int i = 1; i < nx - 1; ++i)  // horizontal direction
     {
         int j = 0;
-        int p_0 = p_index(i, j, nx);
+        int p_0 = p_index(i, j    , nx);
         int p_n = p_index(i, j + 1, nx);
-        rhs[p_0] = rhs[p_n];
+        rhs[p_0] = 0;
+        j = 1;
+        p_0 = p_index(i, j    , nx);
+        p_n = p_index(i, j + 1, nx);
+        rhs[p_0] = rhs[p_0];
+        
         j = ny - 1;
         p_0 = p_index(i, j, nx);
-        int p_s = p_index(i, j - 1, nx);
-        rhs[p_0] = rhs[p_s];
+        rhs[p_0] = 0;
+        j = ny - 2;
+        p_0 = p_index(i, j, nx);
+        rhs[p_0] = rhs[p_0];
+
     }
     for (int j = 0; j < ny - 1; ++j)  // vertical direction
     {
         int i = 0;
         int p_0 = p_index(i, j, nx);
-        int p_e = p_index(i + 1, j, nx);
-        rhs[p_0] = rhs[p_e];
+        rhs[p_0] = rhs[p_0];
         i = nx - 1;
         p_0 = p_index(i, j, nx);
-        int p_w = p_index(i - 1, j, nx);
-        rhs[p_0] = rhs[p_w];
+        rhs[p_0] = rhs[p_0];
     }
-    for (int j = 1; j < ny - 1; ++j)
-    {
-        for (int i = 1; i < nx - 1; ++i)
-        {
-            // dummy
-        }
-    }        
+    // TODO: corner points
 
     for (int i = 0; i < nx; ++i)
     {
