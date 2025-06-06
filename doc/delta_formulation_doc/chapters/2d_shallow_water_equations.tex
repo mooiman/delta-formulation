@@ -34,11 +34,12 @@ Integrating the equations over a finite volume $\Omega$ yields:
     \begin{align}
         \int_\Omega \pdiff{h}{t}\, d\omega
         + \int_\Omega \nabla \dotp \vec{q}\, d\omega & = 0,
-        \\
+        \label{eq:pressure_dependent_on_h_a} \\
         \int_\Omega \pdiff{\vec{q}}{t}\, d\omega
         + \int_\Omega \nabla \dotp \left( \vec{q}\vec{q}^T/h\right)\, d\omega
         + \int_\Omega \half  \nabla \left( g h^2 \right) \, d\omega & =
         - \int_\Omega gh\nabla z_b\, d\omega,
+        \label{eq:pressure_dependent_on_h_b}
     \end{align}
     \label{eq:pressure_dependent_on_h}
 \end{subequations}
@@ -79,10 +80,82 @@ For the space discretizations of an arbitrary function $u$ on the quadrature poi
 See for the locations \autoref{fig:2d_structured_grid}.
 %-------------------------------------------------------------------------------
 \subsection{Discretizations continuity equation}
+The discretization of continuity \autoref{eq:pressure_dependent_on_h_a} will be presented term by term.
+%-------------------------------------------------------------------------------
+\subsubsection{Time derivative}
+The discretization of the time derivative term of the continuity equation reads:
+\begin{align}
+    \int_{\Omega} \pdiff{h}{t}\, d\omega
+\end{align}
+which will be approximated by the sum of the integral over the sub-control volumes.
+On a structured grid one control volume ($cv$) around a node consist of four sub-control volumes ($scv_i$, $i\in\{1,2,3,4\}$).
+\begin{align}
+    \int_{cv} \pdiff{h}{t}\, d\omega =
+    \int_{scv_1} \pdiff{h}{t}\, d\omega +
+    \int_{scv_2} \pdiff{h}{t}\, d\omega +
+    \int_{scv_3} \pdiff{h}{t}\, d\omega +
+    \int_{scv_4} \pdiff{h}{t}\, d\omega
+\end{align}
+For a cartesian grid we get:
+\begin{align}
+    \int_{cv} \pdiff{h}{t}\, d\omega \approx &
+    \quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i-\quart, j-\quart} -  h^{n+1,n}_{i-\quart, j-\quart} \right) +
+    \nonumber \\*
+    &\quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i+\quart, j-\quart} -  h^{n+1,n}_{i+\quart, j-\quart} \right) +
+    \nonumber \\*
+    &\quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i+\quart, j+\quart} -  h^{n+1,n}_{i+\quart, j+\quart} \right) +
+    \nonumber \\*
+    &\quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i-\quart, j+\quart} -  h^{n+1,n}_{i-\quart, j+\quart} \right)
+\end{align}
+Just looking to $scv_3$ as part of the control volume for node $(i,j)$:
+\begin{align}
+    &\quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i+\quart, j+\quart} -  h^{n+1,n}_{i+\quart, j+\quart} \right) =
+    \\*
+    &= \quart\Dx\Dy\Dtinv \left( \frac{1}{16}\left( 9h^{n+1,p+1}_{i, j} + 3 h^{n+1,p+1}_{i+1,j}  + 3  h^{n+1,p+1}_{i, j+1} + h^{n+1,p+1}_{i+1, j+1}\right) \right. +
+    \\*
+    &\quad - \left. \frac{1}{16}\left( 9 h^{n+1,n}_{i, j} +  3 h^{n+1,n}_{i+1,j}  + 3  h^{n+1,n}_{i, j+1} + h^{n+1,n}_{i+1, j+1}\right)\right)
+\end{align}
+\notyet
+%-------------------------------------------------------------------------------
+\subsubsection{Mass flux}
+\notyet
 %-------------------------------------------------------------------------------
 \subsection{Discretizations momentum equations}
+The discretization of momentum \autoref{eq:pressure_dependent_on_h_b} will be presented term by term.
 %--------------------------------------------------------------------------------
 \subsubsection{Time derivative}
+The discretization of the time derivative term of the momentum equation is only shown for the q-momentum equation, the time derivative for the r-momentum equation is similar. The time derivation for hte q-momentum equation reads:
+\begin{align}
+    \int_{\Omega} \pdiff{q}{t}\, d\omega
+\end{align}
+which will be approximated by the sum of the integral over the sub-control volumes.
+On a structured grid one control volume ($cv$) around a node consist of four sub-control volumes ($scv_i$, $i\in\{1,2,3,4\}$).
+\begin{align}
+    \int_{cv} \pdiff{q}{t}\, d\omega =
+    \int_{scv_1} \pdiff{q}{t}\, d\omega +
+    \int_{scv_2} \pdiff{q}{t}\, d\omega +
+    \int_{scv_3} \pdiff{q}{t}\, d\omega +
+    \int_{scv_4} \pdiff{q}{t}\, d\omega
+\end{align}
+For a cartesian grid we get:
+\begin{align}
+    \int_{cv} \pdiff{q}{t}\, d\omega \approx &
+    \quart\Dx\Dy\Dtinv \left( q^{n+1,p+1}_{i-\quart, j-\quart} -  q^{n+1,n}_{i-\quart, j-\quart} \right) +
+    \nonumber \\*
+    &\quart\Dx\Dy\Dtinv \left( q^{n+1,p+1}_{i+\quart, j-\quart} -  q^{n+1,n}_{i+\quart, j-\quart} \right) +
+    \nonumber \\*
+    &\quart\Dx\Dy\Dtinv \left( q^{n+1,p+1}_{i+\quart, j+\quart} -  q^{n+1,n}_{i+\quart, j+\quart} \right) +
+    \nonumber \\*
+    &\quart\Dx\Dy\Dtinv \left( q^{n+1,p+1}_{i-\quart, j+\quart} -  q^{n+1,n}_{i-\quart, j+\quart} \right)
+\end{align}
+Just looking to $scv_3$ as part of the control volume for node $(i,j)$:
+\begin{align}
+    &\quart\Dx\Dy\Dtinv \left( q^{n+1,p+1}_{i+\quart, j+\quart} -  q^{n+1,n}_{i+\quart, j+\quart} \right) =
+    \\*
+    &= \quart\Dx\Dy\Dtinv \left( \frac{1}{16}\left( 9 q^{n+1,p+1}_{i, j} + 3 q^{n+1,p+1}_{i+1,j}  + 3 q^{n+1,p+1}_{i, j+1} + q^{n+1,p+1}_{i+1, j+1}\right) \right. +
+    \\*
+    &\quad - \left. \frac{1}{16}\left( 9 q^{n+1,n}_{i, j} +  3 q^{n+1,n}_{i+1,j}  + 3  q^{n+1,n}_{i, j+1} + q^{n+1,n}_{i+1, j+1}\right)\right)
+\end{align}
 \notyet
 %--------------------------------------------------------------------------------
 \subsubsection{Pressure term} \label{sec:linearized_pressure_zeta}
@@ -99,7 +172,7 @@ Considering one control volume and only the $x$-direction (assuming a cartesian 
     \\
     & \approx \quart \Dx\Dy\, g h^{n+\theta,p+1}_{qp} \pdiff{\zeta^{n+\theta,p+1}_{qp}}{x}
     \\
-   & \approx \quart  \Dx\Dy\, g \left( h^{n+1,p}_{qp} + \theta \Delta h^{n+1,p+1}\right)  \pdiff{}{x}\left(\zeta^{n+1,p}_{qp} + \theta \Delta \zeta^{n+1,p+1}_qp\right)
+   & \approx \quart  \Dx\Dy\, g \left( h^{n+1,p}_{qp} + \theta \Delta h^{n+1,p+1}\right)  \pdiff{}{x}\left(\zeta^{n+1,p}_{qp} + \theta \Delta \zeta^{n+1,p+1}_{qp}\right)
 \end{align}
 with $qp$ the location of the quadrature point in the sub-control volume.
 Assume that the higher order terms are negligible then the discretization for each of the 4 sub-control volumes reads:

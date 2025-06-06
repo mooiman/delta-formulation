@@ -355,7 +355,7 @@ The natural boundary condition is supplied at $x_I$ with the discretization cons
     & \left. + \frac{u}{\Dx} \left(c^{n+\theta,p}_{I+1} - c^{n+\theta,p}_{I} \right)
         \right\}
 \end{align}
-where $\alpha_{\it bnd} = 2\alpha -\half$ ($\alpha_{\it bnd} = -\quart$ when $\alpha = \frac{1}{8}$)
+where $\alpha_{\it bnd} = 2\alpha -\half$ ($\alpha_{\it bnd} = -\quart$ when $\alpha = \frac{1}{8}$).
 
 %------------------------------------------------------------------------------
 \subsection{Strictly positive constituent}\label{sec:1d_adv_diff_poss_equation}
@@ -379,7 +379,7 @@ The considered advection-diffusion equation than reads:
 \paragraph*{Discretization at boundaries}
 \notyet
 %------------------------------------------------------------------------------
-\section{1-D wave equation}
+\section{1-D Wave equation}
 
 The hyperbolic part of the one dimensional shallow water equations (assuming that the viscosity term vanish) are diagonalized to separate the left and right going wave.
 We start from the follwoing equations, with convection
@@ -450,29 +450,29 @@ which will be approximated by
     \half \Delta x_{i+\half} \left( \frac{3}{4}\pdiff{h_{i}}{t} + \frac{1}{4}\pdiff{h_{i+1}}{t} \right) \approx
     \nonumber \\*
     & \approx
-    \frac{\Delta x_{i-\half}}{\Dt} \left(
-    \frac{1}{8}\left(\Delta h^{n+1,p+1}_{i-1} + h^{n+1,p}_{i-1} - h^{n}_{i-1} \right) + \frac{3}{8}\left(\Delta h^{n+1,p+1}_{i} + h^{n+1,p}_{i}- h^{n}_{i}\right)
+    \half\frac{\Delta x_{i-\half}}{\Dt} \left(
+    \frac{1}{4}\left(\Delta h^{n+1,p+1}_{i-1} + h^{n+1,p}_{i-1} - h^{n}_{i-1} \right) + \frac{3}{4}\left(\Delta h^{n+1,p+1}_{i} + h^{n+1,p}_{i}- h^{n}_{i}\right)
     \right) +
     \nonumber \\*
     & +
-    \frac{\Delta x_{i+\half}}{\Dt} \left( \frac{3}{8}\left(\Delta h^{n+1,p+1}_{i} + h^{n+1,p}_{i+1}- h^{n}_{i}\right) + \frac{1}{8}\left(\Delta h^{n+1,p+1}_{i+1} + h^{n+1,p}_{i+1}- h^{n}_{i+1}\right)
+    \half\frac{\Delta x_{i+\half}}{\Dt} \left( \frac{3}{4}\left(\Delta h^{n+1,p+1}_{i} + h^{n+1,p}_{i+1}- h^{n}_{i}\right) + \frac{1}{4}\left(\Delta h^{n+1,p+1}_{i+1} + h^{n+1,p}_{i+1}- h^{n}_{i+1}\right)
     \right)
 \end{align}
 after rearranging the equation into an implicit left hand side and an explicit right hand side  it reads:
 \begin{align}
-    &  \frac{\Delta x_{i-\half}}{\Dt} \left(
-    \frac{1}{8}\Delta h^{n+1,p+1}_{i-1} + \frac{3}{8}\Delta h^{n+1,p+1}_{i}
+    &  \half \frac{\Delta x_{i-\half}}{\Dt} \left(
+    \frac{1}{4}\Delta h^{n+1,p+1}_{i-1} + \frac{3}{4}\Delta h^{n+1,p+1}_{i}
     \right) +
-    \frac{\Delta x_{i+\half}}{\Dt} \left( \frac{3}{8}\Delta h^{n+1,p+1}_{i} + \frac{1}{8}\Delta h^{n+1,p+1}_{i+1}
+    \half \frac{\Delta x_{i+\half}}{\Dt} \left( \frac{3}{4}\Delta h^{n+1,p+1}_{i} + \frac{1}{4}\Delta h^{n+1,p+1}_{i+1}
     \right) =
     \nonumber \\
     &  = -\left\{
-    \frac{\Delta x_{i-\half}}{\Dt} \left(
-\frac{1}{8}\left(h^{n+1,p}_{i-1} - h^{n}_{i-1} \right) + \frac{3}{8}\left(h^{n+1,p}_{i}- h^{n}_{i}\right)
+    \half \frac{\Delta x_{i-\half}}{\Dt} \left(
+\frac{1}{4}\left(h^{n+1,p}_{i-1} - h^{n}_{i-1} \right) + \frac{3}{4}\left(h^{n+1,p}_{i}- h^{n}_{i}\right)
 \right) + \right.
 \nonumber \\*
 & \left. +
-\frac{\Delta x_{i+\half}}{\Dt} \left( \frac{3}{8}\left(h^{n+1,p}_{i+1}- h^{n}_{i}\right) + \frac{1}{8}\left(h^{n+1,p}_{i+1}- h^{n}_{i+1}\right)
+\half \frac{\Delta x_{i+\half}}{\Dt} \left( \frac{3}{4}\left(h^{n+1,p}_{i+1}- h^{n}_{i}\right) + \frac{1}{4}\left(h^{n+1,p}_{i+1}- h^{n}_{i+1}\right)
 \right)\right\}
 \end{align}
 
@@ -511,30 +511,31 @@ which will be approximated by
     \half \Delta x_{i+\half} \left( \frac{3}{4}\pdiff{q_{i}}{t} + \frac{1}{4}\pdiff{q_{i+1}}{t} \right) \approx
     \nonumber \\*
     & \approx
-    \frac{\Delta x_{i-\half}}{\Dt} \left(
-    \frac{1}{8}\left(\Delta q^{n+1,p+1}_{i-1} + q^{n+1,p}_{i-1} - q^{n}_{i-1} \right) + \frac{3}{8}\left(\Delta q^{n+1,p+1}_{i} + q^{n+1,p}_{i}- h^{n}_{i}\right)
+    \half \frac{\Delta x_{i-\half}}{\Dt} \left(
+    \frac{1}{4}\left(\Delta q^{n+1,p+1}_{i-1} + q^{n+1,p}_{i-1} - q^{n}_{i-1} \right) + \frac{3}{4}\left(\Delta q^{n+1,p+1}_{i} + q^{n+1,p}_{i}- h^{n}_{i}\right)
     \right) +
     \nonumber \\*
     & +
-    \frac{\Delta x_{i+\half}}{\Dt} \left( \frac{3}{8}\left(\Delta q^{n+1,p+1}_{i} + q^{n+1,p}_{i+1}- q^{n}_{i}\right) +
-    \frac{1}{8}\left(\Delta q^{n+1,p+1}_{i+1} + q^{n+1,p}_{i+1}- q^{n}_{i+1}\right)
+    \half \frac{\Delta x_{i+\half}}{\Dt} \left(
+    \frac{3}{4}\left(\Delta q^{n+1,p+1}_{i} + q^{n+1,p}_{i+1}- q^{n}_{i}\right) +
+    \frac{1}{4}\left(\Delta q^{n+1,p+1}_{i+1} + q^{n+1,p}_{i+1}- q^{n}_{i+1}\right)
     \right)
 \end{align}
 after rearranging the equation into an implicit left hand side and an explicit right hand side  it reads:
 \begin{align}
-    &  \frac{\Delta x_{i-\half}}{\Dt} \left(
-    \frac{1}{8}\Delta q^{n+1,p+1}_{i-1} + \frac{3}{8}\Delta q^{n+1,p+1}_{i}
+    & \half \frac{\Delta x_{i-\half}}{\Dt} \left(
+    \frac{1}{4}\Delta q^{n+1,p+1}_{i-1} + \frac{3}{4}\Delta q^{n+1,p+1}_{i}
     \right) +
-    \frac{\Delta x_{i+\half}}{\Dt} \left( \frac{3}{8}\Delta q^{n+1,p+1}_{i} + \frac{1}{8}\Delta q^{n+1,p+1}_{i+1}
+    \half \frac{\Delta x_{i+\half}}{\Dt} \left( \frac{3}{4}\Delta q^{n+1,p+1}_{i} + \frac{1}{4}\Delta q^{n+1,p+1}_{i+1}
     \right) +
     \nonumber \\
     & + \left\{
-    \frac{\Delta x_{i-\half}}{\Dt} \left(
-    \frac{1}{8}\left(q^{n+1,p}_{i-1} - q^{n}_{i-1} \right) + \frac{3}{8}\left(q^{n+1,p}_{i}- q^{n}_{i}\right)
+    \half \frac{\Delta x_{i-\half}}{\Dt} \left(
+    \frac{1}{4}\left(q^{n+1,p}_{i-1} - q^{n}_{i-1} \right) + \frac{3}{4}\left(q^{n+1,p}_{i}- q^{n}_{i}\right)
     \right) + \right.
     \nonumber \\*
     & \qquad \left. +
-    \frac{\Delta x_{i+\half}}{\Dt} \left( \frac{3}{8}\left(q^{n+1,p}_{i+1}- q^{n}_{i}\right) + \frac{1}{8}\left(q^{n+1,p}_{i+1}- q^{n}_{i+1}\right)
+    \half \frac{\Delta x_{i+\half}}{\Dt} \left( \frac{3}{4}\left(q^{n+1,p}_{i+1}- q^{n}_{i}\right) + \frac{1}{4}\left(q^{n+1,p}_{i+1}- q^{n}_{i+1}\right)
     \right)\right\}
 \end{align}
 

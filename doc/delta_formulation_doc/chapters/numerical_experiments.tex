@@ -86,11 +86,11 @@ The solution presented in \autoref{fig:brusselator_reference} is assumed to be t
 \begin{figure}[H]
     \begin{subfigure}{0.5\textwidth}
         \includegraphics[width=\textwidth]{figures/brusselator_imp_dt=0d10.pdf}
-        \caption{Fully Implicit: $\Dt=0.1$, $k_1=1$, $k_2=2.5$}
+        \caption{Fully Implicit: $\Dt=\bqty{0.1}{\second}$, $k_1=1$, $k_2=2.5$}
     \end{subfigure}
     \begin{subfigure}{0.5\textwidth}
         \includegraphics[width=\textwidth]{figures/brusselator_imp_dt=0d50.pdf}
-        \caption{Fully Implicit: $\Dt=0.5$, $k_1=1$, $k_2=2.5$}
+        \caption{Fully Implicit: $\Dt=\bqty{0.5}{\second}$, $k_1=1$, $k_2=2.5$}
     \end{subfigure}
     \caption[Brusselator experiment: $\Dt = 0.1, 0.5\ \bunit{\second}$]{Result plots for constant value of $k_1 = 1$ and $k_2 =2.5$, computed with a fully implicit ($\Delta$ formulation) time integration method for different time steps $\Dt = 0.1, 0.5\ \bunit{\second}$.}
 \end{figure}
@@ -98,11 +98,11 @@ Extra attention is needed for the Fully Implicit time integration with larger ti
 \begin{figure}[H]
     \begin{subfigure}{0.5\textwidth}
         \includegraphics[width=\textwidth]{figures/brusselator_imp_dt=1d00.pdf}
-        \caption{Fully Implicit: $\Dt=1.0$, $k_1=1$, $k_2=2.5$}\label{fig:imp_dt=1d00}
+        \caption{Fully Implicit: $\Dt=\bqty{1.0}{\second}$, $k_1=1$, $k_2=2.5$}\label{fig:imp_dt=1d00}
     \end{subfigure}
     \begin{subfigure}{0.5\textwidth}
         \includegraphics[width=\textwidth]{figures/brusselator_imp_dt=5d00.pdf}
-        \caption{Fully Implicit: $\Dt=5.0$, $k_1=1$, $k_2=2.5$}\label{fig:imp_dt=5d00}
+        \caption{Fully Implicit: $\Dt=\bqty{5.0}{\second}$, $k_1=1$, $k_2=2.5$}\label{fig:imp_dt=5d00}
     \end{subfigure}
     \caption[Brusselator experiment: $\Dt = 1.0, 5.0\ \bunit{\second}$]{Result plots for constant value of $k_1 = 1$ and $k_2 =2.5$, computed with a fully implicit ($\Delta$ formulation) time integration method for different time steps $\Dt = 1.0, 5.0\ \bunit{\second}$.
     }
@@ -205,7 +205,7 @@ because the continuous advection equation does \textbf{not} allow information tr
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/constant_3600s.png}
-    \caption{Spurious waves at $t=\bqty{3600}{\second}$. Range from $ 1 \pm \num{8e-09}$ }
+    \caption{Spurious waves at $t=\bqty{3600}{\second}$. Range from $ 1 \pm \num{8e-09}$.}
 \end{figure}
 Results for several observation stations along the channel are shown in \autoref{fig:result_1d_adv_constant_bc}
 \begin{figure}[H]
@@ -264,7 +264,7 @@ and is illustrated in \autoref{fig:1d_adv_initial_wave_package}:
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/wave_package_000s.png}
-    \caption{Compatible initial condition of the wave package. Blue: Initial condition when  $\Dx=\bqty{5}{\metre}$, Black: Initial condition when  $\Dx=\bqty{50}{\metre}$}
+    \caption{Compatible initial condition of the wave package. Blue: Initial condition when  $\Dx=\bqty{5}{\metre}$, Black: Initial condition when  $\Dx=\bqty{50}{\metre}$.}
     \label{fig:1d_adv_initial_wave_package}
 \end{figure}
 The graphs in \autoref{fig:1d_adv_initial_wave_package} do not coincide on the grid points because the profiles are computed according \autoref{sec:compatible_initialization}.
@@ -273,8 +273,8 @@ The initial condition is defined by:
     u_{it given} =
     \begin{cases}
         0, & 0 < 1250, \bunit{\metre} \\
-        (\half + \half \cos( 5k_{\it env}(x - x_{\it cent})) ) \\
-        \qquad(\half + \half \cos( k_{\it env} (x - x_{\it cent})) )
+        \left(\half + \half \cos( 5k_{\it env}(x - x_{\it cent})) \right) \times \\
+        \qquad\left(\half + \half \cos( k_{\it env} (x - x_{\it cent})) \right)
         & 1250 < 3750,  \bunit{\metre}
         \\
         0,  & 3750 < 10000,  \bunit{\metre}
@@ -299,11 +299,12 @@ The numerical experiment is performed with the following parameters:
         \item $\Dx = \bqty{10}{\metre}$ and $\Dt = \bqty{0.01}{s}$
         \item $\Dx = \bqty{25}{\metre}$ and $\Dt = \bqty{0.01}{s}$
         \item $\Dx = \bqty{50}{\metre}$ and $\Dt = \bqty{0.01}{s}$
+        \item $\Dx = \bqty{100}{\metre}$ and $\Dt = \bqty{0.01}{s}$
     \end{itemize}
     \item Start time, $t_{start} = \bqty{0}{\second}$.
     \item End time, $t_{stop} = \bqty{250}{\second}$.
     \item Prescribed boundary conditions: $c(0,t) = c(L_x,t) = 0$.
-    \item \textbf{No} regularization applied.
+    \item \textbf{No} regularization is applied.
 \end{itemize}
 %--------------------------------------------------------------------------------
 \paragraph*{Results of the numerical experiments}
