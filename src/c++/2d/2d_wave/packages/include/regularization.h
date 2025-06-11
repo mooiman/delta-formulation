@@ -28,6 +28,7 @@
 #include <iomanip>
 #include <vector>
 #include <filesystem>
+#include <math.h>
 
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
@@ -41,12 +42,14 @@ public:
     void given_function(
         std::vector<double>& u_out, std::vector<double>& psi, 
         std::vector<double>& u_giv,
-        int nx, int ny, double dx, double dy, double c_psi);
+        int nx, int ny, double dx, double dy, double c_psi, std::ofstream& log_file);
 
     void first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx);
 private:
-    std::unique_ptr<std::vector<double>> solve_eq8(int nx, int ny, double dx, double dy, double c_psi, std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etaeta);
-    std::unique_ptr<std::vector<double>> solve_eq7(int nx, int ny, double dx, double dy, std::vector<double> psi, std::vector<double> u_giv);
+    std::unique_ptr<std::vector<double>> solve_eq8(int nx, int ny, double dx, double dy, double c_psi, std::vector<double> u0, 
+        std::vector<double> u0_xixi, std::vector<double> u0_etaeta, std::ofstream& log_file);
+    std::unique_ptr<std::vector<double>> solve_eq7(int nx, int ny, double dx, double dy, 
+        std::vector<double> psi, std::vector<double> u_giv, std::ofstream& log_file);
 
     int m_iter_max;
     double m_g;

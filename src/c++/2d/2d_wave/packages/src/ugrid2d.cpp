@@ -155,6 +155,13 @@ int UGRID2D::add_attribute(std::string var_name, std::string att_name, std::stri
     status = set_attribute(var_name, att_name, att_value);
     return status;
 }
+int UGRID2D::add_attribute(std::string var_name, std::string att_name, double att_value)
+{
+    int status = -1;
+    status = set_attribute(var_name, att_name, att_value);
+    return status;
+}
+
 int UGRID2D::add_ntw_edge_nodes(std::string var_name, std::vector<std::string> dim_names, std::string cf_role, std::string long_name)
 {
     int dim_id;

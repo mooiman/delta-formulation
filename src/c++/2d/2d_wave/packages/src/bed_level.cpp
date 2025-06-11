@@ -52,11 +52,38 @@ long BED_LEVEL::read(int nx, int ny)
     {
         status = 0;
     }
-
+    transpose(m_bed_given, nx, ny);
     return status;
+
 }
 //------------------------------------------------------------------------------
 std::vector<double> BED_LEVEL::get_bed_level()
 {
      return m_bed_given;
 }
+
+//
+////  PRIVATE  ////////////////////////////////////////////////////////
+//
+void BED_LEVEL::transpose(std::vector<double>& x, int nx, int ny)
+{
+    std::vector<double> xt;
+    xt.resize(nx * ny);
+    int k1;
+    int k2;
+    double tmp;
+    for (int i = 0; i < nx; ++i) 
+    {
+        for (int j = 0; j < ny; ++j) 
+        {
+            k1 = i * ny + j;
+            k2 = j * nx + i;
+            xt[k1] = x[k2];
+        }
+    }
+    for (int i = 0; i < nx * ny; ++i)
+    {
+        x[i] = xt[i];
+    }
+}
+

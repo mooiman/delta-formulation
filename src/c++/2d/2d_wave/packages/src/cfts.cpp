@@ -51,8 +51,16 @@ int CFTS::open(std::string ncfile, std::string model_title)
     int var_id;
     status = nc_def_var(m_ncid, "projected_coordinate_system", NC_INT, 0, nullptr, &var_id);
     int epsg = 28992;
-    status = set_attribute(std::string("projected_coordinate_system"), std::string("epsg"), epsg);
-    status = set_attribute(std::string("projected_coordinate_system"), std::string("EPSG_CODE"), std::string("EPSG:0"));
+    std::string epsg_code = "EPSG:28992";
+    status = set_attribute("projected_coordinate_system", "name", "Unknown projected");
+    status = set_attribute("projected_coordinate_system", "epsg", epsg);
+    status = set_attribute("projected_coordinate_system", "grid_mapping_name", "Unknown projected");
+    status = set_attribute("projected_coordinate_system", "longitude_of_prime_meridian", 0.);
+    status = set_attribute("projected_coordinate_system", "semi_major_axis", 6378137.);
+    status = set_attribute("projected_coordinate_system", "semi_minor_axis", 6356752.314245);
+    status = set_attribute("projected_coordinate_system", "inverse_flattening", 298.257223563);
+    status = set_attribute("projected_coordinate_system", "EPSG_CODE", epsg_code);
+    status = set_attribute("projected_coordinate_system", "value", "value is equal to EPSG code");
 
     return status;
 }

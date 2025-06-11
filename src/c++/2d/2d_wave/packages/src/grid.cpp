@@ -40,10 +40,12 @@ long SGRID::open(std::string filename)
     int status = nc_open(m_grid_file_name.c_str(), NC_NOWRITE, &this->m_ncid);
     if (status != NC_NOERR)
     {
-        fprintf(stderr, "SGRID::read()\n    Failed to open file: %s\n", m_grid_file_name);
+        fprintf(stderr, "SGRID::read()\n    Failed to open file: %s\n", m_grid_file_name.c_str());
         return ret_value;
     }
+#ifdef NATIVE_C
     fprintf(stderr, "SGRID::read()\n    Opened: %s\n", m_grid_file_name.c_str());
+#endif    
 
     status = this->read_global_attributes();
     for (int i = 0; i < this->global_attributes->count; ++i)
@@ -210,7 +212,9 @@ long SGRID::read_sgrid_mesh()
         }
         status = nc_inq_var(this->m_ncid, i_var, var_name_c, &nc_type, &ndims, var_dimids, &natts);
         std::string var_name(var_name_c);
+#ifdef NATIVE_C
         fprintf(stderr, "SGRID::read_mesh()\n    Variable name: %d - %s\n", i_var + 1, var_name.c_str());
+#endif    
 
         length = 0;
         status = get_attribute(this->m_ncid, i_var, "cf_role", &cf_role);
@@ -375,10 +379,6 @@ long SGRID::read_sgrid_variables()
             status = get_attribute(this->m_ncid, i_var, "units", &m_mesh_vars->variable[m_nr_mesh_var - 1]->units);
             status = get_attribute(this->m_ncid, i_var, "grid_mapping", &m_mesh_vars->variable[m_nr_mesh_var - 1]->grid_mapping);
             status = get_attribute(this->m_ncid, i_var, const_cast<char*>("_FillValue"), &m_mesh_vars->variable[m_nr_mesh_var - 1]->fill_value);
-            if (status != NC_NOERR)
-            {
-                m_mesh_vars->variable[m_nr_mesh_var - 1]->fill_value = std::numeric_limits<double>::quiet_NaN();
-            }
             status = get_attribute(this->m_ncid, i_var, "comment", &m_mesh_vars->variable[m_nr_mesh_var - 1]->comment);  // UGRID
             status = get_attribute(this->m_ncid, i_var, "description", &m_mesh_vars->variable[m_nr_mesh_var - 1]->description);  // SGRID
 
@@ -505,13 +505,17 @@ struct _mesh2d * SGRID::get_mesh_2d()
 //------------------------------------------------------------------------------
 struct _mesh2d_string ** SGRID::get_mesh2d_string()
 {
+#ifdef NATIVE_C
     fprintf(stderr, "SGRID::get_mesh2d()\n");
+#endif    
     return m_mesh2d_strings;
 }
 //------------------------------------------------------------------------------
 struct _mapping * SGRID::get_grid_mapping()
 {
+#ifdef NATIVE_C
     fprintf(stderr, "SGRID::get_grid_mapping()\n");
+#endif    
     return m_mapping;
 }
 //------------------------------------------------------------------------------
@@ -786,7 +790,9 @@ int SGRID::read_variables_with_cf_role(int i_var, std::string var_name, std::str
             }
             m_mesh2d->nr_mesh2d = nr_mesh2d;
 
+#ifdef NATIVE_C
             fprintf(stderr, "    Variables with \'mesh_topology\' attribute: %s\n", var_name.c_str());
+#endif    
 
             //get edge nodes, optional required
             int* dimids;
@@ -855,8 +861,7 @@ int SGRID::read_variables_with_cf_role(int i_var, std::string var_name, std::str
             m_mesh2d->node[nr_mesh2d - 1]->x = std::vector<double>(m_mesh2d->node[nr_mesh2d - 1]->count);
             m_mesh2d->node[nr_mesh2d - 1]->y = std::vector<double>(m_mesh2d->node[nr_mesh2d - 1]->count);
             status = get_attribute(this->m_ncid, var_id, "standard_name", &att_value);
-            status = get_attribute(this->m_ncid, var_id, strdup("fill_value"), &fill_value);
-            m_mesh2d->node[nr_mesh2d - 1]->fill_value = fill_value;
+            status = get_attribute(this->m_ncid, var_id, strdup("_FillValue"), &m_mesh2d->node[nr_mesh2d - 1]->fill_value);
             if (att_value == "projection_x_coordinate" || att_value == "longitude")
             {
                 status = nc_get_var_double(this->m_ncid, var_id, m_mesh2d->node[nr_mesh2d - 1]->x.data());
@@ -898,8 +903,7 @@ int SGRID::read_variables_with_cf_role(int i_var, std::string var_name, std::str
                     m_mesh2d->face[nr_mesh2d - 1]->y = std::vector<double>(m_mesh2d->face[nr_mesh2d - 1]->count);
                     status = nc_inq_varid(this->m_ncid, m_mesh2d_strings[nr_mesh2d - 1]->x_face_name.c_str(), &var_id);
                     status = get_attribute(this->m_ncid, var_id, "standard_name", &att_value);
-                    status = get_attribute(this->m_ncid, var_id, strdup("fill_value"), &fill_value);
-                    m_mesh2d->face[nr_mesh2d - 1]->fill_value = fill_value;
+                    status = get_attribute(this->m_ncid, var_id, strdup("_FillValue"), &m_mesh2d->face[nr_mesh2d - 1]->fill_value);
                     if (att_value == "projection_x_coordinate" || att_value == "longitude")
                     {
                         status = nc_get_var_double(this->m_ncid, var_id, m_mesh2d->face[nr_mesh2d - 1]->x.data());

@@ -30,7 +30,7 @@
 void initial_conditions(std::vector<double>& x, std::vector<double>& y, size_t nx, size_t ny,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp, std::vector<double>& zb_giv,
-    std::vector<std::string> & ini_vars, double amp, double gauss_mu, double gauss_sigma)
+    std::vector<std::string> & ini_vars, double amp, double gauss_mu_x, double gauss_mu_y, double gauss_sigma_x, double gauss_sigma_y)
 {
     // 
     //initialize h, q and r
@@ -46,7 +46,7 @@ void initial_conditions(std::vector<double>& x, std::vector<double>& y, size_t n
             // 
             // initialize via water level, u-velocity and v-velocity
             //
-            k = j * nx + i;
+            k = i * ny + j;
             if (ini_vars[0] == "zeta" && ini_vars[1] == "zeta_constant")
             {
                 s_giv = amp;  // initial water level
@@ -65,15 +65,18 @@ void initial_conditions(std::vector<double>& x, std::vector<double>& y, size_t n
             }
             if (ini_vars[0] == "zeta" && ini_vars[1] == "zeta_GaussHump")
             {
-                s_giv = amp * std::exp(-((x[k] - gauss_mu) * (x[k] - gauss_mu) + (y[k] - gauss_mu) * (y[k] - gauss_mu)) / (2. * gauss_sigma * gauss_sigma));  // initial water level
+                s_giv = amp * std::exp(
+                    -(  (x[k] - gauss_mu_x) * (x[k] - gauss_mu_x) / (2. * gauss_sigma_x * gauss_sigma_x) +
+                        (y[k] - gauss_mu_y) * (y[k] - gauss_mu_y) / (2. * gauss_sigma_y * gauss_sigma_y)
+                        ) );  // initial water level
             }
             if (ini_vars[0] == "zeta" && ini_vars[1] == "zeta_GaussHump_x")
             {
-                s_giv = amp * std::exp(-((x[k] - gauss_mu) * (x[k] - gauss_mu)) / (2. * gauss_sigma * gauss_sigma));  // initial water level
+                s_giv = amp * std::exp( -(x[k] - gauss_mu_x) * (x[k] - gauss_mu_x) / (2. * gauss_sigma_x * gauss_sigma_x) );  // initial water level
             }
             if (ini_vars[0] == "zeta" && ini_vars[1] == "zeta_GaussHump_y")
             {
-                s_giv = amp * std::exp(-((y[k] - gauss_mu) * (y[k] - gauss_mu)) / (2. * gauss_sigma * gauss_sigma));  // initial water level
+                s_giv = amp * std::exp( -(y[k] - gauss_mu_y) * (y[k] - gauss_mu_y) / (2. * gauss_sigma_y * gauss_sigma_y) );  // initial water level
             }
             u_giv = 0.0;
             v_giv = 0.0;

@@ -44,6 +44,7 @@
 #include "perf_timer.h"
 #include "initial_conditions.h"
 #include "regularization.h"
+#include "convection.h"
 #include "grid.h"
 #include "bed_level.h"
 
@@ -52,7 +53,7 @@ int get_toml_array(toml::table, std::string, std::vector<std::string>&);
 int get_toml_array(toml::table, std::string, std::vector<double>&);
 int get_toml_array(toml::table, std::string, std::vector<bool>&);
 
-int p_index(int i, int j, int nx);
+int p_index(int i, int j, int ny);
 double c_scv(double, double, double, double);
 double dcdx_scv(double, double, double, double);
 double dcdy_scv(double, double, double, double);
@@ -61,7 +62,7 @@ double dcdx_scvf_t(double, double, double, double);
 double dcdy_scvf_n(double, double, double, double);
 double dcdy_scvf_n(double, double, double, double);
 std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs_name);
-
+std::string string_format_with_zeros(double value, int width);
 
 
 // Solve the linear wave equation
@@ -101,12 +102,14 @@ int main(int argc, char *argv[])
             std::cout << "Input file \'" << toml_file_name << "\' can not be opened." << std::endl;
             std::cout << "Press Enter to finish";
             //std::cin.ignore();
+            std::chrono::duration<int, std::milli> timespan(3000);
+            std::this_thread::sleep_for(timespan);
             exit(1);
         }
         input_dir = toml_file_name;
         input_dir.remove_filename();
         tbl = toml::parse_file(toml_file_name.c_str());
-        std::cout << tbl << "\n";
+        // std::cout << tbl << "\n";
         output_dir = input_dir;
         output_dir += "/output/";
         std::filesystem::create_directory(output_dir);
@@ -117,12 +120,13 @@ int main(int argc, char *argv[])
         output_dir = ".";
     }
 
-    std::cout << "----------------------------" << std::endl;
+    std::cout << "======================================================" << std::endl;
+    std::cout << "Executable compiled: " << __DATE__ << ", " << __TIME__ << std::endl;
+    std::cout << "======================================================" << std::endl;
     std::cout << "Executable directory: " << exec_dir << std::endl;
     std::cout << "Start directory     : " << start_dir << std::endl;
     std::cout << "Input directory     : " << input_dir << std::endl;
     std::cout << "Output directory    : " << output_dir << std::endl;
-    std::cout << "----------------------------" << std::endl;
 
     START_TIMERN(Main);
     START_TIMER(Writing log-file);
@@ -144,7 +148,6 @@ int main(int argc, char *argv[])
     std::ofstream log_file;
     log_file.open(log_filename);
     std::cout << "=== Input file =======================================" << std::endl;
-    std::cout << "Executable compiled: " << __DATE__ << ", " << __TIME__ << std::endl;
     std::cout << std::filesystem::absolute(toml_file_name) << std::endl;
     std::cout << "======================================================" << std::endl;
     log_file << "======================================================" << std::endl;
@@ -166,8 +169,22 @@ int main(int argc, char *argv[])
     auto vars = tbl["Initial"];
     status = get_toml_array(*vars.as_table(), "ini_vars", ini_vars);
     double gauss_amp = tbl["Initial"]["gauss_amp"].value_or(double(0.0));   // amplitude of the gaussian hump at the boundary
-    double gauss_mu = tbl["Initial"]["gauss_mu"].value_or(double(0.0));
-    double gauss_sigma = tbl["Initial"]["gauss_sigma"].value_or(double(1.0));
+    double gauss_mu = tbl["Initial"]["gauss_mu"].value_or(double(-INFINITY));
+    double gauss_mu_x = tbl["Initial"]["gauss_mu_x"].value_or(double(0.0));
+    double gauss_mu_y = tbl["Initial"]["gauss_mu_y"].value_or(double(0.0));
+    if (gauss_mu != -INFINITY)
+    {
+        gauss_mu_x = gauss_mu; 
+        gauss_mu_y = 0.0;  // only shift on x-axis
+    }
+    double gauss_sigma = tbl["Initial"]["gauss_sigma"].value_or(double(-INFINITY));
+    double gauss_sigma_x = tbl["Initial"]["gauss_sigma"].value_or(double(1.0));
+    double gauss_sigma_y = tbl["Initial"]["gauss_sigma"].value_or(double(1.0));
+    if (gauss_sigma != -INFINITY)
+    {
+        gauss_sigma_x = gauss_sigma; 
+        gauss_sigma_y = gauss_sigma; 
+    }
 
     // Domain
     tbl_chp = *tbl["Domain"].as_table();
@@ -203,10 +220,10 @@ int main(int argc, char *argv[])
     bool do_q_convection = tbl_chp["do_q_convection"].value_or(bool(false));  // default, no convection
     bool do_r_convection = tbl_chp["do_r_convection"].value_or(bool(false));  // default, no convection
     
-    bool do_viscosity = tbl_chp["do_viscosity"].value_or(bool(false));  // default, no convection
+    bool do_viscosity = tbl_chp["do_viscosity"].value_or(bool(false));  // default, no viscosity
     double visc_const = tbl_chp["viscosity"].value_or(double(0.0001));  // default 1e-4
 
-    bool do_bed_shear_stress = tbl_chp["do_r_bed_shear_stress"].value_or(bool(false));  // default, no convection
+    bool do_bed_shear_stress = tbl_chp["do_r_bed_shear_stress"].value_or(bool(false));  // default, no bed shear stress
     double chezy_coefficient = tbl_chp["chezy_coefficient"].value_or(double(50.0));
 
     // Boundary
@@ -244,11 +261,17 @@ int main(int argc, char *argv[])
     double dt_map = tbl_chp["dt_map"].value_or(double(0.0));  // write interval to his-file
 
                           
-    REGULARIZATION* regularization = new REGULARIZATION(iter_max, g);
-
     struct _mesh2d * mesh2d;
     SGRID* sgrid = new SGRID();
     status = sgrid->open(full_grid_filename.string());
+    if (status != 0) 
+    {
+        log_file << "Error: Failed to open file: " << full_grid_filename.string() << std::endl;
+        std::chrono::duration<int, std::milli> timespan(3000);
+        std::this_thread::sleep_for(timespan);
+        //std::cin.ignore();
+        exit(1);
+    }
     status = sgrid->read();  // reading mesh
     mesh2d = sgrid->get_mesh_2d();
 
@@ -264,6 +287,9 @@ int main(int argc, char *argv[])
     {
         std::cout << "Failed to open file: " << full_bed_level_filename.string() << std::endl;
         log_file << "Failed to open file: " << full_bed_level_filename.string() << std::endl;
+        std::chrono::duration<int, std::milli> timespan(3000);
+        std::this_thread::sleep_for(timespan);
+        //std::cin.ignore();
         exit(1);
     }
     status = bed->read(nx, ny);
@@ -272,7 +298,7 @@ int main(int argc, char *argv[])
     double dx = x[ny] - x[0];
     double dy = y[1] - y[0];
     double Lx = dx * mesh2d->face[0]->dims[0];
-    double Ly = dx * mesh2d->face[0]->dims[1];
+    double Ly = dy * mesh2d->face[0]->dims[1];
 
     double dxinv = 1./dx;                               // invers grid size [m]
     double dyinv = 1./dy;                               // invers grid size [m]
@@ -313,6 +339,10 @@ int main(int argc, char *argv[])
             wrimap = std::max(int(dt * dtinv), int(dt_map * dtinv));     // write interval to map-file (every 1 sec , or every delta t)
         }
     }
+
+    REGULARIZATION* regularization = new REGULARIZATION(iter_max, g);
+    CONVECTION* convection = new CONVECTION(theta, dx, dy, nx, ny);
+
     log_file << "=== Used input variables ==============================" << std::endl;
     log_file << "[Domain]" << std::endl;
     log_file << "mesh_file = " << grid_filename << std::endl;
@@ -332,7 +362,11 @@ int main(int argc, char *argv[])
     log_file << std::endl;
     log_file << "Gauss_amp = " << gauss_amp << std::endl;
     log_file << "Gauss_mu = " << gauss_mu << std::endl;
+    log_file << "Gauss_mu_x = " << gauss_mu_x << std::endl;
+    log_file << "Gauss_mu_y = " << gauss_mu_y << std::endl;
     log_file << "Gauss_sigma = " << gauss_sigma << std::endl;
+    log_file << "Gauss_sigma_x = " << gauss_sigma_x << std::endl;
+    log_file << "Gauss_sigma_y = " << gauss_sigma_y << std::endl;
 
     log_file << std::endl << "[Boundary]" << std::endl;
     log_file << "bc_type = ";
@@ -399,8 +433,15 @@ int main(int argc, char *argv[])
     std::vector<double> delta_r(nxny, 0.);
     std::vector<double> psi(nxny, 0.);
 
-    Eigen::VectorXd solution(3 * nxny);                         // solution vector [h, q, r]^{n}
+    Eigen::SparseMatrix<double> A(3 * nxny, 3 * nxny);
+    Eigen::VectorXd solution(3 * nxny);                     // solution vector [h, q, r]^{n}
     Eigen::VectorXd rhs(3 * nxny);                          // RHS vector [h, q, r]^{n}
+    for (int i = 0; i < 3 * nxny; ++i)
+    {
+        A.coeffRef(i, i) = 1.0;  // 8.8888888;
+        solution[i] = 0.0;  // Delta h, Delta q and Delta r
+        rhs[i] = 0.0; 
+    }
 
     double alpha = 1. / 8.;                               // Linear (spatial) interpolation coefficient
 
@@ -432,8 +473,8 @@ int main(int argc, char *argv[])
     std::cout << "    LxLy: " << Lx << "x" << Ly << std::endl;
     std::cout << "    dxdy: " << dx << "x" << dy << "=" << dxdy << " [m2]" << std::endl;
     std::cout << "    nxny: " << nx << "x" << ny << "=" << nxny << std::endl;
+    std::cout << "=======================================================" << std::endl;
 
-    log_file << "=======================================================" << std::endl;
     STOP_TIMER(Writing log-file);  // but two write statements are not timed
     if (status != 0) {
         log_file.close();
@@ -443,12 +484,12 @@ int main(int argc, char *argv[])
     (void) initial_conditions(x, y, nx, ny,
         hn, qn, rn, 
         hp, qp, rp, zb_giv,
-        ini_vars, gauss_amp, gauss_mu, gauss_sigma);
+        ini_vars, gauss_amp, gauss_mu_x, gauss_mu_y, gauss_sigma_x, gauss_sigma_y);
 
     if (regularization_init)
     {
         START_TIMER(Regularization_init);
-        regularization->given_function(zb, psi, zb_giv, nx, ny, dx, dy, c_psi);
+        regularization->given_function(zb, psi, zb_giv, nx, ny, dx, dy, c_psi, log_file);
         //regularization->given_function(visc_reg, psi, visc_giv, nx, ny, dx, dy, c_psi);
         STOP_TIMER(Regularization_init);
     }
@@ -465,13 +506,6 @@ int main(int argc, char *argv[])
         s[i] = hn[i] + zb[i];
         u[i] = qn[i] / hn[i];
         v[i] = rn[i] / hn[i];
-    }
-
-    // Merge water depth (h) and (q,r) flux in one solution-vector
-    for (int i = 0; i < 3 * nxny; ++i)
-    {
-        solution[i] = 0.0;  // Delta h, Delta q and Delta r
-        rhs[i] = 0.0; 
     }
 
     double time = double(0) * dt;
@@ -502,89 +536,126 @@ int main(int argc, char *argv[])
     std::vector<int> mesh2d_face_nodes;
     std::vector<int> nodes_per_face;
     std::vector<int> node_mask(nr_nodes, 0);
-    for (int j = 0; j < ny - 1; ++j)
+
+    int p0 = 0;
+    int p1 = 0;
+    for (int i = 0; i < nx - 1; ++i)
     {
-        for (int i = 0; i < nx - 1; ++i)
+        for (int j = 0; j < ny - 1; ++j)
         {
-            if (node_mask[j * nx + i] <= 1 || node_mask[j * nx + i + 1] <= 1)
+            p0 = p_index(i    , j, ny);
+            p1 = p_index(i + 1, j, ny);
+            if (node_mask[p0] <= 1 || node_mask[p1] <= 1)
             {
-                mesh2d_edge_nodes.push_back(j * nx + i);
-                mesh2d_edge_nodes.push_back(j * nx + i + 1);
-                node_mask[j * nx + i] += 1;
-                node_mask[j * nx + i + 1] += 1;
+                mesh2d_edge_nodes.push_back(p0);
+                mesh2d_edge_nodes.push_back(p1);
+                node_mask[p0] += 1;
+                node_mask[p1] += 1;
             }
 
-            if (node_mask[j * nx + i + 1] <= 1 || node_mask[(j + 1) * nx + i + 1] <= 1)
+            p0 = p_index(i + 1, j    , ny);
+            p1 = p_index(i + 1, j + 1, ny);
+            if (node_mask[p0] <= 1 || node_mask[p1] <= 1)
             {
-                mesh2d_edge_nodes.push_back(j * nx + i + 1);
-                mesh2d_edge_nodes.push_back((j + 1) * nx + i + 1);
-                node_mask[j * nx + i + 1] += 1;
-                node_mask[(j + 1) * nx + i + 1] += 1;
+                mesh2d_edge_nodes.push_back(p0);
+                mesh2d_edge_nodes.push_back(p1);
+                node_mask[p0] += 1;
+                node_mask[p1] += 1;
             }
 
-            if (node_mask[(j + 1) * nx + i + 1] <= 1 || node_mask[(j + 1) * nx + i] <= 1)
+            p0 = p_index(i + 1, j + 1, ny);
+            p1 = p_index(i    , j + 1, ny);
+            if (node_mask[p0] <= 1 || node_mask[p1] <= 1)
             {
-                mesh2d_edge_nodes.push_back((j + 1) * nx + i + 1);
-                mesh2d_edge_nodes.push_back((j + 1) * nx + i);
-                node_mask[(j + 1) * nx + i + 1] += 1;
-                node_mask[(j + 1) * nx + i] += 1;
+                mesh2d_edge_nodes.push_back(p0);
+                mesh2d_edge_nodes.push_back(p1);
+                node_mask[p0] += 1;
+                node_mask[p1] += 1;
             }
 
-            if (node_mask[(j + 1) * nx + i] <= 1 || node_mask[j * nx + i] <= 1)
+            p0 = p_index(i    , j + 1, ny);
+            p1 = p_index(i    , j    , ny);
+            if (node_mask[p0] <= 1 || node_mask[p1] <= 1)
             {
-                mesh2d_edge_nodes.push_back((j + 1) * nx + i);
-                mesh2d_edge_nodes.push_back(j * nx + i);
-                node_mask[(j + 1) * nx + i] += 1;
-                //node_mask[j * nx + i] += 1;
+                mesh2d_edge_nodes.push_back(p0);
+                mesh2d_edge_nodes.push_back(p1);
+                node_mask[p0] += 1;
+                //node_mask[p1] += 1;
             }
-            mesh2d_face_nodes.push_back(j * nx + i);
-            mesh2d_face_nodes.push_back(j * nx + i + 1);
-            mesh2d_face_nodes.push_back((j + 1) * nx + i + 1);
-            mesh2d_face_nodes.push_back((j + 1) * nx + i);
         }
     }
     status = map_file->put_variable_2("mesh2d_edge_nodes", mesh2d_edge_nodes);
+    
+    int p2;
+    int p3;
+    double fill_value = mesh2d->node[0]->fill_value;
+    for (int i = 0; i < nx - 1; ++i)
+    {
+        for (int j = 0; j < ny - 1; ++j)
+        {
+            p0 = p_index(i    , j    , ny);
+            p1 = p_index(i + 1, j    , ny);
+            p2 = p_index(i + 1, j + 1, ny);
+            p3 = p_index(i    , j + 1, ny);
+            if ((mesh2d->node[0]->x[p0] != fill_value || mesh2d->node[0]->x[p0] != fill_value) &&
+                (mesh2d->node[0]->x[p1] != fill_value || mesh2d->node[0]->x[p1] != fill_value) &&
+                (mesh2d->node[0]->x[p2] != fill_value || mesh2d->node[0]->x[p2] != fill_value) &&
+                (mesh2d->node[0]->x[p3] != fill_value || mesh2d->node[0]->x[p3] != fill_value) )
+            {
+                mesh2d_face_nodes.push_back(p0);
+                mesh2d_face_nodes.push_back(p1);
+                mesh2d_face_nodes.push_back(p2);
+                mesh2d_face_nodes.push_back(p3);
+            }
+        }
+    }
     status = map_file->put_variable_4("mesh2d_face_nodes", mesh2d_face_nodes);
 
+    fill_value = mesh2d->node[0]->fill_value;
     dim_names.clear();
     dim_names.push_back("mesh2d_nNodes");
     status = map_file->add_variable("mesh2d_node_x", dim_names, "projection_x_coordinate", "x", "m", "mesh2D", "node");
+    status = map_file->add_attribute("mesh2d_node_x", "_FillValue", fill_value);
     status = map_file->add_variable("mesh2d_node_y", dim_names, "projection_y_coordinate", "y", "m", "mesh2D", "node");
+    status = map_file->add_attribute("mesh2d_node_y", "_FillValue", fill_value);
     status = map_file->put_variable("mesh2d_node_x", x);
     status = map_file->put_variable("mesh2d_node_y", y);
 
     // Compute mass centres of faces
     std::vector<double> xmc;
     std::vector<double> ymc;
-    for (int j = 0; j < ny - 1; ++j)
+    for (int i = 0; i < nx - 1; ++i)
     {
-        for (int i = 0; i < nx - 1; ++i)
+        for (int j = 0; j < ny - 1; ++j)
         {
-            int p0 = p_index(i, j, nx);
-            int p1 = p_index(i + 1, j, nx);
-            int p2 = p_index(i + 1, j + 1, nx);
-            int p3 = p_index(i, j + 1, nx);
+            int p0 = p_index(i    , j    , ny);
+            int p1 = p_index(i + 1, j    , ny);
+            int p2 = p_index(i + 1, j + 1, ny);
+            int p3 = p_index(i    , j + 1, ny);
             xmc.push_back(0.25 * (x[p0] + x[p1] + x[p2] + x[p3]));
             ymc.push_back(0.25 * (y[p0] + y[p1] + y[p2] + y[p3]));
         }
     }
+    fill_value = mesh2d->face[0]->fill_value;
     dim_names.clear();
     dim_names.push_back("mesh2d_nFaces");
     status = map_file->add_variable("mesh2d_face_x", dim_names, "projection_x_coordinate", "x", "m", "mesh2D", "face");
+    status = map_file->add_attribute("mesh2d_face_x", "_FillValue", fill_value);
     status = map_file->add_variable("mesh2d_face_y", dim_names, "projection_y_coordinate", "y", "m", "mesh2D", "face");
+    status = map_file->add_attribute("mesh2d_face_y", "_FillValue", fill_value);
     status = map_file->put_variable("mesh2d_face_x", xmc);
     status = map_file->put_variable("mesh2d_face_y", ymc);
 
     // Compute area of faces
     std::vector<double> cell_area;
-    for (int j = 0; j < ny - 1; ++j)
+    for (int i = 0; i < nx - 1; ++i)
     {
-        for (int i = 0; i < nx - 1; ++i)
+        for (int j = 0; j < ny - 1; ++j)
         {
-            int p0 = p_index(i, j, nx);
-            int p1 = p_index(i + 1, j, nx);
-            int p2 = p_index(i + 1, j + 1, nx);
-            int p3 = p_index(i, j + 1, nx);
+            int p0 = p_index(i    , j    , ny);
+            int p1 = p_index(i + 1, j    , ny);
+            int p2 = p_index(i + 1, j + 1, ny);
+            int p3 = p_index(i    , j + 1, ny);
             double area = std::abs(0.5 * ((x[p0] * y[p1] + x[p1] * y[p2] + x[p2] * y[p3] + x[p3] * y[p0]) - (y[p0] * x[p1] + y[p1] * x[p2] + y[p2] * x[p3] + y[p3] * x[p0])));
             cell_area.push_back(area);
         }
@@ -619,7 +690,6 @@ int main(int argc, char *argv[])
     status = map_file->add_variable(map_u_name, dim_names, "sea_water_x_velocity", "Velocity (x)", "m s-1", "mesh2D", "node");
     status = map_file->add_variable(map_v_name, dim_names, "sea_water_y_velocity", "Velocity (y)", "m s-1", "mesh2D", "node");
 
-
     // Put data on map file
     START_TIMER(Writing map-file);
     int nst_map = 0;
@@ -634,6 +704,7 @@ int main(int argc, char *argv[])
     map_file->put_time_variable(map_u_name, nst_map, u);
     map_file->put_time_variable(map_v_name, nst_map, v);
     STOP_TIMER(Writing map-file);
+
     // End define map file
     ////////////////////////////////////////////////////////////////////////////
     // Create time history file
@@ -643,16 +714,16 @@ int main(int argc, char *argv[])
     status = his_file->open(nc_hisfile, model_title);
 
     // Initialize observation station locations
-    int centre = p_index(nx / 2, ny / 2, nx);
-    int w_bnd = p_index(1, ny / 2, nx);  // at boundary, not at virtual point
-    int e_bnd = p_index(nx - 2, ny / 2, nx);  // at boundary, not at virtual point
-    int s_bnd = p_index(nx / 2, 1, nx);
-    int n_bnd = p_index(nx / 2, ny - 2, nx);
+    int centre = p_index(nx / 2, ny / 2, ny);
+    int w_bnd  = p_index(1     , ny / 2, ny);  // at boundary, not at virtual point
+    int e_bnd  = p_index(nx - 2, ny / 2, ny);  // at boundary, not at virtual point
+    int s_bnd  = p_index(nx / 2, 1     , ny);
+    int n_bnd  = p_index(nx / 2, ny - 2, ny);
 
-    int sw_bnd = p_index(1, 1, nx);
-    int ne_bnd = p_index(nx -2, ny-2, nx);
-    int nw_bnd = p_index(1, ny - 2, nx);
-    int se_bnd = p_index(nx - 2, 1, nx);
+    int sw_bnd = p_index(1     , 1     , ny);
+    int ne_bnd = p_index(nx - 2, ny - 2, ny);
+    int nw_bnd = p_index(1     , ny - 2, ny);
+    int se_bnd = p_index(nx - 2, 1     , ny);
     int p_a;
     int p_b;
     int p_c;
@@ -663,6 +734,8 @@ int main(int argc, char *argv[])
         std::cout << "----------------------------" << std::endl;
         std::cout << "dx=" << dx << " or dy=" << dy << " is not a divider of 2500 [m]" << std::endl;
         std::cout << "Press Enter to finish";
+        std::chrono::duration<int, std::milli> timespan(3000);
+        std::this_thread::sleep_for(timespan);
         //std::cin.ignore();
         exit(1);
     }
@@ -674,10 +747,10 @@ int main(int argc, char *argv[])
     double y_b = std::min(Ly / 2., 1500.);
     double y_c = std::min(Ly / 2., 2000.);
     double y_d = std::min(Ly / 2., 2500.);
-    p_a = p_index(int((x_a / dx) + nx / 2), int((y_a / dy) + ny / 2), nx);
-    p_b = p_index(int((x_b / dx) + nx / 2), int((y_b / dy) + ny / 2), nx);
-    p_c = p_index(int((x_c / dx) + nx / 2), int((y_c / dy) + ny / 2), nx);
-    p_d = p_index(int((x_d / dx) + nx / 2), int((y_d / dy) + ny / 2), nx);
+    p_a = p_index(int((y_a / dy) + nx / 2), int((x_a / dx) + ny / 2), ny);
+    p_b = p_index(int((y_b / dy) + nx / 2), int((x_b / dx) + ny / 2), ny);
+    p_c = p_index(int((y_c / dy) + nx / 2), int((x_c / dx) + ny / 2), ny);
+    p_d = p_index(int((y_d / dy) + nx / 2), int((x_d / dx) + ny / 2), ny);
 
     std::vector<double> x_obs = { x[p_a], x[p_b], x[p_c], x[p_d], x[centre], x[n_bnd], x[ne_bnd], x[e_bnd], x[se_bnd], x[s_bnd], x[sw_bnd], x[w_bnd], x[nw_bnd] };
     std::vector<double> y_obs = { y[p_a], y[p_b], y[p_c], y[p_d], y[centre], y[n_bnd], y[ne_bnd], y[e_bnd], y[se_bnd], y[s_bnd], y[sw_bnd], y[w_bnd], y[nw_bnd] };
@@ -686,7 +759,7 @@ int main(int argc, char *argv[])
     {
         nsig = std::max(nsig, (int)std::log10(x_obs[i]));
     }
-    nsig += 1;
+    //nsig += 1;
 
     std::vector<std::string> obs_stations;
     obs_stations.push_back(setup_obs_name(x[p_a], y[p_a], nsig, "A"));
@@ -742,26 +815,22 @@ int main(int argc, char *argv[])
     his_values = { 0.0 };
     his_file->put_variable(his_BiCGstab_iter_error_name, nst_his, his_values);
     STOP_TIMER(Writing his-file);
+
     // End define history file
     ////////////////////////////////////////////////////////////////////////////
 
-    Eigen::SparseMatrix<double> A(3 * nxny, 3 * nxny);
-    for (int i = 0; i < 3 * nxny; ++i)
-    {
-        A.coeffRef(i, i) = 1.0;  // 8.8888888;
-        rhs[i] = solution[i];
-    }
-    
-    std::cout << "Start time-loop" << std::endl;
-    std::cout << std::fixed << std::setprecision(2) << "tstart= " << tstart + time << ";   tstop= " << tstart + tstop << ";   dt= " << dt << std::endl;
-
-    STOP_TIMER(Initialization);
     if (total_time_steps <= 1)
     {
         std::cout << "No time loop performed, due to total_time_steps <= 1" << std::endl;
         std::cout << "Press Enter to finish";
+        std::chrono::duration<int, std::milli> timespan(3000);
+        std::this_thread::sleep_for(timespan);
         //std::cin.ignore();
     }
+    STOP_TIMER(Initialization);
+    
+    std::cout << "Start time-loop" << std::endl;
+    std::cout << std::fixed << std::setprecision(2) << "tstart= " << tstart + time << ";   tstop= " << tstart + tstop << ";   dt= " << dt << std::endl;
 
     // Start time loop
     START_TIMER(Time loop);
@@ -840,15 +909,15 @@ int main(int argc, char *argv[])
                         int c = 1;
                     }
                     //log_file << "Node: " << i << "  " << j << std::endl;
-                    int ph_sw = p_index(i - 1, j - 1, nx);  
-                    int ph_s  = p_index(i    , j - 1, nx);  
-                    int ph_se = p_index(i + 1, j - 1, nx);  
-                    int ph_w  = p_index(i - 1, j    , nx);  
-                    int ph_0  = p_index(i    , j    , nx);  // continuity equation
-                    int ph_e  = p_index(i + 1, j    , nx);  
-                    int ph_nw = p_index(i - 1, j + 1, nx);  
-                    int ph_n  = p_index(i    , j + 1, nx);  
-                    int ph_ne = p_index(i + 1, j + 1, nx);  
+                    int ph_sw = p_index(i - 1, j - 1, ny);  
+                    int ph_s  = p_index(i    , j - 1, ny);  
+                    int ph_se = p_index(i + 1, j - 1, ny);  
+                    int ph_w  = p_index(i - 1, j    , ny);  
+                    int ph_0  = p_index(i    , j    , ny); // central point of control volume
+                    int ph_e  = p_index(i + 1, j    , ny);  
+                    int ph_nw = p_index(i - 1, j + 1, ny);  
+                    int ph_n  = p_index(i    , j + 1, ny);  
+                    int ph_ne = p_index(i + 1, j + 1, ny);  
 
                     // ph_0 + 1;  q-momentum equation
                     // ph_0 + 2;  r-momentum equation
@@ -1084,7 +1153,7 @@ int main(int argc, char *argv[])
                         //
                         double rhs_q = g * (depth_0 * dzetadx_0 + depth_1 * dzetadx_1 + depth_2 * dzetadx_2 + depth_3 * dzetadx_3);
                         rhs[q_eq] += -rhs_q;
-                        if (do_r_convection)
+                        if (do_q_convection)
                         {
                             //
                             // convection
@@ -1221,9 +1290,10 @@ int main(int argc, char *argv[])
                 int j = ny - 1;
                 for (int i = 1; i < nx - 1; ++i)
                 {
-                    int ph_0 = p_index(i, j, nx);  // continuity equation
-                    int ph_s = p_index(i, j - 1, nx);  // continuity equation
-                    int ph_ss = p_index(i, j - 2, nx);  // continuity equation
+                    int ph_0  = p_index(i, j    , ny);  // central point of control volume
+                    int ph_s  = p_index(i, j - 1, ny);
+                    int ph_ss = p_index(i, j - 2, ny); 
+
                     int c_eq = 3 * ph_0;
                     int q_eq = c_eq + 1;
                     int r_eq = c_eq + 2;
@@ -1401,9 +1471,10 @@ int main(int argc, char *argv[])
                 int i = nx - 1;
                 for (int j = 1; j < ny - 1; ++j)
                 {
-                    int ph_0 = p_index(i, j, nx);  // continuity equation
-                    int ph_w = p_index(i - 1, j, nx);  // continuity equation
-                    int ph_ww = p_index(i - 2, j, nx);  // continuity equation
+                    int ph_0  = p_index(i    , j, ny);  // central point of control volume
+                    int ph_w  = p_index(i - 1, j, ny);
+                    int ph_ww = p_index(i - 2, j, ny);
+
                     int c_eq = 3 * ph_0;
                     int q_eq = c_eq + 1;
                     int r_eq = c_eq + 2;
@@ -1581,9 +1652,10 @@ int main(int argc, char *argv[])
                 int j = 0;
                 for (int i = 1; i < nx - 1; ++i)
                 {
-                    int ph_0 = p_index(i, j, nx);  // continuity equation
-                    int ph_n = p_index(i, j + 1, nx);  // continuity equation
-                    int ph_nn = p_index(i, j + 2, nx);  // continuity equation
+                    int ph_0  = p_index(i, j    , ny);  // central point of control volume
+                    int ph_n  = p_index(i, j + 1, ny);  //
+                    int ph_nn = p_index(i, j + 2, ny);  //
+
                     int c_eq = 3 * ph_0;
                     int q_eq = c_eq + 1;
                     int r_eq = c_eq + 2;
@@ -1764,9 +1836,9 @@ int main(int argc, char *argv[])
                 int i = 0;
                 for (int j = 1; j < ny - 1; ++j)
                 {
-                    int ph_0  = p_index(i    , j, nx); 
-                    int ph_e  = p_index(i + 1, j, nx); 
-                    int ph_ee = p_index(i + 2, j, nx); 
+                    int ph_0  = p_index(i    , j, ny);  // central point of control volume
+                    int ph_e  = p_index(i + 1, j, ny); 
+                    int ph_ee = p_index(i + 2, j, ny); 
                     int c_eq = 3 * ph_0;   // continuity equation
                     int q_eq = c_eq + 1;   // q-momentum equation
                     int r_eq = c_eq + 2;   // r-momentum equation
@@ -1942,84 +2014,96 @@ int main(int argc, char *argv[])
             //
             //corner nodes
             //
-            if (true)  // NE-corner
+            if (false)  // NE-corner
             {
                 int i = nx - 1;
                 int j = ny - 1;
-                int ph = 3 * p_index(i, j, nx);  // continuity equation
-                int pq = 3 * p_index(i, j, nx) + 1;  // q-momentum equation
-                int pr = 3 * p_index(i, j, nx) + 2;  // r-momentum equation
-                A.coeffRef(ph, ph - 3) = 0.5;
+                int ph = 3 * p_index(i, j, ny);  // continuity equation
+                int pq = ph + 1;  // q-momentum equation
+                int pr = ph + 2;  // r-momentum equation
+                int p1 = 3 * p_index(i - 1, j , ny);
+                int p2 = 3 * p_index(i, j - 1, ny);
+
+                A.coeffRef(ph, p1) = 0.5;
                 A.coeffRef(ph, ph) = -1.0;
-                A.coeffRef(ph, ph - 3 * nx) = 0.5;
+                A.coeffRef(ph, p2) = 0.5;
                 rhs[ph] = 0.0;
-                A.coeffRef(pq, pq - 3) = 0.5;
+                A.coeffRef(pq, p1 + 1) = 0.5;
                 A.coeffRef(pq, pq) = -1.0;
-                A.coeffRef(pq, pq - 3 * nx) = 0.5;
+                A.coeffRef(pq, p2 + 1) = 0.5;
                 rhs[pq] = 0.0;
-                A.coeffRef(pr, pr - 3) = 0.5;
+                A.coeffRef(pr, p1 + 2) = 0.5;
                 A.coeffRef(pr, pr) = -1.0;
-                A.coeffRef(pr, pr - 3 * nx) = 0.5;
+                A.coeffRef(pr, p2 + 2) = 0.5;
                 rhs[pr] = 0.0;
             }
-            if (true)  // SE-corner
+            if (false)  // SE-corner
             {
                 int i = nx - 1;
                 int j = 0;
-                int ph = 3 * p_index(i, j, nx);  // continuity equation
-                int pq = 3 * p_index(i, j, nx) + 1;  // q-momentum equation
-                int pr = 3 * p_index(i, j, nx) + 2;  // r-momentum equation
-                A.coeffRef(ph, ph - 3) = 0.5;
+                int ph = 3 * p_index(i, j, ny);  // continuity equation
+                int pq = ph + 1;  // q-momentum equation
+                int pr = ph + 2;  // r-momentum equation
+                int p1 = 3 * p_index(i - 1, j , ny);
+                int p2 = 3 * p_index(i, j + 1, ny);
+
+                A.coeffRef(ph, p1) = 0.5;
                 A.coeffRef(ph, ph) = -1.0;
-                A.coeffRef(ph, ph + 3 * nx) = 0.5;
+                A.coeffRef(ph, p2) = 0.5;
                 rhs[ph] = 0.0;
-                A.coeffRef(pq, pq - 3) = 0.5;
+                A.coeffRef(pq, p1 + 1) = 0.5;
                 A.coeffRef(pq, pq) = -1.0;
-                A.coeffRef(pq, pq + 3 * nx) = 0.5;
+                A.coeffRef(pq, p2 + 1) = 0.5;
                 rhs[pq] = 0.0;
-                A.coeffRef(pr, pr - 3) = 0.5;
+                A.coeffRef(pr, p1 + 2) = 0.5;
                 A.coeffRef(pr, pr) = -1.0;
-                A.coeffRef(pr, pr + 3 * nx) = 0.5;
+                A.coeffRef(pr, p2 + 2) = 0.5;
                 rhs[pr] = 0.0;
             }
-            if (true)  // SW-corner
+            if (false)  // SW-corner
             {
                 int i = 0;
                 int j = 0;
-                int ph = 3 * p_index(i, j, nx);  // continuity equation
-                int pq = 3 * p_index(i, j, nx) + 1;  // q-momentum equation
-                int pr = 3 * p_index(i, j, nx) + 2;  // r-momentum equation
-                A.coeffRef(ph, ph + 3) = 0.5;
+                int ph = ph;  // continuity equation
+                int pq = ph + 1;  // q-momentum equation
+                int pr = ph + 2;  // r-momentum equation
+                int p1 = 3 * p_index(i + 1, j , ny);
+                int p2 = 3 * p_index(i, j + 1, ny);
+
+                A.coeffRef(ph, p1) = 0.5;
                 A.coeffRef(ph, ph) = -1.0;
-                A.coeffRef(ph, ph + 3 * nx) = 0.5;
+                A.coeffRef(ph, p2) = 0.5;
                 rhs[ph] = 0.0;
-                A.coeffRef(pq, pq + 3) = 0.5;
+                A.coeffRef(pq, p1 + 1) = 0.5;
                 A.coeffRef(pq, pq) = -1.0;
-                A.coeffRef(pq, pq + 3 * nx) = 0.5;
+                A.coeffRef(pq, p2 + 1) = 0.5;
                 rhs[pq] = 0.0;
-                A.coeffRef(pr, pr + 3) = 0.5;
+                A.coeffRef(pr, p1 + 2) = 0.5;
                 A.coeffRef(pr, pr) = -1.0;
-                A.coeffRef(pr, pr + 3 * nx) = 0.5;
+                A.coeffRef(pr, p2 + 2) = 0.5;
                 rhs[pr] = 0.0;
             }
-            if (true)  // NW-corner
+            if (false)  // NW-corner
             {
                 int i = 0;
                 int j = ny - 1;
-                int ph = 3 * p_index(i, j, nx);  // continuity equation
-                int pq = 3 * p_index(i, j, nx) + 1;  // q-momentum equation
-                int pr = 3 * p_index(i, j, nx) + 2;  // r-momentum equation
-                A.coeffRef(ph, ph - 3 * nx) = 0.5;
+                int ph = 3 * p_index(i, j, ny);  // continuity equation
+                int pq = ph + 1;  // q-momentum equation
+                int pr = ph + 2;  // r-momentum equation
+                int p1 = 3 * p_index(i + 1, j , ny);
+                int p2 = 3 * p_index(i, j - 1, ny);
+
+                A.coeffRef(ph, p1) = 0.5;
                 A.coeffRef(ph, ph) = -1.0;
-                A.coeffRef(ph, ph + 3) = 0.5;
+                A.coeffRef(ph, p2) = 0.5;
                 rhs[ph] = 0.0;
-                A.coeffRef(pq, pq - 3 * nx) = 0.5;
+                A.coeffRef(pq, p1 + 1) = 0.5;
                 A.coeffRef(pq, pq) = -1.0;
-                A.coeffRef(pq, pq + 3) = 0.5;
+                A.coeffRef(pq, p2 + 1) = 0.5;
                 rhs[pq] = 0.0;
-                A.coeffRef(pr, pr - 3 * nx) = 0.5;
+                A.coeffRef(pr, p1 + 2) = 0.5;
                 A.coeffRef(pr, pr) = -1.0;
-                A.coeffRef(pr, pr + 3) = 0.5;
+                A.coeffRef(pr, p2 + 2) = 0.5;
                 rhs[pr] = 0.0;
             }
             if (nst == 1 && iter == 0)
@@ -2064,11 +2148,11 @@ int main(int argc, char *argv[])
             dq_maxi = 0;
             dr_maxi = 0;
             int k = 0;
-            for (int j = 0; j < ny; j++)
+            for (int i = 0; i < nx; i++)
             {
-                for (int i = 0; i < nx; i++)
+                for (int j = 0; j < ny; j++)
                 {
-                    k = j * nx + i;
+                    k = p_index(i, j ,ny);
                     // needed for postprocessing
                     hp[k] += solution[3 * k];
                     qp[k] += solution[3 * k + 1];
@@ -2097,6 +2181,8 @@ int main(int argc, char *argv[])
             {
                 log_file << "=== Matrix ============================================" << std::endl;
                 log_file << std::setprecision(4) << std::scientific << Eigen::MatrixXd(A) << std::endl;
+                log_file << "=== Matrix diagonal====================================" << std::endl;
+                log_file << std::setprecision(4) << std::scientific << Eigen::MatrixXd(A).diagonal() << std::endl;
                 //log_file << "=== Eigen values ======================================" << std::endl;
                 //log_file << std::setprecision(8) << std::scientific << Eigen::MatrixXd(A).eigenvalues() << std::endl;
                 log_file << "=== RHS, solution  ====================================" << std::endl;
@@ -2173,7 +2259,7 @@ int main(int argc, char *argv[])
         }
         for (int k = 0; k < nxny; ++k)
         {
-            hn[k] = hp[k]; // h, continuity-eq
+            hn[k] = hp[k];  // h, continuity-eq
             qn[k] = qp[k];  // q, momentum-eq
             rn[k] = rp[k];  // r, momentum-eq
             s[k] = hn[k] + zb[k];
@@ -2266,9 +2352,9 @@ int main(int argc, char *argv[])
     std::this_thread::sleep_for(timespan);
     return 0;
 }
-inline int p_index(int i, int j, int nx)
+inline int p_index(int i, int j, int ny)
 {
-    return j * nx + i;
+    return i * ny + j;
 }
 inline double c_scv(double c0, double c1, double c2, double c3)
 {
@@ -2307,11 +2393,25 @@ inline double dcdy_scvf_t(double c0, double c1, double c2, double c3)
 }
 std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs_name)
 {
-    std::stringstream ss_x;
-    std::stringstream ss_y;
-    ss_x << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << x_obs;
-    ss_y << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << y_obs;
-    return (obs_name + " - (" + ss_x.str() + ", " + ss_y.str() + ") ");
+    std::string ss_x;
+    std::string ss_y;
+    ss_x = string_format_with_zeros(x_obs, nsig + 3);
+    ss_y = string_format_with_zeros(y_obs, nsig + 3);
+
+    //ss_x << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << x_obs;
+    //ss_y << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << y_obs;
+    return (obs_name + " (" + ss_x + ", " + ss_y + ") ");
+}
+std::string string_format_with_zeros(double value, int width) 
+{
+    std::ostringstream oss;
+    if (value < 0) {
+        oss << '-';
+        oss << std::setw(width - 1) << std::setfill('0') << std::fixed << std::setprecision(1) << -value;
+    } else {
+        oss << std::setw(width) << std::setfill('0') << std::fixed << std::setprecision(1) << value;
+    }
+    return oss.str();
 }
 
 //------------------------------------------------------------------------------

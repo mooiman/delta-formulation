@@ -19,12 +19,18 @@
     <ClCompile Include="src\regularization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bed_level.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\convection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\cfts.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\netcdf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\perf_timer.h">
@@ -37,6 +43,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\regularization.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\grid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\data_struct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bed_level.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\convection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

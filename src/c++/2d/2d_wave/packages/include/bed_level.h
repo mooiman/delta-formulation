@@ -18,6 +18,8 @@ public:
     std::vector<double> get_bed_level();
 
 private:
+    void transpose(std::vector<double>& x, int nx, int ny);
+
     std::ifstream m_fname;
     std::vector<double> m_bed_given;
 };
