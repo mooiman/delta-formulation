@@ -128,11 +128,12 @@ def compute_regularization(c_psi, ugiv, dx, nx, ugiv_ana, refine):
             d[i] = alpha * dx - psi_ip12 / dx
             e[i] = 0.
             f[i] = 0.
-            for j in range (0, refine):
-                k = i * refine + j - int(refine/2)+1
-                f[i] += 0.5 * (ugiv_ana[k] + ugiv_ana[k+1]) * dx / refine
             if refine == 1:
                 f[i] = dx * (alpha * ugiv[i - 1] + (1. - 2. * alpha) * ugiv[i] + alpha * ugiv[i + 1])
+            else:
+                for j in range (0, refine):
+                    k = i * refine + j - int(refine/2)+1
+                    f[i] += 0.5 * (ugiv_ana[k] + ugiv_ana[k+1]) * dx / refine
 
         i = 0
         a[i] = 0.
