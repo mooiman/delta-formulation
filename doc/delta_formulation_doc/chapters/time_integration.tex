@@ -219,7 +219,7 @@ When the Jacobian notation is  used for the function $F(q,r) = qr$
 %--------------------------------------------------------------------------------
 \subsection{Non-linear term, quotient}\label{sec:jacobians_with_non_linear_quotient_term}
 If the Jacobian contains non-linear terms, each variable of $\vec{u}$ is linearized before using it in the non-linear term.
-in this example a quotient of two quantities is taken, say $q$ and $h$ (representing the velocity in the two dimensional shallow water equations) and  $\Delta q^{n+1, p+1} = \Delta q$ and  $\Delta h^{n+1, p+1} = \Delta h$:
+In this example a quotient of two quantities is taken, say $q$ and $h$ (representing the velocity in the two dimensional shallow water equations) and  $\Delta q^{n+1, p+1} = \Delta q$ and  $\Delta h^{n+1, p+1} = \Delta h$:
 \begin{align}
     \left.\left(\frac{q}{h}\right)\right|^{n+\theta, p+1} & = \frac{ q^{n+\theta, p} + \theta  \Delta q }{ h^{n+\theta, p} + \theta  \Delta h} \approx
     \\
@@ -254,10 +254,51 @@ When the Jacobian notation is  used for the function $F(h,q) = q/h$
 \end{align}
 it leads to following approximation
 \begin{align}
-    \left.(qr)\right|^{n+\theta, p+1} &  \approx  \frac{q^{n+\theta, p}}{r^{n+\theta, p}} + \theta J_{11}^{n+\theta, p} \Delta h + \theta J_{12}^{n+\theta, p} \Delta q =
+    \left.\left(\frac{q}{h}\right)\right|^{n+\theta, p+1} &  \approx  \frac{q^{n+\theta, p}}{h^{n+\theta, p}} + \theta J_{11}^{n+\theta, p} \Delta h + \theta J_{12}^{n+\theta, p} \Delta q =
     \\
-    & = q^{n+\theta, p} r^{n+\theta, p} - \theta \frac{q^{n+\theta, p}}{(h^{n+\theta, p})^2} \Delta h + \theta \frac{1}{h^{n+\theta, p}} \Delta q
+    & = \frac{q^{n+\theta, p}}{h^{n+\theta, p}} - \theta \frac{q^{n+\theta, p}}{(h^{n+\theta, p})^2} \Delta h + \theta \frac{1}{h^{n+\theta, p}} \Delta q
 \end{align}
+%--------------------------------------------------------------------------------
+\subsection{Non-linear term, product and quotient}
+For this example we look  to the Jacobian as they appear for the convection term in two dimensions:
+\begin{align}
+    \left.\left(\frac{qr}{h}\right)\right|^{n+\theta, p+1} & = \frac{ \left(q^{n+\theta, p} + \theta  \Delta q\right)\left( r^{n+\theta, p} + \theta  \Delta r \right) }{ h^{n+\theta, p} + \theta  \Delta h}.
+\end{align}
+
+%--------------------------------------------------------------------------------
+\subparagraph*{Jacobian}
+When the Jacobian notation is  used for the function $F(h,q, r) = qr/h$
+\begin{align}
+    \mat{J} & =
+    \begin{pmatrix}
+        J_{11} & J_{12} & J_{13}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        \pdiff{F}{h} & \pdiff{F}{q} & \pdiff{F}{r}
+    \end{pmatrix}
+    =
+    \\
+    & = \begin{pmatrix}
+        \pdiff{qr/h}{h} & \pdiff{qr/h}{q} & \pdiff{qr/h}{r}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        -\frac{qr}{h^2} & \frac{r}{h} & \frac{q}{h}
+    \end{pmatrix}
+\end{align}
+it leads to following approximation
+\begin{align}
+    \left.\left(\frac{qr}{h}\right)\right|^{n+\theta, p+1} &  \approx  \frac{q^{n+\theta, p}r^{n+\theta, p}}{h^{n+\theta, p}} + \theta J_{11}^{n+\theta, p} \Delta h + \theta J_{12}^{n+\theta, p} \Delta q + \theta J_{13}^{n+\theta, p} \Delta r=
+    \\
+    & = \frac{q^{n+\theta, p}r^{n+\theta, p}}{h^{n+\theta, p}} - \theta \frac{q^{n+\theta, p}r^{n+\theta, p}}{(h^{n+\theta, p})^2} \Delta h + \theta \frac{r^{n+\theta, p}}{h^{n+\theta, p}} \Delta q + \theta \frac{q^{n+\theta, p}}{h^{n+\theta, p}} \Delta r \label{eq:2d_convection_q_equation}
+\end{align}
+in case $q$ is substitute for $r$ the approximation reads:
+\begin{align}
+    \left.\left(\frac{qq}{h}\right)\right|^{n+\theta, p+1} &  \approx
+\frac{q^{n+\theta, p}q^{n+\theta, p}}{h^{n+\theta, p}} - \theta \frac{q^{n+\theta, p}q^{n+\theta, p}}{(h^{n+\theta, p})^2} \Delta h + \theta \frac{2 q^{n+\theta, p}}{h^{n+\theta, p}} \Delta q.
+\end{align}
+
 %--------------------------------------------------------------------------------
 \subsection{Terms with an operator}\label{sec:jacobians_with_operator}
 The Jacobian of an operator is also applied to the argument of the operator.

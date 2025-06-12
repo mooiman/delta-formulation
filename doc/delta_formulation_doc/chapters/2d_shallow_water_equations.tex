@@ -156,7 +156,7 @@ Just looking to $scv_3$ as part of the control volume for node $(i,j)$:
     \\*
     &\quad - \left. \frac{1}{16}\left( 9 q^{n+1,n}_{i, j} +  3 q^{n+1,n}_{i+1,j}  + 3  q^{n+1,n}_{i, j+1} + q^{n+1,n}_{i+1, j+1}\right)\right)
 \end{align}
-\notyet
+
 %--------------------------------------------------------------------------------
 \subsubsection{Pressure term} \label{sec:linearized_pressure_zeta}
 In this section we use that the pressure term is dependent on $\zeta$.
@@ -186,6 +186,50 @@ Assume that the higher order terms are negligible then the discretization for ea
 
 %--------------------------------------------------------------------------------
 \subsubsection{Convection}
+The convection term in vector notation reads:
+\begin{align}
+    \int_\Omega \nabla \dotp \left( \vec{q}\vec{q}^T/h \right)\, d\omega =
+    \int_{\Omega_i}  \left( \vec{q}\vec{q}^T/h \right) \vec{n} \, dl
+\end{align}
+The components for the two momentum equations read:
+\begin{align}
+    \int^{y_{j+\half}}_{y_{j-\half}}&  \int^{x_{i+\half}}_{x_{i-\half}} \left( \vec{q}\vec{q}^T/h \right) \, dxdy =
+    \\
+    & = \Dy \left(\frac{qq}{h} + \frac{qr}{h}\right)_{i+\half,j} -
+    \Dy \left(\frac{qq}{h} + \frac{qr}{h}\right)_{i-\half,j}
+    \qquad \textit{q-momentum eq.}
+    \\
+    \int^{y_{i+\half}}_{y_{i-\half}}&  \int^{x_{i+\half}}_{x_{i-\half}} \left( \vec{q}\vec{q}^T/h \right) \, dxdy  =
+    \\
+    & = \Dx \left(\frac{rq}{h} + \frac{rr}{h}\right)_{i,j+\half}  -
+    \Dx \left(\frac{rq}{h} + \frac{rr}{h}\right)_{i,j+\half}
+    \qquad \textit{r-momentum eq.}
+\end{align}
+Discretization the term of the $q$-momentum equation reads:
+\begin{align}
+    &
+    \left. \left(\Dy\frac{qq}{h}\right)\right|^{n+\theta,p+1}_{i+\half,j+\quart} +
+    \left. \left(\Dy\frac{qq}{h}\right)\right|^{n+\theta,p+1}_{i+\half,j-\quart} +
+    \\
+    &
+    +\left. \left(\Dy\frac{qr}{h}\right)\right|^{n+\theta,p+1}_{i+\half,j+\quart} +
+    \left. \left(\Dy\frac{qr}{h}\right)\right|^{n+\theta,p+1}_{i+\half,j-\quart} +
+    \\
+    & \qquad - \left(
+    \left. \left(\Dy\frac{qq}{h}\right)\right|^{n+\theta,p+1}_{i-\half,j+\quart} +
+    \left. \left(\Dy\frac{qq}{h}\right)\right|^{n+\theta,p+1}_{i-\half,j-\quart} \right. +
+    \\
+     & \qquad \quad + \left. \left. \left(\Dy\frac{qr}{h}\right)\right|^{n+\theta,p+1}_{i-\half,j+\quart} +
+    \left. \left(\Dy\frac{qr}{h}\right)\right|^{n+\theta,p+1}_{i-\half,j-\quart}  \right)
+\end{align}
+The linearization in time read (see \autoref{eq:2d_convection_q_equation}):
+\begin{align}
+    \frac{q^{n+\theta, p}q^{n+\theta, p}}{h^{n+\theta, p}} - \theta \frac{q^{n+\theta, p}q^{n+\theta, p}}{(h^{n+\theta, p})^2} \Delta h + \theta \frac{2 q^{n+\theta, p}}{h^{n+\theta, p}} \Delta q.
+\end{align}
+and
+\begin{align}
+\frac{q^{n+\theta, p}r^{n+\theta, p}}{h^{n+\theta, p}} - \theta \frac{q^{n+\theta, p}r^{n+\theta, p}}{(h^{n+\theta, p})^2} \Delta h + \theta \frac{r^{n+\theta, p}}{h^{n+\theta, p}} \Delta q + \theta \frac{q^{n+\theta, p}}{h^{n+\theta, p}} \Delta r.
+\end{align}
 \notyet
 
 %--------------------------------------------------------------------------------

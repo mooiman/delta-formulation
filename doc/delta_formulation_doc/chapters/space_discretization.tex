@@ -329,7 +329,7 @@ Both figures does show the same discretization function (cyan colored) but the s
         \includegraphics[width=1.0\textwidth]{figures/regul_2_1d_scalar_dx100.pdf}
         \caption{Step at boundary of a finite volume, $x = 1050\ [m]$}
     \end{subfigure}
-    \caption{As seen from this figures the function defined on the grid nodes does not see the exact location of the step. Both function through the grid nodes have the same profile, but the step is at another location. \label{fig:straight_forward_discretization}}
+    \caption{As seen from this figures the function defined on the grid nodes does not see the exact location of the step. Both functions through the grid nodes have the same profile, but the step is at another location. \label{fig:straight_forward_discretization}}
 \end{figure}
 %
 A piecewise approximation with a regularization coefficient of zero ($c_\Psi = 0$) is shown in \autoref{fig:ex_step_function_no_regularization}.
@@ -371,7 +371,7 @@ A better representation of the step function need a smaller grid size.
 \begin{figure}[H]
     \centering
     \includegraphics[width=1.0\textwidth]{figures/regul_1d_step_function_dx50.0_cpsi4.0.pdf}
-    \caption{Step function approximated by a piecewise linear function (red line with dots at the nodes), $c_{\Psi} = 4$, $\Dx = 50\ [m]$ and $\Psi =10000$. he thin green vertical lines indicate the  borders of the finite volumes. \label{fig:ex_step_function_smaller_dx}}
+    \caption{Step function approximated by a piecewise linear function (red line with dots at the nodes), $c_{\Psi} = 4$, $\Dx = 50\ [m]$ and $\Psi =10000$. The thin green vertical lines indicate the  borders of the finite volumes. \label{fig:ex_step_function_smaller_dx}}
 \end{figure}
 \vspace*{0.5\baselineskip}
 %
@@ -472,7 +472,7 @@ An illustration off the result of \autoref{eq:compatible_initialization} is give
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/compatible_initialization_lx=12.0_dx=2.0.pdf}
-    \caption[Illustration of compatible quadratic function]{Illustration of compatible quadratic function. Given function in blue. Compatible function in red. In green lines through nodes lying on the given function. Control volumes in between the green vertical lines. And the gray areas are virtual and are not belonging to the water body (see \autoref{fig:water_body_fve_bc_at_node}). The integral over the control volume of the the given function is better represented by the red-function then by the green-function. }\label{fig:compatible_initial_condition}
+    \caption[Illustration of compatible quadratic function]{Illustration of compatible quadratic function. The integral over the control volume of the the given function (blue) is equal represented by the red-function and better then by the green-function, therefor the red function is called compatible with the given function. In green-function is defined with nodes on the given function. Control volumes shown by the green vertical lines. And the gray areas are virtual and are not belonging to the water body (see \autoref{fig:water_body_fve_bc_at_node}). }\label{fig:compatible_initial_condition}
     % python script: compatible_initial_function.py
 \end{figure}
 Some numerical items used to generate \autoref{fig:compatible_initial_condition} are $x \in [0, 12]$, $\Dx=2$ and the given function reads:
