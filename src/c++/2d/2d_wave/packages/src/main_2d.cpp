@@ -597,10 +597,10 @@ int main(int argc, char *argv[])
             p1 = p_index(i + 1, j    , ny);
             p2 = p_index(i + 1, j + 1, ny);
             p3 = p_index(i    , j + 1, ny);
-            if ((mesh2d->node[0]->x[p0] != fill_value || mesh2d->node[0]->x[p0] != fill_value) &&
-                (mesh2d->node[0]->x[p1] != fill_value || mesh2d->node[0]->x[p1] != fill_value) &&
-                (mesh2d->node[0]->x[p2] != fill_value || mesh2d->node[0]->x[p2] != fill_value) &&
-                (mesh2d->node[0]->x[p3] != fill_value || mesh2d->node[0]->x[p3] != fill_value) )
+            if ((mesh2d->node[0]->x[p0] != fill_value || mesh2d->node[0]->y[p0] != fill_value) &&
+                (mesh2d->node[0]->x[p1] != fill_value || mesh2d->node[0]->y[p1] != fill_value) &&
+                (mesh2d->node[0]->x[p2] != fill_value || mesh2d->node[0]->y[p2] != fill_value) &&
+                (mesh2d->node[0]->x[p3] != fill_value || mesh2d->node[0]->y[p3] != fill_value) )
             {
                 mesh2d_face_nodes.push_back(p0);
                 mesh2d_face_nodes.push_back(p1);

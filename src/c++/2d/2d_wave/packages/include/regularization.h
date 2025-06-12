@@ -58,7 +58,7 @@ private:
     std::vector<double> m_mass;
     double eps_smooth;  // epsilon of regularization process
     double m_u0_is_smooth;  // is function u0 is smooth enough, 
-    int p_index(int i, int j, int nx);
+    int p_index(int i, int j, int ny);
 };
 
 #endif __2D_REGULARIZATION_H__
