@@ -116,8 +116,15 @@ int main(int argc, char *argv[])
     }
     else
     {
-        std::cout << "No \'toml\' file is read." << std::endl;
-        output_dir = ".";
+        std::cout << "======================================================" << std::endl;
+        std::cout << "Executable compiled: " << __DATE__ << ", " << __TIME__ << std::endl;
+        std::cout << std::endl;
+        std::cout << "usage: 2d_wave.exe --toml <input_file>" << std::endl;
+        std::cout << "======================================================" << std::endl;
+        //std::cin.ignore();
+        std::chrono::duration<int, std::milli> timespan(3000);
+        std::this_thread::sleep_for(timespan);
+        exit(1);
     }
 
     std::cout << "======================================================" << std::endl;
@@ -470,7 +477,7 @@ int main(int argc, char *argv[])
     log_file << "Volumes : " << (nx - 2) << "x" << (ny - 2) << "=" << (nx - 2) * (ny - 2) << std::endl;
     log_file << "CFL     : " << std::sqrt(g * std::abs(min_zb)) * dt * std::sqrt(( 1./(dx*dx) + 1./(dy*dy))) << std::endl;
     log_file << "=======================================================" << std::endl;
-    std::cout << "    LxLy: " << Lx << "x" << Ly << std::endl;
+    std::cout << "    LxLy: " << Lx - 2. * dx << "x" << Ly - 2. * dy << " without virtual cells" << std::endl;
     std::cout << "    dxdy: " << dx << "x" << dy << "=" << dxdy << " [m2]" << std::endl;
     std::cout << "    nxny: " << nx << "x" << ny << "=" << nxny << std::endl;
     std::cout << "=======================================================" << std::endl;
@@ -1112,10 +1119,10 @@ int main(int argc, char *argv[])
                         double depth_3 = c_scv(htheta_0, htheta_n, htheta_w, htheta_nw);
 
                         double scv_area = 0.25 * dxdy;
-                        double dzetadx_0 = scv_area / dx * dcdx_scv(htheta_0 - zb_0, htheta_w - zb_w, htheta_s  - zb_s , htheta_sw - zb_sw);
-                        double dzetadx_1 = scv_area / dx * dcdx_scv(htheta_e - zb_e, htheta_0 - zb_0, htheta_se - zb_se, htheta_s  - zb_s);
-                        double dzetadx_2 = scv_area / dx * dcdx_scv(htheta_e - zb_e, htheta_0 - zb_0, htheta_ne - zb_ne, htheta_n  - zb_n);
-                        double dzetadx_3 = scv_area / dx * dcdx_scv(htheta_0 - zb_0, htheta_w - zb_w, htheta_n  - zb_n , htheta_nw - zb_nw);
+                        double dzetadx_0 = scv_area / dx * dcdx_scv(htheta_0 + zb_0, htheta_w + zb_w, htheta_s + zb_s , htheta_sw + zb_sw );
+                        double dzetadx_1 = scv_area / dx * dcdx_scv(htheta_e + zb_e, htheta_0 + zb_0, htheta_se + zb_se, htheta_s  + zb_s );
+                        double dzetadx_2 = scv_area / dx * dcdx_scv(htheta_e + zb_e, htheta_0 + zb_0, htheta_ne + zb_ne, htheta_n  + zb_n );
+                        double dzetadx_3 = scv_area / dx * dcdx_scv(htheta_0 + zb_0, htheta_w + zb_w, htheta_n  + zb_n , htheta_nw + zb_nw);
                         //
                         if (false)
                         {
@@ -1217,10 +1224,10 @@ int main(int argc, char *argv[])
                         double depth_2 = c_scv(htheta_0, htheta_e, htheta_n, htheta_ne);
                         double depth_3 = c_scv(htheta_0, htheta_n, htheta_w, htheta_nw);
 
-                        double dzetady_0 = scv_area / dy * dcdy_scv(htheta_0 - zb_0, htheta_s - zb_s, htheta_w - zb_w, htheta_sw - zb_sw);
-                        double dzetady_1 = scv_area / dy * dcdy_scv(htheta_0 - zb_0, htheta_s - zb_s, htheta_e - zb_e, htheta_se - zb_se);
-                        double dzetady_2 = scv_area / dy * dcdy_scv(htheta_n - zb_n, htheta_0 - zb_0, htheta_ne - zb_ne, htheta_e - zb_e);
-                        double dzetady_3 = scv_area / dy * dcdy_scv(htheta_n - zb_n, htheta_0 - zb_0, htheta_nw - zb_nw, htheta_w - zb_w);
+                        double dzetady_0 = scv_area / dy * dcdy_scv(htheta_0 + zb_0, htheta_s + zb_s, htheta_w  + zb_w , htheta_sw + zb_sw);
+                        double dzetady_1 = scv_area / dy * dcdy_scv(htheta_0 + zb_0, htheta_s + zb_s, htheta_e  + zb_e , htheta_se + zb_se);
+                        double dzetady_2 = scv_area / dy * dcdy_scv(htheta_n + zb_n, htheta_0 + zb_0, htheta_ne + zb_ne, htheta_e  + zb_e );
+                        double dzetady_3 = scv_area / dy * dcdy_scv(htheta_n + zb_n, htheta_0 + zb_0, htheta_nw + zb_nw, htheta_w  + zb_w );
 
                         if (false)
                         {
@@ -1351,24 +1358,25 @@ int main(int argc, char *argv[])
                     if (bc_type[BC_NORTH] == "dirichlet" || bc_absorbing[BC_NORTH] == false)
                     {
                         //
-                        // Dirichlet
-                        //
                         // continuity equation
                         //
-                        A.coeffRef(c_eq, 3 * ph_s) = -1.0;
                         A.coeffRef(c_eq, 3 * ph_0) = 1.0;
+                        A.coeffRef(c_eq, 3 * ph_s) = -1.0;
+                        A.coeffRef(c_eq, 3 * ph_ss) = 0.0;
                         rhs[c_eq] = 0.0;
                         //
                         // q-momentum
                         //
-                        A.coeffRef(q_eq, 3 * ph_s + 1) = -1.0;
                         A.coeffRef(q_eq, 3 * ph_0 + 1) = 1.0;
+                        A.coeffRef(q_eq, 3 * ph_s + 1) = -1.0;
+                        A.coeffRef(q_eq, 3 * ph_ss + 1) = 0.0;
                         rhs[q_eq] = 0.0;
                         //
                         // r-momentum
                         //
-                        A.coeffRef(r_eq, 3 * ph_s + 2) = 0.5;
                         A.coeffRef(r_eq, 3 * ph_0 + 2) = 0.5;
+                        A.coeffRef(r_eq, 3 * ph_s + 2) = 0.5;
+                        A.coeffRef(r_eq, 3 * ph_ss + 2) = 0.0;
                         rhs[r_eq] = 0.0;
                     }
                     else
@@ -1532,24 +1540,25 @@ int main(int argc, char *argv[])
                     if (bc_type[BC_EAST] == "dirichlet" || bc_absorbing[BC_EAST] == false)
                     {
                         //
-                        // Dirichlet
-                        //
                         // continuity equation
                         //
-                        A.coeffRef(c_eq, 3 * ph_w) = -1.0;
                         A.coeffRef(c_eq, 3 * ph_0) = 1.0;
+                        A.coeffRef(c_eq, 3 * ph_w) = -1.0;
+                        A.coeffRef(c_eq, 3 * ph_ww ) = 0.0;
                         rhs[c_eq] = 0.0;
                         //
                         // q-momentum
                         //
-                        A.coeffRef(q_eq, 3 * ph_w + 1) = 0.5;
                         A.coeffRef(q_eq, 3 * ph_0 + 1) = 0.5;
+                        A.coeffRef(q_eq, 3 * ph_w + 1) = 0.5;
+                        A.coeffRef(q_eq, 3 * ph_ww + 1) = 0.0;
                         rhs[q_eq] = 0.0;
                         //
                         // r-momentum
                         //
-                        A.coeffRef(r_eq, 3 * ph_w + 2) = -1.0;
                         A.coeffRef(r_eq, 3 * ph_0 + 2) = 1.0;
+                        A.coeffRef(r_eq, 3 * ph_w + 2) = -1.0;
+                        A.coeffRef(r_eq, 3 * ph_ww + 2) = 0.0;
                         rhs[r_eq] = 0.0;
                     }
                     else
@@ -1712,8 +1721,6 @@ int main(int argc, char *argv[])
 
                     if (bc_type[BC_SOUTH] == "dirichlet" || bc_absorbing[BC_SOUTH] == false)
                     {
-                        //
-                        // Dirichlet
                         //
                         // continuity equation
                         //
@@ -1896,24 +1903,25 @@ int main(int argc, char *argv[])
                     if (bc_type[BC_WEST] == "dirichlet" || bc_absorbing[BC_WEST] == false)
                     {
                         //
-                        // Dirichlet
-                        //
                         // continuity equation
                         //
                         A.coeffRef(c_eq, 3 * ph_0) = -1.0;
                         A.coeffRef(c_eq, 3 * ph_e) = 1.0;
+                        A.coeffRef(c_eq, 3 * ph_ee) = 0.0;
                         rhs[c_eq] = 0.0;
                         //
                         // q-momentum
                         //
                         A.coeffRef(q_eq, 3 * ph_0 + 1) = 0.5;
                         A.coeffRef(q_eq, 3 * ph_e + 1) = 0.5;
+                        A.coeffRef(q_eq, 3 * ph_ee + 1) = 0.0;
                         rhs[q_eq] = 0.0;
                         //
                         // r-momentum
                         //
                         A.coeffRef(r_eq, 3 * ph_0 + 2) = -1.0;
                         A.coeffRef(r_eq, 3 * ph_e + 2) = 1.0;
+                        A.coeffRef(c_eq, 3 * ph_ee + 2) = 0.0;
                         rhs[r_eq] = 0.0;
                     }
                     else
@@ -2180,11 +2188,11 @@ int main(int argc, char *argv[])
             if (logging == "matrix")
             {
                 log_file << "=== Matrix ============================================" << std::endl;
-                log_file << std::setprecision(4) << std::scientific << Eigen::MatrixXd(A) << std::endl;
+                log_file << std::setprecision(4) << std::scientific << A << std::endl;
                 log_file << "=== Matrix diagonal====================================" << std::endl;
-                log_file << std::setprecision(4) << std::scientific << Eigen::MatrixXd(A).diagonal() << std::endl;
+                log_file << std::setprecision(8) << std::scientific << A.diagonal() << std::endl;
                 //log_file << "=== Eigen values ======================================" << std::endl;
-                //log_file << std::setprecision(8) << std::scientific << Eigen::MatrixXd(A).eigenvalues() << std::endl;
+                //log_file << std::setprecision(8) << std::scientific << A.eigenvalues() << std::endl;
                 log_file << "=== RHS, solution  ====================================" << std::endl;
                 for (int i = 0; i < 3 * nxny; ++i)
                 {
