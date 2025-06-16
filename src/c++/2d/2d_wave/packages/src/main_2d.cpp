@@ -73,6 +73,7 @@ std::string string_format_with_zeros(double value, int width);
 int main(int argc, char *argv[])
 {
     bool stationary = false;
+    double sign = 1.0;
     std::filesystem::path toml_file_name("---not-defined---");
     int status = -1;
 
@@ -166,7 +167,8 @@ int main(int argc, char *argv[])
     log_file << "=======================================================" << std::endl;
     log_file << std::endl;
 
-    double dt = tbl["Numerics"]["dt"].value_or(double(1.0));  // default stationary
+    double dt = tbl["Numerics"]["dt"].value_or(double(0.0));  // dt == 0 => default stationary
+    if (dt == 0.0) { stationary = true;  }
     // Time
     double tstart = tbl["Time"]["tstart"].value_or(double(0.0));
     double tstop = tbl["Time"]["tstop"].value_or(double(1800.));
@@ -1607,6 +1609,28 @@ int main(int argc, char *argv[])
                                 double dhdt = dtinv * (hp_im12 - hn_im12);
                                 double dqdt = dtinv * (qp_im12 - qn_im12);
                                 rhs[c_eq] = -(dqdt - con_fac * dhdt);
+
+                                double corr_term = 0.0;
+                                if (bc_vars[BC_EAST] == "zeta")
+                                {
+                                    if (stationary) { sign = -1.0; }
+                                    A.coeffRef(c_eq, ph_0)  += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
+                                    A.coeffRef(c_eq, ph_w)  += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
+                                    A.coeffRef(c_eq, ph_ww) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+                                    corr_term = -dhdt + sign * eps_bc_corr * (hp_im12 - (ez_bnd - zb_im12));
+                                    rhs[c_eq] += corr_term;
+                                    sign = 1.0;
+                                }
+                                if (bc_vars[BC_EAST] == "q")
+                                {
+                                    if (stationary) { sign = -1.0; }
+                                    A.coeffRef(c_eq, ph_0 + 1)  += dtinv * w_ess[0] - eps_bc_corr * w_ess[0];
+                                    A.coeffRef(c_eq, ph_w + 1)  += dtinv * w_ess[1] - eps_bc_corr * w_ess[1];
+                                    A.coeffRef(c_eq, ph_ww + 1) += dtinv * w_ess[2] - eps_bc_corr * w_ess[2];
+                                    corr_term = -dqdt - sign * eps_bc_corr * (qp_im12 - eq_bnd);
+                                    rhs[c_eq] += corr_term;
+                                    sign = 1.0;
+                                }
                             }
                             //
                             // natural boundary condition
@@ -1970,6 +1994,24 @@ int main(int argc, char *argv[])
                                 double dhdt = dtinv * (hp_ip12 - hn_ip12);
                                 double dqdt = dtinv * (qp_ip12 - qn_ip12);
                                 rhs[c_eq] = -(dqdt + con_fac * dhdt);
+
+                                double corr_term = 0.0;
+                                if (bc_vars[BC_WEST] == "zeta")
+                                {
+                                    A.coeffRef(c_eq, ph_0)  += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
+                                    A.coeffRef(c_eq, ph_e)  += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
+                                    A.coeffRef(c_eq, ph_ee) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+                                    corr_term = -dhdt - eps_bc_corr * (hp_ip12 - (wz_bnd - zb_ip12));
+                                    rhs[c_eq] += corr_term;
+                                }
+                                if (bc_vars[BC_WEST] == "q")
+                                {
+                                    A.coeffRef(c_eq, ph_0 + 1)  += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
+                                    A.coeffRef(c_eq, ph_e + 1)  += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
+                                    A.coeffRef(c_eq, ph_ee + 1) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+                                    corr_term = -dqdt - eps_bc_corr * (qp_ip12 - wq_bnd);
+                                    rhs[c_eq] += corr_term;
+                                }
                             }
                             //
                             // natural boundary condition
