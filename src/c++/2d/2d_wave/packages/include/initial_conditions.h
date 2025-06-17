@@ -27,10 +27,12 @@
 #include <vector>
 #include <cmath>
 #include <string>
+#include <iostream>
+#include <chrono>
+#include <thread>
 
 void initial_conditions(std::vector<double>& x, std::vector<double>& y, size_t nx, size_t ny, 
-    std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
-    std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp, std::vector<double>& zb_giv,
+    std::vector<double>& s, std::vector<double>& u, std::vector<double>& v,
     std::vector<std::string>& ini_vars, double gauss_amp, double gauss_mu_x, double gauss_mu_y, double gauss_sigma_x, double gauss_sigma_y);
 
 inline int p_index(int i, int j, int ny);
