@@ -152,9 +152,10 @@ void REGULARIZATION::given_function(
 //------------------------------------------------------------------------------
         eq8 = *(this->solve_eq8(nx, ny, dx, dy, c_psi, u0, u0_xixi, u0_etaeta, log_file));
 //------------------------------------------------------------------------------
+        double wortel = std::sqrt(dx + dy);
         for (int i = 0; i < nxny; ++i)
         {
-            psi[i] = c_psi * (dx * dx + dy * dy) * eq8[i];
+            psi[i] = c_psi * (dx * dx + dy * dy) * eq8[i]/wortel;
         }
 //------------------------------------------------------------------------------
         u0 = *(this->solve_eq7(nx, ny, dx, dy, psi, u_giv, log_file));
