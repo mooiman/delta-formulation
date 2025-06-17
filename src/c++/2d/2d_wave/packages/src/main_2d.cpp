@@ -434,6 +434,9 @@ int main(int argc, char *argv[])
     std::vector<double> dh(nxny, 0.);                     // delta for water depth
     std::vector<double> dq(nxny, 0.);                     // delta for q-flux
     std::vector<double> dr(nxny, 0.);                     // delta for r-flux
+    std::vector<double> s_giv(nxny, 0.);                     // water level, needed for post-processing
+    std::vector<double> u_giv(nxny, 0.);                     // u-velocity, needed for post-processing
+    std::vector<double> v_giv(nxny, 0.);                     // v-velocity, needed for post-processing
     std::vector<double> s(nxny, 0.);                     // water level, needed for post-processing
     std::vector<double> u(nxny, 0.);                     // u-velocity, needed for post-processing
     std::vector<double> v(nxny, 0.);                     // v-velocity, needed for post-processing
@@ -482,7 +485,7 @@ int main(int argc, char *argv[])
     std::cout << "    LxLy: " << Lx - 2. * dx << "x" << Ly - 2. * dy << " without virtual cells" << std::endl;
     std::cout << "    dxdy: " << dx << "x" << dy << "=" << dxdy << " [m2]" << std::endl;
     std::cout << "    nxny: " << nx << "x" << ny << "=" << nxny << std::endl;
-    std::cout << "=======================================================" << std::endl;
+    std::cout << "======================================================" << std::endl;
 
     STOP_TIMER(Writing log-file);  // but two write statements are not timed
     if (status != 0) {
@@ -491,8 +494,7 @@ int main(int argc, char *argv[])
     }
 
     (void) initial_conditions(x, y, nx, ny,
-        hn, qn, rn, 
-        hp, qp, rp, zb_giv,
+        s_giv, u_giv, v_giv, 
         ini_vars, gauss_amp, gauss_mu_x, gauss_mu_y, gauss_sigma_x, gauss_sigma_y);
 
     if (regularization_init)
@@ -509,6 +511,16 @@ int main(int argc, char *argv[])
             zb[i] = zb_giv[i];
         }
     }
+    for (int k = 0; k < zb_giv.size(); ++k)
+    {
+        hn[k] = s_giv[k] - zb[k];  // Initial water depth
+        qn[k] = hn[k] * u_giv[k];  // Initial q=hu -velocity
+        rn[k] = hn[k] * v_giv[k];  // Initial r=hv -velocity
+        // 
+        hp[k] = hn[k]; 
+        qp[k] = qn[k]; 
+        rp[k] = rn[k]; 
+    }
 
     for (int i = 0; i < nx*ny; ++i)
     {
@@ -524,6 +536,15 @@ int main(int argc, char *argv[])
     std::string nc_mapfilename(map_filename);
     UGRID2D* map_file = new UGRID2D();
     status = map_file->open(nc_mapfilename, model_title);
+    if (status != NC_NOERR)
+    {
+        std::cout << "Failed to open file: \'" << map_filename << "\' probably in use" << std::endl;
+        log_file << "Failed to open file: \'" << map_filename << "\' probably in use" << std::endl;
+        std::chrono::duration<int, std::milli> timespan(3000);
+        std::this_thread::sleep_for(timespan);
+        //std::cin.ignore();
+        exit(1);
+    }
     status = map_file->mesh2d();  // initialize the mesh2D variable
 
     int nr_nodes = nx * ny;
@@ -689,6 +710,7 @@ int main(int argc, char *argv[])
     std::string map_s_name("s_2d");
     std::string map_u_name("u_2d");
     std::string map_v_name("v_2d");
+    std::string map_zb_name("zb_2d");
     status = map_file->add_variable(map_h_name, dim_names, "sea_floor_depth_below_sea_surface", "Water depth", "m", "mesh2D", "node");
     status = map_file->add_variable(map_q_name, dim_names, "", "Water flux (x)", "m2 s-1", "mesh2D", "node");
     status = map_file->add_variable(map_r_name, dim_names, "", "Water flux (y)", "m2 s-1", "mesh2D", "node");
@@ -698,6 +720,7 @@ int main(int argc, char *argv[])
     status = map_file->add_variable(map_s_name, dim_names, "sea_surface_height_above_geoid", "WaterLevel", "m", "mesh2D", "node");
     status = map_file->add_variable(map_u_name, dim_names, "sea_water_x_velocity", "Velocity (x)", "m s-1", "mesh2D", "node");
     status = map_file->add_variable(map_v_name, dim_names, "sea_water_y_velocity", "Velocity (y)", "m s-1", "mesh2D", "node");
+    status = map_file->add_variable(map_zb_name, dim_names, "", "Bed level", "m", "mesh2D", "node");
 
     // Put data on map file
     START_TIMER(Writing map-file);
@@ -712,6 +735,7 @@ int main(int argc, char *argv[])
     map_file->put_time_variable(map_s_name, nst_map, s);
     map_file->put_time_variable(map_u_name, nst_map, u);
     map_file->put_time_variable(map_v_name, nst_map, v);
+    map_file->put_time_variable(map_zb_name, nst_map, zb_giv);
     STOP_TIMER(Writing map-file);
 
     // End define map file
@@ -2353,6 +2377,7 @@ int main(int argc, char *argv[])
             map_file->put_time_variable(map_s_name, nst_map, s);
             map_file->put_time_variable(map_u_name, nst_map, u);
             map_file->put_time_variable(map_v_name, nst_map, v);
+            map_file->put_time_variable(map_zb_name, nst_map, zb);
             STOP_TIMER(Writing map-file);
         }
 
