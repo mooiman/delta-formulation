@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
             std::this_thread::sleep_for(timespan);
             exit(1);
         }
-        input_dir = toml_file_name;
+        input_dir = std::filesystem::absolute(toml_file_name);
         input_dir.remove_filename();
         tbl = toml::parse_file(toml_file_name.c_str());
         // std::cout << tbl << "\n";
