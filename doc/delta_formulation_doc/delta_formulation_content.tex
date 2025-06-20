@@ -1,4 +1,4 @@
-\documentclass[subfooter]{mooiman_report}
+\documentclass[subfooter, backcover]{mooiman_report}
 \hypersetup
 {
     pdfauthor   = {Mooiman},
@@ -7,6 +7,10 @@
 
 \usepackage{empheq}
 \usepackage{cancel}
+
+\usepackage{bm}
+\renewcommand{\vec}[1]{\bm{#1}}
+
 \sisetup{mode=math}
 \captionsetup[subfigure]{justification=RaggedRight}
 
@@ -19,7 +23,6 @@
 \newcommand{\Deta}{\Delta \eta}
 \newcommand{\Dt}{\Delta t}
 \newcommand{\Dtinv}{\Delta t_{\it{inv}}}
-\renewcommand{\vec}[1]{\mbox{\boldmath $#1$} }
 \newcommand{\mat}[1]{\mbox{\boldmath ${\rm #1}$} }
 \newcommand{\half}{\frac{1}{2}}
 \newcommand{\quart}{\frac{1}{4}}
@@ -30,6 +33,7 @@
 \newcommand{\bunit}[1]{\text{\normalfont [}\textit{\unit{#1}}\text{\normalfont ]}}
 \newcommand{\bqty}[2]{\text{\num{#1}}\ \text{\normalfont [}\textit{\unit{#2}}\text{\normalfont ]}}
 \newcommand{\Pe}{\textit{Pe}\xspace}
+\newcommand{\bPsi}{\boldsymbol{\Psi}}
 
 \newcommand{\utilde}{\widetilde{u}}
 \newcommand{\ubar}{\overline{u}}
@@ -71,26 +75,29 @@ Thea Vuik\newline
 \newrefsegment
 \nomenclature{$t$}{\si{\second}}{Time coordinate}
 \nomenclature{$x$}{\si{\metre}}{$x$-coordinate}
-\nomenclature{$i$}{-}{node counter}
-\nomenclature{$\Omega$}{-}{Finite volume}
+\nomenclature{$y$}{\si{\metre}}{$y$-coordinate}
+\nomenclature{$i$}{\si{-}}{node counter}
+\nomenclature{$\Omega$}{\si{-}}{Finite volume}
 \nomenclature{$u$}{\si{\metre\per\second}}{Velocity in $x$-direction}
 \nomenclature{$v$}{\si{\metre\per\second}}{Velocity in $y$-direction}
 \nomenclature{$h$}{\si{\metre}}{Total water depth}
 \nomenclature{$q$}{\si{\square\metre\per\second}}{The water flux in $x$-direction, $q = hu$}
 \nomenclature{$r$}{\si{\square\metre\per\second}}{The water flux in $y$-direction, $r = hv$}
-\nomenclature{$\xi$}{-}{Relative coordinate}
+\nomenclature{$\xi$}{\si{-}}{Relative coordinate}
 \nomenclature{$\Dt$}{\si{\second}}{Time increment}
 \nomenclature{$\Dx$}{\si{\metre}}{Space increment, $\Dx_{i+\half} = x_{i+1} - x_{i}$}
 \nomenclature{$\Psi$}{\si{\square\metre\per\second}}{Artificial smoothing coefficient}
 \nomenclature{$c_\Psi$}{${(.)}^{-1}$}{Artificial smoothing variable}
-\nomenclature{$\vec{E}$}{-}{Error vector function, defined in computational space}
+\nomenclature{$\vec{E}$}{\si{-}}{Error vector function, defined in computational space}
 \nomenclature{$\zeta$}{\si{\metre}}{Water level w.r.t.\ reference plane, positive upward}
 \nomenclature{$z_b$}{\si{\metre}}{Bed level w.r.t.\ reference plane, positive upward            }
 \nomenclature{$g$}{\si{\metre\per\square\second}}{Gravitational constant}
-\nomenclature{$\theta$}{-}{$\theta$-method. If $\theta=1$ then it is a fully implicit method and if $\theta=0$ then it is a fully explicit method.}
+\nomenclature{$\theta$}{\si{-}}{$\theta$-method. If $\theta=1$ then it is a fully implicit method and if $\theta=0$ then it is a fully explicit method.}
 \nomenclature{$\nu$}{\si{\square\metre\per\second}}{Kinematic viscosity}
 \nomenclature{$\eps$}{\si{\metre\per\square\second}}{Multiplier of the correction term for the essential boundary condition, $\zeta$-boundary}
 \nomenclature{$\eps$}{\si{\per\second}}{Multiplier of the correction term for the essential boundary condition, $q$-boundary}
+\nomenclature{$c_f$}{\si{-}}{Bed shear stress coefficient}
+\nomenclature{$C$}{\si{\metre^{\half}\, \second^{-1}}}{Ch\'ezy coefficient}
 
 
 
@@ -123,4 +130,5 @@ Thea Vuik\newline
 \input{chapters/diagonalise_1d_swe}
 \input{chapters/error_function_artificial_viscosity.tex}
 \input{chapters/linearization_in_time.tex}
+\input{chapters/regularization_2d.tex}
 \end{document}

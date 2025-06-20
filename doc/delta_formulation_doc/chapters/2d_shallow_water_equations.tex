@@ -2,19 +2,19 @@
 \chapter{2-D Shallow water equations}
 %-------------------------------------------------------------------------------
 Consider the non-linear wave equation
+%\begin{subequations}
+%    \begin{align}
+%        \pdiff{h}{t} + \nabla \dotp \vec{q} & = 0,
+%        \\
+%        \pdiff{\vec{q}}{t} +  \nabla \dotp \left( \frac{\vec{q}\vec{q}^T}{h} \right) + \half g \nabla h^2 + gh\nabla z_b +   c_f \left( \frac{\vec{q}\abs{\vec{q}}}{h^2} \right) & = 0,
+%    \end{align}
+%\end{subequations}
+%or
 \begin{subequations}
     \begin{align}
-        \pdiff{h}{t} + \nabla \dotp \vec{q} & = 0,
-        \\
-        \pdiff{\vec{q}}{t} +  \nabla \dotp \left( \vec{q}\vec{q}^T/h\right) + \half g \nabla h^2 & = -gh\nabla z_b,
-    \end{align}
-\end{subequations}
-or
-\begin{subequations}
-    \begin{align}
-    \pdiff{h}{t} + \nabla \dotp \vec{q} & = 0,
+    \pdiff{h}{t} & + \nabla \dotp \vec{q}  = 0,
     \\
-    \pdiff{\vec{q}}{t} +  \nabla \dotp \left( \vec{q}\vec{q}^T/h\right) + gh \nabla \zeta & = 0,
+    \pdiff{\vec{q}}{t} & + \nabla \dotp \left( \frac{\vec{q}\vec{q}^T}{h} \right) + gh \nabla \zeta +  c_f \left( \frac{\vec{q}\abs{\vec{q}}}{h^2} \right)  = 0,
     \\
     \zeta & = h + z_b,
 \end{align}
@@ -26,33 +26,44 @@ with
     \item[$z_b$] Bed level  w.r.t.\ reference plane, \bunit{\metre}.
     \item[$\vec{q}$] Flow, defined as $\vec{q} = (q, r)^T = (hu, hv)^T$, \bunit{\square\metre\per\second}.
     \item[$\vec{u}$] Velocity vector, defined as $\vec{u} = (u, v)^T$, \bunit{\metre\per\second}.
+    \item[$c_f$] Bed shear stress coefficient, \bunit{-}.
+    \begin{itemize}
+        \item[Ch\'ezy:] $c_f = g/C^2$
+    \end{itemize}
+    \item[$C$] Ch\'ezy coefficient, \bunit{\metre^{\half}\, \second^{-1}}.
+
     \item[$g$] Acceleration due to gravity, \bunit{\metre\per\square\second}.
 \end{symbollist}
 \subsection*{Finite Volume approach}
 Integrating the equations over a finite volume $\Omega$ yields:
-\begin{subequations}
-    \begin{align}
-        \int_\Omega \pdiff{h}{t}\, d\omega
-        + \int_\Omega \nabla \dotp \vec{q}\, d\omega & = 0,
-        \label{eq:pressure_dependent_on_h_a} \\
-        \int_\Omega \pdiff{\vec{q}}{t}\, d\omega
-        + \int_\Omega \nabla \dotp \left( \vec{q}\vec{q}^T/h\right)\, d\omega
-        + \int_\Omega \half  \nabla \left( g h^2 \right) \, d\omega & =
-        - \int_\Omega gh\nabla z_b\, d\omega,
-        \label{eq:pressure_dependent_on_h_b}
-    \end{align}
-    \label{eq:pressure_dependent_on_h}
-\end{subequations}
-or
+%\begin{subequations}
+%    \begin{align}
+%        \int_\Omega \pdiff{h}{t}\, d\omega
+%        + \int_\Omega \nabla \dotp \vec{q}\, d\omega & = 0,
+%        \label{eq:pressure_dependent_on_h_a} \\
+%        \int_\Omega \pdiff{\vec{q}}{t}\, d\omega
+%        + \int_\Omega \nabla \dotp \left( \frac{\vec{q}\vec{q}^T}{h} \right)\, d\omega
+%        + \int_\Omega \half  \nabla \left( g h^2 \right) \, d\omega
+%        + \int_\Omega gh\nabla z_b\, d\omega + \int_\Omega c_f \left( \frac{\vec{q}\abs{\vec{q}}}{h^2} \right)\, d\omega & = 0,
+%        \label{eq:pressure_dependent_on_h_b}
+%    \end{align}
+%    \label{eq:pressure_dependent_on_h}
+%\end{subequations}
+%or
 \begin{subequations}
 \begin{align}
-    \int_\Omega \pdiff{h}{t}\, d\omega + \int_\Omega \nabla \dotp \vec{q}\, d\omega & = 0,
+    \int_\Omega \pdiff{h}{t}\, d\omega &
+    + \int_\Omega \nabla \dotp \vec{q}\, d\omega  = 0,
+    \label{eq:pressure_dependent_on_zeta_a}
     \\
-    \int_\Omega \pdiff{\vec{q}}{t}\, d\omega
-    + \int_\Omega \nabla \dotp \left( \vec{q}\vec{q}^T/h\right)\, d\omega
-    + \int_\Omega gh \nabla \zeta\, d\omega & = 0,
+    \int_\Omega \pdiff{\vec{q}}{t}\, d\omega &
+    + \int_\Omega \nabla \dotp \left( \frac{\vec{q}\vec{q}^T}{h} \right)\, d\omega
+    + \int_\Omega gh \nabla \zeta\, d\omega + \int_\Omega c_f \left( \frac{\vec{q}\abs{\vec{q}}}{h^2} \right)\, d\omega   = 0,
+    \label{eq:pressure_dependent_on_zeta_b}
     \\
-    \int_\Omega \zeta\, d\omega & = \int_\Omega h\, d\omega + \int_\Omega z_b\, d\omega,
+    \int_\Omega \zeta\, d\omega &
+    = \int_\Omega h\, d\omega + \int_\Omega z_b\, d\omega,
+    \label{eq:pressure_dependent_on_zeta_c}
 \end{align}
 \label{eq:pressure_dependent_on_zeta}
 \end{subequations}
@@ -80,7 +91,7 @@ For the space discretizations of an arbitrary function $u$ on the quadrature poi
 See for the locations \autoref{fig:2d_structured_grid}.
 %-------------------------------------------------------------------------------
 \subsection{Discretizations continuity equation}
-The discretization of continuity \autoref{eq:pressure_dependent_on_h_a} will be presented term by term.
+The discretization of continuity \autoref{eq:pressure_dependent_on_zeta_a} will be presented term by term.
 %-------------------------------------------------------------------------------
 \subsubsection{Time derivative}
 The discretization of the time derivative term of the continuity equation reads:
@@ -107,7 +118,7 @@ For a cartesian grid we get:
     \nonumber \\*
     &\quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i-\quart, j+\quart} -  h^{n+1,n}_{i-\quart, j+\quart} \right)
 \end{align}
-Just looking to $scv_3$ as part of the control volume for node $(i,j)$:
+Just looking to the quadrature point of $scv_3$ as part of the control volume for node $(i,j)$ the discretization reads:
 \begin{align}
     &\quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i+\quart, j+\quart} -  h^{n+1,n}_{i+\quart, j+\quart} \right) =
     \\*
@@ -121,7 +132,7 @@ Just looking to $scv_3$ as part of the control volume for node $(i,j)$:
 \notyet
 %-------------------------------------------------------------------------------
 \subsection{Discretizations momentum equations}
-The discretization of momentum \autoref{eq:pressure_dependent_on_h_b} will be presented term by term.
+The discretization of momentum \autoref{eq:pressure_dependent_on_zeta_b} will be presented term by term.
 %--------------------------------------------------------------------------------
 \subsubsection{Time derivative}
 The discretization of the time derivative term of the momentum equation is only shown for the q-momentum equation, the time derivative for the r-momentum equation is similar. The time derivation for hte q-momentum equation reads:
@@ -148,7 +159,7 @@ For a cartesian grid we get:
     \nonumber \\*
     &\quart\Dx\Dy\Dtinv \left( q^{n+1,p+1}_{i-\quart, j+\quart} -  q^{n+1,n}_{i-\quart, j+\quart} \right)
 \end{align}
-Just looking to $scv_3$ as part of the control volume for node $(i,j)$:
+Just looking to the quadrature point of $scv_3$ as part of the control volume for node $(i,j)$ the discretization reads:
 \begin{align}
     &\quart\Dx\Dy\Dtinv \left( q^{n+1,p+1}_{i+\quart, j+\quart} -  q^{n+1,n}_{i+\quart, j+\quart} \right) =
     \\*
@@ -188,24 +199,24 @@ Assume that the higher order terms are negligible then the discretization for ea
 \subsubsection{Convection}
 The convection term in vector notation reads:
 \begin{align}
-    \int_\Omega \nabla \dotp \left( \vec{q}\vec{q}^T/h \right)\, d\omega =
-    \int_{\Omega_i}  \left( \vec{q}\vec{q}^T/h \right) \vec{n} \, dl
+    \int_\Omega \nabla \dotp \left( \frac{\vec{q}\vec{q}^T}{h} \right)\, d\omega =
+    \int_{\Omega_i}  \left( \frac{\vec{q}\vec{q}^T}{h} \right) \vec{n} \dotp \vec{dl}
 \end{align}
 The components for the two momentum equations read:
 \begin{align}
-    \int^{y_{j+\half}}_{y_{j-\half}}&  \int^{x_{i+\half}}_{x_{i-\half}} \left( \vec{q}\vec{q}^T/h \right) \, dxdy =
+    \int^{y_{j+\half}}_{y_{j-\half}}&  \int^{x_{i+\half}}_{x_{i-\half}} \left( \frac{\vec{q}\vec{q}^T}{h} \right) \, dxdy =
     \\
     & = \Dy \left(\frac{qq}{h} + \frac{qr}{h}\right)_{i+\half,j} -
     \Dy \left(\frac{qq}{h} + \frac{qr}{h}\right)_{i-\half,j}
     \qquad \textit{q-momentum eq.}
     \\
-    \int^{y_{i+\half}}_{y_{i-\half}}&  \int^{x_{i+\half}}_{x_{i-\half}} \left( \vec{q}\vec{q}^T/h \right) \, dxdy  =
+    \int^{y_{i+\half}}_{y_{i-\half}}&  \int^{x_{i+\half}}_{x_{i-\half}} \left( \frac{\vec{q}\vec{q}^T}{h} \right) \, dxdy  =
     \\
     & = \Dx \left(\frac{rq}{h} + \frac{rr}{h}\right)_{i,j+\half}  -
     \Dx \left(\frac{rq}{h} + \frac{rr}{h}\right)_{i,j+\half}
     \qquad \textit{r-momentum eq.}
 \end{align}
-Discretization the term of the $q$-momentum equation reads:
+Discretization the term for the $q$-momentum equation reads:
 \begin{align}
     &
     \left. \left(\Dy\frac{qq}{h}\right)\right|^{n+\theta,p+1}_{i+\half,j+\quart} +
@@ -234,40 +245,95 @@ and
 
 %--------------------------------------------------------------------------------
 \subsubsection{Bed shear stress}
-\notyet
-
-%--------------------------------------------------------------------------------
-\subsubsection{Pressure term, dependent on $h$}
-In this section we use that the pressure term is dependent on $h$.
+The bed shear stress  term in vector notation reads:
 \begin{align}
-    \int_{\Omega_i} \half  \nabla \left( g h^2\right) \, d\omega & =
-    \int_{\partial\Omega_i} \half  g h^2 \vec{\hat n}\, dl \label{eq:2d_press_term}
+    \int_\Omega c_f \left( \frac{\vec{q}\abs{\vec{q}}}{h^2} \right)\, d\omega.
 \end{align}
-The linearization of the pressure term in the momentum equation around iteration level $p$ read:
+The components for the two momentum equations read:
 \begin{align}
-    \half g \left(h^{n+\theta,p+1}_{\partial\Omega_i}\right)^2  & =
-    \half g \left(h^{n+\theta,p+1}_{\partial\Omega_i}\right)^2
-    + g h^{n+\theta,p+1}_{\partial\Omega_i} \left({h}^{n+\theta,p+1} - {h}^{n+\theta,p}\right) =
+    F_q = \int_\Omega c_f \left( \frac{q\abs{\vec{q}}}{h^2} \right)\, d\omega, \qquad \textit{q-momentum eq.}
     \\
-    & = \half g \left(h^{n+\theta,p+1}_{\partial\Omega_i}\right)^2 + \theta  g h^{n+\theta,p+1}_{\partial\Omega_j} \Delta {h}^{n+1,p+1}
+    F_r = \int_\Omega c_f \left( \frac{r\abs{\vec{q}}}{h^2} \right)\, d\omega, \qquad \textit{r-momentum eq.}
+\end{align}
+and $\abs{\vec{q}} = \sqrt{q^2 + r^2}$.
+To avoid the discontinuity around zero for the absolute function this function be approximated by
+\begin{align}
+    \abs{\vec{q}} \approx \abs{\widetilde{\vec{q}}} = \left( q^4 + r^4 + \eps^4 \right)^\quart.
+\end{align}
+The bed shear stress reads then:
+\begin{align}
+    F_q = c_f \left( \frac{q\abs{\widetilde{\vec{q}}}}{h^2} \right), \qquad \textit{q-momentum eq.}
+    \\
+    F_r = c_f \left( \frac{r\abs{\widetilde{\vec{q}}}}{h^2} \right), \qquad \textit{r-momentum eq.}
+\end{align}
+The Jacobian for the bed shear stress $F(h,q,r)$ reads:
+\begin{align}
+%    &\begin{pmatrix}
+%    J_{11} &  J_{12} &  J_{13}
+%    \\
+%     J_{21} &  J_{22} &  J_{23}
+%    \end{pmatrix}
+%    \rightarrow
+    &\begin{pmatrix}
+        \pdiff{F_q}{h} & \pdiff{F_q}{q} & \pdiff{F_q}{r}
+        \\
+        \pdiff{F_r}{h} & \pdiff{F_r}{q} & \pdiff{F_r}{r}
+    \end{pmatrix}
+    =
+    \\
+    &=
+    \begin{pmatrix}
+       -2c_f \frac{q\abs{\widetilde{\vec{q}}}}{h^3}
+       & c_f\frac{\abs{\widetilde{\vec{q}}}}{h^2} + c_f \frac{q^4}{h^2\abs{\widetilde{\vec{q}}}^3}
+       & c_f \frac{qr^3}{h^2\abs{\widetilde{\vec{q}}}}
+       \\
+       -2c_f \frac{r\abs{\widetilde{\vec{q}}}}{h^3}
+       & c_f \frac{rq^3}{h^2\abs{\widetilde{\vec{q}}}}
+       & c_f\frac{\abs{\widetilde{\vec{q}}}}{h^2} + c_f \frac{r^4}{h^2\abs{\widetilde{\vec{q}}}^3}
+    \end{pmatrix}
+\end{align}
+All these coefficients of the Jacobian should be evaluated at the quadrature point of the sub-control volumes and evaluated at time level $(n+1,p)$.
+The same applies for the right hand side and evaluated at time level $(n+1,p)$:
+\begin{align}
+    \begin{pmatrix}
+        -c_f \left( \frac{q\abs{\widetilde{\vec{q}}}}{h^2} \right)
+        \\
+        -c_f \left( \frac{r\abs{\widetilde{\vec{q}}}}{h^2} \right)
+    \end{pmatrix}
 \end{align}
 
-The component in $x$-direction read:
-\begin{align}
-    \int_{\partial\Omega_i} & \half  g h^2 \vec{\hat n} \dotp \vec{i_x}\, dl \approx
-    \nonumber \\
-    \approx  & \Dy \left( \half g \left(h^{n+\theta,p}_{i+\half,j}\right)^2 + \theta  g h^{n+\theta,p+1}_{i+\half,j} \Delta {h}^{n+1,p+1}_{i+\half,j}  \right) +
-    \nonumber \\
-    - & \Dy \left( \half g \left(h^{n+\theta,p}_{i-\half,j}\right)^2 + \theta  g h^{n+\theta,p+1}_{i-\half,j} \Delta {h}^{n+1,p+1}_{i-\half,j}  \right)
-\end{align}
-The component in $y$-direction read:
-\begin{align}
-    \int_{\partial\Omega_i} & \half  g h^2 \vec{\hat n} \dotp \vec{i_y}\, dl \approx
-    \nonumber \\
-    \approx  & \Dx \left( \half g \left(h^{n+\theta,p}_{i,j+\half}\right)^2 + \theta  g h^{n+\theta,p+1}_{i,j+\half} \Delta {h}^{n+1,p+1}_{i,j+\half}  \right) +
-    \nonumber \\
-    - & \Dx \left( \half g \left(h^{n+\theta,p}_{i,j-\half}\right)^2 + \theta  g h^{n+\theta,p+1}_{i,j-\half} \Delta {h}^{n+1,p+1}_{i,j-\half}  \right)
-\end{align}
+%%--------------------------------------------------------------------------------
+%\subsubsection{Pressure term, dependent on $h$}
+%In this section we use that the pressure term is dependent on $h$.
+%\begin{align}
+%    \int_{\Omega_i} \half  \nabla \left( g h^2\right) \, d\omega & =
+%    \int_{\partial\Omega_i} \half  g h^2 \vec{\hat n}\, dl \label{eq:2d_press_term}
+%\end{align}
+%The linearization of the pressure term in the momentum equation around iteration level $p$ read:
+%\begin{align}
+%    \half g \left(h^{n+\theta,p+1}_{\partial\Omega_i}\right)^2  & =
+%    \half g \left(h^{n+\theta,p+1}_{\partial\Omega_i}\right)^2
+%    + g h^{n+\theta,p+1}_{\partial\Omega_i} \left({h}^{n+\theta,p+1} - {h}^{n+\theta,p}\right) =
+%    \\
+%    & = \half g \left(h^{n+\theta,p+1}_{\partial\Omega_i}\right)^2 + \theta  g h^{n+\theta,p+1}_{\partial\Omega_j} \Delta {h}^{n+1,p+1}
+%\end{align}
+%
+%The component in $x$-direction read:
+%\begin{align}
+%    \int_{\partial\Omega_i} & \half  g h^2 \vec{\hat n} \dotp \vec{i_x}\, dl \approx
+%    \nonumber \\
+%    \approx  & \Dy \left( \half g \left(h^{n+\theta,p}_{i+\half,j}\right)^2 + \theta  g h^{n+\theta,p+1}_{i+\half,j} \Delta {h}^{n+1,p+1}_{i+\half,j}  \right) +
+%    \nonumber \\
+%    - & \Dy \left( \half g \left(h^{n+\theta,p}_{i-\half,j}\right)^2 + \theta  g h^{n+\theta,p+1}_{i-\half,j} \Delta {h}^{n+1,p+1}_{i-\half,j}  \right)
+%\end{align}
+%The component in $y$-direction read:
+%\begin{align}
+%    \int_{\partial\Omega_i} & \half  g h^2 \vec{\hat n} \dotp \vec{i_y}\, dl \approx
+%    \nonumber \\
+%    \approx  & \Dx \left( \half g \left(h^{n+\theta,p}_{i,j+\half}\right)^2 + \theta  g h^{n+\theta,p+1}_{i,j+\half} \Delta {h}^{n+1,p+1}_{i,j+\half}  \right) +
+%    \nonumber \\
+%    - & \Dx \left( \half g \left(h^{n+\theta,p}_{i,j-\half}\right)^2 + \theta  g h^{n+\theta,p+1}_{i,j-\half} \Delta {h}^{n+1,p+1}_{i,j-\half}  \right)
+%\end{align}
 %%-------------------------------------------------------------------------------
 %\section{Space discretization, unstructured}
 %\notyet
