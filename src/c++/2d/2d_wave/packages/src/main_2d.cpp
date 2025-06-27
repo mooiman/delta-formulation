@@ -1332,7 +1332,7 @@ int main(int argc, char *argv[])
             if (do_bed_shear_stress)
             {
                 START_TIMER(Bed shear stress);
-                bed_stress->matrix_2d_qr_eq(A, rhs, hp, qp, rp);
+                //bed_stress->matrix_2d_qr_eq(A, rhs, hp, qp, rp);
                 STOP_TIMER(Bed shear stress);
             }
             if (do_viscosity)
