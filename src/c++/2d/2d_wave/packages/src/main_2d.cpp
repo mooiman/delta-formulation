@@ -1,7 +1,6 @@
 //
-// Programmer: J. Mooiman
-// Date      : 2025-04-03
-//
+// Programmer: Jan Mooiman
+// Email: jan.mooiman@outlook.com
 //
 //    Solving the 2D shallow water equations, fully implicit with delta-formuation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
@@ -19,6 +18,7 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
+//------------------------------------------------------------------------------
 
 #define _USE_MATH_DEFINES
 #include <cstdlib>

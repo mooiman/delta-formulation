@@ -1,7 +1,6 @@
-//---------------------------------------------------------------
-//   programmer: J. Mooiman
-//   date:       2025-02-19
-//   copyright © 2025 Mooiman
+//
+// Programmer: Jan Mooiman
+// Email: jan.mooiman@outlook.com
 //
 //    Solving the 2D shallow water equations, fully implicit with delta-formuation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
@@ -19,10 +18,10 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
-//---------------------------------------------------------------
+//------------------------------------------------------------------------------
 //   DESCRIPTION
 //
-//   Boundary conditions for the 1D wave equation
+//   Initial conditions for the 2D wave equation
 //
 
 #include "initial_conditions.h"
@@ -43,7 +42,7 @@ void initial_conditions(std::vector<double>& x, std::vector<double>& y, size_t n
         for (size_t j = 0; j < ny; j++)
         {
             // 
-            // initialize via water level, u-velocity and v-velocity
+            // initialization via water level, u-velocity and v-velocity
             //
             k = p_index(i, j, ny);
             if (ini_vars[0] == "zeta")
