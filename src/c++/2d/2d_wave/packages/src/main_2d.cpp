@@ -40,6 +40,8 @@
 #include <Eigen/Sparse>
 
 #include "bed_level.h"
+#include "bed_shear_stress.h"
+#include "boundary_condition.h"
 #include "cfts.h"
 #include "convection.h"
 #include "grid.h"
@@ -351,6 +353,8 @@ int main(int argc, char *argv[])
 
     REGULARIZATION* regularization = new REGULARIZATION(iter_max, g);
     CONVECTION* convection = new CONVECTION(theta, dx, dy, nx, ny);
+    double cf = g / (chezy_coefficient * chezy_coefficient);
+    BEDSHEARSTRESS* bed_stress = new BEDSHEARSTRESS(theta, dx, dy, cf, eps_fabs, nx, ny);
 
     log_file << "=== Used input variables ==============================" << std::endl;
     log_file << "[Domain]" << std::endl;
@@ -946,14 +950,13 @@ int main(int argc, char *argv[])
 
         double bc0;
         double bc1;
-        double wh_bnd = 0.0;  // west depth-boundary
-        double wq_bnd = 0.0;  // west discharge discharge
-        double wz_bnd = 0.0;  // west zeta-boundary
-        double wu_bnd = 0.0;  // west u-boundary
-        double eh_bnd = 0.0;  // east depth-boundary
-        double eq_bnd = 0.0;  // east discharge boundary
-        double ez_bnd = 0.0;  // east zeta-boundary
-        double eu_bnd = 0.0;  // east u-boundary
+        std::vector<double> bc(4, 0.0);
+
+        int select = 1;  // Constant boundary condition
+        boundary_condition(bc[BC_NORTH], bc_vals[BC_NORTH], time, treg, select);
+        boundary_condition(bc[BC_EAST ], bc_vals[BC_EAST ], time, treg, select);
+        boundary_condition(bc[BC_SOUTH], bc_vals[BC_SOUTH], time, treg, select);
+        boundary_condition(bc[BC_WEST ], bc_vals[BC_WEST ], time, treg, select);
 
         int used_newton_iter = 0;
         int used_lin_solv_iter = 0;
@@ -965,10 +968,6 @@ int main(int argc, char *argv[])
             if (logging == "iteration")
             {
                 log_file << "Iteration: " << used_newton_iter << std::endl;
-            }
-            if (nst == 1 && iter == 0)
-            {
-                START_TIMER(Matrix initialization);
             }
             //
             // interior nodes
@@ -1332,7 +1331,7 @@ int main(int argc, char *argv[])
             if (do_bed_shear_stress)
             {
                 START_TIMER(Bed shear stress);
-                //bed_stress->matrix_2d_qr_eq(A, rhs, hp, qp, rp);
+                bed_stress->matrix_2d_qr_eq(A, rhs, hp, qp, rp);
                 STOP_TIMER(Bed shear stress);
             }
             if (do_viscosity)
@@ -1670,7 +1669,7 @@ int main(int argc, char *argv[])
                                     A.coeffRef(c_eq, ph_0)  += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
                                     A.coeffRef(c_eq, ph_w)  += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
                                     A.coeffRef(c_eq, ph_ww) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
-                                    corr_term = -dhdt + sign * eps_bc_corr * (hp_im12 - (ez_bnd - zb_im12));
+                                    corr_term = -dhdt + sign * eps_bc_corr * (hp_im12 - (bc[BC_EAST] - zb_im12));
                                     rhs[c_eq] += corr_term;
                                     sign = 1.0;
                                 }
@@ -1680,7 +1679,7 @@ int main(int argc, char *argv[])
                                     A.coeffRef(c_eq, ph_0 + 1)  += dtinv * w_ess[0] - eps_bc_corr * w_ess[0];
                                     A.coeffRef(c_eq, ph_w + 1)  += dtinv * w_ess[1] - eps_bc_corr * w_ess[1];
                                     A.coeffRef(c_eq, ph_ww + 1) += dtinv * w_ess[2] - eps_bc_corr * w_ess[2];
-                                    corr_term = -dqdt - sign * eps_bc_corr * (qp_im12 - eq_bnd);
+                                    corr_term = -dqdt - sign * eps_bc_corr * (qp_im12 - bc[BC_EAST]);
                                     rhs[c_eq] += corr_term;
                                     sign = 1.0;
                                 }
@@ -2054,7 +2053,7 @@ int main(int argc, char *argv[])
                                     A.coeffRef(c_eq, ph_0)  += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
                                     A.coeffRef(c_eq, ph_e)  += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
                                     A.coeffRef(c_eq, ph_ee) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
-                                    corr_term = -dhdt - eps_bc_corr * (hp_ip12 - (wz_bnd - zb_ip12));
+                                    corr_term = -dhdt - eps_bc_corr * (hp_ip12 - (bc[BC_WEST] - zb_ip12));
                                     rhs[c_eq] += corr_term;
                                 }
                                 if (bc_vars[BC_WEST] == "q")
@@ -2062,7 +2061,7 @@ int main(int argc, char *argv[])
                                     A.coeffRef(c_eq, ph_0 + 1)  += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
                                     A.coeffRef(c_eq, ph_e + 1)  += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
                                     A.coeffRef(c_eq, ph_ee + 1) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
-                                    corr_term = -dqdt - eps_bc_corr * (qp_ip12 - wq_bnd);
+                                    corr_term = -dqdt - eps_bc_corr * (qp_ip12 - bc[BC_WEST]);
                                     rhs[c_eq] += corr_term;
                                 }
                             }
