@@ -39,14 +39,14 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
+#include "bed_level.h"
 #include "cfts.h"
-#include "ugrid2d.h"
-#include "perf_timer.h"
-#include "initial_conditions.h"
-#include "regularization.h"
 #include "convection.h"
 #include "grid.h"
-#include "bed_level.h"
+#include "initial_conditions.h"
+#include "perf_timer.h"
+#include "regularization.h"
+#include "ugrid2d.h"
 
 void GetArguments(long argc, char** argv, std::filesystem::path & file_name);
 int get_toml_array(toml::table, std::string, std::vector<std::string>&);
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
     bool do_viscosity = tbl_chp["do_viscosity"].value_or(bool(false));  // default, no viscosity
     double visc_const = tbl_chp["viscosity"].value_or(double(0.0001));  // default 1e-4
 
-    bool do_bed_shear_stress = tbl_chp["do_r_bed_shear_stress"].value_or(bool(false));  // default, no bed shear stress
+    bool do_bed_shear_stress = tbl_chp["do_bed_shear_stress"].value_or(bool(false));  // default, no bed shear stress
     double chezy_coefficient = tbl_chp["chezy_coefficient"].value_or(double(50.0));
 
     // Boundary
@@ -481,6 +481,9 @@ int main(int argc, char *argv[])
     log_file << "Elements: " << (nx - 1) << "x" << (ny - 1) << "=" << (nx - 1) * (ny - 1) << std::endl;
     log_file << "Volumes : " << (nx - 2) << "x" << (ny - 2) << "=" << (nx - 2) * (ny - 2) << std::endl;
     log_file << "CFL     : " << std::sqrt(g * std::abs(min_zb)) * dt * std::sqrt(( 1./(dx*dx) + 1./(dy*dy))) << std::endl;
+    log_file << "LxLy    : " << Lx - 2. * dx << "x" << Ly - 2. * dy << " without virtual cells" << std::endl;
+    log_file << "dxdy    : " << dx << "x" << dy << "=" << dxdy << " [m2]" << std::endl;
+    log_file << "nxny    : " << nx << "x" << ny << "=" << nxny << std::endl;
     log_file << "=======================================================" << std::endl;
     std::cout << "    LxLy: " << Lx - 2. * dx << "x" << Ly - 2. * dy << " without virtual cells" << std::endl;
     std::cout << "    dxdy: " << dx << "x" << dy << "=" << dxdy << " [m2]" << std::endl;
@@ -627,10 +630,10 @@ int main(int argc, char *argv[])
             p1 = p_index(i + 1, j    , ny);
             p2 = p_index(i + 1, j + 1, ny);
             p3 = p_index(i    , j + 1, ny);
-            if ((mesh2d->node[0]->x[p0] != fill_value || mesh2d->node[0]->y[p0] != fill_value) &&
-                (mesh2d->node[0]->x[p1] != fill_value || mesh2d->node[0]->y[p1] != fill_value) &&
-                (mesh2d->node[0]->x[p2] != fill_value || mesh2d->node[0]->y[p2] != fill_value) &&
-                (mesh2d->node[0]->x[p3] != fill_value || mesh2d->node[0]->y[p3] != fill_value) )
+            if ((x[p0] != fill_value || y[p0] != fill_value) &&
+                (x[p1] != fill_value || y[p1] != fill_value) &&
+                (x[p2] != fill_value || y[p2] != fill_value) &&
+                (x[p3] != fill_value || y[p3] != fill_value) )
             {
                 mesh2d_face_nodes.push_back(p0);
                 mesh2d_face_nodes.push_back(p1);
@@ -650,6 +653,26 @@ int main(int argc, char *argv[])
     status = map_file->add_attribute("mesh2d_node_y", "_FillValue", fill_value);
     status = map_file->put_variable("mesh2d_node_x", x);
     status = map_file->put_variable("mesh2d_node_y", y);
+
+    // Compute edges centres
+    std::vector<double> edge_x;
+    std::vector<double> edge_y;
+
+    for (int i = 0; i < mesh2d_edge_nodes.size(); i += 2)
+    {
+        p0 = mesh2d_edge_nodes[i];
+        p1 = mesh2d_edge_nodes[i+1];
+        edge_x.push_back(0.5 * (x[p0] + x[p1]));
+        edge_y.push_back(0.5 * (y[p0] + y[p1]));
+    }
+    dim_names.clear();
+    dim_names.push_back("mesh2d_nEdges");
+    status = map_file->add_variable("mesh2d_edge_x", dim_names, "projection_x_coordinate", "x", "m", "mesh2D", "edge");
+    status = map_file->add_attribute("mesh2d_edge_x", "_FillValue", fill_value);
+    status = map_file->add_variable("mesh2d_edgey", dim_names, "projection_y_coordinate", "y", "m", "mesh2D", "edge");
+    status = map_file->add_attribute("mesh2d_edge_y", "_FillValue", fill_value);
+    status = map_file->put_variable("mesh2d_edge_x", edge_x);
+    status = map_file->put_variable("mesh2d_edge_y", edge_y);
 
     // Compute mass centres of faces
     std::vector<double> xmc;
@@ -812,10 +835,16 @@ int main(int argc, char *argv[])
     his_file->add_stations(obs_stations, x_obs, y_obs);
     his_file->add_time_series();
 
+    std::string his_h_name("hn_2d");
+    std::string his_q_name("qn_2d");
+    std::string his_r_name("rn_2d");
     std::string his_s_name("Water_level");
     std::string his_u_name("U-velocity");
     std::string his_v_name("V-velocity");
 
+    his_file->add_variable(his_h_name, "sea_floor_depth_below_sea_surface", "Water depth", "m");
+    his_file->add_variable(his_q_name, "", "Water flux (x)", "m2 s-1");
+    his_file->add_variable(his_r_name, "", "Water flux (y)", "m2 s-1");
     his_file->add_variable(his_s_name, "sea_surface_height", "Water level", "m");
     his_file->add_variable(his_u_name, "sea_water_x_velocity", "Velocity xdir", "m s-1");
     his_file->add_variable(his_v_name, "sea_water_y_velocity", "Velocity ydir", "m s-1");
@@ -824,7 +853,16 @@ int main(int argc, char *argv[])
     START_TIMER(Writing his-file);
     int nst_his = 0;
     his_file->put_time(nst_his, time);
-    std::vector<double> his_values = { s[p_a], s[p_b], s[p_c], s[p_d], s[centre], s[n_bnd], s[ne_bnd], s[e_bnd], s[se_bnd], s[s_bnd], s[sw_bnd], s[w_bnd], s[nw_bnd] };
+    std::vector<double> his_values = { hn[p_a], hn[p_b], hn[p_c], hn[p_d], hn[centre], hn[n_bnd], hn[ne_bnd], hn[e_bnd], hn[se_bnd], hn[s_bnd], hn[sw_bnd], hn[w_bnd], hn[nw_bnd] };
+    his_file->put_variable(his_h_name, nst_his, his_values);
+
+    his_values = { qn[p_a], qn[p_b], qn[p_c], qn[p_d], qn[centre], qn[n_bnd], qn[ne_bnd], qn[e_bnd], qn[se_bnd], qn[s_bnd], qn[sw_bnd], qn[w_bnd], qn[nw_bnd] };
+    his_file->put_variable(his_q_name, nst_his, his_values);
+ 
+    his_values = { rn[p_a], rn[p_b], rn[p_c], rn[p_d], rn[centre], rn[n_bnd], rn[ne_bnd], rn[e_bnd], rn[se_bnd], rn[s_bnd], rn[sw_bnd], rn[w_bnd], rn[nw_bnd] };
+    his_file->put_variable(his_r_name, nst_his, his_values);
+
+    his_values = { s[p_a], s[p_b], s[p_c], s[p_d], s[centre], s[n_bnd], s[ne_bnd], s[e_bnd], s[se_bnd], s[s_bnd], s[sw_bnd], s[w_bnd], s[nw_bnd] };
     his_file->put_variable(his_s_name, nst_his, his_values);
 
     his_values = { u[p_a], u[p_b], u[p_c], u[p_d], u[centre], u[n_bnd], u[ne_bnd], u[e_bnd], u[se_bnd], u[s_bnd], u[sw_bnd], u[w_bnd], u[nw_bnd] };
@@ -863,6 +901,8 @@ int main(int argc, char *argv[])
     STOP_TIMER(Initialization);
     
     std::cout << "Start time-loop" << std::endl;
+    if (stationary) { std::cout << "Stationary solution" << std::endl; }
+    else { std::cout << "Time dependent simulation" << std::endl; }
     std::cout << std::fixed << std::setprecision(2) << "tstart= " << tstart + time << ";   tstop= " << tstart + tstop << ";   dt= " << dt << std::endl;
 
     // Start time loop
@@ -933,6 +973,7 @@ int main(int argc, char *argv[])
             //
             // interior nodes
             //
+            START_TIMER(Linear wave);
             for (int i = 1; i < nx - 1; i++)
             {
                 for (int j = 1; j < ny - 1; j++)
@@ -1186,28 +1227,6 @@ int main(int argc, char *argv[])
                         //
                         double rhs_q = g * (depth_0 * dzetadx_0 + depth_1 * dzetadx_1 + depth_2 * dzetadx_2 + depth_3 * dzetadx_3);
                         rhs[q_eq] += -rhs_q;
-                        if (do_q_convection)
-                        {
-                            //
-                            // convection
-                            //
-                        }
-                        if (do_bed_shear_stress)
-                        {
-                            //
-                            // bed shear stress
-                            //
-                        }
-                        if (do_viscosity)
-                        {
-                            //
-                            // viscosity
-                            //
-                        }
-                        if (i == nx / 2 && j == ny / 2)
-                        {
-                            int c = 1;
-                        }
                     }
                     // 
                     // r-momentum (dr/dt ... = 0)
@@ -1285,36 +1304,46 @@ int main(int argc, char *argv[])
                             A.coeffRef(r_eq, 3 * ph_nw) += fac * (+1. * depth_3);
                             A.coeffRef(r_eq, 3 * ph_w ) += fac * (+1. * depth_0 - 1. * depth_3);
                         }
-                        if (do_r_convection)
-                        {
-                            //
-                            // convection
-                            //
-                        }
-                        if (do_bed_shear_stress)
-                        {
-                            //
-                            // bed shear stress
-                            //
-                        }
-                        if (do_viscosity)
-                        {
-                            //
-                            // viscosity
-                            //
-                        }
                         // 
                         // RHS r-momentum equation
                         //
                         double rhs_r = g * (depth_0 * dzetady_0 + depth_1 * dzetady_1 + depth_2 * dzetady_2 + depth_3 * dzetady_3);
                         rhs[r_eq] += -rhs_r;
-                        if (i == nx / 2 && j == ny / 2)
-                        {
-                            int c = 1;
-                        }
                     }
                 }  // end interior nodes
             }
+            STOP_TIMER(Linear wave);
+            if (do_q_convection)
+            {
+                START_TIMER(Convection q);
+                //
+                // convection
+                //
+                STOP_TIMER(Convection q);
+            }
+            if (do_r_convection)
+            {
+                START_TIMER(Convection r);
+                //
+                // convection
+                //
+                STOP_TIMER(Convection r);
+            }
+            if (do_bed_shear_stress)
+            {
+                START_TIMER(Bed shear stress);
+                bed_stress->matrix_2d_qr_eq(A, rhs, hp, qp, rp);
+                STOP_TIMER(Bed shear stress);
+            }
+            if (do_viscosity)
+            {
+                START_TIMER(Viscosity);
+                //
+                // viscosity
+                //
+                STOP_TIMER(Viscosity);
+            }
+
             //
             //boundary nodes
             //
@@ -2118,7 +2147,7 @@ int main(int argc, char *argv[])
                 int ph = 3 * p_index(i, j, ny);  // continuity equation
                 int pq = ph + 1;  // q-momentum equation
                 int pr = ph + 2;  // r-momentum equation
-                int p1 = 3 * p_index(i - 1, j , ny);
+                int p1 = 3 * p_index(i - 1, j, ny);
                 int p2 = 3 * p_index(i, j + 1, ny);
 
                 A.coeffRef(ph, p1) = 0.5;
@@ -2149,11 +2178,11 @@ int main(int argc, char *argv[])
                 A.coeffRef(ph, p2) = 0.5;
                 rhs[ph] = 0.0;
                 A.coeffRef(pq, p1 + 1) = 0.5;
-                A.coeffRef(pq, pq) = -1.0;
+                A.coeffRef(pq, pq    ) = -1.0;
                 A.coeffRef(pq, p2 + 1) = 0.5;
                 rhs[pq] = 0.0;
                 A.coeffRef(pr, p1 + 2) = 0.5;
-                A.coeffRef(pr, pr) = -1.0;
+                A.coeffRef(pr, pr    ) = -1.0;
                 A.coeffRef(pr, p2 + 2) = 0.5;
                 rhs[pr] = 0.0;
             }
@@ -2172,17 +2201,13 @@ int main(int argc, char *argv[])
                 A.coeffRef(ph, p2) = 0.5;
                 rhs[ph] = 0.0;
                 A.coeffRef(pq, p1 + 1) = 0.5;
-                A.coeffRef(pq, pq) = -1.0;
+                A.coeffRef(pq, pq    ) = -1.0;
                 A.coeffRef(pq, p2 + 1) = 0.5;
                 rhs[pq] = 0.0;
                 A.coeffRef(pr, p1 + 2) = 0.5;
-                A.coeffRef(pr, pr) = -1.0;
+                A.coeffRef(pr, pr    ) = -1.0;
                 A.coeffRef(pr, p2 + 2) = 0.5;
                 rhs[pr] = 0.0;
-            }
-            if (nst == 1 && iter == 0)
-            {
-                STOP_TIMER(Matrix initialization);
             }
             if (nst == 1 && iter == 0)
             {
@@ -2193,6 +2218,23 @@ int main(int argc, char *argv[])
                 START_TIMER(BiCGStab);
             }
 
+            if (logging == "matrix")
+            {
+                log_file << "=== Matrix ============================================" << std::endl;
+                log_file << std::showpos << std::setprecision(4) << std::scientific << A << std::endl;
+                log_file << "=== Matrix diagonal====================================" << std::endl;
+                Eigen::VectorXd diag = A.diagonal();
+                for (int i = 0; i < diag.size(); ++i)
+                {
+                    log_file << std::setprecision(8) << std::scientific << "Index " << i << ": " << diag[i] << std::endl;
+                }
+                //log_file << std::setprecision(8) << std::scientific << A.diagonal() << std::endl;
+                log_file << "=== RHS ===============================================" << std::endl;
+                for (int i = 0; i < 3 * nxny; ++i)
+                {
+                    log_file << std::setprecision(8) << std::scientific << rhs[i] << std::endl;
+                }
+            }
             solver.compute(A);
             solver.setTolerance(eps_bicgstab);
             solution = solver.solve(rhs);
@@ -2207,9 +2249,10 @@ int main(int argc, char *argv[])
             }
             if (logging == "iterations" || logging == "matrix")
             {
-                log_file << "time [sec]: " << std::setprecision(2) << std::scientific << time
+                log_file << "time [sec]: " << std::setprecision(4) << std::scientific << time
+                    << "    Newton iteration: " << used_newton_iter
                     << "    BiCGstab iterations: " << solver.iterations()
-                    << "    estimated error:" << solver.error()
+                    << "    estimated error: " << solver.error()
                     << std::endl;
             }
             // 
@@ -2253,16 +2296,10 @@ int main(int argc, char *argv[])
             }
             if (logging == "matrix")
             {
-                log_file << "=== Matrix ============================================" << std::endl;
-                log_file << std::setprecision(4) << std::scientific << A << std::endl;
-                log_file << "=== Matrix diagonal====================================" << std::endl;
-                log_file << std::setprecision(8) << std::scientific << A.diagonal() << std::endl;
-                //log_file << "=== Eigen values ======================================" << std::endl;
-                //log_file << std::setprecision(8) << std::scientific << A.eigenvalues() << std::endl;
-                log_file << "=== RHS, solution  ====================================" << std::endl;
+                log_file << "=== Solution ==========================================" << std::endl;
                 for (int i = 0; i < 3 * nxny; ++i)
                 {
-                    log_file << std::setprecision(8) << std::scientific << rhs[i] << "' " << solution[i] << std::endl;
+                    log_file << std::setprecision(8) << std::scientific << solution[i] << std::endl;
                 }
                 log_file << "=== hp, qp, rp ========================================" << std::endl;
                 for (int i = 0; i < nxny; ++i)
@@ -2299,14 +2336,12 @@ int main(int argc, char *argv[])
 
         if (stationary) 
         {
-            std::cout << "stationary solution " << std::endl;
             log_file << "stationary solution " << std::endl;
             log_file << std::setprecision(8) << std::scientific
-                << "    Iter: " << used_newton_iter
-                << "    Delta h^{n + 1,p + 1}: " << dh_max << " at: " << dh_maxi
-                << "    Delta q^{n + 1,p + 1}: " << dq_max << " at: " << dq_maxi
-                << "    Delta r^{n + 1,p + 1}: " << dr_max << " at: " << dr_maxi
-                << std::endl;
+                << "    Newton iterations  : " << used_newton_iter << std::endl
+                << "    Delta h^{n + 1,p + 1}: " << dh_max << " at index: " << dh_maxi << std::endl
+                << "    Delta q^{n + 1,p + 1}: " << dq_max << " at index: " << dq_maxi << std::endl
+                << "    Delta r^{n + 1,p + 1}: " << dr_max << " at index: " << dr_maxi << std::endl;
         }
         else
         {
@@ -2316,12 +2351,13 @@ int main(int argc, char *argv[])
             }
             if (logging == "iterations" || logging == "matrix")
             {
-                log_file << "time [sec]: " << std::setprecision(2) << std::scientific << time
-                    << std::setprecision(8) << std::scientific
-                    << "    Newton iterations  : " << used_newton_iter
-                    << "    Delta h^{n + 1,p + 1}: " << dh_max << " at: " << dh_maxi
-                    << "    Delta q^{n + 1,p + 1}: " << dq_max << " at: " << dq_maxi
-                    << std::endl;
+                log_file << "time [sec]: " << std::setprecision(4) << std::scientific << time
+                    << std::setprecision(8) << std::scientific << std::endl
+                    << "    Newton iterations  : " << used_newton_iter << std::endl
+                    << "    Delta h^{n + 1,p + 1}: " << dh_max << " at index: " << dh_maxi << std::endl
+                    << "    Delta q^{n + 1,p + 1}: " << dq_max << " at index: " << dq_maxi << std::endl
+                    << "    Delta r^{n + 1,p + 1}: " << dr_max << " at index: " << dr_maxi << std::endl;
+
             }
         }
         if (used_newton_iter == iter_max)
@@ -2394,6 +2430,16 @@ int main(int argc, char *argv[])
             {
                 his_file->put_time(nst_his, double(nst) * dt);
             }
+            his_file->put_time(nst_his, time);
+            his_values = { hn[p_a], hn[p_b], hn[p_c], hn[p_d], hn[centre], hn[n_bnd], hn[ne_bnd], hn[e_bnd], hn[se_bnd], hn[s_bnd], hn[sw_bnd], hn[w_bnd], hn[nw_bnd] };
+            his_file->put_variable(his_h_name, nst_his, his_values);
+
+            his_values = { qn[p_a], qn[p_b], qn[p_c], qn[p_d], qn[centre], qn[n_bnd], qn[ne_bnd], qn[e_bnd], qn[se_bnd], qn[s_bnd], qn[sw_bnd], qn[w_bnd], qn[nw_bnd] };
+            his_file->put_variable(his_q_name, nst_his, his_values);
+ 
+            his_values = { rn[p_a], rn[p_b], rn[p_c], rn[p_d], rn[centre], rn[n_bnd], rn[ne_bnd], rn[e_bnd], rn[se_bnd], rn[s_bnd], rn[sw_bnd], rn[w_bnd], rn[nw_bnd] };
+            his_file->put_variable(his_r_name, nst_his, his_values);
+
             his_values = { s[p_a], s[p_b], s[p_c], s[p_d], s[centre], s[n_bnd], s[ne_bnd], s[e_bnd], s[se_bnd], s[s_bnd], s[sw_bnd], s[w_bnd], s[nw_bnd] };
             his_file->put_variable(his_s_name, nst_his, his_values);
 
