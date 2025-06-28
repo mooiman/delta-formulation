@@ -2,15 +2,28 @@ set(exe_name 2d_wave)
 
 # include_directories(include)
 set(headers_files
+    include/bed_level.h
+    include/bed_shear_stress.h
+    include/boundary_condition.h
     include/cfts.h
+    include/convection.h
+    include/data_struct.h
+    include/grid.h
+    include/initial_conditions.h
     include/perf_timer.h
     include/regularization.h
     include/ugrid2d.h
 )    
 
 set(source_files
-    src/main_2d.cpp
+    src/bed_level.cpp
+    src/bed_shear_stress.cpp
+    src/boundary_condition.cpp
     src/cfts.cpp
+    src/convection.cpp
+    src/grid.cpp
+    src/initial_conditions.cpp
+    src/main_2d.cpp
     src/perf_timer.cpp
     src/regularization.cpp
     src/ugrid2d.cpp

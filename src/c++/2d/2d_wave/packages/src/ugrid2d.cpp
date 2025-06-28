@@ -141,7 +141,7 @@ int UGRID2D::add_variable(std::string var_name, std::vector<std::string> dim_nam
     status = set_attribute(var_name, std::string("location"), location);
     if (location == "node")
     {
-        std::string xy("mesh2d_node_x mesh2d_node_x");
+        std::string xy("mesh2d_node_x mesh2d_node_y");
         status = set_attribute(var_name, std::string("coordinates"), xy);
     }
     status = set_attribute(var_name, std::string("standard_name"), std_name);
