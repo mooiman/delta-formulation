@@ -1483,14 +1483,14 @@ int main(int argc, char *argv[])
                                 if (bc_vars[BC_NORTH] == "zeta")
                                 {
                                     if (stationary) { sign = -1.0; }
-                                    corr_term = + sign * eps_bc_corr * (hp_im12 - (bc[BC_NORTH] - zb_jm12));
+                                    corr_term = + sign * eps_bc_corr * (hp_jm12 - (bc[BC_NORTH] - zb_jm12));
                                     rhs[c_eq] += corr_term;
                                     sign = 1.0;
                                 }
                                 if (bc_vars[BC_NORTH] == "q")
                                 {
                                     if (stationary) { sign = -1.0; }
-                                    corr_term = - sign * eps_bc_corr * (qp_im12 - bc[BC_NORTH]);
+                                    corr_term = - sign * eps_bc_corr * (qp_jm12 - bc[BC_NORTH]);
                                     rhs[c_eq] += corr_term;
                                     sign = 1.0;
                                 }
@@ -1906,12 +1906,12 @@ int main(int argc, char *argv[])
                                 double corr_term = 0.0;
                                 if (bc_vars[BC_SOUTH] == "zeta")
                                 {
-                                    corr_term = - eps_bc_corr * (hp_ip12 - (bc[BC_SOUTH] - zb_jp12));
+                                    corr_term = - eps_bc_corr * (hp_jp12 - (bc[BC_SOUTH] - zb_jp12));
                                     rhs[c_eq] += corr_term;
                                 }
                                 if (bc_vars[BC_WEST] == "q")
                                 {
-                                    corr_term =  - eps_bc_corr * (qp_ip12 - bc[BC_SOUTH]);
+                                    corr_term =  - eps_bc_corr * (qp_jp12 - bc[BC_SOUTH]);
                                     rhs[c_eq] += corr_term;
                                 }
                             }
