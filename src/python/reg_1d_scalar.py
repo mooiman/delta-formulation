@@ -23,7 +23,7 @@ def cm2inch(cm):
     return cm / 2.54
 
 
-def main(bath_in = 7, Lx_in=1000., dx_in=100., c_psi_in= 4.0, left_in = 0.00):  # c_psi paragraph after eq. 10 of article
+def main(bath_in = 9, Lx_in=6000., dx_in=100., c_psi_in= 4.0, left_in = 0.00):  # c_psi paragraph after eq. 10 of article
     bathymetry = int(bath_in)
     Lx = float(Lx_in)
     dx = float(dx_in)
@@ -47,11 +47,13 @@ def main(bath_in = 7, Lx_in=1000., dx_in=100., c_psi_in= 4.0, left_in = 0.00):  
     # 5: Step function step_left and step_right
     # 6: Constant value of 1.0
     # 7: Step at right boundary of 1.0
+    # 8: Interface
+    # 9: Tile
     #
 
     Psi = c_psi * dx *dx
 
-    refine = 100
+    refine = 1
     x_ana = np.zeros(refine*(nx-1) + 1, dtype=np.float64)
     ugiv_ana = np.zeros(refine * (nx - 1) + 1, dtype=np.float64)
     ubar_ana = np.zeros(refine * (nx - 1) + 1, dtype=np.float64)
@@ -203,9 +205,9 @@ def main(bath_in = 7, Lx_in=1000., dx_in=100., c_psi_in= 4.0, left_in = 0.00):  
         step_right = 2.
         step_height = step_right - step_left
         for i in range(0, nx):
-            ugiv[i] = 1.0
+            ugiv[i] = 1.5
         for i in range(0, refine * (nx - 1) + 1):
-            ugiv_ana[i] = 1.0
+            ugiv_ana[i] = 1.5
     elif bathymetry == 7:
         bathymetry_desc = "Single step (at right)"
         step_left = 0.0
@@ -225,8 +227,6 @@ def main(bath_in = 7, Lx_in=1000., dx_in=100., c_psi_in= 4.0, left_in = 0.00):  
                 ugiv_ana[i] = step_right
             for j in range(0, refine*(2-1) + 1):
                 ugiv_ana[j] = 1.0
-
-
     elif bathymetry == 8:
         bathymetry_desc = "f(x)=0 x<0.5, f(x)=2x x>0.5: Interface problem"
         for i in range(0, nx):
@@ -237,6 +237,16 @@ def main(bath_in = 7, Lx_in=1000., dx_in=100., c_psi_in= 4.0, left_in = 0.00):  
             ugiv_ana[i] = 0.0
             if x_ana[i] > 0.5:
                 ugiv_ana[i] = 2. * x_ana[i]
+    elif bathymetry == 9:
+        bathymetry_desc = "0.25 * Lx > x < 0.75 * Lx; f(x) = -5: Tile"
+        for i in range(0, nx):
+            ugiv[i] = -10.0
+            if x[i] > 0.25 * Lx and x[i] < 0.75 * Lx:
+                ugiv[i] = -5.0
+        for i in range(0, refine * (nx - 1) + 1):
+            ugiv_ana[i] = -10.0
+            if x_ana[i] > 0.25 * Lx and x_ana[i] < 0.75 * Lx:
+                ugiv_ana[i] = -5.0
 
     else:
         print("No valid bathymetry option defined, value '%s' is not supported." % bathymetry)
