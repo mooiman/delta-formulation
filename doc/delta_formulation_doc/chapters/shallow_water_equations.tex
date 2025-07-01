@@ -705,6 +705,107 @@ The \textbf{essential} boundary condition is to be assumed somewhere in the firs
 For simplicity the boundary condition is chosen to be on node $i=1$ (location $x_{1}$).
 
 %------------------------------------------------------------------------------
+\subsubsection{Essential boundary condition}
+The \textbf{essential} boundary condition is to be assumed somewhere in the first control volume, ($x_{i_{bc}}$ with $i_{bc} \in [i-\half, i+\half]$ ).
+For simplicity the boundary condition is chosen to be on node $i=1$ (location $x_{1}$).
+
+The \textbf{essential} boundary condition for the left/west boundary at $x_{1}$ reads, describing the ingoing wave (indicated with $h^+$, $q^+$) with as less as possible disturbing the outgoing wave (\autoref{eq:left_right_going_equations}):
+\begin{align}
+    \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} & = F(t)
+    \label{eq:essential_conv_1}
+    \\
+    \left(\sqrt{gh} + \frac{q}{h}\right) \pdiff{h^{+}}{t} - \pdiff{q^{+}}{t} & = 0
+    \label{eq:essential_conv_2}
+\end{align}
+\Autoref{eq:essential_conv_2} means that the ingoing wave does not disturb the outgoing wave.
+
+The essential boundary condition for the right/east boundary at $x_{I+\half}$ reads, describing the ingoing wave (indicated with $h^-$, $q^-$) with as less as possible disturbing the outgoing wave (\autoref{eq:left_right_going_equations}):\begin{align}
+    \left(\sqrt{gh} + \frac{q}{h}\right) \pdiff{h^{-}}{t} - \pdiff{q^{-}}{t} & = G(t)
+    \label{eq:essential_conv_3}
+    \\
+    \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{-}}{t} + \pdiff{q^{-}}{t} & = 0
+    \label{eq:essential_conv_4}
+\end{align}
+\Autoref{eq:essential_conv_4} means that the ingoing wave does not disturb the outgoing wave.
+
+
+%
+%--------------------------------------------------------------------------------
+\paragraph*{Given water level at left/west boundary}
+
+% \todo{Is the following assumption correct: if $\zeta_{\textit{given}} = f(t)$  is then $\lpdiff{q}{t}=0$}
+
+Adding the equations (\eqref{eq:essential_conv_1} $+$ \eqref{eq:essential_conv_2}) yields
+\begin{align}
+    2 \sqrt{gh} \pdiff{h}{t} & = F(t)
+\end{align}
+%
+So the essential boundary condition for incoming signal (if $\lpdiff{z_b}{t} = 0$) reads
+\begin{align}
+    {\boxed{
+            \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t}  = 2 \sqrt{gh} \pdiff{\zeta_{\textit{given}}}{t}  + \eps(\zeta_{\textit{given}} - \zeta)
+    }}\label{eq:essential_bc_zeta}
+\end{align}
+a correction term is added, to prevent drifting away of the solution (an integration constant is missing).
+The variable $\eps$ has dimension \bunit{\metre\per\square\second}.
+
+The discretization of  boundary \autoref{eq:essential_bc_zeta} at $x=i+\half$ reads
+\begin{align}
+    &\left(\sqrt{gh^{n+\theta,p+1}} - \frac{q^{n+\theta,p+1}}{h^{n+\theta,p+1}}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t}  =
+    \nonumber \\*
+    & = 2 \sqrt{gh^{n+\theta,p+1}} \pdiff{\zeta_{\textit{given}}}{t}
+    + \eps \left( (\zeta_{\textit{given}} -z_b) - h^{n+1,p}   \right)
+\end{align}
+
+%
+%--------------------------------------------------------------------------------
+\paragraph*{Given water flux at left/west boundary}
+Subtracting the equations (\eqref{eq:essential_conv_1} $-$ \eqref{eq:essential_conv_2}), yields:
+\begin{align}
+    - 2 \frac{q}{h}\pdiff{h}{t}  + 2 \pdiff{q}{t} & =  F(h, q, t)
+\end{align}
+So the essential boundary condition for incoming signal reads
+\begin{align}
+    & \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} =
+    - 2 \frac{q}{h}\pdiff{h}{t}  + 2 \pdiff{q}{t} \label{eq:essential_conv_5}
+    %        \\
+    %       & \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} =
+    %       - 2 \frac{q}{h} \frac{h}{h\sqrt{gh} + q} \pdiff{q}{t}   + 2 \pdiff{q}{t}
+    %       \\
+    %       & \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} =
+    %- 2 \frac{q}{h\sqrt{gh} + q} \pdiff{q}{t}   + 2 \pdiff{q}{t}
+\end{align}
+Using \autoref{eq:essential_conv_2} (ingoing information does not disturb outgoing information)
+\begin{align}
+    &\left(\sqrt{gh} + \frac{q}{h}\right) \pdiff{h^{+}}{t} - \pdiff{q^{+}}{t} = 0
+    \Rightarrow
+    \pdiff{h^{+}}{t}   =
+    \frac{1}{\sqrt{gh} + \frac{q}{h}}\pdiff{q^{+}}{t}\label{eq:essential_conv_6}
+    %\frac{h^{+}}{h\sqrt{gh} + q} \pdiff{q^{+}}{t} \label{eq:essential_conv_4}
+\end{align}
+substituting \autoref{eq:essential_conv_6} into the right hand side of \autoref{eq:essential_conv_5}, yields
+\begin{align}
+    %        & \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} =
+    %        2 \left( 1 -  \frac{q}{h\sqrt{gh} + q} \right)\pdiff{q}{t}
+    %        \\
+    %        & \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} =
+    %    2 \left( \frac{h\sqrt{gh} + q}{h\sqrt{gh} + q} -  \frac{q}{h\sqrt{gh} + q} \right)\pdiff{q}{t}
+    %        \\
+    &{\boxed{
+            \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} =
+            2 \left( \frac{\sqrt{gh}}{\sqrt{gh} + \frac{q}{h}} \right)\pdiff{q_{\textit{given}}}{t} + \eps(q_{\textit{given}} - q)
+    }}\label{eq:essential_bc_q}
+\end{align}
+a correction term is added, to prevent drifting away of the solution (an integration constant is missing).
+The variable $\eps$ has dimension \bunit{\per\second}.
+The discretization of  boundary \autoref{eq:essential_bc_q} at $x=i+\half$ reads
+\begin{align}
+    &\left(\sqrt{gh^{n+\theta,p+1}} - \frac{q^{n+\theta,p+1}}{h^{n+\theta,p+1}} \right) \pdiff{h}{t} + \pdiff{q}{t} =
+    \nonumber \\*
+    & = 2 \left(  \frac{\sqrt{gh^{n+\theta,p+1}}}{\sqrt{gh^{n+\theta,p+1}} + \frac{q^{n+\theta,p+1}}{h^{n+\theta,p+1}}} \right) \pdiff{q_{\textit{given}}}{t} + \eps \left( q_{\textit{given}} - q^{n+1,p}   \right)
+\end{align}
+
+%------------------------------------------------------------------------------
 \subsubsection{Natural boundary condition}
 
 The \textbf{natural} boundary condition for the left/west boundary, describing the undisturbed outgoing wave, reads (\autoref{eq:left_right_going_equations}):
@@ -738,7 +839,7 @@ At the left/west boundary ($x_{i+\half}$ with $i=0$) the time discretization of 
     \pdiff{h}{t} & \approx \frac{1}{\Dt} \left(  h^{n+1}_{i+\half} - h^{n}_{i+\half} \right)
 \end{align}
 A diffusion like term is added to the boundary equation to damp the reflection of spurious waves.
-A coefficient $\alpha_{\it bnd}$ is placed before that extra term, the optimal value of this coefficient is taken from the analysis in \citet{JanMooiman2025}.
+A coefficient $\alpha_{\it bnd}$ is placed before that extra term, the optimal value of this coefficient is taken from the analysis in \citet{transpeq-analysisdiscretizationinsidedomain_boundaries.mw}.
 \begin{align}
     & \frac{1}{\Dt}\left( \frac{1}{2} \left( h^{n+1,p+1}_{i} + h^{n+1,p+1}_{i+1} \right)
     + \frac{\alpha_{\it bnd}}{2} \left( h^{n+1,p+1}_{i} - 2 h^{n+1,p+1}_{i+1} + h^{n+1,p+1}_{i+2}  \right) \right. +
@@ -785,7 +886,7 @@ At the left/west boundary ($x_{i+\half}$ with $i=0$) the time discretization of 
     \pdiff{q}{t} & \approx \frac{1}{\Dt} \left(  q^{n+1}_{i+\half} - q^{n}_{i+\half} \right)
 \end{align}
 A diffusion like term is added to the boundary equation to damp the reflection of spurious waves.
-A coefficient $\alpha_{\it bnd}$ is placed before that extra term, the optimal value of this coefficient is taken from the analysis in \citet{JanMooiman2025}.
+A coefficient $\alpha_{\it bnd}$ is placed before that extra term, the optimal value of this coefficient is taken from the analysis in \citet{transpeq-analysisdiscretizationinsidedomain_boundaries.mw}.
 \begin{align}
     & \frac{1}{\Dt}\left( \frac{1}{2} \left( q^{n+1,p+1}_{i} + q^{n+1,p+1}_{i+1} \right)
     + \frac{\alpha_{\it bnd}}{2} \left( q^{n+1,p+1}_{i} - 2 q^{n+1,p+1}_{i+1} + q^{n+1,p+1}_{i+2}  \right) \right. +
@@ -938,105 +1039,6 @@ which will be approximated by the following discretizations:
     \pdiff[2]{h}{x} & \approx \frac{h^{n+\theta,p+1}_{i-1} - 2 h^{n+\theta, p+1}_{i} + h^{n+\theta, p+1}_{i+1}}{\Dx}
 \end{align}
 \todo{Natural boundary: viscosity term}
-%------------------------------------------------------------------------------
-\subsubsection{Essential boundary condition}
-The \textbf{essential} boundary condition is to be assumed somewhere in the first control volume, ($x_{i_{bc}}$ with $i_{bc} \in [i-\half, i+\half]$ ).
-For simplicity the boundary condition is chosen to be on node $i=1$ (location $x_{1}$).
 
-The \textbf{essential} boundary condition for the left/west boundary at $x_{1}$ reads, describing the ingoing wave (indicated with $h^+$, $q^+$) with as less as possible disturbing the outgoing wave (\autoref{eq:left_right_going_equations}):
-\begin{align}
-    \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} & = F(t)
-    \label{eq:essential_conv_1}
-    \\
-    \left(\sqrt{gh} + \frac{q}{h}\right) \pdiff{h^{+}}{t} - \pdiff{q^{+}}{t} & = 0
-    \label{eq:essential_conv_2}
-\end{align}
-\Autoref{eq:essential_conv_2} means that the ingoing wave does not disturb the outgoing wave.
-
-The essential boundary condition for the right/east boundary at $x_{I+\half}$ reads, describing the ingoing wave (indicated with $h^-$, $q^-$) with as less as possible disturbing the outgoing wave (\autoref{eq:left_right_going_equations}):\begin{align}
-    \left(\sqrt{gh} + \frac{q}{h}\right) \pdiff{h^{-}}{t} - \pdiff{q^{-}}{t} & = G(t)
-    \label{eq:essential_conv_3}
-    \\
-    \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{-}}{t} + \pdiff{q^{-}}{t} & = 0
-    \label{eq:essential_conv_4}
-\end{align}
-\Autoref{eq:essential_conv_4} means that the ingoing wave does not disturb the outgoing wave.
-
-
-%
-%--------------------------------------------------------------------------------
-\subsection*{Given water level at left/west boundary}
-
-% \todo{Is the following assumption correct: if $\zeta_{\textit{given}} = f(t)$  is then $\lpdiff{q}{t}=0$}
-
-Adding the equations (\eqref{eq:essential_conv_1} $+$ \eqref{eq:essential_conv_2}) yields
-\begin{align}
-    2 \sqrt{gh} \pdiff{h}{t} & = F(t)
-\end{align}
-%
-So the essential boundary condition for incoming signal (if $\lpdiff{z_b}{t} = 0$) reads
-\begin{align}
-    {\boxed{
-        \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t}  = 2 \sqrt{gh} \pdiff{\zeta_{\textit{given}}}{t}  + \eps(\zeta_{\textit{given}} - \zeta)
-        }}\label{eq:essential_bc_zeta}
-\end{align}
-a correction term is added, to prevent drifting away of the solution (an integration constant is missing).
-The variable $\eps$ has dimension \bunit{\metre\per\square\second}.
-
-The discretization of  boundary \autoref{eq:essential_bc_zeta} at $x=i+\half$ reads
-\begin{align}
-    &\left(\sqrt{gh^{n+\theta,p+1}} - \frac{q^{n+\theta,p+1}}{h^{n+\theta,p+1}}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t}  =
-    \nonumber \\*
-    & = 2 \sqrt{gh^{n+\theta,p+1}} \pdiff{\zeta_{\textit{given}}}{t}
-    + \eps \left( (\zeta_{\textit{given}} -z_b) - h^{n+1,p}   \right)
-\end{align}
-
-%
-%--------------------------------------------------------------------------------
-\subsection*{Given water flux at left/west boundary}
-Subtracting the equations (\eqref{eq:essential_conv_1} $-$ \eqref{eq:essential_conv_2}), yields:
-\begin{align}
-    - 2 \frac{q}{h}\pdiff{h}{t}  + 2 \pdiff{q}{t} & =  F(h, q, t)
-\end{align}
-and using \autoref{eq:essential_conv_2} (ingoing information does not disturb outgoing information)
-\begin{align}
-    &\left(\sqrt{gh} + \frac{q}{h}\right) \pdiff{h}{t} - \pdiff{q}{t}  =0
-    \\
-    & \pdiff{h}{t}   =
-    \frac{1}{\sqrt{gh} + \frac{q}{h}}\pdiff{q}{t}
-    %\frac{h}{h\sqrt{gh} + q} \pdiff{q}{t} \label{eq:essential_conv_4}
-\end{align}
-So the essential boundary condition for incoming signal reads
-\begin{align}
-    & \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} =
-    - 2 \frac{q}{h}\pdiff{h}{t}  + 2 \pdiff{q}{t}
-    %        \\
-    %       & \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} =
-    %       - 2 \frac{q}{h} \frac{h}{h\sqrt{gh} + q} \pdiff{q}{t}   + 2 \pdiff{q}{t}
-    %       \\
-    %       & \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} =
-    %- 2 \frac{q}{h\sqrt{gh} + q} \pdiff{q}{t}   + 2 \pdiff{q}{t}
-\end{align}
-substituting \autoref{eq:essential_conv_4} into the right hand side, yields
-\begin{align}
-%        & \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} =
-%        2 \left( 1 -  \frac{q}{h\sqrt{gh} + q} \right)\pdiff{q}{t}
-%        \\
-%        & \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} =
-%    2 \left( \frac{h\sqrt{gh} + q}{h\sqrt{gh} + q} -  \frac{q}{h\sqrt{gh} + q} \right)\pdiff{q}{t}
-%        \\
-&{\boxed{
-    \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} =
-    2 \left( \frac{\sqrt{gh}}{\sqrt{gh} + \frac{q}{h}} \right)\pdiff{q_{\textit{given}}}{t} + \eps(q_{\textit{given}} - q)
-}}\label{eq:essential_bc_q}
-\end{align}
-a correction term is added, to prevent drifting away of the solution (an integration constant is missing).
-The variable $\eps$ has dimension \bunit{\per\second}.
-The discretization of  boundary \autoref{eq:essential_bc_q} at $x=i+\half$ reads
-\begin{align}
-    &\left(\sqrt{gh^{n+\theta,p+1}} - \frac{q^{n+\theta,p+1}}{h^{n+\theta,p+1}} \right) \pdiff{h}{t} + \pdiff{q}{t} =
-    \nonumber \\*
-    & = 2 \left(  \frac{\sqrt{gh^{n+\theta,p+1}}}{\sqrt{gh^{n+\theta,p+1}} + \frac{q^{n+\theta,p+1}}{h^{n+\theta,p+1}}} \right) \pdiff{q_{\textit{given}}}{t} + \eps \left( q_{\textit{given}} - q^{n+1,p}   \right)
-\end{align}
 
 

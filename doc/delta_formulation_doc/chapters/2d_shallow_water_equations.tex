@@ -120,16 +120,57 @@ For a cartesian grid we get:
 \end{align}
 Just looking to the quadrature point of $scv_3$ as part of the control volume for node $(i,j)$ the discretization reads:
 \begin{align}
-    &\quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i+\quart, j+\quart} -  h^{n+1,n}_{i+\quart, j+\quart} \right) =
+    &\quart\Dx\Dy\Dtinv \left( h^{n+1}_{i+\quart, j+\quart} -  h^{n+1,n}_{i+\quart, j+\quart} \right) =
     \\*
-    &= \quart\Dx\Dy\Dtinv \left( \frac{1}{16}\left( 9h^{n+1,p+1}_{i, j} + 3 h^{n+1,p+1}_{i+1,j}  + 3  h^{n+1,p+1}_{i, j+1} + h^{n+1,p+1}_{i+1, j+1}\right) \right. +
+    &= \quart\Dx\Dy\Dtinv \left( \frac{1}{16}\left( 9h^{n+1}_{i, j} + 3 h^{n+1}_{i+1,j}  + 3  h^{n+1}_{i, j+1} + h^{n+1}_{i+1, j+1}\right) \right. +
     \\*
-    &\quad - \left. \frac{1}{16}\left( 9 h^{n+1,n}_{i, j} +  3 h^{n+1,n}_{i+1,j}  + 3  h^{n+1,n}_{i, j+1} + h^{n+1,n}_{i+1, j+1}\right)\right)
+    &\quad - \left. \frac{1}{16}\left( 9 h^{n}_{i, j} +  3 h^{n}_{i+1,j}  + 3  h^{n}_{i, j+1} + h^{n}_{i+1, j+1}\right)\right)
 \end{align}
-\notyet
+Written in \deltaformulation  it reads:
+\begin{align}
+    &\quart\Dx\Dy\Dtinv \left( h^{n+1}_{i+\quart, j+\quart} -  h^{n}_{i+\quart, j+\quart} \right) =
+    \\*
+    &=\quart\Dx\Dy\Dtinv \left( \frac{1}{16}\left( 9 \Delta h^{n+1,p+1}_{i, j} + 3 \Delta q^{n+1,p+1}_{i+1,j+1}  + 3 \Delta q^{n+1,p+1}_{i, j+1} + \Delta h^{n+1,p+1}_{i+1, j+1}\right) \right) +
+    \\*
+    & + \quart\Dx\Dy\Dtinv \left( \frac{1}{16}\left( 9 h^{n+1,p}_{i, j} + 3 h^{n+1,p}_{i+1,j}  + 3 h^{n+1,p}_{i, j+1} + h^{n+1,p+1}_{i+1, j+1}\right) \right. +
+    \\*
+    &\quad - \left. \frac{1}{16}\left( h q^{n}_{i, j} +  3 h^{n}_{i+1,j}  + 3  h^{n}_{i, j+1} + h^{n}_{i+1, j+1}\right)\right)
+\end{align}
+
 %-------------------------------------------------------------------------------
 \subsubsection{Mass flux}
-\notyet
+The discretization of the mass flux term of the continuity equation reads:
+\begin{align}
+\int_\Omega \nabla \dotp \vec{q}\, d\omega =
+\oint_{\partial\Omega} \left( q + r \right) \vec{n} \dotp \vec{dl}
+\end{align}
+The component for the continuity equation reads:
+\begin{align}
+    F_{{\it mf}} = q + r
+\end{align}
+
+The Jacobian \textbf{at the faces of the control volume} for the mass flux terms $F_{{\it mf}}(h,q,r)$ reads:
+\begin{align}
+    %    &\begin{pmatrix}
+        %    J_{11} &  J_{12} &  J_{13}
+        %    \\
+        %     J_{21} &  J_{22} &  J_{23}
+        %    \end{pmatrix}
+    %    \rightarrow
+    &\begin{pmatrix}
+        \pdiff{F_{{\it mf}}}{h} & \pdiff{F_{{\it mf}}}{q} & \pdiff{F_{{\it mf}}}{r}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        0 & 1 & 1
+    \end{pmatrix}
+\end{align}
+The linearization in time reads:
+\begin{align}
+    &q^{n+\theta, p} + \theta \Delta q  + r^{n+\theta, p} + \theta \Delta r
+\end{align}
+This terms need to be computed for each of the control volume faces, taken into account the outward normal.
+Eight faces on a cartesian grid.
 %-------------------------------------------------------------------------------
 \subsection{Discretizations momentum equations}
 The discretization of momentum \autoref{eq:pressure_dependent_on_zeta_b} will be presented term by term.
@@ -151,28 +192,37 @@ On a structured grid one control volume ($cv$) around a node consist of four sub
 For a cartesian grid we get:
 \begin{align}
     \int_{cv} \pdiff{q}{t}\, d\omega \approx &
-    \quart\Dx\Dy\Dtinv \left( q^{n+1,p+1}_{i-\quart, j-\quart} -  q^{n+1,n}_{i-\quart, j-\quart} \right) +
+    \quart\Dx\Dy\Dtinv \left( q^{n+1}_{i-\quart, j-\quart} -  q^{n}_{i-\quart, j-\quart} \right) +
     \nonumber \\*
-    &\quart\Dx\Dy\Dtinv \left( q^{n+1,p+1}_{i+\quart, j-\quart} -  q^{n+1,n}_{i+\quart, j-\quart} \right) +
+    &\quart\Dx\Dy\Dtinv \left( q^{n+1}_{i+\quart, j-\quart} -  q^{n}_{i+\quart, j-\quart} \right) +
     \nonumber \\*
-    &\quart\Dx\Dy\Dtinv \left( q^{n+1,p+1}_{i+\quart, j+\quart} -  q^{n+1,n}_{i+\quart, j+\quart} \right) +
+    &\quart\Dx\Dy\Dtinv \left( q^{n+1}_{i+\quart, j+\quart} -  q^{n}_{i+\quart, j+\quart} \right) +
     \nonumber \\*
-    &\quart\Dx\Dy\Dtinv \left( q^{n+1,p+1}_{i-\quart, j+\quart} -  q^{n+1,n}_{i-\quart, j+\quart} \right)
+    &\quart\Dx\Dy\Dtinv \left( q^{n+1}_{i-\quart, j+\quart} -  q^{n}_{i-\quart, j+\quart} \right)
 \end{align}
 Just looking to the quadrature point of $scv_3$ as part of the control volume for node $(i,j)$ the discretization reads:
 \begin{align}
-    &\quart\Dx\Dy\Dtinv \left( q^{n+1,p+1}_{i+\quart, j+\quart} -  q^{n+1,n}_{i+\quart, j+\quart} \right) =
+    &\quart\Dx\Dy\Dtinv \left( q^{n+1}_{i+\quart, j+\quart} -  q^{n}_{i+\quart, j+\quart} \right) =
     \\*
-    &= \quart\Dx\Dy\Dtinv \left( \frac{1}{16}\left( 9 q^{n+1,p+1}_{i, j} + 3 q^{n+1,p+1}_{i+1,j}  + 3 q^{n+1,p+1}_{i, j+1} + q^{n+1,p+1}_{i+1, j+1}\right) \right. +
+    &= \quart\Dx\Dy\Dtinv \left( \frac{1}{16}\left( 9 q^{n+1}_{i, j} + 3 q^{n+1}_{i+1,j}  + 3 q^{n+1}_{i, j+1} + q^{n+1}_{i+1, j+1}\right) \right. +
     \\*
-    &\quad - \left. \frac{1}{16}\left( 9 q^{n+1,n}_{i, j} +  3 q^{n+1,n}_{i+1,j}  + 3  q^{n+1,n}_{i, j+1} + q^{n+1,n}_{i+1, j+1}\right)\right)
+    &\quad - \left. \frac{1}{16}\left( 9 q^{n}_{i, j} +  3 q^{n}_{i+1,j}  + 3  q^{n}_{i, j+1} + q^{n}_{i+1, j+1}\right)\right)
 \end{align}
-
+Written in \deltaformulation  it reads:
+\begin{align}
+    &\quart\Dx\Dy\Dtinv \left( q^{n+1}_{i+\quart, j+\quart} -  q^{n}_{i+\quart, j+\quart} \right) =
+    \\*
+    &=\quart\Dx\Dy\Dtinv \left( \frac{1}{16}\left( 9 \Delta q^{n+1,p+1}_{i, j} + 3 \Delta q^{n+1,p+1}_{i+1,j+1}  + 3 \Delta q^{n+1,p+1}_{i, j+1} + \Delta q^{n+1,p+1}_{i+1, j+1}\right) \right) +
+    \\*
+    & + \quart\Dx\Dy\Dtinv \left( \frac{1}{16}\left( 9 q^{n+1,p}_{i, j} + 3 q^{n+1,p}_{i+1,j}  + 3 q^{n+1,p}_{i, j+1} + q^{n+1,p+1}_{i+1, j+1}\right) \right. +
+    \\*
+    &\quad - \left. \frac{1}{16}\left( 9 q^{n}_{i, j} +  3 q^{n}_{i+1,j}  + 3  q^{n}_{i, j+1} + q^{n}_{i+1, j+1}\right)\right)
+\end{align}
 %--------------------------------------------------------------------------------
 \subsubsection{Pressure term} \label{sec:linearized_pressure_zeta}
 In this section we use that the pressure term is dependent on $\zeta$.
 \begin{align}
-    \int_{\Omega_i} gh \nabla \zeta \, d\omega
+    \int_{\Omega} gh \nabla \zeta \, d\omega
 \end{align}
 The integral over a control volume will be a sum of integrals over the sub control volumes.
 On a structured mesh it will be the sum over 4 sub control volumes.
@@ -183,15 +233,15 @@ Considering one control volume and only the $x$-direction (assuming a cartesian 
     \\
     & \approx \quart \Dx\Dy\, g h^{n+\theta,p+1}_{qp} \pdiff{\zeta^{n+\theta,p+1}_{qp}}{x}
     \\
-   & \approx \quart  \Dx\Dy\, g \left( h^{n+1,p}_{qp} + \theta \Delta h^{n+1,p+1}\right)  \pdiff{}{x}\left(\zeta^{n+1,p}_{qp} + \theta \Delta \zeta^{n+1,p+1}_{qp}\right)
+   & \approx \quart  \Dx\Dy\, g \left( h^{n+\theta,p}_{qp} + \theta \Delta h^{n+1,p+1}\right)  \pdiff{}{x}\left(\zeta^{n+\theta,p}_{qp} + \theta \Delta \zeta^{n+1,p+1}_{qp}\right)
 \end{align}
 with $qp$ the location of the quadrature point in the sub-control volume.
 Assume that the higher order terms are negligible then the discretization for each of the 4 sub-control volumes reads:
 \begin{align}
         \quart  \Dx\Dy\, g \left(
-        h^{n+1,p}_{qp} \pdiff{\zeta^{n+1, p}_{qp}}{x}
-        + \theta h^{n+1, p}_{qp} \pdiff{\Delta \zeta^{n+1, p+1}_{qp}}{x}
-        + \theta \pdiff{\zeta^{n+1, p}_{qp}}{x} \Delta h^{n+1,p+1}_{qp}
+        h^{n+\theta, p}_{qp} \pdiff{\zeta^{n+\theta, p}_{qp}}{x}
+        + \theta h^{n+\theta, p}_{qp} \pdiff{\Delta \zeta^{n+1, p+1}_{qp}}{x}
+        + \theta \pdiff{\zeta^{n+\theta, p}_{qp}}{x} \Delta h^{n+1,p+1}_{qp}
           \right)
 \end{align}
 
@@ -200,48 +250,63 @@ Assume that the higher order terms are negligible then the discretization for ea
 The convection term in vector notation reads:
 \begin{align}
     \int_\Omega \nabla \dotp \left( \frac{\vec{q}\vec{q}^T}{h} \right)\, d\omega =
-    \int_{\Omega_i}  \left( \frac{\vec{q}\vec{q}^T}{h} \right) \vec{n} \dotp \vec{dl}
+    \oint_{\Omega}  \left( \frac{\vec{q}\vec{q}^T}{h} \right) \vec{n} \dotp \vec{dl}
 \end{align}
 The components for the two momentum equations read:
 \begin{align}
-    \int^{y_{j+\half}}_{y_{j-\half}}&  \int^{x_{i+\half}}_{x_{i-\half}} \left( \frac{\vec{q}\vec{q}^T}{h} \right) \, dxdy =
-    \\
-    & = \Dy \left(\frac{qq}{h} + \frac{qr}{h}\right)_{i+\half,j} -
-    \Dy \left(\frac{qq}{h} + \frac{qr}{h}\right)_{i-\half,j}
+    F_q
+    & = \oint_{\Omega} \left(\frac{qq}{h} + \frac{qr}{h}\right) \vec{n_x} \dotp \vec{dl}
     \qquad \textit{q-momentum eq.}
     \\
-    \int^{y_{i+\half}}_{y_{i-\half}}&  \int^{x_{i+\half}}_{x_{i-\half}} \left( \frac{\vec{q}\vec{q}^T}{h} \right) \, dxdy  =
-    \\
-    & = \Dx \left(\frac{rq}{h} + \frac{rr}{h}\right)_{i,j+\half}  -
-    \Dx \left(\frac{rq}{h} + \frac{rr}{h}\right)_{i,j+\half}
+    F_r
+    & = \oint_{\Omega} \left(\frac{rq}{h} + \frac{rr}{h}\right)  \vec{n_y} \dotp \vec{dl}
     \qquad \textit{r-momentum eq.}
 \end{align}
-Discretization the term for the $q$-momentum equation reads:
+The Jacobian \textbf{at the faces of the control volume} for the convection terms $F(h,q,r)$ reads:
 \begin{align}
-    &
-    \left. \left(\Dy\frac{qq}{h}\right)\right|^{n+\theta,p+1}_{i+\half,j+\quart} +
-    \left. \left(\Dy\frac{qq}{h}\right)\right|^{n+\theta,p+1}_{i+\half,j-\quart} +
+    %    &\begin{pmatrix}
+        %    J_{11} &  J_{12} &  J_{13}
+        %    \\
+        %     J_{21} &  J_{22} &  J_{23}
+        %    \end{pmatrix}
+    %    \rightarrow
+    &\begin{pmatrix}
+        \pdiff{F_q}{h} & \pdiff{F_q}{q} & \pdiff{F_q}{r}
+        \\
+        \pdiff{F_r}{h} & \pdiff{F_r}{q} & \pdiff{F_r}{r}
+    \end{pmatrix}
+    =
     \\
-    &
-    +\left. \left(\Dy\frac{qr}{h}\right)\right|^{n+\theta,p+1}_{i+\half,j+\quart} +
-    \left. \left(\Dy\frac{qr}{h}\right)\right|^{n+\theta,p+1}_{i+\half,j-\quart} +
-    \\
-    & \qquad - \left(
-    \left. \left(\Dy\frac{qq}{h}\right)\right|^{n+\theta,p+1}_{i-\half,j+\quart} +
-    \left. \left(\Dy\frac{qq}{h}\right)\right|^{n+\theta,p+1}_{i-\half,j-\quart} \right. +
-    \\
-     & \qquad \quad + \left. \left. \left(\Dy\frac{qr}{h}\right)\right|^{n+\theta,p+1}_{i-\half,j+\quart} +
-    \left. \left(\Dy\frac{qr}{h}\right)\right|^{n+\theta,p+1}_{i-\half,j-\quart}  \right)
+    &=
+    \begin{pmatrix}
+- \frac{qq}{h^2} - \frac{qr}{h^2} & \frac{2q}{h} + \frac{r}{h} & \frac{q}{h}
+\\*
+- \frac{rq}{h^2} - \frac{rr}{h^2} & \frac{r}{h} & \frac{q}{h} + \frac{2r}{h}
+    \end{pmatrix}
 \end{align}
-The linearization in time read (see \autoref{eq:2d_convection_q_equation}):
+
+The linearization in time read for the $q$-momentum equation reads (see \autoref{eq:2d_convection_q_equation}):
 \begin{align}
-    \frac{q^{n+\theta, p}q^{n+\theta, p}}{h^{n+\theta, p}} - \theta \frac{q^{n+\theta, p}q^{n+\theta, p}}{(h^{n+\theta, p})^2} \Delta h + \theta \frac{2 q^{n+\theta, p}}{h^{n+\theta, p}} \Delta q.
+    &\frac{q^{n+\theta, p}q^{n+\theta, p}}{h^{n+\theta, p}} + \frac{q^{n+\theta, p}r^{n+\theta, p}}{h^{n+\theta, p}}
+    - \left( \frac{q^{n+\theta, p}q^{n+\theta, p}}{(h^{n+\theta, p})^2} +
+    \frac{q^{n+\theta, p}r^{n+\theta, p}}{(h^{n+\theta, p})^2} \right) \theta \Delta h +
+    \nonumber \\*
+    & + \left ( \frac{2 q^{n+\theta, p}}{h^{n+\theta, p}} +  \frac{r^{n+\theta, p}}{h^{n+\theta, p}}\right) \theta \Delta q + \left( \frac{q^{n+\theta, p}}{h^{n+\theta, p}}  \right) \theta \Delta r
 \end{align}
-and
+and for the $r$-momentum equation:
 \begin{align}
-\frac{q^{n+\theta, p}r^{n+\theta, p}}{h^{n+\theta, p}} - \theta \frac{q^{n+\theta, p}r^{n+\theta, p}}{(h^{n+\theta, p})^2} \Delta h + \theta \frac{r^{n+\theta, p}}{h^{n+\theta, p}} \Delta q + \theta \frac{q^{n+\theta, p}}{h^{n+\theta, p}} \Delta r.
+    &\frac{r^{n+\theta, p}q^{n+\theta, p}}{h^{n+\theta, p}} +
+    \frac{r^{n+\theta, p}r^{n+\theta, p}}{h^{n+\theta, p}}
+- \left( \frac{r^{n+\theta, p}q^{n+\theta, p}}{(h^{n+\theta, p})^2} +
+\frac{r^{n+\theta, p}r^{n+\theta, p}}{(h^{n+\theta, p})^2} \right) \theta \Delta h +
+\nonumber \\*
+& +
+\left( \frac{r^{n+\theta, p}}{h^{n+\theta, p}}  \right) \theta \Delta q +
+\left (
+\frac{q^{n+\theta, p}}{h^{n+\theta, p}} + \frac{2 r^{n+\theta, p}}{h^{n+\theta, p}}  \right) \theta \Delta r
 \end{align}
-\notyet
+This terms need to be computed for each of the control volume faces, taken into account the outward normal.
+Eight faces on a cartesian grid.
 
 %--------------------------------------------------------------------------------
 \subsubsection{Bed shear stress}
@@ -292,16 +357,29 @@ The Jacobian for the bed shear stress $F(h,q,r)$ reads:
        & c_f\frac{\abs{\widetilde{\vec{q}}}}{h^2} + c_f \frac{r^4}{h^2\abs{\widetilde{\vec{q}}}^3}
     \end{pmatrix}
 \end{align}
-All these coefficients of the Jacobian should be evaluated at the quadrature point of the sub-control volumes and evaluated at time level $(n+1,p)$.
-The same applies for the right hand side and evaluated at time level $(n+1,p)$:
-\begin{align}
-    \begin{pmatrix}
-        -c_f \left( \frac{q\abs{\widetilde{\vec{q}}}}{h^2} \right)
-        \\
-        -c_f \left( \frac{r\abs{\widetilde{\vec{q}}}}{h^2} \right)
-    \end{pmatrix}
-\end{align}
+All these coefficients of the Jacobian should be evaluated at the quadrature point of the sub-control volumes and evaluated at time level $(n+\theta,p)$.
+The same applies also for the right hand side and evaluated at time level $(n+\theta,p)$.
 
+The linearization in time reads for the $q$-momentum equation (see \autoref{eq:2d_convection_q_equation}):
+\begin{align}
+        &c_f \left( \frac{q^{n+\theta,p}\abs{\widetilde{\vec{q}^{n+\theta,p}}}}{(h^{n+\theta,p})^2} \right)
+        - \left( 2 c_f \frac{ q^{n+\theta,p} \abs{\widetilde{\vec{q}^{n+\theta,p}}} }{(h^{n+\theta,p})^3} \right) \theta \Delta h +
+        \\*
+        & +
+        \left( c_f \frac{\abs{\widetilde{\vec{q}^{n+\theta,p}}}}{(h^{n+\theta,p})^2} + c_f \frac{(q^{n+\theta,p})^4}{(h^{n+\theta,p})^2\abs{\widetilde{\vec{q}^{n+\theta,p}}}^3} \right) \theta \Delta q +
+        \left( c_f \frac{q^{n+\theta,p}(r^{n+\theta,p})^3}
+        {(h^{n+\theta,p})^2\abs{\widetilde{\vec{q}^{n+\theta,p}}} } \right) \theta \Delta r
+ \end{align}
+and for the $r$-momentum equation:
+\begin{align}
+        &c_f \left( \frac{r^{n+\theta,p}\abs{\widetilde{\vec{q}^{n+\theta,p}}}}{(h^{n+\theta,p})^2} \right)
+        - \left( 2 c_f \frac{ r^{n+\theta,p} \abs{\widetilde{\vec{q}^{n+\theta,p}}}} {(h^{n+\theta,p})^3} \right) \theta \Delta h +
+        \\*
+        & + \left( c_f \frac{r^{n+\theta,p}(q^{n+\theta,p})^3}
+        {(h^{n+\theta,p})^2\abs{\widetilde{\vec{q}^{n+\theta,p}}} }\right) \theta \Delta q +
+        \left( c_f \frac{\abs{\widetilde{\vec{q}^{n+\theta,p}}}}{(h^{n+\theta,p})^2} + c_f \frac{(r^{n+\theta,p})^4}{(h^{n+\theta,p})^2\abs{\widetilde{\vec{q}^{n+\theta,p}}}^3} \right) \theta \Delta r
+\end{align}
+This terms need to be computed for each of the sub-control volumes.
 %%--------------------------------------------------------------------------------
 %\subsubsection{Pressure term, dependent on $h$}
 %In this section we use that the pressure term is dependent on $h$.
@@ -354,6 +432,250 @@ Considering a hyperbolic system, if the flow is flowing into the domain two boun
 This is according the characteristic theory of 2D hyperbolic systems \citep{DaubertEtGraffe1967}.
 The ingoing information is called the \textbf{essential} boundary condition (Dirichlet or Neumann condition).
 And a boundary condition to handle the outgoing wave is called the \textbf{natural} boundary condition.
+So for inflow there are \textbf{two essential} and \textbf{one natural} boundary condition and for outflow there is \textbf{one} \textbf{essential} boundary condition and \textbf{two} \textbf{natural} boundary conditions.
+
+The boundary conditions in this section are presented for the left/west boundary.
+First the \textbf{essential} boundary conditions are discussed and after that the \textbf{natural} boundary condition.
+A similar derivation can be given for right/east boundary.
+
+%------------------------------------------------------------------------------
+\subsection{Essential boundary condition}
+The \textbf{essential} boundary condition is to be assumed somewhere in the first control volume, ($x_{i_{bc}}$ with $i_{bc} \in [i-\half, i+\half]$ ).
+For simplicity the boundary condition is chosen to be on node $i=1$ (location $x_{1}$).
+
+
+The \textbf{essential} boundary condition for the left/west boundary at $x_{1}$ reads, describing the ingoing wave (indicated with $h^+$, $q^+$, $r^+$) with as less as possible disturbing the outgoing wave (\autoref{eq:left_right_going_equations}):
+\begin{align}
+    \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} & = F(t)
+    \label{eq:essential_conv_2d_1}
+    \\
+    \left(\sqrt{gh} + \frac{q}{h}\right) \pdiff{h^{+}}{t} - \pdiff{q^{+}}{t} & = 0
+    \label{eq:essential_conv_2d_2}
+\end{align}
+\Autoref{eq:essential_conv_2} means that the ingoing wave does not disturb the outgoing wave.
+And we assume normal incoming waves, which means that $r+=0$.
+
+The \textbf{essential} boundary condition for the right/east boundary at $x_{I+\half}$ reads, describing the ingoing wave (indicated with $h^-$, $q^-$, $r^-$) with as less as possible disturbing the outgoing wave (\autoref{eq:left_right_going_equations}):\begin{align}
+    \left(\sqrt{gh} + \frac{q}{h}\right) \pdiff{h^{-}}{t} - \pdiff{q^{-}}{t} & = G(t)
+    \label{eq:essential_conv_2d_3}
+    \\
+    \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{-}}{t} + \pdiff{q^{-}}{t} & = 0
+    \label{eq:essential_conv_2d_4}
+\end{align}
+\Autoref{eq:essential_conv_2d_4} means that the ingoing wave does not disturb the outgoing wave.
+%--------------------------------------------------------------------------------
+\paragraph*{Given water level at left/west boundary}
+
+% \todo{Is the following assumption correct: if $\zeta_{\textit{given}} = f(t)$  is then $\lpdiff{q}{t}=0$}
+
+Adding the equations (\eqref{eq:essential_conv_2d_1} $+$ \eqref{eq:essential_conv_2d_2}) yields
+\begin{align}
+    2 \sqrt{gh} \pdiff{h}{t} & = F(t)
+\end{align}
+%
+So the essential boundary condition for incoming signal (if $\lpdiff{z_b}{t} = 0$) reads
+\begin{align}
+    {\boxed{
+            \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t}  = 2 \sqrt{gh} \pdiff{\zeta_{\textit{given}}}{t}  + \eps(\zeta_{\textit{given}} - \zeta)
+    }}\label{eq:essential_bc_2d_zeta}
+\end{align}
+a correction term is added, to prevent drifting away of the solution (an integration constant is missing).
+The variable $\eps$ has dimension \bunit{\metre\per\square\second}.
+
+The discretization of  boundary \autoref{eq:essential_bc_zeta} at $x=i+\half$ reads (when $\lpdiff{z_b}{t}=0$):
+\begin{align}
+    &\left(\sqrt{gh^{n+\theta,p+1}} - \frac{q^{n+\theta,p+1}}{h^{n+\theta,p+1}}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t}  =
+    \nonumber \\*
+    & = 2 \sqrt{gh^{n+\theta,p+1}} \pdiff{\zeta_{\textit{given}}}{t}
+    + \eps \left( (\zeta_{\textit{given}} -z_b) - h^{n+1,p}   \right)
+\end{align}
+%--------------------------------------------------------------------------------
+\paragraph*{Given water flux at left/west boundary}
+Subtracting the equations (\eqref{eq:essential_conv_2d_1} $-$ \eqref{eq:essential_conv_2d_2}), yields:
+\begin{align}
+    - 2 \frac{q}{h}\pdiff{h}{t}  + 2 \pdiff{q}{t} & =  F(h, q, t)
+\end{align}
+So the essential boundary condition for incoming signal reads
+\begin{align}
+    & \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} =
+    - 2 \frac{q}{h}\pdiff{h}{t}  + 2 \pdiff{q}{t} \label{eq:essential_conv_2d_5}
+    %        \\
+    %       & \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} =
+    %       - 2 \frac{q}{h} \frac{h}{h\sqrt{gh} + q} \pdiff{q}{t}   + 2 \pdiff{q}{t}
+    %       \\
+    %       & \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} =
+    %- 2 \frac{q}{h\sqrt{gh} + q} \pdiff{q}{t}   + 2 \pdiff{q}{t}
+\end{align}
+Using \autoref{eq:essential_conv_2d_2} (ingoing information does not disturb outgoing information)
+\begin{align}
+    &\left(\sqrt{gh} + \frac{q}{h}\right) \pdiff{h^{+}}{t} - \pdiff{q^{+}}{t} = 0
+    \Rightarrow
+    \pdiff{h^{+}}{t}   =
+    \frac{1}{\sqrt{gh} + \frac{q}{h}}\pdiff{q^{+}}{t}\label{eq:essential_conv_2d_6}
+    %\frac{h^{+}}{h\sqrt{gh} + q} \pdiff{q^{+}}{t} \label{eq:essential_conv_2d_4}
+\end{align}
+substituting \autoref{eq:essential_conv_2d_6} into the right hand side of \autoref{eq:essential_conv_2d_5}, yields
+\begin{align}
+    %        & \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} =
+    %        2 \left( 1 -  \frac{q}{h\sqrt{gh} + q} \right)\pdiff{q}{t}
+    %        \\
+    %        & \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} =
+    %    2 \left( \frac{h\sqrt{gh} + q}{h\sqrt{gh} + q} -  \frac{q}{h\sqrt{gh} + q} \right)\pdiff{q}{t}
+    %        \\
+    &{\boxed{
+            \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} =
+            2 \left( \frac{\sqrt{gh}}{\sqrt{gh} + \frac{q}{h}} \right)\pdiff{q_{\textit{given}}}{t} + \eps(q_{\textit{given}} - q)
+    }}\label{eq:essential_bc_2d_q}
+\end{align}
+a correction term is added, to prevent drifting away of the solution (an integration constant is missing).
+The variable $\eps$ has dimension \bunit{\per\second}.
+The discretization of  boundary \autoref{eq:essential_bc_2d_q} at $x=i+\half$ reads
+\begin{align}
+    &\left(\sqrt{gh^{n+\theta,p+1}} - \frac{q^{n+\theta,p+1}}{h^{n+\theta,p+1}} \right) \pdiff{h}{t} + \pdiff{q}{t} =
+    \nonumber \\*
+    & = 2 \left(  \frac{\sqrt{gh^{n+\theta,p+1}}}{\sqrt{gh^{n+\theta,p+1}} + \frac{q^{n+\theta,p+1}}{h^{n+\theta,p+1}}} \right) \pdiff{q_{\textit{given}}}{t} + \eps \left( q_{\textit{given}} - q^{n+1,p}   \right)
+\end{align}
+
+
+
+%
+%--------------------------------------------------------------------------------
+\paragraph*{Given water level at left/west boundary}
+
+% \todo{Is the following assumption correct: if $\zeta_{\textit{given}} = f(t)$  is then $\lpdiff{q}{t}=0$}
+
+Adding the equations (\eqref{eq:essential_conv_1} $+$ \eqref{eq:essential_conv_2}) yields
+\begin{align}
+    2 \sqrt{gh} \pdiff{h}{t} & = F(t)
+\end{align}
+%
+So the essential boundary condition for incoming signal (if $\lpdiff{z_b}{t} = 0$) reads
+\begin{align}
+    {\boxed{
+            \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t}  = 2 \sqrt{gh} \pdiff{\zeta_{\textit{given}}}{t}  + \eps(\zeta_{\textit{given}} - \zeta)
+    }}\label{eq:essential_bc_zeta}
+\end{align}
+a correction term is added, to prevent drifting away of the solution (an integration constant is missing).
+The variable $\eps$ has dimension \bunit{\metre\per\square\second}.
+
+The discretization of  boundary \autoref{eq:essential_bc_zeta} at $x=i+\half$ reads
+\begin{align}
+    &\left(\sqrt{gh^{n+\theta,p+1}} - \frac{q^{n+\theta,p+1}}{h^{n+\theta,p+1}}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t}  =
+    \nonumber \\*
+    & = 2 \sqrt{gh^{n+\theta,p+1}} \pdiff{\zeta_{\textit{given}}}{t}
+    + \eps \left( (\zeta_{\textit{given}} -z_b) - h^{n+1,p}   \right)
+\end{align}
+
+%------------------------------------------------------------------------------
+\subsubsection{Natural boundary condition}
+The \textbf{natural} boundary condition for the left/west boundary, describing the undisturbed outgoing wave, reads (\autoref{eq:left_right_going_equations}):
+\begin{align}
+    - \left(\sqrt{gh} + \frac{q}{h}\right) \underbrace{ \left(\pdiff{h}{t} + \pdiff{q}{x} + \ldots \right) }_{\text{continuity eq.}} + \underbrace{\left(\pdiff{q}{t} + g h \pdiff{\zeta}{x}+\ldots\right)}_{\text{momentum eq.}} = 0
+\end{align}
+where $q$ is normal to this boundary.
+
+%------------------------------------------------------------------------------
+\paragraph*{Time derivative, continuity equation}
+At the left/west boundary ($x_{i+\half}$ with $i=0$) the time discretization of the continuity equation for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
+\begin{align}
+    \pdiff{h}{t} & \approx \frac{1}{\Dt} \left(  h^{n+1}_{i+\half} - h^{n}_{i+\half} \right)
+\end{align}
+A diffusion like term is added to the boundary equation to damp the reflection of spurious waves.
+A coefficient $\alpha_{\it bnd}$ is placed before that extra term, the optimal value of this coefficient is taken from the analysis in \citet{transpeq-analysisdiscretizationinsidedomain_boundaries.mw}.
+\begin{align}
+    & \frac{1}{\Dt}\left( \frac{1}{2} \left( h^{n+1,p+1}_{i} + h^{n+1,p+1}_{i+1} \right)
+    + \frac{\alpha_{\it bnd}}{2} \left( h^{n+1,p+1}_{i} - 2 h^{n+1,p+1}_{i+1} + h^{n+1,p+1}_{i+2}  \right) \right. +
+    \nonumber \\*
+    & \qquad  - \left. \left(
+    \frac{1}{2} \left( h^{n}_{i} + h^{n}_{i+1} \right)
+    + \frac{\alpha_{\it bnd}}{2}  \left( h^{n}_{i} - 2 h^{n}_{i+1} + h^{n}_{i+2}  \right) \right)
+    \right)
+\end{align}
+After rearranging the equation to the \deltaformulation, the implicit and the explicit part reads:
+\begin{align}
+    & \frac{1}{\Dt}  \left( \half \left( \Delta h^{n+1, p+1}_{i} + \Delta h^{n+1, p+1}_{i+1} \right) \right. +
+    \nonumber \\*
+    & \qquad + \left. \frac{\alpha_{\it bnd}}{2}\left( \Delta h^{n+1,p+1}_{i} - 2 \Delta h^{n+1,p+1}_{i+1} + \Delta h^{n+1,p+1}_{i+2} \right) \right) +
+    \nonumber \\
+    & \qquad + \frac{1}{\Dt} \left\{ \half \left( h^{n+1, p}_{i} + h^{n+1, p}_{i+1} \right)
+    + \frac{\alpha_{\it bnd}}{2}\left(  h^{n+1,p}_{i} - 2 h^{n+1,p}_{i+1}  + h^{n+1,p}_{i+2} \right) + \right.
+    \nonumber \\*
+    &
+    \qquad \left. - \left( \frac{1}{2} \left( h^{n}_{i} + h^{n}_{i+1} \right)
+    + \frac{\alpha_{\it bnd}}{2}  \left( h^{n}_{i} - 2 h^{n}_{i+1} + h^{n}_{i+2}  \right) \right) \right\}
+\end{align}
+%------------------------------------------------------------------------------
+\paragraph*{Mass flux, continuity equation}
+At the left/west boundary ($x_{i+\half}$ with $i=0$) the discretization of the mass flux for the \textbf{natural} boundary condition, describing the outgoing wave (assuming $\lpdiff{r}{y} = 0$), reads:
+\todo{Is assumption that  $\lpdiff{r}{y} = 0$, OK?}
+\begin{align}
+    \pdiff{q}{x} & \approx \frac{1}{\Dx} \left(  q^{n+\theta, p+1}_{i+1} - q^{n+\theta, p+1}_{i} \right)
+\end{align}
+which will be approximated by
+\begin{align}
+    &\frac{1}{\Dx} \left( \left( q^{n+\theta, p}_{i+1} + \theta \Delta q^{n+1, p+1}_{i+1}\right)
+    - \left( q^{n+\theta, p+1}_{i} + \theta \Delta q^{n+1, p+1}_{i}\right) \right)
+    \\
+    \Leftrightarrow &
+    \\
+    &\frac{\theta }{\Dx} \left( \Delta q^{n+1, p+1}_{i+1} - \Delta q^{n+1, p+1}_{i}\right) +
+    \frac{1}{\Dx} \left\{ q^{n+\theta, p}_{i+1} - q^{n+\theta, p+1}_{i} \right\}
+\end{align}
+%------------------------------------------------------------------------------
+\paragraph*{Time derivative, momentum equation}
+At the left/west boundary ($x_{i+\half}$ with $i=0$) the time discretization of the momentum equation for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
+\begin{align}
+    \pdiff{q}{t} & \approx \frac{1}{\Dt} \left(  q^{n+1}_{i+\half} - q^{n}_{i+\half} \right)
+\end{align}
+A diffusion like term is added to the boundary equation to damp the reflection of spurious waves.
+A coefficient $\alpha_{\it bnd}$ is placed before that extra term, the optimal value of this coefficient is taken from the analysis in \citet{transpeq-analysisdiscretizationinsidedomain_boundaries.mw}.
+\begin{align}
+    & \frac{1}{\Dt}\left( \frac{1}{2} \left( q^{n+1,p+1}_{i} + q^{n+1,p+1}_{i+1} \right)
+    + \frac{\alpha_{\it bnd}}{2} \left( q^{n+1,p+1}_{i} - 2 q^{n+1,p+1}_{i+1} + q^{n+1,p+1}_{i+2}  \right) \right. +
+    \nonumber \\*
+    & \qquad  - \left. \left(
+    \frac{1}{2} \left( q^{n}_{i} + q^{n}_{i+1} \right)
+    + \frac{\alpha_{\it bnd}}{2}  \left( q^{n}_{i} - 2 q^{n}_{i+1} + q^{n}_{i+2}  \right) \right)
+    \right)
+\end{align}
+After rearranging the equation to the \deltaformulation, the implicit and the explicit part reads:
+\begin{align}
+    & \frac{1}{\Dt}  \left( \half \left( \Delta q^{n+1, p+1}_{i} + \Delta q^{n+1, p+1}_{i+1} \right) \right. +
+    \nonumber \\*
+    & \qquad + \left. \frac{\alpha_{\it bnd}}{2}\left( \Delta q^{n+1,p+1}_{i} - 2 \Delta q^{n+1,p+1}_{i+1} + \Delta q^{n+1,p+1}_{i+2} \right) \right) +
+    \nonumber \\
+    & \qquad +  \frac{1}{\Dt} \left\{ \half \left( q^{n+1, p}_{i} + q^{n+1, p}_{i+1} \right) + \frac{\alpha_{\it bnd}}{2}\left( q^{n+1,p}_{i} - 2 q^{n+1,p}_{i+1}  + q^{n+1,p}_{i+2} \right) + \right.
+    \nonumber \\*
+    & \qquad
+    \left.  - \frac{1}{2} \left( q^{n}_{i} + q^{n}_{i+1} \right) - \frac{\alpha_{\it bnd}}{2} \left( q^{n}_{i} - 2 q^{n}_{i+1} + q^{n}_{i+2}  \right) \right\}
+\end{align}
+%------------------------------------------------------------------------------
+\paragraph*{Pressure term, momentum equation}
+At the left/west boundary ($x_{i+\half}$ with $i=0$) the discretization of the pressure term for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
+\begin{align}
+    gh \pdiff{\zeta}{x} \approx
+    & g h^{n+\theta,p+1}_{i+\half} \pdiff{}{x} \left( \zeta^{n+\theta,p+1}_{i+\half}\right)
+\end{align}
+In a formulation of the shallow-water equations, where the equation for the free-surface level $\zeta$ reduces to $\zeta = h + z_b$ (excluding drying and flooding), the equations can be simplified, because $\Delta \zeta = \Delta h$ (when $z_b$ is not time dependent).
+In this case, the contributions to the $\Delta \zeta$-equations need to be incorporated in the $\Delta h$-equations.
+The pressure term will then be approximated by
+\begin{align}
+    & \frac{1}{\Dx} g h^{n+\theta,p}_{i+\half} \left( \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i}  \right) +
+    \nonumber \\*
+    & \qquad + \frac{1}{\Dx}  g \left(  \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i} \right) \theta \Delta h^{n+1, p+1}_{i+\half} +
+    \nonumber \\*
+    & \qquad +   \frac{1}{\Dx} g h^{n+\theta, p}_{i+\half}
+    \theta \left( \Delta \zeta^{n+1,p+1}_{i+1}  - \Delta \zeta^{n+1,p+1}_{i}\right)
+\end{align}
+After rearranging the equation into an implicit and an explicit part it reads:
+\begin{align}
+    & \frac{1}{\Dx}  g \left(  \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i} \right) \theta \Delta h^{n+1, p+1}_{i+\half} +   \frac{1}{\Dx} g h^{n+\theta, p}_{i+\half}
+    \theta \left( \Delta \zeta^{n+1,p+1}_{i+1}  - \Delta \zeta^{n+1,p+1}_{i}\right) +
+    \nonumber \\*
+    & \qquad + \left\{
+    \frac{1}{\Dx} g h^{n+\theta,p}_{i+\half} \left( \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i}  \right)  \right\}
+\end{align}
+
 %------------------------------------------------------------------------------
 \subsection{Discretization at corner}
 \begin{figure}[H]
