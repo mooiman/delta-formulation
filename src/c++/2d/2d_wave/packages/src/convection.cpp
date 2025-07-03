@@ -22,7 +22,24 @@
 
 #include "convection.h"
 
-// Just the convection term in xi-direction implemented
+//   nw - - - - - - - n - - - - - - - ne        nw - - - - - - - n - - - - - - - ne
+//    |       |       |       |       |          |       |       |       |       |
+//    |       |       |       |       |          |       |       |       |       |
+//    |       |       |       |       |          |       |       |       |       |
+//    | - - - - - x - | - x - - - - - |          | - - - - - 6 - | - 5 - - - - - |
+//    |       |       |       |       |          |       |       |       |       |
+//    |       x       |       x       |          |       7 scv_3 | scv_2 4       |
+//    |       |       |       |       |          |       |       |       |       |
+//    w - - - - - - - 0 - - - - - - - e          w - - - - - - - 0 - - - - - - - e
+//    |       |       |       |       |          |       |       |       |       |
+//    |       x       |       x       |          |       0 scv_0 | scv_1 3       |
+//    |       |       |       |       |          |       |       |       |       |
+//    | - - - - - x - | - x - - - - - |          | - - - - - 1 - | - 2 - - - - - |
+//    |       |       |       |       |          |       |       |       |       |
+//    |       |       |       |       |          |       |       |       |       |
+//    |       |       |       |       |          |       |       |       |       |
+//   sw - - - - - - - s - - - - - - - se        sw - - - - - - - s - - - - - - - se
+
 
 //------------------------------------------------------------------------------
 CONVECTION::CONVECTION()
@@ -247,7 +264,7 @@ void CONVECTION::c_scvf_xi(Eigen::SparseMatrix<double> A, Eigen::VectorXd rhs, i
 void CONVECTION::c_scvf_eta(Eigen::SparseMatrix<double> A, Eigen::VectorXd rhs, int eq, 
     double c0, double c1, double c2, double c3, int p0, int p1, int p2, int p3)
 {
-    // c_{i+1/2, j+1/4}
+    // c_{i+1/4, j+1/2}
 
     //    3 - - - - 2
     //    |    |    |

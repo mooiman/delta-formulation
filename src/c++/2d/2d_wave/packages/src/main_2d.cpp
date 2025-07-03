@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
     int iter_max = tbl_chp["iter_max"].value_or(int(50));
     double eps_newton = tbl_chp["eps_newton"].value_or(double(1.0e-12));
     double eps_bicgstab = tbl_chp["eps_bicgstab"].value_or(double(1.0e-12));
-    double eps_fabs = tbl_chp["eps_fabs"].value_or(double(1.0e-2));  // epsilon needed to approximate the abs-function by a continues function
+    double eps_abs = tbl_chp["eps_absolute"].value_or(double(1.0e-2));  // epsilon needed to approximate the abs-function by a continues function
     bool regularization_init = tbl_chp["regularization_init"].value_or(bool(false));
     bool regularization_iter = tbl_chp["regularization_iter"].value_or(bool(false));
     bool regularization_time = tbl_chp["regularization_time"].value_or(bool(false));
@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
     status = sgrid->open(full_grid_filename.string());
     if (status != 0) 
     {
-        log_file << "Error: Failed to open file: " << full_grid_filename.string() << std::endl;
+        log_file << "Error: Failed to open grid file: " << full_grid_filename.string() << std::endl;
         std::chrono::duration<int, std::milli> timespan(3000);
         std::this_thread::sleep_for(timespan);
         //std::cin.ignore();
@@ -354,7 +354,7 @@ int main(int argc, char *argv[])
     REGULARIZATION* regularization = new REGULARIZATION(iter_max, g);
     CONVECTION* convection = new CONVECTION(theta, dx, dy, nx, ny);
     double cf = g / (chezy_coefficient * chezy_coefficient);
-    BEDSHEARSTRESS* bed_stress = new BEDSHEARSTRESS(theta, dx, dy, cf, eps_fabs, nx, ny);
+    BEDSHEARSTRESS* bed_stress = new BEDSHEARSTRESS(theta, dx, dy, cf, eps_abs, nx, ny);
 
     log_file << "=== Used input variables ==============================" << std::endl;
     log_file << "[Domain]" << std::endl;
@@ -417,7 +417,7 @@ int main(int argc, char *argv[])
     log_file << "iter_max = " << iter_max << std::endl;
     log_file << "eps_newton = " << eps_newton << std::endl;
     log_file << "eps_bicgstab = " << eps_bicgstab << std::endl;
-    log_file << "eps_abs_function = " << eps_fabs << std::endl;
+    log_file << "eps_abs_function = " << eps_abs << std::endl;
     log_file << "regularization_init = " << regularization_init << std::endl;
     log_file << "regularization_iter = " << regularization_iter << std::endl;
     log_file << "regularization_time = " << regularization_time << std::endl;
@@ -447,6 +447,8 @@ int main(int argc, char *argv[])
     std::vector<double> delta_h(nxny, 0.);
     std::vector<double> delta_q(nxny, 0.);
     std::vector<double> delta_r(nxny, 0.);
+    std::vector<double> beds_q(nxny, 0.);              // bed shear stress; needed for postprocessing
+    std::vector<double> beds_r(nxny, 0.);              // bed shear stress; needed for postprocessing
     std::vector<double> psi(nxny, 0.);
 
     Eigen::SparseMatrix<double> A(3 * nxny, 3 * nxny);
@@ -741,6 +743,10 @@ int main(int argc, char *argv[])
     std::string map_u_name("u_2d");
     std::string map_v_name("v_2d");
     std::string map_zb_name("zb_2d");
+    std::string map_beds_q_name("bed_stress_q");
+    std::string map_beds_r_name("bed_stress_r");
+
+
     status = map_file->add_variable(map_h_name, dim_names, "sea_floor_depth_below_sea_surface", "Water depth", "m", "mesh2D", "node");
     status = map_file->add_variable(map_q_name, dim_names, "", "Water flux (x)", "m2 s-1", "mesh2D", "node");
     status = map_file->add_variable(map_r_name, dim_names, "", "Water flux (y)", "m2 s-1", "mesh2D", "node");
@@ -751,6 +757,8 @@ int main(int argc, char *argv[])
     status = map_file->add_variable(map_u_name, dim_names, "sea_water_x_velocity", "Velocity (x)", "m s-1", "mesh2D", "node");
     status = map_file->add_variable(map_v_name, dim_names, "sea_water_y_velocity", "Velocity (y)", "m s-1", "mesh2D", "node");
     status = map_file->add_variable(map_zb_name, dim_names, "", "Bed level", "m", "mesh2D", "node");
+    status = map_file->add_variable(map_beds_q_name, dim_names, "", "Bed shear stress (x)", "m2 s-2", "mesh2D", "node");
+    status = map_file->add_variable(map_beds_r_name, dim_names, "", "Bed shear stress (y)", "m2 s-2", "mesh2D", "node");
 
     // Put data on map file
     START_TIMER(Writing map-file);
@@ -766,6 +774,9 @@ int main(int argc, char *argv[])
     map_file->put_time_variable(map_u_name, nst_map, u);
     map_file->put_time_variable(map_v_name, nst_map, v);
     map_file->put_time_variable(map_zb_name, nst_map, zb_giv);
+    bed_stress->rhs(beds_q, beds_r, hn, qn, rn);
+    map_file->put_time_variable(map_beds_q_name, nst_map, beds_q);
+    map_file->put_time_variable(map_beds_r_name, nst_map, beds_r);
     STOP_TIMER(Writing map-file);
 
     // End define map file
@@ -1334,7 +1345,7 @@ int main(int argc, char *argv[])
             if (do_bed_shear_stress)
             {
                 START_TIMER(Bed shear stress);
-                bed_stress->matrix_2d_qr_eq(A, rhs, hp, qp, rp);
+                bed_stress->matrix_2d_qr_eq(A, rhs, hp, qp, rp, hn, qn, rn);
                 STOP_TIMER(Bed shear stress);
             }
             if (do_viscosity)
@@ -1455,6 +1466,14 @@ int main(int argc, char *argv[])
                                 A.coeffRef(c_eq, 3 * ph_ss + 2) = w_nat[2];
                                 //
                                 rhs[c_eq] = -(rp_jm12 - c_wave * (hp_jm12 - h_infty));
+                                if (bc_vars[BC_NORTH] == "zeta")
+                                {
+                                    rhs[c_eq] += -2. * c_wave * bc[BC_NORTH];
+                                }
+                                if (bc_vars[BC_NORTH] == "q")
+                                {
+                                    rhs[c_eq] += -2. * bc[BC_NORTH];
+                                }
                             }
                             if (bc_type[BC_NORTH] == "borsboom")
                             {
@@ -1462,7 +1481,7 @@ int main(int argc, char *argv[])
                                 // Essential boundary condition
                                 // ----------------------------
                                 //
-                                hp_jm12 = w_ess[0] * hp_0 + w_ess[1] * hp_jm1 + w_ess[2] * hp_jm2;
+                                double hp_jm12 = w_ess[0] * hp_0 + w_ess[1] * hp_jm1 + w_ess[2] * hp_jm2;
                                 if (do_r_convection) { con_fac = c_wave - rp_jm12 / hp_jm12; }
                                 //
                                 A.coeffRef(c_eq, 3 * ph_0)  = dtinv * -con_fac * w_ess[0];
@@ -1669,13 +1688,21 @@ int main(int argc, char *argv[])
                                 A.coeffRef(c_eq, 3 * ph_ww + 2) = 0.0;
                                 //
                                 rhs[c_eq] = -(qp_im12 - c_wave * (hp_im12 - h_infty));
+                                if (bc_vars[BC_EAST] == "zeta")
+                                {
+                                    rhs[c_eq] += -2. * c_wave * bc[BC_EAST];
+                                }
+                                if (bc_vars[BC_EAST] == "q")
+                                {
+                                    rhs[c_eq] += -2. * bc[BC_EAST];
+                                }
                             }
                             if (bc_type[BC_EAST] == "borsboom")
                             {
                                 //
                                 // Essential boundary condition
                                 // ----------------------------
-                                hp_im12 = w_ess[0] * hp_0 + w_ess[1] * hp_im1 + w_ess[2] * hp_im2;
+                                double hp_im12 = w_ess[0] * hp_0 + w_ess[1] * hp_im1 + w_ess[2] * hp_im2;
                                 if (do_q_convection) { con_fac = c_wave - qp_im12 / hp_im12; }
                                 //
                                 A.coeffRef(c_eq, 3 * ph_0) = dtinv * -con_fac * w_ess[0];
@@ -1882,6 +1909,14 @@ int main(int argc, char *argv[])
                                 A.coeffRef(c_eq, 3 * ph_nn + 2) = w_nat[2];
                                 //
                                 rhs[c_eq] = -(rp_jp12 + c_wave * (hp_jp12 - h_infty));
+                                if (bc_vars[BC_SOUTH] == "zeta")
+                                {
+                                    rhs[c_eq] += 2. * c_wave * bc[BC_SOUTH];
+                                }
+                                if (bc_vars[BC_SOUTH] == "q")
+                                {
+                                    rhs[c_eq] += 2. * bc[BC_SOUTH];
+                                }
                             }
                             if (bc_type[BC_SOUTH] == "borsboom")
                             {
@@ -1889,7 +1924,7 @@ int main(int argc, char *argv[])
                                 // Essential boundary condition
                                 // ----------------------------
                                 //
-                                hp_jp12 = w_ess[0] * hp_0 + w_ess[1] * hp_jp1 + w_ess[2] * hp_jp2;
+                                double hp_jp12 = w_ess[0] * hp_0 + w_ess[1] * hp_jp1 + w_ess[2] * hp_jp2;
                                 if (do_r_convection) { con_fac = c_wave + rp_jp12 / hp_jp12; }
                                 //
                                 A.coeffRef(c_eq, 3 * ph_0 ) = dtinv * con_fac * w_ess[0];
@@ -2091,6 +2126,14 @@ int main(int argc, char *argv[])
                                 A.coeffRef(c_eq, 3 * ph_ee + 2) = 0.0;
                                 //
                                 rhs[c_eq] = -(qp_ip12 + c_wave * (hp_ip12 - h_infty));
+                                if (bc_vars[BC_WEST] == "zeta")
+                                {
+                                    rhs[c_eq] += 2. * c_wave * bc[BC_WEST];
+                                }
+                                if (bc_vars[BC_WEST] == "q")
+                                {
+                                    rhs[c_eq] += 2. * bc[BC_WEST];
+                                }
                             }
                             if (bc_type[BC_WEST] == "borsboom")
                             {
@@ -2098,7 +2141,7 @@ int main(int argc, char *argv[])
                                 // Essential boundary condition
                                 // ----------------------------
                                 // momentum + c_wave * continuity
-                                hp_ip12 = w_ess[0] * hp_0 + w_ess[1] * hp_ip1 + w_ess[2] * hp_ip2;
+                                double hp_ip12 = w_ess[0] * hp_0 + w_ess[1] * hp_ip1 + w_ess[2] * hp_ip2;
                                 if (do_q_convection) { con_fac = c_wave + qp_ip12 / hp_ip12; }
                                 //
                                 A.coeffRef(c_eq, 3 * ph_0 ) = dtinv * con_fac * w_ess[0];
@@ -2120,7 +2163,7 @@ int main(int argc, char *argv[])
                                 double corr_term = 0.0;
                                 if (bc_vars[BC_WEST] == "zeta")
                                 {
-                                    //dhdt = dtinv * (bc[BC_WEST] - hn_ip12);
+                                    //dhdt = dtinv * (bc[BC_WEST] - hp_ip12);
                                     //A.coeffRef(c_eq, ph_0 ) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
                                     //A.coeffRef(c_eq, ph_e ) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
                                     //A.coeffRef(c_eq, ph_ee) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
@@ -2507,6 +2550,9 @@ int main(int argc, char *argv[])
             map_file->put_time_variable(map_u_name, nst_map, u);
             map_file->put_time_variable(map_v_name, nst_map, v);
             map_file->put_time_variable(map_zb_name, nst_map, zb);
+            bed_stress->rhs(beds_q, beds_r, hn, qn, rn);
+            map_file->put_time_variable(map_beds_q_name, nst_map, beds_q);
+            map_file->put_time_variable(map_beds_r_name, nst_map, beds_r);
             STOP_TIMER(Writing map-file);
         }
 
