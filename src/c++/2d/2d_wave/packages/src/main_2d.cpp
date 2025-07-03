@@ -353,8 +353,6 @@ int main(int argc, char *argv[])
 
     REGULARIZATION* regularization = new REGULARIZATION(iter_max, g);
     CONVECTION* convection = new CONVECTION(theta, dx, dy, nx, ny);
-    double cf = g / (chezy_coefficient * chezy_coefficient);
-    BEDSHEARSTRESS* bed_stress = new BEDSHEARSTRESS(theta, dx, dy, cf, eps_abs, nx, ny);
 
     log_file << "=== Used input variables ==============================" << std::endl;
     log_file << "[Domain]" << std::endl;
@@ -438,9 +436,9 @@ int main(int argc, char *argv[])
     std::vector<double> dh(nxny, 0.);                     // delta for water depth
     std::vector<double> dq(nxny, 0.);                     // delta for q-flux
     std::vector<double> dr(nxny, 0.);                     // delta for r-flux
-    std::vector<double> s_giv(nxny, 0.);                     // water level, needed for post-processing
-    std::vector<double> u_giv(nxny, 0.);                     // u-velocity, needed for post-processing
-    std::vector<double> v_giv(nxny, 0.);                     // v-velocity, needed for post-processing
+    std::vector<double> s_giv(nxny, 0.);                     // water level, given
+    std::vector<double> u_giv(nxny, 0.);                     // u-velocity, given
+    std::vector<double> v_giv(nxny, 0.);                     // v-velocity, given
     std::vector<double> s(nxny, 0.);                     // water level, needed for post-processing
     std::vector<double> u(nxny, 0.);                     // u-velocity, needed for post-processing
     std::vector<double> v(nxny, 0.);                     // v-velocity, needed for post-processing
@@ -461,7 +459,8 @@ int main(int argc, char *argv[])
         rhs[i] = 0.0; 
     }
 
-    double alpha = 1. / 8.;                               // Linear (spatial) interpolation coefficient
+    double cf = g / (chezy_coefficient * chezy_coefficient);  // bed friction coefficient
+    double alpha = 1. / 8.;                                   // Linear (spatial) interpolation coefficient
 
     mass[0] = alpha;
     mass[1] = 1.0 - 2. * alpha;
@@ -690,10 +689,10 @@ int main(int argc, char *argv[])
     {
         for (int j = 0; j < ny - 1; ++j)
         {
-            int p0 = p_index(i    , j    , ny);
-            int p1 = p_index(i + 1, j    , ny);
-            int p2 = p_index(i + 1, j + 1, ny);
-            int p3 = p_index(i    , j + 1, ny);
+            p0 = p_index(i    , j    , ny);
+            p1 = p_index(i + 1, j    , ny);
+            p2 = p_index(i + 1, j + 1, ny);
+            p3 = p_index(i    , j + 1, ny);
             xmc.push_back(0.25 * (x[p0] + x[p1] + x[p2] + x[p3]));
             ymc.push_back(0.25 * (y[p0] + y[p1] + y[p2] + y[p3]));
         }
@@ -714,10 +713,10 @@ int main(int argc, char *argv[])
     {
         for (int j = 0; j < ny - 1; ++j)
         {
-            int p0 = p_index(i    , j    , ny);
-            int p1 = p_index(i + 1, j    , ny);
-            int p2 = p_index(i + 1, j + 1, ny);
-            int p3 = p_index(i    , j + 1, ny);
+            p0 = p_index(i    , j    , ny);
+            p1 = p_index(i + 1, j    , ny);
+            p2 = p_index(i + 1, j + 1, ny);
+            p3 = p_index(i    , j + 1, ny);
             double area = std::abs(0.5 * ((x[p0] * y[p1] + x[p1] * y[p2] + x[p2] * y[p3] + x[p3] * y[p0]) - (y[p0] * x[p1] + y[p1] * x[p2] + y[p2] * x[p3] + y[p3] * x[p0])));
             cell_area.push_back(area);
         }
@@ -774,7 +773,7 @@ int main(int argc, char *argv[])
     map_file->put_time_variable(map_u_name, nst_map, u);
     map_file->put_time_variable(map_v_name, nst_map, v);
     map_file->put_time_variable(map_zb_name, nst_map, zb_giv);
-    bed_stress->rhs(beds_q, beds_r, hn, qn, rn);
+    bed_shear_stress_rhs(beds_q, beds_r, hn, qn, rn, cf, nx, ny);
     map_file->put_time_variable(map_beds_q_name, nst_map, beds_q);
     map_file->put_time_variable(map_beds_r_name, nst_map, beds_r);
     STOP_TIMER(Writing map-file);
@@ -962,8 +961,6 @@ int main(int argc, char *argv[])
         double rtheta_ip1, rtheta_ip2, rtheta_im1, rtheta_im2, rtheta_jm2, rtheta_jm1, rtheta_jp1, rtheta_jp2;
         double rtheta_im12, rtheta_ip12, rtheta_jm12, rtheta_jp12;
 
-        double bc0;
-        double bc1;
         std::vector<double> bc(4, 0.0);
 
         int select = 1;  // Constant boundary condition
@@ -1345,7 +1342,7 @@ int main(int argc, char *argv[])
             if (do_bed_shear_stress)
             {
                 START_TIMER(Bed shear stress);
-                bed_stress->matrix_2d_qr_eq(A, rhs, hp, qp, rp, hn, qn, rn);
+                status = bed_shear_stress_matrix_rhs(A, rhs, hp, qp, rp, hn, qn, rn, cf, theta, dx, dy, nx, ny);
                 STOP_TIMER(Bed shear stress);
             }
             if (do_viscosity)
@@ -2550,7 +2547,7 @@ int main(int argc, char *argv[])
             map_file->put_time_variable(map_u_name, nst_map, u);
             map_file->put_time_variable(map_v_name, nst_map, v);
             map_file->put_time_variable(map_zb_name, nst_map, zb);
-            bed_stress->rhs(beds_q, beds_r, hn, qn, rn);
+            bed_shear_stress_rhs(beds_q, beds_r, hn, qn, rn, cf, nx, ny);
             map_file->put_time_variable(map_beds_q_name, nst_map, beds_q);
             map_file->put_time_variable(map_beds_r_name, nst_map, beds_r);
             STOP_TIMER(Writing map-file);
