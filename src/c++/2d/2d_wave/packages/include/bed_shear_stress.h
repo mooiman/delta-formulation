@@ -33,11 +33,21 @@ public:
     ~BEDSHEARSTRESS();
     BEDSHEARSTRESS(double theta, double dx, double dy, double cf_in, double eps_in, int nx, int ny);
     int matrix_2d_qr_eq(Eigen::SparseMatrix<double>& A, Eigen::VectorXd& rhs,
-        std::vector<double> hp, std::vector<double>& qp, std::vector<double>& rp);
+        std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
+        std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn);
+    void rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r, std::vector<double> hn, std::vector<double>& qn, std::vector<double>& rn);
 
 private:
     inline int p_index(int i, int j, int nx);
     inline double scv(double& c0, double c1, double c2, double c3);
+    inline double J_10(double& h, double& q, double& r);  // right hand side q-equation
+    inline double J_11(double& h, double& q, double& r);
+    inline double J_12(double& h, double& q, double& r);
+    inline double J_13(double& h, double& q, double& r);
+    inline double J_20(double& h, double& q, double& r);  // right hand side r-equation
+    inline double J_21(double& h, double& q, double& r);
+    inline double J_22(double& h, double& q, double& r);
+    inline double J_23(double& h, double& q, double& r);
     inline double vecq(double& qp, double& rp);
 
     double theta;
@@ -50,16 +60,5 @@ private:
 
     double cv_area;
     int nxny;
-
-    std::vector<double> J_11;  // q_eq: d()/dh
-    std::vector<double> J_12;  // q_eq: d()/dq
-    std::vector<double> J_13;  // q_eq: d()/dr
-    std::vector<double> rhs_q;  // q_eq: right hand side
-    // r-momentum equation
-    std::vector<double> J_21;  // r_eq: d()/dh
-    std::vector<double> J_22;  // r_eq: d()/dq
-    std::vector<double> J_23;  // r_eq: d()/dr
-    std::vector<double> rhs_r;  // r_eq: right hand side
-
 };
 #endif  // __BEDSHEARSTRESS_H__

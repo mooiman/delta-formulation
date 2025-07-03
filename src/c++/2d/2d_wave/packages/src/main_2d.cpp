@@ -1462,7 +1462,9 @@ int main(int argc, char *argv[])
                                 // Essential boundary condition
                                 // ----------------------------
                                 //
+                                hp_jm12 = w_ess[0] * hp_0 + w_ess[1] * hp_jm1 + w_ess[2] * hp_jm2;
                                 if (do_r_convection) { con_fac = c_wave - rp_jm12 / hp_jm12; }
+                                //
                                 A.coeffRef(c_eq, 3 * ph_0)  = dtinv * -con_fac * w_ess[0];
                                 A.coeffRef(c_eq, 3 * ph_s)  = dtinv * -con_fac * w_ess[1];
                                 A.coeffRef(c_eq, 3 * ph_ss) = dtinv * -con_fac * w_ess[2];
@@ -1673,6 +1675,7 @@ int main(int argc, char *argv[])
                                 //
                                 // Essential boundary condition
                                 // ----------------------------
+                                hp_im12 = w_ess[0] * hp_0 + w_ess[1] * hp_im1 + w_ess[2] * hp_im2;
                                 if (do_q_convection) { con_fac = c_wave - qp_im12 / hp_im12; }
                                 //
                                 A.coeffRef(c_eq, 3 * ph_0) = dtinv * -con_fac * w_ess[0];
@@ -1861,7 +1864,6 @@ int main(int argc, char *argv[])
                         if (bc_absorbing[BC_SOUTH])
                         {
                             double con_fac = c_wave;
-                            if (do_r_convection) { con_fac = c_wave + rp_jp12 / hp_jp12; }
                             if (bc_type[BC_SOUTH] == "mooiman")
                             {
                                 //
@@ -1886,6 +1888,9 @@ int main(int argc, char *argv[])
                                 //
                                 // Essential boundary condition
                                 // ----------------------------
+                                //
+                                hp_jp12 = w_ess[0] * hp_0 + w_ess[1] * hp_jp1 + w_ess[2] * hp_jp2;
+                                if (do_r_convection) { con_fac = c_wave + rp_jp12 / hp_jp12; }
                                 //
                                 A.coeffRef(c_eq, 3 * ph_0 ) = dtinv * con_fac * w_ess[0];
                                 A.coeffRef(c_eq, 3 * ph_n ) = dtinv * con_fac * w_ess[1];
@@ -2068,7 +2073,6 @@ int main(int argc, char *argv[])
                         if (bc_absorbing[BC_WEST])
                         {
                             double con_fac = c_wave;
-                            if (do_q_convection) { con_fac = c_wave + qp_ip12 / hp_ip12; }
                             if (bc_type[BC_WEST] == "mooiman")
                             {
                                 //
@@ -2094,6 +2098,8 @@ int main(int argc, char *argv[])
                                 // Essential boundary condition
                                 // ----------------------------
                                 // momentum + c_wave * continuity
+                                hp_ip12 = w_ess[0] * hp_0 + w_ess[1] * hp_ip1 + w_ess[2] * hp_ip2;
+                                if (do_q_convection) { con_fac = c_wave + qp_ip12 / hp_ip12; }
                                 //
                                 A.coeffRef(c_eq, 3 * ph_0 ) = dtinv * con_fac * w_ess[0];
                                 A.coeffRef(c_eq, 3 * ph_e ) = dtinv * con_fac * w_ess[1];
@@ -2119,6 +2125,7 @@ int main(int argc, char *argv[])
                                     //A.coeffRef(c_eq, ph_e ) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
                                     //A.coeffRef(c_eq, ph_ee) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
                                     //corr_term = -dhdt - eps_bc_corr * (hp_ip12 - (bc[BC_WEST] - zb_ip12));
+
                                     corr_term = - eps_bc_corr * (hp_ip12 - (bc[BC_WEST] - zb_ip12));
                                     rhs[c_eq] += corr_term;
                                 }
