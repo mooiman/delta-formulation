@@ -898,17 +898,17 @@ int main(int argc, char* argv[])
                     //
                     // bed_shear_stress
                     //
-                    A.coeffRef(pq, ph_w) += -0.5 * 0.25 * theta * cf_im14 * abs_qtheta_im14 * 2. * qtheta_im14 / (htheta_im14 * htheta_im14 * htheta_im14);
-                    A.coeffRef(pq, ph) += -0.5 * 0.25 * theta * cf_im14 * abs_qtheta_im14 * 2. * qtheta_im14 / (htheta_im14 * htheta_im14 * htheta_im14)
-                        - 0.5 * 0.25 * theta * cf_ip14 * abs_qtheta_ip14 * 2. * qtheta_ip14 / (htheta_ip14 * htheta_ip14 * htheta_ip14);
-                    A.coeffRef(pq, ph_e) += -0.5 * 0.25 * theta * cf_ip14 * abs_qtheta_ip14 * 2. * qtheta_ip14 / (htheta_ip14 * htheta_ip14 * htheta_ip14);
+                    A.coeffRef(pq, ph_w) += dx * -0.5 * 0.25 * theta * cf_im14 * abs_qtheta_im14 * 2. * qtheta_im14 / (htheta_im14 * htheta_im14 * htheta_im14);
+                    A.coeffRef(pq, ph  ) += dx * -0.5 * 0.75 * theta * cf_im14 * abs_qtheta_im14 * 2. * qtheta_im14 / (htheta_im14 * htheta_im14 * htheta_im14)
+                                          + dx * -0.5 * 0.75 * theta * cf_ip14 * abs_qtheta_ip14 * 2. * qtheta_ip14 / (htheta_ip14 * htheta_ip14 * htheta_ip14);
+                    A.coeffRef(pq, ph_e) += dx * -0.5 * 0.25 * theta * cf_ip14 * abs_qtheta_ip14 * 2. * qtheta_ip14 / (htheta_ip14 * htheta_ip14 * htheta_ip14);
                     //
                     double J1_im14 = cf_im14 * qtheta_im14 / (htheta_im14 * htheta_im14) * dxinv * (Fabs(qtheta_i, eps_fabs) - Fabs(qtheta_im1, eps_fabs));
                     double J1_ip14 = cf_ip14 * qtheta_ip14 / (htheta_ip14 * htheta_ip14) * dxinv * (Fabs(qtheta_ip1, eps_fabs) - Fabs(qtheta_i, eps_fabs));
                     double J2_im14 = cf_im14 * abs_qtheta_im14 / (htheta_im14 * htheta_im14);
                     double J2_ip14 = cf_ip14 * abs_qtheta_ip14 / (htheta_ip14 * htheta_ip14);
                     A.coeffRef(pq, ph_w + 1) += dx * 0.5 * 0.25 * (theta * J1_im14 + theta * J2_im14);
-                    A.coeffRef(pq, ph + 1) += dx * 0.5 * (0.75 * (theta * J1_im14 + theta * J2_im14) + 0.75 * (theta * J1_ip14 + theta * J2_ip14));
+                    A.coeffRef(pq, ph   + 1) += dx * 0.5 * (0.75 * (theta * J1_im14 + theta * J2_im14) + 0.75 * (theta * J1_ip14 + theta * J2_ip14));
                     A.coeffRef(pq, ph_e + 1) += dx * 0.5 * 0.25 * (theta * J1_ip14 + theta * J2_ip14);
                     //
                     double rhs_bed_stress = -(
