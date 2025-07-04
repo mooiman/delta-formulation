@@ -37,6 +37,7 @@
 
 #include "cfts.h"
 #include "ugrid1d.h"
+#include "bed_shear_stress.h"
 #include "perf_timer.h"
 #include "regularization.h"
 #include "definition_map_file.h"
@@ -237,7 +238,7 @@ int main(int argc, char* argv[])
     double alpha = tbl_chp["alpha"].value_or(double(1./8.));  // Linear (spatial) interpolation coefficient
     double eps_newton = tbl_chp["eps_newton"].value_or(double(1.0e-12));  // stop criterium for Newton iteration
     double eps_bicgstab = tbl_chp["eps_bicgstab"].value_or(double(1.0e-12));  // stop criterium for BiCGStab iteratio
-    double eps_fabs = tbl_chp["eps_fabs"].value_or(double(1.0e-2));  // epsilon needed to approximate the abs-function by a continues function
+    double eps_abs = tbl_chp["eps_abs"].value_or(double(1.0e-2));  // epsilon needed to approximate the abs-function by a continues function
     bool regularization_init = tbl_chp["regularization_init"].value_or(bool(false));
     bool regularization_iter = tbl_chp["regularization_iter"].value_or(bool(false));
     bool regularization_time = tbl_chp["regularization_time"].value_or(bool(false));
@@ -282,6 +283,7 @@ int main(int argc, char* argv[])
             wrimap = std::max(int(dt * dtinv), int(dt_map * dtinv));     // write interval to map-file (every 1 sec , or every delta t)
         }
     }
+
     log_file << "=== Used input variables ==============================" << std::endl;
     log_file << "[Domain]" << std::endl;
     log_file << "Lx = " << Lx << std::endl;
@@ -330,7 +332,7 @@ int main(int argc, char* argv[])
     log_file << "alpha = " << alpha << std::endl;
     log_file << "eps_newton = " << eps_newton << std::endl;
     log_file << "eps_bicgstab = " << eps_bicgstab << std::endl;
-    log_file << "eps_abs_function = " << eps_fabs << std::endl;
+    log_file << "eps_abs_function = " << eps_abs << std::endl;
     log_file << "regularization_init = " << regularization_init << std::endl;
     log_file << "regularization_iter = " << regularization_iter << std::endl;
     log_file << "regularization_time = " << regularization_time << std::endl;
@@ -363,7 +365,8 @@ int main(int argc, char* argv[])
     std::vector<double> visc_given(nx, visc_const);  // Initialize viscosity array with given value
     std::vector<double> visc_reg(nx, visc_const);  // Initialize given viscosity array with regularized value
     std::vector<double> visc(nx, visc_const);  // Viscosity array used for computation, adjusted for cell peclet number
-    std::vector<double> cf(nx, 0.);  // Bed sheart stress coefficient
+    double cf_giv = g / (chezy_coefficient * chezy_coefficient);
+    std::vector<double> cf(nx, cf_giv);  // Bed shear stress coefficient
     std::vector<double> pe(nx, 0.);  // peclet number [-]
     std::vector<double> psi(nx, 0.);  //
     std::vector<double> froude(nx, 0.);  //
@@ -882,41 +885,6 @@ int main(int argc, char* argv[])
                     double rhs_convection = -(qtheta_ip12 * qtheta_ip12 / htheta_ip12 - qtheta_im12 * qtheta_im12 / htheta_im12);
                     rhs[pq] += rhs_convection;
                 }
-                if (momentum_bed_shear_stress)
-                {
-                    double cf_im1 = cf[i - 1];
-                    double cf_i = cf[i];
-                    double cf_ip1 = cf[i + 1];
-                    double htheta_im14 = scv(htheta_i, htheta_im1);
-                    double qtheta_im14 = scv(qtheta_i, qtheta_im1);
-                    double abs_qtheta_im14 = scv(Fabs(qtheta_i, eps_fabs), Fabs(qtheta_im1, eps_fabs));
-                    double htheta_ip14 = scv(htheta_i, htheta_ip1);
-                    double qtheta_ip14 = scv(qtheta_i, qtheta_ip1);
-                    double abs_qtheta_ip14 = scv(Fabs(qtheta_i, eps_fabs), Fabs(qtheta_ip1, eps_fabs));
-                    double cf_im14 = scv(cf_i, cf_im1);
-                    double cf_ip14 = scv(cf_i, cf_ip1);
-                    //
-                    // bed_shear_stress
-                    //
-                    A.coeffRef(pq, ph_w) += dx * -0.5 * 0.25 * theta * cf_im14 * abs_qtheta_im14 * 2. * qtheta_im14 / (htheta_im14 * htheta_im14 * htheta_im14);
-                    A.coeffRef(pq, ph  ) += dx * -0.5 * 0.75 * theta * cf_im14 * abs_qtheta_im14 * 2. * qtheta_im14 / (htheta_im14 * htheta_im14 * htheta_im14)
-                                          + dx * -0.5 * 0.75 * theta * cf_ip14 * abs_qtheta_ip14 * 2. * qtheta_ip14 / (htheta_ip14 * htheta_ip14 * htheta_ip14);
-                    A.coeffRef(pq, ph_e) += dx * -0.5 * 0.25 * theta * cf_ip14 * abs_qtheta_ip14 * 2. * qtheta_ip14 / (htheta_ip14 * htheta_ip14 * htheta_ip14);
-                    //
-                    double J1_im14 = cf_im14 * qtheta_im14 / (htheta_im14 * htheta_im14) * dxinv * (Fabs(qtheta_i, eps_fabs) - Fabs(qtheta_im1, eps_fabs));
-                    double J1_ip14 = cf_ip14 * qtheta_ip14 / (htheta_ip14 * htheta_ip14) * dxinv * (Fabs(qtheta_ip1, eps_fabs) - Fabs(qtheta_i, eps_fabs));
-                    double J2_im14 = cf_im14 * abs_qtheta_im14 / (htheta_im14 * htheta_im14);
-                    double J2_ip14 = cf_ip14 * abs_qtheta_ip14 / (htheta_ip14 * htheta_ip14);
-                    A.coeffRef(pq, ph_w + 1) += dx * 0.5 * 0.25 * (theta * J1_im14 + theta * J2_im14);
-                    A.coeffRef(pq, ph   + 1) += dx * 0.5 * (0.75 * (theta * J1_im14 + theta * J2_im14) + 0.75 * (theta * J1_ip14 + theta * J2_ip14));
-                    A.coeffRef(pq, ph_e + 1) += dx * 0.5 * 0.25 * (theta * J1_ip14 + theta * J2_ip14);
-                    //
-                    double rhs_bed_stress = -(
-                        0.5 * dx * cf_im14 * abs_qtheta_im14 * qtheta_im14 / (htheta_im14 * htheta_im14) +
-                        0.5 * dx * cf_ip14 * abs_qtheta_ip14 * qtheta_ip14 / (htheta_ip14 * htheta_ip14)
-                        );
-                    rhs[pq] += rhs_bed_stress;
-                }
                 if (momentum_viscosity)
                 {
                     //
@@ -965,6 +933,12 @@ int main(int argc, char* argv[])
                         );
                     rhs[pq] += rhs_viscosity[pq];
                 }
+            }
+            if (momentum_bed_shear_stress)
+            {
+                START_TIMER(Bed shear stress);
+                status = bed_stress_matrix_rhs(A, rhs, hp, qp, hn, qn, cf_giv, dx, theta);
+                STOP_TIMER(Bed shear stress);
             }
             {
                 //
@@ -1182,13 +1156,13 @@ int main(int argc, char* argv[])
                     double cf_ip12 = scv(cf_i, cf_ip1);
                     double htheta_ip12 = scv(htheta_i, htheta_ip1);
                     double qtheta_ip12 = scv(qtheta_i, qtheta_ip1);
-                    double abs_qtheta_ip12 = scv(Fabs(qtheta_i, eps_fabs), Fabs(qtheta_ip1, eps_fabs));
+                    double abs_qtheta_ip12 = scv(Fabs(qtheta_i, eps_abs), Fabs(qtheta_ip1, eps_abs));
 
                     A.coeffRef(pq, ph   ) += -0.5 * theta * cf_ip12 * 2. * qtheta_ip12 * abs_qtheta_ip12 / (htheta_ip12 * htheta_ip12 * htheta_ip12);
                     A.coeffRef(pq, ph_e ) += -0.5 * theta * cf_ip12 * 2. * qtheta_ip12 * abs_qtheta_ip12 / (htheta_ip12 * htheta_ip12 * htheta_ip12);
                     A.coeffRef(pq, ph_ee) += 0.0;
 
-                    double J1_ip12 = cf_ip12 * qtheta_ip12 / (htheta_ip12 * htheta_ip12) * dxinv * (Fabs(qtheta_ip1, eps_fabs) - Fabs(qtheta_i, eps_fabs));
+                    double J1_ip12 = cf_ip12 * qtheta_ip12 / (htheta_ip12 * htheta_ip12) * dxinv * (Fabs(qtheta_ip1, eps_abs) - Fabs(qtheta_i, eps_abs));
                     double J2_ip12 = cf_ip12 * abs_qtheta_ip12 / (htheta_ip12 * htheta_ip12);
                     A.coeffRef(pq, ph    + 1) += 0.5 * theta * (J1_ip12 + J2_ip12);
                     A.coeffRef(pq, ph_e  + 1) += 0.5 * theta * (J1_ip12 + J2_ip12);
@@ -1433,7 +1407,7 @@ int main(int argc, char* argv[])
                     double cf_i = cf[i];
                     double htheta_im12 = scv(htheta_i, htheta_im1);
                     double qtheta_im12 = scv(qtheta_i, qtheta_im1);
-                    double abs_qtheta_im12 = scv(Fabs(qtheta_i, eps_fabs), Fabs(qtheta_im1, eps_fabs));
+                    double abs_qtheta_im12 = scv(Fabs(qtheta_i, eps_abs), Fabs(qtheta_im1, eps_abs));
                     double cf_im12 = scv(cf_i, cf_im1);
                     //
                     // bed_shear_stress
@@ -1442,7 +1416,7 @@ int main(int argc, char* argv[])
                     A.coeffRef(pq, ph_w ) += -0.5 * theta * cf_im12 * 2. * qtheta_im12 * abs_qtheta_im12 / (htheta_im12 * htheta_im12 * htheta_im12);
                     A.coeffRef(pq, ph_ww) += 0.0;
                     //
-                    double J1_im12 = cf_im12 * qtheta_im12 / (htheta_im12 * htheta_im12) * dxinv * (Fabs(qtheta_i, eps_fabs) - Fabs(qtheta_im1, eps_fabs));
+                    double J1_im12 = cf_im12 * qtheta_im12 / (htheta_im12 * htheta_im12) * dxinv * (Fabs(qtheta_i, eps_abs) - Fabs(qtheta_im1, eps_abs));
                     double J2_im12 = cf_im12 * abs_qtheta_im12 / (htheta_im12 * htheta_im12);
                     A.coeffRef(pq, ph    + 1) += 0.5 * theta * (J1_im12 + J2_im12);
                     A.coeffRef(pq, ph_w  + 1) += 0.5 * theta * (J1_im12 + J2_im12);
@@ -1595,6 +1569,10 @@ int main(int argc, char* argv[])
             riemann_neg[i] = std::abs(qn[i] - std::sqrt(g * hn[i]) * hn[i]);
         }
 
+        for (int i = 0; i < nx; ++i)
+        {
+            froude[i] = qp[i] / hp[i] / std::sqrt(g * hp[i]);
+        }
         if (regularization_time)
         {
             if (momentum_viscosity)
@@ -1614,7 +1592,6 @@ int main(int argc, char* argv[])
                     {
                         qp[i] = tmp1[i] * hp[i];
                         visc[i] = visc_reg[i] + std::abs(psi[i]);
-                        froude[i] = qp[i] / hp[i] / std::sqrt(g * hp[i]);
                         pe[i] = qp[i] / hp[i] * dx / visc[i];
                     }
                     break;
@@ -1625,7 +1602,6 @@ int main(int argc, char* argv[])
                     for (int i = 0; i < nx; ++i)
                     {
                         visc[i] = visc_reg[i] + std::abs(psi[i]);
-                        froude[i] = qp[i] / hp[i] / std::sqrt(g * hp[i]);
                         pe[i] = qp[i] / hp[i] * dx / visc[i];
                     }
                     break;
@@ -1642,7 +1618,6 @@ int main(int argc, char* argv[])
                     {
                         qp[i] = tmp1[i] * hp[i];
                         visc[i] = visc_reg[i] * std::abs(psi[i]);
-                        froude[i] = qp[i] / hp[i] / std::sqrt(g * hp[i]);
                         pe[i] = qp[i] / hp[i] * dx / visc[i];
                     }
                 }

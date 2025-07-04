@@ -93,7 +93,8 @@
       <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN64;QT_NO_DEBUG;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
-      <ProgramDataBaseFileName></ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>
+      </ProgramDataBaseFileName>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -127,7 +128,8 @@
       <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;QT_NO_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <PreBuildEvent>
-      <Command></Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -174,10 +176,12 @@
       <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <PreBuildEvent>
-      <Command></Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\bed_shear_stress.cpp" />
     <ClCompile Include="src\boundary_condition.cpp" />
     <ClCompile Include="src\cfts.cpp" />
     <ClCompile Include="src\definition_map_file.cpp" />
@@ -187,6 +191,7 @@
     <ClCompile Include="src\ugrid1d.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\bed_shear_stress.h" />
     <ClInclude Include="include\boundary_condition.h" />
     <ClInclude Include="include\cfts.h" />
     <ClInclude Include="include\definition_map_file.h" />

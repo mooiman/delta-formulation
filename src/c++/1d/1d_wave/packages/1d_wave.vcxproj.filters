@@ -22,6 +22,9 @@
     <ClCompile Include="src\boundary_condition.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\bed_shear_stress.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\boundary_condition.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bed_shear_stress.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
