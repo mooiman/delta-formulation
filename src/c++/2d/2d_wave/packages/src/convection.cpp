@@ -40,246 +40,439 @@
 //    |       |       |       |       |          |       |       |       |       |
 //   sw - - - - - - - s - - - - - - - se        sw - - - - - - - s - - - - - - - se
 
+int convection_matrix_rhs(Eigen::SparseMatrix<double> A, Eigen::VectorXd rhs,
+    std::vector<double> hp, std::vector<double> qp, std::vector<double> rp,
+    std::vector<double> hn, std::vector<double> qn, std::vector<double> rn,
+    double theta, double dx, double dy, int nx, int ny)
+{
+    std::vector<double> htheta;
+    std::vector<double> qtheta;
+    std::vector<double> rtheta;
+    htheta.reserve(hn.size());
+    qtheta.reserve(hn.size());
+    rtheta.reserve(hn.size());
 
-//------------------------------------------------------------------------------
-CONVECTION::CONVECTION()
-{
-}
-CONVECTION::~CONVECTION()
-{
-};
-CONVECTION::CONVECTION(double theta_in, double dx_in, double dy_in, int nx_in, int ny_in)
-{
-    theta = theta_in;
-    dx = dx_in;
-    dy = dy_in;
-    nx = nx_in;
-    ny = ny_in;
-}
-int CONVECTION::matrix_2d_q_eq(Eigen::SparseMatrix<double> A, Eigen::VectorXd rhs,
-    std::vector<double> hp, std::vector<double> qp, std::vector<double> rp)
-{
-    // First term qq/h
-    double J_11 = 0.0;   // qq/h^2 dh
-    double J_12 = 0.0;   // 2q/h dq
-    double J_13 = 0.0;   // 0
-    double c0, c1, c2, c3;
+    double h;
+    double q;
+    double r;
+    double scvf_fac;
+
+    for (int k = 0; k < hn.size(); ++k)
+    {
+        htheta[k] = theta * hp[k] + (1.0 - theta) * hn[k];
+        qtheta[k] = theta * qp[k] + (1.0 - theta) * qn[k];
+        rtheta[k] = theta * rp[k] + (1.0 - theta) * rn[k];
+    }
 
     for (int i = 0; i < nx; ++i)
     {
         for (int j = 0; j < ny; ++j)
         {
-            int p_0  = p_index(i, j, ny); // central point of control volume
-            int p_sw = p_index(i - 1, j - 1, ny);  
-            int p_s  = p_index(i    , j - 1, ny);  
-            int p_se = p_index(i + 1, j - 1, ny);  
-            int p_w  = p_index(i - 1, j    , ny);  
-            int p_e  = p_index(i + 1, j    , ny);  
-            int p_nw = p_index(i - 1, j + 1, ny);  
-            int p_n  = p_index(i    , j + 1, ny);  
-            int p_ne = p_index(i + 1, j + 1, ny);  
+            int p_0  = convection_p_index(i, j, ny); // central point of control volume
+            int p_sw = convection_p_index(i - 1, j - 1, ny);  
+            int p_s  = convection_p_index(i    , j - 1, ny);  
+            int p_se = convection_p_index(i + 1, j - 1, ny);  
+            int p_w  = convection_p_index(i - 1, j    , ny);  
+            int p_e  = convection_p_index(i + 1, j    , ny);  
+            int p_nw = convection_p_index(i - 1, j + 1, ny);  
+            int p_n  = convection_p_index(i    , j + 1, ny);  
+            int p_ne = convection_p_index(i + 1, j + 1, ny);  
 
-            int c_eq = 3 * p_0;
+            // int c_eq = 3 * p_0; continuity equation, not applicable for convection term
             int q_eq = 3 * p_0 + 1;
             int r_eq = 3 * p_0 + 2;
             
-            // matrix columns for delta h:  -qq/h^2
-            // scv 0
-            c0 = -theta * (-qp[p_0]  * qp[p_0]  / (hp[p_0]  * hp[p_0] ));
-            c1 = -theta * (-qp[p_w]  * qp[p_w]  / (hp[p_w]  * hp[p_w] ));
-            c2 = -theta * (-qp[p_sw] * qp[p_sw] / (hp[p_sw] * hp[p_sw]));
-            c3 = -theta * (-qp[p_s]  * qp[p_s]  / (hp[p_s]  * hp[p_s] ));
-            c_scvf_xi (A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0, 3 * p_w, 3 * p_sw, 3 * p_s);
-            c_scvf_eta(A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0, 3 * p_w, 3 * p_sw, 3 * p_s);
+            // sub control volume 0 ============================================
+            // scv_0 face 0
+            h = convection_scvf_xi(htheta[p_0], htheta[p_w], htheta[p_sw], htheta[p_s]);
+            q = convection_scvf_xi(qtheta[p_0], qtheta[p_w], qtheta[p_sw], qtheta[p_s]);
+            r = convection_scvf_xi(rtheta[p_0], rtheta[p_w], rtheta[p_sw], rtheta[p_s]);
+            scvf_fac = theta * -1. * 0.25 * dy * 0.125;
+            A.coeffRef(q_eq, 3 * p_0 ) += scvf_fac * 3.* convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_w ) += scvf_fac * 3.* convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_sw) += scvf_fac * 1.* convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_s ) += scvf_fac * 1.* convection_J_11(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0 ) += scvf_fac * 3.* convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_w ) += scvf_fac * 3.* convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_sw) += scvf_fac * 1.* convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_s ) += scvf_fac * 1.* convection_J_21(h, q, r);
 
-            // scv 1
-            c0 = -theta * (qp[p_0]  * qp[p_0]  / (hp[p_0]  * hp[p_0] ));
-            c1 = -theta * (qp[p_e]  * qp[p_e]  / (hp[p_e]  * hp[p_e] ));
-            c2 = -theta * (qp[p_se] * qp[p_se] / (hp[p_se] * hp[p_se]));
-            c3 = -theta * (qp[p_s]  * qp[p_s]  / (hp[p_s]  * hp[p_s] ));
-            c_scvf_xi (A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0, 3 * p_e, 3 * p_se, 3 * p_s);
-            c_scvf_eta(A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0, 3 * p_e, 3 * p_se, 3 * p_s);
-            
-            // scv 2
-            c0 = -theta * (qp[p_0]  * qp[p_0]  / (hp[p_0]  * hp[p_0] ));
-            c1 = -theta * (qp[p_e]  * qp[p_e]  / (hp[p_e]  * hp[p_e] ));
-            c2 = -theta * (qp[p_ne] * qp[p_ne] / (hp[p_ne] * hp[p_ne]));
-            c3 = -theta * (qp[p_n]  * qp[p_n]  / (hp[p_n]  * hp[p_n] ));
-            c_scvf_xi (A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0, 3 * p_e, 3 * p_ne, 3 * p_n);
-            c_scvf_eta(A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0, 3 * p_e, 3 * p_ne, 3 * p_n);
-          
-            // scv 3
-            c0 = -theta * (-qp[p_0]  * qp[p_0]  / (hp[p_0]  * hp[p_0] ));
-            c1 = -theta * (-qp[p_w]  * qp[p_w]  / (hp[p_w]  * hp[p_w] ));
-            c2 = -theta * (-qp[p_nw] * qp[p_nw] / (hp[p_nw] * hp[p_nw]));
-            c3 = -theta * (-qp[p_n]  * qp[p_n]  / (hp[p_n]  * hp[p_n] ));
-            c_scvf_xi (A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0, 3 * p_w, 3 * p_nw, 3 * p_n);
-            c_scvf_eta(A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0, 3 * p_w, 3 * p_nw, 3 * p_n);
-            
-            // matrix columns for delta q: 2q/h
-            // scv 0
-            c0 = -theta * (2.0 * qp[p_0]  / hp[p_0]);
-            c1 = -theta * (2.0 * qp[p_w] / hp[p_w]);
-            c2 = -theta * (2.0 * qp[p_sw] / hp[p_sw]);
-            c3 = -theta * (2.0 * qp[p_s] / hp[p_s]);
-            c_scvf_xi (A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_w + 1, 3 * p_sw + 1, 3 * p_s + 1);
-            c_scvf_eta(A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_w + 1, 3 * p_sw + 1, 3 * p_s + 1);
+            A.coeffRef(q_eq, 3 * p_0  + 1) += scvf_fac * 3.* convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_w  + 1) += scvf_fac * 3.* convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_sw + 1) += scvf_fac * 1.* convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_s  + 1) += scvf_fac * 1.* convection_J_12(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0  + 1) += scvf_fac * 3.* convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_w  + 1) += scvf_fac * 3.* convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_sw + 1) += scvf_fac * 1.* convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_s  + 1) += scvf_fac * 1.* convection_J_22(h, q, r);
 
-            // scv 1
-            c0 = -theta * (2.0 * qp[p_0]  / hp[p_0]);
-            c1 = -theta * (2.0 * qp[p_e] / hp[p_e]);
-            c2 = -theta * (2.0 * qp[p_se] / hp[p_se]);
-            c3 = -theta * (2.0 * qp[p_s] / hp[p_s]);
-            c_scvf_xi (A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_e + 1, 3 * p_se + 1, 3 * p_s + 1);
-            c_scvf_eta(A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_e + 1, 3 * p_se + 1, 3 * p_s + 1);
-            
-            // scv 2
-            c0 = -theta * (2.0 * qp[p_0]  / hp[p_0] );
-            c1 = -theta * (2.0 * qp[p_e]  / hp[p_e] );
-            c2 = -theta * (2.0 * qp[p_ne] / hp[p_ne]);
-            c3 = -theta * (2.0 * qp[p_n]  / hp[p_n] );
-            c_scvf_xi (A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_e + 1, 3 * p_ne + 1, 3 * p_n + 1);
-            c_scvf_eta(A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_e + 1, 3 * p_ne + 1, 3 * p_n + 1);
-          
-            // scv 3
-            c0 = -theta * (2.0 * qp[p_0]  / hp[p_0]);
-            c1 = -theta * (2.0 * qp[p_w] / hp[p_w]);
-            c2 = -theta * (2.0 * qp[p_nw] / hp[p_nw]);
-            c3 = -theta * (2.0 * qp[p_n] / hp[p_n]);
-            c_scvf_xi (A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_w + 1, 3 * p_nw + 1, 3 * p_n + 1);
-            c_scvf_eta(A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_w + 1, 3 * p_nw + 1, 3 * p_n + 1);
-            
-             // matrix columns for: r/h dq + q/h dr
-            // scv 0
-            c0 = -theta * (rp[p_0]  / hp[p_0]);
-            c1 = -theta * (rp[p_w] / hp[p_w]);
-            c2 = -theta * (rp[p_sw] / hp[p_sw]);
-            c3 = -theta * (rp[p_s] / hp[p_s]);
-            c_scvf_xi (A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_w + 1, 3 * p_sw + 1, 3 * p_s + 1);
-            c_scvf_eta(A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_w + 1, 3 * p_sw + 1, 3 * p_s + 1);
+            A.coeffRef(q_eq, 3 * p_0  + 2) += scvf_fac * 3.* convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_w  + 2) += scvf_fac * 3.* convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_sw + 2) += scvf_fac * 1.* convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_s  + 2) += scvf_fac * 1.* convection_J_13(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0  + 2) += scvf_fac * 3.* convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_w  + 2) += scvf_fac * 3.* convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_sw + 2) += scvf_fac * 1.* convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_s  + 2) += scvf_fac * 1.* convection_J_23(h, q, r);
 
-            // scv 1
-            c0 = -theta * (rp[p_0]  / hp[p_0]);
-            c1 = -theta * (rp[p_e] / hp[p_e]);
-            c2 = -theta * (rp[p_se] / hp[p_se]);
-            c3 = -theta * (rp[p_s] / hp[p_s]);
-            c_scvf_xi (A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_e + 1, 3 * p_se + 1, 3 * p_s + 1);
-            c_scvf_eta(A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_e + 1, 3 * p_se + 1, 3 * p_s + 1);
-            
-            // scv 2
-            c0 = -theta * (rp[p_0]  / hp[p_0]);
-            c1 = -theta * (rp[p_e] / hp[p_e]);
-            c2 = -theta * (rp[p_ne] / hp[p_ne]);
-            c3 = -theta * (rp[p_n] / hp[p_n]);
-            c_scvf_xi (A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_e + 1, 3 * p_ne + 1, 3 * p_n + 1);
-            c_scvf_eta(A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_e + 1, 3 * p_ne + 1, 3 * p_n + 1);
-          
-            // scv 3
-            c0 = -theta * (rp[p_0]  / hp[p_0]);
-            c1 = -theta * (rp[p_w] / hp[p_w]);
-            c2 = -theta * (rp[p_nw] / hp[p_nw]);
-            c3 = -theta * (rp[p_n] / hp[p_n]);
-            c_scvf_xi (A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_w + 1, 3 * p_nw + 1, 3 * p_n + 1);
-            c_scvf_eta(A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_w + 1, 3 * p_nw + 1, 3 * p_n + 1);
+            scvf_fac = -1. * 0.25 * dy;
+            rhs[q_eq] += -scvf_fac * convection_J_10(h, q, r);
+            rhs[r_eq] += -scvf_fac * convection_J_20(h, q, r);
+
+            // scv_0 face 1
+            h = convection_scvf_eta(htheta[p_0], htheta[p_w], htheta[p_sw], htheta[p_s]);
+            q = convection_scvf_eta(qtheta[p_0], qtheta[p_w], qtheta[p_sw], qtheta[p_s]);
+            r = convection_scvf_eta(rtheta[p_0], rtheta[p_w], rtheta[p_sw], rtheta[p_s]);
+            scvf_fac = theta * -1. * 0.25 * dx * 0.125;
+            A.coeffRef(q_eq, 3 * p_0 ) += scvf_fac * 3.* convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_w ) += scvf_fac * 1.* convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_sw) += scvf_fac * 1.* convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_s ) += scvf_fac * 3.* convection_J_11(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0 ) += scvf_fac * 3.* convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_w ) += scvf_fac * 1.* convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_sw) += scvf_fac * 1.* convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_s ) += scvf_fac * 3.* convection_J_21(h, q, r);
+
+            A.coeffRef(q_eq, 3 * p_0  + 1) += scvf_fac * 3.* convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_w  + 1) += scvf_fac * 1.* convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_sw + 1) += scvf_fac * 1.* convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_s  + 1) += scvf_fac * 3.* convection_J_12(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0  + 1) += scvf_fac * 3.* convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_w  + 1) += scvf_fac * 1.* convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_sw + 1) += scvf_fac * 1.* convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_s  + 1) += scvf_fac * 3.* convection_J_22(h, q, r);
+
+            A.coeffRef(q_eq, 3 * p_0  + 2) += scvf_fac * 3.* convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_w  + 2) += scvf_fac * 1.* convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_sw + 2) += scvf_fac * 1.* convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_s  + 2) += scvf_fac * 3.* convection_J_13(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0  + 2) += scvf_fac * 3.* convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_w  + 2) += scvf_fac * 1.* convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_sw + 2) += scvf_fac * 1.* convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_s  + 2) += scvf_fac * 3.* convection_J_23(h, q, r);
+
+            scvf_fac = -1. * 0.25 * dy;
+            rhs[q_eq] += -scvf_fac * convection_J_10(h, q, r);
+            rhs[r_eq] += -scvf_fac * convection_J_20(h, q, r);
+ 
+            // sub control volume 1 ============================================
+            // scv_1 face 2
+            h = convection_scvf_eta(htheta[p_0], htheta[p_s], htheta[p_se], htheta[p_e]);
+            q = convection_scvf_eta(qtheta[p_0], qtheta[p_s], qtheta[p_se], qtheta[p_e]);
+            r = convection_scvf_eta(rtheta[p_0], rtheta[p_s], rtheta[p_se], rtheta[p_e]);
+            scvf_fac = theta * -1. * 0.25 * dx * 0.125;
+            A.coeffRef(q_eq, 3 * p_0 ) += scvf_fac * 3. * convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_s ) += scvf_fac * 3. * convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_se) += scvf_fac * 1. * convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_e ) += scvf_fac * 1. * convection_J_11(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0 ) += scvf_fac * 3. * convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_s ) += scvf_fac * 3. * convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_se) += scvf_fac * 1. * convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_e ) += scvf_fac * 1. * convection_J_21(h, q, r);
+
+            A.coeffRef(q_eq, 3 * p_0  + 1) += scvf_fac * 3. * convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_s  + 1) += scvf_fac * 3. * convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_se + 1) += scvf_fac * 1. * convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_e  + 1) += scvf_fac * 1. * convection_J_12(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0  + 1) += scvf_fac * 3. * convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_s  + 1) += scvf_fac * 3. * convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_se + 1) += scvf_fac * 1. * convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_e  + 1) += scvf_fac * 1. * convection_J_22(h, q, r);
+
+            A.coeffRef(q_eq, 3 * p_0  + 2) += scvf_fac * 3. * convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_s  + 2) += scvf_fac * 3. * convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_se + 2) += scvf_fac * 1. * convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_e  + 2) += scvf_fac * 1. * convection_J_13(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0  + 2) += scvf_fac * 3. * convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_s  + 2) += scvf_fac * 3. * convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_se + 2) += scvf_fac * 1. * convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_e  + 2) += scvf_fac * 1. * convection_J_23(h, q, r);
+
+            scvf_fac = -1. * 0.25 * dx;
+            rhs[q_eq] += -scvf_fac * convection_J_10(h, q, r);
+            rhs[r_eq] += -scvf_fac * convection_J_20(h, q, r);
+
+            // scv_1 face 3
+            h = convection_scvf_xi(htheta[p_0], htheta[p_s], htheta[p_se], htheta[p_e]);
+            q = convection_scvf_xi(qtheta[p_0], qtheta[p_s], qtheta[p_se], qtheta[p_e]);
+            r = convection_scvf_xi(rtheta[p_0], rtheta[p_s], rtheta[p_se], rtheta[p_e]);
+            scvf_fac = theta * 1. * 0.25 * dy * 0.125;
+            A.coeffRef(q_eq, 3 * p_0 ) += scvf_fac * 3. * convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_s ) += scvf_fac * 1. * convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_se) += scvf_fac * 1. * convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_e ) += scvf_fac * 3. * convection_J_11(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0 ) += scvf_fac * 3. * convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_s ) += scvf_fac * 1. * convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_se) += scvf_fac * 1. * convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_e ) += scvf_fac * 3. * convection_J_21(h, q, r);
+
+            A.coeffRef(q_eq, 3 * p_0  + 1) += scvf_fac * 3. * convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_s  + 1) += scvf_fac * 1. * convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_se + 1) += scvf_fac * 1. * convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_e  + 1) += scvf_fac * 3. * convection_J_12(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0  + 1) += scvf_fac * 3. * convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_s  + 1) += scvf_fac * 1. * convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_se + 1) += scvf_fac * 1. * convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_e  + 1) += scvf_fac * 3. * convection_J_22(h, q, r);
+
+            A.coeffRef(q_eq, 3 * p_0  + 2) += scvf_fac * 3. * convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_s  + 2) += scvf_fac * 1. * convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_se + 2) += scvf_fac * 1. * convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_e  + 2) += scvf_fac * 3. * convection_J_13(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0  + 2) += scvf_fac * 3. * convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_s  + 2) += scvf_fac * 1. * convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_se + 2) += scvf_fac * 1. * convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_e  + 2) += scvf_fac * 3. * convection_J_23(h, q, r);
+            scvf_fac = 1. * 0.25 * dx;
+            rhs[q_eq] += -scvf_fac * convection_J_10(h, q, r);
+            rhs[r_eq] += -scvf_fac * convection_J_20(h, q, r);
+
+            // sub control volume 2 ============================================
+            // scv_2 face 4
+            h = convection_scvf_xi(htheta[p_0], htheta[p_e], htheta[p_ne], htheta[p_n]);
+            q = convection_scvf_xi(qtheta[p_0], qtheta[p_e], qtheta[p_ne], qtheta[p_n]);
+            r = convection_scvf_xi(rtheta[p_0], rtheta[p_e], rtheta[p_ne], rtheta[p_n]);
+            scvf_fac = theta * 1. * 0.25 * dy * 0.125;
+            A.coeffRef(q_eq, 3 * p_0 ) += scvf_fac * 3.* convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_e ) += scvf_fac * 3.* convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_ne) += scvf_fac * 1.* convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_n ) += scvf_fac * 1.* convection_J_11(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0 ) += scvf_fac * 3.* convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_e ) += scvf_fac * 3.* convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_ne) += scvf_fac * 1.* convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_n ) += scvf_fac * 1.* convection_J_21(h, q, r);
+
+            A.coeffRef(q_eq, 3 * p_0  + 1) += scvf_fac * 3.* convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_e  + 1) += scvf_fac * 3.* convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_ne + 1) += scvf_fac * 1.* convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_n  + 1) += scvf_fac * 1.* convection_J_12(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0  + 1) += scvf_fac * 3.* convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_e  + 1) += scvf_fac * 3.* convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_ne + 1) += scvf_fac * 1.* convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_n  + 1) += scvf_fac * 1.* convection_J_22(h, q, r);
+
+            A.coeffRef(q_eq, 3 * p_0  + 2) += scvf_fac * 3.* convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_e  + 2) += scvf_fac * 3.* convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_ne + 2) += scvf_fac * 1.* convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_n  + 2) += scvf_fac * 1.* convection_J_13(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0  + 2) += scvf_fac * 3.* convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_e  + 2) += scvf_fac * 3.* convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_ne + 2) += scvf_fac * 1.* convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_n  + 2) += scvf_fac * 1.* convection_J_23(h, q, r);
+
+            scvf_fac = 1. * 0.25 * dx;
+            rhs[q_eq] += -scvf_fac * convection_J_10(h, q, r);
+            rhs[r_eq] += -scvf_fac * convection_J_20(h, q, r);
 
 
-            // scv 0
-            c0 = -theta * (qp[p_0]  / hp[p_0]);
-            c1 = -theta * (qp[p_w] / hp[p_w]);
-            c2 = -theta * (qp[p_sw] / hp[p_sw]);
-            c3 = -theta * (qp[p_s] / hp[p_s]);
-            c_scvf_xi (A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_w + 1, 3 * p_sw + 1, 3 * p_s + 1);
-            c_scvf_eta(A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_w + 1, 3 * p_sw + 1, 3 * p_s + 1);
+            // scv_2 face 5
+            h = convection_scvf_eta(htheta[p_0], htheta[p_e], htheta[p_ne], htheta[p_n]);
+            q = convection_scvf_eta(qtheta[p_0], qtheta[p_e], qtheta[p_ne], qtheta[p_n]);
+            r = convection_scvf_eta(rtheta[p_0], rtheta[p_e], rtheta[p_ne], rtheta[p_n]);
+            scvf_fac = theta * 1. * 0.25 * dx * 0.125;
+            A.coeffRef(q_eq, 3 * p_0 ) += scvf_fac * 3. * convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_e ) += scvf_fac * 1. * convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_ne) += scvf_fac * 1. * convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_n ) += scvf_fac * 3. * convection_J_11(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0 ) += scvf_fac * 3. * convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_e ) += scvf_fac * 1. * convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_ne) += scvf_fac * 1. * convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_n ) += scvf_fac * 3. * convection_J_21(h, q, r);
 
-            // scv 1
-            c0 = -theta * (rp[p_0]  / hp[p_0]);
-            c1 = -theta * (rp[p_e] / hp[p_e]);
-            c2 = -theta * (rp[p_se] / hp[p_se]);
-            c3 = -theta * (rp[p_s] / hp[p_s]);
-            c_scvf_xi (A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_e + 1, 3 * p_se + 1, 3 * p_s + 1);
-            c_scvf_eta(A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_e + 1, 3 * p_se + 1, 3 * p_s + 1);
-            
-            // scv 2
-            c0 = -theta * (qp[p_0]  / hp[p_0]);
-            c1 = -theta * (qp[p_e] / hp[p_e]);
-            c2 = -theta * (qp[p_ne] / hp[p_ne]);
-            c3 = -theta * (qp[p_n] / hp[p_n]);
-            c_scvf_xi (A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_e + 1, 3 * p_ne + 1, 3 * p_n + 1);
-            c_scvf_eta(A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_e + 1, 3 * p_ne + 1, 3 * p_n + 1);
-          
-            // scv 3
-            c0 = -theta * (qp[p_0]  / hp[p_0]);
-            c1 = -theta * (qp[p_w] / hp[p_w]);
-            c2 = -theta * (qp[p_nw] / hp[p_nw]);
-            c3 = -theta * (qp[p_n] / hp[p_n]);
-            c_scvf_xi (A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_w + 1, 3 * p_nw + 1, 3 * p_n + 1);
-            c_scvf_eta(A, rhs, q_eq, c0, c1, c2, c3, 3 * p_0 + 1, 3 * p_w + 1, 3 * p_nw + 1, 3 * p_n + 1);
-            
+            A.coeffRef(q_eq, 3 * p_0  + 1) += scvf_fac * 3. * convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_e  + 1) += scvf_fac * 1. * convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_ne + 1) += scvf_fac * 1. * convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_n  + 1) += scvf_fac * 3. * convection_J_12(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0  + 1) += scvf_fac * 3. * convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_e  + 1) += scvf_fac * 1. * convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_ne + 1) += scvf_fac * 1. * convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_n  + 1) += scvf_fac * 3. * convection_J_22(h, q, r);
+
+            A.coeffRef(q_eq, 3 * p_0  + 2) += scvf_fac * 3. * convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_e  + 2) += scvf_fac * 1. * convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_ne + 2) += scvf_fac * 1. * convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_n  + 2) += scvf_fac * 3. * convection_J_13(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0  + 2) += scvf_fac * 3. * convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_e  + 2) += scvf_fac * 1. * convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_ne + 2) += scvf_fac * 1. * convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_n  + 2) += scvf_fac * 3. * convection_J_23(h, q, r);
+
+            scvf_fac = 1. * 0.25 * dx;
+            rhs[q_eq] += -scvf_fac * convection_J_10(h, q, r);
+            rhs[r_eq] += -scvf_fac * convection_J_20(h, q, r);
+
+            // sub control volume 3 ============================================
+            // scv_3 face 6
+            h = convection_scvf_eta(htheta[p_0], htheta[p_n], htheta[p_nw], htheta[p_w]);
+            q = convection_scvf_eta(qtheta[p_0], qtheta[p_n], qtheta[p_nw], qtheta[p_w]);
+            r = convection_scvf_eta(rtheta[p_0], rtheta[p_n], rtheta[p_nw], rtheta[p_w]);
+            scvf_fac = theta * 1. * 0.25 * dx * 0.125;
+            A.coeffRef(q_eq, 3 * p_0 ) += scvf_fac * 3. * convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_n ) += scvf_fac * 1. * convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_nw) += scvf_fac * 1. * convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_w ) += scvf_fac * 3. * convection_J_11(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0 ) += scvf_fac * 3. * convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_n ) += scvf_fac * 1. * convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_nw) += scvf_fac * 1. * convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_w ) += scvf_fac * 3. * convection_J_21(h, q, r);
+
+            A.coeffRef(q_eq, 3 * p_0  + 1) += scvf_fac * 3. * convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_n  + 1) += scvf_fac * 1. * convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_nw + 1) += scvf_fac * 1. * convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_w  + 1) += scvf_fac * 3. * convection_J_12(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0  + 1) += scvf_fac * 3. * convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_n  + 1) += scvf_fac * 1. * convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_nw + 1) += scvf_fac * 1. * convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_w  + 1) += scvf_fac * 3. * convection_J_22(h, q, r);
+
+            A.coeffRef(q_eq, 3 * p_0  + 2) += scvf_fac * 3. * convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_n  + 2) += scvf_fac * 1. * convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_nw + 2) += scvf_fac * 1. * convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_w  + 2) += scvf_fac * 3. * convection_J_13(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0  + 2) += scvf_fac * 3. * convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_n  + 2) += scvf_fac * 1. * convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_nw + 2) += scvf_fac * 1. * convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_w  + 2) += scvf_fac * 3. * convection_J_23(h, q, r);
+
+            scvf_fac = 1. * 0.25 * dx;
+            rhs[q_eq] += -scvf_fac * convection_J_10(h, q, r);
+            rhs[r_eq] += -scvf_fac * convection_J_20(h, q, r);
+
+            // scv_3 face 7
+            h = convection_scvf_xi(htheta[p_0], htheta[p_n], htheta[p_nw], htheta[p_w]);
+            q = convection_scvf_xi(qtheta[p_0], qtheta[p_n], qtheta[p_nw], qtheta[p_w]);
+            r = convection_scvf_xi(rtheta[p_0], rtheta[p_n], rtheta[p_nw], rtheta[p_w]);
+            scvf_fac = theta * -1. * 0.25 * dy * 0.125;
+            A.coeffRef(q_eq, 3 * p_0 ) += scvf_fac * 3. * convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_n ) += scvf_fac * 1. * convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_nw) += scvf_fac * 1. * convection_J_11(h, q, r);
+            A.coeffRef(q_eq, 3 * p_w ) += scvf_fac * 3. * convection_J_11(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0 ) += scvf_fac * 3. * convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_n ) += scvf_fac * 1. * convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_nw) += scvf_fac * 1. * convection_J_21(h, q, r);
+            A.coeffRef(r_eq, 3 * p_w ) += scvf_fac * 3. * convection_J_21(h, q, r);
+
+            A.coeffRef(q_eq, 3 * p_0  + 1) += scvf_fac * 3. * convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_n  + 1) += scvf_fac * 1. * convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_nw + 1) += scvf_fac * 1. * convection_J_12(h, q, r);
+            A.coeffRef(q_eq, 3 * p_w  + 1) += scvf_fac * 3. * convection_J_12(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0  + 1) += scvf_fac * 3. * convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_n  + 1) += scvf_fac * 1. * convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_nw + 1) += scvf_fac * 1. * convection_J_22(h, q, r);
+            A.coeffRef(r_eq, 3 * p_w  + 1) += scvf_fac * 3. * convection_J_22(h, q, r);
+
+            A.coeffRef(q_eq, 3 * p_0  + 2) += scvf_fac * 3. * convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_n  + 2) += scvf_fac * 1. * convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_nw + 2) += scvf_fac * 1. * convection_J_13(h, q, r);
+            A.coeffRef(q_eq, 3 * p_w  + 2) += scvf_fac * 3. * convection_J_13(h, q, r);
+            A.coeffRef(r_eq, 3 * p_0  + 2) += scvf_fac * 3. * convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_n  + 2) += scvf_fac * 1. * convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_nw + 2) += scvf_fac * 1. * convection_J_23(h, q, r);
+            A.coeffRef(r_eq, 3 * p_w  + 2) += scvf_fac * 3. * convection_J_23(h, q, r);
+
+            scvf_fac = -1. * 0.25 * dx;
+            rhs[q_eq] += -scvf_fac * convection_J_10(h, q, r);
+            rhs[r_eq] += -scvf_fac * convection_J_20(h, q, r);
+                        
        }
     }
-
-
     return 0;
 }
-int CONVECTION::rhs_2d_q_eq(Eigen::VectorXd rhs)                          // RHS vector [h, q, r]^{n}
+int cconvection_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r, 
+    std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
+    int nx, int ny)                          // RHS vector [h, q, r]^{n}
 {
-    double qqh;   // rhs: qq/h
-    double qrh;   // rhs: qr/h
+    // Convection for post processing; WITHOUT integration over the control volumes.
+    double h;
+    double q;
+    double r;
 
-
-    for (int i = 0; i < rhs.size(); ++i)
+    for (int i = 1; i < nx - 1; ++i)
     {
-        qqh = 0.0;   // rhs: qq/h
-        qrh = 0.0;   // rhs: qr/h
+        for (int j = 1; j < ny - 1; ++j)
+        {
+            int p_0  = convection_p_index(i, j, ny); // central point of control volume
+            h = hn[p_0];
+            q = qn[p_0];
+            r = rn[p_0];
+            // q-momentum equation
+            rhs_q[p_0] = -( convection_J_10(h, q, r) );
 
-        rhs[i] = qqh + qrh;
+            // r-momentum equation
+            rhs_r[p_0] = -( convection_J_20(h, q, r) );
+        }
     }
     return 0;
 }
-inline int CONVECTION::p_index(int i, int j, int ny)
+inline int convection_p_index(int i, int j, int ny)
 {
     return i * ny + j;
 }
-void CONVECTION::c_scvf_xi(Eigen::SparseMatrix<double> A, Eigen::VectorXd rhs, int eq, 
-    double c0, double c1, double c2, double c3, int p0, int p1, int p2, int p3)
+inline double convection_J_10(double& h, double& q, double& r)
+{
+    return q * q / h + q * r / h;
+}
+inline double convection_J_11(double& h, double& q, double& r)
+{
+    return -q * q / (h * h) - q * r / (h * h);  // d()/dh
+}
+inline double convection_J_12(double& h, double& q, double& r)
+{
+    return 2. * q / h + r / h;  // d()/dq
+}
+inline double convection_J_13(double& h, double& q, double& r)
+{
+    UNUSED(r);
+    return q / h; // d()/dr
+}
+inline double convection_J_20(double& h, double& q, double& r)
+{
+    return r * q / h + r * r / h;
+}
+inline double convection_J_21(double& h, double& q, double& r)
+{
+    return -r * q / (h * h) - r * r / (h * h);  // d()/dh
+}
+inline double convection_J_22(double& h, double& q, double& r)
+{
+    UNUSED(q);
+    return r / h; // d()/dq
+}
+inline double convection_J_23(double& h, double& q, double& r)
+{
+    return q / h + 2. * r / h; // d()/dr
+}
+
+double convection_scvf_xi(double c0, double c1, double c2, double c3)
 {
     // c_{i+1/2, j+1/4}
 
-    //    3 - - - - 2
-    //    |    |    |
-    //    | - - - - |
-    //    |    x    |
-    //    0 - - - - 1
+//   3 - - - - - - - 2
+//   |       |       | 
+//   |       |       | 
+//   |       |       | 
+//   | - - - - - - - | 
+//   |       |       | 
+//   |       x       | 
+//   |       |       | 
+//   0 - - - - - - - 1 
 
-    std::vector<double> a{ 0.125 * 3., 0.125 * 3., 0.125 * 1., 0.125 * 1. };
-    
-    A.coeffRef(eq, p0) += a[0];
-    A.coeffRef(eq, p1) += a[1];
-    A.coeffRef(eq, p2) += a[2];
-    A.coeffRef(eq, p3) += a[3];
-    
-    rhs[p0] += a[0] * c0 + a[1] * c1 + a[2] * c2 + a[3] * c3;
-    return ;
+    return 0.125 * (3. * c0 + 3. * c1 + 1. * c2 + 1. * c3);
 }
-void CONVECTION::c_scvf_eta(Eigen::SparseMatrix<double> A, Eigen::VectorXd rhs, int eq, 
-    double c0, double c1, double c2, double c3, int p0, int p1, int p2, int p3)
+double convection_scvf_eta(double c0, double c1, double c2, double c3)
 {
     // c_{i+1/4, j+1/2}
 
-    //    3 - - - - 2
-    //    |    |    |
-    //    |  x  - - |
-    //    |    |    |
-    //    0 - - - - 1
+//   3 - - - - - - - 2
+//   |       |       | 
+//   |       |       | 
+//   |       |       | 
+//   | - x - - - - - | 
+//   |       |       | 
+//   |       |       | 
+//   |       |       | 
+//   0 - - - - - - - 1 
 
-    std::vector<double> a{ 0.125 * 3., 0.125 * 3., 0.125 * 1., 0.125 * 1. };
-    
-    A.coeffRef(eq, p0) += a[0];
-    A.coeffRef(eq, p1) += a[3];
-    A.coeffRef(eq, p2) += a[2];
-    A.coeffRef(eq, p3) += a[1];
-    
-    rhs[p0] += a[0] * c0 + a[1] * c1 + a[2] * c2 + a[3] * c3;
-    return ;
+    return 0.125 * (3. * c0 + 1. * c1 + 1. * c2 + 3. * c3);
 }
 

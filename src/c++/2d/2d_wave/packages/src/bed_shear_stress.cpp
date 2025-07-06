@@ -58,7 +58,6 @@ int bed_shear_stress_matrix_rhs(Eigen::SparseMatrix<double>& A, Eigen::VectorXd&
     double r;
     double scv_fac;
 
-    // Loop over the nodes first and store the Jacobians
     for (int k = 0; k < hn.size(); ++k)
     {
         htheta[k] = theta * hp[k] + (1.0 - theta) * hn[k];

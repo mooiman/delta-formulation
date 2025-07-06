@@ -352,7 +352,6 @@ int main(int argc, char *argv[])
     }
 
     REGULARIZATION* regularization = new REGULARIZATION(iter_max, g);
-    CONVECTION* convection = new CONVECTION(theta, dx, dy, nx, ny);
 
     log_file << "=== Used input variables ==============================" << std::endl;
     log_file << "[Domain]" << std::endl;
@@ -2164,18 +2163,17 @@ int main(int argc, char *argv[])
                                     //A.coeffRef(c_eq, ph_0 ) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
                                     //A.coeffRef(c_eq, ph_e ) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
                                     //A.coeffRef(c_eq, ph_ee) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
-                                    //corr_term = -dhdt - eps_bc_corr * (hp_ip12 - (bc[BC_WEST] - zb_ip12));
 
-                                    corr_term = - eps_bc_corr * (hp_ip12 - (bc[BC_WEST] - zb_ip12));
+                                    corr_term = dhdt + eps_bc_corr * ((bc[BC_WEST] - zb_ip12) - hp_ip12);
                                     rhs[c_eq] += corr_term;
                                 }
                                 if (bc_vars[BC_WEST] == "q")
                                 {
-                                    //A.coeffRef(c_eq, ph_0  + 1) += 0.0 * dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
-                                    //A.coeffRef(c_eq, ph_e  + 1) += 0.0 * dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
-                                    //A.coeffRef(c_eq, ph_ee + 1) += 0.0 * dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
-                                    //corr_term = -2. * dqdt - eps_bc_corr * (qp_ip12 - bc[BC_WEST]);
-                                    corr_term =  - eps_bc_corr * (qp_ip12 - bc[BC_WEST]);
+                                    dqdt = dtinv * (bc[BC_WEST] - qn_ip12);
+                                    //A.coeffRef(c_eq, ph_0  + 1) += dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
+                                    //A.coeffRef(c_eq, ph_e  + 1) += dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
+                                    //A.coeffRef(c_eq, ph_ee + 1) += dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
+                                    corr_term =  dqdt - eps_bc_corr * (bc[BC_WEST] - qp_ip12);                                    corr_term =  - eps_bc_corr * (qp_ip12 - bc[BC_WEST]);
                                     rhs[c_eq] += corr_term;
                                 }
                             }
