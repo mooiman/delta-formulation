@@ -287,23 +287,23 @@ The Jacobian \textbf{at the faces of the control volume} for the convection term
 
 The linearization in time read for the $q$-momentum equation reads (see \autoref{eq:2d_convection_q_equation}):
 \begin{align}
-    &\frac{q^{n+\theta, p}q^{n+\theta, p}}{h^{n+\theta, p}} + \frac{q^{n+\theta, p}r^{n+\theta, p}}{h^{n+\theta, p}}
-    - \left( \frac{q^{n+\theta, p}q^{n+\theta, p}}{(h^{n+\theta, p})^2} +
-    \frac{q^{n+\theta, p}r^{n+\theta, p}}{(h^{n+\theta, p})^2} \right) \theta \Delta h +
+    &\frac{q^{n+\theta, p}_{qp}q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} + \frac{q^{n+\theta, p}_{qp}r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}}
+    - \left( \frac{q^{n+\theta, p}_{qp}q^{n+\theta, p}_{qp}}{(h^{n+\theta, p}_{qp})^2} +
+    \frac{q^{n+\theta, p}_{qp}r^{n+\theta, p}_{qp}}{(h^{n+\theta, p}_{qp})^2} \right) \theta \Delta h +
     \nonumber \\*
-    & + \left ( \frac{2 q^{n+\theta, p}}{h^{n+\theta, p}} +  \frac{r^{n+\theta, p}}{h^{n+\theta, p}}\right) \theta \Delta q + \left( \frac{q^{n+\theta, p}}{h^{n+\theta, p}}  \right) \theta \Delta r
+    & + \left ( \frac{2 q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} +  \frac{r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}}\right) \theta \Delta q + \left( \frac{q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}}  \right) \theta \Delta r
 \end{align}
 and for the $r$-momentum equation:
 \begin{align}
-    &\frac{r^{n+\theta, p}q^{n+\theta, p}}{h^{n+\theta, p}} +
-    \frac{r^{n+\theta, p}r^{n+\theta, p}}{h^{n+\theta, p}}
-- \left( \frac{r^{n+\theta, p}q^{n+\theta, p}}{(h^{n+\theta, p})^2} +
-\frac{r^{n+\theta, p}r^{n+\theta, p}}{(h^{n+\theta, p})^2} \right) \theta \Delta h +
+    &\frac{r^{n+\theta, p}_{qp}q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} +
+    \frac{r^{n+\theta, p}_{qp}r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}}
+- \left( \frac{r^{n+\theta, p}_{qp}q^{n+\theta, p}_{qp}}{(h^{n+\theta, p}_{qp})^2} +
+\frac{r^{n+\theta, p}_{qp}r^{n+\theta, p}_{qp}}{(h^{n+\theta, p}_{qp})^2} \right) \theta \Delta h +
 \nonumber \\*
 & +
-\left( \frac{r^{n+\theta, p}}{h^{n+\theta, p}}  \right) \theta \Delta q +
+\left( \frac{r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}}  \right) \theta \Delta q +
 \left (
-\frac{q^{n+\theta, p}}{h^{n+\theta, p}} + \frac{2 r^{n+\theta, p}}{h^{n+\theta, p}}  \right) \theta \Delta r
+\frac{q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} + \frac{2 r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}}  \right) \theta \Delta r
 \end{align}
 This terms need to be computed for each of the control volume faces, taken into account the outward normal.
 Eight faces on a cartesian grid.
@@ -321,11 +321,11 @@ The components for the two momentum equations read:
     F_r = \int_\Omega c_f \left( \frac{r\abs{\vec{q}}}{h^2} \right)\, d\omega, \qquad \textit{r-momentum eq.}
 \end{align}
 and $\abs{\vec{q}} = \sqrt{q^2 + r^2}$.
-To avoid the discontinuity around zero for the absolute function this function be approximated by
+To avoid the discontinuity around zero for the absolute function this function will be approximated by
 \begin{align}
     \abs{\vec{q}} \approx \abs{\widetilde{\vec{q}}} = \left( q^4 + r^4 + \eps^4 \right)^\quart.
 \end{align}
-The bed shear stress reads then:
+The bed shear stress then reads:
 \begin{align}
     F_q = c_f \left( \frac{q\abs{\widetilde{\vec{q}}}}{h^2} \right), \qquad \textit{q-momentum eq.}
     \\
@@ -350,36 +350,41 @@ The Jacobian for the bed shear stress $F(h,q,r)$ reads:
     \begin{pmatrix}
        -2c_f \frac{q\abs{\widetilde{\vec{q}}}}{h^3}
        & c_f\frac{\abs{\widetilde{\vec{q}}}}{h^2} + c_f \frac{q^4}{h^2\abs{\widetilde{\vec{q}}}^3}
-       & c_f \frac{qr^3}{h^2\abs{\widetilde{\vec{q}}}}
+       & c_f \frac{qr^3}{h^2\abs{\widetilde{\vec{q}}}^3}
        \\
        -2c_f \frac{r\abs{\widetilde{\vec{q}}}}{h^3}
-       & c_f \frac{rq^3}{h^2\abs{\widetilde{\vec{q}}}}
+       & c_f \frac{rq^3}{h^2\abs{\widetilde{\vec{q}}}^3}
        & c_f\frac{\abs{\widetilde{\vec{q}}}}{h^2} + c_f \frac{r^4}{h^2\abs{\widetilde{\vec{q}}}^3}
     \end{pmatrix}
 \end{align}
 All these coefficients of the Jacobian should be evaluated at the quadrature point of the sub-control volumes and evaluated at time level $(n+\theta,p)$.
 The same applies also for the right hand side and evaluated at time level $(n+\theta,p)$.
 
-The linearization in time reads for the $q$-momentum equation (see \autoref{eq:2d_convection_q_equation}):
+The linearization in time for the $q$-momentum equation reads (see \autoref{eq:2d_convection_q_equation}):
 \begin{align}
-        &c_f \left( \frac{q^{n+\theta,p}\abs{\widetilde{\vec{q}^{n+\theta,p}}}}{(h^{n+\theta,p})^2} \right)
-        - \left( 2 c_f \frac{ q^{n+\theta,p} \abs{\widetilde{\vec{q}^{n+\theta,p}}} }{(h^{n+\theta,p})^3} \right) \theta \Delta h +
+        &c_f \left( \frac{q^{n+\theta,p}_{qp}\abs{\widetilde{\vec{q}^{n+\theta,p}}}}{(h^{n+\theta,p}_{qp})^2} \right)
+        - \left( 2 c_f \frac{ q^{n+\theta,p}_{qp} \abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}} }{(h^{n+\theta,p}_{qp})^3} \right) \theta \Delta h_{qp} +
         \\*
         & +
-        \left( c_f \frac{\abs{\widetilde{\vec{q}^{n+\theta,p}}}}{(h^{n+\theta,p})^2} + c_f \frac{(q^{n+\theta,p})^4}{(h^{n+\theta,p})^2\abs{\widetilde{\vec{q}^{n+\theta,p}}}^3} \right) \theta \Delta q +
-        \left( c_f \frac{q^{n+\theta,p}(r^{n+\theta,p})^3}
-        {(h^{n+\theta,p})^2\abs{\widetilde{\vec{q}^{n+\theta,p}}} } \right) \theta \Delta r
+        \left( c_f \frac{\abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}}}{(h^{n+\theta,p}_{qp})^2} + c_f \frac{(q^{n+\theta,p}_{qp})^4}{(h^{n+\theta,p}_{qp})^2\abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}}^3} \right) \theta \Delta q_{qp}
+        + \left( c_f \frac{q^{n+\theta,p}_{qp}(r^{n+\theta,p}_{qp})^3}
+        {(h^{n+\theta,p}_{qp})^2\abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}}^3 } \right) \theta \Delta r_{qp}
  \end{align}
 and for the $r$-momentum equation:
 \begin{align}
-        &c_f \left( \frac{r^{n+\theta,p}\abs{\widetilde{\vec{q}^{n+\theta,p}}}}{(h^{n+\theta,p})^2} \right)
-        - \left( 2 c_f \frac{ r^{n+\theta,p} \abs{\widetilde{\vec{q}^{n+\theta,p}}}} {(h^{n+\theta,p})^3} \right) \theta \Delta h +
+        &c_f \left( \frac{r^{n+\theta,p}_{qp}\abs{\widetilde{\vec{q}^{n+\theta,p}}}}{(h^{n+\theta,p}_{qp})^2} \right)
+        - \left( 2 c_f \frac{ r^{n+\theta,p}_{qp} \abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}}} {(h^{n+\theta,p}_{qp})^3} \right) \theta \Delta h_{qp} +
         \\*
-        & + \left( c_f \frac{r^{n+\theta,p}(q^{n+\theta,p})^3}
-        {(h^{n+\theta,p})^2\abs{\widetilde{\vec{q}^{n+\theta,p}}} }\right) \theta \Delta q +
-        \left( c_f \frac{\abs{\widetilde{\vec{q}^{n+\theta,p}}}}{(h^{n+\theta,p})^2} + c_f \frac{(r^{n+\theta,p})^4}{(h^{n+\theta,p})^2\abs{\widetilde{\vec{q}^{n+\theta,p}}}^3} \right) \theta \Delta r
+        & + \left( c_f \frac{r^{n+\theta,p}_{qp}(q^{n+\theta,p}_{qp})^3}
+        {(h^{n+\theta,p}_{qp})^2\abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}}^3 }\right) \theta \Delta q_{qp}
+        + \left( c_f \frac{\abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}}}{(h^{n+\theta,p}_{qp})^2}
+        + c_f \frac{(r^{n+\theta,p}_{qp})^4}{(h^{n+\theta,p}_{qp})^2\abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}}^3} \right) \theta \Delta r_{qp}
 \end{align}
-This terms need to be computed for each of the sub-control volumes.
+with
+\begin{align}
+    \abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}} = \left( q^4_{qp} + r^4_{qp} + \eps^4 \right)^\quart.
+\end{align}
+These terms need to be computed for each quadrature points ($qp$) of the sub-control volumes.
 %%--------------------------------------------------------------------------------
 %\subsubsection{Pressure term, dependent on $h$}
 %In this section we use that the pressure term is dependent on $h$.
