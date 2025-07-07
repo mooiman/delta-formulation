@@ -2169,11 +2169,12 @@ int main(int argc, char *argv[])
                                 }
                                 if (bc_vars[BC_WEST] == "q")
                                 {
-                                    dqdt = dtinv * (bc[BC_WEST] - qn_ip12);
+                                    //dqdt = dtinv * (bc[BC_WEST] - qn_ip12);
                                     //A.coeffRef(c_eq, ph_0  + 1) += dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
                                     //A.coeffRef(c_eq, ph_e  + 1) += dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
                                     //A.coeffRef(c_eq, ph_ee + 1) += dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
-                                    corr_term =  dqdt - eps_bc_corr * (bc[BC_WEST] - qp_ip12);                                    corr_term =  - eps_bc_corr * (qp_ip12 - bc[BC_WEST]);
+                                    //corr_term =  dqdt - eps_bc_corr * (bc[BC_WEST] - qp_ip12);
+                                    corr_term =  - eps_bc_corr * (qp_ip12 - bc[BC_WEST]);
                                     rhs[c_eq] += corr_term;
                                 }
                             }
