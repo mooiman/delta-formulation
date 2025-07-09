@@ -9,13 +9,13 @@
     tstop = 900.0                                # End time [s]
         
 [Initial]
-    ini_vars = ["zeta", "zeta_GaussHump"]
+    ini_vars = ["zeta", "zeta_gauss_hump"]
     gauss_amp = 0.01 # amplitude of the gaussian hump
     gauss_mu = 0.0    # location of the top of the gaussian hump
     gauss_sigma = 350.0    # width of the gaussian hump
 
 [Boundary] # north, east, south, west
-    bc_type = ["mooiman", "mooiman", "mooiman", "mooiman"] # Type "borsboom", "dirichlet", "mooiman" 
+    bc_type = ["borsboom", "borsboom", "borsboom", "borsboom"] # Type "borsboom", "dirichlet", "mooiman" 
     bc_vars = ["zeta", "zeta", "zeta", "zeta"]
     bc_vals = [0.0, 0.0, 0.0, 0.0]
     bc_absorbing = [true, true, true, true]

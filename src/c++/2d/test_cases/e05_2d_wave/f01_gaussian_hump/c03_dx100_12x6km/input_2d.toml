@@ -9,7 +9,7 @@
     tstop = 900.0                                # End time [s]
         
 [Initial]
-    ini_vars = ["zeta", "zeta_GaussHump"]
+    ini_vars = ["zeta", "zeta_gauss_hump"]
     gauss_amp = 0.01 # amplitude of the gaussian hump
     gauss_mu = 0.0    # location of the top of the gaussian hump
     gauss_sigma = 350.0    # width of the gaussian hump

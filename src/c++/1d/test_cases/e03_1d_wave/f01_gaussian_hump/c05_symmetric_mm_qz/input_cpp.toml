@@ -26,7 +26,7 @@
     momentum_convection = false                   # Include momentum convection term
 
 [Numerics]
-    dt = 0.0                                     # Time step size [s], if dt == 0: then stationary problem
+    dt = 10.0                                     # Time step size [s], if dt == 0: then stationary problem
     dx = 10.0                                     # Grid size [m]
     iter_max = 25                                 # Maximum number of nonlinear iterations
     theta = 0.501                                 # Implicitness factor (0.5 <= theta <= 1.0)

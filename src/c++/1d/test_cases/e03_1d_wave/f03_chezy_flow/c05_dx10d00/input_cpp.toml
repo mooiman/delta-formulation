@@ -30,7 +30,7 @@
     viscosity = 100.0
 
 [Numerics]
-    dt = 5.0                                    # Time step size [s], if dt == 0: then stationary problem
+    dt = 30.0                                    # Time step size [s], if dt == 0: then stationary problem
     dx = 10.0                                      # Grid size [m]
     iter_max = 50                                 # Maximum number of nonlinear iterations
     theta = 0.501                                 # Implicitness factor (0.5 <= theta <= 1.0)
