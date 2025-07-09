@@ -617,6 +617,8 @@ int main(int argc, char* argv[])
     }
 
     std::cout << "Start time-loop" << std::endl;
+    if (stationary) { std::cout << "Stationary solution" << std::endl; }
+    else { std::cout << "Time dependent simulation" << std::endl; }
     std::cout << std::fixed << std::setprecision(2) << "tstart= " << tstart + time << ";   tstop= " << tstart + tstop << ";   dt= " << dt << ";   dx= " << dx << std::endl;
  
     STOP_TIMER(Initialization);
@@ -1455,6 +1457,46 @@ int main(int argc, char* argv[])
             {
                 START_TIMER(BiCGStab);
             }
+            if (logging == "matrix")
+            {
+                log_file << "=== Matrix ============================================" << std::endl;
+                for (int i = 0; i < 2*nx; ++i)
+                {
+                    for (int j = 0; j < 2*nx; ++j)
+                    {
+                        log_file << std::showpos << std::setprecision(5) << std::scientific << A.coeff(i, j) << " ";
+                    }
+                    log_file << std::endl;
+                    if (std::fmod(i+1,2) == 0) { log_file << std::endl; }
+                }
+                log_file << "=== Diagonal dominant ============================" << std::endl;
+                for (int i = 0; i < 2 * nx; ++i)
+                {
+                    double off_diag = 0.0;
+                    double diag = 0.0;
+                    for (int j = 0; j < 2 * nx; ++j)
+                    {
+                        if (i != j ) { off_diag += std::abs(A.coeff(i,j)); }
+                        else { diag = std::abs(A.coeff(i,j)); }
+                    }
+                    log_file << std::showpos << std::setprecision(5) << std::scientific << diag << " " << off_diag << " " <<  diag - off_diag << " ";
+                    log_file << std::endl;
+                    if (std::fmod(i+1,2) == 0) { log_file << std::endl; }
+                }
+                log_file << "=== Matrix diagonal====================================" << std::endl;
+                Eigen::VectorXd diag = A.diagonal();
+                for (int i = 0; i < diag.size(); ++i)
+                {
+                    log_file << std::setprecision(8) << std::scientific << "Index " << i << ": " << diag[i] << std::endl;
+                    if (std::fmod(i+1,2) == 0) { log_file << std::endl; }
+                }
+                log_file << "=== RHS ===============================================" << std::endl;
+                for (int i = 0; i < 2 * nx; ++i)
+                {
+                    log_file << std::setprecision(8) << std::scientific << rhs[i] << std::endl;
+                    if (std::fmod(i+1,2) == 0) { log_file << std::endl; }
+                }
+            }
 
             solver.compute(A);
             solver.setTolerance(eps_bicgstab);
@@ -1502,19 +1544,15 @@ int main(int argc, char* argv[])
 
             if (logging == "matrix")
             {
-                log_file << "=== Matrix ============================================" << std::endl;
-                log_file << std::setprecision(4) << std::scientific << Eigen::MatrixXd(A) << std::endl;
-                //log_file << "=== Eigen values ======================================" << std::endl;
-                //log_file << std::setprecision(8) << std::scientific << Eigen::MatrixXd(A).eigenvalues() << std::endl;
-                log_file << "=== RHS, solution  ====================================" << std::endl;
+                log_file << "=== Solution ==========================================" << std::endl;
                 for (int i = 0; i < 2 * nx; ++i)
                 {
-                    log_file << std::setprecision(8) << std::scientific << rhs[i] << "' " << solution[i] << std::endl;
+                    log_file << std::setprecision(8) << std::scientific << solution[i] << std::endl;
                 }
                 log_file << "=== hp, qp ============================================" << std::endl;
                 for (int i = 0; i < nx; ++i)
                 {
-                    log_file << std::setprecision(8) << std::scientific << hp[i] << ", " << qp[i] << std::endl;
+                    log_file << std::setprecision(8) << std::scientific << hp[i] << ", " << qp[i]  << std::endl;
                 }
                 log_file << "=======================================================" << std::endl;
             }
@@ -1528,8 +1566,7 @@ int main(int argc, char* argv[])
 
         if (stationary)
         {
-            std::cout << "stationary solution " << std::endl;
-            log_file << "stationary solution " << std::endl;
+            log_file << "Stationary solution " << std::endl;
             log_file << std::setprecision(8) << std::scientific
                 << "    Iter: " << used_newton_iter
                 << "    Delta h^{n + 1,p + 1}: " << dh_max << " at: " << dh_maxi
