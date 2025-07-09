@@ -57,6 +57,7 @@ int get_toml_array(toml::table, std::string, std::vector<bool>&);
 
 int p_index(int i, int j, int ny);
 double c_scv(double, double, double, double);
+double scvf_n(double c0, double c1, double c2, double c3);
 double dcdx_scv(double, double, double, double);
 double dcdy_scv(double, double, double, double);
 double dcdx_scvf_n(double, double, double, double);
@@ -177,20 +178,20 @@ int main(int argc, char *argv[])
     
     // Initial
     std::vector<std::string> ini_vars;  // get the element as an array
-    auto vars = tbl["Initial"];
-    status = get_toml_array(*vars.as_table(), "ini_vars", ini_vars);
-    double gauss_amp = tbl["Initial"]["gauss_amp"].value_or(double(0.0));   // amplitude of the gaussian hump at the boundary
-    double gauss_mu = tbl["Initial"]["gauss_mu"].value_or(double(-INFINITY));
-    double gauss_mu_x = tbl["Initial"]["gauss_mu_x"].value_or(double(0.0));
-    double gauss_mu_y = tbl["Initial"]["gauss_mu_y"].value_or(double(0.0));
+    tbl_chp = *tbl["Initial"].as_table();
+    status = get_toml_array(tbl_chp, "ini_vars", ini_vars);
+    double gauss_amp  = tbl_chp["gauss_amp"].value_or(double(0.0));   // amplitude of the gaussian hump at the boundary
+    double gauss_mu   = tbl_chp["gauss_mu"].value_or(double(-INFINITY));
+    double gauss_mu_x = tbl_chp["gauss_mu_x"].value_or(double(0.0));
+    double gauss_mu_y = tbl_chp["gauss_mu_y"].value_or(double(0.0));
+    double gauss_sigma = tbl_chp["gauss_sigma"].value_or(double(-INFINITY));
+    double gauss_sigma_x = tbl_chp["gauss_sigma_x"].value_or(double(1.0));
+    double gauss_sigma_y = tbl_chp["gauss_sigma_y"].value_or(double(1.0));
     if (gauss_mu != -INFINITY)
     {
         gauss_mu_x = gauss_mu; 
         gauss_mu_y = 0.0;  // only shift on x-axis
     }
-    double gauss_sigma = tbl["Initial"]["gauss_sigma"].value_or(double(-INFINITY));
-    double gauss_sigma_x = tbl["Initial"]["gauss_sigma"].value_or(double(1.0));
-    double gauss_sigma_y = tbl["Initial"]["gauss_sigma"].value_or(double(1.0));
     if (gauss_sigma != -INFINITY)
     {
         gauss_sigma_x = gauss_sigma; 
@@ -447,6 +448,8 @@ int main(int argc, char *argv[])
     std::vector<double> beds_q(nxny, 0.);              // bed shear stress; needed for postprocessing
     std::vector<double> beds_r(nxny, 0.);              // bed shear stress; needed for postprocessing
     std::vector<double> psi(nxny, 0.);
+    std::vector<double> rhs_q(3 * nxny, 0.);                          
+    std::vector<double> rhs_r(3 * nxny, 0.);                          
 
     Eigen::SparseMatrix<double> A(3 * nxny, 3 * nxny);
     Eigen::VectorXd solution(3 * nxny);                     // solution vector [h, q, r]^{n}
@@ -477,6 +480,9 @@ int main(int argc, char *argv[])
     w_ess[0] = 11./24.;
     w_ess[1] = 14./24.;
     w_ess[2] = -1./24.;
+    w_ess[0] = w_nat[0];
+    w_ess[1] = w_nat[1];
+    w_ess[2] = w_nat[2];
 
     //initialize water level
     std::cout << "Initialisation" << std::endl;
@@ -796,6 +802,19 @@ int main(int argc, char *argv[])
     int ne_bnd = p_index(nx - 2, ny - 2, ny);
     int nw_bnd = p_index(1     , ny - 2, ny);
     int se_bnd = p_index(nx - 2, 1     , ny);
+
+    //Station halfway to boundary
+
+    int hw_bnd  = p_index(    nx / 4 + 1,     ny / 2    , ny);
+    int he_bnd  = p_index(3 * nx / 4 - 1,     ny / 2    , ny);
+    int hs_bnd  = p_index(    nx / 2    ,     ny / 4 + 1, ny);
+    int hn_bnd  = p_index(    nx / 2    , 3 * ny / 4 - 1, ny);
+
+    int hsw_bnd = p_index(    nx / 4 + 1,     ny / 4 + 1, ny);
+    int hne_bnd = p_index(3 * nx / 4 - 1, 3 * ny / 4 - 1, ny);
+    int hnw_bnd = p_index(    nx / 4 + 1, 3 * ny / 4 - 1, ny);
+    int hse_bnd = p_index(3 * nx / 4 - 1,     ny / 4 + 1, ny);
+
     int p_a;
     int p_b;
     int p_c;
@@ -824,8 +843,14 @@ int main(int argc, char *argv[])
     p_c = p_index(int((y_c / dy) + nx / 2), int((x_c / dx) + ny / 2), ny);
     p_d = p_index(int((y_d / dy) + nx / 2), int((x_d / dx) + ny / 2), ny);
 
-    std::vector<double> x_obs = { x[p_a], x[p_b], x[p_c], x[p_d], x[centre], x[n_bnd], x[ne_bnd], x[e_bnd], x[se_bnd], x[s_bnd], x[sw_bnd], x[w_bnd], x[nw_bnd] };
-    std::vector<double> y_obs = { y[p_a], y[p_b], y[p_c], y[p_d], y[centre], y[n_bnd], y[ne_bnd], y[e_bnd], y[se_bnd], y[s_bnd], y[sw_bnd], y[w_bnd], y[nw_bnd] };
+    std::vector<double> x_obs = { x[p_a], x[p_b], x[p_c], x[p_d], x[centre], 
+        x[n_bnd], x[ne_bnd], x[e_bnd], x[se_bnd], x[s_bnd], x[sw_bnd], x[w_bnd], x[nw_bnd],
+        x[hn_bnd], x[hne_bnd], x[he_bnd], x[hse_bnd], x[hs_bnd], x[hsw_bnd], x[hw_bnd], x[hnw_bnd]
+    };
+    std::vector<double> y_obs = { y[p_a], y[p_b], y[p_c], y[p_d], y[centre], 
+        y[n_bnd], y[ne_bnd], y[e_bnd], y[se_bnd], y[s_bnd], y[sw_bnd], y[w_bnd], y[nw_bnd],
+        y[hn_bnd], y[hne_bnd], y[he_bnd], y[hse_bnd], y[hs_bnd], y[hsw_bnd], y[hw_bnd], y[hnw_bnd],
+    };
     int nsig = 0;
     for (int i = 0; i < x_obs.size(); ++i)
     {
@@ -839,14 +864,23 @@ int main(int argc, char *argv[])
     obs_stations.push_back(setup_obs_name(x[p_c], y[p_c], nsig, "C"));
     obs_stations.push_back(setup_obs_name(x[p_d], y[p_d], nsig, "D"));
     obs_stations.push_back(setup_obs_name(x[centre], y[centre], nsig, "Centre"));
-    obs_stations.push_back(setup_obs_name(x[n_bnd] , y[n_bnd] , nsig, "N station"));
-    obs_stations.push_back(setup_obs_name(x[ne_bnd], y[ne_bnd], nsig, "NE station"));
-    obs_stations.push_back(setup_obs_name(x[e_bnd] , y[e_bnd] , nsig, "E station"));
-    obs_stations.push_back(setup_obs_name(x[se_bnd], y[se_bnd], nsig, "SE station"));
-    obs_stations.push_back(setup_obs_name(x[s_bnd] , y[s_bnd] , nsig, "S station"));
-    obs_stations.push_back(setup_obs_name(x[sw_bnd], y[sw_bnd], nsig, "SW station"));
-    obs_stations.push_back(setup_obs_name(x[w_bnd] , y[w_bnd] , nsig, "W station"));
-    obs_stations.push_back(setup_obs_name(x[nw_bnd], y[nw_bnd], nsig, "NW station"));
+    obs_stations.push_back(setup_obs_name(x[n_bnd] , y[n_bnd] , nsig, "N"));
+    obs_stations.push_back(setup_obs_name(x[ne_bnd], y[ne_bnd], nsig, "NE"));
+    obs_stations.push_back(setup_obs_name(x[e_bnd] , y[e_bnd] , nsig, "E"));
+    obs_stations.push_back(setup_obs_name(x[se_bnd], y[se_bnd], nsig, "SE"));
+    obs_stations.push_back(setup_obs_name(x[s_bnd] , y[s_bnd] , nsig, "S"));
+    obs_stations.push_back(setup_obs_name(x[sw_bnd], y[sw_bnd], nsig, "SW"));
+    obs_stations.push_back(setup_obs_name(x[w_bnd] , y[w_bnd] , nsig, "W"));
+    obs_stations.push_back(setup_obs_name(x[nw_bnd], y[nw_bnd], nsig, "NW"));
+
+    obs_stations.push_back(setup_obs_name(x[hn_bnd] , y[hn_bnd] , nsig, "Halfway N"));
+    obs_stations.push_back(setup_obs_name(x[hne_bnd], y[hne_bnd], nsig, "Halfway NE"));
+    obs_stations.push_back(setup_obs_name(x[he_bnd] , y[he_bnd] , nsig, "Halfway E"));
+    obs_stations.push_back(setup_obs_name(x[hse_bnd], y[hse_bnd], nsig, "Halfway SE"));
+    obs_stations.push_back(setup_obs_name(x[hs_bnd] , y[hs_bnd] , nsig, "Halfway S"));
+    obs_stations.push_back(setup_obs_name(x[hsw_bnd], y[hsw_bnd], nsig, "Halfway SW"));
+    obs_stations.push_back(setup_obs_name(x[hw_bnd] , y[hw_bnd] , nsig, "Halfway W"));
+    obs_stations.push_back(setup_obs_name(x[hnw_bnd], y[hnw_bnd], nsig, "Halfway NW"));
 
     his_file->add_stations(obs_stations, x_obs, y_obs);
     his_file->add_time_series();
@@ -869,22 +903,40 @@ int main(int argc, char *argv[])
     START_TIMER(Writing his-file);
     int nst_his = 0;
     his_file->put_time(nst_his, time);
-    std::vector<double> his_values = { hn[p_a], hn[p_b], hn[p_c], hn[p_d], hn[centre], hn[n_bnd], hn[ne_bnd], hn[e_bnd], hn[se_bnd], hn[s_bnd], hn[sw_bnd], hn[w_bnd], hn[nw_bnd] };
+    std::vector<double> his_values = { hn[p_a], hn[p_b], hn[p_c], hn[p_d], hn[centre], 
+        hn[n_bnd], hn[ne_bnd], hn[e_bnd], hn[se_bnd], hn[s_bnd], hn[sw_bnd], hn[w_bnd], hn[nw_bnd],
+        hn[hn_bnd], hn[hne_bnd], hn[he_bnd], hn[hse_bnd], hn[hs_bnd], hn[hsw_bnd], hn[hw_bnd], hn[hnw_bnd]
+    };
     his_file->put_variable(his_h_name, nst_his, his_values);
 
-    his_values = { qn[p_a], qn[p_b], qn[p_c], qn[p_d], qn[centre], qn[n_bnd], qn[ne_bnd], qn[e_bnd], qn[se_bnd], qn[s_bnd], qn[sw_bnd], qn[w_bnd], qn[nw_bnd] };
+    his_values = { qn[p_a], qn[p_b], qn[p_c], qn[p_d], qn[centre], 
+        qn[n_bnd], qn[ne_bnd], qn[e_bnd], qn[se_bnd], qn[s_bnd], qn[sw_bnd], qn[w_bnd], qn[nw_bnd],
+        qn[hn_bnd], qn[hne_bnd], qn[he_bnd], qn[hse_bnd], qn[hs_bnd], qn[hsw_bnd], qn[hw_bnd], qn[hnw_bnd]
+    };
     his_file->put_variable(his_q_name, nst_his, his_values);
  
-    his_values = { rn[p_a], rn[p_b], rn[p_c], rn[p_d], rn[centre], rn[n_bnd], rn[ne_bnd], rn[e_bnd], rn[se_bnd], rn[s_bnd], rn[sw_bnd], rn[w_bnd], rn[nw_bnd] };
+    his_values = { rn[p_a], rn[p_b], rn[p_c], rn[p_d], rn[centre], 
+        rn[n_bnd], rn[ne_bnd], rn[e_bnd], rn[se_bnd], rn[s_bnd], rn[sw_bnd], rn[w_bnd], rn[nw_bnd],
+        rn[hn_bnd], rn[hne_bnd], rn[he_bnd], rn[hse_bnd], rn[hs_bnd], rn[hsw_bnd], rn[hw_bnd], rn[hnw_bnd]
+    };
     his_file->put_variable(his_r_name, nst_his, his_values);
 
-    his_values = { s[p_a], s[p_b], s[p_c], s[p_d], s[centre], s[n_bnd], s[ne_bnd], s[e_bnd], s[se_bnd], s[s_bnd], s[sw_bnd], s[w_bnd], s[nw_bnd] };
+    his_values = { s[p_a], s[p_b], s[p_c], s[p_d], s[centre], 
+        s[n_bnd], s[ne_bnd], s[e_bnd], s[se_bnd], s[s_bnd], s[sw_bnd], s[w_bnd], s[nw_bnd],
+        s[hn_bnd], s[hne_bnd], s[he_bnd], s[hse_bnd], s[hs_bnd], s[hsw_bnd], s[hw_bnd], s[hnw_bnd]
+    };
     his_file->put_variable(his_s_name, nst_his, his_values);
 
-    his_values = { u[p_a], u[p_b], u[p_c], u[p_d], u[centre], u[n_bnd], u[ne_bnd], u[e_bnd], u[se_bnd], u[s_bnd], u[sw_bnd], u[w_bnd], u[nw_bnd] };
+    his_values = { u[p_a], u[p_b], u[p_c], u[p_d], u[centre], 
+        u[n_bnd], u[ne_bnd], u[e_bnd], u[se_bnd], u[s_bnd], u[sw_bnd], u[w_bnd], u[nw_bnd],
+        u[hn_bnd], u[hne_bnd], u[he_bnd], u[hse_bnd], u[hs_bnd], u[hsw_bnd], u[hw_bnd], u[hnw_bnd]
+    };
     his_file->put_variable(his_u_name, nst_his, his_values);
 
-    his_values = { v[p_a], v[p_b], v[p_c], v[p_d], v[centre], v[n_bnd], v[ne_bnd], v[e_bnd], v[se_bnd], v[s_bnd], v[sw_bnd], v[w_bnd], v[nw_bnd] };
+    his_values = { v[p_a], v[p_b], v[p_c], v[p_d], v[centre], 
+        v[n_bnd], v[ne_bnd], v[e_bnd], v[se_bnd], v[s_bnd], v[sw_bnd], v[w_bnd], v[nw_bnd],
+        v[hn_bnd], v[hne_bnd], v[he_bnd], v[hse_bnd], v[hs_bnd], v[hsw_bnd], v[hw_bnd], v[hnw_bnd]
+    };
     his_file->put_variable(his_v_name, nst_his, his_values);
 
     std::string his_newton_iter_name("his_newton_iterations");
@@ -1106,18 +1158,90 @@ int main(int argc, char *argv[])
                             A.coeffRef(c_eq, 3 * ph_0 + 1) = 0.0;  //
                             if (do_q_equation)
                             {
-                                A.coeffRef(c_eq, 3 * ph_sw + 1) = theta * 0.125 * 0.5 * (-dy);  // flux_7
-                                A.coeffRef(c_eq, 3 * ph_s  + 1) = theta * 0.125 * 0.5 * (dy - dy); // flux_2 and flux_7
+                                //// sub control volume 0 ============================================
+                                //// scv_0 face_0
+                                //A.coeffRef(c_eq, 3 * ph_0  + 1) = theta * 0.125 * 0.5 * (-dy) * 3.;
+                                //A.coeffRef(c_eq, 3 * ph_w  + 1) = theta * 0.125 * 0.5 * (-dy) * 3.;
+                                //A.coeffRef(c_eq, 3 * ph_sw + 1) = theta * 0.125 * 0.5 * (-dy) * 1.;
+                                //A.coeffRef(c_eq, 3 * ph_s  + 1) = theta * 0.125 * 0.5 * (-dy) * 1.;
+                                //// scv_0 face_1
+                                //// No contribution to q-momentum equation
+                                //
+                                //// sub control volume 1 ============================================
+                                //// scv_1 face_2
+                                //// No contribution to q-momentum equation
+                                //// scv_1 face_3
+                                //A.coeffRef(c_eq, 3 * ph_0  + 1) = theta * 0.125 * 0.5 * (dy) * 3.;
+                                //A.coeffRef(c_eq, 3 * ph_s  + 1) = theta * 0.125 * 0.5 * (dy) * 1.;
+                                //A.coeffRef(c_eq, 3 * ph_se + 1) = theta * 0.125 * 0.5 * (dy) * 1.;
+                                //A.coeffRef(c_eq, 3 * ph_e  + 1) = theta * 0.125 * 0.5 * (dy) * 3.;
+                                //
+                                //// sub control volume 2 ============================================
+                                //// scv_1 face_4
+                                //A.coeffRef(c_eq, 3 * ph_0  + 1) = theta * 0.125 * 0.5 * (dy) * 3.;
+                                //A.coeffRef(c_eq, 3 * ph_e  + 1) = theta * 0.125 * 0.5 * (dy) * 3.;
+                                //A.coeffRef(c_eq, 3 * ph_ne + 1) = theta * 0.125 * 0.5 * (dy) * 1.;
+                                //A.coeffRef(c_eq, 3 * ph_n  + 1) = theta * 0.125 * 0.5 * (dy) * 1.;
+                                //// scv_1 face_5
+                                //// No contribution to q-momentum equation
+                                //
+                                //// sub control volume 3 ============================================
+                                //// scv_1 face_6
+                                //// No contribution to q-momentum equation
+                                //// scv_1 face_7
+                                //A.coeffRef(c_eq, 3 * ph_0  + 1) = theta * 0.125 * 0.5 * (-dy) * 3.;
+                                //A.coeffRef(c_eq, 3 * ph_n  + 1) = theta * 0.125 * 0.5 * (-dy) * 1.;
+                                //A.coeffRef(c_eq, 3 * ph_nw + 1) = theta * 0.125 * 0.5 * (-dy) * 1.;
+                                //A.coeffRef(c_eq, 3 * ph_w  + 1) = theta * 0.125 * 0.5 * (-dy) * 3.;
+
+                                A.coeffRef(c_eq, 3 * ph_sw + 1) = theta * 0.125 * 0.5 * (-dy);  // flux_0
+                                A.coeffRef(c_eq, 3 * ph_s  + 1) = theta * 0.125 * 0.5 * (dy - dy); // flux_2 and flux_0
                                 A.coeffRef(c_eq, 3 * ph_se + 1) = theta * 0.125 * 0.5 * (dy);  // flux_2
                                 A.coeffRef(c_eq, 3 * ph_e  + 1) = theta * 0.125 * 0.5 * (dy) * (3. + 3.);  // flux_2 and flux_3
                                 A.coeffRef(c_eq, 3 * ph_ne + 1) = theta * 0.125 * 0.5 * (dy);  // flux_3
                                 A.coeffRef(c_eq, 3 * ph_n  + 1) = theta * 0.125 * 0.5 * (dy - dy);  // flux_3 and flux_6
                                 A.coeffRef(c_eq, 3 * ph_nw + 1) = theta * 0.125 * 0.5 * (-dy);  // flux_6
-                                A.coeffRef(c_eq, 3 * ph_w  + 1) = theta * 0.125 * 0.5 * (-dy) * (3. + 3.);  // flux_6 and flux_7
+                                A.coeffRef(c_eq, 3 * ph_w  + 1) = theta * 0.125 * 0.5 * (-dy) * (3. + 3.);  // flux_6 and flux_0
                             }
                             //
                             if (do_r_equation)
                             {
+                                // sub control volume 0 ============================================
+                                // scv_0 face_0
+                                // No contribution to q-momentum equation
+                                // scv_0 face_1
+                                //A.coeffRef(c_eq, 3 * ph_0  + 2) = theta * 0.125 * 0.5 * (-dx) * 3.;
+                                //A.coeffRef(c_eq, 3 * ph_w  + 2) = theta * 0.125 * 0.5 * (-dx) * 1.;
+                                //A.coeffRef(c_eq, 3 * ph_sw + 2) = theta * 0.125 * 0.5 * (-dx) * 1.;
+                                //A.coeffRef(c_eq, 3 * ph_s  + 2) = theta * 0.125 * 0.5 * (-dx) * 3.;
+                                //
+                                //// sub control volume 1 ============================================
+                                //// scv_1 face_2
+                                //A.coeffRef(c_eq, 3 * ph_0  + 2) = theta * 0.125 * 0.5 * (-dx) * 3.;
+                                //A.coeffRef(c_eq, 3 * ph_s  + 2) = theta * 0.125 * 0.5 * (-dx) * 3.;
+                                //A.coeffRef(c_eq, 3 * ph_se + 2) = theta * 0.125 * 0.5 * (-dx) * 1.;
+                                //A.coeffRef(c_eq, 3 * ph_e  + 2) = theta * 0.125 * 0.5 * (-dx) * 1.;
+                                //// scv_1 face_3
+                                //// No contribution to q-momentum equation
+                                //
+                                //// sub control volume 2 ============================================
+                                //// scv_1 face_4
+                                //// No contribution to q-momentum equation
+                                //// scv_1 face_5
+                                //A.coeffRef(c_eq, 3 * ph_0  + 2) = theta * 0.125 * 0.5 * (dx) * 3.;
+                                //A.coeffRef(c_eq, 3 * ph_e  + 2) = theta * 0.125 * 0.5 * (dx) * 1.;
+                                //A.coeffRef(c_eq, 3 * ph_ne + 2) = theta * 0.125 * 0.5 * (dx) * 1.;
+                                //A.coeffRef(c_eq, 3 * ph_n  + 2) = theta * 0.125 * 0.5 * (dx) * 3.;
+                                //
+                                //// sub control volume 3 ============================================
+                                //// scv_1 face_6
+                                //A.coeffRef(c_eq, 3 * ph_0  + 2) = theta * 0.125 * 0.5 * (dx) * 3.;
+                                //A.coeffRef(c_eq, 3 * ph_n  + 2) = theta * 0.125 * 0.5 * (dx) * 3.;
+                                //A.coeffRef(c_eq, 3 * ph_nw + 2) = theta * 0.125 * 0.5 * (dx) * 1.;
+                                //A.coeffRef(c_eq, 3 * ph_w  + 2) = theta * 0.125 * 0.5 * (dx) * 1.;
+                                //// scv_1 face_7
+                                //// No contribution to q-momentum equation
+
                                 A.coeffRef(c_eq, 3 * ph_sw + 2) = theta * 0.125 * 0.5 * (-dx);  // flux_0
                                 A.coeffRef(c_eq, 3 * ph_s  + 2) = theta * 0.125 * 0.5 * (-dx) * (3. + 3.);  // flux_0 and flux_1
                                 A.coeffRef(c_eq, 3 * ph_se + 2) = theta * 0.125 * 0.5 * (-dx);  // flux 1
@@ -1134,16 +1258,26 @@ int main(int argc, char *argv[])
                         // eight fluxes
                         //
 
-                        double fluxy_0 = 0.25 * dx * dcdy_scvf_n(rtheta_0, rtheta_s, rtheta_w, rtheta_sw);
-                        double fluxy_1 = 0.25 * dx * dcdy_scvf_n(rtheta_0, rtheta_s, rtheta_e, rtheta_se);
-                        double fluxx_2 = 0.25 * dy * dcdx_scvf_n(qtheta_e, qtheta_0, qtheta_se, qtheta_s);
-                        double fluxx_3 = 0.25 * dy * dcdx_scvf_n(qtheta_e, qtheta_0, qtheta_ne, qtheta_n);
-                        double fluxy_4 = 0.25 * dx * dcdy_scvf_n(rtheta_n, rtheta_0, rtheta_ne, rtheta_e);
-                        double fluxy_5 = 0.25 * dx * dcdy_scvf_n(rtheta_n, rtheta_0, rtheta_nw, rtheta_w);
-                        double fluxx_6 = 0.25 * dy * dcdx_scvf_n(qtheta_0, qtheta_w, qtheta_n, qtheta_nw);
-                        double fluxx_7 = 0.25 * dy * dcdx_scvf_n(qtheta_0, qtheta_w, qtheta_s, qtheta_sw);
+                        double fluxx_0 = 0.25 * dy * dcdx_scvf_n(qtheta_0, qtheta_w, qtheta_s, qtheta_sw);
+                        double fluxy_1 = 0.25 * dx * dcdy_scvf_n(rtheta_0, rtheta_s, rtheta_w, rtheta_sw);
+                        double fluxy_2 = 0.25 * dx * dcdy_scvf_n(rtheta_0, rtheta_s, rtheta_e, rtheta_se);
+                        double fluxx_3 = 0.25 * dy * dcdx_scvf_n(qtheta_e, qtheta_0, qtheta_se, qtheta_s);
+                        double fluxx_4 = 0.25 * dy * dcdx_scvf_n(qtheta_e, qtheta_0, qtheta_ne, qtheta_n);
+                        double fluxy_5 = 0.25 * dx * dcdy_scvf_n(rtheta_n, rtheta_0, rtheta_ne, rtheta_e);
+                        double fluxy_6 = 0.25 * dx * dcdy_scvf_n(rtheta_n, rtheta_0, rtheta_nw, rtheta_w);
+                        double fluxx_7 = 0.25 * dy * dcdx_scvf_n(qtheta_0, qtheta_w, qtheta_n, qtheta_nw);
                         //
-                        double a = (fluxy_0 + fluxy_1 + fluxx_2 + fluxx_3 + fluxy_4 + fluxy_5 + fluxx_6 + fluxx_7);
+                        //fluxx_0 = -0.5 * dy * scvf_n(qtheta_0, qtheta_w, qtheta_s, qtheta_sw);
+                        //fluxy_1 = -0.5 * dx * scvf_n(rtheta_0, rtheta_s, rtheta_w, rtheta_sw);
+                        //fluxy_2 = -0.5 * dx * scvf_n(rtheta_0, rtheta_s, rtheta_e, rtheta_se);
+                        //fluxx_3 =  0.5 * dy * scvf_n(qtheta_0, qtheta_e, qtheta_e, qtheta_se);
+                        //fluxx_4 =  0.5 * dy * scvf_n(qtheta_0, qtheta_e, qtheta_n, qtheta_ne);
+                        //fluxy_5 =  0.5 * dx * scvf_n(rtheta_0, rtheta_n, rtheta_e, rtheta_ne);
+                        //fluxy_6 =  0.5 * dx * scvf_n(rtheta_0, rtheta_n, rtheta_w, rtheta_nw);
+                        //fluxx_7 = -0.5 * dy * scvf_n(qtheta_0, qtheta_w, qtheta_n, qtheta_nw);
+
+                        //
+                        double a = (fluxx_0 + fluxy_1 + fluxy_2 + fluxx_3 + fluxx_4 + fluxy_5 + fluxy_6 + fluxx_7);
                         rhs[c_eq] += -a;
                         if (i == nx / 2 + 1 && j == ny / 2 + 1)
                         {
@@ -1234,8 +1368,8 @@ int main(int argc, char *argv[])
                         //
                         // RHS q-momentum equation
                         //
-                        double rhs_q = g * (depth_0 * dzetadx_0 + depth_1 * dzetadx_1 + depth_2 * dzetadx_2 + depth_3 * dzetadx_3);
-                        rhs[q_eq] += -rhs_q;
+                        rhs_q[i] = g * (depth_0 * dzetadx_0 + depth_1 * dzetadx_1 + depth_2 * dzetadx_2 + depth_3 * dzetadx_3);
+                        rhs[q_eq] += -rhs_q[i];
                     }
                     // 
                     // r-momentum (dr/dt ... = 0)
@@ -1316,8 +1450,8 @@ int main(int argc, char *argv[])
                         // 
                         // RHS r-momentum equation
                         //
-                        double rhs_r = g * (depth_0 * dzetady_0 + depth_1 * dzetady_1 + depth_2 * dzetady_2 + depth_3 * dzetady_3);
-                        rhs[r_eq] += -rhs_r;
+                        rhs_r[i] = g * (depth_0 * dzetady_0 + depth_1 * dzetady_1 + depth_2 * dzetady_2 + depth_3 * dzetady_3);
+                        rhs[r_eq] += -rhs_r[i];
                     }
                 }  // end interior nodes
             }
@@ -1413,7 +1547,7 @@ int main(int argc, char *argv[])
 
                     double zb_jm12 = w_nat[0] * zb[ph_0] + w_nat[1] * zb[ph_s] + w_nat[2] * zb[ph_ss];
                     double h_infty = -zb_jm12;
-                    double c_wave = std::sqrt(g * h_infty);
+                    double c_wave = std::sqrt(g * hp_jm12);
 
                     if (bc_type[BC_NORTH] == "dirichlet" || bc_absorbing[BC_NORTH] == false)
                     {
@@ -1500,14 +1634,22 @@ int main(int argc, char *argv[])
                                 if (bc_vars[BC_NORTH] == "zeta")
                                 {
                                     if (stationary) { sign = -1.0; }
-                                    corr_term = + sign * eps_bc_corr * (hp_jm12 - (bc[BC_NORTH] - zb_jm12));
+                                    A.coeffRef(c_eq, 3 * ph_0 ) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_s ) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_ss) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+
+                                    corr_term = -dhdt + sign * eps_bc_corr * ((bc[BC_NORTH] - zb_jm12) - hp_jm12);
                                     rhs[c_eq] += corr_term;
                                     sign = 1.0;
                                 }
                                 if (bc_vars[BC_NORTH] == "q")
                                 {
                                     if (stationary) { sign = -1.0; }
-                                    corr_term = - sign * eps_bc_corr * (qp_jm12 - bc[BC_NORTH]);
+                                    A.coeffRef(c_eq, 3 * ph_0 ) += dtinv * w_ess[0] - eps_bc_corr * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_s ) += dtinv * w_ess[1] - eps_bc_corr * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_ss) += dtinv * w_ess[2] - eps_bc_corr * w_ess[2];
+
+                                    corr_term =-drdt - sign * eps_bc_corr * (bc[BC_NORTH]- qp_jm12);
                                     rhs[c_eq] += corr_term;
                                     sign = 1.0;
                                 }
@@ -1721,14 +1863,22 @@ int main(int argc, char *argv[])
                                 if (bc_vars[BC_EAST] == "zeta")
                                 {
                                     if (stationary) { sign = -1.0; }
-                                    corr_term = + sign * eps_bc_corr * (hp_im12 - (bc[BC_EAST] - zb_im12));
+                                    A.coeffRef(c_eq, 3 * ph_0 ) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_w ) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_ww) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+
+                                    corr_term = - dhdt + eps_bc_corr * ((bc[BC_EAST] - zb_im12) - hp_im12);
                                     rhs[c_eq] += corr_term;
                                     sign = 1.0;
                                 }
                                 if (bc_vars[BC_EAST] == "q")
                                 {
                                     if (stationary) { sign = -1.0; }
-                                    corr_term = - sign * eps_bc_corr * (qp_im12 - bc[BC_EAST]);
+                                    A.coeffRef(c_eq, 3 * ph_0 ) += dtinv * w_ess[0] - eps_bc_corr * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_w ) += dtinv * w_ess[1] - eps_bc_corr * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_ww) += dtinv * w_ess[2] - eps_bc_corr * w_ess[2];
+
+                                    corr_term = -dqdt + sign * eps_bc_corr * (bc[BC_EAST] - qp_im12);
                                     rhs[c_eq] += corr_term;
                                     sign = 1.0;
                                 }
@@ -1738,12 +1888,12 @@ int main(int argc, char *argv[])
                             // --------------------------
                             //
                             double dhdt = dtinv * (hp_0 - hn_0) * w_nat[0]
-                                + dtinv * (hp_im1 - hn_im1) * w_nat[1]
-                                + dtinv * (hp_im2 - hn_im2) * w_nat[2];
+                                    + dtinv * (hp_im1 - hn_im1) * w_nat[1]
+                                    + dtinv * (hp_im2 - hn_im2) * w_nat[2];
                             double dqdx = dxinv * (qtheta_0 - qtheta_im1);
                             double dqdt = dtinv * (qp_0 - qn_0) * w_nat[0]
-                                + dtinv * (qp_im1 - qn_im1) * w_nat[1]
-                                + dtinv * (qp_im2 - qn_im2) * w_nat[2];
+                                    + dtinv * (qp_im1 - qn_im1) * w_nat[1]
+                                    + dtinv * (qp_im2 - qn_im2) * w_nat[2];
                             double dzetadx = dxinv * (htheta_0 + zb[ph_0] - htheta_im1 - zb[ph_w]);
                             //
                             // q-momentum
@@ -1856,7 +2006,7 @@ int main(int argc, char *argv[])
 
                     double zb_jp12 = w_nat[0] * zb[ph_0] + w_nat[1] * zb[ph_n] + w_nat[2] * zb[ph_nn];
                     double h_infty = -zb_jp12;
-                    double c_wave = std::sqrt(g * h_infty);
+                    double c_wave = std::sqrt(g * hp_jp12);
 
                     if (bc_type[BC_SOUTH] == "dirichlet" || bc_absorbing[BC_SOUTH] == false)
                     {
@@ -1942,12 +2092,20 @@ int main(int argc, char *argv[])
                                 double corr_term = 0.0;
                                 if (bc_vars[BC_SOUTH] == "zeta")
                                 {
-                                    corr_term = - eps_bc_corr * (hp_jp12 - (bc[BC_SOUTH] - zb_jp12));
+                                    A.coeffRef(c_eq, 3 * ph_0 ) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_n ) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_nn) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+
+                                    corr_term = +dhdt + eps_bc_corr * ((bc[BC_SOUTH] - zb_jp12) - hp_jp12);
                                     rhs[c_eq] += corr_term;
                                 }
                                 if (bc_vars[BC_WEST] == "q")
                                 {
-                                    corr_term =  - eps_bc_corr * (qp_jp12 - bc[BC_SOUTH]);
+                                    A.coeffRef(c_eq, 3 * ph_0 ) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_n ) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_nn) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+
+                                    corr_term = -drdt + eps_bc_corr * (bc[BC_SOUTH] - qp_jp12);
                                     rhs[c_eq] += corr_term;
                                 }
                             }
@@ -2107,16 +2265,16 @@ int main(int argc, char *argv[])
                             if (bc_type[BC_WEST] == "mooiman")
                             {
                                 //
-                                // first equation
+                                //  first equation: c_wave * h
                                 //
                                 A.coeffRef(c_eq, 3 * ph_0 ) = w_nat[0] * c_wave;
                                 A.coeffRef(c_eq, 3 * ph_e ) = w_nat[1] * c_wave;
                                 A.coeffRef(c_eq, 3 * ph_ee) = w_nat[2] * c_wave;
-                                //
+                                // q
                                 A.coeffRef(c_eq, 3 * ph_0  + 1) = w_nat[0];
                                 A.coeffRef(c_eq, 3 * ph_e  + 1) = w_nat[1];
                                 A.coeffRef(c_eq, 3 * ph_ee + 1) = w_nat[2];
-                                //
+                                // r
                                 A.coeffRef(c_eq, 3 * ph_0  + 2) = 0.0;
                                 A.coeffRef(c_eq, 3 * ph_e  + 2) = 0.0;
                                 A.coeffRef(c_eq, 3 * ph_ee + 2) = 0.0;
@@ -2159,22 +2317,20 @@ int main(int argc, char *argv[])
                                 double corr_term = 0.0;
                                 if (bc_vars[BC_WEST] == "zeta")
                                 {
-                                    //dhdt = dtinv * (bc[BC_WEST] - hp_ip12);
-                                    //A.coeffRef(c_eq, ph_0 ) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
-                                    //A.coeffRef(c_eq, ph_e ) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
-                                    //A.coeffRef(c_eq, ph_ee) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+                                    A.coeffRef(c_eq, 3 * ph_0 ) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_e ) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_ee) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
 
-                                    corr_term = dhdt + eps_bc_corr * ((bc[BC_WEST] - zb_ip12) - hp_ip12);
+                                    corr_term = + dhdt + eps_bc_corr * ((bc[BC_WEST] - zb_ip12) - hp_ip12);
                                     rhs[c_eq] += corr_term;
                                 }
                                 if (bc_vars[BC_WEST] == "q")
                                 {
-                                    //dqdt = dtinv * (bc[BC_WEST] - qn_ip12);
-                                    //A.coeffRef(c_eq, ph_0  + 1) += dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
-                                    //A.coeffRef(c_eq, ph_e  + 1) += dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
-                                    //A.coeffRef(c_eq, ph_ee + 1) += dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
-                                    //corr_term =  dqdt - eps_bc_corr * (bc[BC_WEST] - qp_ip12);
-                                    corr_term =  - eps_bc_corr * (qp_ip12 - bc[BC_WEST]);
+                                    A.coeffRef(c_eq, 3 * ph_0  + 1) += dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_e  + 1) += dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_ee + 1) += dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
+
+                                    corr_term =  - dqdt + eps_bc_corr * (bc[BC_WEST] - qp_ip12);
                                     rhs[c_eq] += corr_term;
                                 }
                             }
@@ -2353,18 +2509,42 @@ int main(int argc, char *argv[])
             if (logging == "matrix")
             {
                 log_file << "=== Matrix ============================================" << std::endl;
-                log_file << std::showpos << std::setprecision(4) << std::scientific << A << std::endl;
+                for (int i = 0; i < 3 * nxny; ++i)
+                {
+                    for (int j = 0; j < 3*nxny; ++j)
+                    {
+                        log_file << std::showpos << std::setprecision(3) << std::scientific << A.coeff(i, j) << " ";
+                    }
+                    log_file << std::endl;
+                    if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
+                }
+                log_file << "=== Diagonal dominant == diag, off_diag, -, + =========" << std::endl;
+                for (int i = 0; i < 3 * nxny; ++i)
+                {
+                    double off_diag = 0.0;
+                    double diag = 0.0;
+                    for (int j = 0; j < 3*nxny; ++j)
+                    {
+                        if (i != j ) { off_diag += std::abs(A.coeff(i,j)); }
+                        else { diag = std::abs(A.coeff(i,j)); }
+                    }
+                    log_file << std::showpos << std::setprecision(5) << std::scientific << diag << " " << off_diag << " " 
+                        <<  diag - off_diag << " " <<  diag + off_diag << " ";
+                    log_file << std::endl;
+                    if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
+                }
                 log_file << "=== Matrix diagonal====================================" << std::endl;
                 Eigen::VectorXd diag = A.diagonal();
                 for (int i = 0; i < diag.size(); ++i)
                 {
                     log_file << std::setprecision(8) << std::scientific << "Index " << i << ": " << diag[i] << std::endl;
+                    if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
                 }
-                //log_file << std::setprecision(8) << std::scientific << A.diagonal() << std::endl;
                 log_file << "=== RHS ===============================================" << std::endl;
                 for (int i = 0; i < 3 * nxny; ++i)
                 {
                     log_file << std::setprecision(8) << std::scientific << rhs[i] << std::endl;
+                    if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
                 }
             }
             solver.compute(A);
@@ -2496,7 +2676,7 @@ int main(int argc, char *argv[])
         {
             if (dh_max > eps_newton || dq_max > eps_newton || dr_max > eps_newton)
             {
-                log_file << "    ----    maximum number of iterations reached, probably not converged, at time: " <<  time << std::endl;
+                log_file << "    ----    maximum number of iterations reached, probably not converged, at time: " <<  time << " [sec]" << std::endl;
             }
         }
         for (int k = 0; k < nxny; ++k)
@@ -2566,23 +2746,41 @@ int main(int argc, char *argv[])
                 his_file->put_time(nst_his, double(nst) * dt);
             }
             his_file->put_time(nst_his, time);
-            his_values = { hn[p_a], hn[p_b], hn[p_c], hn[p_d], hn[centre], hn[n_bnd], hn[ne_bnd], hn[e_bnd], hn[se_bnd], hn[s_bnd], hn[sw_bnd], hn[w_bnd], hn[nw_bnd] };
-            his_file->put_variable(his_h_name, nst_his, his_values);
+    std::vector<double> his_values = { hn[p_a], hn[p_b], hn[p_c], hn[p_d], hn[centre], 
+        hn[n_bnd], hn[ne_bnd], hn[e_bnd], hn[se_bnd], hn[s_bnd], hn[sw_bnd], hn[w_bnd], hn[nw_bnd],
+        hn[hn_bnd], hn[hne_bnd], hn[he_bnd], hn[hse_bnd], hn[hs_bnd], hn[hsw_bnd], hn[hw_bnd], hn[hnw_bnd]
+    };
+    his_file->put_variable(his_h_name, nst_his, his_values);
 
-            his_values = { qn[p_a], qn[p_b], qn[p_c], qn[p_d], qn[centre], qn[n_bnd], qn[ne_bnd], qn[e_bnd], qn[se_bnd], qn[s_bnd], qn[sw_bnd], qn[w_bnd], qn[nw_bnd] };
-            his_file->put_variable(his_q_name, nst_his, his_values);
+    his_values = { qn[p_a], qn[p_b], qn[p_c], qn[p_d], qn[centre], 
+        qn[n_bnd], qn[ne_bnd], qn[e_bnd], qn[se_bnd], qn[s_bnd], qn[sw_bnd], qn[w_bnd], qn[nw_bnd],
+        qn[hn_bnd], qn[hne_bnd], qn[he_bnd], qn[hse_bnd], qn[hs_bnd], qn[hsw_bnd], qn[hw_bnd], qn[hnw_bnd]
+    };
+    his_file->put_variable(his_q_name, nst_his, his_values);
  
-            his_values = { rn[p_a], rn[p_b], rn[p_c], rn[p_d], rn[centre], rn[n_bnd], rn[ne_bnd], rn[e_bnd], rn[se_bnd], rn[s_bnd], rn[sw_bnd], rn[w_bnd], rn[nw_bnd] };
-            his_file->put_variable(his_r_name, nst_his, his_values);
+    his_values = { rn[p_a], rn[p_b], rn[p_c], rn[p_d], rn[centre], 
+        rn[n_bnd], rn[ne_bnd], rn[e_bnd], rn[se_bnd], rn[s_bnd], rn[sw_bnd], rn[w_bnd], rn[nw_bnd],
+        rn[hn_bnd], rn[hne_bnd], rn[he_bnd], rn[hse_bnd], rn[hs_bnd], rn[hsw_bnd], rn[hw_bnd], rn[hnw_bnd]
+    };
+    his_file->put_variable(his_r_name, nst_his, his_values);
 
-            his_values = { s[p_a], s[p_b], s[p_c], s[p_d], s[centre], s[n_bnd], s[ne_bnd], s[e_bnd], s[se_bnd], s[s_bnd], s[sw_bnd], s[w_bnd], s[nw_bnd] };
-            his_file->put_variable(his_s_name, nst_his, his_values);
+    his_values = { s[p_a], s[p_b], s[p_c], s[p_d], s[centre], 
+        s[n_bnd], s[ne_bnd], s[e_bnd], s[se_bnd], s[s_bnd], s[sw_bnd], s[w_bnd], s[nw_bnd],
+        s[hn_bnd], s[hne_bnd], s[he_bnd], s[hse_bnd], s[hs_bnd], s[hsw_bnd], s[hw_bnd], s[hnw_bnd]
+    };
+    his_file->put_variable(his_s_name, nst_his, his_values);
 
-            his_values = { u[p_a], u[p_b], u[p_c], u[p_d], u[centre], u[n_bnd], u[ne_bnd], u[e_bnd], u[se_bnd], u[s_bnd], u[sw_bnd], u[w_bnd], u[nw_bnd] };
-            his_file->put_variable(his_u_name, nst_his, his_values);
+    his_values = { u[p_a], u[p_b], u[p_c], u[p_d], u[centre], 
+        u[n_bnd], u[ne_bnd], u[e_bnd], u[se_bnd], u[s_bnd], u[sw_bnd], u[w_bnd], u[nw_bnd],
+        u[hn_bnd], u[hne_bnd], u[he_bnd], u[hse_bnd], u[hs_bnd], u[hsw_bnd], u[hw_bnd], u[hnw_bnd]
+    };
+    his_file->put_variable(his_u_name, nst_his, his_values);
 
-            his_values = { v[p_a], v[p_b], v[p_c], v[p_d], v[centre], v[n_bnd], v[ne_bnd], v[e_bnd], v[se_bnd], v[s_bnd], v[sw_bnd], v[w_bnd], v[nw_bnd] };
-            his_file->put_variable(his_v_name, nst_his, his_values);
+    his_values = { v[p_a], v[p_b], v[p_c], v[p_d], v[centre], 
+        v[n_bnd], v[ne_bnd], v[e_bnd], v[se_bnd], v[s_bnd], v[sw_bnd], v[w_bnd], v[nw_bnd],
+        v[hn_bnd], v[hne_bnd], v[he_bnd], v[hse_bnd], v[hs_bnd], v[hsw_bnd], v[hw_bnd], v[hnw_bnd]
+    };
+    his_file->put_variable(his_v_name, nst_his, his_values);
 
             his_values = { double(used_newton_iter) };
             his_file->put_variable(his_newton_iter_name, nst_his, his_values);
@@ -2626,6 +2824,11 @@ inline double dcdy_scv(double c0, double c1, double c2, double c3)
 {
     // value quadrature point (i+1/4, j+1/4) at subcontrol volume
     return 0.25 * (3. * c0 - 3. * c1 + c2 - c3);
+}
+inline double scvf_n(double c0, double c1, double c2, double c3)
+{
+    // dcdx normal at subcontrol volume edge
+    return 0.125 * (3. * c0 + 3. * c1 + c2 + c3);
 }
 inline double dcdx_scvf_n(double c0, double c1, double c2, double c3)
 {
