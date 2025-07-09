@@ -82,11 +82,11 @@ Integrating the equations over a finite volume $\Omega$ yields:
 \end{figure}
 For the space discretizations of an arbitrary function $u$ on the quadrature point of a sub-control volume the following space interpolations are used, $u \in \{h,q,r\}$:
 \begin{align}
-    \left. u\right|_{i+\quart, j+\quart} & \approx \frac{1}{16}\left( 9u_{i, j} + 3 u_{i+1,j}  + 3  u_{i, j+1} + u_{i+1, j+1}\right)
+    \left. u\right|_{i+\quart, j+\quart} & \approx \frac{1}{16}\left( 9u_{i, j} + 3 u_{i+1,j} + u_{i+1, j+1} + 3  u_{i, j+1}\right)
     \\
-    \left. \pdiff{u}{x}\right|_{i+\quart, j+\quart} & \approx \quart \left( 3 u_{i+1,j} - 3 u_{i,j} + u_{i+1, j+1} - u_{i, j+1} \right)
+    \left.u\right|_{i+\half, j+\quart} & \approx \frac{1}{8} \left( 3 u_{i,j} + 3 u_{i+1,j} + u_{i+1, j+1} + u_{i, j+1} \right)
     \\
-    \left. \pdiff{u}{y}\right|_{i+\quart, j+\quart} & \approx \quart \left( 3 u_{i, j+1} - 3 u_{i, j} + u_{i+1, j+1} - u_{i+1, j}\right)
+    \left. u \right|_{i+\quart, j+\half} & \approx \frac{1}{8} \left( 3 u_{i, j} + u_{i+1, j+1} + u_{i+1, j}  + 3 u_{i, j+1} \right)
 \end{align}
 See for the locations \autoref{fig:2d_structured_grid}.
 %-------------------------------------------------------------------------------
@@ -134,7 +134,7 @@ Written in \deltaformulation  it reads:
     \\*
     & + \quart\Dx\Dy\Dtinv \left( \frac{1}{16}\left( 9 h^{n+1,p}_{i, j} + 3 h^{n+1,p}_{i+1,j}  + 3 h^{n+1,p}_{i, j+1} + h^{n+1,p+1}_{i+1, j+1}\right) \right. +
     \\*
-    &\quad - \left. \frac{1}{16}\left( h q^{n}_{i, j} +  3 h^{n}_{i+1,j}  + 3  h^{n}_{i, j+1} + h^{n}_{i+1, j+1}\right)\right)
+    &\quad - \left. \frac{1}{16}\left( 9h^{n}_{i, j} +  3 h^{n}_{i+1,j}  + 3  h^{n}_{i, j+1} + h^{n}_{i+1, j+1}\right)\right)
 \end{align}
 
 %-------------------------------------------------------------------------------
@@ -170,7 +170,21 @@ The linearization in time reads:
     &q^{n+\theta, p} + \theta \Delta q  + r^{n+\theta, p} + \theta \Delta r
 \end{align}
 This terms need to be computed for each of the control volume faces, taken into account the outward normal.
-Eight faces on a cartesian grid.
+Eight faces on a structured grid.
+For the quadrature point $(i+\half, j+\quart)$ it reads:
+\begin{align}
+  &(\vec{n}\dotp \vec{dl}) \left( q^{n+\theta, p}_{i+\half, j+\quart} + \theta \Delta q_{i+\half, j+\quart}  + r^{n+\theta, p}_{i+\half, j+\quart} + \theta \Delta r_{i+\half, j+\quart} \right) \approx
+  \\*
+ & \approx \half \Dy\ \frac{1}{8} \left( 3 q^{n+\theta, p}_{i,j} + 3 q^{n+\theta, p}_{i+1,j} + q^{n+\theta, p}_{i+1, j+1} + q^{n+\theta, p}_{i, j+1} \right)
+ +
+ \\*
+ &+ \half \Dy\ \frac{1}{8} \theta \left( 3 \Delta q_{i,j} + 3 \Delta q_{i+1,j} + \Delta q_{i+1, j+1} + \Delta q_{i, j+1} \right)
+ \\*
+ &+\half \Dy\ \frac{1}{8} \left( 3 r^{n+\theta, p}_{i,j} + 3 r^{n+\theta, p}_{i+1,j} + r^{n+\theta, p}_{i+1, j+1} + r^{n+\theta, p}_{i, j+1} \right)
+\\*
+&+ \half \Dy\ \frac{1}{8} \theta \left( 3 \Delta r_{i,j} + 3 \Delta r_{i+1,j} + \Delta r_{i+1, j+1} + \Delta r_{i, j+1} \right)
+\\*
+\end{align}
 %-------------------------------------------------------------------------------
 \subsection{Discretizations momentum equations}
 The discretization of momentum \autoref{eq:pressure_dependent_on_zeta_b} will be presented term by term.
