@@ -83,7 +83,7 @@ int convection_matrix_rhs(Eigen::SparseMatrix<double> A, Eigen::VectorXd rhs,
             int r_eq = 3 * p_0 + 2;
             
             // sub control volume 0 ============================================
-            // scv_0 face 0
+            // scv_0 face_0
             h = convection_scvf_xi(htheta[p_0], htheta[p_w], htheta[p_sw], htheta[p_s]);
             q = convection_scvf_xi(qtheta[p_0], qtheta[p_w], qtheta[p_sw], qtheta[p_s]);
             r = convection_scvf_xi(rtheta[p_0], rtheta[p_w], rtheta[p_sw], rtheta[p_s]);
@@ -119,7 +119,7 @@ int convection_matrix_rhs(Eigen::SparseMatrix<double> A, Eigen::VectorXd rhs,
             rhs[q_eq] += -scvf_fac * convection_J_10(h, q, r);
             rhs[r_eq] += -scvf_fac * convection_J_20(h, q, r);
 
-            // scv_0 face 1
+            // scv_0 face_1
             h = convection_scvf_eta(htheta[p_0], htheta[p_w], htheta[p_sw], htheta[p_s]);
             q = convection_scvf_eta(qtheta[p_0], qtheta[p_w], qtheta[p_sw], qtheta[p_s]);
             r = convection_scvf_eta(rtheta[p_0], rtheta[p_w], rtheta[p_sw], rtheta[p_s]);
@@ -156,7 +156,7 @@ int convection_matrix_rhs(Eigen::SparseMatrix<double> A, Eigen::VectorXd rhs,
             rhs[r_eq] += -scvf_fac * convection_J_20(h, q, r);
  
             // sub control volume 1 ============================================
-            // scv_1 face 2
+            // scv_1 face_2
             h = convection_scvf_eta(htheta[p_0], htheta[p_s], htheta[p_se], htheta[p_e]);
             q = convection_scvf_eta(qtheta[p_0], qtheta[p_s], qtheta[p_se], qtheta[p_e]);
             r = convection_scvf_eta(rtheta[p_0], rtheta[p_s], rtheta[p_se], rtheta[p_e]);
@@ -192,7 +192,7 @@ int convection_matrix_rhs(Eigen::SparseMatrix<double> A, Eigen::VectorXd rhs,
             rhs[q_eq] += -scvf_fac * convection_J_10(h, q, r);
             rhs[r_eq] += -scvf_fac * convection_J_20(h, q, r);
 
-            // scv_1 face 3
+            // scv_1 face_3
             h = convection_scvf_xi(htheta[p_0], htheta[p_s], htheta[p_se], htheta[p_e]);
             q = convection_scvf_xi(qtheta[p_0], qtheta[p_s], qtheta[p_se], qtheta[p_e]);
             r = convection_scvf_xi(rtheta[p_0], rtheta[p_s], rtheta[p_se], rtheta[p_e]);
@@ -228,7 +228,7 @@ int convection_matrix_rhs(Eigen::SparseMatrix<double> A, Eigen::VectorXd rhs,
             rhs[r_eq] += -scvf_fac * convection_J_20(h, q, r);
 
             // sub control volume 2 ============================================
-            // scv_2 face 4
+            // scv_2 face_4
             h = convection_scvf_xi(htheta[p_0], htheta[p_e], htheta[p_ne], htheta[p_n]);
             q = convection_scvf_xi(qtheta[p_0], qtheta[p_e], qtheta[p_ne], qtheta[p_n]);
             r = convection_scvf_xi(rtheta[p_0], rtheta[p_e], rtheta[p_ne], rtheta[p_n]);
@@ -265,7 +265,7 @@ int convection_matrix_rhs(Eigen::SparseMatrix<double> A, Eigen::VectorXd rhs,
             rhs[r_eq] += -scvf_fac * convection_J_20(h, q, r);
 
 
-            // scv_2 face 5
+            // scv_2 face_5
             h = convection_scvf_eta(htheta[p_0], htheta[p_e], htheta[p_ne], htheta[p_n]);
             q = convection_scvf_eta(qtheta[p_0], qtheta[p_e], qtheta[p_ne], qtheta[p_n]);
             r = convection_scvf_eta(rtheta[p_0], rtheta[p_e], rtheta[p_ne], rtheta[p_n]);
@@ -302,7 +302,7 @@ int convection_matrix_rhs(Eigen::SparseMatrix<double> A, Eigen::VectorXd rhs,
             rhs[r_eq] += -scvf_fac * convection_J_20(h, q, r);
 
             // sub control volume 3 ============================================
-            // scv_3 face 6
+            // scv_3 face_6
             h = convection_scvf_eta(htheta[p_0], htheta[p_n], htheta[p_nw], htheta[p_w]);
             q = convection_scvf_eta(qtheta[p_0], qtheta[p_n], qtheta[p_nw], qtheta[p_w]);
             r = convection_scvf_eta(rtheta[p_0], rtheta[p_n], rtheta[p_nw], rtheta[p_w]);
@@ -338,7 +338,7 @@ int convection_matrix_rhs(Eigen::SparseMatrix<double> A, Eigen::VectorXd rhs,
             rhs[q_eq] += -scvf_fac * convection_J_10(h, q, r);
             rhs[r_eq] += -scvf_fac * convection_J_20(h, q, r);
 
-            // scv_3 face 7
+            // scv_3 face_7
             h = convection_scvf_xi(htheta[p_0], htheta[p_n], htheta[p_nw], htheta[p_w]);
             q = convection_scvf_xi(qtheta[p_0], qtheta[p_n], qtheta[p_nw], qtheta[p_w]);
             r = convection_scvf_xi(rtheta[p_0], rtheta[p_n], rtheta[p_nw], rtheta[p_w]);
@@ -373,7 +373,6 @@ int convection_matrix_rhs(Eigen::SparseMatrix<double> A, Eigen::VectorXd rhs,
             scvf_fac = -1. * 0.25 * dx;
             rhs[q_eq] += -scvf_fac * convection_J_10(h, q, r);
             rhs[r_eq] += -scvf_fac * convection_J_20(h, q, r);
-                        
        }
     }
     return 0;

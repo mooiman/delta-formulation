@@ -63,18 +63,18 @@ void initial_conditions(std::vector<double>& x, std::vector<double>& y, size_t n
                     size_t k1 = p_index(nx - 1, 0, ny);
                     s_giv = amp * (x[k] - x[0]) / (x[k1] - x[k0]); // initial water level
                 }
-                else if (ini_vars[1] == "zeta_GaussHump")
+                else if (ini_vars[1] == "zeta_gauss_hump")
                 {
                     s_giv = amp * std::exp(
                         -(  (x[k] - gauss_mu_x) * (x[k] - gauss_mu_x) / (2. * gauss_sigma_x * gauss_sigma_x) +
                             (y[k] - gauss_mu_y) * (y[k] - gauss_mu_y) / (2. * gauss_sigma_y * gauss_sigma_y)
                             ) );  // initial water level
                 }
-                else if (ini_vars[1] == "zeta_GaussHump_x")
+                else if (ini_vars[1] == "zeta_gauss_hump_x")
                 {
                     s_giv = amp * std::exp( -(x[k] - gauss_mu_x) * (x[k] - gauss_mu_x) / (2. * gauss_sigma_x * gauss_sigma_x) );  // initial water level
                 }
-                else if (ini_vars[1] == "zeta_GaussHump_y")
+                else if (ini_vars[1] == "zeta_gauss_hump_y")
                 {
                     s_giv = amp * std::exp( -(y[k] - gauss_mu_y) * (y[k] - gauss_mu_y) / (2. * gauss_sigma_y * gauss_sigma_y) );  // initial water level
                 }
