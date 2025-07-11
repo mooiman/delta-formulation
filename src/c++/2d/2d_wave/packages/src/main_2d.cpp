@@ -21,17 +21,19 @@
 //------------------------------------------------------------------------------
 
 #define _USE_MATH_DEFINES
-#include <cstdlib>
-#include <vector>
+#include <algorithm>
+#include <chrono>
 #include <cmath>
-#include <iostream>
+#include <ctime>
+#include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>      // std::setprecision
-#include <filesystem>
+#include <iostream>
+#include <string>
 #include <thread>
 #include <toml.h>
-#include <string>
-#include <algorithm>
+#include <vector>
 
 
 // for BiCGstab  solver
@@ -130,9 +132,12 @@ int main(int argc, char *argv[])
         std::this_thread::sleep_for(timespan);
         exit(1);
     }
-
+    const std::chrono::zoned_time now{ std::chrono::current_zone(), std::chrono::system_clock::now() };
+    auto start_date_time = std::format("{:%F %H:%M:%OS %Oz}", now);
+    std::cout << std::endl;
+    std::cout << "Start time          : " << start_date_time << std::endl;
     std::cout << "======================================================" << std::endl;
-    std::cout << "Executable compiled: " << __DATE__ << ", " << __TIME__ << std::endl;
+    std::cout << "Executable compiled : " << __DATE__ << ", " << __TIME__ << std::endl;
     std::cout << "======================================================" << std::endl;
     std::cout << "Executable directory: " << exec_dir << std::endl;
     std::cout << "Start directory     : " << start_dir << std::endl;
@@ -158,9 +163,12 @@ int main(int argc, char *argv[])
 
     std::ofstream log_file;
     log_file.open(log_filename);
+
     std::cout << "=== Input file =======================================" << std::endl;
     std::cout << std::filesystem::absolute(toml_file_name) << std::endl;
     std::cout << "======================================================" << std::endl;
+    log_file << std::endl;
+    log_file << "Start time          : " << start_date_time << std::endl;
     log_file << "======================================================" << std::endl;
     log_file << "Executable compiled: " << __DATE__ << ", " << __TIME__ << std::endl;
     log_file << "=== Input file =======================================" << std::endl;
@@ -1102,10 +1110,6 @@ int main(int argc, char *argv[])
                     if (do_continuity)
                     {
                         int c_eq = 3 * ph_0;
-                        if (i == nx / 2 && j == ny / 2)
-                        {
-                            int c = 1;
-                        }
                         //
                         // time integration, continuity equation
                         //
@@ -1136,120 +1140,82 @@ int main(int argc, char *argv[])
                         //
                         // mass flux, continuity equation
                         //
-                        if (false)
+                        A.coeffRef(c_eq, 3 * ph_0 + 1) = 0.0;  //
+                        if (do_q_equation)
                         {
-                            if (do_q_equation)
-                            {
-                                A.coeffRef(c_eq, 3 * ph_e + 1) = 0.5 * theta * dy;
-                                A.coeffRef(c_eq, 3 * ph_0 + 1) = 0.0;  //0.5 * theta * dy - 0.5 * theta * dy;
-                                A.coeffRef(c_eq, 3 * ph_w + 1) = -0.5 * theta * dy;
-                            }
-                            //
-                            if (do_r_equation)
-                            {
-
-                                A.coeffRef(c_eq, 3 * ph_n + 2) = 0.5 * theta * dx;
-                                A.coeffRef(c_eq, 3 * ph_0 + 2) = 0.0;  // 0.5 * theta * dx - 0.5 * theta * dx;
-                                A.coeffRef(c_eq, 3 * ph_s + 2) = -0.5 * theta * dx;
-                            }
-                        }
-                        else
-                        {
-                            A.coeffRef(c_eq, 3 * ph_0 + 1) = 0.0;  //
-                            if (do_q_equation)
-                            {
-                                //// sub control volume 0 ============================================
-                                //// scv_0 face_0
-                                //A.coeffRef(c_eq, 3 * ph_0  + 1) = theta * 0.125 * 0.5 * (-dy) * 3.;
-                                //A.coeffRef(c_eq, 3 * ph_w  + 1) = theta * 0.125 * 0.5 * (-dy) * 3.;
-                                //A.coeffRef(c_eq, 3 * ph_sw + 1) = theta * 0.125 * 0.5 * (-dy) * 1.;
-                                //A.coeffRef(c_eq, 3 * ph_s  + 1) = theta * 0.125 * 0.5 * (-dy) * 1.;
-                                //// scv_0 face_1
-                                //// No contribution to q-momentum equation
-                                //
-                                //// sub control volume 1 ============================================
-                                //// scv_1 face_2
-                                //// No contribution to q-momentum equation
-                                //// scv_1 face_3
-                                //A.coeffRef(c_eq, 3 * ph_0  + 1) = theta * 0.125 * 0.5 * (dy) * 3.;
-                                //A.coeffRef(c_eq, 3 * ph_s  + 1) = theta * 0.125 * 0.5 * (dy) * 1.;
-                                //A.coeffRef(c_eq, 3 * ph_se + 1) = theta * 0.125 * 0.5 * (dy) * 1.;
-                                //A.coeffRef(c_eq, 3 * ph_e  + 1) = theta * 0.125 * 0.5 * (dy) * 3.;
-                                //
-                                //// sub control volume 2 ============================================
-                                //// scv_1 face_4
-                                //A.coeffRef(c_eq, 3 * ph_0  + 1) = theta * 0.125 * 0.5 * (dy) * 3.;
-                                //A.coeffRef(c_eq, 3 * ph_e  + 1) = theta * 0.125 * 0.5 * (dy) * 3.;
-                                //A.coeffRef(c_eq, 3 * ph_ne + 1) = theta * 0.125 * 0.5 * (dy) * 1.;
-                                //A.coeffRef(c_eq, 3 * ph_n  + 1) = theta * 0.125 * 0.5 * (dy) * 1.;
-                                //// scv_1 face_5
-                                //// No contribution to q-momentum equation
-                                //
-                                //// sub control volume 3 ============================================
-                                //// scv_1 face_6
-                                //// No contribution to q-momentum equation
-                                //// scv_1 face_7
-                                //A.coeffRef(c_eq, 3 * ph_0  + 1) = theta * 0.125 * 0.5 * (-dy) * 3.;
-                                //A.coeffRef(c_eq, 3 * ph_n  + 1) = theta * 0.125 * 0.5 * (-dy) * 1.;
-                                //A.coeffRef(c_eq, 3 * ph_nw + 1) = theta * 0.125 * 0.5 * (-dy) * 1.;
-                                //A.coeffRef(c_eq, 3 * ph_w  + 1) = theta * 0.125 * 0.5 * (-dy) * 3.;
-
-                                A.coeffRef(c_eq, 3 * ph_sw + 1) = theta * 0.125 * 0.5 * (-dy);  // flux_0
-                                A.coeffRef(c_eq, 3 * ph_s  + 1) = theta * 0.125 * 0.5 * (dy - dy); // flux_2 and flux_0
-                                A.coeffRef(c_eq, 3 * ph_se + 1) = theta * 0.125 * 0.5 * (dy);  // flux_2
-                                A.coeffRef(c_eq, 3 * ph_e  + 1) = theta * 0.125 * 0.5 * (dy) * (3. + 3.);  // flux_2 and flux_3
-                                A.coeffRef(c_eq, 3 * ph_ne + 1) = theta * 0.125 * 0.5 * (dy);  // flux_3
-                                A.coeffRef(c_eq, 3 * ph_n  + 1) = theta * 0.125 * 0.5 * (dy - dy);  // flux_3 and flux_6
-                                A.coeffRef(c_eq, 3 * ph_nw + 1) = theta * 0.125 * 0.5 * (-dy);  // flux_6
-                                A.coeffRef(c_eq, 3 * ph_w  + 1) = theta * 0.125 * 0.5 * (-dy) * (3. + 3.);  // flux_6 and flux_0
-                            }
+                            // sub control volume 0 ============================================
+                            // scv_0 face_0
+                            A.coeffRef(c_eq, 3 * ph_0  + 1) = theta * 0.5 * (-dy) * 0.125 * 3.;
+                            A.coeffRef(c_eq, 3 * ph_w  + 1) = theta * 0.5 * (-dy) * 0.125 * 3.;
+                            A.coeffRef(c_eq, 3 * ph_sw + 1) = theta * 0.5 * (-dy) * 0.125 * 1.;
+                            A.coeffRef(c_eq, 3 * ph_s  + 1) = theta * 0.5 * (-dy) * 0.125 * 1.;
+                            // scv_0 face_1
+                            // No contribution to q-momentum equation
+                                
+                            // sub control volume 1 ============================================
+                            // scv_1 face_2
+                            // No contribution to q-momentum equation
+                            // scv_1 face_3
+                            A.coeffRef(c_eq, 3 * ph_0  + 1) = theta * 0.5 * (dy) * 0.125 * 3.;
+                            A.coeffRef(c_eq, 3 * ph_s  + 1) = theta * 0.5 * (dy) * 0.125 * 1.;
+                            A.coeffRef(c_eq, 3 * ph_se + 1) = theta * 0.5 * (dy) * 0.125 * 1.;
+                            A.coeffRef(c_eq, 3 * ph_e  + 1) = theta * 0.5 * (dy) * 0.125 * 3.;
+                                
+                            // sub control volume 2 ============================================
+                            // scv_1 face_4
+                            A.coeffRef(c_eq, 3 * ph_0  + 1) = theta * 0.125 * 0.5 * (dy) * 3.;
+                            A.coeffRef(c_eq, 3 * ph_e  + 1) = theta * 0.125 * 0.5 * (dy) * 3.;
+                            A.coeffRef(c_eq, 3 * ph_ne + 1) = theta * 0.125 * 0.5 * (dy) * 1.;
+                            A.coeffRef(c_eq, 3 * ph_n  + 1) = theta * 0.125 * 0.5 * (dy) * 1.;
+                            // scv_1 face_5
+                            // No contribution to q-momentum equation
+                                
+                            // sub control volume 3 ============================================
+                            // scv_1 face_6
+                            // No contribution to q-momentum equation
+                            // scv_1 face_7
+                            A.coeffRef(c_eq, 3 * ph_0  + 1) = theta * 0.5 * (-dy) * 0.125 * 3.;
+                            A.coeffRef(c_eq, 3 * ph_n  + 1) = theta * 0.5 * (-dy) * 0.125 * 1.;
+                            A.coeffRef(c_eq, 3 * ph_nw + 1) = theta * 0.5 * (-dy) * 0.125 * 1.;
+                            A.coeffRef(c_eq, 3 * ph_w  + 1) = theta * 0.5 * (-dy) * 0.125 * 3.;
                             //
                             if (do_r_equation)
                             {
                                 // sub control volume 0 ============================================
                                 // scv_0 face_0
-                                // No contribution to q-momentum equation
+                                // No contribution to r-momentum equation
                                 // scv_0 face_1
-                                //A.coeffRef(c_eq, 3 * ph_0  + 2) = theta * 0.125 * 0.5 * (-dx) * 3.;
-                                //A.coeffRef(c_eq, 3 * ph_w  + 2) = theta * 0.125 * 0.5 * (-dx) * 1.;
-                                //A.coeffRef(c_eq, 3 * ph_sw + 2) = theta * 0.125 * 0.5 * (-dx) * 1.;
-                                //A.coeffRef(c_eq, 3 * ph_s  + 2) = theta * 0.125 * 0.5 * (-dx) * 3.;
-                                //
-                                //// sub control volume 1 ============================================
-                                //// scv_1 face_2
-                                //A.coeffRef(c_eq, 3 * ph_0  + 2) = theta * 0.125 * 0.5 * (-dx) * 3.;
-                                //A.coeffRef(c_eq, 3 * ph_s  + 2) = theta * 0.125 * 0.5 * (-dx) * 3.;
-                                //A.coeffRef(c_eq, 3 * ph_se + 2) = theta * 0.125 * 0.5 * (-dx) * 1.;
-                                //A.coeffRef(c_eq, 3 * ph_e  + 2) = theta * 0.125 * 0.5 * (-dx) * 1.;
-                                //// scv_1 face_3
-                                //// No contribution to q-momentum equation
-                                //
-                                //// sub control volume 2 ============================================
-                                //// scv_1 face_4
-                                //// No contribution to q-momentum equation
-                                //// scv_1 face_5
-                                //A.coeffRef(c_eq, 3 * ph_0  + 2) = theta * 0.125 * 0.5 * (dx) * 3.;
-                                //A.coeffRef(c_eq, 3 * ph_e  + 2) = theta * 0.125 * 0.5 * (dx) * 1.;
-                                //A.coeffRef(c_eq, 3 * ph_ne + 2) = theta * 0.125 * 0.5 * (dx) * 1.;
-                                //A.coeffRef(c_eq, 3 * ph_n  + 2) = theta * 0.125 * 0.5 * (dx) * 3.;
-                                //
-                                //// sub control volume 3 ============================================
-                                //// scv_1 face_6
-                                //A.coeffRef(c_eq, 3 * ph_0  + 2) = theta * 0.125 * 0.5 * (dx) * 3.;
-                                //A.coeffRef(c_eq, 3 * ph_n  + 2) = theta * 0.125 * 0.5 * (dx) * 3.;
-                                //A.coeffRef(c_eq, 3 * ph_nw + 2) = theta * 0.125 * 0.5 * (dx) * 1.;
-                                //A.coeffRef(c_eq, 3 * ph_w  + 2) = theta * 0.125 * 0.5 * (dx) * 1.;
-                                //// scv_1 face_7
-                                //// No contribution to q-momentum equation
-
-                                A.coeffRef(c_eq, 3 * ph_sw + 2) = theta * 0.125 * 0.5 * (-dx);  // flux_0
-                                A.coeffRef(c_eq, 3 * ph_s  + 2) = theta * 0.125 * 0.5 * (-dx) * (3. + 3.);  // flux_0 and flux_1
-                                A.coeffRef(c_eq, 3 * ph_se + 2) = theta * 0.125 * 0.5 * (-dx);  // flux 1
-                                A.coeffRef(c_eq, 3 * ph_e  + 2) = theta * 0.125 * 0.5 * (-dx + dx);  // flux_1 and flux_4
-                                A.coeffRef(c_eq, 3 * ph_ne + 2) = theta * 0.125 * 0.5 * (dx);  // flux_4
-                                A.coeffRef(c_eq, 3 * ph_n  + 2) = theta * 0.125 * 0.5 * (dx) * (3. + 3.);  // flux_4 and flux_5
-                                A.coeffRef(c_eq, 3 * ph_nw + 2) = theta * 0.125 * 0.5 * (dx);  // flux_5
-                                A.coeffRef(c_eq, 3 * ph_w  + 2) = theta * 0.125 * 0.5 * (-dx + dx);  // flux_0 and flux_5
+                                A.coeffRef(c_eq, 3 * ph_0  + 2) = theta * 0.5 * (-dx) * 0.125 * 3.;
+                                A.coeffRef(c_eq, 3 * ph_w  + 2) = theta * 0.5 * (-dx) * 0.125 * 1.;
+                                A.coeffRef(c_eq, 3 * ph_sw + 2) = theta * 0.5 * (-dx) * 0.125 * 1.;
+                                A.coeffRef(c_eq, 3 * ph_s  + 2) = theta * 0.5 * (-dx) * 0.125 * 3.;
+                                
+                                // sub control volume 1 ============================================
+                                // scv_1 face_2
+                                A.coeffRef(c_eq, 3 * ph_0  + 2) = theta * 0.5 * (-dx) * 0.125 * 3.;
+                                A.coeffRef(c_eq, 3 * ph_s  + 2) = theta * 0.5 * (-dx) * 0.125 * 3.;
+                                A.coeffRef(c_eq, 3 * ph_se + 2) = theta * 0.5 * (-dx) * 0.125 * 1.;
+                                A.coeffRef(c_eq, 3 * ph_e  + 2) = theta * 0.5 * (-dx) * 0.125 * 1.;
+                                // scv_1 face_3
+                                // No contribution to r-momentum equation
+                                
+                                // sub control volume 2 ============================================
+                                // scv_1 face_4
+                                // No contribution to r-momentum equation
+                                // scv_1 face_5
+                                A.coeffRef(c_eq, 3 * ph_0  + 2) = theta * 0.5 * (dx) * 0.125 * 3.;
+                                A.coeffRef(c_eq, 3 * ph_e  + 2) = theta * 0.5 * (dx) * 0.125 * 1.;
+                                A.coeffRef(c_eq, 3 * ph_ne + 2) = theta * 0.5 * (dx) * 0.125 * 1.;
+                                A.coeffRef(c_eq, 3 * ph_n  + 2) = theta * 0.5 * (dx) * 0.125 * 3.;
+                                
+                                // sub control volume 3 ============================================
+                                // scv_1 face_6
+                                A.coeffRef(c_eq, 3 * ph_0  + 2) = theta * 0.5 * (dx) * 0.125 * 3.;
+                                A.coeffRef(c_eq, 3 * ph_n  + 2) = theta * 0.5 * (dx) * 0.125 * 3.;
+                                A.coeffRef(c_eq, 3 * ph_nw + 2) = theta * 0.5 * (dx) * 0.125 * 1.;
+                                A.coeffRef(c_eq, 3 * ph_w  + 2) = theta * 0.5 * (dx) * 0.125 * 1.;
+                                // scv_1 face_7
+                                // No contribution to r-momentum equation
                             }
                         }
                         //
@@ -1257,32 +1223,18 @@ int main(int argc, char *argv[])
                         //
                         // eight fluxes
                         //
-
-                        double fluxx_0 = 0.25 * dy * dcdx_scvf_n(qtheta_0, qtheta_w, qtheta_s, qtheta_sw);
-                        double fluxy_1 = 0.25 * dx * dcdy_scvf_n(rtheta_0, rtheta_s, rtheta_w, rtheta_sw);
-                        double fluxy_2 = 0.25 * dx * dcdy_scvf_n(rtheta_0, rtheta_s, rtheta_e, rtheta_se);
-                        double fluxx_3 = 0.25 * dy * dcdx_scvf_n(qtheta_e, qtheta_0, qtheta_se, qtheta_s);
-                        double fluxx_4 = 0.25 * dy * dcdx_scvf_n(qtheta_e, qtheta_0, qtheta_ne, qtheta_n);
-                        double fluxy_5 = 0.25 * dx * dcdy_scvf_n(rtheta_n, rtheta_0, rtheta_ne, rtheta_e);
-                        double fluxy_6 = 0.25 * dx * dcdy_scvf_n(rtheta_n, rtheta_0, rtheta_nw, rtheta_w);
-                        double fluxx_7 = 0.25 * dy * dcdx_scvf_n(qtheta_0, qtheta_w, qtheta_n, qtheta_nw);
-                        //
-                        //fluxx_0 = -0.5 * dy * scvf_n(qtheta_0, qtheta_w, qtheta_s, qtheta_sw);
-                        //fluxy_1 = -0.5 * dx * scvf_n(rtheta_0, rtheta_s, rtheta_w, rtheta_sw);
-                        //fluxy_2 = -0.5 * dx * scvf_n(rtheta_0, rtheta_s, rtheta_e, rtheta_se);
-                        //fluxx_3 =  0.5 * dy * scvf_n(qtheta_0, qtheta_e, qtheta_e, qtheta_se);
-                        //fluxx_4 =  0.5 * dy * scvf_n(qtheta_0, qtheta_e, qtheta_n, qtheta_ne);
-                        //fluxy_5 =  0.5 * dx * scvf_n(rtheta_0, rtheta_n, rtheta_e, rtheta_ne);
-                        //fluxy_6 =  0.5 * dx * scvf_n(rtheta_0, rtheta_n, rtheta_w, rtheta_nw);
-                        //fluxx_7 = -0.5 * dy * scvf_n(qtheta_0, qtheta_w, qtheta_n, qtheta_nw);
-
+                        double fluxx_0 = -0.5 * dy * scvf_n(qtheta_0, qtheta_w, qtheta_s, qtheta_sw);
+                        double fluxy_1 = -0.5 * dx * scvf_n(rtheta_0, rtheta_s, rtheta_w, rtheta_sw);
+                        double fluxy_2 = -0.5 * dx * scvf_n(rtheta_0, rtheta_s, rtheta_e, rtheta_se);
+                        double fluxx_3 =  0.5 * dy * scvf_n(qtheta_0, qtheta_e, qtheta_s, qtheta_se);
+                        double fluxx_4 =  0.5 * dy * scvf_n(qtheta_0, qtheta_e, qtheta_n, qtheta_ne);
+                        double fluxy_5 =  0.5 * dx * scvf_n(rtheta_0, rtheta_n, rtheta_e, rtheta_ne);
+                        double fluxy_6 =  0.5 * dx * scvf_n(rtheta_0, rtheta_n, rtheta_w, rtheta_nw);
+                        double fluxx_7 = -0.5 * dy * scvf_n(qtheta_0, qtheta_w, qtheta_n, qtheta_nw);
                         //
                         double a = (fluxx_0 + fluxy_1 + fluxy_2 + fluxx_3 + fluxx_4 + fluxy_5 + fluxy_6 + fluxx_7);
                         rhs[c_eq] += -a;
-                        if (i == nx / 2 + 1 && j == ny / 2 + 1)
-                        {
-                            int c = 1;
-                        }
+
                         //log_file << std::scientific << std::setprecision(8) << "p(" << i << "," << j << ") " << "c_eq. " << c_eq << "  RHS: " << dqdx << "  b:  " << b << std::endl;
                     }
                     //
@@ -1291,10 +1243,6 @@ int main(int argc, char *argv[])
                     if (do_q_equation)
                     {
                         int q_eq = 3 * ph_0 + 1;
-                        if (i == nx / 2 && j == ny / 2)
-                        {
-                            int c = 1;
-                        }
                         //
                         // time integration, q-momentum equation
                         //
@@ -1334,37 +1282,28 @@ int main(int argc, char *argv[])
                         double dzetadx_2 = scv_area / dx * dcdx_scv(htheta_e + zb_e, htheta_0 + zb_0, htheta_ne + zb_ne, htheta_n  + zb_n );
                         double dzetadx_3 = scv_area / dx * dcdx_scv(htheta_0 + zb_0, htheta_w + zb_w, htheta_n  + zb_n , htheta_nw + zb_nw);
                         //
-                        if (false)
-                        {
-                            A.coeffRef(q_eq, 3 * ph_e) =  0.5 * theta * g * dy * htheta_ip12;
-                            A.coeffRef(q_eq, 3 * ph_0) = -0.5 * theta * g * dy * htheta_im12 + 0.5 * theta * g * dy * htheta_ip12;
-                            A.coeffRef(q_eq, 3 * ph_w) = -0.5 * theta * g * dy * htheta_im12;
-                        }
-                        else
-                        {   // theta * dzeta/dx * Delta h
-                            double fac = theta * scv_area * g * 0.0625;
-                            A.coeffRef(q_eq, 3 * ph_0 ) = fac * (9. * dzetadx_0 + 9. * dzetadx_1 + 9. * dzetadx_2 + 9. * dzetadx_3) ;   
-                            A.coeffRef(q_eq, 3 * ph_sw) = fac * (1. * dzetadx_0);
-                            A.coeffRef(q_eq, 3 * ph_s ) = fac * (3. * dzetadx_1 + 3. * dzetadx_0); 
-                            A.coeffRef(q_eq, 3 * ph_se) = fac * (1. * dzetadx_1);
-                            A.coeffRef(q_eq, 3 * ph_e ) = fac * (3. * dzetadx_1 + 3. * dzetadx_2);
-                            A.coeffRef(q_eq, 3 * ph_ne) = fac * (1. * dzetadx_2);
-                            A.coeffRef(q_eq, 3 * ph_n ) = fac * (3. * dzetadx_2 + 3. * dzetadx_3);   
-                            A.coeffRef(q_eq, 3 * ph_nw) = fac * (1. * dzetadx_3);
-                            A.coeffRef(q_eq, 3 * ph_w)  = fac * (3. * dzetadx_0 + 3. * dzetadx_3);
-                            // theta * h * d(Delta zeta)/dx 
-                            fac = theta * scv_area * g * 0.25/dx;
-                            A.coeffRef(q_eq, 3 * ph_0 ) += fac * (+3. * depth_0 - 3. * depth_1 - 3. * depth_2 + 3. * depth_3);
-                            A.coeffRef(q_eq, 3 * ph_sw) += fac * (-1. * depth_0);
-                            A.coeffRef(q_eq, 3 * ph_s ) += fac * (+1. * depth_0 - 1. * depth_1);
-                            A.coeffRef(q_eq, 3 * ph_se) += fac * (+1. * depth_1 );
-                            A.coeffRef(q_eq, 3 * ph_e ) += fac * (+3. * depth_1 + 3. * depth_3);
-                            A.coeffRef(q_eq, 3 * ph_ne) += fac * (+1. * depth_2);
-                            A.coeffRef(q_eq, 3 * ph_n ) += fac * (-1. * depth_2 + 1. * depth_3);
-                            A.coeffRef(q_eq, 3 * ph_nw) += fac * (-1. * depth_3);
-                            A.coeffRef(q_eq, 3 * ph_w ) += fac * (-3. * depth_0 - 3. * depth_3);
-
-                        }
+                        // theta * dzeta/dx * Delta h
+                        double fac = theta * scv_area * g * 0.0625;
+                        A.coeffRef(q_eq, 3 * ph_0 ) = fac * (9. * dzetadx_0 + 9. * dzetadx_1 + 9. * dzetadx_2 + 9. * dzetadx_3) ;   
+                        A.coeffRef(q_eq, 3 * ph_sw) = fac * (1. * dzetadx_0);
+                        A.coeffRef(q_eq, 3 * ph_s ) = fac * (3. * dzetadx_1 + 3. * dzetadx_0); 
+                        A.coeffRef(q_eq, 3 * ph_se) = fac * (1. * dzetadx_1);
+                        A.coeffRef(q_eq, 3 * ph_e ) = fac * (3. * dzetadx_1 + 3. * dzetadx_2);
+                        A.coeffRef(q_eq, 3 * ph_ne) = fac * (1. * dzetadx_2);
+                        A.coeffRef(q_eq, 3 * ph_n ) = fac * (3. * dzetadx_2 + 3. * dzetadx_3);   
+                        A.coeffRef(q_eq, 3 * ph_nw) = fac * (1. * dzetadx_3);
+                        A.coeffRef(q_eq, 3 * ph_w)  = fac * (3. * dzetadx_0 + 3. * dzetadx_3);
+                        // theta * h * d(Delta zeta)/dx 
+                        fac = theta * scv_area * g * 0.25/dx;
+                        A.coeffRef(q_eq, 3 * ph_0 ) += fac * (+3. * depth_0 - 3. * depth_1 - 3. * depth_2 + 3. * depth_3);
+                        A.coeffRef(q_eq, 3 * ph_sw) += fac * (-1. * depth_0);
+                        A.coeffRef(q_eq, 3 * ph_s ) += fac * (+1. * depth_0 - 1. * depth_1);
+                        A.coeffRef(q_eq, 3 * ph_se) += fac * (+1. * depth_1 );
+                        A.coeffRef(q_eq, 3 * ph_e ) += fac * (+3. * depth_1 + 3. * depth_3);
+                        A.coeffRef(q_eq, 3 * ph_ne) += fac * (+1. * depth_2);
+                        A.coeffRef(q_eq, 3 * ph_n ) += fac * (-1. * depth_2 + 1. * depth_3);
+                        A.coeffRef(q_eq, 3 * ph_nw) += fac * (-1. * depth_3);
+                        A.coeffRef(q_eq, 3 * ph_w ) += fac * (-3. * depth_0 - 3. * depth_3);
                         //
                         // RHS q-momentum equation
                         //
@@ -1417,36 +1356,28 @@ int main(int argc, char *argv[])
                         double dzetady_2 = scv_area / dy * dcdy_scv(htheta_n + zb_n, htheta_0 + zb_0, htheta_ne + zb_ne, htheta_e  + zb_e );
                         double dzetady_3 = scv_area / dy * dcdy_scv(htheta_n + zb_n, htheta_0 + zb_0, htheta_nw + zb_nw, htheta_w  + zb_w );
 
-                        if (false)
-                        {
-                            A.coeffRef(r_eq, 3 * ph_n) =  0.5 * theta * g * dx * htheta_jp12;
-                            A.coeffRef(r_eq, 3 * ph_0) = -0.5 * theta * g * dx * htheta_jm12 + 0.5 * theta * g * dx * htheta_jp12;
-                            A.coeffRef(r_eq, 3 * ph_s) = -0.5 * theta * g * dx * htheta_jm12;
-                        }
-                        else
-                        {   // theta * dzeta/dy * Delta h
-                            double fac = theta * scv_area * g * 0.0625;
-                            A.coeffRef(r_eq, 3 * ph_0 ) = (9. * dzetady_0 + 9. * dzetady_1 + 9. * dzetady_2 + 9. * dzetady_3);
-                            A.coeffRef(r_eq, 3 * ph_sw) = fac * (1. * dzetady_0);
-                            A.coeffRef(r_eq, 3 * ph_s ) = fac * (3. * dzetady_1 + 3. * dzetady_0);
-                            A.coeffRef(r_eq, 3 * ph_se) = fac * (1. * dzetady_1);
-                            A.coeffRef(r_eq, 3 * ph_e ) = fac * (3. * dzetady_1 + 3. * dzetady_2);
-                            A.coeffRef(r_eq, 3 * ph_ne) = fac * (1. * dzetady_2);
-                            A.coeffRef(r_eq, 3 * ph_n ) = fac * (3. * dzetady_2 + 3. * dzetady_3);
-                            A.coeffRef(r_eq, 3 * ph_nw) = fac * (1. * dzetady_3);
-                            A.coeffRef(r_eq, 3 * ph_w ) = fac * (3. * dzetady_0 + 3. * dzetady_3);
-                            // theta * h * d(Delta zeta)/dy
-                            fac = theta * scv_area * g * 0.25 / dy;
-                            A.coeffRef(r_eq, 3 * ph_0 ) += fac * (+3. * depth_0 + 3. * depth_1 - 3. * depth_2 - 3* depth_3);
-                            A.coeffRef(r_eq, 3 * ph_sw) += fac * (-1. * depth_0);
-                            A.coeffRef(r_eq, 3 * ph_s ) += fac * (-3. * depth_0 - 3. * depth_1);
-                            A.coeffRef(r_eq, 3 * ph_se) += fac * (-1. * depth_1);
-                            A.coeffRef(r_eq, 3 * ph_e ) += fac * (+1. * depth_1 - 1. * depth_2);
-                            A.coeffRef(r_eq, 3 * ph_ne) += fac * (+1. * depth_2);
-                            A.coeffRef(r_eq, 3 * ph_n ) += fac * (+3. * depth_2 + 3. * depth_3);
-                            A.coeffRef(r_eq, 3 * ph_nw) += fac * (+1. * depth_3);
-                            A.coeffRef(r_eq, 3 * ph_w ) += fac * (+1. * depth_0 - 1. * depth_3);
-                        }
+                        // theta * dzeta/dy * Delta h
+                        double fac = theta * scv_area * g * 0.0625;
+                        A.coeffRef(r_eq, 3 * ph_0 ) = (9. * dzetady_0 + 9. * dzetady_1 + 9. * dzetady_2 + 9. * dzetady_3);
+                        A.coeffRef(r_eq, 3 * ph_sw) = fac * (1. * dzetady_0);
+                        A.coeffRef(r_eq, 3 * ph_s ) = fac * (3. * dzetady_1 + 3. * dzetady_0);
+                        A.coeffRef(r_eq, 3 * ph_se) = fac * (1. * dzetady_1);
+                        A.coeffRef(r_eq, 3 * ph_e ) = fac * (3. * dzetady_1 + 3. * dzetady_2);
+                        A.coeffRef(r_eq, 3 * ph_ne) = fac * (1. * dzetady_2);
+                        A.coeffRef(r_eq, 3 * ph_n ) = fac * (3. * dzetady_2 + 3. * dzetady_3);
+                        A.coeffRef(r_eq, 3 * ph_nw) = fac * (1. * dzetady_3);
+                        A.coeffRef(r_eq, 3 * ph_w ) = fac * (3. * dzetady_0 + 3. * dzetady_3);
+                        // theta * h * d(Delta zeta)/dy
+                        fac = theta * scv_area * g * 0.25 / dy;
+                        A.coeffRef(r_eq, 3 * ph_0 ) += fac * (+3. * depth_0 + 3. * depth_1 - 3. * depth_2 - 3* depth_3);
+                        A.coeffRef(r_eq, 3 * ph_sw) += fac * (-1. * depth_0);
+                        A.coeffRef(r_eq, 3 * ph_s ) += fac * (-3. * depth_0 - 3. * depth_1);
+                        A.coeffRef(r_eq, 3 * ph_se) += fac * (-1. * depth_1);
+                        A.coeffRef(r_eq, 3 * ph_e ) += fac * (+1. * depth_1 - 1. * depth_2);
+                        A.coeffRef(r_eq, 3 * ph_ne) += fac * (+1. * depth_2);
+                        A.coeffRef(r_eq, 3 * ph_n ) += fac * (+3. * depth_2 + 3. * depth_3);
+                        A.coeffRef(r_eq, 3 * ph_nw) += fac * (+1. * depth_3);
+                        A.coeffRef(r_eq, 3 * ph_w ) += fac * (+1. * depth_0 - 1. * depth_3);
                         // 
                         // RHS r-momentum equation
                         //
@@ -1634,11 +1565,11 @@ int main(int argc, char *argv[])
                                 if (bc_vars[BC_NORTH] == "zeta")
                                 {
                                     if (stationary) { sign = -1.0; }
-                                    A.coeffRef(c_eq, 3 * ph_0 ) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
-                                    A.coeffRef(c_eq, 3 * ph_s ) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
-                                    A.coeffRef(c_eq, 3 * ph_ss) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+                                    A.coeffRef(c_eq, 3 * ph_0 ) += + dtinv * w_ess[0] + eps_bc_corr * w_ess[0];  // + dtinv * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_s ) += + dtinv * w_ess[1] + eps_bc_corr * w_ess[1];  // + dtinv * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_ss) += + dtinv * w_ess[2] + eps_bc_corr * w_ess[2];  // + dtinv * w_ess[2];
 
-                                    corr_term = -dhdt + sign * eps_bc_corr * ((bc[BC_NORTH] - zb_jm12) - hp_jm12);
+                                    corr_term = - dhdt - ( eps_bc_corr * ((bc[BC_NORTH] - zb_jm12) - hp_jm12) );
                                     rhs[c_eq] += corr_term;
                                     sign = 1.0;
                                 }
@@ -1649,7 +1580,7 @@ int main(int argc, char *argv[])
                                     A.coeffRef(c_eq, 3 * ph_s ) += dtinv * w_ess[1] - eps_bc_corr * w_ess[1];
                                     A.coeffRef(c_eq, 3 * ph_ss) += dtinv * w_ess[2] - eps_bc_corr * w_ess[2];
 
-                                    corr_term =-drdt - sign * eps_bc_corr * (bc[BC_NORTH]- qp_jm12);
+                                    corr_term = -drdt - sign * eps_bc_corr * (bc[BC_NORTH]- qp_jm12);
                                     rhs[c_eq] += corr_term;
                                     sign = 1.0;
                                 }
@@ -1777,7 +1708,7 @@ int main(int argc, char *argv[])
 
                     double zb_im12 = w_nat[0] * zb[ph_0] + w_nat[1] * zb[ph_w] + w_nat[2] * zb[ph_ww];
                     double h_infty = -zb_im12;
-                    double c_wave = std::sqrt(g * h_infty);
+                    double c_wave = std::sqrt(g * hp_im12);
 
                     if (bc_type[BC_EAST] == "dirichlet" || bc_absorbing[BC_EAST] == false)
                     {
@@ -1863,11 +1794,11 @@ int main(int argc, char *argv[])
                                 if (bc_vars[BC_EAST] == "zeta")
                                 {
                                     if (stationary) { sign = -1.0; }
-                                    A.coeffRef(c_eq, 3 * ph_0 ) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
-                                    A.coeffRef(c_eq, 3 * ph_w ) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
-                                    A.coeffRef(c_eq, 3 * ph_ww) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+                                    A.coeffRef(c_eq, 3 * ph_0 ) += + dtinv * w_ess[0] + eps_bc_corr * w_ess[0];  // + dtinv * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_w ) += + dtinv * w_ess[1] + eps_bc_corr * w_ess[1];  // + dtinv * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_ww) += + dtinv * w_ess[2] + eps_bc_corr * w_ess[2];  // + dtinv * w_ess[2];
 
-                                    corr_term = - dhdt + eps_bc_corr * ((bc[BC_EAST] - zb_im12) - hp_im12);
+                                    corr_term = - dhdt - ( eps_bc_corr * ((bc[BC_EAST] - zb_im12) - hp_im12) );
                                     rhs[c_eq] += corr_term;
                                     sign = 1.0;
                                 }
@@ -2092,20 +2023,20 @@ int main(int argc, char *argv[])
                                 double corr_term = 0.0;
                                 if (bc_vars[BC_SOUTH] == "zeta")
                                 {
-                                    A.coeffRef(c_eq, 3 * ph_0 ) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
-                                    A.coeffRef(c_eq, 3 * ph_n ) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
-                                    A.coeffRef(c_eq, 3 * ph_nn) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+                                    A.coeffRef(c_eq, 3 * ph_0 ) += + dtinv * w_ess[0] + eps_bc_corr * w_ess[0];  // + dtinv * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_n ) += + dtinv * w_ess[1] + eps_bc_corr * w_ess[1];  // + dtinv * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_nn) += + dtinv * w_ess[2] + eps_bc_corr * w_ess[2];  // + dtinv * w_ess[2];
 
-                                    corr_term = +dhdt - eps_bc_corr * ((bc[BC_SOUTH] - zb_jp12) - hp_jp12);
+                                    corr_term = + dhdt + ( eps_bc_corr * ((bc[BC_SOUTH] - zb_jp12) - hp_jp12) );
                                     rhs[c_eq] += corr_term;
                                 }
-                                if (bc_vars[BC_WEST] == "q")
+                                if (bc_vars[BC_SOUTH] == "q")
                                 {
                                     A.coeffRef(c_eq, 3 * ph_0 ) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
                                     A.coeffRef(c_eq, 3 * ph_n ) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
                                     A.coeffRef(c_eq, 3 * ph_nn) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
 
-                                    corr_term = -drdt - eps_bc_corr * (bc[BC_SOUTH] - qp_jp12);
+                                    corr_term = -drdt - eps_bc_corr * (bc[BC_SOUTH] - rp_jp12);
                                     rhs[c_eq] += corr_term;
                                 }
                             }
@@ -2231,7 +2162,7 @@ int main(int argc, char *argv[])
 
                     double zb_ip12 = w_nat[0] * zb[ph_0] + w_nat[1] * zb[ph_e] + w_nat[2] * zb[ph_ee];
                     double h_infty = -zb_ip12;
-                    double c_wave = std::sqrt(g * h_infty);
+                    double c_wave = std::sqrt(g * hp_ip12);
 
                     if (bc_type[BC_WEST] == "dirichlet" || bc_absorbing[BC_WEST] == false)
                     {
@@ -2317,20 +2248,23 @@ int main(int argc, char *argv[])
                                 double corr_term = 0.0;
                                 if (bc_vars[BC_WEST] == "zeta")
                                 {
-                                    A.coeffRef(c_eq, 3 * ph_0 ) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
-                                    A.coeffRef(c_eq, 3 * ph_e ) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
-                                    A.coeffRef(c_eq, 3 * ph_ee) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+                                    // dhdt = dtinv * (bc[BC_WEST] - hn_ip12);
+                                    A.coeffRef(c_eq, 3 * ph_0 ) += + dtinv * w_ess[0] + eps_bc_corr * w_ess[0];  // + dtinv * w_ess[0]; 
+                                    A.coeffRef(c_eq, 3 * ph_e ) += + dtinv * w_ess[1] + eps_bc_corr * w_ess[1];  // + dtinv * w_ess[1]; 
+                                    A.coeffRef(c_eq, 3 * ph_ee) += + dtinv * w_ess[2] + eps_bc_corr * w_ess[2];  // + dtinv * w_ess[2]; 
 
-                                    corr_term = + dhdt - eps_bc_corr * ((bc[BC_WEST] - zb_ip12) - hp_ip12);
+                                    corr_term = + dhdt + ( eps_bc_corr * ((bc[BC_WEST] - zb_ip12) - hp_ip12) );
                                     rhs[c_eq] += corr_term;
                                 }
                                 if (bc_vars[BC_WEST] == "q")
                                 {
-                                    A.coeffRef(c_eq, 3 * ph_0  + 1) += dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
-                                    A.coeffRef(c_eq, 3 * ph_e  + 1) += dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
-                                    A.coeffRef(c_eq, 3 * ph_ee + 1) += dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
+                                    dqdt = dtinv * (bc[BC_WEST] - qn_ip12);
+                                    //A.coeffRef(c_eq, 3 * ph_0  + 1) += dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
+                                    //A.coeffRef(c_eq, 3 * ph_e  + 1) += dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
+                                    //A.coeffRef(c_eq, 3 * ph_ee + 1) += dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
 
-                                    corr_term =  - dqdt + eps_bc_corr * (bc[BC_WEST] - qp_ip12);
+                                    corr_term =  + dqdt + eps_bc_corr * (bc[BC_WEST] - qp_ip12);
+                                    //corr_term =  + eps_bc_corr * (bc[BC_WEST] - qp_ip12);
                                     rhs[c_eq] += corr_term;
                                 }
                             }
