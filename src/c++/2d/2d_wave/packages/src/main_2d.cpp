@@ -45,6 +45,7 @@
 #include "bed_shear_stress.h"
 #include "boundary_condition.h"
 #include "cfts.h"
+#include "compile_date_and_time.h"
 #include "convection.h"
 #include "grid.h"
 #include "initial_conditions.h"
@@ -72,9 +73,16 @@ std::string string_format_with_zeros(double value, int width);
 
 // Solve the linear wave equation
 // Continuity equation: d(h)/dt + d(q)/dx = 0
-// Momentum equation: d(q)/dt + 1/2  d(h^2)/dx = 0
-// Momentum equation: d(r)/dt + 1/2  d(h^2)/dy = 0
+// Momentum equation: d(q)/dt + gh d(zeta)/dx = 0
+// Momentum equation: d(r)/dt + gh d(zeta)/dy = 0
 
+std::string compileDateTime()
+{
+    std::string str1(compileYear());
+    std::string str2(compileMonth());
+    std::string str3(compileDay());
+    return str1 + "-" + str2 + "-" + str3 + " " + __TIME__;
+}
 int main(int argc, char *argv[])
 {
     bool stationary = false;
@@ -123,7 +131,7 @@ int main(int argc, char *argv[])
     else
     {
         std::cout << "======================================================" << std::endl;
-        std::cout << "Executable compiled: " << __DATE__ << ", " << __TIME__ << std::endl;
+        std::cout << "Executable compiled: " << compileDateTime() << std::endl;
         std::cout << std::endl;
         std::cout << "usage: 2d_wave.exe --toml <input_file>" << std::endl;
         std::cout << "======================================================" << std::endl;
@@ -135,9 +143,9 @@ int main(int argc, char *argv[])
     const std::chrono::zoned_time now{ std::chrono::current_zone(), std::chrono::system_clock::now() };
     auto start_date_time = std::format("{:%F %H:%M:%OS %Oz}", now);
     std::cout << std::endl;
-    std::cout << "Start time          : " << start_date_time << std::endl;
     std::cout << "======================================================" << std::endl;
-    std::cout << "Executable compiled : " << __DATE__ << ", " << __TIME__ << std::endl;
+    std::cout << "Executable compiled : " << compileDateTime() << std::endl;
+    std::cout << "Start time          : " << start_date_time << std::endl;
     std::cout << "======================================================" << std::endl;
     std::cout << "Executable directory: " << exec_dir << std::endl;
     std::cout << "Start directory     : " << start_dir << std::endl;
@@ -168,9 +176,9 @@ int main(int argc, char *argv[])
     std::cout << std::filesystem::absolute(toml_file_name) << std::endl;
     std::cout << "======================================================" << std::endl;
     log_file << std::endl;
-    log_file << "Start time          : " << start_date_time << std::endl;
     log_file << "======================================================" << std::endl;
-    log_file << "Executable compiled: " << __DATE__ << ", " << __TIME__ << std::endl;
+    log_file << "Executable compiled: " << compileDateTime() << std::endl;
+    log_file << "Start time         : " << start_date_time << std::endl;
     log_file << "=== Input file =======================================" << std::endl;
     log_file << toml_file_name << std::endl;
     log_file << "=== Copy of the input file ============================" << std::endl;
@@ -1580,7 +1588,7 @@ int main(int argc, char *argv[])
                                     A.coeffRef(c_eq, 3 * ph_s ) += dtinv * w_ess[1] - eps_bc_corr * w_ess[1];
                                     A.coeffRef(c_eq, 3 * ph_ss) += dtinv * w_ess[2] - eps_bc_corr * w_ess[2];
 
-                                    corr_term = -drdt - sign * eps_bc_corr * (bc[BC_NORTH]- qp_jm12);
+                                    corr_term = - drdt - sign * eps_bc_corr * (bc[BC_NORTH]- qp_jm12);
                                     rhs[c_eq] += corr_term;
                                     sign = 1.0;
                                 }
@@ -1809,7 +1817,7 @@ int main(int argc, char *argv[])
                                     A.coeffRef(c_eq, 3 * ph_w ) += dtinv * w_ess[1] - eps_bc_corr * w_ess[1];
                                     A.coeffRef(c_eq, 3 * ph_ww) += dtinv * w_ess[2] - eps_bc_corr * w_ess[2];
 
-                                    corr_term = -dqdt + sign * eps_bc_corr * (bc[BC_EAST] - qp_im12);
+                                    corr_term = - dqdt + sign * eps_bc_corr * (bc[BC_EAST] - qp_im12);
                                     rhs[c_eq] += corr_term;
                                     sign = 1.0;
                                 }
@@ -2036,7 +2044,7 @@ int main(int argc, char *argv[])
                                     A.coeffRef(c_eq, 3 * ph_n ) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
                                     A.coeffRef(c_eq, 3 * ph_nn) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
 
-                                    corr_term = -drdt - eps_bc_corr * (bc[BC_SOUTH] - rp_jp12);
+                                    corr_term = - drdt - eps_bc_corr * (bc[BC_SOUTH] - rp_jp12);
                                     rhs[c_eq] += corr_term;
                                 }
                             }
