@@ -2284,19 +2284,18 @@ int main(int argc, char *argv[])
                                 if (bc_vars[BC_WEST] == "zeta")
                                 {
                                     // dhdt = dtinv * (bc[BC_WEST] - hn_ip12);
-                                    A.coeffRef(c_eq, 3 * ph_0 ) += + dtinv * w_ess[0] + eps_bc_corr * w_ess[0];  // + dtinv * w_ess[0]; 
-                                    A.coeffRef(c_eq, 3 * ph_e ) += + dtinv * w_ess[1] + eps_bc_corr * w_ess[1];  // + dtinv * w_ess[1]; 
-                                    A.coeffRef(c_eq, 3 * ph_ee) += + dtinv * w_ess[2] + eps_bc_corr * w_ess[2];  // + dtinv * w_ess[2]; 
+                                    A.coeffRef(c_eq, 3 * ph_0 ) += + dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_e ) += + dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_ee) += + dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
 
                                     corr_term = + dhdt + ( eps_bc_corr * ((bc[BC_WEST] - zb_ip12) - hp_ip12) );
                                     rhs[c_eq] += corr_term;
                                 }
                                 if (bc_vars[BC_WEST] == "q")
                                 {
-                                    dqdt = dtinv * (bc[BC_WEST] - qn_ip12);
-                                    //A.coeffRef(c_eq, 3 * ph_0  + 1) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
-                                    //A.coeffRef(c_eq, 3 * ph_e  + 1) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
-                                    //A.coeffRef(c_eq, 3 * ph_ee + 1) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+                                    A.coeffRef(c_eq, 3 * ph_0  + 1) += - dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_e  + 1) += - dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_ee + 1) += - dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
 
                                     corr_term =  + dqdt + eps_bc_corr * (bc[BC_WEST] - qp_ip12);
                                     rhs[c_eq] += corr_term;
@@ -2714,41 +2713,42 @@ int main(int argc, char *argv[])
                 his_file->put_time(nst_his, double(nst) * dt);
             }
             his_file->put_time(nst_his, time);
-    std::vector<double> his_values = { hn[p_a], hn[p_b], hn[p_c], hn[p_d], hn[centre], 
-        hn[n_bnd], hn[ne_bnd], hn[e_bnd], hn[se_bnd], hn[s_bnd], hn[sw_bnd], hn[w_bnd], hn[nw_bnd],
-        hn[hn_bnd], hn[hne_bnd], hn[he_bnd], hn[hse_bnd], hn[hs_bnd], hn[hsw_bnd], hn[hw_bnd], hn[hnw_bnd]
-    };
-    his_file->put_variable(his_h_name, nst_his, his_values);
 
-    his_values = { qn[p_a], qn[p_b], qn[p_c], qn[p_d], qn[centre], 
-        qn[n_bnd], qn[ne_bnd], qn[e_bnd], qn[se_bnd], qn[s_bnd], qn[sw_bnd], qn[w_bnd], qn[nw_bnd],
-        qn[hn_bnd], qn[hne_bnd], qn[he_bnd], qn[hse_bnd], qn[hs_bnd], qn[hsw_bnd], qn[hw_bnd], qn[hnw_bnd]
-    };
-    his_file->put_variable(his_q_name, nst_his, his_values);
+            his_values = { hn[p_a], hn[p_b], hn[p_c], hn[p_d], hn[centre], 
+                hn[n_bnd], hn[ne_bnd], hn[e_bnd], hn[se_bnd], hn[s_bnd], hn[sw_bnd], hn[w_bnd], hn[nw_bnd],
+                hn[hn_bnd], hn[hne_bnd], hn[he_bnd], hn[hse_bnd], hn[hs_bnd], hn[hsw_bnd], hn[hw_bnd], hn[hnw_bnd]
+            };
+            his_file->put_variable(his_h_name, nst_his, his_values);
+
+            his_values = { qn[p_a], qn[p_b], qn[p_c], qn[p_d], qn[centre], 
+                qn[n_bnd], qn[ne_bnd], qn[e_bnd], qn[se_bnd], qn[s_bnd], qn[sw_bnd], qn[w_bnd], qn[nw_bnd],
+                qn[hn_bnd], qn[hne_bnd], qn[he_bnd], qn[hse_bnd], qn[hs_bnd], qn[hsw_bnd], qn[hw_bnd], qn[hnw_bnd]
+            };
+            his_file->put_variable(his_q_name, nst_his, his_values);
  
-    his_values = { rn[p_a], rn[p_b], rn[p_c], rn[p_d], rn[centre], 
-        rn[n_bnd], rn[ne_bnd], rn[e_bnd], rn[se_bnd], rn[s_bnd], rn[sw_bnd], rn[w_bnd], rn[nw_bnd],
-        rn[hn_bnd], rn[hne_bnd], rn[he_bnd], rn[hse_bnd], rn[hs_bnd], rn[hsw_bnd], rn[hw_bnd], rn[hnw_bnd]
-    };
-    his_file->put_variable(his_r_name, nst_his, his_values);
+            his_values = { rn[p_a], rn[p_b], rn[p_c], rn[p_d], rn[centre], 
+                rn[n_bnd], rn[ne_bnd], rn[e_bnd], rn[se_bnd], rn[s_bnd], rn[sw_bnd], rn[w_bnd], rn[nw_bnd],
+                rn[hn_bnd], rn[hne_bnd], rn[he_bnd], rn[hse_bnd], rn[hs_bnd], rn[hsw_bnd], rn[hw_bnd], rn[hnw_bnd]
+            };
+            his_file->put_variable(his_r_name, nst_his, his_values);
 
-    his_values = { s[p_a], s[p_b], s[p_c], s[p_d], s[centre], 
-        s[n_bnd], s[ne_bnd], s[e_bnd], s[se_bnd], s[s_bnd], s[sw_bnd], s[w_bnd], s[nw_bnd],
-        s[hn_bnd], s[hne_bnd], s[he_bnd], s[hse_bnd], s[hs_bnd], s[hsw_bnd], s[hw_bnd], s[hnw_bnd]
-    };
-    his_file->put_variable(his_s_name, nst_his, his_values);
+            his_values = { s[p_a], s[p_b], s[p_c], s[p_d], s[centre], 
+                s[n_bnd], s[ne_bnd], s[e_bnd], s[se_bnd], s[s_bnd], s[sw_bnd], s[w_bnd], s[nw_bnd],
+                s[hn_bnd], s[hne_bnd], s[he_bnd], s[hse_bnd], s[hs_bnd], s[hsw_bnd], s[hw_bnd], s[hnw_bnd]
+            };
+            his_file->put_variable(his_s_name, nst_his, his_values);
 
-    his_values = { u[p_a], u[p_b], u[p_c], u[p_d], u[centre], 
-        u[n_bnd], u[ne_bnd], u[e_bnd], u[se_bnd], u[s_bnd], u[sw_bnd], u[w_bnd], u[nw_bnd],
-        u[hn_bnd], u[hne_bnd], u[he_bnd], u[hse_bnd], u[hs_bnd], u[hsw_bnd], u[hw_bnd], u[hnw_bnd]
-    };
-    his_file->put_variable(his_u_name, nst_his, his_values);
+            his_values = { u[p_a], u[p_b], u[p_c], u[p_d], u[centre], 
+                u[n_bnd], u[ne_bnd], u[e_bnd], u[se_bnd], u[s_bnd], u[sw_bnd], u[w_bnd], u[nw_bnd],
+                u[hn_bnd], u[hne_bnd], u[he_bnd], u[hse_bnd], u[hs_bnd], u[hsw_bnd], u[hw_bnd], u[hnw_bnd]
+            };
+            his_file->put_variable(his_u_name, nst_his, his_values);
 
-    his_values = { v[p_a], v[p_b], v[p_c], v[p_d], v[centre], 
-        v[n_bnd], v[ne_bnd], v[e_bnd], v[se_bnd], v[s_bnd], v[sw_bnd], v[w_bnd], v[nw_bnd],
-        v[hn_bnd], v[hne_bnd], v[he_bnd], v[hse_bnd], v[hs_bnd], v[hsw_bnd], v[hw_bnd], v[hnw_bnd]
-    };
-    his_file->put_variable(his_v_name, nst_his, his_values);
+            his_values = { v[p_a], v[p_b], v[p_c], v[p_d], v[centre], 
+                v[n_bnd], v[ne_bnd], v[e_bnd], v[se_bnd], v[s_bnd], v[sw_bnd], v[w_bnd], v[nw_bnd],
+                v[hn_bnd], v[hne_bnd], v[he_bnd], v[hse_bnd], v[hs_bnd], v[hsw_bnd], v[hw_bnd], v[hnw_bnd]
+            };
+            his_file->put_variable(his_v_name, nst_his, his_values);
 
             his_values = { double(used_newton_iter) };
             his_file->put_variable(his_newton_iter_name, nst_his, his_values);

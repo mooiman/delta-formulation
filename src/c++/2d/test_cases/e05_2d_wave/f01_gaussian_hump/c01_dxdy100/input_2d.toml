@@ -31,7 +31,7 @@
     do_r_convection = false         # Include momentum convection term
     do_viscosity = false            # Include momentum viscosity term
     viscosity = 0.01
-    do_bed_shear_stres = false      # Include momentum bed shear stress term
+    do_bed_shear_stress = false      # Include momentum bed shear stress term
     chezy_coefficient = 50.0        # Chezy coefficient
 
 [Numerics]
