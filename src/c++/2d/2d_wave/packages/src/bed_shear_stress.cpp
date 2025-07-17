@@ -46,12 +46,9 @@ int bed_shear_stress_matrix_rhs(Eigen::SparseMatrix<double>& A, Eigen::VectorXd&
     //    |       |       |       |       |          |       |       |       |       |
     //   sw - - - - - - - s - - - - - - - se        sw - - - - - - - s - - - - - - - se
 
-    std::vector<double> htheta;
-    std::vector<double> qtheta;
-    std::vector<double> rtheta;
-    htheta.reserve(hn.size());
-    qtheta.reserve(hn.size());
-    rtheta.reserve(hn.size());
+    std::vector<double> htheta(hn.size());
+    std::vector<double> qtheta(hn.size());
+    std::vector<double> rtheta(hn.size());
 
     double h;
     double q;
@@ -279,7 +276,7 @@ inline double bed_shear_stress_J_11(double& h, double& q, double& r, double&  cf
 }
 inline double bed_shear_stress_J_12(double& h, double& q, double& r, double&  cf)
 {
-    return cf * vecq(q, r) / (h * h) + cf * std::pow(q, 4.0)/(h * h * std::pow(vecq(q, r), 3.0));;
+    return cf * vecq(q, r) / (h * h) + cf * std::pow(q, 4.0)/(h * h * std::pow(vecq(q, r), 3.0));
 }
 inline double bed_shear_stress_J_13(double& h, double& q, double& r, double&  cf)
 {
