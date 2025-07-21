@@ -1677,22 +1677,22 @@ int main(int argc, char *argv[])
                                 if (bc_vars[BC_NORTH] == "zeta")
                                 {
                                     if (stationary) { sign = -1.0; }
-                                    A.coeffRef(c_eq, 3 * ph_0 ) += + dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
-                                    A.coeffRef(c_eq, 3 * ph_s ) += + dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
-                                    A.coeffRef(c_eq, 3 * ph_ss) += + dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+                                    A.coeffRef(c_eq, 3 * ph_0 ) += + dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_s ) += + dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_ss) += + dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
 
-                                    corr_term = + dhdt - ( eps_bc_corr * ((bc[BC_NORTH] - zb_jm12) - hp_jm12) );
+                                    corr_term = - dhdt - ( eps_bc_corr * ((bc[BC_NORTH] - zb_jm12) - htheta_jm12) );
                                     rhs[c_eq] += corr_term;
                                     sign = 1.0;
                                 }
                                 if (bc_vars[BC_NORTH] == "q")
                                 {
                                     if (stationary) { sign = -1.0; }
-                                    A.coeffRef(c_eq, 3 * ph_0  + 2) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
-                                    A.coeffRef(c_eq, 3 * ph_s  + 2) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
-                                    A.coeffRef(c_eq, 3 * ph_ss + 2) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+                                    A.coeffRef(c_eq, 3 * ph_0  + 2) += dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_s  + 2) += dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_ss + 2) += dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
 
-                                    corr_term = - drdt + sign * eps_bc_corr * (bc[BC_NORTH]- qp_jm12);
+                                    corr_term = - drdt + sign * eps_bc_corr * (bc[BC_NORTH]- qtheta_jm12);
                                     rhs[c_eq] += corr_term;
                                     sign = 1.0;
                                 }
@@ -1909,22 +1909,22 @@ int main(int argc, char *argv[])
                                 if (bc_vars[BC_EAST] == "zeta")
                                 {
                                     if (stationary) { sign = -1.0; }
-                                    A.coeffRef(c_eq, 3 * ph_0 ) += + dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
-                                    A.coeffRef(c_eq, 3 * ph_w ) += + dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
-                                    A.coeffRef(c_eq, 3 * ph_ww) += + dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+                                    A.coeffRef(c_eq, 3 * ph_0 ) += + dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_w ) += + dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_ww) += + dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
 
-                                    corr_term = + dhdt - ( eps_bc_corr * ((bc[BC_EAST] - zb_im12) - hp_im12) );
+                                    corr_term = - dhdt - ( eps_bc_corr * ((bc[BC_EAST] - zb_im12) - htheta_im12) );
                                     rhs[c_eq] += corr_term;
                                     sign = 1.0;
                                 }
                                 if (bc_vars[BC_EAST] == "q")
                                 {
                                     if (stationary) { sign = -1.0; }
-                                    A.coeffRef(c_eq, 3 * ph_0  + 1) += dtinv * w_ess[0] - eps_bc_corr * w_ess[0];
-                                    A.coeffRef(c_eq, 3 * ph_w  + 1) += dtinv * w_ess[1] - eps_bc_corr * w_ess[1];
-                                    A.coeffRef(c_eq, 3 * ph_ww + 1) += dtinv * w_ess[2] - eps_bc_corr * w_ess[2];
+                                    A.coeffRef(c_eq, 3 * ph_0  + 1) += dtinv * w_ess[0] - eps_bc_corr * theta * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_w  + 1) += dtinv * w_ess[1] - eps_bc_corr * theta * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_ww + 1) += dtinv * w_ess[2] - eps_bc_corr * theta * w_ess[2];
 
-                                    corr_term = - dqdt + sign * eps_bc_corr * (bc[BC_EAST] - qp_im12);
+                                    corr_term = - dqdt + sign * eps_bc_corr * (bc[BC_EAST] - qtheta_im12);
                                     rhs[c_eq] += corr_term;
                                     sign = 1.0;
                                 }
@@ -2143,18 +2143,18 @@ int main(int argc, char *argv[])
                                 double corr_term = 0.0;
                                 if (bc_vars[BC_SOUTH] == "zeta")
                                 {
-                                    A.coeffRef(c_eq, 3 * ph_0 ) += + dtinv * w_ess[0] + eps_bc_corr * w_ess[0];  // + dtinv * w_ess[0];
-                                    A.coeffRef(c_eq, 3 * ph_n ) += + dtinv * w_ess[1] + eps_bc_corr * w_ess[1];  // + dtinv * w_ess[1];
-                                    A.coeffRef(c_eq, 3 * ph_nn) += + dtinv * w_ess[2] + eps_bc_corr * w_ess[2];  // + dtinv * w_ess[2];
+                                    A.coeffRef(c_eq, 3 * ph_0 ) += + dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_n ) += + dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_nn) += + dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
 
-                                    corr_term = + dhdt + ( eps_bc_corr * ((bc[BC_SOUTH] - zb_jp12) - hp_jp12) );
+                                    corr_term = + dhdt + ( eps_bc_corr * ((bc[BC_SOUTH] - zb_jp12) - htheta_jp12) );
                                     rhs[c_eq] += corr_term;
                                 }
                                 if (bc_vars[BC_SOUTH] == "q")
                                 {
-                                    A.coeffRef(c_eq, 3 * ph_0  + 2) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
-                                    A.coeffRef(c_eq, 3 * ph_n  + 2) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
-                                    A.coeffRef(c_eq, 3 * ph_nn + 2) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+                                    A.coeffRef(c_eq, 3 * ph_0  + 2) += dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_n  + 2) += dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_nn + 2) += dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
 
                                     corr_term = - drdt - eps_bc_corr * (bc[BC_SOUTH] - rp_jp12);
                                     rhs[c_eq] += corr_term;
@@ -2373,20 +2373,20 @@ int main(int argc, char *argv[])
                                 if (bc_vars[BC_WEST] == "zeta")
                                 {
                                     // dhdt = dtinv * (bc[BC_WEST] - hn_ip12);
-                                    A.coeffRef(c_eq, 3 * ph_0 ) += + dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
-                                    A.coeffRef(c_eq, 3 * ph_e ) += + dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
-                                    A.coeffRef(c_eq, 3 * ph_ee) += + dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+                                    A.coeffRef(c_eq, 3 * ph_0 ) += + dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_e ) += + dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_ee) += + dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
 
-                                    corr_term = + dhdt + ( eps_bc_corr * ((bc[BC_WEST] - zb_ip12) - hp_ip12) );
+                                    corr_term = + dhdt + ( eps_bc_corr * ((bc[BC_WEST] - zb_ip12) - htheta_ip12) );
                                     rhs[c_eq] += corr_term;
                                 }
                                 if (bc_vars[BC_WEST] == "q")
                                 {
-                                    A.coeffRef(c_eq, 3 * ph_0  + 1) += - dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
-                                    A.coeffRef(c_eq, 3 * ph_e  + 1) += - dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
-                                    A.coeffRef(c_eq, 3 * ph_ee + 1) += - dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
+                                    A.coeffRef(c_eq, 3 * ph_0  + 1) += - dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_e  + 1) += - dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_ee + 1) += - dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
 
-                                    corr_term =  + dqdt + eps_bc_corr * (bc[BC_WEST] - qp_ip12);
+                                    corr_term =  + dqdt - eps_bc_corr * (bc[BC_WEST] - qp_ip12);
                                     rhs[c_eq] += corr_term;
                                 }
                                 rhs_c[c_eq] = rhs[c_eq];
