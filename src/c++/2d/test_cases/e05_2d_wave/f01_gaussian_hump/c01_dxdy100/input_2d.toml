@@ -1,12 +1,12 @@
 # Logging = "matrix"  # "iterations", "matrix"
 
 [Domain]
-    mesh_file = "geometry/63x63_net.nc"
-    bed_level_file = "geometry/63x63.bed"  # uniform depth
+    mesh_file = "geometry/62x62_6x6km_net.nc"
+    bed_level_file = "geometry/62x62_6x6km_flat.dep"
 
 [Time]
     tstart = 0.0                                  # Start time [s]
-    tstop = 900.0                                # End time [s]
+    tstop = 1800.0                                # End time [s]
         
 [Initial]
     ini_vars = ["zeta", "zeta_gauss_hump"]
@@ -20,7 +20,7 @@
     bc_vals = [0.0, 0.0, 0.0, 0.0]
     bc_absorbing = [true, true, true, true]
     treg = 150.0                                  # Regularization time boundary signal
-    eps_bc_corr = 1.0e-2
+    eps_bc_corr = 1.0e-02
 
 [Physics]
     g = 10.0                        # Gravitational acceleration
@@ -30,15 +30,15 @@
     do_q_convection = false         # Include momentum convection term
     do_r_convection = false         # Include momentum convection term
     do_viscosity = false            # Include momentum viscosity term
+    do_bed_shear_stress = false     # Include momentum bed shear stress term
     viscosity = 0.01
-    do_bed_shear_stress = false      # Include momentum bed shear stress term
     chezy_coefficient = 50.0        # Chezy coefficient
 
 [Numerics]
-    dt = 5.0                        # Time step size [s], if dt == 0: then stationary problem
+    dt = 10.0                        # Time step size [s], if dt == 0: then stationary problem
     iter_max = 25                   # Maximum number of nonlinear iterations
     theta = 0.501                   # Implicitness factor (0.5 <= theta <= 1.0)
-    regularization_init = true
+    regularization_init = false
     regularization_iter = false
     regularization_time = false
     eps_newton = 1.0e-12
