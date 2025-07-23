@@ -35,13 +35,14 @@
 #include <Eigen/Sparse>
 #include <toml.h>
 
-#include "cfts.h"
-#include "ugrid1d.h"
 #include "bed_shear_stress.h"
+#include "boundary_condition.h"
+#include "cfts.h"
+#include "compile_date_and_time.h"
+#include "definition_map_file.h"
 #include "perf_timer.h"
 #include "regularization.h"
-#include "definition_map_file.h"
-#include "boundary_condition.h"
+#include "ugrid1d.h"
 
 enum class BED_LEVEL
 {
@@ -68,10 +69,17 @@ int initialize_scalar(double, std::vector<double>&, std::vector<double>&);
 double scv(double, double);
 std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs_name);
 
-
 // Solve the linear wave equation
 // Continuity equation: d(h)/dt + d(q)/dx = 0
 // Momentum equation: d(q)/dt + g h d(zeta)/dx = 0
+
+std::string compileDateTime()
+{
+    std::string str1(compileYear());
+    std::string str2(compileMonth());
+    std::string str3(compileDay());
+    return str1 + "-" + str2 + "-" + str3 + " " + __TIME__;
+}
 
 int main(int argc, char* argv[])
 {
@@ -93,6 +101,7 @@ int main(int argc, char* argv[])
     std::filesystem::path exec_dir;
     std::filesystem::path start_dir;
     std::filesystem::path output_dir;
+    std::filesystem::path input_dir;
 
     exec_file = argv[0];
     exec_dir = exec_file.parent_path();
@@ -109,25 +118,42 @@ int main(int argc, char* argv[])
             std::cout << "Input file \'" << toml_file_name << "\' can not be opened." << std::endl;
             std::cout << "Press Enter to finish";
             //std::cin.ignore();
+            std::chrono::duration<int, std::milli> timespan(3000);
+            std::this_thread::sleep_for(timespan);
             exit(1);
         }
-        tbl = toml::parse_file(toml_file_name);
-        std::cout << tbl << "\n";
-        output_dir = start_dir;
+        input_dir = std::filesystem::absolute(toml_file_name);
+        input_dir.remove_filename();
+        tbl = toml::parse_file(toml_file_name.c_str());
+        //std::cout << tbl << "\n";
+        output_dir = input_dir;
         output_dir += "/output/";
         std::filesystem::create_directory(output_dir);
     }
     else
     {
-        std::cout << "No \'toml\' file is read." << std::endl;
-        output_dir = ".";
+        std::cout << "======================================================" << std::endl;
+        std::cout << "Executable compiled: " << compileDateTime() << std::endl;
+        std::cout << std::endl;
+        std::cout << "usage: 1d_wave.exe --toml <input_file>" << std::endl;
+        std::cout << "======================================================" << std::endl;
+        //std::cin.ignore();
+        std::chrono::duration<int, std::milli> timespan(3000);
+        std::this_thread::sleep_for(timespan);
+        exit(1);
     }
 
-    std::cout << "----------------------------" << std::endl;
+    const std::chrono::zoned_time now{ std::chrono::current_zone(), std::chrono::system_clock::now() };
+    auto start_date_time = std::format("{:%F %H:%M:%OS %Oz}", now);
+    std::cout << std::endl;
+    std::cout << "======================================================" << std::endl;
+    std::cout << "Executable compiled : " << compileDateTime() << std::endl;
+    std::cout << "Start time          : " << start_date_time << std::endl;
+    std::cout << "======================================================" << std::endl;
     std::cout << "Executable directory: " << exec_dir << std::endl;
     std::cout << "Start directory     : " << start_dir << std::endl;
+    std::cout << "Input directory     : " << input_dir << std::endl;
     std::cout << "Output directory    : " << output_dir << std::endl;
-    std::cout << "----------------------------" << std::endl;
 
     START_TIMERN(Main);
     START_TIMER(Writing log-file);
@@ -1051,7 +1077,7 @@ int main(int argc, char* argv[])
                             A.coeffRef(ph, ph   ) += dtinv * w_ess[0] + eps_bc_corr * w_ess[0];
                             A.coeffRef(ph, ph_e ) += dtinv * w_ess[1] + eps_bc_corr * w_ess[1];
                             A.coeffRef(ph, ph_ee) += dtinv * w_ess[2] + eps_bc_corr * w_ess[2];
-                            corr_term = -dhdt - eps_bc_corr * (hp_ip12 - (wz_bnd - zb_ip12));
+                            corr_term = - dhdt - eps_bc_corr * (hp_ip12 - (wz_bnd - zb_ip12));
                             rhs[ph] += corr_term;
                         }
                         if (bc_vars[BC_WEST] == "q")

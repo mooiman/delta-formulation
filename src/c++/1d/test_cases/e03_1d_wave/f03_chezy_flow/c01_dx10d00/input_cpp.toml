@@ -1,3 +1,5 @@
+# Logging = "matrix"
+
 [Domain]
     Lx = 1000.0                                   # Domain length [m]
     depth = 4.0    # bathymetry below reference level [m]
