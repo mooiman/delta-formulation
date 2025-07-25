@@ -1,9 +1,8 @@
 //
 // Programmer: Jan Mooiman
-// Date      : 2025-01-03
 // Email     : jan.mooiman@outlook.com
 //
-//    Solving the 1D wave equation, fully implicit with delta-formuation and Modified Newton iteration 
+//    Solving the 1D wave equation, fully implicit with delta-formulation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
