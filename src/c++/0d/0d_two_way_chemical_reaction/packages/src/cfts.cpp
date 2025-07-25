@@ -1,7 +1,24 @@
 //
-// programmer: Jan Mooiman
-// Email: jan.mooiman@outlook.com
+// Programmer: Jan Mooiman
+// Email     : jan.mooiman@outlook.com
 //
+//    Solving 0d equation, fully implicit with delta-formulation and Modified Newton iteration 
+//    Copyright (C) 2025 Jan Mooiman
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+//------------------------------------------------------------------------------
 
 #include "cfts.h"
 #include "include/netcdf.h"
@@ -34,8 +51,16 @@ int CFTS::open(std::string ncfile, std::string model_title)
     int var_id;
     status = nc_def_var(m_ncid, "projected_coordinate_system", NC_INT, 0, nullptr, &var_id);
     int epsg = 28992;
-    status = set_attribute(std::string("projected_coordinate_system"), std::string("epsg"), epsg);
-    status = set_attribute(std::string("projected_coordinate_system"), std::string("EPSG_CODE"), std::string("EPSG:0"));
+    std::string epsg_code = "EPSG:28992";
+    status = set_attribute("projected_coordinate_system", "name", "Unknown projected");
+    status = set_attribute("projected_coordinate_system", "epsg", epsg);
+    status = set_attribute("projected_coordinate_system", "grid_mapping_name", "Unknown projected");
+    status = set_attribute("projected_coordinate_system", "longitude_of_prime_meridian", 0.);
+    status = set_attribute("projected_coordinate_system", "semi_major_axis", 6378137.);
+    status = set_attribute("projected_coordinate_system", "semi_minor_axis", 6356752.314245);
+    status = set_attribute("projected_coordinate_system", "inverse_flattening", 298.257223563);
+    status = set_attribute("projected_coordinate_system", "EPSG_CODE", epsg_code);
+    status = set_attribute("projected_coordinate_system", "value", "value is equal to EPSG code");
 
     return status;
 }
@@ -202,6 +227,14 @@ int CFTS::put_time(const int nst, double time)
 int CFTS::set_global_attribute(std::string att_name, std::string att_value)
 {
     int status = nc_put_att_text(m_ncid, NC_GLOBAL, att_name.data(), att_value.size(), att_value.data());
+    return status;
+}
+int CFTS::set_attribute(std::string var_name, std::string att_name, double att_value)
+{
+    int status = -1;
+    int i_var;
+    status = nc_inq_varid(m_ncid, var_name.data(), &i_var);
+    status = nc_put_att_double(m_ncid, i_var, att_name.data(), NC_DOUBLE, 1, &att_value);
     return status;
 }
 int CFTS::set_attribute(std::string var_name, std::string att_name, int att_value)

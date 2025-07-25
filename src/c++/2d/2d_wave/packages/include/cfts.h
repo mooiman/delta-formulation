@@ -51,9 +51,9 @@ private:
     std::string m_time_units;
 
     int set_global_attribute(std::string name, std::string value);
+    int set_attribute(std::string var, std::string att_name, double att_val);
     int set_attribute(std::string var, std::string att_name, int att_val);
     int set_attribute(std::string var, std::string att_name, std::string att_val);
-
 };
 
 #endif __CFTS_H__

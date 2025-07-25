@@ -1,9 +1,8 @@
 //
-// programmer: Jan Mooiman
-// Email: jan.mooiman@outlook.com
+// Programmer: Jan Mooiman
+// Email     : jan.mooiman@outlook.com
 //
-//
-//    Solving the 1D advection/diffusion equation, fully implicit with delta-formuation and Modified Newton iteration 
+//    Solving the 1D advection/diffusion equation, fully implicit with delta-formulation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -19,6 +18,8 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
+//------------------------------------------------------------------------------
+
 #ifndef __CFTS_H__
 #define __CFTS_H__
 
@@ -44,16 +45,15 @@ public:
     int put_time(int i, double time);
     int put_variable(std::string var_name, int i_time, std::vector<double> values);
 
-
 private:
     int m_ncid;
     int m_times;
     std::string m_time_units;
 
     int set_global_attribute(std::string name, std::string value);
+    int set_attribute(std::string var, std::string att_name, double att_val);
     int set_attribute(std::string var, std::string att_name, int att_val);
     int set_attribute(std::string var, std::string att_name, std::string att_val);
-
 };
 
 #endif __CFTS_H__

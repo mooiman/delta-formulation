@@ -1,7 +1,25 @@
 //
-// programmer: Jan Mooiman
-// Email: jan.mooiman@outlook.com
+// Programmer: Jan Mooiman
+// Email     : jan.mooiman@outlook.com
 //
+//    Solving 0d equation, fully implicit with delta-formulation and Modified Newton iteration 
+//    Copyright (C) 2025 Jan Mooiman
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+//------------------------------------------------------------------------------
+
 #ifndef __CFTS_H__
 #define __CFTS_H__
 
@@ -27,16 +45,15 @@ public:
     int put_time(int i, double time);
     int put_variable(std::string var_name, int i_time, std::vector<double> values);
 
-
 private:
     int m_ncid;
     int m_times;
     std::string m_time_units;
 
     int set_global_attribute(std::string name, std::string value);
+    int set_attribute(std::string var, std::string att_name, double att_val);
     int set_attribute(std::string var, std::string att_name, int att_val);
     int set_attribute(std::string var, std::string att_name, std::string att_val);
-
 };
 
 #endif __CFTS_H__

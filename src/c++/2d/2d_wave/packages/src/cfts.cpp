@@ -229,6 +229,14 @@ int CFTS::set_global_attribute(std::string att_name, std::string att_value)
     int status = nc_put_att_text(m_ncid, NC_GLOBAL, att_name.data(), att_value.size(), att_value.data());
     return status;
 }
+int CFTS::set_attribute(std::string var_name, std::string att_name, double att_value)
+{
+    int status = -1;
+    int i_var;
+    status = nc_inq_varid(m_ncid, var_name.data(), &i_var);
+    status = nc_put_att_double(m_ncid, i_var, att_name.data(), NC_DOUBLE, 1, &att_value);
+    return status;
+}
 int CFTS::set_attribute(std::string var_name, std::string att_name, int att_value)
 {
     int status = -1;

@@ -27,6 +27,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <iomanip>      // std::setprecision
 #include <iostream>
@@ -229,9 +230,25 @@ int main(int argc, char *argv[])
     bool do_continuity = tbl_chp["do_continuity"].value_or(bool(true));  // default, continuity
     bool do_q_equation = tbl_chp["do_q_equation"].value_or(bool(true));  // default, q_equation
     bool do_r_equation = tbl_chp["do_r_equation"].value_or(bool(true));  // default, r_equation
+    bool do_q_convection = tbl_chp["do_q_convection"].value_or(bool(false));  // default, no convection
+    bool do_r_convection = tbl_chp["do_r_convection"].value_or(bool(false));  // default, no convection
+    
+    bool do_viscosity = tbl_chp["do_viscosity"].value_or(bool(false));  // default, no viscosity
+    double visc_const = tbl_chp["viscosity"].value_or(double(0.0001));  // default 1e-4
+
+    bool do_bed_shear_stress = tbl_chp["do_bed_shear_stress"].value_or(bool(false));  // default, no bed shear stress
+    double chezy_coefficient = tbl_chp["chezy_coefficient"].value_or(double(50.0));
     if (do_q_equation && do_r_equation)
     {
         model_title = "Linear wave equation, BiCGstab";
+        if (do_bed_shear_stress)
+        {
+            model_title = "Linear wave equation + bed shear stress, BiCGstab";
+        }
+        if (do_q_convection && do_r_convection && do_bed_shear_stress)
+        {
+            model_title = "Linear wave equation + convection + bed shear stress, BiCGstab";
+        }
     }
     else if (do_q_equation)
     {
@@ -245,14 +262,6 @@ int main(int argc, char *argv[])
     {
         model_title = "No q- and no r-equation (=> no waves computed), BiCGstab";
     }
-    bool do_q_convection = tbl_chp["do_q_convection"].value_or(bool(false));  // default, no convection
-    bool do_r_convection = tbl_chp["do_r_convection"].value_or(bool(false));  // default, no convection
-    
-    bool do_viscosity = tbl_chp["do_viscosity"].value_or(bool(false));  // default, no viscosity
-    double visc_const = tbl_chp["viscosity"].value_or(double(0.0001));  // default 1e-4
-
-    bool do_bed_shear_stress = tbl_chp["do_bed_shear_stress"].value_or(bool(false));  // default, no bed shear stress
-    double chezy_coefficient = tbl_chp["chezy_coefficient"].value_or(double(50.0));
 
     // Boundary
     tbl_chp = *tbl["Boundary"].as_table();
@@ -497,16 +506,16 @@ int main(int argc, char *argv[])
     w_ess[0] = 11./24.;
     w_ess[1] = 14./24.;
     w_ess[2] = -1./24.;
-    //w_ess[0] = w_nat[0];
-    //w_ess[1] = w_nat[1];
-    //w_ess[2] = w_nat[2];
+    w_ess[0] = w_nat[0];
+    w_ess[1] = w_nat[1];
+    w_ess[2] = w_nat[2];
 
     //initialize water level
     std::cout << "Initialisation" << std::endl;
     status = 0;
     double min_zb = *std::min_element(zb_giv.begin(), zb_giv.end());
 
-    log_file << "=======================================================" << std::endl;
+    log_file << "-------------------------------------------------------" << std::endl;
     log_file << "Nodes   : " << nx << "x" << ny << "=" << nxny << std::endl;
     log_file << "Elements: " << (nx - 1) << "x" << (ny - 1) << "=" << (nx - 1) * (ny - 1) << std::endl;
     log_file << "Volumes : " << (nx - 2) << "x" << (ny - 2) << "=" << (nx - 2) * (ny - 2) << std::endl;
@@ -1266,7 +1275,7 @@ int main(int argc, char *argv[])
                     }
                     //
                     //===================================================================================
-                    // q-momentum(dq/dt ... = 0) 
+                    // q-momentum(dq/dt + gh d(zeta}/dx = 0) 
                     //
                     if (do_q_equation)
                     {
@@ -1382,7 +1391,7 @@ int main(int argc, char *argv[])
                     }
                     // 
                     //===================================================================================
-                    // r-momentum (dr/dt ... = 0)
+                    // r-momentum (dr/dt + gh d(zeta}/dx = 0)
                     //
                     if (do_r_equation)
                     {
@@ -1589,8 +1598,9 @@ int main(int argc, char *argv[])
                     rtheta_jm12 = w_nat[0] * rtheta_0 + w_nat[1] * rtheta_jm1 + w_nat[2] * rtheta_jm2;
 
                     double zb_jm12 = w_nat[0] * zb[ph_0] + w_nat[1] * zb[ph_s] + w_nat[2] * zb[ph_ss];
+                    double h_given = bc[BC_NORTH] - zb_jm12;
                     double h_infty = -zb_jm12;
-                    double c_wave = std::sqrt(g * hp_jm12);
+                    double c_wave = std::sqrt(g * h_given);
 
                     if (bc_type[BC_NORTH] == "dirichlet" || bc_absorbing[BC_NORTH] == false)
                     {
@@ -1730,10 +1740,11 @@ int main(int argc, char *argv[])
                             // third equation
                             // momentum part dr/dt + gh d(zeta)/dy
                             //
+                            // Contribution Delta h
                             A.coeffRef(r_eq, 3 * ph_0 ) = w_nat[0] * theta * g * dzetady + dyinv * theta * g * htheta_jm12;
                             A.coeffRef(r_eq, 3 * ph_s ) = w_nat[1] * theta * g * dzetady - dyinv * theta * g * htheta_jm12;
                             A.coeffRef(r_eq, 3 * ph_ss) = w_nat[2] * theta * g * dzetady;
-                            //
+                            // Contribution Delta q                            //
                             A.coeffRef(r_eq, 3 * ph_0  + 1) = 0.0;
                             A.coeffRef(r_eq, 3 * ph_s  + 1) = 0.0;
                             A.coeffRef(r_eq, 3 * ph_ss + 1) = 0.0;
@@ -1746,7 +1757,7 @@ int main(int argc, char *argv[])
                             //
                             // continuity part +c_wave * (dhdt + dq/dx + dr/dy)
                             //
-                             if (do_r_convection) { con_fac = c_wave + rp_jm12 / hp_jm12; }
+                            if (do_r_convection) { con_fac = c_wave + rp_jm12 / hp_jm12; }
                             // Contribution Delta h
                             A.coeffRef(r_eq, 3 * ph_0 ) += con_fac * dtinv * w_nat[0];
                             A.coeffRef(r_eq, 3 * ph_s ) += con_fac * dtinv * w_nat[1];
@@ -1822,8 +1833,9 @@ int main(int argc, char *argv[])
                     rtheta_im12 = w_nat[0] * rtheta_0 + w_nat[1] * rtheta_im1 + w_nat[2] * rtheta_im2;
 
                     double zb_im12 = w_nat[0] * zb[ph_0] + w_nat[1] * zb[ph_w] + w_nat[2] * zb[ph_ww];
+                    double h_given = bc[BC_EAST] - zb_im12;
                     double h_infty = -zb_im12;
-                    double c_wave = std::sqrt(g * hp_im12);
+                    double c_wave = std::sqrt(g * h_given);
 
                     if (bc_type[BC_EAST] == "dirichlet" || bc_absorbing[BC_EAST] == false)
                     {
@@ -1834,16 +1846,12 @@ int main(int argc, char *argv[])
                         A.coeffRef(c_eq, 3 * ph_w) = -1.0;
                         A.coeffRef(c_eq, 3 * ph_ww ) = 0.0;
                         rhs[c_eq] = 0.0;
-                        //
-                        // q-momentum
-                        //
+                        // Contribution Delta q
                         A.coeffRef(q_eq, 3 * ph_0 + 1) = 0.5;
                         A.coeffRef(q_eq, 3 * ph_w + 1) = 0.5;
                         A.coeffRef(q_eq, 3 * ph_ww + 1) = 0.0;
                         rhs[q_eq] = 0.0;
-                        //
-                        // r-momentum
-                        //
+                        // Contribution Delta r
                         A.coeffRef(r_eq, 3 * ph_0 + 2) = 1.0;
                         A.coeffRef(r_eq, 3 * ph_w + 2) = -1.0;
                         A.coeffRef(r_eq, 3 * ph_ww + 2) = 0.0;
@@ -1866,7 +1874,7 @@ int main(int argc, char *argv[])
                                 A.coeffRef(c_eq, 3 * ph_0  + 1) = w_nat[0];
                                 A.coeffRef(c_eq, 3 * ph_w  + 1) = w_nat[1];
                                 A.coeffRef(c_eq, 3 * ph_ww + 1) = w_nat[2];
-                                // flow y
+                                // Contribution Delta r
                                 A.coeffRef(c_eq, 3 * ph_0  + 2) = 0.0;
                                 A.coeffRef(c_eq, 3 * ph_w  + 2) = 0.0;
                                 A.coeffRef(c_eq, 3 * ph_ww + 2) = 0.0;
@@ -2056,8 +2064,9 @@ int main(int argc, char *argv[])
                     rtheta_jp12 = w_nat[0] * rtheta_0 + w_nat[1] * rtheta_jp1 + w_nat[2] * rtheta_jp2;
 
                     double zb_jp12 = w_nat[0] * zb[ph_0] + w_nat[1] * zb[ph_n] + w_nat[2] * zb[ph_nn];
+                    double h_given = bc[BC_SOUTH] - zb_jp12;
                     double h_infty = -zb_jp12;
-                    double c_wave = std::sqrt(g * hp_jp12);
+                    double c_wave = std::sqrt(g * h_given);
 
                     if (bc_type[BC_SOUTH] == "dirichlet" || bc_absorbing[BC_SOUTH] == false)
                     {
@@ -2068,16 +2077,12 @@ int main(int argc, char *argv[])
                         A.coeffRef(c_eq, 3 * ph_n ) = 1.0;
                         A.coeffRef(c_eq, 3 * ph_nn) = 0.0;
                         rhs[c_eq] = 0.0;
-                        //
-                        // q-momentum
-                        //
+                        // Contribution Delta q
                         A.coeffRef(q_eq, 3 * ph_0  + 1) = -1.0;
                         A.coeffRef(q_eq, 3 * ph_n  + 1) = 1.0;
                         A.coeffRef(q_eq, 3 * ph_nn + 1) = 0.0;
                         rhs[q_eq] = 0.0;
-                        //
-                        // r-momentum
-                        //
+                        // Contribution Delta r
                         A.coeffRef(r_eq, 3 * ph_0  + 2) = 0.5;
                         A.coeffRef(r_eq, 3 * ph_n  + 2) = 0.5;
                         A.coeffRef(r_eq, 3 * ph_nn + 2) = 0.0;
@@ -2198,11 +2203,11 @@ int main(int argc, char *argv[])
                             A.coeffRef(r_eq, 3 * ph_0 ) = w_nat[0] * theta * g * dzetady - dyinv * theta * g * htheta_jp12;
                             A.coeffRef(r_eq, 3 * ph_n ) = w_nat[1] * theta * g * dzetady + dyinv * theta * g * htheta_jp12;
                             A.coeffRef(r_eq, 3 * ph_nn) = w_nat[2] * theta * g * dzetady;
-                            //
+                            // Contribution Delta q
                             A.coeffRef(r_eq, 3 * ph_0  + 1) = 0.0;
                             A.coeffRef(r_eq, 3 * ph_n  + 1) = 0.0;
                             A.coeffRef(r_eq, 3 * ph_nn + 1) = 0.0;
-                            //
+                           // Contribution Delta r
                             A.coeffRef(r_eq, 3 * ph_0  + 2) = dtinv * w_nat[0];
                             A.coeffRef(r_eq, 3 * ph_n  + 2) = dtinv * w_nat[1];
                             A.coeffRef(r_eq, 3 * ph_nn + 2) = dtinv * w_nat[2];
@@ -2219,7 +2224,7 @@ int main(int argc, char *argv[])
                             A.coeffRef(r_eq, 3 * ph_0  + 1) += 0.0;
                             A.coeffRef(r_eq, 3 * ph_n  + 1) += 0.0;
                             A.coeffRef(r_eq, 3 * ph_nn + 1) += 0.0;
-                            // Contribution Delta q
+                            // Contribution Delta r
                             A.coeffRef(r_eq, 3 * ph_0  + 2) += -con_fac * -dyinv * theta;
                             A.coeffRef(r_eq, 3 * ph_n  + 2) += -con_fac * dyinv * theta;
                             A.coeffRef(r_eq, 3 * ph_nn + 2) += 0.0;
@@ -2285,28 +2290,23 @@ int main(int argc, char *argv[])
                     rtheta_ip12 = w_nat[0] * rtheta_0 + w_nat[1] * rtheta_ip1 + w_nat[2] * rtheta_ip2;
 
                     double zb_ip12 = w_nat[0] * zb[ph_0] + w_nat[1] * zb[ph_e] + w_nat[2] * zb[ph_ee];
+                    double h_given = bc[BC_WEST] - zb_ip12;
                     double h_infty = -zb_ip12;
-                    double c_wave = std::sqrt(g * hp_ip12);
+                    double c_wave = std::sqrt(g * h_given);
 
                     if (bc_type[BC_WEST] == "dirichlet" || bc_absorbing[BC_WEST] == false)
                     {
-                        //
-                        // continuity equation
-                        //
+                        // Contribution Delta h
                         A.coeffRef(c_eq, 3 * ph_0) = -1.0;
                         A.coeffRef(c_eq, 3 * ph_e) = 1.0;
                         A.coeffRef(c_eq, 3 * ph_ee) = 0.0;
                         rhs[c_eq] = 0.0;
-                        //
-                        // q-momentum
-                        //
+                        // Contribution Delta q
                         A.coeffRef(q_eq, 3 * ph_0 + 1) = 0.5;
                         A.coeffRef(q_eq, 3 * ph_e + 1) = 0.5;
                         A.coeffRef(q_eq, 3 * ph_ee + 1) = 0.0;
                         rhs[q_eq] = 0.0;
-                        //
-                        // r-momentum
-                        //
+                        // Contribution Delta r
                         A.coeffRef(r_eq, 3 * ph_0 + 2) = -1.0;
                         A.coeffRef(r_eq, 3 * ph_e + 2) = 1.0;
                         A.coeffRef(r_eq, 3 * ph_ee + 2) = 0.0;
@@ -2325,11 +2325,11 @@ int main(int argc, char *argv[])
                                 A.coeffRef(c_eq, 3 * ph_0 ) = w_nat[0] * c_wave;
                                 A.coeffRef(c_eq, 3 * ph_e ) = w_nat[1] * c_wave;
                                 A.coeffRef(c_eq, 3 * ph_ee) = w_nat[2] * c_wave;
-                                // q
+                                // Contribution Delta q
                                 A.coeffRef(c_eq, 3 * ph_0  + 1) = w_nat[0];
                                 A.coeffRef(c_eq, 3 * ph_e  + 1) = w_nat[1];
                                 A.coeffRef(c_eq, 3 * ph_ee + 1) = w_nat[2];
-                                // r
+                                // Contribution Delta r
                                 A.coeffRef(c_eq, 3 * ph_0  + 2) = 0.0;
                                 A.coeffRef(c_eq, 3 * ph_e  + 2) = 0.0;
                                 A.coeffRef(c_eq, 3 * ph_ee + 2) = 0.0;
@@ -2372,7 +2372,6 @@ int main(int argc, char *argv[])
                                 double corr_term = 0.0;
                                 if (bc_vars[BC_WEST] == "zeta")
                                 {
-                                    // dhdt = dtinv * (bc[BC_WEST] - hn_ip12);
                                     A.coeffRef(c_eq, 3 * ph_0 ) += + dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
                                     A.coeffRef(c_eq, 3 * ph_e ) += + dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
                                     A.coeffRef(c_eq, 3 * ph_ee) += + dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
@@ -2386,7 +2385,7 @@ int main(int argc, char *argv[])
                                     A.coeffRef(c_eq, 3 * ph_e  + 1) += - dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
                                     A.coeffRef(c_eq, 3 * ph_ee + 1) += - dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
 
-                                    corr_term =  + dqdt - eps_bc_corr * (bc[BC_WEST] - qp_ip12);
+                                    corr_term =  + dqdt + eps_bc_corr * (bc[BC_WEST] - qtheta_ip12);
                                     rhs[c_eq] += corr_term;
                                 }
                                 rhs_c[c_eq] = rhs[c_eq];
@@ -2413,11 +2412,11 @@ int main(int argc, char *argv[])
                             A.coeffRef(q_eq, 3 * ph_0 ) = w_nat[0] * theta * g * dzetadx - dxinv * theta * g * htheta_ip12;
                             A.coeffRef(q_eq, 3 * ph_e ) = w_nat[1] * theta * g * dzetadx + dxinv * theta * g * htheta_ip12;
                             A.coeffRef(q_eq, 3 * ph_ee) = w_nat[2] * theta * g * dzetadx;
-                            //
+                            // Contribution Delta q
                             A.coeffRef(q_eq, 3 * ph_0  + 1) = dtinv * w_nat[0];
                             A.coeffRef(q_eq, 3 * ph_e  + 1) = dtinv * w_nat[1];
                             A.coeffRef(q_eq, 3 * ph_ee + 1) = dtinv * w_nat[2];
-                            //
+                            // Contribution Delta r
                             A.coeffRef(q_eq, 3 * ph_0  + 2) = 0.0;
                             A.coeffRef(q_eq, 3 * ph_e  + 2) = 0.0;
                             A.coeffRef(q_eq, 3 * ph_ee + 2) = 0.0;
@@ -2443,16 +2442,15 @@ int main(int argc, char *argv[])
                             rhs_q[q_eq] = rhs[q_eq];
                             //
                             // third equation
-                            // r-momentum (r == 0)
-                            //
+                            // Contribution Delta h
                             A.coeffRef(r_eq, 3 * ph_0 ) = 0.0;
                             A.coeffRef(r_eq, 3 * ph_e ) = 0.0;
                             A.coeffRef(r_eq, 3 * ph_ee) = 0.0;
-                            // flow x
+                            // Contribution Delta q
                             A.coeffRef(r_eq, 3 * ph_0  + 1) = 0.0;
                             A.coeffRef(r_eq, 3 * ph_e  + 1) = 0.0;
                             A.coeffRef(r_eq, 3 * ph_ee + 1) = 0.0;
-                            // flow y
+                            // Contribution Delta r
                             A.coeffRef(r_eq, 3 * ph_0  + 2) = 1.0;
                             A.coeffRef(r_eq, 3 * ph_e  + 2) = 0.0;
                             A.coeffRef(r_eq, 3 * ph_ee + 2) = 0.0;
@@ -2593,13 +2591,6 @@ int main(int argc, char *argv[])
                     log_file << std::showpos << std::setprecision(5) << std::scientific << diag << " " << off_diag << " " 
                         <<  diag - off_diag << " " <<  diag + off_diag << " ";
                     log_file << std::endl;
-                    if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
-                }
-                log_file << "=== Matrix diagonal====================================" << std::endl;
-                Eigen::VectorXd diag = A.diagonal();
-                for (int i = 0; i < diag.size(); ++i)
-                {
-                    log_file << std::setprecision(8) << std::scientific << "Index " << i << ": " << diag[i] << std::endl;
                     if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
                 }
                 log_file << "=== RHS ===============================================" << std::endl;
