@@ -1,8 +1,8 @@
 //
 // Programmer: Jan Mooiman
-// Email: jan.mooiman@outlook.com
+// Email     : jan.mooiman@outlook.com
 //
-//    Solving the 2D shallow water equations, fully implicit with delta-formuation and Modified Newton iteration 
+//    Solving the 2D shallow water equations, fully implicit with delta-formulation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
