@@ -385,16 +385,21 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
         p_0 = p_index(i, j, ny);
         rhs[p_0] = u_giv[p_0];
     }
+    //
     // corner points
+    //
     int p_0 = p_index(0, 0, ny);
     B.coeffRef(p_0, p_0) = 1.0;
     rhs[p_0] = u_giv[p_0];
+
     p_0 = p_index(nx - 1, 0, ny);
     B.coeffRef(p_0, p_0) = 1.0;
     rhs[p_0] = u_giv[p_0];
+
     p_0 = p_index(nx - 1, ny - 1, ny);
     B.coeffRef(p_0, p_0) = 1.0;
     rhs[p_0] = u_giv[p_0];
+
     p_0 = p_index(0, ny - 1, ny);
     B.coeffRef(p_0, p_0) = 1.0;
     rhs[p_0] = u_giv[p_0];
