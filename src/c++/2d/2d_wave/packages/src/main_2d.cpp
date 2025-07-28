@@ -1050,6 +1050,8 @@ int main(int argc, char *argv[])
         int used_lin_solv_iter = 0;
         START_TIMER(Newton iteration);
         Eigen::BiCGSTAB< Eigen::SparseMatrix<double> > solver;
+        //Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
+        //Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::DiagonalPreconditioner<double> > solver;
         for (int iter = 0; iter < iter_max; ++iter)
         {
             used_newton_iter += 1;
@@ -2066,7 +2068,7 @@ int main(int argc, char *argv[])
                     double zb_jp12 = w_nat[0] * zb[ph_0] + w_nat[1] * zb[ph_n] + w_nat[2] * zb[ph_nn];
                     double h_given = bc[BC_SOUTH] - zb_jp12;
                     double h_infty = -zb_jp12;
-                    double c_wave = std::sqrt(g * h_given);
+                    double c_wave = std::sqrt(g * htheta_jp12);
 
                     if (bc_type[BC_SOUTH] == "dirichlet" || bc_absorbing[BC_SOUTH] == false)
                     {
@@ -2161,7 +2163,7 @@ int main(int argc, char *argv[])
                                     A.coeffRef(c_eq, 3 * ph_n  + 2) += dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
                                     A.coeffRef(c_eq, 3 * ph_nn + 2) += dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
 
-                                    corr_term = - drdt - eps_bc_corr * (bc[BC_SOUTH] - rp_jp12);
+                                    corr_term = - drdt - eps_bc_corr * (bc[BC_SOUTH] - rtheta_jp12);
                                     rhs[c_eq] += corr_term;
                                 }
                                 rhs_c[c_eq] = rhs[c_eq];
@@ -2292,7 +2294,7 @@ int main(int argc, char *argv[])
                     double zb_ip12 = w_nat[0] * zb[ph_0] + w_nat[1] * zb[ph_e] + w_nat[2] * zb[ph_ee];
                     double h_given = bc[BC_WEST] - zb_ip12;
                     double h_infty = -zb_ip12;
-                    double c_wave = std::sqrt(g * h_given);
+                    double c_wave = std::sqrt(g * htheta_ip12);
 
                     if (bc_type[BC_WEST] == "dirichlet" || bc_absorbing[BC_WEST] == false)
                     {
@@ -2381,11 +2383,11 @@ int main(int argc, char *argv[])
                                 }
                                 if (bc_vars[BC_WEST] == "q")
                                 {
-                                    A.coeffRef(c_eq, 3 * ph_0  + 1) += - dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
-                                    A.coeffRef(c_eq, 3 * ph_e  + 1) += - dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
-                                    A.coeffRef(c_eq, 3 * ph_ee + 1) += - dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
+                                    A.coeffRef(c_eq, 3 * ph_0  + 1) += + eps_bc_corr * theta * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_e  + 1) += + eps_bc_corr * theta * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_ee + 1) += + eps_bc_corr * theta * w_ess[2];
 
-                                    corr_term =  + dqdt + eps_bc_corr * (bc[BC_WEST] - qtheta_ip12);
+                                    corr_term = + eps_bc_corr * (bc[BC_WEST] - qtheta_ip12);
                                     rhs[c_eq] += corr_term;
                                 }
                                 rhs_c[c_eq] = rhs[c_eq];
