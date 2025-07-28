@@ -239,11 +239,19 @@ In this section we use that the pressure term is dependent on $\zeta$.
     \int_{\Omega} gh \nabla \zeta \, d\omega
 \end{align}
 The integral over a control volume will be a sum of integrals over the sub control volumes.
-On a structured mesh it will be the sum over 4 sub control volumes.
-
-Considering one control volume and only the $x$-direction (assuming a cartesian grid) it reads:
+On a structured grid one control volume ($cv$) around a node consist of four sub-control volumes ($scv_i$, $i\in\{1,2,3,4\}$).
 \begin{align}
-    & \int_{\Omega_{\textit{scv}}} gh \nabla \zeta \, d\omega  \approx
+    \int_{cv}    gh \nabla \zeta\, d\omega =
+    \int_{scv_1} gh \nabla \zeta\, d\omega +
+    \int_{scv_2} gh \nabla \zeta\, d\omega +
+    \int_{scv_3} gh \nabla \zeta\, d\omega +
+    \int_{scv_4} gh \nabla \zeta\, d\omega
+\end{align}
+
+
+Considering one sub-control volume and only for the $x$-direction (assuming a cartesian grid) then it reads:
+\begin{align}
+    & \int_{\textit{scv}} gh \nabla \zeta \, d\omega  \approx
     \\
     & \approx \quart \Dx\Dy\, g h^{n+\theta,p+1}_{qp} \pdiff{\zeta^{n+\theta,p+1}_{qp}}{x}
     \\
@@ -258,7 +266,33 @@ Assume that the higher order terms are negligible then the discretization for ea
         + \theta \pdiff{\zeta^{n+\theta, p}_{qp}}{x} \Delta h^{n+1,p+1}_{qp}
           \right)
 \end{align}
-
+Just looking to the quadrature point of $scv_3$ as part of the control volume for node $(i,j)$ the discretization reads:
+\begin{align}
+    \quart  \Dx\Dy\, g \left(
+    h^{n+\theta, p}_{i+\quart, j+\quart} \pdiff{\zeta^{n+\theta, p}_{i+\quart, j+\quart}}{x}
+    + \theta h^{n+\theta, p}_{i+\quart, j+\quart} \pdiff{\Delta \zeta^{n+1, p+1}_{i+\quart, j+\quart}}{x}
+    + \theta \pdiff{\zeta^{n+\theta, p}_{i+\quart, j+\quart}}{x} \Delta h^{n+1,p+1}_{i+\quart, j+\quart}
+    \right)
+\end{align}
+with
+\begin{align}
+    h^{n+\theta, p}_{i+\quart, j+\quart} & \approx
+    \frac{1}{16}\left( 9h^{n+\theta, p}_{i, j} + 3 h^{n+\theta, p}_{i+1,j} + h^{n+\theta, p}_{i+1, j+1} + 3  h^{n+\theta, p}_{i, j+1}\right)
+    \\*
+    \pdiff{\zeta^{n+\theta, p}_{i+\quart, j+\quart}}{x} & \approx
+   \frac{1}{\Dx}\quart\left( 3 \left(\zeta_{i,j} - \zeta_{i+1,j}\right) + \zeta_{i,j+1} - \zeta_{i+1,j+1} \right)
+   \\*
+   \pdiff{\Delta \zeta^{n+1, p+1}_{i+\quart, j+\quart}}{x} & \approx
+   \frac{1}{\Dx}\quart\left( 3 \left(\Delta\zeta^{n+1, p+1}_{i,j} - \Delta\zeta^{n+1, p+1}_{i+1,j}\right) + \Delta\zeta^{n+1, p+1}_{i,j+1} - \Delta\zeta^{n+1, p+1}_{i+1,j+1} \right)
+   \\*
+   \Delta h^{n+1,p+1}_{i+\quart, j+\quart} & \approx
+   \frac{1}{16}\left( 9\Delta h^{n+1,p+1}_{i, j} + 3 \Delta h^{n+1,p+1}_{i+1,j} + \Delta h^{n+1,p+1}_{i+1, j+1} + 3  \Delta h^{n+1,p+1}_{i, j+1}\right)
+\end{align}
+\paragraph*{Example}
+Set $\Delta x = \bqty{100}{\metre}$, $\lpdiff{\zeta}{x}=0$, estimate the coefficients in the matrix for a single sub-control volume:
+\begin{align}
+    \Delta h_{i,j} = \quart \Dx\Dy g \frac{1}{16} \left[ 9\ 3\ 1\ 3  \right] = \num{1562.5} \times  \left[ 9\ 3\ 1\ 3  \right]
+\end{align}
 %--------------------------------------------------------------------------------
 \subsubsection{Convection}
 The convection term in vector notation reads:
@@ -471,8 +505,8 @@ The \textbf{essential} boundary condition for the left/west boundary at $x_{1}$ 
     \left(\sqrt{gh} + \frac{q}{h}\right) \pdiff{h^{+}}{t} - \pdiff{q^{+}}{t} & = 0
     \label{eq:essential_conv_2d_2}
 \end{align}
-\Autoref{eq:essential_conv_2} means that the ingoing wave does not disturb the outgoing wave.
-And we assume normal incoming waves, which means that $r+=0$.
+\Autoref{eq:essential_conv_2d_2} means that the ingoing wave does not disturb the outgoing wave.
+And we assume normal incoming waves, which means that $r^+=0$.
 
 The \textbf{essential} boundary condition for the right/east boundary at $x_{I+\half}$ reads, describing the ingoing wave (indicated with $h^-$, $q^-$, $r^-$) with as less as possible disturbing the outgoing wave (\autoref{eq:left_right_going_equations}):\begin{align}
     \left(\sqrt{gh} + \frac{q}{h}\right) \pdiff{h^{-}}{t} - \pdiff{q^{-}}{t} & = G(t)

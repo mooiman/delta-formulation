@@ -754,7 +754,7 @@ The discretization of  boundary \autoref{eq:essential_bc_zeta} at $x=i+\half$ re
     &\left(\sqrt{gh^{n+\theta,p+1}} - \frac{q^{n+\theta,p+1}}{h^{n+\theta,p+1}}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t}  =
     \nonumber \\*
     & = 2 \sqrt{gh^{n+\theta,p+1}} \pdiff{\zeta_{\textit{given}}}{t}
-    + \eps \left( (\zeta_{\textit{given}} -z_b) - h^{n+1,p}   \right)
+    + \eps \left( (\zeta_{\textit{given}} -z_b) - h^{n+\theta,p}   \right)
 \end{align}
 
 %
@@ -802,7 +802,7 @@ The discretization of  boundary \autoref{eq:essential_bc_q} at $x=i+\half$ reads
 \begin{align}
     &\left(\sqrt{gh^{n+\theta,p+1}} - \frac{q^{n+\theta,p+1}}{h^{n+\theta,p+1}} \right) \pdiff{h}{t} + \pdiff{q}{t} =
     \nonumber \\*
-    & = 2 \left(  \frac{\sqrt{gh^{n+\theta,p+1}}}{\sqrt{gh^{n+\theta,p+1}} + \frac{q^{n+\theta,p+1}}{h^{n+\theta,p+1}}} \right) \pdiff{q_{\textit{given}}}{t} + \eps \left( q_{\textit{given}} - q^{n+1,p}   \right)
+    & = 2 \left(  \frac{\sqrt{gh^{n+\theta,p+1}}}{\sqrt{gh^{n+\theta,p+1}} + \frac{q^{n+\theta,p+1}}{h^{n+\theta,p+1}}} \right) \pdiff{q_{\textit{given}}}{t} + \eps \left( q_{\textit{given}} - q^{n+\theta,p}   \right)
 \end{align}
 
 %------------------------------------------------------------------------------
