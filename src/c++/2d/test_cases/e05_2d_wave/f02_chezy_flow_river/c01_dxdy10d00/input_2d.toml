@@ -6,7 +6,7 @@
     
 [Time]
     tstart = 0.0                                  # Start time [s]
-    tstop = 7200.0                                # End time [s]
+    tstop = 5400.0                                # End time [s]
         
 [Initial]
     ini_vars = ["zeta", "zeta_constant"]
@@ -41,8 +41,8 @@
     regularization_iter = false
     regularization_time = false
     eps_newton = 1.0e-12
-    eps_bicgstab = 1.0e-12
+    eps_bicgstab = 1.0e-6
 
 [Output]
     dt_his = 0.01   # [s]
-    dt_map = 0.01   # [s] 
+    dt_map = 30.0   # [s] 
