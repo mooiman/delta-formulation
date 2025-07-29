@@ -2383,11 +2383,11 @@ int main(int argc, char *argv[])
                                 }
                                 if (bc_vars[BC_WEST] == "q")
                                 {
-                                    A.coeffRef(c_eq, 3 * ph_0  + 1) += + eps_bc_corr * theta * w_ess[0];
-                                    A.coeffRef(c_eq, 3 * ph_e  + 1) += + eps_bc_corr * theta * w_ess[1];
-                                    A.coeffRef(c_eq, 3 * ph_ee + 1) += + eps_bc_corr * theta * w_ess[2];
+                                    A.coeffRef(c_eq, 3 * ph_0  + 1) += dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
+                                    A.coeffRef(c_eq, 3 * ph_e  + 1) += dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
+                                    A.coeffRef(c_eq, 3 * ph_ee + 1) += dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
 
-                                    corr_term = + eps_bc_corr * (bc[BC_WEST] - qtheta_ip12);
+                                    corr_term = - dqdt + eps_bc_corr * (bc[BC_WEST] - qtheta_ip12);
                                     rhs[c_eq] += corr_term;
                                 }
                                 rhs_c[c_eq] = rhs[c_eq];
