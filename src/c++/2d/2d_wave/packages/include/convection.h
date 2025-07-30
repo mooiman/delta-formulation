@@ -29,8 +29,7 @@
 #define UNUSED(x) (void)x;
 
 int convection_matrix_rhs(Eigen::SparseMatrix<double> A, Eigen::VectorXd rhs, 
-    std::vector<double> hp, std::vector<double> qp, std::vector<double> rp,
-    std::vector<double> hn, std::vector<double> qn, std::vector<double> rn,
+    std::vector<double> htheta, std::vector<double> qtheta, std::vector<double> rtheta,
     double theta, int nx, int ny);
 int convection_rhs(Eigen::VectorXd rhs, std::vector<double>& rhs_q, std::vector<double>& rhs_r, 
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
@@ -46,8 +45,8 @@ inline double convection_J_22(double& h, double& q, double& r);
 inline double convection_J_13(double& h, double& q, double& r);
 inline double convection_J_23(double& h, double& q, double& r);
 
-double convection_scvf_xi (double c0, double c1, double c2, double c3);
-double convection_scvf_eta(double c0, double c1, double c2, double c3);
+inline double convection_scvf_xi (double c0, double c1, double c2, double c3);
+inline double convection_scvf_eta(double c0, double c1, double c2, double c3);
 
 #endif  // __CONVECTION_H__
 

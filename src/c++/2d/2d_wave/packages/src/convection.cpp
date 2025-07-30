@@ -41,28 +41,13 @@
 //   sw - - - - - - - s - - - - - - - se        sw - - - - - - - s - - - - - - - se
 
 int convection_matrix_rhs(Eigen::SparseMatrix<double> A, Eigen::VectorXd rhs,
-    std::vector<double> hp, std::vector<double> qp, std::vector<double> rp,
-    std::vector<double> hn, std::vector<double> qn, std::vector<double> rn,
+    std::vector<double> htheta, std::vector<double> qtheta, std::vector<double> rtheta,
     double theta, double dx, double dy, int nx, int ny)
 {
-    std::vector<double> htheta;
-    std::vector<double> qtheta;
-    std::vector<double> rtheta;
-    htheta.reserve(hn.size());
-    qtheta.reserve(hn.size());
-    rtheta.reserve(hn.size());
-
     double h;
     double q;
     double r;
     double scvf_fac;
-
-    for (int k = 0; k < hn.size(); ++k)
-    {
-        htheta[k] = theta * hp[k] + (1.0 - theta) * hn[k];
-        qtheta[k] = theta * qp[k] + (1.0 - theta) * qn[k];
-        rtheta[k] = theta * rp[k] + (1.0 - theta) * rn[k];
-    }
 
     for (int i = 0; i < nx; ++i)
     {
@@ -442,7 +427,7 @@ inline double convection_J_23(double& h, double& q, double& r)
     return q / h + 2. * r / h; // d()/dr
 }
 
-double convection_scvf_xi(double c0, double c1, double c2, double c3)
+inline double convection_scvf_xi(double c0, double c1, double c2, double c3)
 {
     // c_{i+1/2, j+1/4}
 
@@ -458,7 +443,7 @@ double convection_scvf_xi(double c0, double c1, double c2, double c3)
 
     return 0.125 * (3. * c0 + 3. * c1 + 1. * c2 + 1. * c3);
 }
-double convection_scvf_eta(double c0, double c1, double c2, double c3)
+inline double convection_scvf_eta(double c0, double c1, double c2, double c3)
 {
     // c_{i+1/4, j+1/2}
 
