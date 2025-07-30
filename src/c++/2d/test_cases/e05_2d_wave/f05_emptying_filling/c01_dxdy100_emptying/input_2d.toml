@@ -1,8 +1,8 @@
 # Logging = "matrix"  # "iterations", "matrix"
 
 [Domain]
-    mesh_file = "geometry/62x62_6x6km_net.nc"
-    bed_level_file = "geometry/62x62_6x6km_flat.dep"
+    mesh_file = "geometry/14x14_6x6km_net.nc"
+    bed_level_file = "geometry/14x14_6x6km_flat.dep"
     
 [Time]
     tstart = 0.0                                  # Start time [s]
@@ -41,8 +41,8 @@
     regularization_iter = false
     regularization_time = false
     eps_newton = 1.0e-12
-    eps_bicgstab = 1.0e-12
+    eps_bicgstab = 1.0e-06
 
 [Output]
     dt_his = 0.01   # [s]
-    dt_map = 0.01   # [s] 
+    dt_map = 30.0   # [s] 
