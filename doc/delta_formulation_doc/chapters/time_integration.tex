@@ -122,7 +122,7 @@ See also: \citet{Borsboom1998,Pulliam2014}
 \subsection{Pseudo time stepping}\label{sec:psuedo_time_step}
 \label{sec:pseudo_time_steppping}
 In  \autoref{sec:fully_implicit} we assumed that only the Jacobian is relevant and the second derivative is negligible.
-But in some case it is not the cases we have to assure that the following inequality is true:
+But in some cases it is not the case, so we have to assure that the following inequality is true:
 \begin{align}
     \abs{ \half \frac{\partial^2 \vec{f}(\theta \vec{u}^{n+1,p}+ (1 - \theta)\vec{u}^n)}{(\partial \vec{u}^{n+1,p})^2} \Delta \vec{u}^{n+1,p+1}}
     < O\left(

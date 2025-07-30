@@ -187,11 +187,14 @@ int main(int argc, char *argv[])
     log_file << "=======================================================" << std::endl;
     log_file << std::endl;
 
-    double dt = tbl["Numerics"]["dt"].value_or(double(0.0));  // dt == 0 => default stationary
+    tbl_chp = *tbl["Numerics"].as_table();
+    double dt = tbl_chp["dt"].value_or(double(0.0));  // dt == 0 => default stationary
+    double dtpseu = tbl_chp["dtpseu"].value_or(double(0.0));  // dt == 0 => default stationary
     if (dt == 0.0) { stationary = true;  }
     // Time
-    double tstart = tbl["Time"]["tstart"].value_or(double(0.0));
-    double tstop = tbl["Time"]["tstop"].value_or(double(1800.));
+    tbl_chp = *tbl["Time"].as_table();
+    double tstart = tbl_chp["tstart"].value_or(double(0.0));
+    double tstop = tbl_chp["tstop"].value_or(double(60.));
     
     // Initial
     std::vector<std::string> ini_vars;  // get the element as an array
@@ -348,6 +351,7 @@ int main(int argc, char *argv[])
 
     int total_time_steps = int((tstop - tstart) / dt) + 1;  // Number of time steps [-]
     double dtinv;                                         // Inverse of dt, if dt==0 then stationary solution [1/s]
+    double dtpseuinv = 0.0;                                     // Inverse of dtpseu
     int wrihis;                                           // write interval to his-file
     int wrimap;                                           // write interval to map-file
     if (stationary)
@@ -473,9 +477,9 @@ int main(int argc, char *argv[])
     std::vector<double> beds_q(nxny, 0.);              // bed shear stress; needed for postprocessing
     std::vector<double> beds_r(nxny, 0.);              // bed shear stress; needed for postprocessing
     std::vector<double> psi(nxny, 0.);
-    std::vector<double> rhs_c(3 * nxny, 0.);                          
-    std::vector<double> rhs_q(3 * nxny, 0.);                          
-    std::vector<double> rhs_r(3 * nxny, 0.);                          
+    std::vector<double> htheta(nxny);
+    std::vector<double> qtheta(nxny);
+    std::vector<double> rtheta(nxny);
 
     Eigen::SparseMatrix<double> A(3 * nxny, 3 * nxny);
     Eigen::VectorXd solution(3 * nxny);                     // solution vector [h, q, r]^{n}
@@ -483,9 +487,9 @@ int main(int argc, char *argv[])
     for (int i = 0; i < 3 * nxny; ++i)
     {
         A.coeffRef(i, i) = 1.0;  // 8.8888888;
-        solution[i] = 0.0;  // Delta h, Delta q and Delta r
-        rhs[i] = 0.0; 
     }
+    solution.setZero(); // Delta h, Delta q and Delta r
+    rhs.setZero();
 
     double cf = g / (chezy_coefficient * chezy_coefficient);  // bed friction coefficient
     double alpha = 1. / 8.;                                   // Linear (spatial) interpolation coefficient
@@ -1063,6 +1067,12 @@ int main(int argc, char *argv[])
             // interior nodes
             //
             START_TIMER(Linear wave);
+            for (int k = 0; k < nxny; ++k)
+            {
+                htheta[k] = theta * hp[k] + (1.0 - theta) * hn[k];
+                qtheta[k] = theta * qp[k] + (1.0 - theta) * qn[k];
+                rtheta[k] = theta * rp[k] + (1.0 - theta) * rn[k];
+            }
             for (int i = 1; i < nx - 1; i++)
             {
                 for (int j = 1; j < ny - 1; j++)
@@ -1095,35 +1105,35 @@ int main(int argc, char *argv[])
                     double zb_w  = zb[ph_w];
                     double zb_nw = zb[ph_nw];
 
-                    double htheta_0  = theta * hp[ph_0 ] + (1.0 - theta) * hn[ph_0 ];
-                    double htheta_n  = theta * hp[ph_n ] + (1.0 - theta) * hn[ph_n ];
-                    double htheta_ne = theta * hp[ph_ne] + (1.0 - theta) * hn[ph_ne];
-                    double htheta_e  = theta * hp[ph_e ] + (1.0 - theta) * hn[ph_e ];
-                    double htheta_se = theta * hp[ph_se] + (1.0 - theta) * hn[ph_se];
-                    double htheta_s  = theta * hp[ph_s ] + (1.0 - theta) * hn[ph_s ];
-                    double htheta_sw = theta * hp[ph_sw] + (1.0 - theta) * hn[ph_sw];
-                    double htheta_w  = theta * hp[ph_w ] + (1.0 - theta) * hn[ph_w ];
-                    double htheta_nw = theta * hp[ph_nw] + (1.0 - theta) * hn[ph_nw];
+                    double htheta_0  =  htheta[ph_0 ];
+                    double htheta_n  =  htheta[ph_n ];
+                    double htheta_ne =  htheta[ph_ne];
+                    double htheta_e  =  htheta[ph_e ];
+                    double htheta_se =  htheta[ph_se];
+                    double htheta_s  =  htheta[ph_s ];
+                    double htheta_sw =  htheta[ph_sw];
+                    double htheta_w  =  htheta[ph_w ];
+                    double htheta_nw =  htheta[ph_nw];
 
-                    double qtheta_0  = theta * qp[ph_0 ] + (1.0 - theta) * qn[ph_0 ];
-                    double qtheta_n  = theta * qp[ph_n ] + (1.0 - theta) * qn[ph_n ];
-                    double qtheta_ne = theta * qp[ph_ne] + (1.0 - theta) * qn[ph_ne];
-                    double qtheta_e  = theta * qp[ph_e ] + (1.0 - theta) * qn[ph_e ];
-                    double qtheta_se = theta * qp[ph_se] + (1.0 - theta) * qn[ph_se];
-                    double qtheta_s  = theta * qp[ph_s ] + (1.0 - theta) * qn[ph_s ];
-                    double qtheta_sw = theta * qp[ph_sw] + (1.0 - theta) * qn[ph_sw];
-                    double qtheta_w  = theta * qp[ph_w ] + (1.0 - theta) * qn[ph_w ];
-                    double qtheta_nw = theta * qp[ph_nw] + (1.0 - theta) * qn[ph_nw];
+                    double qtheta_0  = qtheta[ph_0 ];
+                    double qtheta_n  = qtheta[ph_n ];
+                    double qtheta_ne = qtheta[ph_ne];
+                    double qtheta_e  = qtheta[ph_e ];
+                    double qtheta_se = qtheta[ph_se];
+                    double qtheta_s  = qtheta[ph_s ];
+                    double qtheta_sw = qtheta[ph_sw];
+                    double qtheta_w  = qtheta[ph_w ];
+                    double qtheta_nw = qtheta[ph_nw];
 
-                    double rtheta_0  = theta * rp[ph_0 ] + (1.0 - theta) * rn[ph_0 ];
-                    double rtheta_n  = theta * rp[ph_n ] + (1.0 - theta) * rn[ph_n ];
-                    double rtheta_ne = theta * rp[ph_ne] + (1.0 - theta) * rn[ph_ne];
-                    double rtheta_e  = theta * rp[ph_e ] + (1.0 - theta) * rn[ph_e ];
-                    double rtheta_se = theta * rp[ph_se] + (1.0 - theta) * rn[ph_se];
-                    double rtheta_s  = theta * rp[ph_s ] + (1.0 - theta) * rn[ph_s ];
-                    double rtheta_sw = theta * rp[ph_sw] + (1.0 - theta) * rn[ph_sw];
-                    double rtheta_w  = theta * rp[ph_w ] + (1.0 - theta) * rn[ph_w ];
-                    double rtheta_nw = theta * rp[ph_nw] + (1.0 - theta) * rn[ph_nw];
+                    double rtheta_0  = rtheta[ph_0 ];
+                    double rtheta_n  = rtheta[ph_n ];
+                    double rtheta_ne = rtheta[ph_ne];
+                    double rtheta_e  = rtheta[ph_e ];
+                    double rtheta_se = rtheta[ph_se];
+                    double rtheta_s  = rtheta[ph_s ];
+                    double rtheta_sw = rtheta[ph_sw];
+                    double rtheta_w  = rtheta[ph_w ];
+                    double rtheta_nw = rtheta[ph_nw];
                     //
                     //===================================================================================
                     // continuity equation (dh/dt + dq/dx + dr/dy = 0)
@@ -1388,8 +1398,7 @@ int main(int argc, char *argv[])
                         //
                         // RHS q-momentum equation
                         //
-                        rhs_q[i] = scv_area * g * (depth_0 * dzetadx_0 + depth_1 * dzetadx_1 + depth_2 * dzetadx_2 + depth_3 * dzetadx_3);
-                        rhs[q_eq] += -rhs_q[i];
+                        rhs[q_eq] += -scv_area * g * (depth_0 * dzetadx_0 + depth_1 * dzetadx_1 + depth_2 * dzetadx_2 + depth_3 * dzetadx_3);;
                     }
                     // 
                     //===================================================================================
@@ -1504,8 +1513,7 @@ int main(int argc, char *argv[])
                         // 
                         // RHS r-momentum equation
                         //
-                        rhs_r[i] = scv_area * g * (depth_0 * dzetady_0 + depth_1 * dzetady_1 + depth_2 * dzetady_2 + depth_3 * dzetady_3);
-                        rhs[r_eq] += -rhs_r[i];
+                        rhs[r_eq] += -scv_area * g * (depth_0 * dzetady_0 + depth_1 * dzetady_1 + depth_2 * dzetady_2 + depth_3 * dzetady_3);
                     }
                 }  // end interior nodes
             }
@@ -1529,7 +1537,7 @@ int main(int argc, char *argv[])
             if (do_bed_shear_stress)
             {
                 START_TIMER(Bed shear stress);
-                status = bed_shear_stress_matrix_rhs(A, rhs, hp, qp, rp, hn, qn, rn, cf, theta, dx, dy, nx, ny);
+                status = bed_shear_stress_matrix_rhs(A, rhs, htheta, qtheta, rtheta, cf, theta, dx, dy, nx, ny);
                 STOP_TIMER(Bed shear stress);
             }
             if (do_viscosity)
@@ -1774,7 +1782,6 @@ int main(int argc, char *argv[])
                             A.coeffRef(r_eq, 3 * ph_ss + 2) += 0.0;
                             //
                             rhs[r_eq] += - ( con_fac * (dhdt + drdy) );
-                            rhs_r[r_eq] = rhs[r_eq];
                       }
                     }
                 }
@@ -1938,7 +1945,6 @@ int main(int argc, char *argv[])
                                     rhs[c_eq] += corr_term;
                                     sign = 1.0;
                                 }
-                                rhs_c[c_eq] = rhs[c_eq];
                             }
                             //
                             // natural boundary condition (second equation)
@@ -1987,7 +1993,6 @@ int main(int argc, char *argv[])
                             A.coeffRef(q_eq, 3 * ph_ww + 2) = 0.0;
                             //
                             rhs[q_eq] += - ( con_fac * (dhdt + dqdx) );
-                            rhs_q[q_eq] = rhs[q_eq];
                             //
                             // third equation
                             // r-momentum (tangential equation, r == 0)
@@ -2005,7 +2010,6 @@ int main(int argc, char *argv[])
                             A.coeffRef(r_eq, 3 * ph_ww + 2) = 0.0;
                             //
                             rhs[r_eq] = 0.0;
-                            rhs_r[r_eq] = rhs[r_eq];
                         }
                     }
                 }
@@ -2166,7 +2170,6 @@ int main(int argc, char *argv[])
                                     corr_term = - drdt - eps_bc_corr * (bc[BC_SOUTH] - rtheta_jp12);
                                     rhs[c_eq] += corr_term;
                                 }
-                                rhs_c[c_eq] = rhs[c_eq];
                             }
                             //
                             // natural boundary condition (second equation)
@@ -2390,7 +2393,6 @@ int main(int argc, char *argv[])
                                     corr_term = - dqdt + eps_bc_corr * (bc[BC_WEST] - qtheta_ip12);
                                     rhs[c_eq] += corr_term;
                                 }
-                                rhs_c[c_eq] = rhs[c_eq];
                             }
                             //
                             // natural boundary condition (second equation)
@@ -2441,7 +2443,6 @@ int main(int argc, char *argv[])
                             A.coeffRef(q_eq, 3 * ph_ee + 2) += 0.0;
                             
                             rhs[q_eq] += - ( -con_fac * (dhdt + dqdx));
-                            rhs_q[q_eq] = rhs[q_eq];
                             //
                             // third equation
                             // Contribution Delta h
@@ -2458,7 +2459,6 @@ int main(int argc, char *argv[])
                             A.coeffRef(r_eq, 3 * ph_ee + 2) = 0.0;
                             //
                             rhs[r_eq] = 0.0;
-                            rhs_r[r_eq] = rhs[r_eq];
                         }
                     }
                 }

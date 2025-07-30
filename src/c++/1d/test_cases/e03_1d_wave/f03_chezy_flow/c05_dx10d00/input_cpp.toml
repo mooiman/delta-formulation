@@ -18,7 +18,7 @@
     bc_vars = ["q", "zeta"]                       # Incoming signal  
     bc_vals = [4.0, 0.0]                          # The inflow discharge q should be 4.0
     bc_absorbing = [true, true]
-    treg = 600.0                                 # Regularization time on boundary
+    treg = 150.0                                 # Regularization time on boundary
     eps_bc_corr = 1.0e-2
 
 [Physics]
@@ -30,13 +30,13 @@
     viscosity = 100.0
 
 [Numerics]
-    dt = 30.0                                    # Time step size [s], if dt == 0: then stationary problem
+    dt = 1.0                                    # Time step size [s], if dt == 0: then stationary problem
     dx = 10.0                                      # Grid size [m]
     iter_max = 50                                 # Maximum number of nonlinear iterations
     theta = 0.501                                 # Implicitness factor (0.5 <= theta <= 1.0)
     eps_newton = 1.0e-12
-    eps_bicgstab = 1.0e-12
+    eps_bicgstab = 1.0e-6
 
 [Output]
     dt_his = 0.25   # [s]
-    dt_map = 0.25  # [s] 
+    dt_map = 30.0  # [s] 

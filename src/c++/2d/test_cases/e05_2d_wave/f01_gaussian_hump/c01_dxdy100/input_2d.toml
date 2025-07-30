@@ -15,7 +15,7 @@
     gauss_sigma = 350.0    # width of the gaussian hump
 
 [Boundary] # north, east, south, west
-    bc_type = ["mooiman", "mooiman", "mooiman", "mooiman"] # Type "borsboom", "dirichlet", "mooiman" 
+    bc_type = ["borsboom", "borsboom", "borsboom", "borsboom"] # Type "borsboom", "dirichlet", "mooiman" 
     bc_vars = ["zeta", "zeta", "zeta", "zeta"]
     bc_vals = [0.0, 0.0, 0.0, 0.0]
     bc_absorbing = [true, true, true, true]
@@ -35,15 +35,15 @@
     chezy_coefficient = 50.0        # Chezy coefficient
 
 [Numerics]
-    dt = 10.0                        # Time step size [s], if dt == 0: then stationary problem
+    dt = 10.0                       # Time step size [s], if dt == 0: then stationary problem
     iter_max = 25                   # Maximum number of nonlinear iterations
     theta = 0.501                   # Implicitness factor (0.5 <= theta <= 1.0)
-    regularization_init = false
+    regularization_init = true
     regularization_iter = false
     regularization_time = false
     eps_newton = 1.0e-12
-    eps_bicgstab = 1.0e-12
+    eps_bicgstab = 1.0e-06
 
 [Output]
     dt_his = 0.01   # [s]
-    dt_map = 0.01   # [s] 
+    dt_map = 30.0   # [s] 

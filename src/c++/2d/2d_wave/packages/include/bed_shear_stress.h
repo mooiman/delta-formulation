@@ -27,8 +27,7 @@
 #include <Eigen/Sparse>
 
 int bed_shear_stress_matrix_rhs(Eigen::SparseMatrix<double>& A, Eigen::VectorXd& rhs,
-    std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
-    std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
+    std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
     double cf, double theta, double dx, double dy, int nx, int ny);
 void bed_shear_stress_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r, 
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,

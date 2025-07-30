@@ -24,8 +24,7 @@
 
 //------------------------------------------------------------------------------
 int bed_shear_stress_matrix_rhs(Eigen::SparseMatrix<double>& A, Eigen::VectorXd& rhs,
-    std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
-    std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
+    std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
     double cf, double theta, double dx, double dy, int nx, int ny)
 {
     //   nw - - - - - - - n - - - - - - - ne        nw - - - - - - - n - - - - - - - ne
@@ -46,21 +45,10 @@ int bed_shear_stress_matrix_rhs(Eigen::SparseMatrix<double>& A, Eigen::VectorXd&
     //    |       |       |       |       |          |       |       |       |       |
     //   sw - - - - - - - s - - - - - - - se        sw - - - - - - - s - - - - - - - se
 
-    std::vector<double> htheta(hn.size());
-    std::vector<double> qtheta(hn.size());
-    std::vector<double> rtheta(hn.size());
-
     double h;
     double q;
     double r;
     double scv_fac;
-
-    for (int k = 0; k < hn.size(); ++k)
-    {
-        htheta[k] = theta * hp[k] + (1.0 - theta) * hn[k];
-        qtheta[k] = theta * qp[k] + (1.0 - theta) * qn[k];
-        rtheta[k] = theta * rp[k] + (1.0 - theta) * rn[k];
-    }
     
     // The terms are added to the matrix coefficients and rhs, they already contain contributions from other terms in momentum equation
     for (int i = 1; i < nx-1; ++i)

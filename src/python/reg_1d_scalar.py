@@ -23,7 +23,7 @@ def cm2inch(cm):
     return cm / 2.54
 
 
-def main(bath_in = 9, Lx_in=6000., dx_in=100., c_psi_in= 4.0, left_in = 0.00):  # c_psi paragraph after eq. 10 of article
+def main(bath_in = 7, Lx_in=6000., dx_in=100., c_psi_in= 4.0, left_in = 0.00):  # c_psi paragraph after eq. 10 of article
     bathymetry = int(bath_in)
     Lx = float(Lx_in)
     dx = float(dx_in)
@@ -349,7 +349,12 @@ def main(bath_in = 9, Lx_in=6000., dx_in=100., c_psi_in= 4.0, left_in = 0.00):  
         if bathymetry == 7:
             ax1.set_xlim([-dx, Lx+dx])
             ax2.set_xlim([-dx, Lx+dx])
-            ax1.set_ylim([-0.1, 1.1])
+            ymin1 = min(u0)
+            ymin2 = min(ugiv)
+            ymax1 = max(u0)
+            ymax2 = max(ugiv)
+            ax1.set_ylim([min(ymin1, ymin2) - u0range*0.05, max(ymax1, ymax2) + u0range*0.05])
+            #ax2.set_ylim([max(u0_xx) + u0_xx_range * 0.05, min(u0_xx) - u0_xx_range * 0.05])
 
         y_formatter = matplotlib.ticker.ScalarFormatter(useOffset=False)
         ax1.yaxis.set_major_formatter(y_formatter)

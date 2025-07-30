@@ -211,6 +211,13 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
     Eigen::VectorXd solution(nxny);           // solution vector u
     Eigen::VectorXd rhs(nxny);                // RHS
 
+    // Set main diagonal to 1
+    for (int i = 0; i < nxny; ++i) {
+        B.insert(i, i) = 1.0;
+    }
+    solution.setZero();
+    rhs.setZero();
+
     for (int i = 2; i < nx - 2; ++i)
     {
         for (int j = 2; j < ny - 2; ++j)
@@ -428,6 +435,12 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
     Eigen::SparseMatrix<double> A(nxny, nxny);
     Eigen::VectorXd solution(nxny);           // solution vector u
     Eigen::VectorXd rhs(nxny);                // RHS
+
+    for (int i = 0; i < nxny; ++i) {
+        A.insert(i, i) = 1.0;
+    }
+    solution.setZero();
+    rhs.setZero();
 
     for (int j = 1; j < ny - 1; ++j)
     {
