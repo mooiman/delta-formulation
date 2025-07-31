@@ -233,8 +233,7 @@ int main(int argc, char *argv[])
     bool do_continuity = tbl_chp["do_continuity"].value_or(bool(true));  // default, continuity
     bool do_q_equation = tbl_chp["do_q_equation"].value_or(bool(true));  // default, q_equation
     bool do_r_equation = tbl_chp["do_r_equation"].value_or(bool(true));  // default, r_equation
-    bool do_q_convection = tbl_chp["do_q_convection"].value_or(bool(false));  // default, no convection
-    bool do_r_convection = tbl_chp["do_r_convection"].value_or(bool(false));  // default, no convection
+    bool do_convection = tbl_chp["do_convection"].value_or(bool(false));  // default, no convection
     
     bool do_viscosity = tbl_chp["do_viscosity"].value_or(bool(false));  // default, no viscosity
     double visc_const = tbl_chp["viscosity"].value_or(double(0.0001));  // default 1e-4
@@ -248,9 +247,13 @@ int main(int argc, char *argv[])
         {
             model_title = "Linear wave equation + bed shear stress, BiCGstab";
         }
-        if (do_q_convection && do_r_convection && do_bed_shear_stress)
+        if (do_convection && do_bed_shear_stress)
         {
             model_title = "Linear wave equation + convection + bed shear stress, BiCGstab";
+        }
+        if (do_convection)
+        {
+            model_title = "Linear wave equation + convection, BiCGstab";
         }
     }
     else if (do_q_equation)
@@ -428,8 +431,7 @@ int main(int argc, char *argv[])
     log_file << "do_continuity = " << do_continuity << std::endl;
     log_file << "do_q_equation = " << do_q_equation << std::endl;
     log_file << "do_r_equation = " << do_r_equation << std::endl;
-    log_file << "do_q_convection = " << do_q_convection << std::endl;
-    log_file << "do_r_convection = " << do_r_convection << std::endl;
+    log_file << "do_convection = " << do_convection << std::endl;
     log_file << "do_bed_shear_stress = " << do_bed_shear_stress << std::endl;
     log_file << "chezy_coefficient = " << chezy_coefficient << std::endl;
     log_file << "do_viscosity = " << do_viscosity << std::endl;
@@ -474,8 +476,13 @@ int main(int argc, char *argv[])
     std::vector<double> delta_h(nxny, 0.);
     std::vector<double> delta_q(nxny, 0.);
     std::vector<double> delta_r(nxny, 0.);
-    std::vector<double> beds_q(nxny, 0.);              // bed shear stress; needed for postprocessing
-    std::vector<double> beds_r(nxny, 0.);              // bed shear stress; needed for postprocessing
+    std::vector<double> post_q;              // needed for postprocessing; bed shear stress; convection;
+    std::vector<double> post_r;              // needed for postprocessing; bed shear stress; convection;
+    if (do_bed_shear_stress || do_convection)
+    {
+        post_q.resize(nxny, 0.);              // needed for postprocessing; bed shear stress; convection;
+        post_r.resize(nxny, 0.);              // needed for postprocessing; bed shear stress; convection;
+    }
     std::vector<double> psi(nxny, 0.);
     std::vector<double> htheta(nxny);
     std::vector<double> qtheta(nxny);
@@ -779,7 +786,8 @@ int main(int argc, char *argv[])
     std::string map_zb_name("zb_2d");
     std::string map_beds_q_name("bed_stress_q");
     std::string map_beds_r_name("bed_stress_r");
-
+    std::string map_conv_q_name("convection_q");
+    std::string map_conv_r_name("convection_r");
 
     status = map_file->add_variable(map_h_name, dim_names, "sea_floor_depth_below_sea_surface", "Water depth", "m", "mesh2D", "node");
     status = map_file->add_variable(map_q_name, dim_names, "", "Water flux (x)", "m2 s-1", "mesh2D", "node");
@@ -791,8 +799,16 @@ int main(int argc, char *argv[])
     status = map_file->add_variable(map_u_name, dim_names, "sea_water_x_velocity", "Velocity (x)", "m s-1", "mesh2D", "node");
     status = map_file->add_variable(map_v_name, dim_names, "sea_water_y_velocity", "Velocity (y)", "m s-1", "mesh2D", "node");
     status = map_file->add_variable(map_zb_name, dim_names, "", "Bed level", "m", "mesh2D", "node");
-    status = map_file->add_variable(map_beds_q_name, dim_names, "", "Bed shear stress (x)", "m2 s-2", "mesh2D", "node");
-    status = map_file->add_variable(map_beds_r_name, dim_names, "", "Bed shear stress (y)", "m2 s-2", "mesh2D", "node");
+    if (do_bed_shear_stress)
+    {
+        status = map_file->add_variable(map_beds_q_name, dim_names, "", "Bed shear stress (x)", "m2 s-2", "mesh2D", "node");
+        status = map_file->add_variable(map_beds_r_name, dim_names, "", "Bed shear stress (y)", "m2 s-2", "mesh2D", "node");
+    }
+    if (do_convection)
+    {
+        status = map_file->add_variable(map_conv_q_name, dim_names, "", "Convection (x)", "m2 s-2", "mesh2D", "node");
+        status = map_file->add_variable(map_conv_r_name, dim_names, "", "Convection (y)", "m2 s-2", "mesh2D", "node");
+    }
 
     // Put data on map file
     START_TIMER(Writing map-file);
@@ -808,9 +824,18 @@ int main(int argc, char *argv[])
     map_file->put_time_variable(map_u_name, nst_map, u);
     map_file->put_time_variable(map_v_name, nst_map, v);
     map_file->put_time_variable(map_zb_name, nst_map, zb_giv);
-    bed_shear_stress_rhs(beds_q, beds_r, hn, qn, rn, cf, nx, ny);
-    map_file->put_time_variable(map_beds_q_name, nst_map, beds_q);
-    map_file->put_time_variable(map_beds_r_name, nst_map, beds_r);
+    if (do_bed_shear_stress)
+    {
+        bed_shear_stress_rhs(post_q, post_r, hn, qn, rn, cf, nx, ny);
+        map_file->put_time_variable(map_beds_q_name, nst_map, post_q);
+        map_file->put_time_variable(map_beds_r_name, nst_map, post_r);
+    }
+    if (do_convection)
+    {
+        convection_rhs(post_q, post_r, hn, qn, rn, dx, dy, nx, ny);
+        map_file->put_time_variable(map_conv_q_name, nst_map, post_q);
+        map_file->put_time_variable(map_conv_r_name, nst_map, post_r);
+    }
     STOP_TIMER(Writing map-file);
 
     // End define map file
@@ -1054,6 +1079,7 @@ int main(int argc, char *argv[])
         int used_lin_solv_iter = 0;
         START_TIMER(Newton iteration);
         Eigen::BiCGSTAB< Eigen::SparseMatrix<double> > solver;
+        Eigen::IncompleteLUT<double> ilu;
         //Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
         //Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::DiagonalPreconditioner<double> > solver;
         for (int iter = 0; iter < iter_max; ++iter)
@@ -1518,21 +1544,11 @@ int main(int argc, char *argv[])
                 }  // end interior nodes
             }
             STOP_TIMER(Linear wave);
-            if (do_q_convection)
+            if (do_convection)
             {
-                START_TIMER(Convection q);
-                //
-                // convection
-                //
-                STOP_TIMER(Convection q);
-            }
-            if (do_r_convection)
-            {
-                START_TIMER(Convection r);
-                //
-                // convection
-                //
-                STOP_TIMER(Convection r);
+                START_TIMER(Convection);
+                status = convection_matrix_rhs(A, rhs, htheta, qtheta, rtheta, theta, dx, dy, nx, ny);
+                STOP_TIMER(Convection);
             }
             if (do_bed_shear_stress)
             {
@@ -1674,8 +1690,8 @@ int main(int argc, char *argv[])
                                 // Essential boundary condition
                                 // ----------------------------
                                 //
-                                double hp_jm12 = w_ess[0] * hp_0 + w_ess[1] * hp_jm1 + w_ess[2] * hp_jm2;
-                                if (do_r_convection) { con_fac = c_wave - rp_jm12 / hp_jm12; }
+                                //double hp_jm12 = w_ess[0] * hp_0 + w_ess[1] * hp_jm1 + w_ess[2] * hp_jm2;
+                                if (do_convection) { con_fac = c_wave - rp_jm12 / hp_jm12; }
                                 //
                                 A.coeffRef(c_eq, 3 * ph_0)  = dtinv * -con_fac * w_ess[0];
                                 A.coeffRef(c_eq, 3 * ph_s)  = dtinv * -con_fac * w_ess[1];
@@ -1767,7 +1783,7 @@ int main(int argc, char *argv[])
                             //
                             // continuity part +c_wave * (dhdt + dq/dx + dr/dy)
                             //
-                            if (do_r_convection) { con_fac = c_wave + rp_jm12 / hp_jm12; }
+                            if (do_convection) { con_fac = c_wave + rp_jm12 / hp_jm12; }
                             // Contribution Delta h
                             A.coeffRef(r_eq, 3 * ph_0 ) += con_fac * dtinv * w_nat[0];
                             A.coeffRef(r_eq, 3 * ph_s ) += con_fac * dtinv * w_nat[1];
@@ -1903,8 +1919,8 @@ int main(int argc, char *argv[])
                                 //
                                 // Essential boundary condition
                                 // ----------------------------
-                                double hp_im12 = w_ess[0] * hp_0 + w_ess[1] * hp_im1 + w_ess[2] * hp_im2;
-                                if (do_q_convection) { con_fac = c_wave - qp_im12 / hp_im12; }
+                                //double hp_im12 = w_ess[0] * hp_0 + w_ess[1] * hp_im1 + w_ess[2] * hp_im2;
+                                if (do_convection) { con_fac = c_wave - qp_im12 / hp_im12; }
                                 //
                                 A.coeffRef(c_eq, 3 * ph_0) = dtinv * -con_fac * w_ess[0];
                                 A.coeffRef(c_eq, 3 * ph_w) = dtinv * -con_fac * w_ess[1];
@@ -1978,7 +1994,7 @@ int main(int argc, char *argv[])
                             //
                             // continuity part +c_wave * (dhdt + dq/dx + dr/dy)
                             //
-                            if (do_q_convection) { con_fac = c_wave + qp_im12 / hp_im12; }
+                            if (do_convection) { con_fac = c_wave + qp_im12 / hp_im12; }
                             // Contribution Delta h
                             A.coeffRef(q_eq, 3 * ph_0 ) += con_fac * dtinv * w_nat[0];
                             A.coeffRef(q_eq, 3 * ph_w ) += con_fac * dtinv * w_nat[1];
@@ -2132,8 +2148,8 @@ int main(int argc, char *argv[])
                                 // Essential boundary condition
                                 // ----------------------------
                                 //
-                                double hp_jp12 = w_ess[0] * hp_0 + w_ess[1] * hp_jp1 + w_ess[2] * hp_jp2;
-                                if (do_r_convection) { con_fac = c_wave + rp_jp12 / hp_jp12; }
+                                //double hp_jp12 = w_ess[0] * hp_0 + w_ess[1] * hp_jp1 + w_ess[2] * hp_jp2;
+                                if (do_convection) { con_fac = c_wave + rp_jp12 / hp_jp12; }
                                 //
                                 A.coeffRef(c_eq, 3 * ph_0 ) = dtinv * con_fac * w_ess[0];
                                 A.coeffRef(c_eq, 3 * ph_n ) = dtinv * con_fac * w_ess[1];
@@ -2175,7 +2191,7 @@ int main(int argc, char *argv[])
                             // natural boundary condition (second equation)
                             // --------------------------
                             //
-                            if (do_r_convection) { con_fac = c_wave - rp_jp12 / hp_jp12; }
+                            if (do_convection) { con_fac = c_wave - rp_jp12 / hp_jp12; }
                             double dhdt = dtinv * (hp_0 - hn_0) * w_nat[0]
                                 + dtinv * (hp_jp1 - hn_jp1) * w_nat[1]
                                 + dtinv * (hp_jp2 - hn_jp2) * w_nat[2];
@@ -2355,8 +2371,8 @@ int main(int argc, char *argv[])
                                 // Essential boundary condition
                                 // ----------------------------
                                 // momentum + c_wave * continuity
-                                double hp_ip12 = w_ess[0] * hp_0 + w_ess[1] * hp_ip1 + w_ess[2] * hp_ip2;
-                                if (do_q_convection) { con_fac = c_wave + qp_ip12 / hp_ip12; }
+                                //double hp_ip12 = w_ess[0] * hp_0 + w_ess[1] * hp_ip1 + w_ess[2] * hp_ip2;
+                                if (do_convection) { con_fac = c_wave + qp_ip12 / hp_ip12; }
                                 //
                                 A.coeffRef(c_eq, 3 * ph_0 ) = dtinv * con_fac * w_ess[0];
                                 A.coeffRef(c_eq, 3 * ph_e ) = dtinv * con_fac * w_ess[1];
@@ -2399,7 +2415,7 @@ int main(int argc, char *argv[])
                             // --------------------------
                             // momentum - c_wave * continuity
                             //
-                            if (do_q_convection) { con_fac = c_wave - qp_ip12 / hp_ip12; }
+                            if (do_convection) { con_fac = c_wave - qp_ip12 / hp_ip12; }
                             double dhdt = dtinv * (hp_0 - hn_0) * w_nat[0]
                                 + dtinv * (hp_ip1 - hn_ip1) * w_nat[1]
                                 + dtinv * (hp_ip2 - hn_ip2) * w_nat[2];
@@ -2602,6 +2618,12 @@ int main(int argc, char *argv[])
                     if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
                 }
             }
+            if (nst == 1 && iter == 0)
+            {
+                ilu.setDroptol(1e-03);
+                ilu.setFillfactor(25);
+                ilu.compute(A);
+            }
             solver.compute(A);
             solver.setTolerance(eps_bicgstab);
             solution = solver.solve(rhs);
@@ -2778,9 +2800,18 @@ int main(int argc, char *argv[])
             map_file->put_time_variable(map_u_name, nst_map, u);
             map_file->put_time_variable(map_v_name, nst_map, v);
             map_file->put_time_variable(map_zb_name, nst_map, zb);
-            bed_shear_stress_rhs(beds_q, beds_r, hn, qn, rn, cf, nx, ny);
-            map_file->put_time_variable(map_beds_q_name, nst_map, beds_q);
-            map_file->put_time_variable(map_beds_r_name, nst_map, beds_r);
+            if (do_bed_shear_stress)
+            {
+                bed_shear_stress_rhs(post_q, post_r, hn, qn, rn, cf, nx, ny);
+                map_file->put_time_variable(map_beds_q_name, nst_map, post_q);
+                map_file->put_time_variable(map_beds_r_name, nst_map, post_r);
+            }
+            if (do_convection)
+            {
+                convection_rhs(post_q, post_r, hn, qn, rn, dx, dy, nx, ny);
+                map_file->put_time_variable(map_conv_q_name, nst_map, post_q);
+                map_file->put_time_variable(map_conv_r_name, nst_map, post_r);
+            }
             STOP_TIMER(Writing map-file);
         }
 

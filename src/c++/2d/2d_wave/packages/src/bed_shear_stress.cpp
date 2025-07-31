@@ -51,9 +51,9 @@ int bed_shear_stress_matrix_rhs(Eigen::SparseMatrix<double>& A, Eigen::VectorXd&
     double scv_fac;
     
     // The terms are added to the matrix coefficients and rhs, they already contain contributions from other terms in momentum equation
-    for (int i = 1; i < nx-1; ++i)
+    for (int i = 1; i < nx - 1; ++i)
     {
-        for (int j = 1; j < ny-1; ++j)
+        for (int j = 1; j < ny - 1; ++j)
         {
             int ph_0  = bed_shear_stress_p_index(i, j, ny); // central point of control volume
             int ph_sw = bed_shear_stress_p_index(i - 1, j - 1, ny);  
@@ -227,6 +227,9 @@ void bed_shear_stress_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r
     double h;
     double q;
     double r;
+
+    memset(rhs_q.data(), 0, rhs_q.size() * sizeof(double));
+    memset(rhs_r.data(), 0, rhs_r.size() * sizeof(double));
 
     for (int i = 1; i < nx - 1; ++i)
     {
