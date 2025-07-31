@@ -412,9 +412,15 @@ int main(int argc, char* argv[])
     w_nat[1] = 0.5 * (1.0 - 2.0 * alpha_bc);
     w_nat[2] = 0.5 * alpha_bc;
     std::vector<double> w_ess(3, 0.0);
-    w_ess[0] = w_nat[0];
-    w_ess[1] = w_nat[1];
-    w_ess[2] = w_nat[2];
+    w_ess[0] = 1./12.;
+    w_ess[1] = 10./12.;
+    w_ess[2] = 1./12.;
+    w_ess[0] = 11./24.;
+    w_ess[1] = 14./24.;
+    w_ess[2] = -1./24.;
+    //w_ess[0] = w_nat[0];
+    //w_ess[1] = w_nat[1];
+    //w_ess[2] = w_nat[2];
 
     //initialize water level
     std::cout << "    Initialisation" << std::endl;
