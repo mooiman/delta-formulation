@@ -30,10 +30,10 @@
 
 int convection_matrix_rhs(Eigen::SparseMatrix<double> A, Eigen::VectorXd rhs, 
     std::vector<double> htheta, std::vector<double> qtheta, std::vector<double> rtheta,
-    double theta, int nx, int ny);
-int convection_rhs(Eigen::VectorXd rhs, std::vector<double>& rhs_q, std::vector<double>& rhs_r, 
+    double theta, double dx, double dy, int nx, int ny);
+int convection_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r, 
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
-    int nx, int ny );                // RHS vector [h, q, r]^{n}
+    double dx, double dy, int nx, int ny );                // RHS vector [h, q, r]^{n}
 
 inline int convection_p_index(int i, int j, int nx);
 inline double convection_J_10(double& h, double& q, double& r);
