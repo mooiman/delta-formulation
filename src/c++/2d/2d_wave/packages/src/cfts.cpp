@@ -21,6 +21,8 @@
 //------------------------------------------------------------------------------
 
 #include "cfts.h"
+#include "compile_date_and_time.h"
+#include "wave_2d_version.h"
 #include "include/netcdf.h"
 
 CFTS::CFTS()
@@ -43,6 +45,8 @@ int CFTS::open(std::string ncfile, std::string model_title)
     // Define global attributes
     status = set_global_attribute("Title", model_title);
     status = set_global_attribute("Model", "Delta-formulation 2D, C++");
+    status = set_global_attribute("Program version", getversionstring_2d_wave() );
+    //status = set_global_attribute("Program created", compileDateTime() );
     status = set_global_attribute("Conventions", "CF-1.8");
     status = set_global_attribute("featureType", "timeSeries");
     status = set_global_attribute("file_created", date_time);

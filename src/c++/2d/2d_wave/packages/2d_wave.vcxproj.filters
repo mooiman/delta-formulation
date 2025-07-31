@@ -34,6 +34,9 @@
     <ClCompile Include="src\boundary_condition.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\wave_2d_version.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\cfts.h">
@@ -69,6 +72,12 @@
     <ClInclude Include="include\boundary_condition.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\wave_2d_version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\compile_date_and_time.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -77,5 +86,13 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{eab98257-94b7-4a92-a5db-31afb8d34674}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="include\version_number.ini">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\wave_2d_version.h.vcs">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

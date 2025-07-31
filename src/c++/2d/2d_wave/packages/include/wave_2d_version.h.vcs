@@ -1,0 +1,26 @@
+#ifndef wave_2d_VERSION
+#define wave_2d_VERSION
+
+#include <string>
+
+#define wave_2d_major "VN_MAJOR"
+#define wave_2d_minor "VN_MINOR"
+#define wave_2d_revision "VN_REVISION"
+#define wave_2d_build "VCS_BUILD_HASH"
+
+#define wave_2d_company "Mooiman"
+#define wave_2d_company_url "https://www.github.com/mooiman"
+#define wave_2d_source_url "VCS_SOURCE_URL"
+#define wave_2d_program "2D-Wave"
+
+/*=================================================== DO NOT MAKE CHANGES BELOW THIS LINE ===================================================================== */
+
+extern "C" {
+    extern char * getcompanystring_2d_wave(void);
+    extern char * getfullversionstring_2d_wave(void);
+    extern char * getprogramstring_2d_wave(void);
+    extern char * getversionstring_2d_wave(void);
+    extern char * getsourceurlstring_2d_wave(void);
+}
+
+#endif 

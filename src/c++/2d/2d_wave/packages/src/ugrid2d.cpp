@@ -21,6 +21,7 @@
 //------------------------------------------------------------------------------
 
 #include "ugrid2d.h"
+#include "wave_2d_version.h"
 #include "include/netcdf.h"
 
 UGRID2D::UGRID2D()
@@ -43,6 +44,7 @@ int UGRID2D::open(std::string ncfile, std::string model_title)
     // Define global attributes
     status = set_global_attribute("Title", model_title);
     status = set_global_attribute("Model", "Delta-formulation 2D, C++");
+    status = set_global_attribute("Program version", getversionstring_2d_wave() );
     status = set_global_attribute("Conventions", "CF-1.8 UGRID-1.0");
     status = set_global_attribute("file_created", date_time);
     status = set_global_attribute("reference", "https://www.github.com/mooiman");
