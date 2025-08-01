@@ -77,6 +77,12 @@ std::string compileDateTime()
     std::string str1(compileYear());
     std::string str2(compileMonth());
     std::string str3(compileDay());
+    if (str3.size() == 1)
+    {
+        str3.resize(2);
+        str3[1] = str3[0];
+        str3[0] = '0';
+    }
     return str1 + "-" + str2 + "-" + str3 + " " + __TIME__;
 }
 
