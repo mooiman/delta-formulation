@@ -63,10 +63,10 @@ private:
     int m_times;
     std::string m_time_units;
 
+    std::string compileDateTime();
     int set_global_attribute(std::string name, std::string value);
     int set_attribute(std::string var, std::string att_name, double att_val);
     int set_attribute(std::string var, std::string att_name, int att_val);
     int set_attribute(std::string var, std::string att_name, std::string att_val);
-
 };
 #endif __UGRID2D_H__
