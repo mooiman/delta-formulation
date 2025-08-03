@@ -82,6 +82,12 @@ std::string compileDateTime()
     std::string str1(compileYear());
     std::string str2(compileMonth());
     std::string str3(compileDay());
+    if (str3.size() == 1)
+    {
+        str3.resize(2);
+        str3[1] = str3[0];
+        str3[0] = '0';
+    }
     return str1 + "-" + str2 + "-" + str3 + " " + __TIME__;
 }
 int main(int argc, char *argv[])
@@ -530,7 +536,8 @@ int main(int argc, char *argv[])
     log_file << "Nodes   : " << nx << "x" << ny << "=" << nxny << std::endl;
     log_file << "Elements: " << (nx - 1) << "x" << (ny - 1) << "=" << (nx - 1) * (ny - 1) << std::endl;
     log_file << "Volumes : " << (nx - 2) << "x" << (ny - 2) << "=" << (nx - 2) * (ny - 2) << std::endl;
-    log_file << "CFL     : " << std::sqrt(g * std::abs(min_zb)) * dt * std::sqrt(( 1./(dx*dx) + 1./(dy*dy))) << std::endl;
+    log_file << "CFL (2D): " << std::sqrt(g * std::abs(min_zb)) * dt * std::sqrt(( 1./(dx*dx) + 1./(dy*dy))) << std::endl;
+    log_file << "CFL (1D): " << std::sqrt(g * std::abs(min_zb)) * dt /dx << std::endl;
     log_file << "LxLy    : " << Lx - 2. * dx << "x" << Ly - 2. * dy << " without virtual cells" << std::endl;
     log_file << "dxdy    : " << dx << "x" << dy << "=" << dxdy << " [m2]" << std::endl;
     log_file << "nxny    : " << nx << "x" << ny << "=" << nxny << std::endl;
@@ -1633,22 +1640,22 @@ int main(int argc, char *argv[])
                         //
                         // continuity equation
                         //
-                        A.coeffRef(c_eq, 3 * ph_0) = 1.0;
-                        A.coeffRef(c_eq, 3 * ph_s) = -1.0;
+                        A.coeffRef(c_eq, 3 * ph_0) = 1.0 * theta;
+                        A.coeffRef(c_eq, 3 * ph_s) = -1.0 * theta;
                         A.coeffRef(c_eq, 3 * ph_ss) = 0.0;
-                        rhs[c_eq] = 0.0;
+                        rhs[c_eq] = -( htheta_0 + zb[ph_0] - htheta_jm1 - zb[ph_s]);
                         //
                         // q-momentum
                         //
-                        A.coeffRef(q_eq, 3 * ph_0 + 1) = 1.0;
-                        A.coeffRef(q_eq, 3 * ph_s + 1) = -1.0;
+                        A.coeffRef(q_eq, 3 * ph_0 + 1) = 1.0 * theta;
+                        A.coeffRef(q_eq, 3 * ph_s + 1) = -1.0 * theta;
                         A.coeffRef(q_eq, 3 * ph_ss + 1) = 0.0;
-                        rhs[q_eq] = 0.0;
+                        rhs[q_eq] = -( qtheta_0 - qtheta_jm1 );
                         //
                         // r-momentum
                         //
-                        A.coeffRef(r_eq, 3 * ph_0 + 2) = 0.5;
-                        A.coeffRef(r_eq, 3 * ph_s + 2) = 0.5;
+                        A.coeffRef(r_eq, 3 * ph_0 + 2) = 0.5 * theta;
+                        A.coeffRef(r_eq, 3 * ph_s + 2) = 0.5 * theta;
                         A.coeffRef(r_eq, 3 * ph_ss + 2) = 0.0;
                         rhs[r_eq] = 0.0;
                     }
@@ -1867,20 +1874,20 @@ int main(int argc, char *argv[])
                         //
                         // continuity equation
                         //
-                        A.coeffRef(c_eq, 3 * ph_0) = 1.0;
-                        A.coeffRef(c_eq, 3 * ph_w) = -1.0;
+                        A.coeffRef(c_eq, 3 * ph_0) = 1.0 * theta;
+                        A.coeffRef(c_eq, 3 * ph_w) = -1.0 * theta;
                         A.coeffRef(c_eq, 3 * ph_ww ) = 0.0;
-                        rhs[c_eq] = 0.0;
+                        rhs[c_eq] = -( htheta_0 + zb[ph_0] - htheta_im1 - zb[ph_w]);
                         // Contribution Delta q
                         A.coeffRef(q_eq, 3 * ph_0 + 1) = 0.5;
                         A.coeffRef(q_eq, 3 * ph_w + 1) = 0.5;
                         A.coeffRef(q_eq, 3 * ph_ww + 1) = 0.0;
                         rhs[q_eq] = 0.0;
                         // Contribution Delta r
-                        A.coeffRef(r_eq, 3 * ph_0 + 2) = 1.0;
-                        A.coeffRef(r_eq, 3 * ph_w + 2) = -1.0;
+                        A.coeffRef(r_eq, 3 * ph_0 + 2) = 1.0 * theta;
+                        A.coeffRef(r_eq, 3 * ph_w + 2) = -1.0 * theta;
                         A.coeffRef(r_eq, 3 * ph_ww + 2) = 0.0;
-                        rhs[r_eq] = 0.0;
+                        rhs[r_eq] = -( rtheta_0 - rtheta_im1 );
                     }
                     else
                     {
@@ -2095,18 +2102,18 @@ int main(int argc, char *argv[])
                         //
                         // continuity equation
                         //
-                        A.coeffRef(c_eq, 3 * ph_0 ) = -1.0;
-                        A.coeffRef(c_eq, 3 * ph_n ) = 1.0;
+                        A.coeffRef(c_eq, 3 * ph_0 ) = -1.0 * theta;
+                        A.coeffRef(c_eq, 3 * ph_n ) = 1.0 * theta;
                         A.coeffRef(c_eq, 3 * ph_nn) = 0.0;
-                        rhs[c_eq] = 0.0;
+                        rhs[q_eq] = -( htheta_jp1 + zb[ph_n] - htheta_0 - zb[ph_0]);
                         // Contribution Delta q
-                        A.coeffRef(q_eq, 3 * ph_0  + 1) = -1.0;
-                        A.coeffRef(q_eq, 3 * ph_n  + 1) = 1.0;
+                        A.coeffRef(q_eq, 3 * ph_0  + 1) = -1.0 * theta;
+                        A.coeffRef(q_eq, 3 * ph_n  + 1) = 1.0 * theta;
                         A.coeffRef(q_eq, 3 * ph_nn + 1) = 0.0;
-                        rhs[q_eq] = 0.0;
+                        rhs[q_eq] = -( qtheta_jp1 - qtheta_0 );
                         // Contribution Delta r
-                        A.coeffRef(r_eq, 3 * ph_0  + 2) = 0.5;
-                        A.coeffRef(r_eq, 3 * ph_n  + 2) = 0.5;
+                        A.coeffRef(r_eq, 3 * ph_0  + 2) = 0.5 * theta;
+                        A.coeffRef(r_eq, 3 * ph_n  + 2) = 0.5 * theta;
                         A.coeffRef(r_eq, 3 * ph_nn + 2) = 0.0;
                         rhs[r_eq] = 0.0;
                     }
@@ -2318,20 +2325,20 @@ int main(int argc, char *argv[])
                     if (bc_type[BC_WEST] == "dirichlet" || bc_absorbing[BC_WEST] == false)
                     {
                         // Contribution Delta h
-                        A.coeffRef(c_eq, 3 * ph_0) = -1.0;
-                        A.coeffRef(c_eq, 3 * ph_e) = 1.0;
+                        A.coeffRef(c_eq, 3 * ph_0) = -1.0 * theta;
+                        A.coeffRef(c_eq, 3 * ph_e) = 1.0 * theta;
                         A.coeffRef(c_eq, 3 * ph_ee) = 0.0;
-                        rhs[c_eq] = 0.0;
+                        rhs[c_eq] = -( htheta_ip1 + zb[ph_e] - htheta_0 - zb[ph_0]);
                         // Contribution Delta q
                         A.coeffRef(q_eq, 3 * ph_0 + 1) = 0.5;
                         A.coeffRef(q_eq, 3 * ph_e + 1) = 0.5;
                         A.coeffRef(q_eq, 3 * ph_ee + 1) = 0.0;
                         rhs[q_eq] = 0.0;
                         // Contribution Delta r
-                        A.coeffRef(r_eq, 3 * ph_0 + 2) = -1.0;
-                        A.coeffRef(r_eq, 3 * ph_e + 2) = 1.0;
+                        A.coeffRef(r_eq, 3 * ph_0 + 2) = -1.0 * theta;
+                        A.coeffRef(r_eq, 3 * ph_e + 2) = 1.0 * theta;
                         A.coeffRef(r_eq, 3 * ph_ee + 2) = 0.0;
-                        rhs[r_eq] = 0.0;
+                        rhs[r_eq] = -( rtheta_ip1 - rtheta_0);
                     }
                     else
                     {
