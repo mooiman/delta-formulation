@@ -34,6 +34,19 @@ CFTS::CFTS()
 CFTS::~CFTS()
 {
 }
+std::string CFTS::compileDateTime()
+{
+    std::string str1(compileYear());
+    std::string str2(compileMonth());
+    std::string str3(compileDay());
+    if (str3.size() == 1)
+    {
+        str3.resize(2);
+        str3[1] = str3[0];
+        str3[0] = '0';
+    }
+    return str1 + "-" + str2 + "-" + str3 + " " + __TIME__;
+}
 int CFTS::open(std::string ncfile, std::string model_title)
 {
     int status = nc_create(ncfile.c_str(), NC_NETCDF4, &m_ncid);
@@ -45,8 +58,8 @@ int CFTS::open(std::string ncfile, std::string model_title)
     // Define global attributes
     status = set_global_attribute("Title", model_title);
     status = set_global_attribute("Model", "Delta-formulation 2D, C++");
+    status = set_global_attribute("Program created", compileDateTime() );
     status = set_global_attribute("Program version", getversionstring_2d_wave() );
-    //status = set_global_attribute("Program created", compileDateTime() );
     status = set_global_attribute("Conventions", "CF-1.8");
     status = set_global_attribute("featureType", "timeSeries");
     status = set_global_attribute("file_created", date_time);
