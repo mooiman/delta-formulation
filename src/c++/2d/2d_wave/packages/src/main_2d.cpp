@@ -1669,19 +1669,19 @@ int main(int argc, char *argv[])
                                 //
                                 // continuity
                                 //
-                                A.coeffRef(c_eq, 3 * ph_0 ) = w_nat[0] * -c_wave;
-                                A.coeffRef(c_eq, 3 * ph_s ) = w_nat[1] * -c_wave;
-                                A.coeffRef(c_eq, 3 * ph_ss) = w_nat[2] * -c_wave;
+                                A.coeffRef(c_eq, 3 * ph_0 ) = theta * w_nat[0] * -c_wave;
+                                A.coeffRef(c_eq, 3 * ph_s ) = theta * w_nat[1] * -c_wave;
+                                A.coeffRef(c_eq, 3 * ph_ss) = theta * w_nat[2] * -c_wave;
                                 // flow_x 
                                 A.coeffRef(c_eq, 3 * ph_0  + 1) = 0.0;
                                 A.coeffRef(c_eq, 3 * ph_s  + 1) = 0.0;
                                 A.coeffRef(c_eq, 3 * ph_ss + 1) = 0.0;
                                 // flow y
-                                A.coeffRef(c_eq, 3 * ph_0  + 2) = w_nat[0];
-                                A.coeffRef(c_eq, 3 * ph_s  + 2) = w_nat[1];
-                                A.coeffRef(c_eq, 3 * ph_ss + 2) = w_nat[2];
+                                A.coeffRef(c_eq, 3 * ph_0  + 2) = theta * w_nat[0];
+                                A.coeffRef(c_eq, 3 * ph_s  + 2) = theta * w_nat[1];
+                                A.coeffRef(c_eq, 3 * ph_ss + 2) = theta * w_nat[2];
                                 //
-                                rhs[c_eq] = -(rp_jm12 - c_wave * (hp_jm12 - h_infty));
+                                rhs[c_eq] = -(rtheta_jm12 - c_wave * (htheta_jm12 - h_given));
                                 if (bc_vars[BC_NORTH] == "zeta")
                                 {
                                     rhs[c_eq] += -2. * c_wave * bc[BC_NORTH];
@@ -1899,19 +1899,19 @@ int main(int argc, char *argv[])
                                 //
                                 // continuity
                                 //
-                                A.coeffRef(c_eq, 3 * ph_0 ) = w_nat[0] * -c_wave;
-                                A.coeffRef(c_eq, 3 * ph_w ) = w_nat[1] * -c_wave;
-                                A.coeffRef(c_eq, 3 * ph_ww) = w_nat[2] * -c_wave;
+                                A.coeffRef(c_eq, 3 * ph_0 ) = theta * w_nat[0] * -c_wave;
+                                A.coeffRef(c_eq, 3 * ph_w ) = theta * w_nat[1] * -c_wave;
+                                A.coeffRef(c_eq, 3 * ph_ww) = theta * w_nat[2] * -c_wave;
                                 // flow x
-                                A.coeffRef(c_eq, 3 * ph_0  + 1) = w_nat[0];
-                                A.coeffRef(c_eq, 3 * ph_w  + 1) = w_nat[1];
-                                A.coeffRef(c_eq, 3 * ph_ww + 1) = w_nat[2];
+                                A.coeffRef(c_eq, 3 * ph_0  + 1) = theta * w_nat[0];
+                                A.coeffRef(c_eq, 3 * ph_w  + 1) = theta * w_nat[1];
+                                A.coeffRef(c_eq, 3 * ph_ww + 1) = theta * w_nat[2];
                                 // Contribution Delta r
                                 A.coeffRef(c_eq, 3 * ph_0  + 2) = 0.0;
                                 A.coeffRef(c_eq, 3 * ph_w  + 2) = 0.0;
                                 A.coeffRef(c_eq, 3 * ph_ww + 2) = 0.0;
                                 //
-                                rhs[c_eq] = -(qp_im12 - c_wave * (hp_im12 - h_infty));
+                                rhs[c_eq] = -(qtheta_im12 - c_wave * (htheta_im12 - h_given));
                                 if (bc_vars[BC_EAST] == "zeta")
                                 {
                                     rhs[c_eq] += -2. * c_wave * bc[BC_EAST];
@@ -2127,19 +2127,19 @@ int main(int argc, char *argv[])
                                 //
                                 // continuity
                                 //
-                                A.coeffRef(c_eq, 3 * ph_0 ) = w_nat[0] * c_wave;
-                                A.coeffRef(c_eq, 3 * ph_n ) = w_nat[1] * c_wave;
-                                A.coeffRef(c_eq, 3 * ph_nn) = w_nat[2] * c_wave;
+                                A.coeffRef(c_eq, 3 * ph_0 ) = theta * w_nat[0] * c_wave;
+                                A.coeffRef(c_eq, 3 * ph_n ) = theta * w_nat[1] * c_wave;
+                                A.coeffRef(c_eq, 3 * ph_nn) = theta * w_nat[2] * c_wave;
                                 // Contribution Delta q
                                 A.coeffRef(c_eq, 3 * ph_0  + 1) = 0.0;
                                 A.coeffRef(c_eq, 3 * ph_n  + 1) = 0.0;
                                 A.coeffRef(c_eq, 3 * ph_nn + 1) = 0.0;
                                 // Contribution Delta r
-                                A.coeffRef(c_eq, 3 * ph_0  + 2) = w_nat[0];
-                                A.coeffRef(c_eq, 3 * ph_n  + 2) = w_nat[1];
-                                A.coeffRef(c_eq, 3 * ph_nn + 2) = w_nat[2];
+                                A.coeffRef(c_eq, 3 * ph_0  + 2) = theta * w_nat[0];
+                                A.coeffRef(c_eq, 3 * ph_n  + 2) = theta * w_nat[1];
+                                A.coeffRef(c_eq, 3 * ph_nn + 2) = theta * w_nat[2];
                                 //
-                                rhs[c_eq] = -(rp_jp12 + c_wave * (hp_jp12 - h_infty));
+                                rhs[c_eq] = -(rtheta_jp12 + c_wave * (htheta_jp12 - h_given));
                                 if (bc_vars[BC_SOUTH] == "zeta")
                                 {
                                     rhs[c_eq] += 2. * c_wave * bc[BC_SOUTH];
@@ -2350,19 +2350,19 @@ int main(int argc, char *argv[])
                                 //
                                 //  first equation: c_wave * h
                                 //
-                                A.coeffRef(c_eq, 3 * ph_0 ) = w_nat[0] * c_wave;
-                                A.coeffRef(c_eq, 3 * ph_e ) = w_nat[1] * c_wave;
-                                A.coeffRef(c_eq, 3 * ph_ee) = w_nat[2] * c_wave;
+                                A.coeffRef(c_eq, 3 * ph_0 ) = theta * w_nat[0] * c_wave;
+                                A.coeffRef(c_eq, 3 * ph_e ) = theta * w_nat[1] * c_wave;
+                                A.coeffRef(c_eq, 3 * ph_ee) = theta * w_nat[2] * c_wave;
                                 // Contribution Delta q
-                                A.coeffRef(c_eq, 3 * ph_0  + 1) = w_nat[0];
-                                A.coeffRef(c_eq, 3 * ph_e  + 1) = w_nat[1];
-                                A.coeffRef(c_eq, 3 * ph_ee + 1) = w_nat[2];
+                                A.coeffRef(c_eq, 3 * ph_0  + 1) = theta * w_nat[0];
+                                A.coeffRef(c_eq, 3 * ph_e  + 1) = theta * w_nat[1];
+                                A.coeffRef(c_eq, 3 * ph_ee + 1) = theta * w_nat[2];
                                 // Contribution Delta r
                                 A.coeffRef(c_eq, 3 * ph_0  + 2) = 0.0;
                                 A.coeffRef(c_eq, 3 * ph_e  + 2) = 0.0;
                                 A.coeffRef(c_eq, 3 * ph_ee + 2) = 0.0;
                                 //
-                                rhs[c_eq] = -(qp_ip12 + c_wave * (hp_ip12 - h_infty));
+                                rhs[c_eq] = -(qtheta_ip12 + c_wave * (htheta_ip12 - h_given));
                                 if (bc_vars[BC_WEST] == "zeta")
                                 {
                                     rhs[c_eq] += 2. * c_wave * bc[BC_WEST];
@@ -2493,93 +2493,101 @@ int main(int argc, char *argv[])
             {
                 int i = nx - 1;
                 int j = ny - 1;
-                int ph = 3 * p_index(i, j, ny);  // continuity equation
-                int pq = ph + 1;  // q-momentum equation
-                int pr = ph + 2;  // r-momentum equation
-                int p1 = 3 * p_index(i - 1, j , ny);
-                int p2 = 3 * p_index(i, j - 1, ny);
+                int p0 = p_index(i, j, ny);
+                int p1 = p_index(i - 1, j, ny);
+                int p2 = p_index(i, j - 1, ny);
 
-                A.coeffRef(ph, p1) = 0.5;
-                A.coeffRef(ph, ph) = -1.0;
-                A.coeffRef(ph, p2) = 0.5;
-                rhs[ph] = 0.0;
-                A.coeffRef(pq, p1 + 1) = 0.5;
-                A.coeffRef(pq, pq    ) = -1.0;
-                A.coeffRef(pq, p2 + 1) = 0.5;
-                rhs[pq] = 0.0;
-                A.coeffRef(pr, p1 + 2) = 0.5;
-                A.coeffRef(pr, pr    ) = -1.0;
-                A.coeffRef(pr, p2 + 2) = 0.5;
-                rhs[pr] = 0.0;
+                int c_eq = 3 * p0;    // continuity equation
+                int q_eq = c_eq + 1;  // q-momentum equation
+                int r_eq = c_eq + 2;  // r-momentum equation
+
+                A.coeffRef(c_eq, 3 * p1) = -theta;
+                A.coeffRef(c_eq, 3 * p0) = 2.0 * theta;
+                A.coeffRef(c_eq, 3 * p2) = -theta;
+                rhs[c_eq] = htheta[p1] - 2.0 * htheta[p0] + htheta[p2];
+                A.coeffRef(q_eq, 3 * p1 + 1) = -theta;
+                A.coeffRef(q_eq, 3 * p0 + 1) = 2.0 * theta;
+                A.coeffRef(q_eq, 3 * p2 + 1) = -theta;
+                rhs[q_eq] = qtheta[p1] - 2.0 * qtheta[p0] + qtheta[p2];
+                A.coeffRef(r_eq, 3 * p1 + 2) = -theta;
+                A.coeffRef(r_eq, 3 * p0 + 2) = 2.0 * theta;
+                A.coeffRef(r_eq, 3 * p2 + 2) = -theta;
+                rhs[r_eq] = rtheta[p1] - 2.0 * rtheta[p0] + rtheta[p2];
             }
             if (true)  // SE-corner
             {
                 int i = nx - 1;
                 int j = 0;
-                int ph = 3 * p_index(i, j, ny);  // continuity equation
-                int pq = ph + 1;  // q-momentum equation
-                int pr = ph + 2;  // r-momentum equation
-                int p1 = 3 * p_index(i - 1, j, ny);
-                int p2 = 3 * p_index(i, j + 1, ny);
+                int p0 = p_index(i, j, ny);  // continuity equation
+                int p1 = p_index(i - 1, j, ny);
+                int p2 = p_index(i, j + 1, ny);
 
-                A.coeffRef(ph, p1) = 0.5;
-                A.coeffRef(ph, ph) = -1.0;
-                A.coeffRef(ph, p2) = 0.5;
-                rhs[ph] = 0.0;
-                A.coeffRef(pq, p1 + 1) = 0.5;
-                A.coeffRef(pq, pq    ) = -1.0;
-                A.coeffRef(pq, p2 + 1) = 0.5;
-                rhs[pq] = 0.0;
-                A.coeffRef(pr, p1 + 2) = 0.5;
-                A.coeffRef(pr, pr    ) = -1.0;
-                A.coeffRef(pr, p2 + 2) = 0.5;
-                rhs[pr] = 0.0;
+                int c_eq = 3 * p0;    // continuity equation
+                int q_eq = c_eq + 1;  // q-momentum equation
+                int r_eq = c_eq + 2;  // r-momentum equation
+
+                A.coeffRef(c_eq, 3 * p1) = -theta;
+                A.coeffRef(c_eq, 3 * p0) = 2.0 * theta;
+                A.coeffRef(c_eq, 3 * p2) = -theta;
+                rhs[c_eq] = htheta[p1] - 2.0 * htheta[p0] + htheta[p2];
+                A.coeffRef(q_eq, 3 * p1 + 1) = -theta;
+                A.coeffRef(q_eq, 3 * p0 + 1) = 2.0 * theta;
+                A.coeffRef(q_eq, 3 * p2 + 1) = -theta;
+                rhs[q_eq] = qtheta[p1] - 2.0 * qtheta[p0] + qtheta[p2];
+                A.coeffRef(r_eq, 3 * p1 + 2) = -theta;
+                A.coeffRef(r_eq, 3 * p0 + 2) = 2.0 * theta;
+                A.coeffRef(r_eq, 3 * p2 + 2) = -theta;
+                rhs[r_eq] = rtheta[p1] - 2.0 * rtheta[p0] + rtheta[p2];
             }
             if (true)  // SW-corner
             {
                 int i = 0;
                 int j = 0;
-                int ph = 3 * p_index(i, j, ny);  // continuity equation
-                int pq = ph + 1;  // q-momentum equation
-                int pr = ph + 2;  // r-momentum equation
-                int p1 = 3 * p_index(i + 1, j , ny);
-                int p2 = 3 * p_index(i, j + 1, ny);
+                int p0 = p_index(i, j, ny);
+                int p1 = p_index(i + 1, j, ny);
+                int p2 = p_index(i, j + 1, ny);
 
-                A.coeffRef(ph, p1) = 0.5;
-                A.coeffRef(ph, ph) = -1.0;
-                A.coeffRef(ph, p2) = 0.5;
-                rhs[ph] = 0.0;
-                A.coeffRef(pq, p1 + 1) = 0.5;
-                A.coeffRef(pq, pq    ) = -1.0;
-                A.coeffRef(pq, p2 + 1) = 0.5;
-                rhs[pq] = 0.0;
-                A.coeffRef(pr, p1 + 2) = 0.5;
-                A.coeffRef(pr, pr    ) = -1.0;
-                A.coeffRef(pr, p2 + 2) = 0.5;
-                rhs[pr] = 0.0;
+                int c_eq = 3 * p0;    // continuity equation
+                int q_eq = c_eq + 1;  // q-momentum equation
+                int r_eq = c_eq + 2;  // r-momentum equation
+
+                A.coeffRef(c_eq, 3 * p1) = -theta;
+                A.coeffRef(c_eq, 3 * p0) = 2.0 * theta;
+                A.coeffRef(c_eq, 3 * p2) = -theta;
+                rhs[c_eq] = htheta[p1] - 2.0 * htheta[p0] + htheta[p2];
+                A.coeffRef(q_eq, 3 * p1 + 1) = -theta;
+                A.coeffRef(q_eq, 3 * p0 + 1) = 2.0 * theta;
+                A.coeffRef(q_eq, 3 * p2 + 1) = -theta;
+                rhs[q_eq] = qtheta[p1] - 2.0 * qtheta[p0] + qtheta[p2];
+                A.coeffRef(r_eq, 3 * p1 + 2) = -theta;
+                A.coeffRef(r_eq, 3 * p0 + 2) = 2.0 * theta;
+                A.coeffRef(r_eq, 3 * p2 + 2) = -theta;
+                rhs[r_eq] = rtheta[p1] - 2.0 * rtheta[p0] + rtheta[p2];
             }
             if (true)  // NW-corner
             {
                 int i = 0;
                 int j = ny - 1;
-                int ph = 3 * p_index(i, j, ny);  // continuity equation
-                int pq = ph + 1;  // q-momentum equation
-                int pr = ph + 2;  // r-momentum equation
-                int p1 = 3 * p_index(i + 1, j , ny);
-                int p2 = 3 * p_index(i, j - 1, ny);
+                int p0 = p_index(i, j, ny);
+                int p1 = p_index(i + 1, j, ny);
+                int p2 = p_index(i, j - 1, ny);
 
-                A.coeffRef(ph, p1) = 0.5;
-                A.coeffRef(ph, ph) = -1.0;
-                A.coeffRef(ph, p2) = 0.5;
-                rhs[ph] = 0.0;
-                A.coeffRef(pq, p1 + 1) = 0.5;
-                A.coeffRef(pq, pq    ) = -1.0;
-                A.coeffRef(pq, p2 + 1) = 0.5;
-                rhs[pq] = 0.0;
-                A.coeffRef(pr, p1 + 2) = 0.5;
-                A.coeffRef(pr, pr    ) = -1.0;
-                A.coeffRef(pr, p2 + 2) = 0.5;
-                rhs[pr] = 0.0;
+                int c_eq = 3 * p0;    // continuity equation
+                int q_eq = c_eq + 1;  // q-momentum equation
+                int r_eq = c_eq + 2;  // r-momentum equation
+
+                A.coeffRef(c_eq, 3 * p1) = -theta;
+                A.coeffRef(c_eq, 3 * p0) = 2.0 * theta;
+                A.coeffRef(c_eq, 3 * p2) = -theta;
+                rhs[c_eq] = htheta[p1] - 2.0 * htheta[p0] + htheta[p2];
+                A.coeffRef(q_eq, 3 * p1 + 1) = -theta;
+                A.coeffRef(q_eq, 3 * p0 + 1) = 2.0 * theta;
+                A.coeffRef(q_eq, 3 * p2 + 1) = -theta;
+                rhs[q_eq] = qtheta[p1] - 2.0 * qtheta[p0] + qtheta[p2];
+                A.coeffRef(r_eq, 3 * p1 + 2) = -theta;
+                A.coeffRef(r_eq, 3 * p0 + 2) = 2.0 * theta;
+                A.coeffRef(r_eq, 3 * p2 + 2) = -theta;
+                rhs[r_eq] = rtheta[p1] - 2.0 * rtheta[p0] + rtheta[p2];
             }
             if (nst == 1 && iter == 0)
             {

@@ -266,8 +266,8 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
         int p_n  = p_index(i, j + 1, ny);
         int p_nn = p_index(i, j + 2, ny);
         B.coeffRef(p_0 , p_0 ) =  1.0;
-        B.coeffRef(p_0 , p_n ) = -2.0;
-        B.coeffRef(p_0 , p_nn) =  1.0;
+        B.coeffRef(p_0 , p_n ) = -1.0;
+        B.coeffRef(p_0 , p_nn) =  0.0;
 
         j = 1;
         int p_s = p_index(i, j - 1, ny);
@@ -282,16 +282,16 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
         p_s      = p_index(i, j - 1, ny);
         int p_ss = p_index(i, j - 2, ny);
         B.coeffRef(p_0, p_0 ) =  1.0;
-        B.coeffRef(p_0, p_s ) = -2.0;
-        B.coeffRef(p_0, p_ss) =  1.0;
+        B.coeffRef(p_0, p_s ) = -1.0;
+        B.coeffRef(p_0, p_ss) =  0.0;
 
         j = ny - 2;
         p_s = p_index(i, j - 1, ny);
         p_0 = p_index(i, j    , ny);
         p_n = p_index(i, j + 1, ny);
-        B.coeffRef(p_0, p_0 ) = 1.0;
-        B.coeffRef(p_0, p_s ) = 0.0;
-        B.coeffRef(p_0, p_ss) = 0.0;
+        B.coeffRef(p_0, p_s) = 0.0;
+        B.coeffRef(p_0, p_0) = 1.0;
+        B.coeffRef(p_0, p_n) = 0.0;
     }
     for (int j = 1; j < ny - 1; ++j)  // vertical direction
     {
@@ -300,8 +300,8 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
         int p_e  = p_index(i + 1, j, ny);
         int p_ee = p_index(i + 2, j, ny);
         B.coeffRef(p_0 , p_0 ) = 1.0;
-        B.coeffRef(p_0 , p_e ) = -2.0;
-        B.coeffRef(p_0 , p_ee) = 1.0;
+        B.coeffRef(p_0 , p_e ) = -1.0;
+        B.coeffRef(p_0 , p_ee) = 0.0;
 
         i = 1;
         int p_w = p_index(i - 1, j, ny);
@@ -317,8 +317,8 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
         p_w      = p_index(i - 1, j, ny);
         int p_ww = p_index(i - 2, j, ny);
         B.coeffRef(p_0 , p_0 ) = 1.0;
-        B.coeffRef(p_0 , p_w ) = -2.0;
-        B.coeffRef(p_0 , p_ww) = 1.0;
+        B.coeffRef(p_0 , p_w ) = -1.0;
+        B.coeffRef(p_0 , p_ww) = 0.0;
 
         i = nx - 2;
         p_w = p_index(i - 1, j, ny);
