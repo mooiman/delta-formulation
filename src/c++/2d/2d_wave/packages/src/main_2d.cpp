@@ -1879,8 +1879,8 @@ int main(int argc, char *argv[])
                         A.coeffRef(c_eq, 3 * ph_ww ) = 0.0;
                         rhs[c_eq] = -( htheta_0 + zb[ph_0] - htheta_im1 - zb[ph_w]);
                         // Contribution Delta q
-                        A.coeffRef(q_eq, 3 * ph_0 + 1) = 0.5;
-                        A.coeffRef(q_eq, 3 * ph_w + 1) = 0.5;
+                        A.coeffRef(q_eq, 3 * ph_0 + 1) = 0.5 * theta;
+                        A.coeffRef(q_eq, 3 * ph_w + 1) = 0.5 * theta;
                         A.coeffRef(q_eq, 3 * ph_ww + 1) = 0.0;
                         rhs[q_eq] = 0.0;
                         // Contribution Delta r
@@ -2105,7 +2105,7 @@ int main(int argc, char *argv[])
                         A.coeffRef(c_eq, 3 * ph_0 ) = -1.0 * theta;
                         A.coeffRef(c_eq, 3 * ph_n ) = 1.0 * theta;
                         A.coeffRef(c_eq, 3 * ph_nn) = 0.0;
-                        rhs[q_eq] = -( htheta_jp1 + zb[ph_n] - htheta_0 - zb[ph_0]);
+                        rhs[c_eq] = -( htheta_jp1 + zb[ph_n] - htheta_0 - zb[ph_0]);
                         // Contribution Delta q
                         A.coeffRef(q_eq, 3 * ph_0  + 1) = -1.0 * theta;
                         A.coeffRef(q_eq, 3 * ph_n  + 1) = 1.0 * theta;
@@ -2330,8 +2330,8 @@ int main(int argc, char *argv[])
                         A.coeffRef(c_eq, 3 * ph_ee) = 0.0;
                         rhs[c_eq] = -( htheta_ip1 + zb[ph_e] - htheta_0 - zb[ph_0]);
                         // Contribution Delta q
-                        A.coeffRef(q_eq, 3 * ph_0 + 1) = 0.5;
-                        A.coeffRef(q_eq, 3 * ph_e + 1) = 0.5;
+                        A.coeffRef(q_eq, 3 * ph_0 + 1) = 0.5 * theta;
+                        A.coeffRef(q_eq, 3 * ph_e + 1) = 0.5 * theta;
                         A.coeffRef(q_eq, 3 * ph_ee + 1) = 0.0;
                         rhs[q_eq] = 0.0;
                         // Contribution Delta r
