@@ -191,6 +191,7 @@
     <ClCompile Include="src\bed_level.cpp" />
     <ClCompile Include="src\bed_shear_stress.cpp" />
     <ClCompile Include="src\boundary_condition.cpp" />
+    <ClCompile Include="src\build_matrix_pattern.cpp" />
     <ClCompile Include="src\cfts.cpp" />
     <ClCompile Include="src\convection.cpp" />
     <ClCompile Include="src\grid.cpp" />
@@ -205,6 +206,7 @@
     <ClInclude Include="include\bed_level.h" />
     <ClInclude Include="include\bed_shear_stress.h" />
     <ClInclude Include="include\boundary_condition.h" />
+    <ClInclude Include="include\build_matrix_pattern.h" />
     <ClInclude Include="include\cfts.h" />
     <ClInclude Include="include\compile_date_and_time.h" />
     <ClInclude Include="include\convection.h" />

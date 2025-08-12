@@ -37,6 +37,9 @@
     <ClCompile Include="src\wave_2d_version.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\build_matrix_pattern.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\cfts.h">
@@ -76,6 +79,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\compile_date_and_time.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\build_matrix_pattern.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

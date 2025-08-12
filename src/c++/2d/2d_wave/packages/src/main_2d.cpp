@@ -1633,7 +1633,7 @@ int main(int argc, char *argv[])
                     double zb_jm12 = w_nat[0] * zb[ph_0] + w_nat[1] * zb[ph_s] + w_nat[2] * zb[ph_ss];
                     double h_given = bc[BC_NORTH] - zb_jm12;
                     double h_infty = -zb_jm12;
-                    double c_wave = std::sqrt(g * h_given);
+                    double c_wave = std::sqrt(g * htheta_jm12);
 
                     if (bc_type[BC_NORTH] == "dirichlet" || bc_absorbing[BC_NORTH] == false)
                     {
@@ -1867,7 +1867,7 @@ int main(int argc, char *argv[])
                     double zb_im12 = w_nat[0] * zb[ph_0] + w_nat[1] * zb[ph_w] + w_nat[2] * zb[ph_ww];
                     double h_given = bc[BC_EAST] - zb_im12;
                     double h_infty = -zb_im12;
-                    double c_wave = std::sqrt(g * h_given);
+                    double c_wave = std::sqrt(g * htheta_im12);
 
                     if (bc_type[BC_EAST] == "dirichlet" || bc_absorbing[BC_EAST] == false)
                     {
@@ -2598,6 +2598,28 @@ int main(int argc, char *argv[])
                 START_TIMER(BiCGStab);
             }
 
+            if (logging == "pattern")
+            {
+                log_file << "=== Matrix build matrix pattern =======================" << std::endl;
+                for (int i = 0; i < 3 * nxny; ++i)
+                {
+                    for (int j = 0; j < 3*nxny; ++j)
+                    {
+                        if (A.coeff(i, j) != 0.0)
+                        {
+                            log_file << "* ";
+                        }
+                        else
+                        {
+                            log_file << "- ";
+                            //log_file << std::showpos << std::setprecision(3) << std::scientific << A.coeff(i, j) << " ";
+                        }
+                        if (std::fmod(j+1,3) == 0) { log_file << "| "; }
+                    }
+                    log_file << std::endl;
+                    if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
+                }
+            }
             if (logging == "matrix")
             {
                 log_file << "=== Matrix ============================================" << std::endl;
@@ -2635,9 +2657,9 @@ int main(int argc, char *argv[])
             }
             if (nst == 1 && iter == 0)
             {
-                ilu.setDroptol(1e-03);
-                ilu.setFillfactor(25);
-                ilu.compute(A);
+                ilu.setDroptol(1e-02);
+                ilu.setFillfactor(9);
+                //ilu.compute(A);
             }
             solver.compute(A);
             solver.setTolerance(eps_bicgstab);
