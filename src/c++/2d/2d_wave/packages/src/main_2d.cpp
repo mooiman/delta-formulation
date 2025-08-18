@@ -2620,7 +2620,7 @@ int main(int argc, char *argv[])
                     if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
                 }
             }
-            if (logging == "matrix")
+            if (logging == "matrix" && (nst == 1 || nst == total_time_steps-1) && iter == 0)
             {
                 log_file << "=== Matrix ============================================" << std::endl;
                 for (int i = 0; i < 3 * nxny; ++i)
@@ -2720,7 +2720,7 @@ int main(int argc, char *argv[])
                     }
                 }
             }
-            if (logging == "matrix")
+            if (logging == "matrix" && (nst == 1 || nst == total_time_steps-1) && iter == 0)
             {
                 log_file << "=== Solution ==========================================" << std::endl;
                 for (int i = 0; i < 3 * nxny; ++i)
