@@ -552,8 +552,8 @@ The linearization of the pressure term around iteration level $p$ reads:
     & g h \left. \pdiff{\zeta}{x} \right|^{n+\theta,p+1}  \approx
     \\
     & \approx g h^{n+\theta,p} \pdiff{\zeta^{n+\theta,p}}{x} +
-    \theta g \pdiff{\zeta^{n+\theta,p}}{x} \Delta h^{n+1, p+1} +
-    \theta g h^{n+\theta,p} \pdiff{}{x} \Delta \zeta^{n+1, p+1} \label{eq:pres_grad_zeta}
+    g \pdiff{\zeta^{n+\theta,p}}{x} \theta\Delta h^{n+1, p+1} +
+    g h^{n+\theta,p} \pdiff{}{x} \theta\Delta \zeta^{n+1, p+1} \label{eq:pres_grad_zeta}
 \end{align}
 Computing the integral over the finite volume:
 \begin{align}
@@ -576,21 +576,22 @@ The first term of \autoref{eq:pres_grad_zeta} becomes:
 \end{align}
 The second term of \autoref{eq:pres_grad_zeta}
 \begin{align}
-    & \int_{x_{i-\half}}^{x_{i}} \theta g \pdiff{\zeta^{n+\theta,p}}{x}\Delta h^{n+1, p+1}_{i-\quart} \, dx +
-    \int_{x_{i}}^{x_{i+\half}} \theta g \pdiff{\zeta^{n+\theta,p}}{x}\Delta h^{n+1, p+1}_{i+\quart} \,dx \approx
+    & \int_{x_{i-\half}}^{x_{i}} g \pdiff{\zeta^{n+\theta,p}}{x} \theta \Delta h^{n+1, p+1}_{i-\quart} \, dx +
+    \int_{x_{i}}^{x_{i+\half}} g \pdiff{\zeta^{n+\theta,p}}{x} \theta \Delta h^{n+1, p+1}_{i+\quart} \,dx \approx
     \\
     & \approx
-     \half \theta g  (\zeta^{n+\theta,p}_{i}- \zeta^{n+\theta,p}_{i-1}) \Delta h^{n+1, p+1}_{i-\quart} +
-     \half \theta g (\zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i}) \Delta h^{n+1, p+1}_{i+\quart}
+     \half  g  (\zeta^{n+\theta,p}_{i}- \zeta^{n+\theta,p}_{i-1}) \theta\Delta h^{n+1, p+1}_{i-\quart} +
+     \half g (\zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i}) \theta\Delta h^{n+1, p+1}_{i+\quart}
 \end{align}
 The third term of \autoref{eq:pres_grad_zeta}
 \begin{align}
-    &\int_{x_{i-\half}}^{x_{i}} \theta g h^{n+\theta,p}_{i-\quart} \pdiff{}{x} \Delta \zeta^{n+1, p+1} \,dx + \int_{x_{i+\half}}^{x_{i}} \theta g h^{n+\theta,p}_{i+\quart} \pdiff{}{x} \Delta \zeta^{n+1, p+1} \,dx =
+    &\int_{x_{i-\half}}^{x_{i}} g h^{n+\theta,p}_{i-\quart} \theta \pdiff{}{x} (\Delta \zeta^{n+1, p+1}) \,dx
+    + \int_{x_{i+\half}}^{x_{i}} g h^{n+\theta,p}_{i+\quart} \theta \pdiff{}{x} (\Delta \zeta^{n+1, p+1}) \,dx =
     \\
-    & = \half \theta g h^{n+\theta,p}_{i-\quart}
-    \left(\Delta\zeta^{n+1,p+1}_{i}-\Delta\zeta^{n+1,p+1}_{i-1} \right) +
-    \half \theta g h^{n+\theta,p}_{i+\quart}
-    \left(\Delta\zeta^{n+1,p+1}_{i+1}-\Delta\zeta^{n+1,p+1}_{i} \right)
+    & = \half g h^{n+\theta,p}_{i-\quart}\theta
+    \left( \Delta\zeta^{n+1,p+1}_{i}- \Delta\zeta^{n+1,p+1}_{i-1} \right) +
+    \half g h^{n+\theta,p}_{i+\quart}
+    \theta\left( \Delta\zeta^{n+1,p+1}_{i+1} - \Delta\zeta^{n+1,p+1}_{i} \right)
 \end{align}
 In a formulation of the shallow-water equations, where the water level is expressed as $\zeta = h + z_b$.
 The equations can be simplified, because
@@ -683,13 +684,13 @@ The linearization of the viscosity term ($\nu = {\it constant}$) around iteratio
     \\
     & \approx \nu  \pdiff{q^{n+\theta, p}_{i+\half}}{x}   -  \nu \frac{q^{n+\theta, p}_{i+\half}}{h^{n+\theta, p}_{i+\half}} \pdiff{h^{n+\theta, p}_{i+\half}}{x}  +
     \nonumber \\
-    & + \theta \underbrace{\nu}_{\cal{A}} \pdiff{\Delta q^{n+1 p+1}_{i+\half}}{x}
-    -  \theta \underbrace{\nu \frac{1}{h^{n+\theta, p}}\pdiff{h^{n+\theta, p}_{i+\half}}{x}}_{\cal{B}} \Delta q^{n+1 p+1}_{i+\half}  +
+    & + \underbrace{\nu}_{\cal{A}}\theta \pdiff{}{x}( \Delta q^{n+1 p+1}_{i+\half})
+    -  \underbrace{\nu \frac{1}{h^{n+\theta, p}}\pdiff{h^{n+\theta, p}_{i+\half}}{x}}_{\cal{B}} \theta\Delta q^{n+1 p+1}_{i+\half}  +
     \nonumber \\
-    & + \theta \underbrace{\nu \frac{q^{n+\theta, p}_{i+\half}}{(h^{n+\theta, p}_{i+\half})^2} \pdiff{h^{n+\theta, p}_{i+\half}}{x}}_{\cal{C}} \Delta h^{n+1 p+1}_{i+\half}
-    - \theta \underbrace{\nu \frac{q^{n+\theta, p}_{i+\half}}{h^{n+\theta, p}_{i+\half}}}_{\cal{D}} \pdiff{\Delta h^{n+1, p+1}_{i+\half}}{x}
+    & +  \underbrace{\nu \frac{q^{n+\theta, p}_{i+\half}}{(h^{n+\theta, p}_{i+\half})^2} \pdiff{h^{n+\theta, p}_{i+\half}}{x}}_{\cal{C}} \theta\Delta h^{n+1 p+1}_{i+\half}
+    - \underbrace{\nu \frac{q^{n+\theta, p}_{i+\half}}{h^{n+\theta, p}_{i+\half}}}_{\cal{D}} \theta \pdiff{}{x}( \Delta h^{n+1, p+1}_{i+\half})
 \end{align}
-where $\theta \cal{A}$, $\theta \cal{B}$, $\theta \cal{C}$ and $\theta \cal{D}$ are coefficients in the matrix of the \deltaformulation.
+where $\cal{A}$, $\cal{B}$, $\cal{C}$ and $\cal{D}$ multiplied by $\theta$ are coefficients in the matrix of the \deltaformulation.
 For the part at $x_{i-\half}$ a similar expression is feasible.
 
 %------------------------------------------------------------------------------
@@ -876,7 +877,7 @@ which will be approximated by
 \\
 \Leftrightarrow &
 \\
-&\frac{\theta }{\Dx} \left( \Delta q^{n+1, p+1}_{i+1} - \Delta q^{n+1, p+1}_{i}\right) +
+&\frac{1}{\Dx} \left( \theta \Delta q^{n+1, p+1}_{i+1} - \theta \Delta q^{n+1, p+1}_{i}\right) +
 \frac{1}{\Dx} \left\{ q^{n+\theta, p}_{i+1} - q^{n+\theta, p+1}_{i} \right\}
 \end{align}
 %------------------------------------------------------------------------------
@@ -923,11 +924,12 @@ The pressure term will then be approximated by
 & \qquad + \frac{1}{\Dx}  g \left(  \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i} \right) \theta \Delta h^{n+1, p+1}_{i+\half} +
 \nonumber \\*
 & \qquad +   \frac{1}{\Dx} g h^{n+\theta, p}_{i+\half}
-\theta \left( \Delta \zeta^{n+1,p+1}_{i+1}  - \Delta \zeta^{n+1,p+1}_{i}\right)
+\theta  \left( \Delta \zeta^{n+1,p+1}_{i+1} - \Delta \zeta^{n+1,p+1}_{i}\right)
 \end{align}
 After rearranging the equation into an implicit and an explicit part it reads:
 \begin{align}
-& \frac{1}{\Dx}  g \left(  \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i} \right) \theta \Delta h^{n+1, p+1}_{i+\half} +   \frac{1}{\Dx} g h^{n+\theta, p}_{i+\half}
+& \frac{1}{\Dx}  g \left(  \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i} \right) \theta \Delta h^{n+1, p+1}_{i+\half}
++ \frac{1}{\Dx} g h^{n+\theta, p}_{i+\half}
 \theta \left( \Delta \zeta^{n+1,p+1}_{i+1}  - \Delta \zeta^{n+1,p+1}_{i}\right) +
 \nonumber \\*
 & \qquad + \left\{
@@ -949,19 +951,19 @@ which will be approximated by
     & \qquad \approx \underbrace{\frac{2q^{n+\theta, p}_{i+\half}}{ h^{n+\theta, p}_{i+\half}} \pdiff{}{x}\left( q^{n+\theta, p}_{i+\half} \right)
         - \frac{(q^{n+\theta, p}_{i+\half})^2}{(h^{n+\theta, p}_{i+\half})^2} \pdiff{}{x} \left( h^{n+\theta, p}_{i+\half} \right)}_{\textit{ to right handside}} +
     \nonumber \\
-    & \qquad + \theta\ \underbrace{\left( -\frac{2q^{n+\theta, p}_{i+\half}}{ (h^{n+\theta, p}_{i+\half})^2}  \pdiff{}{x} \left( q^{n+\theta,p}_{i+\half}  \right)
+    & \qquad + \underbrace{\left( -\frac{2q^{n+\theta, p}_{i+\half}}{ (h^{n+\theta, p}_{i+\half})^2}  \pdiff{}{x} \left( q^{n+\theta,p}_{i+\half}  \right)
         + \frac{2(q^{n+\theta, p}_{i+\half})^2}{(h^{n+\theta, p}_{i+\half})^3} \pdiff{}{x} \left( h^{n+\theta,p} _{i+\half} \right)
-        \right)}_{\cal A} \Delta h^{n+1, p+1}_{i+\half} +
+        \right)}_{\cal A} \theta \Delta h^{n+1, p+1}_{i+\half} +
     \nonumber \\
-    & \qquad + \theta\ \underbrace{\left( \frac{2}{ h^{n+\theta, p}_{i+\half}} \pdiff{}{x} \left( q^{n+\theta, p}_{i+\half} \right)
+    & \qquad + \underbrace{\left( \frac{2}{ h^{n+\theta, p}_{i+\half}} \pdiff{}{x} \left( q^{n+\theta, p}_{i+\half} \right)
         -  \frac{2q^{n+\theta, p}_{i+\half}}{(h^{n+\theta, p}_{i+\half})^2} \pdiff{}{x} \left( h^{n+\theta, p}_{i+\half} \right)
-        \right)}_{\cal B} \Delta q^{n+1, p+1}_{i+\half} +
+        \right)}_{\cal B} \theta \Delta q^{n+1, p+1}_{i+\half} +
     \nonumber \\
     &
-    \qquad + \theta \underbrace{\left(- \frac{(q^{n+\theta, p}_{i+\half})^2}{(h^{n+\theta, p}_{i+\half})^2} \right)}_{\cal C} \pdiff{}{x} \left( \Delta h^{n+1, p+1}_{i+\half} \right)
-    + \theta \underbrace{\frac{2q^{n+\theta, p}_{i+\half}}{ h^{n+\theta, p}_{i+\half}}}_{\cal D} \pdiff{}{x} \left( \Delta q^{n+1, p+1}_{i+\half} \right)
+    \qquad + \underbrace{\left(- \frac{(q^{n+\theta, p}_{i+\half})^2}{(h^{n+\theta, p}_{i+\half})^2} \right)}_{\cal C} \theta \pdiff{}{x} \left( \Delta h^{n+1, p+1}_{i+\half} \right)
+    + \underbrace{\frac{2q^{n+\theta, p}_{i+\half}}{ h^{n+\theta, p}_{i+\half}}}_{\cal D} \theta \pdiff{}{x} \left(  \Delta q^{n+1, p+1}_{i+\half} \right)
 \end{align}
-where $\theta\cal{A}$, $\theta\cal{B}$, $\theta\cal{C}$ and $\theta\cal{D}$ are coefficients in the matrix of the \deltaformulation.
+where $\cal{A}$, $\cal{B}$, $\cal{C}$ and $\cal{D}$ multiplied by $\theta$ are the coefficients in the matrix of the \deltaformulation.
 %------------------------------------------------------------------------------
 \paragraph*{Bed shear stress term, momentum equation}
 At the left/west boundary ($x_{i+\half}$ with $i=0$) the discretization of the bed shear stress term for the \textbf{natural} boundary condition, describing the outgoing wave, reads:

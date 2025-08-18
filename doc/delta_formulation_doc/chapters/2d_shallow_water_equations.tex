@@ -285,16 +285,16 @@ Assume that the higher order terms are negligible then the discretization for ea
 \begin{align}
         \quart  \Dx\Dy\, g \left(
         h^{n+\theta, p}_{qp} \pdiff{\zeta^{n+\theta, p}_{qp}}{x}
-        + \theta h^{n+\theta, p}_{qp} \pdiff{\Delta \zeta^{n+1, p+1}_{qp}}{x}
-        + \theta \pdiff{\zeta^{n+\theta, p}_{qp}}{x} \Delta h^{n+1,p+1}_{qp}
+        + h^{n+\theta, p}_{qp} \pdiff{}{x} (\theta \Delta \zeta^{n+1, p+1}_{qp})
+        + \pdiff{\zeta^{n+\theta, p}_{qp}}{x} \theta \Delta h^{n+1,p+1}_{qp}
           \right)
 \end{align}
 Just looking to the quadrature point of $scv_3$ as part of the control volume for node $(i,j)$ the discretization reads:
 \begin{align}
     \quart  \Dx\Dy\, g \left(
     h^{n+\theta, p}_{i+\quart, j+\quart} \pdiff{\zeta^{n+\theta, p}_{i+\quart, j+\quart}}{x}
-    + \theta h^{n+\theta, p}_{i+\quart, j+\quart} \pdiff{\Delta \zeta^{n+1, p+1}_{i+\quart, j+\quart}}{x}
-    + \theta \pdiff{\zeta^{n+\theta, p}_{i+\quart, j+\quart}}{x} \Delta h^{n+1,p+1}_{i+\quart, j+\quart}
+    + h^{n+\theta, p}_{i+\quart, j+\quart} \pdiff{}{x}(\theta \Delta \zeta^{n+1, p+1}_{i+\quart, j+\quart})
+    + \pdiff{\zeta^{n+\theta, p}_{i+\quart, j+\quart}}{x} \theta \Delta h^{n+1,p+1}_{i+\quart, j+\quart}
     \right)
 \end{align}
 with
@@ -728,7 +728,7 @@ which will be approximated by
     \\
     \Leftrightarrow &
     \\
-    &\frac{\theta }{\Dx} \left( \Delta q^{n+1, p+1}_{i+1} - \Delta q^{n+1, p+1}_{i}\right) +
+    &\frac{1 }{\Dx} \theta \left( \Delta q^{n+1, p+1}_{i+1} - \Delta q^{n+1, p+1}_{i}\right) +
     \frac{1}{\Dx} \left\{ q^{n+\theta, p}_{i+1} - q^{n+\theta, p+1}_{i} \right\}
 \end{align}
 %------------------------------------------------------------------------------

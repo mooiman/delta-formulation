@@ -185,7 +185,7 @@ As an example a product of two quantities is taken, say $q$ and $r$ (like the co
 \begin{align}
     \left.(qr)\right|^{n+\theta, p+1} & = \left( q^{n+\theta, p} + \theta  \Delta q \right) \left( r^{n+\theta, p} + \theta  \Delta r\right) \approx
     \\
-    & \approx  q^{n+\theta, p} r^{n+\theta, p} + \theta q^{n+\theta, p} \Delta r + \theta r^{n+\theta, p} \Delta q
+    & \approx  q^{n+\theta, p} r^{n+\theta, p} + q^{n+\theta, p} \theta \Delta r + r^{n+\theta, p} \theta \Delta q
 \end{align}
 omitting the quadratic term $O((\Delta q)^2, \Delta q \Delta r, (\Delta r)^2)$.
 %--------------------------------------------------------------------------------
@@ -211,9 +211,12 @@ When the Jacobian notation is  used for the function $F(q,r) = qr$
 \end{align}
  it leads to following approximation
 \begin{align}
-    \left.(qr)\right|^{n+\theta, p+1} &  \approx  q^{n+\theta, p} r^{n+\theta, p}+ \theta J_{11}^{n+\theta, p} \Delta q + \theta J_{12}^{n+\theta, p} \Delta r =
+    \left.(qr)\right|^{n+\theta, p+1} &  \approx  q^{n+\theta, p} r^{n+\theta, p}
+    + J_{11}^{n+\theta, p} \theta \Delta q
+    + J_{12}^{n+\theta, p} \theta \Delta r =
     \\
-    & = q^{n+\theta, p} r^{n+\theta, p}+ \theta r^{n+\theta, p} \Delta q + q^{n+\theta, p} \Delta r
+    & = q^{n+\theta, p} r^{n+\theta, p}
+    + r^{n+\theta, p} \theta \Delta q + q^{n+\theta, p} \theta \Delta r
 \end{align}
 
 %--------------------------------------------------------------------------------
@@ -225,10 +228,12 @@ In this example a quotient of two quantities is taken, say $q$ and $h$ (represen
     \\
     & \approx \frac{ q^{n+\theta, p} + \theta  \Delta q }{ h^{n+\theta, p}} \left( 1 - \frac{\theta}{h^{n+\theta, p}} \Delta h  + O\left(  (\Delta h)^2 \right) \right)  \approx
     \\
-    & \approx \left( \frac{ q^{n+\theta, p}}{ h^{n+\theta, p}} + \frac{\theta}{ h^{n+\theta, p}}  \Delta q \right)
-    \left( 1 - \frac{\theta}{h^{n+\theta, p}} \Delta h  + O\left(  (\Delta h)^2 \right) \right)  \approx
+    & \approx \left( \frac{ q^{n+\theta, p}}{ h^{n+\theta, p}} + \frac{1}{ h^{n+\theta, p}}  \theta\Delta q \right)
+    \left( 1 - \frac{1}{h^{n+\theta, p}} \theta\Delta h  + O\left(  (\Delta h)^2 \right) \right)  \approx
     \\
-    & \approx  \frac{ q^{n+\theta, p}}{ h^{n+\theta, p}}  - \theta \frac{ q^{n+\theta, p}}{ (h^{n+\theta, p})^2} \Delta h + \theta\frac{1}{ h^{n+\theta, p}}  \Delta q
+    & \approx  \frac{ q^{n+\theta, p}}{ h^{n+\theta, p}}
+    - \frac{ q^{n+\theta, p}}{ (h^{n+\theta, p})^2} \theta \Delta h
+    + \frac{1}{ h^{n+\theta, p}}  \theta\Delta q
 \end{align}
 omitting the quadratic term $O((\Delta q)^2, \Delta q \Delta h, (\Delta h)^2)$.
 %--------------------------------------------------------------------------------
@@ -254,9 +259,13 @@ When the Jacobian notation is  used for the function $F(h,q) = q/h$
 \end{align}
 it leads to following approximation
 \begin{align}
-    \left.\left(\frac{q}{h}\right)\right|^{n+\theta, p+1} &  \approx  \frac{q^{n+\theta, p}}{h^{n+\theta, p}} + \theta J_{11}^{n+\theta, p} \Delta h + \theta J_{12}^{n+\theta, p} \Delta q =
+    \left.\left(\frac{q}{h}\right)\right|^{n+\theta, p+1} &  \approx  \frac{q^{n+\theta, p}}{h^{n+\theta, p}}
+    + J_{11}^{n+\theta, p} \theta \Delta h
+    + J_{12}^{n+\theta, p} \theta \Delta q =
     \\
-    & = \frac{q^{n+\theta, p}}{h^{n+\theta, p}} - \theta \frac{q^{n+\theta, p}}{(h^{n+\theta, p})^2} \Delta h + \theta \frac{1}{h^{n+\theta, p}} \Delta q
+    & = \frac{q^{n+\theta, p}}{h^{n+\theta, p}}
+    - \frac{q^{n+\theta, p}}{(h^{n+\theta, p})^2} \theta \Delta h
+    + \frac{1}{h^{n+\theta, p}} \theta \Delta q
 \end{align}
 %--------------------------------------------------------------------------------
 \subsection{Non-linear term, product and quotient}
@@ -289,14 +298,23 @@ When the Jacobian notation is  used for the function $F(h,q, r) = qr/h$
 \end{align}
 it leads to following approximation
 \begin{align}
-    \left.\left(\frac{qr}{h}\right)\right|^{n+\theta, p+1} &  \approx  \frac{q^{n+\theta, p}r^{n+\theta, p}}{h^{n+\theta, p}} + \theta J_{11}^{n+\theta, p} \Delta h + \theta J_{12}^{n+\theta, p} \Delta q + \theta J_{13}^{n+\theta, p} \Delta r=
+    \left.\left(\frac{qr}{h}\right)\right|^{n+\theta, p+1} &  \approx  \frac{q^{n+\theta, p}r^{n+\theta, p}}{h^{n+\theta, p}}
+    + J_{11}^{n+\theta, p} \theta\Delta h
+    + J_{12}^{n+\theta, p} \theta\Delta q
+    + J_{13}^{n+\theta, p} \theta\Delta r=
     \\
-    & = \frac{q^{n+\theta, p}r^{n+\theta, p}}{h^{n+\theta, p}} - \theta \frac{q^{n+\theta, p}r^{n+\theta, p}}{(h^{n+\theta, p})^2} \Delta h + \theta \frac{r^{n+\theta, p}}{h^{n+\theta, p}} \Delta q + \theta \frac{q^{n+\theta, p}}{h^{n+\theta, p}} \Delta r \label{eq:2d_convection_q_equation}
+    & = \frac{q^{n+\theta, p}r^{n+\theta, p}}{h^{n+\theta, p}}
+    - \frac{q^{n+\theta, p}r^{n+\theta, p}}{(h^{n+\theta, p})^2} \theta\Delta h
+    + \frac{r^{n+\theta, p}}{h^{n+\theta, p}} \theta\Delta q
+    + \frac{q^{n+\theta, p}}{h^{n+\theta, p}} \theta\Delta r
+    \label{eq:2d_convection_q_equation}
 \end{align}
-in case $q$ is substitute for $r$ the approximation reads:
+in case $q$ is substitute for $r$ then $\lpdiff{}{r}=0$ and the approximation reads:
 \begin{align}
     \left.\left(\frac{qq}{h}\right)\right|^{n+\theta, p+1} &  \approx
-\frac{q^{n+\theta, p}q^{n+\theta, p}}{h^{n+\theta, p}} - \theta \frac{q^{n+\theta, p}q^{n+\theta, p}}{(h^{n+\theta, p})^2} \Delta h + \theta \frac{2 q^{n+\theta, p}}{h^{n+\theta, p}} \Delta q.
+\frac{q^{n+\theta, p}q^{n+\theta, p}}{h^{n+\theta, p}}
+- \frac{q^{n+\theta, p}q^{n+\theta, p}}{(h^{n+\theta, p})^2} \theta\Delta h
++ \frac{2 q^{n+\theta, p}}{h^{n+\theta, p}} \theta\Delta q.
 \end{align}
 
 %--------------------------------------------------------------------------------
@@ -309,17 +327,19 @@ As an example the pressure term of the shallow water equations is taken, where $
 %    \\
 %    & \approx g h^{n+\theta, p} \pdiff{\zeta^{n+\theta, p}}{x} + gh^{n+\theta, p} \pdiff{\theta\Delta \zeta}{x} + g \pdiff{\zeta^{n+\theta, p}}{x} \theta\Delta h =
     \\
-    & \approx g h^{n+\theta, p} \pdiff{\zeta^{n+\theta, p}}{x} + \theta gh^{n+\theta, p} \pdiff{\Delta \zeta}{x} + \theta g \pdiff{\zeta^{n+\theta, p}}{x} \Delta h
+    & \approx g h^{n+\theta, p} \pdiff{\zeta^{n+\theta, p}}{x}
+    +  gh^{n+\theta, p} \pdiff{}{x} (\theta\Delta \zeta)
+    +  g \pdiff{\zeta^{n+\theta, p}}{x} \theta\Delta h
 \end{align}
 omitting the quadratic  term $O(\Delta h\ \lpdiff{\Delta \zeta}{x})$.
 The term  $\lpdiff{\Delta \zeta}{x}$ is not always small and therefor a psuedo time step method is introduced, see \autoref{sec:psuedo_time_step}.
 In discrete form it reads on location $x_{i+\half}$:
 \begin{align}
     \left. gh \pdiff{\zeta}{x}\right|^{n+\theta, p+1}_{i+\half} & \approx g h^{n+\theta, p}_{i+\half} \frac{\zeta^{n+\theta, p}_{i+1} - \zeta^{n+\theta, p}_{i}}{\Dx_{i}}
-    + \theta gh^{n+\theta, p}_{n+\half} \frac{\Delta \zeta_{i+1} - \Delta \zeta_{i}}{\Dx_{i}} +
+    + gh^{n+\theta, p}_{n+\half} \frac{\theta \Delta \zeta_{i+1} - \theta \Delta \zeta_{i}}{\Dx_{i}} +
     \\
     & \quad
-    + \theta g \frac{\zeta^{n+\theta, p}_{i+1} - \zeta^{n+\theta, p}_{i}}{\Dx_{i}} \Delta h_{i+\half}
+    + g \frac{\zeta^{n+\theta, p}_{i+1} - \zeta^{n+\theta, p}_{i}}{\Dx_{i}} \theta \Delta h_{i+\half}
 \end{align}
 Remember that the gradient over a grid cell $\Dx_i$ is constant, due to the piecewise linear approximation between two nodes.
 %--------------------------------------------------------------------------------
@@ -345,10 +365,12 @@ When the Jacobian notation is  used for the function $F(q,h) = gh\, \lpdiff{\zet
 \end{align}
 it leads to following approximation
 \begin{align}
-    \left.gh \pdiff{\zeta}{x}\right|^{n+\theta, p+1}_{i+\half} & \approx g h^{n+\theta, p} \pdiff{\zeta^{n+\theta, p}}{x}  + \theta J_{11}\Delta h  + \theta J_{12} \pdiff{}{x}(\Delta \zeta) \approx
+    \left.gh \pdiff{\zeta}{x}\right|^{n+\theta, p+1}_{i+\half} & \approx g h^{n+\theta, p} \pdiff{\zeta^{n+\theta, p}}{x}
+    + J_{11} \theta \Delta h
+    + J_{12} \pdiff{}{x}(\theta \Delta \zeta) \approx
     \\
     & \approx g h^{n+\theta, p} \frac{\zeta^{n+\theta, p}_{i+1} - \zeta^{n+\theta, p}_{i}}{\Dx_{i}}
-    + \theta g \frac{\zeta^{n+\theta, p}_{i+1} - \zeta^{n+\theta, p}_{i}}{\Dx_{i}} \Delta h_{i+\half} +
+    + g \frac{\zeta^{n+\theta, p}_{i+1} - \zeta^{n+\theta, p}_{i}}{\Dx_{i}} \theta\Delta h_{i+\half} +
     \\
-    & \quad + \theta gh^{n+\theta, p}_{n+\half} \frac{\Delta \zeta_{i+1} - \Delta \zeta_{i}}{\Dx_{i}}
+    & \quad + gh^{n+\theta, p}_{n+\half} \frac{\theta\Delta \zeta_{i+1} - \theta\Delta \zeta_{i}}{\Dx_{i}}
 \end{align}
