@@ -23,10 +23,18 @@
 #ifndef __BEDSHEARSTRESS_H__
 #define __BEDSHEARSTRESS_H__
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <iostream>
+#include <string>
 #include <vector>
+
+// for BiCGstab  solver
+#include <Eigen/Dense>
+#include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
-int bed_shear_stress_matrix_rhs(Eigen::SparseMatrix<double>& A, Eigen::VectorXd& rhs,
+int bed_shear_stress_matrix_rhs(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
     double cf, double theta, double dx, double dy, int nx, int ny);
 void bed_shear_stress_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r, 
@@ -43,6 +51,8 @@ void bed_shear_stress_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r
     inline double bed_shear_stress_J_21(double& h, double& q, double& r, double& cf);
     inline double bed_shear_stress_J_22(double& h, double& q, double& r, double& cf);
     inline double bed_shear_stress_J_23(double& h, double& q, double& r, double& cf);
-    inline double vecq(double& qp, double& rp);
+    inline double vecq(double& qp, double& rp, double a);
+
+    inline void set_value(double * values, int col, double data);
 
 #endif  // __BEDSHEARSTRESS_H__

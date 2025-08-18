@@ -197,6 +197,9 @@
     <ClCompile Include="src\grid.cpp" />
     <ClCompile Include="src\initial_conditions.cpp" />
     <ClCompile Include="src\main_2d.cpp" />
+    <ClCompile Include="src\matrix_assembly_boundaries.cpp" />
+    <ClCompile Include="src\matrix_assembly_corners.cpp" />
+    <ClCompile Include="src\matrix_assembly_interior.cpp" />
     <ClCompile Include="src\perf_timer.cpp" />
     <ClCompile Include="src\regularization.cpp" />
     <ClCompile Include="src\ugrid2d.cpp" />
@@ -213,6 +216,9 @@
     <ClInclude Include="include\data_struct.h" />
     <ClInclude Include="include\grid.h" />
     <ClInclude Include="include\initial_conditions.h" />
+    <ClInclude Include="include\matrix_assembly_boundaries.h" />
+    <ClInclude Include="include\matrix_assembly_corners.h" />
+    <ClInclude Include="include\matrix_assembly_interior.h" />
     <ClInclude Include="include\perf_timer.h" />
     <ClInclude Include="include\regularization.h" />
     <ClInclude Include="include\ugrid2d.h" />

@@ -14,7 +14,10 @@ Consider the non-linear wave equation
     \begin{align}
     \pdiff{h}{t} & + \nabla \dotp \vec{q}  = 0,
     \\
-    \pdiff{\vec{q}}{t} & + \nabla \dotp \left( \frac{\vec{q}\vec{q}^T}{h} \right) + gh \nabla \zeta +  c_f \left( \frac{\vec{q}\abs{\vec{q}}}{h^2} \right)  = 0,
+    \pdiff{\vec{q}}{t} & + \nabla \dotp \left( \frac{\vec{q}\vec{q}^T}{h} \right) + gh \nabla \zeta +
+    \nonumber \\
+    & + c_f \left( \frac{\vec{q}\abs{\vec{q}}}{h^2} \right)
+    - \nabla \dotp \left( \nu h \left(  \nabla \vec{q}/h + \nabla \vec{q}^T/h \right) \right) = 0,
     \\
     \zeta & = h + z_b,
 \end{align}
@@ -33,6 +36,7 @@ with
     \item[$C$] Ch\'ezy coefficient, \bunit{\metre^{\half}\, \second^{-1}}.
 
     \item[$g$] Acceleration due to gravity, \bunit{\metre\per\square\second}.
+    \item[$\nu$] Kinematic viscosity, \bunit{\square\metre\per\second}.
 \end{symbollist}
 \subsection*{Finite Volume approach}
 Integrating the equations over a finite volume $\Omega$ yields:
@@ -58,7 +62,10 @@ Integrating the equations over a finite volume $\Omega$ yields:
     \\
     \int_\Omega \pdiff{\vec{q}}{t}\, d\omega &
     + \int_\Omega \nabla \dotp \left( \frac{\vec{q}\vec{q}^T}{h} \right)\, d\omega
-    + \int_\Omega gh \nabla \zeta\, d\omega + \int_\Omega c_f \left( \frac{\vec{q}\abs{\vec{q}}}{h^2} \right)\, d\omega   = 0,
+    + \int_\Omega gh \nabla \zeta\, d\omega +
+    \nonumber \\
+    & + \int_\Omega c_f \left( \frac{\vec{q}\abs{\vec{q}}}{h^2} \right)\, d\omega
+    - \int_\Omega \nabla \dotp \left( \nu h \left(  \nabla \vec{q}/h + \nabla \vec{q}^T/h \right) \right)\, d\omega = 0,
     \label{eq:pressure_dependent_on_zeta_b}
     \\
     \int_\Omega \zeta\, d\omega &
@@ -142,14 +149,30 @@ Written in \deltaformulation  it reads:
 The discretization of the mass flux term of the continuity equation reads:
 \begin{align}
 \int_\Omega \nabla \dotp \vec{q}\, d\omega =
-\oint_{\partial\Omega} \left( q + r \right) \vec{n} \dotp \vec{dl}
+\oint_{\partial\Omega} \vec{q} \dotp \vec{n} \, dl =
+\oint_{\partial\Omega}
+\begin{pmatrix}
+    q \\
+    r
+\end{pmatrix}
+\dotp
+\begin{pmatrix}
+    n_x \\
+    n_y
+\end{pmatrix}
+    \, dl
+=
+\oint_{\partial\Omega} \left( q n_x + r n_y \right) \, dl
 \end{align}
+with $\vec{n} = (n_x, n_y)^T$ the outward normal vector.
+
 The component for the continuity equation reads:
 \begin{align}
-    F_{{\it mf}} = q + r
+    F_{{\it mf}} = q n_x + r n_y
 \end{align}
 
-The Jacobian \textbf{at the faces of the control volume} for the mass flux terms $F_{{\it mf}}(h,q,r)$ reads:
+The Jacobian \textbf{at the faces of the control volume} for the mass flux term
+reads:
 \begin{align}
     %    &\begin{pmatrix}
         %    J_{11} &  J_{12} &  J_{13}
@@ -171,9 +194,9 @@ The linearization in time reads:
 \end{align}
 This terms need to be computed for each of the control volume faces, taken into account the outward normal.
 Eight faces on a structured grid.
-For the quadrature point $(i+\half, j+\quart)$ it reads:
+For the quadrature point $(i+\half, j+\quart)$ where $\vec{n} = (1,0)^T$ and $1\, dl = \half \Dy$ reads:
 \begin{align}
-  &(\vec{n}\dotp \vec{dl}) \left( q^{n+\theta, p}_{i+\half, j+\quart} + \theta \Delta q_{i+\half, j+\quart}  + r^{n+\theta, p}_{i+\half, j+\quart} + \theta \Delta r_{i+\half, j+\quart} \right) \approx
+  &\left( q^{n+\theta, p}_{i+\half, j+\quart} + \theta \Delta q_{i+\half, j+\quart}  + r^{n+\theta, p}_{i+\half, j+\quart} + \theta \Delta r_{i+\half, j+\quart} \right) \begin{pmatrix} 1 \\ 0 \end{pmatrix} dl \approx
   \\*
  & \approx \half \Dy\ \frac{1}{8} \left( 3 q^{n+\theta, p}_{i,j} + 3 q^{n+\theta, p}_{i+1,j} + q^{n+\theta, p}_{i+1, j+1} + q^{n+\theta, p}_{i, j+1} \right)
  +
@@ -298,60 +321,87 @@ Set $\Delta x = \bqty{100}{\metre}$, $\lpdiff{\zeta}{x}=0$, estimate the coeffic
 The convection term in vector notation reads:
 \begin{align}
     \int_\Omega \nabla \dotp \left( \frac{\vec{q}\vec{q}^T}{h} \right)\, d\omega =
-    \oint_{\Omega}  \left( \frac{\vec{q}\vec{q}^T}{h} \right) \vec{n} \dotp \vec{dl}
+    \oint_{\Omega}  \left( \frac{\vec{q}\vec{q}^T}{h} \right) \dotp \vec{n} \, dl =
+    \oint_{\Omega}
+    \begin{pmatrix}
+        qq/h & qr/h \\
+        rq/h & rr/h
+    \end{pmatrix}
+    \dotp
+    \begin{pmatrix}
+        n_x \\
+        n_y
+    \end{pmatrix}
+     \, dl
 \end{align}
+with $\vec{n} = (n_x, n_y)^T$ the outward normal vector.
+
 The components for the two momentum equations read:
 \begin{align}
     F_q
-    & = \oint_{\Omega} \left(\frac{qq}{h} + \frac{qr}{h}\right) \vec{n_x} \dotp \vec{dl}
+    & = \oint_{\Omega} \left(\frac{qq}{h}{n_x} + \frac{qr}{h}{n_y}\right) \, dl
     \qquad \textit{q-momentum eq.}
     \\
     F_r
-    & = \oint_{\Omega} \left(\frac{rq}{h} + \frac{rr}{h}\right)  \vec{n_y} \dotp \vec{dl}
+    & = \oint_{\Omega} \left(\frac{rq}{h}{n_x} + \frac{rr}{h}{n_y}\right) \, dl
     \qquad \textit{r-momentum eq.}
 \end{align}
-The Jacobian \textbf{at the faces of the control volume} for the convection terms $F(h,q,r)$ reads:
-\begin{align}
-    %    &\begin{pmatrix}
-        %    J_{11} &  J_{12} &  J_{13}
-        %    \\
-        %     J_{21} &  J_{22} &  J_{23}
-        %    \end{pmatrix}
-    %    \rightarrow
-    &\begin{pmatrix}
-        \pdiff{F_q}{h} & \pdiff{F_q}{q} & \pdiff{F_q}{r}
-        \\
-        \pdiff{F_r}{h} & \pdiff{F_r}{q} & \pdiff{F_r}{r}
-    \end{pmatrix}
-    =
-    \\
-    &=
-    \begin{pmatrix}
-- \frac{qq}{h^2} - \frac{qr}{h^2} & \frac{2q}{h} + \frac{r}{h} & \frac{q}{h}
-\\*
-- \frac{rq}{h^2} - \frac{rr}{h^2} & \frac{r}{h} & \frac{q}{h} + \frac{2r}{h}
-    \end{pmatrix}
-\end{align}
-
+%The Jacobian \textbf{at the faces of the control volume} for each term of the convection term reads:
+%\begin{align}
+%    &\begin{pmatrix}
+%        \pdiff{}{h}(\frac{qq}{h}) & \pdiff{}{q}(\frac{qq}{h}) & \pdiff{}{r}(\frac{qq}{h})
+%    \end{pmatrix}
+%    =
+%    \begin{pmatrix}
+%    - \frac{qq}{h^2} & \frac{2q}{h}  & 0
+%    \end{pmatrix}
+%\\
+%    &\begin{pmatrix}
+%    \pdiff{}{h}(\frac{qr}{h}) & \pdiff{}{q}(\frac{qr}{h}) & \pdiff{}{r}(\frac{qr}{h})
+%\end{pmatrix}
+%=
+%\begin{pmatrix}
+%    - \frac{qr}{h^2} & \frac{r}{h}  & \frac{q}{h}
+%\end{pmatrix}
+%\\
+%    &\begin{pmatrix}
+%    \pdiff{}{h}(\frac{rq}{h}) & \pdiff{}{q}(\frac{rq}{h}) & \pdiff{}{r}(\frac{rq}{h})
+%\end{pmatrix}
+%=
+%\begin{pmatrix}
+%    - \frac{rq}{h^2} & \frac{r}{h}  & \frac{q}{h}
+%\end{pmatrix}
+%\\
+%    &\begin{pmatrix}
+%    \pdiff{}{h}(\frac{rr}{h}) & \pdiff{}{q}(\frac{rr}{h}) & \pdiff{}{r}(\frac{rr}{h})
+%\end{pmatrix}
+%=
+%\begin{pmatrix}
+%    - \frac{rr}{h^2} & 0 & \frac{2r}{h}
+%\end{pmatrix}
+%\end{align}
+%
 The linearization in time for the $q$-momentum equation reads (see \autoref{eq:2d_convection_q_equation}):
 \begin{align}
-    &\frac{q^{n+\theta, p}_{qp}q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} + \frac{q^{n+\theta, p}_{qp}r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}}
-    - \left( \frac{q^{n+\theta, p}_{qp}q^{n+\theta, p}_{qp}}{(h^{n+\theta, p}_{qp})^2} +
-    \frac{q^{n+\theta, p}_{qp}r^{n+\theta, p}_{qp}}{(h^{n+\theta, p}_{qp})^2} \right) \theta \Delta h +
+    &\frac{q^{n+\theta, p}_{qp}q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_x+ \frac{q^{n+\theta, p}_{qp}r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_y
+    + \left( -\frac{q^{n+\theta, p}_{qp}q^{n+\theta, p}_{qp}}{(h^{n+\theta, p}_{qp})^2} n_x -
+    \frac{q^{n+\theta, p}_{qp}r^{n+\theta, p}_{qp}}{(h^{n+\theta, p}_{qp})^2} n_y \right) \theta \Delta h +
     \nonumber \\*
-    & + \left ( \frac{2 q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} +  \frac{r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}}\right) \theta \Delta q + \left( \frac{q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}}  \right) \theta \Delta r
+    & + \left( \frac{2 q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_x +  \frac{r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_y \right) \theta \Delta q
+    + \left( 0\, n_x + \frac{q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_y \right) \theta \Delta r
 \end{align}
 and for the $r$-momentum equation:
 \begin{align}
-    &\frac{r^{n+\theta, p}_{qp}q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} +
-    \frac{r^{n+\theta, p}_{qp}r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}}
-- \left( \frac{r^{n+\theta, p}_{qp}q^{n+\theta, p}_{qp}}{(h^{n+\theta, p}_{qp})^2} +
-\frac{r^{n+\theta, p}_{qp}r^{n+\theta, p}_{qp}}{(h^{n+\theta, p}_{qp})^2} \right) \theta \Delta h +
+    &\frac{r^{n+\theta, p}_{qp}q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_x+
+     \frac{r^{n+\theta, p}_{qp}r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_y
+   + \left( -\frac{r^{n+\theta, p}_{qp}q^{n+\theta, p}_{qp}}{(h^{n+\theta, p}_{qp})^2} n_x -
+\frac{r^{n+\theta, p}_{qp}r^{n+\theta, p}_{qp}}{(h^{n+\theta, p}_{qp})^2} n_y \right) \theta \Delta h +
 \nonumber \\*
 & +
-\left( \frac{r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}}  \right) \theta \Delta q +
+\left( \frac{r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_x  + 0\, n_y \right) \theta \Delta q +
 \left (
-\frac{q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} + \frac{2 r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}}  \right) \theta \Delta r
+\frac{q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_x
++ \frac{2 r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_y \right) \theta \Delta r
 \end{align}
 This terms need to be computed for each of the control volume faces, taken into account the outward normal.
 Eight faces on a cartesian grid.
@@ -433,6 +483,13 @@ with
     \abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}} = \left( q^4_{qp} + r^4_{qp} + \eps^4 \right)^\quart.
 \end{align}
 These terms need to be computed for each quadrature points ($qp$) of the sub-control volumes.
+%--------------------------------------------------------------------------------
+\subsubsection{Viscosity}
+The viscosity term in vector notation reads:
+\begin{align}
+    \int_\Omega \nabla \dotp \left( \nu h \left(  \nabla \vec{q}/h + \nabla \vec{q}^T/h \right) \right)\, d\omega =
+    \oint_{\Omega}  \left(\nu \nabla \vec{q} \right) \vec{n} \dotp \vec{dl}
+\end{align}
 %%--------------------------------------------------------------------------------
 %\subsubsection{Pressure term, dependent on $h$}
 %In this section we use that the pressure term is dependent on $h$.
