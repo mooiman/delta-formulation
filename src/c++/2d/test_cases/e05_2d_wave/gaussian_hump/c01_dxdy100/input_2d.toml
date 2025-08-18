@@ -6,16 +6,16 @@
 
 [Time]
     tstart = 0.0                                  # Start time [s]
-    tstop = 3600.0                                # End time [s]
+    tstop = 1800.0                                # End time [s]
         
 [Initial]
     ini_vars = ["zeta", "zeta_gauss_hump"]
     gauss_amp = 0.01 # amplitude of the gaussian hump
     gauss_mu = 0.0    # location of the top of the gaussian hump
-    gauss_sigma = 700.0    # width of the gaussian hump
+    gauss_sigma = 350.0    # width of the gaussian hump
 
 [Boundary] # north, east, south, west
-    bc_type = ["dirichlet", "dirichlet", "dirichlet", "dirichlet"] # Type "borsboom", "dirichlet", "mooiman" 
+    bc_type = ["borsboom", "borsboom", "borsboom", "borsboom"] # Type "borsboom", "dirichlet", "mooiman" 
     bc_vars = ["zeta", "zeta", "zeta", "zeta"]
     bc_vals = [0.0, 0.0, 0.0, 0.0]
     bc_absorbing = [true, true, true, true]
@@ -35,9 +35,9 @@
     chezy_coefficient = 50.0        # Chezy coefficient
 
 [Numerics]
-    dt = 60.0                       # Time step size [s], if dt == 0: then stationary problem
+    dt = 10.0                       # Time step size [s], if dt == 0: then stationary problem
     iter_max = 25                   # Maximum number of nonlinear iterations
-    theta = 1.0                   # Implicitness factor (0.5 <= theta <= 1.0)
+    theta = 0.501                   # Implicitness factor (0.5 <= theta <= 1.0)
     regularization_init = true
     regularization_iter = false
     regularization_time = false
