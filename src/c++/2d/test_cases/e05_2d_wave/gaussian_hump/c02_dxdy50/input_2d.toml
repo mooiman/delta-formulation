@@ -20,7 +20,7 @@
     bc_vals = [0.0, 0.0, 0.0, 0.0]
     bc_absorbing = [true, true, true, true]
     treg = 150.0                                  # Regularization time boundary signal
-    eps_bc_corr = 1.0e-2
+    eps_bc_corr = 1.0e-02
 
 [Physics]
     g = 10.0                        # Gravitational acceleration
@@ -35,7 +35,7 @@
     chezy_coefficient = 50.0        # Chezy coefficient
 
 [Numerics]
-    dt = 5.0                        # Time step size [s], if dt == 0: then stationary problem
+    dt = 15.0                       # Time step size [s], if dt == 0: then stationary problem
     iter_max = 25                   # Maximum number of nonlinear iterations
     theta = 0.501                   # Implicitness factor (0.5 <= theta <= 1.0)
     regularization_init = true

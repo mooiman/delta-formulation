@@ -5,8 +5,8 @@
     bed_level_file = "geometry/62x62_tile.dep"  # uniform depth
 
 [Time]
-    tstart = 0.0                                # Start time [s]
-    tstop = 10.0                                # End time [s]
+    tstart = 0.0                                  # Start time [s]
+    tstop = 900.0                                # End time [s]
         
 [Initial]
     ini_vars = ["zeta", "zeta_constant"]
@@ -36,13 +36,13 @@
 
 [Numerics]
     dt = 2.0                        # Time step size [s], if dt == 0: then stationary problem
-    iter_max = 100                  # Maximum number of nonlinear iterations
+    iter_max = 25                  # Maximum number of nonlinear iterations
     theta = 0.501                   # Implicitness factor (0.5 <= theta <= 1.0)
     regularization_init = true
     regularization_iter = false
     regularization_time = false
     eps_newton = 1.0e-12
-    eps_bicgstab = 1.0e-12
+    eps_bicgstab = 1.0e-06
 
 [Output]
     dt_his = 0.01   # [s]
