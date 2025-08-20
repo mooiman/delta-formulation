@@ -1040,7 +1040,7 @@ int main(int argc, char *argv[])
     std::cout << "Start time-loop" << std::endl;
     if (stationary) { std::cout << "Stationary solution" << std::endl; }
     else { std::cout << "Time dependent simulation" << std::endl; }
-    std::cout << std::fixed << std::setprecision(2) << "tstart= " << tstart + time << ";   tstop= " << tstart + tstop << ";   dt= " << dt << std::endl;
+    std::cout << std::fixed << std::setprecision(3) << "tstart= " << tstart + time << ";   tstop= " << tstart + tstop << ";   dt= " << dt << std::endl;
 
     // Start time loop
     START_TIMER(Time loop);
