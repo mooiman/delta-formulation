@@ -403,8 +403,9 @@ and for the $r$-momentum equation:
 \frac{q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_x
 + \frac{2 r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_y \right) \theta \Delta r
 \end{align}
+
 This terms need to be computed for each of the control volume faces, taken into account the outward normal.
-Eight faces on a cartesian grid.
+Eight faces on a cartesian/curvilinear grid.
 
 %--------------------------------------------------------------------------------
 \subsubsection{Bed shear stress}
@@ -487,9 +488,103 @@ These terms need to be computed for each quadrature points ($qp$) of the sub-con
 \subsubsection{Viscosity}
 The viscosity term in vector notation reads:
 \begin{align}
-    \int_\Omega \nabla \dotp \left( \nu h \left(  \nabla \vec{q}/h + \nabla \vec{q}^T/h \right) \right)\, d\omega =
-    \oint_{\Omega}  \left(\nu \nabla \vec{q} \right) \vec{n} \dotp \vec{dl}
+    \int_\Omega \nabla \dotp \left( \nu h \left(  \nabla (\vec{q}/h) + \nabla (\vec{q}^T/h) \right) \right)\, d\omega =
+    \oint_{\Omega}  \left( \nu h \left( \nabla (\vec{q}/h) + \nabla (\vec{q}^T/h) \right) \right) \dotp \vec{n}\, dl
 \end{align}
+with $\vec{n} = (n_x, n_y)^T$ the outward normal vector.
+Written in components ($\vec{q} = (q, r)^T$):
+\begin{align}
+    &\oint_{\Omega}  \left( \nu h \left( \nabla (\vec{q}/h) + \nabla (\vec{q}^T/h) \right) \right) \dotp \vec{n}\, dl =
+    \\
+    & =
+    \oint_{\Omega} \nu h
+    \left(
+    \begin{pmatrix}
+    \pdiff{(q/h)}{x} & \pdiff{(q/h)}{y}
+    \\
+    \pdiff{(r/h)}{x} & \pdiff{(r/h)}{y}
+    \end{pmatrix}
+    +
+    \begin{pmatrix}
+    \pdiff{(q/h)}{x} & \pdiff{(r/h)}{x}
+    \\
+    \pdiff{(q/h)}{y} & \pdiff{(r/h)}{y}
+   \end{pmatrix}
+   \right)
+    \dotp \vec{n}\, dl
+\end{align}
+The components for the two momentum equations read:
+\begin{align}
+    F_q
+    & = \oint_{\Omega} \nu h
+    \left[ 2\pdiff{(q/h)}{x} n_x
+    + \left(\pdiff{(q/h)}{y} + \pdiff{(r/h)}{x}\right)n_y \right] \, dl
+    \qquad \textit{q-momentum eq.}
+    \\
+    F_r
+    & = \oint_{\Omega}  \nu h
+    \left[ \left(\pdiff{(r/h)}{x} + \pdiff{(q/h)}{y}\right)n_x
+    + 2\pdiff{(r/h)}{y} n_y \right] \, dl
+    \qquad \textit{r-momentum eq.}
+\end{align}
+where
+\begin{align}
+    \cal{A}: & \quad \nu h \pdiff{(q/h)}{x} = \nu \left( \pdiff{q}{x} - \frac{q}{h}\pdiff{h}{x} \right)
+    \\
+    \cal{B}: & \quad \nu h \pdiff{(q/h)}{y} = \nu \left( \pdiff{q}{y} - \frac{q}{h}\pdiff{h}{y} \right)
+    \\
+    \cal{C}: & \quad \nu h \pdiff{(r/h)}{x} = \nu \left( \pdiff{r}{x} - \frac{r}{h}\pdiff{h}{x} \right)
+    \\
+    \cal{D}: & \quad \nu h \pdiff{(r/h)}{y} = \nu \left( \pdiff{r}{y} - \frac{r}{h}\pdiff{h}{y} \right)
+\end{align}
+These equations need to be  discretized on the quadrature points $qp$ at the control volume faces.
+The discretization is first  given for expression $\cal{A}$ (using result from \autoref{sec:jacobians_with_non_linear_quotient_term} for the quotient):
+\begin{align}
+     & \nu_{qp} \pdiff{q^{n+\theta, p+1}_{qp}}{x}  -
+    \nu_{qp} \frac{q^{n+\theta, p+1}}{h^{n+\theta, p+1}_{qp}}\pdiff{ h^{n+\theta, p+1}_{qp}}{x} \approx
+    \\
+    & \approx
+%    \nu_{qp} \pdiff{(q^{n+\theta,p}_{qp} +  \theta \Delta q_{qp})}{x}
+%    - \nu_{qp} \frac{(q^{n+\theta,p}_{qp} +  \theta \Delta q_{qp})}{h^{n+\theta,p}_{qp}} (1 -  \frac{1}{h^{n+\theta,p}_{qp}}\theta \Delta h_{qp})  \pdiff{(h^{n+\theta,p}_{qp} +  \theta \Delta h_{qp})}{x} =
+%    \\
+%    & =
+    \nu_{qp} \pdiff{q^{n+\theta,p}_{qp}}{x} + \nu_{qp} \pdiff{}{x}(\theta \Delta q_{qp}) +
+    \nonumber \\
+    &- \nu_{qp} \left(
+    \frac{q^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}} - \frac{q^{n+\theta,p}_{qp}}{(h^{n+\theta,p}_{qp})^2} \theta \Delta h_{qp} +
+    \frac{1}{h^{n+\theta,p}_{qp}} \theta \Delta q_{qp}
+    \right)\left(  \pdiff{h^{n+\theta,p}_{qp}}{x} +   \pdiff{}{x}(\theta \Delta h_{qp}) \right) \approx
+    \\
+    & \approx
+    \nu_{qp} \left( \pdiff{q^{n+\theta,p}_{qp}}{x} - \frac{q^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}} \pdiff{h^{n+\theta,p}_{qp}}{x} \right)
+    %
+    \\
+& + \nu_{qp}  \frac{q^{n+\theta,p}_{qp}}{(h^{n+\theta,p}_{qp})^2} \pdiff{h^{n+\theta,p}_{qp}}{x}  \theta \Delta h_{qp}
+- \nu_{qp} \frac{1}{h^{n+\theta,p}_{qp}}  \pdiff{h^{n+\theta,p}_{qp}}{x} \theta \Delta q_{qp}
+    \\
+    & +
+    \nu_{qp} \pdiff{}{x}(\theta \Delta q_{qp}) +
+    \nu_{qp} \frac{q^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}} \pdiff{}{x}(\theta \Delta h_{qp})
+\end{align}
+the terms $O(\Delta h\pdiff{\Delta h}{x}, \Delta q \pdiff{\Delta h}{x})$ are assumed to negligible.
+In a similar way for the other three expressions:
+\begin{align}
+    \cal{B}: & \quad \nu_{qp} \pdiff{q^{n+\theta, p+1}_{qp}}{y}  -
+\nu_{qp} \frac{q^{n+\theta, p+1}}{h^{n+\theta, p+1}_{qp}}\pdiff{ h^{n+\theta, p+1}_{qp}}{y}
+\\
+    \cal{C}: & \quad \nu_{qp} \pdiff{r^{n+\theta, p+1}_{qp}}{x}  -
+\nu_{qp} \frac{r^{n+\theta, p+1}}{h^{n+\theta, p+1}_{qp}}\pdiff{ h^{n+\theta, p+1}_{qp}}{x}
+\\
+    \cal{D}: & \quad \nu_{qp} \pdiff{r^{n+\theta, p+1}_{qp}}{x}  -
+\nu_{qp} \frac{r^{n+\theta, p+1}}{h^{n+\theta, p+1}_{qp}}\pdiff{ h^{n+\theta, p+1}_{qp}}{x}
+\end{align}
+
+
+
+This terms need to be computed for each of the control volume faces, taken into account the outward normal.
+Eight faces on a cartesian/curvilinear grid.
+
+
 %%--------------------------------------------------------------------------------
 %\subsubsection{Pressure term, dependent on $h$}
 %In this section we use that the pressure term is dependent on $h$.
