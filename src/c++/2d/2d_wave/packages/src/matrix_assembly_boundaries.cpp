@@ -55,7 +55,7 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
 {
     memset(&values[c_eq], 0, 3 * 27 * sizeof(double));  // set all coefficients for one row of c-, q- and r-equation to zero
 
-    int p_b  = c_eq/(3*27);  // node number of boundary point, ie east point of molucule
+    int p_b  = c_eq/(3*27);  // node number of boundary point, ie north point of molecule
     int p_s  = p_b - 1;
     int p_ss = p_s - 1;
 
@@ -109,6 +109,7 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
     double c_wave = std::sqrt(g * htheta_jm12);
     double con_fac = c_wave;
 
+    // nnorth
     if (bc_type[BC_NORTH] == "dirichlet")
     {
         // Contribution Delta h
@@ -308,7 +309,7 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
 {
     memset(&values[c_eq], 0, 3 * 27 * sizeof(double));  // set all coefficients for one row of c-, q- and r-equation to zero
 
-    int p_b  = c_eq/(3*27);  // node number of boundary point, ie east point of molucule
+    int p_b  = c_eq/(3*27);  // node number of boundary point, ie east point of molecule
     int p_w  = p_b - ny;
     int p_ww = p_w - ny;
 
@@ -362,6 +363,7 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
     double c_wave = std::sqrt(g * htheta_im12);
     double con_fac = c_wave;
 
+    // eeast
     if (bc_type[BC_EAST] == "dirichlet")
     {
         // Contribution Delta h
@@ -563,7 +565,7 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
 {
     memset(&values[c_eq], 0, 3 * 27 * sizeof(double));  // set all coefficients for one row of c-, q- and r-equation to zero
 
-    int p_b  = c_eq/(3*27);  // node number of boundary point, ie west point of molucule
+    int p_b  = c_eq/(3*27);  // node number of boundary point, ie south point of molecule
     int p_n  = p_b + 1;
     int p_nn = p_n + 1;
 
@@ -615,6 +617,7 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
     double c_wave = std::sqrt(g * htheta_jp12);
     double con_fac = c_wave;
 
+    // ssouth
     if (bc_type[BC_SOUTH] == "dirichlet")
     {
         // Contribution Delta h
@@ -866,10 +869,11 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
     double c_wave = std::sqrt(g * htheta_ip12);
     double con_fac = c_wave;
 
+    // wwest
     if (bc_type[BC_WEST] == "dirichlet")
     {
         // Contribution Delta h
-        int col_b  = c_eq + 1 * 3; // point of boundary, ie west point of molucule
+        int col_b  = c_eq + 1 * 3; // point of boundary, ie west point of molecule
         int col_e  = col_b + 9;
         int col_ee = col_e + 9;
         //

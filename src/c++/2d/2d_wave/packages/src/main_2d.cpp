@@ -33,10 +33,10 @@
 #include <iostream>
 #include <string>
 #include <thread>
-#include <toml.h>
+
 #include <vector>
 
-
+#include <toml.h>
 // for BiCGstab  solver
 #include <Eigen/Dense>
 #include <Eigen/IterativeLinearSolvers>
@@ -1137,7 +1137,7 @@ int main(int argc, char *argv[])
                     theta, nx, ny, htheta, qtheta, rtheta);
             }
             // west boundary
-            for (int row = 3; row < 3 * (ny - 1) - 1; row += 3)
+            for (int row = 3; row < 3 * (ny - 1); row += 3)
             {
                 int c_eq = outer[row    ];
                 int q_eq = outer[row + 1];
