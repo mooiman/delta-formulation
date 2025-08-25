@@ -420,9 +420,9 @@ The components for the two momentum equations read:
     F_r = \int_\Omega c_f \left( \frac{r\abs{\vec{q}}}{h^2} \right)\, d\omega, \qquad \textit{r-momentum eq.}
 \end{align}
 and $\abs{\vec{q}} = \sqrt{q^2 + r^2}$.
-To avoid the discontinuity in the first derivative around zero for the absolute function this function will be approximated by (the Newton iteration process needs continue functions)
+To avoid the discontinuity in the first derivative around zero, the absolute function will be approximated by (the Newton iteration process needs $C^1$--continue functions)
 \begin{align}
-    \abs{\vec{q}} \approx \abs{\widetilde{\vec{q}}} = \left( q^4 + r^4 + \eps^4 \right)^\quart.
+    \abs{\vec{q}} \approx \abs{\widetilde{\vec{q}}} = \left( (q^2 + r^2)^2 + \eps^4 \right)^\quart.
 \end{align}
 The bed shear stress then reads:
 \begin{align}
@@ -481,7 +481,7 @@ and for the $r$-momentum equation:
 \end{align}
 with
 \begin{align}
-    \abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}} = \left( q^4_{qp} + r^4_{qp} + \eps^4 \right)^\quart.
+    \abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}} = \left( (q^2_{qp} + r^2_{qp})^2 + \eps^4 \right)^\quart.
 \end{align}
 These terms need to be computed for each quadrature points ($qp$) of the sub-control volumes.
 %--------------------------------------------------------------------------------
