@@ -90,6 +90,34 @@ and define the partial differentials as
     \left. \pdiff{u}{y} \right|_{i+\half,j+\quart} =  \half \left(\frac{u_{i,j+1} - u_{i,j}}{\Dy_{i,j+\half}} + \frac{u_{i+1,j+1} - u_{i+1,j}}{\Dy_{i+1,j+\half}}\right)
 \end{align}
 %
+In case the artificial viscosity is symmetric ($\Psi_{12} = \Psi_{21} = 0$) it reads:
+%
+\begin{align}
+    \int_\Omega & \nabla \dotp \bPsi \nabla \widetilde{u}\, d\omega  =
+    \int_\Gamma \bPsi \nabla \widetilde{u} \dotp \vec{\hat n}\, ds \approx
+    \\
+    %
+    & \approx
+    \left. \frac{1}{2\Dy}\left( \Psi_{11} \pdiff{\widetilde{u}}{x} \right) \right|_{i+\half,j-\quart}
+    + \left. \frac{1}{2\Dy} \left( \Psi_{11} \pdiff{\widetilde{u}}{x} \right) \right|_{i+\half,j+\quart} +
+    \\
+    &
+    + \left. \frac{1}{2\Dx} \left( \Psi_{22} \pdiff{\widetilde{u}}{y} \right) \right|_{i-\quart,j+\half}
+    + \left. \frac{1}{2\Dx} \left( \Psi_{22} \pdiff{\widetilde{u}}{y} \right) \right|_{i+\quart,j+\half} +
+    \\
+    &
+    -  \left. \frac{1}{2\Dy} \left( \Psi_{11} \pdiff{\widetilde{u}}{x} \right) \right|_{i-\half,j-\quart}
+    -  \left. \frac{1}{2\Dy} \left( \Psi_{11} \pdiff{\widetilde{u}}{x} \right) \right|_{i-\half,j+\quart}
+    \\
+    &
+    - \left. \frac{1}{2\Dx} \left( \Psi_{22} \pdiff{\widetilde{u}}{y} \right)  \right|_{i-\quart,j-\half}
+    - \left. \frac{1}{2\Dx} \left( \Psi_{22} \pdiff{\widetilde{u}}{y} \right)  \right|_{i+\quart,j-\half}
+\end{align}
+
+
+
+
+
 In case the artificial viscosity is isotropic it reads:
 \begin{align}
     \bPsi =
