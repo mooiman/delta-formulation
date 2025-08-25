@@ -35,7 +35,7 @@
     chezy_coefficient = 50.0        # Chezy coefficient
 
 [Numerics]
-    dt = 10.0                       # Time step size [s], if dt == 0: then stationary problem
+    dt = 15.0                       # Time step size [s], if dt == 0: then stationary problem
     iter_max = 25                   # Maximum number of nonlinear iterations
     theta = 0.501                   # Implicitness factor (0.5 <= theta <= 1.0)
     regularization_init = true
