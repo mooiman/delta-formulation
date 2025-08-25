@@ -51,7 +51,7 @@ void bed_shear_stress_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r
     inline double bed_shear_stress_J_21(double& h, double& q, double& r, double& cf);
     inline double bed_shear_stress_J_22(double& h, double& q, double& r, double& cf);
     inline double bed_shear_stress_J_23(double& h, double& q, double& r, double& cf);
-    inline double vecq(double& qp, double& rp, double a);
+    inline double abs_vecq(double& qp, double& rp, double a);
 
     inline void set_value(double * values, int col, double data);
 

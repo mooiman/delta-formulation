@@ -323,40 +323,40 @@ inline double bed_shear_stress_scv(double& c0, double c1, double c2, double c3)
 }
 inline double bed_shear_stress_J_10(double& h, double& q, double& r, double&  cf)
 {
-    return cf * q * vecq(q, r, 1.0) / (h * h);
+    return cf * q * abs_vecq(q, r, 1.0) / (h * h);
 }
 inline double bed_shear_stress_J_11(double& h, double& q, double& r, double&  cf)
 {
-    return -2. * cf * q * vecq(q, r, 1.0) / (h * h * h);
+    return -2. * cf * q * abs_vecq(q, r, 1.0) / (h * h * h);
 }
 inline double bed_shear_stress_J_12(double& h, double& q, double& r, double&  cf)
 {
-    return cf * vecq(q, r, 1.0) / (h * h) + cf * q*q*q*q/(h * h * vecq(q, r, 3.0));
+    return cf * abs_vecq(q, r, 1.0) / (h * h) + cf * q*q*q*q/(h * h * abs_vecq(q, r, 3.0));
 }
 inline double bed_shear_stress_J_13(double& h, double& q, double& r, double&  cf)
 {
-    return cf * q * r*r*r / (h * h * vecq(q, r, 3.0));
+    return cf * q * r*r*r / (h * h * abs_vecq(q, r, 3.0));
 }
 inline double bed_shear_stress_J_20(double& h, double& q, double& r, double&  cf)
 {
-    return cf * r * vecq(q, r, 1.0) / (h * h);
+    return cf * r * abs_vecq(q, r, 1.0) / (h * h);
 }
 inline double bed_shear_stress_J_21(double& h, double& q, double& r, double&  cf)
 {
-    return -2. * cf * r * vecq(q, r, 1.0) / (h * h * h);
+    return -2. * cf * r * abs_vecq(q, r, 1.0) / (h * h * h);
 }
 inline double bed_shear_stress_J_22(double& h, double& q, double& r, double&  cf)
 {
-    return cf * r * q*q*q/(h * h * vecq(q, r, 3.0));
+    return cf * r * q*q*q/(h * h * abs_vecq(q, r, 3.0));
 }
 inline double bed_shear_stress_J_23(double& h, double& q, double& r, double&  cf)
 {
-    return cf * vecq(q, r, 1.0) / (h * h) + cf * r*r*r*r/(h * h * vecq(q, r, 3.0));
+    return cf * abs_vecq(q, r, 1.0) / (h * h) + cf * r*r*r*r/(h * h * abs_vecq(q, r, 3.0));
 }
-inline double vecq(double& qp, double& rp, double a)
+inline double abs_vecq(double& q_qp, double& r_qp, double a)
 {
     double eps = 0.01;
-    double tilde_abs = std::pow(qp*qp*qp*qp + rp*rp*rp*rp + eps*eps*eps*eps,0.25 * a);
+    double tilde_abs = std::pow((q_qp*q_qp + r_qp*r_qp)*(q_qp*q_qp + r_qp*r_qp) + eps*eps*eps*eps,0.25 * a);
     return tilde_abs;
 }
 inline void set_value(double * values, int col, double data){ 
