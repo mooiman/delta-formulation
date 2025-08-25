@@ -1,0 +1,210 @@
+%--------------------------------------------------------------------------------
+\chapter{Regularization of a two dimensional given function $u_{\it{giv}}$}
+The regularization function read, based on \citet[eq.\ 6]{Borsboom1998}:
+\begin{align}
+    \widetilde{u} - \nabla \dotp \bPsi \nabla \widetilde{u} = u_{\it{giv}}, \qquad \bPsi = c_{\Psi}(\Delta x^2 + \Dy^2) E,
+    \label{eq:regularization}
+\end{align}
+with $\bPsi$ the artificial viscosity and defined as:
+\begin{align}
+    \bPsi =
+    \begin{pmatrix}
+        \Psi_{11} & \Psi_{12} \\
+        \Psi_{21} & \Psi_{22}
+    \end{pmatrix}
+\end{align}
+where
+\begin{symbollist}
+    \item[$u_{giv}$] a given function, ex.\ bathymetry, viscosity, \ldots, [\si{\cdot}].
+    \item[$\widetilde{u}$] Regularized/Smoothed function of $u_{giv}$, [\si{\cdot}].
+    \item[$\Psi$] (artificial) smoothing constant, [\si{\square\metre}]
+    \item[$\Dx, \Dy$] Space discretization, $\Dx_{i} = x_{i+\half} - x_{i-\half}$ and $\Dy_{j} = y_{j+\half} - y_{j-\half}$, [\si{\metre}]
+    \item[$c_{\Psi}$] Smooting factor (set by user), [\si{1/\cdot}]
+    \item[$E$] Error function, [\si{\cdot}]
+\end{symbollist}
+First the discretization of \autoref{eq:regularization} is discussed and second the determination of the artificial smoothing coefficient $\bPsi$.
+
+Notation agreements:
+\begin{symbollist}
+    \item[$u$] Non-regularized/non-smoothed function, to be determined numerically.
+    \item[$\widetilde u$] Regularized/smoothed function, denoted by the wavy line.
+    \item[$\overline u$] Piecewise linear function, denoted by the bar.
+    \item[$u_i$] Value of the numerical value at point $x_i$.
+\end{symbollist}
+%--------------------------------------------------------------------------------
+\section{Discretization} % of \autoref{eq:regularization}}
+The finite volume approach of this equation read:
+\begin{align}
+    \int_\Omega \widetilde{u}\, d\omega  - \int_\Omega \nabla \dotp \bPsi \nabla \widetilde{u}\, d\omega  = \int_\Omega  u_{\it{giv}}\, d\omega \label{eq:2d_regularization}
+\end{align}
+
+%--------------------------------------------------------------------------------
+\subsection*{Integration of the first term}
+The discretization of first term of \autoref{eq:2d_regularization} read
+(see for the coefficients \autoref{fig:2d_structured_grid}):
+\begin{align}
+    \int_\Omega  u\, d\omega
+    & \approx \Dx \Dy \Bigl( \frac{1}{64} u_{i-1,j-1} + \frac{6}{64} u_{i,j-1} + \frac{1}{64} u_{i+1,j-1} +
+    \nonumber \\
+    & + \frac{6}{64} u_{i-1,j} + \frac{36}{64} u_{i,j} + \frac{6}{64} u_{i+1,j} +
+    \nonumber \\
+    &  +\frac{1}{64} u_{i-1,j+1} + \frac{6}{64} u_{i,j+1} + \frac{1}{64} u_{i+1,j+1} \Bigl)
+\end{align}
+%--------------------------------------------------------------------------------
+\subsection*{Integration of the second term}
+Integration of the second term:
+%
+\begin{align}
+    \int_\Omega & \nabla \dotp \bPsi \nabla \widetilde{u}\, d\omega  =
+    \int_\Gamma \bPsi \nabla \widetilde{u} \dotp \vec{\hat n}\, ds \approx
+    \\
+    %
+    & \approx
+    \left. \frac{1}{2\Dy}\left( \Psi_{11} \pdiff{\widetilde{u}}{x} + \Psi_{12} \pdiff{\widetilde{u}}{y} \right) \right|_{i+\half,j-\quart}
+    + \left. \frac{1}{2\Dy} \left( \Psi_{11} \pdiff{\widetilde{u}}{x} + \Psi_{12} \pdiff{\widetilde{u}}{y} \right) \right|_{i+\half,j+\quart} +
+    \\
+    &
+    + \left. \frac{1}{2\Dx} \left( \Psi_{21} \pdiff{\widetilde{u}}{x} + \Psi_{22} \pdiff{\widetilde{u}}{y} \right) \right|_{i-\quart,j+\half}
+    + \left. \frac{1}{2\Dx} \left( \Psi_{21} \pdiff{\widetilde{u}}{x} + \Psi_{22} \pdiff{\widetilde{u}}{y} \right) \right|_{i+\quart,j+\half} +
+    \\
+    &
+    -  \left. \frac{1}{2\Dy} \left( \Psi_{11} \pdiff{\widetilde{u}}{x} + \Psi_{12} \pdiff{\widetilde{u}}{y} \right) \right|_{i-\half,j-\quart}
+    -  \left. \frac{1}{2\Dy} \left( \Psi_{11} \pdiff{\widetilde{u}}{x} + \Psi_{12} \pdiff{\widetilde{u}}{y} \right) \right|_{i-\half,j+\quart}
+    \\
+    &
+    - \left. \frac{1}{2\Dx} \left( \Psi_{21} \pdiff{\widetilde{u}}{x} + \Psi_{22} \pdiff{\widetilde{u}}{y} \right)  \right|_{i-\quart,j-\half}
+    - \left. \frac{1}{2\Dx} \left( \Psi_{21} \pdiff{\widetilde{u}}{x} + \Psi_{22} \pdiff{\widetilde{u}}{y} \right)  \right|_{i+\quart,j-\half}
+\end{align}
+%
+Define the components of $\bPsi$ at different locations with $(\mu, \nu) \in \{ 1, 2\}$ as
+%
+\begin{align}
+    \left. \overline\Psi_{\mu\nu} \right|_{i+\half,j+\quart} = \frac{1}{8} \left(\left. 3\Psi_{\mu\nu} \right|_{i,j}
+    + \left. 3\Psi_{\mu\nu} \right|_{i+1,j} + \left. \Psi_{\mu\nu} \right|_{i+1,j+1}  + \left. \Psi_{\mu\nu} \right|_{i,j+1}\right)
+\end{align}
+%
+and define the partial differentials as
+\begin{align}
+    \left. \pdiff{u}{x} \right|_{i+\half,j+\quart} =  \quart \left(3\frac{u_{i+1,j} - u_{i,j}}{\Dx_{i+\half,j}} + \frac{u_{i+1,j+1} - u_{i,j+1}}{\Dx_{i+\half,j+1}}\right)
+    \\
+    \left. \pdiff{u}{y} \right|_{i+\half,j+\quart} =  \half \left(\frac{u_{i,j+1} - u_{i,j}}{\Dy_{i,j+\half}} + \frac{u_{i+1,j+1} - u_{i+1,j}}{\Dy_{i+1,j+\half}}\right)
+\end{align}
+%
+In case the artificial viscosity is isotropic it reads:
+\begin{align}
+    \bPsi =
+    \begin{pmatrix}
+        \Psi & 0 \\
+        0 & \Psi
+    \end{pmatrix}
+\end{align}
+ (isotropic, $\Psi_{11} = \Psi_{22} = \Psi$ and $\Psi_{12} = \Psi_{21} = 0$).
+
+The integration of the second  term will reduce to:
+\begin{align}
+    \int_\Omega & \nabla \dotp \bPsi \nabla \widetilde{u}\, d\omega  =
+    \int_\Gamma \bPsi \nabla \widetilde{u} \dotp \vec{\hat n}\, ds =
+    \Psi
+    \int_{i-\half}^{i+\half} \int_{j-\half}^{j+\half} \nabla \widetilde{u} \dotp \vec{\hat n}\, dy dx
+    \approx
+    \\
+    %
+    & \approx
+      \Psi \left(
+      \left. \frac{1}{2\Dy} \pdiff{\widetilde{u}}{x}  \right|_{i+\half,j-\quart}
+    + \left. \frac{1}{2\Dy} \pdiff{\widetilde{u}}{x}  \right|_{i+\half,j+\quart} +
+    \right.
+    \\
+    &
+    + \left. \frac{1}{2\Dx} \pdiff{\widetilde{u}}{y}  \right|_{i-\quart,j+\half}
+    + \left. \frac{1}{2\Dx} \pdiff{\widetilde{u}}{y}  \right|_{i+\quart,j+\half} +
+    \\
+    &
+    - \left. \frac{1}{2\Dy} \pdiff{\widetilde{u}}{x} \right|_{i-\half,j-\quart}
+    - \left. \frac{1}{2\Dy} \pdiff{\widetilde{u}}{x} \right|_{i-\half,j+\quart}
+    \\
+    &
+    \left.
+    - \left. \frac{1}{2\Dx} \pdiff{\widetilde{u}}{y}   \right|_{i-\quart,j-\half}
+    - \left. \frac{1}{2\Dx} \pdiff{\widetilde{u}}{y}   \right|_{i+\quart,j-\half}
+    \right)
+\end{align}
+%--------------------------------------------------------------------------------
+\subsection*{Integration of right hand side}
+For the integration of the right handside we could use a smaller integration step size, to incorporate the sub-grid scale effects.
+
+%--------------------------------------------------------------------------------
+\section{Determination of artificial smoothing coefficient $\Psi$}
+The artificial smoothing coefficient (\autoref{eq:regularization}) is dependent on the second derivative of given function $u_{giv}$ \citep[eq.\ 8]{Borsboom1998}.
+\textbf{Assuming} that $c_E$ is constant over the whole two dimensional area, thus isotropic.
+
+\todo{Check next equations}
+
+\begin{align}
+        &  \Bigl( \frac{1}{64} E_{i-1,j-1} + \frac{6}{64} E_{i,j-1} + \frac{1}{64} E_{i+1,j-1} +
+    \nonumber \\
+    & + \frac{6}{64} E_{i-1,j} + \frac{36}{64} E_{i,j} + \frac{6}{64} E_{i+1,j} +
+    \nonumber \\
+    &  + \frac{1}{64} E_{i-1,j+1} +\frac{6}{64} E_{i,j+1} + \frac{1}{64} E_{i+1,j+1} \Bigl) +
+    \nonumber \\
+    &
+    %
+    c_E \left(
+      \left. \frac{1}{2\Dy}  \pdiff{\widetilde{u}}{x}  \right|_{i+\half,j-\quart}
+    + \left. \frac{1}{2\Dy}  \pdiff{\widetilde{u}}{x}  \right|_{i+\half,j+\quart} +
+    \right. \\
+    &
+    + \left. \frac{1}{2\Dx}  \pdiff{\widetilde{u}}{y}  \right|_{i-\quart,j+\half}
+    + \left. \frac{1}{2\Dx}  \pdiff{\widetilde{u}}{y}  \right|_{i+\quart,j+\half} +
+    \\
+    &
+    - \left. \frac{1}{2\Dy}  \pdiff{\widetilde{u}}{x}  \right|_{i-\half,j-\quart}
+    - \left. \frac{1}{2\Dy}  \pdiff{\widetilde{u}}{x}  \right|_{i-\half,j+\quart}
+    \\
+    &
+    \left.
+    - \left. \frac{1}{2\Dx}  \pdiff{\widetilde{u}}{y}   \right|_{i-\quart,j-\half}
+    - \left. \frac{1}{2\Dx}  \pdiff{\widetilde{u}}{y}   \right|_{i+\quart,j-\half}
+    \right)
+    %
+    =
+    \nonumber \\
+    & = \frac{1}{\Dx\Dy} \int_{j-\half}^{j+\half} \int_{i-\half}^{i+\half} \abs{D} \, dx\, dy
+    \label{eq:error_regularization}
+\end{align}
+with \citep[eq.\ 2]{Borsboom1998}
+\begin{align}
+    D = \Dx^2 \pdiff[2]{u_{giv}}{x} + \Dy^2 \pdiff[2]{u_{giv}}{y}
+\end{align}
+and
+\begin{align}
+    c_E & = \max \left(  c_{\Psi}\Dx^2 \pdiff[2]{u_{giv}}{x},  c_{\Psi}\Dy^2 \pdiff[2]{u_{giv}}{y} \right)
+    \nonumber \\
+    & =  \max\left(
+      c_{\Psi}\abs{u_{{giv}_{i-1,j}} -2 u_{{giv}_{i,j}} + u_{{giv}_{i+1,j}}},
+      c_{\Psi}\abs{u_{{giv}_{i,j-1}} -2 u_{{giv}_{i,j}} + u_{{giv}_{i,j+1}}}
+    \right), \forall i
+\end{align}
+The right hand side is approximated by:
+\begin{align}
+    & \frac{1}{\Dx\Dy} \int_{j-\half}^{j+\half} \int_{i-\half}^{i+\half} \abs{D} \, dx\, dy
+    =
+\nonumber \\
+& \quad =  \frac{1}{64} \abs{D}_{i-1,j-1} +
+\frac{6}{64} \abs{D}_{i,j-1} +
+\frac{1}{64} \abs{D}_{i+1,j-1} +
+\nonumber \\
+    & \quad +
+\frac{6}{64} \abs{D}_{i-1,j} +
+\frac{36}{64} \abs{D}_{i,j} +
+\frac{6}{64} \abs{D}_{i+1,j} +
+\nonumber \\
+& \quad + \frac{1}{64} \abs{D}_{i-1,j+1} +
+\frac{6}{64} \abs{D}_{i,j+1} +
+\frac{1}{64} \abs{D}_{i+1,j+1}
+\end{align}
+
+Now system \autoref{eq:error_regularization} can be solved and $\bPsi$ is set to:
+\begin{align}
+    \Psi = c_{\Psi}(\Dx^2 + \Dy^2) E
+\end{align}
