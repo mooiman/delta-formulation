@@ -22,8 +22,14 @@ IF EXIST %TEMPTEXTFILE% (
     DEL %TEMPTEXTFILE% 
 )
 
+REM Is there any modification since the last push
+set GIT_MODIFIED=
+FOR /f %%i in ('git diff --stat origin/main') do set GIT_MODIFIED=M-
+echo %GIT_MODIFIED%!
+
 REM GET THE GIT SHORT HASH
 FOR /f %%i in ('git rev-parse --short HEAD') do set GIT_HASH=%%i
+set GIT_HASH=%GIT_MODIFIED%%GIT_HASH%
 
 REM SUBSTITUTE THE GIT SHORT HASH IN TEMPLATE
 FOR /f "tokens=1,* delims=¶" %%A IN ( '"type %INTEXTFILE%"') DO (
