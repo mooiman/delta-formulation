@@ -2,7 +2,7 @@
 
 [Domain]
     mesh_file = "geometry/122x122_6x6km_net.nc"
-    bed_level_file = "geometry/122x122_6x6km.dep"  # uniform depth
+    bed_level_file = "geometry/122x122_6x6km_flat.dep"  # uniform depth
 
 [Time]
     tstart = 0.0                                  # Start time [s]

@@ -1,4 +1,8 @@
-set exe_dir=..\..\..\..\..\engines_to_compare\x64\Release
+set exe_dir=..\..\..\..\2d_wave\bin\x64\Release
+
+del /q .\output_01\*.*
+mkdir .\output_01
+xcopy /s /y .\output  .\output_01
 
 del /q .\output\*.*
 %exe_dir%\2d_wave.exe --toml .\input_2d.toml
