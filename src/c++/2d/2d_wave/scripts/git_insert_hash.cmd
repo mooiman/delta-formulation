@@ -1,4 +1,5 @@
 ECHO on
+echo Pre build: get GIT HASH code
 
 REM This script is used for adding the GIT (short) hash to the properties of
 REM a *version.h and a *version.rc file
@@ -25,7 +26,6 @@ IF EXIST %TEMPTEXTFILE% (
 REM Is there any modification since the last push
 set GIT_MODIFIED=
 FOR /f %%i in ('git diff --stat origin/main') do set GIT_MODIFIED=M-
-echo %GIT_MODIFIED%!
 
 REM GET THE GIT SHORT HASH
 FOR /f %%i in ('git rev-parse --short HEAD') do set GIT_HASH=%%i
