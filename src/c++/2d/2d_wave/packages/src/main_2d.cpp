@@ -493,7 +493,15 @@ int main(int argc, char *argv[])
         post_q.resize(nxny, 0.);              // needed for postprocessing; bed shear stress; convection;
         post_r.resize(nxny, 0.);              // needed for postprocessing; bed shear stress; convection;
     }
-    std::vector<double> psi(nxny, 0.);
+    std::vector<double> psi_11;  // needed when regularization of given initial function (ie bed level);
+    std::vector<double> psi_22;  // needed when regularization of given initial function (ie bed level);
+    std::vector<double> eq8;     // needed when regularization of given initial function (ie bed level);
+    if (regularization_init)
+    {
+        psi_11.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
+        psi_22.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
+        eq8.resize(nxny, 0.);     // needed when regularization of given initial function (ie bed level);
+    }
     std::vector<double> htheta(nxny);
     std::vector<double> qtheta(nxny);
     std::vector<double> rtheta(nxny);
@@ -567,7 +575,7 @@ int main(int argc, char *argv[])
     if (regularization_init)
     {
         START_TIMER(Regularization_init);
-        regularization->given_function(zb, psi, zb_giv, nx, ny, dx, dy, c_psi, log_file);
+        regularization->given_function(zb, psi_11, psi_22, eq8, zb_giv, nx, ny, dx, dy, c_psi, log_file);
         //regularization->given_function(visc_reg, psi, visc_giv, nx, ny, dx, dy, c_psi);
         STOP_TIMER(Regularization_init);
     }
@@ -798,6 +806,9 @@ int main(int argc, char *argv[])
     std::string map_u_name("u_2d");
     std::string map_v_name("v_2d");
     std::string map_zb_name("zb_2d");
+    std::string map_psi_11_name("psi_11");
+    std::string map_psi_22_name("psi_22");
+    std::string map_eq8_name("eq8");
     std::string map_beds_q_name("bed_stress_q");
     std::string map_beds_r_name("bed_stress_r");
     std::string map_conv_q_name("convection_q");
@@ -813,6 +824,12 @@ int main(int argc, char *argv[])
     status = map_file->add_variable(map_u_name, dim_names, "sea_water_x_velocity", "Velocity (x)", "m s-1", "mesh2D", "node");
     status = map_file->add_variable(map_v_name, dim_names, "sea_water_y_velocity", "Velocity (y)", "m s-1", "mesh2D", "node");
     status = map_file->add_variable(map_zb_name, dim_names, "", "Bed level", "m", "mesh2D", "node");
+    if (regularization_init)
+    {
+        status = map_file->add_variable(map_psi_11_name, dim_names, "", "Psi_11", "m2 s-1", "mesh2D", "node");
+        status = map_file->add_variable(map_psi_22_name, dim_names, "", "Psi_11", "m2 s-1", "mesh2D", "node");
+        status = map_file->add_variable(map_eq8_name, dim_names, "", "Eq8", "-", "mesh2D", "node");
+    }
     if (do_bed_shear_stress)
     {
         status = map_file->add_variable(map_beds_q_name, dim_names, "", "Bed shear stress (x)", "m2 s-2", "mesh2D", "node");
@@ -838,6 +855,12 @@ int main(int argc, char *argv[])
     map_file->put_time_variable(map_u_name, nst_map, u);
     map_file->put_time_variable(map_v_name, nst_map, v);
     map_file->put_time_variable(map_zb_name, nst_map, zb_giv);
+    if (regularization_init)
+    {
+        map_file->put_time_variable(map_psi_11_name, nst_map, psi_11);
+        map_file->put_time_variable(map_psi_22_name, nst_map, psi_22);
+        map_file->put_time_variable(map_eq8_name, nst_map, eq8);
+    }
     if (do_bed_shear_stress)
     {
         bed_shear_stress_rhs(post_q, post_r, hn, qn, rn, cf, nx, ny);
@@ -1526,6 +1549,12 @@ int main(int argc, char *argv[])
             map_file->put_time_variable(map_u_name, nst_map, u);
             map_file->put_time_variable(map_v_name, nst_map, v);
             map_file->put_time_variable(map_zb_name, nst_map, zb);
+            if (regularization_init)
+            {
+                map_file->put_time_variable(map_psi_11_name, nst_map, psi_11);
+                map_file->put_time_variable(map_psi_22_name, nst_map, psi_22);
+                map_file->put_time_variable(map_eq8_name, nst_map, eq8);
+            }
             if (do_bed_shear_stress)
             {
                 bed_shear_stress_rhs(post_q, post_r, hn, qn, rn, cf, nx, ny);

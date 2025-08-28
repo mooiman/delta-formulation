@@ -32,6 +32,7 @@
 //
 
 #include "regularization.h"
+#include "build_matrix_pattern_regularization.h"
 
 REGULARIZATION::REGULARIZATION()
 {
@@ -58,8 +59,8 @@ REGULARIZATION::REGULARIZATION(int iter_max, double g) :
 }
 
 void REGULARIZATION::given_function( 
-    std::vector<double>& u_out, std::vector<double>& psi, 
-    std::vector<double>& u_giv_in, 
+    std::vector<double>& u_out, std::vector<double>& psi_11, std::vector<double>& psi_22, std::vector<double>& eq8, 
+    std::vector<double>& u_giv_in,
     int nx, int ny, double dx, double dy, double c_psi, std::ofstream& log_file)
 {
     double diff_max0 = 0.0;
@@ -70,7 +71,6 @@ void REGULARIZATION::given_function(
     std::vector<double> u1(nxny, 0.);
     std::vector<double> u0_xixi(nxny, 0.);
     std::vector<double> u0_etaeta(nxny, 0.);
-    std::vector<double> eq8(nxny, 0.);
     std::vector<double> tmp(nxny, 0.);
 
     const auto [u_giv_in_min, u_giv_in_max] = std::minmax_element(u_giv_in.begin(), u_giv_in.end());
@@ -151,13 +151,13 @@ void REGULARIZATION::given_function(
 //------------------------------------------------------------------------------
         eq8 = *(this->solve_eq8(nx, ny, dx, dy, c_psi, u0, u0_xixi, u0_etaeta, log_file));
 //------------------------------------------------------------------------------
-        double wortel = std::sqrt(dx + dy);
         for (int i = 0; i < nxny; ++i)
         {
-            psi[i] = c_psi * (dx * dx + dy * dy) * eq8[i]/wortel;
+            psi_11[i] = c_psi * (dx * dx + dy * dy) * eq8[i]/2.0;  // divide by 2: then is equal to 1D if dx=dy
+            psi_22[i] = c_psi * (dx * dx + dy * dy) * eq8[i]/2.0;  // divide by 2: then is equal to 1D if dx=dy
         }
 //------------------------------------------------------------------------------
-        u0 = *(this->solve_eq7(nx, ny, dx, dy, psi, u_giv, log_file));
+        u0 = *(this->solve_eq7(nx, ny, dx, dy, psi_11, psi_22, u_giv, log_file));
 //------------------------------------------------------------------------------
 
         diff_max1 = 0.0;
@@ -201,215 +201,382 @@ void REGULARIZATION::first_derivative(std::vector<double>& psi, std::vector<doub
     }
 }
 std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, double dx, double dy, 
-    std::vector<double> psi, std::vector<double> u_giv, std::ofstream& log_file)
+    std::vector<double> psi_11, std::vector<double> psi_22, std::vector<double> u_giv, std::ofstream& log_file)
 {
     int nxny = nx * ny;
     auto u = std::make_unique<std::vector<double>> ();
     std::vector<double> tmp(nxny, 0.0);
 
-    Eigen::SparseMatrix<double> B(nxny, nxny);
+    Eigen::SparseMatrix<double, Eigen::RowMajor>  B(nxny, nxny);
     Eigen::VectorXd solution(nxny);           // solution vector u
     Eigen::VectorXd rhs(nxny);                // RHS
+    std::vector< Eigen::Triplet<double> > triplets; 
+    triplets.reserve(9 * nxny); // 9-points per row, nrow = nxny; large enough to avoid reallocation
+    
+    int status = build_matrix_pattern_regularization(triplets, nx, ny);
+    B.setFromTriplets(triplets.begin(), triplets.end());
+    B.makeCompressed(); // Very important for valuePtr() access
 
-    // Set main diagonal to 1
-    for (int i = 0; i < nxny; ++i) {
-        B.insert(i, i) = 1.0;
-    }
-    solution.setZero();
-    rhs.setZero();
+    double* values = B.valuePtr();         // pointer to all non-zero values
+    const int* outer = B.outerIndexPtr();   // row start pointers
 
-    for (int i = 2; i < nx - 2; ++i)
+    int col;
+    int p_0;
+
+    // south-west corner
+    for (int row = 0; row < 1; row += 1)
     {
-        for (int j = 2; j < ny - 2; ++j)
-        {
-            int p_0  = p_index(i    , j    , ny);
-            int p_n  = p_index(i    , j + 1, ny);
-            int p_ne = p_index(i + 1, j + 1, ny);
-            int p_e  = p_index(i + 1, j    , ny);
-            int p_se = p_index(i + 1, j - 1, ny);
-            int p_s  = p_index(i    , j - 1, ny);
-            int p_sw = p_index(i - 1, j - 1, ny);
-            int p_w  = p_index(i - 1, j    , ny);
-            int p_nw = p_index(i - 1, j + 1, ny);
-            
-            B.coeffRef(p_0, p_sw) = dx * dy * m_mass[0] * m_mass[0];
-            B.coeffRef(p_0, p_s ) = dx * dy * m_mass[0] * m_mass[1];
-            B.coeffRef(p_0, p_se) = dx * dy * m_mass[0] * m_mass[2];
-            
-            B.coeffRef(p_0, p_w) = dx * dy * m_mass[1] * m_mass[0];
-            B.coeffRef(p_0, p_0) = dx * dy * m_mass[1] * m_mass[1];
-            B.coeffRef(p_0, p_e) = dx * dy * m_mass[1] * m_mass[2];
-            
-            B.coeffRef(p_0, p_nw) = dx * dy * m_mass[2] * m_mass[0];
-            B.coeffRef(p_0, p_n ) = dx * dy * m_mass[2] * m_mass[1];
-            B.coeffRef(p_0, p_ne) = dx * dy * m_mass[2] * m_mass[2];
+        col = outer[row    ];
+        p_0 = col/(9);  // p_sw
 
-            // psi should be computed on the 8 interfaces of the control volume
-            double psi_n = 0.5 * (psi[p_n] + psi[p_0]);
-            double psi_e = 0.5 * (psi[p_e] + psi[p_0]);
-            double psi_s = 0.5 * (psi[p_s] + psi[p_0]);
-            double psi_w = 0.5 * (psi[p_w] + psi[p_0]);
-            //psi_im12 = 2. * psi[i] * psi[i - 1] / (psi[i] + psi[i - 1]);
-            //psi_ip12 = 2. * psi[i + 1] * psi[i] / (psi[i + 1] + psi[i]);
-
-            B.coeffRef(p_0, p_s) += -psi_s * dx / dy;
-            B.coeffRef(p_0, p_w) += -psi_w * dy / dx;
-            B.coeffRef(p_0, p_0) +=  psi_s * dx / dy + psi_w * dy / dx + psi_n * dy / dx + psi_e * dx / dy;
-            B.coeffRef(p_0, p_e) += -psi_e * dy / dx;
-            B.coeffRef(p_0, p_n) += -psi_n * dx / dy;
-        }
+        values[col     ] = 1.0;
+        values[col +  1] = 0.0;
+        values[col +  2] = 0.0;
+        values[col +  3] = 0.0;
+        values[col +  4] = 0.0;
+        values[col +  5] = 0.0;
+        values[col +  6] = 0.0;
+        values[col +  7] = 0.0;
+        values[col +  8] = 0.0;
+        rhs[row    ] = u_giv[p_0];
     }
-    for (int i = 1; i < nx - 1; ++i)  // horizontal direction
+    // west boundary
+    for (int row = 1; row < (ny - 1); row += 1)
     {
-        int j = 0;
-        int p_0  = p_index(i, j, ny);
-        int p_n  = p_index(i, j + 1, ny);
-        int p_nn = p_index(i, j + 2, ny);
-        B.coeffRef(p_0 , p_0 ) =  1.0;
-        B.coeffRef(p_0 , p_n ) = -1.0;
-        B.coeffRef(p_0 , p_nn) =  0.0;
+        col = outer[row    ];
+        p_0 = col/(9);  // p_w
 
-        j = 1;
-        int p_s = p_index(i, j - 1, ny);
-        p_0     = p_index(i, j    , ny);
-        p_n     = p_index(i, j + 1, ny);
-        B.coeffRef(p_0 , p_s) = 0.0;
-        B.coeffRef(p_0 , p_0) = 1.0;
-        B.coeffRef(p_0 , p_n) = 0.0;
-
-        j = ny - 1;
-        p_0      = p_index(i, j, ny);
-        p_s      = p_index(i, j - 1, ny);
-        int p_ss = p_index(i, j - 2, ny);
-        B.coeffRef(p_0, p_0 ) =  1.0;
-        B.coeffRef(p_0, p_s ) = -1.0;
-        B.coeffRef(p_0, p_ss) =  0.0;
-
-        j = ny - 2;
-        p_s = p_index(i, j - 1, ny);
-        p_0 = p_index(i, j    , ny);
-        p_n = p_index(i, j + 1, ny);
-        B.coeffRef(p_0, p_s) = 0.0;
-        B.coeffRef(p_0, p_0) = 1.0;
-        B.coeffRef(p_0, p_n) = 0.0;
+        values[col     ] = 0.0;
+        values[col +  1] = -1.0;
+        values[col +  2] = 0.0;
+        values[col +  3] = 0.0;
+        values[col +  4] = 1.0;
+        values[col +  5] = 0.0;
+        values[col +  6] = 0.0;
+        values[col +  7] = 0.0;
+        values[col +  8] = 0.0;
+        rhs[row    ] = 0.0;
     }
-    for (int j = 1; j < ny - 1; ++j)  // vertical direction
+    // north-west corner
+    for (int row = ny - 1; row < ny; row += 1)
     {
-        int i = 0;
-        int p_0  = p_index(i, j, ny);
-        int p_e  = p_index(i + 1, j, ny);
-        int p_ee = p_index(i + 2, j, ny);
-        B.coeffRef(p_0 , p_0 ) = 1.0;
-        B.coeffRef(p_0 , p_e ) = -1.0;
-        B.coeffRef(p_0 , p_ee) = 0.0;
+        col = outer[row    ];
+        p_0 = col/(9);  // p_nw
 
-        i = 1;
-        int p_w = p_index(i - 1, j, ny);
-        p_0 = p_index(i    , j, ny);
-        p_e = p_index(i + 1, j, ny);
-        B.coeffRef(p_0 , p_w) = 0.0;
-        B.coeffRef(p_0 , p_0) = 1.0;
-        B.coeffRef(p_0 , p_e) = 0.0;
-
-
-        i = nx - 1;
-        p_0      = p_index(i    , j, ny);
-        p_w      = p_index(i - 1, j, ny);
-        int p_ww = p_index(i - 2, j, ny);
-        B.coeffRef(p_0 , p_0 ) = 1.0;
-        B.coeffRef(p_0 , p_w ) = -1.0;
-        B.coeffRef(p_0 , p_ww) = 0.0;
-
-        i = nx - 2;
-        p_w = p_index(i - 1, j, ny);
-        p_0 = p_index(i    , j, ny);
-        p_e = p_index(i + 1, j, ny);
-        B.coeffRef(p_0 , p_w) = 0.0;
-        B.coeffRef(p_0 , p_0) = 1.0;
-        B.coeffRef(p_0 , p_e) = 0.0;
-    }
-    // corner are set after setting the right hand side
-    for (int j = 1; j < ny - 1; ++j)
-    {
-        for (int i = 1; i < nx - 1; ++i)
-        {
-            int p_0  = p_index(i    , j    , ny);
-            int p_n  = p_index(i    , j + 1, ny);
-            int p_ne = p_index(i + 1, j + 1, ny);
-            int p_e  = p_index(i + 1, j    , ny);
-            int p_se = p_index(i + 1, j - 1, ny);
-            int p_s  = p_index(i    , j - 1, ny);
-            int p_sw = p_index(i - 1, j - 1, ny);
-            int p_w  = p_index(i - 1, j    , ny);
-            int p_nw = p_index(i - 1, j + 1, ny);
-            
-            rhs[p_0]  = dx * dy * m_mass[0] * m_mass[0] * u_giv[p_sw];
-            rhs[p_0] += dx * dy * m_mass[0] * m_mass[1] * u_giv[p_s ];
-            rhs[p_0] += dx * dy * m_mass[0] * m_mass[2] * u_giv[p_se];
-
-            rhs[p_0] += dx * dy * m_mass[1] * m_mass[0] * u_giv[p_w];
-            rhs[p_0] += dx * dy * m_mass[1] * m_mass[1] * u_giv[p_0];
-            rhs[p_0] += dx * dy * m_mass[1] * m_mass[2] * u_giv[p_e];
-
-            rhs[p_0] += dx * dy * m_mass[2] * m_mass[0] * u_giv[p_nw];
-            rhs[p_0] += dx * dy * m_mass[2] * m_mass[1] * u_giv[p_n ];
-            rhs[p_0] += dx * dy * m_mass[2] * m_mass[2] * u_giv[p_ne];
-        }
-    }
-    for (int i = 1; i < nx - 1; ++i)  // horizontal direction
-    {
-        int j = 0;
-        int p_0 = p_index(i, j, ny);
-        rhs[p_0] = 0.0;
-
-        j = 1;
-        p_0 = p_index(i, j, ny);
-        rhs[p_0] = u_giv[p_0];
-        
-        j = ny - 1;
-        p_0 = p_index(i, j, ny);
-        rhs[p_0] = 0.0;
-
-        j = ny - 2;
-        p_0 = p_index(i, j, ny);
-        rhs[p_0] = u_giv[p_0];
-    }
-    for (int j = 1; j < ny - 1; ++j)  // vertical direction
-    {
-        int i = 0;
-        int p_0 = p_index(i, j, ny);
-        rhs[p_0] = 0.0;
-
-        i = 1;
-        p_0 = p_index(i, j, ny);
-        rhs[p_0] = u_giv[p_0];
-        
-        i = nx - 1;
-        p_0 = p_index(i, j, ny);
-        rhs[p_0] = 0.0;
-
-        i = nx - 2;
-        p_0 = p_index(i, j, ny);
-        rhs[p_0] = u_giv[p_0];
+        values[col     ] = 0.0;
+        values[col +  1] = 0.0;
+        values[col +  2] = 1.0;
+        values[col +  3] = 0.0;
+        values[col +  4] = 0.0;
+        values[col +  5] = 0.0;
+        values[col +  6] = 0.0;
+        values[col +  7] = 0.0;
+        values[col +  8] = 0.0;
+        rhs[row    ] = u_giv[p_0];
     }
     //
-    // corner points
-    //
-    int p_0 = p_index(0, 0, ny);
-    B.coeffRef(p_0, p_0) = 1.0;
-    rhs[p_0] = u_giv[p_0];
+    // first internal west boundary column
+    for (int row = ny; row < 2 * ny; row += 1) 
+    {
+        if (std::fmod(row , ny) == 0) {
+            // south boundary
+            col = outer[row    ];
+            p_0 = col/(9);  // p_s
 
-    p_0 = p_index(nx - 1, 0, ny);
-    B.coeffRef(p_0, p_0) = 1.0;
-    rhs[p_0] = u_giv[p_0];
+            values[col     ] = 0.0;
+            values[col +  1] = 0.0;
+            values[col +  2] = 0.0;
+            values[col +  3] = 1.0;
+            values[col +  4] = -1.0;
+            values[col +  5] = 0.0;
+            values[col +  6] = 0.0;
+            values[col +  7] = 0.0;
+            values[col +  8] = 0.0;
+            rhs[row    ] = 0.0;
+            continue;
+        }
+        if (std::fmod(row + 1, ny) == 0) {
+            // north boundary
+            col = outer[row    ];
+            p_0 = col/(9);  // p_n
 
-    p_0 = p_index(nx - 1, ny - 1, ny);
-    B.coeffRef(p_0, p_0) = 1.0;
-    rhs[p_0] = u_giv[p_0];
+            values[col     ] = 0.0;
+            values[col +  1] = 0.0;
+            values[col +  2] = 0.0;
+            values[col +  3] = 0.0;
+            values[col +  4] = -1.0;
+            values[col +  5] = 1.0;
+            values[col +  6] = 0.0;
+            values[col +  7] = 0.0;
+            values[col +  8] = 0.0;
+            rhs[row    ] = 0.0;
+            continue;
+        }
+        col = outer[row    ];
+        p_0 = col/(9);  // p_nw
 
-    p_0 = p_index(0, ny - 1, ny);
-    B.coeffRef(p_0, p_0) = 1.0;
-    rhs[p_0] = u_giv[p_0];
+        values[col     ] = 0.0;
+        values[col +  1] = 0.0;
+        values[col +  2] = 0.0;
+        values[col +  3] = 0.0;
+        values[col +  4] = 1.0;
+        values[col +  5] = 0.0;
+        values[col +  6] = 0.0;
+        values[col +  7] = 0.0;
+        values[col +  8] = 0.0;
+        rhs[row    ] = u_giv[p_0];
+    }
+
+    // interior with south and north boundary
+    for (int row = 2 * ny; row < (nx - 2) * ny; row += 1) 
+    {
+        if (std::fmod(row , ny) == 0) {
+            // south boundary
+            col = outer[row    ];
+            p_0 = col/(9);  // p_s
+
+            values[col     ] = 0.0;
+            values[col +  1] = 0.0;
+            values[col +  2] = 0.0;
+            values[col +  3] = 1.0;
+            values[col +  4] = -1.0;
+            values[col +  5] = 0.0;
+            values[col +  6] = 0.0;
+            values[col +  7] = 0.0;
+            values[col +  8] = 0.0;
+            rhs[row    ] = 0.0;
+            continue;
+        }
+        if (std::fmod(row - 1, ny) == 0) {
+            // south boundary
+            col = outer[row    ];
+            p_0 = col/(9);  // p_s
+
+            values[col     ] = 0.0;
+            values[col +  1] = 0.0;
+            values[col +  2] = 0.0;
+            values[col +  3] = 0.0;
+            values[col +  4] = 1.0;
+            values[col +  5] = 0.0;
+            values[col +  6] = 0.0;
+            values[col +  7] = 0.0;
+            values[col +  8] = 0.0;
+            rhs[row    ] = u_giv[p_0];
+            continue;
+        }
+
+        if (std::fmod(row + 1, ny) == 0) {
+            // north boundary
+            col = outer[row    ];
+            p_0 = col/(9);  // p_n
+
+            values[col     ] = 0.0;
+            values[col +  1] = 0.0;
+            values[col +  2] = 0.0;
+            values[col +  3] = 0.0;
+            values[col +  4] = -1.0;
+            values[col +  5] = 1.0;
+            values[col +  6] = 0.0;
+            values[col +  7] = 0.0;
+            values[col +  8] = 0.0;
+            rhs[row    ] = 0.0;
+            continue;
+        }
+        if (std::fmod(row + 2, ny) == 0) {
+            // north boundary
+            col = outer[row    ];
+            p_0 = col/(9);  // p_n
+
+            values[col     ] = 0.0;
+            values[col +  1] = 0.0;
+            values[col +  2] = 0.0;
+            values[col +  3] = 0.0;
+            values[col +  4] = 1.0;
+            values[col +  5] = 0.0;
+            values[col +  6] = 0.0;
+            values[col +  7] = 0.0;
+            values[col +  8] = 0.0;
+            rhs[row    ] = u_giv[p_0];
+            continue;
+        }
+
+        col = outer[row    ];
+        int p0 = col/(9);  // p_s
+
+        int p_sw = p0 - ny - 1;
+        int p_w  = p0 - ny    ;
+        int p_nw = p0 - ny + 1;
+        int p_s  = p0 - 1;
+        int p_0  = p0    ;
+        int p_n  = p0 + 1;
+        int p_se = p0 + ny - 1;
+        int p_e  = p0 + ny    ;
+        int p_ne = p0 + ny + 1;
+        
+        values[col     ] = dx * dy * m_mass[0] * m_mass[0];
+        values[col +  1] = dx * dy * m_mass[0] * m_mass[1];
+        values[col +  2] = dx * dy * m_mass[0] * m_mass[2];
+        values[col +  3] = dx * dy * m_mass[1] * m_mass[0];
+        values[col +  4] = dx * dy * m_mass[1] * m_mass[1];
+        values[col +  5] = dx * dy * m_mass[1] * m_mass[2];
+        values[col +  6] = dx * dy * m_mass[2] * m_mass[0];
+        values[col +  7] = dx * dy * m_mass[2] * m_mass[1];
+        values[col +  8] = dx * dy * m_mass[2] * m_mass[2];
+
+        // psi should be computed on the 8 interfaces of the control volume
+        double psi_n = 0.5 * (psi_22[p_n] + psi_22[p_0]);
+        double psi_e = 0.5 * (psi_11[p_e] + psi_11[p_0]);
+        double psi_s = 0.5 * (psi_22[p_s] + psi_22[p_0]);
+        double psi_w = 0.5 * (psi_11[p_w] + psi_11[p_0]);
+        //psi_im12 = 2. * psi[i] * psi[i - 1] / (psi[i] + psi[i - 1]);
+        //psi_ip12 = 2. * psi[i + 1] * psi[i] / (psi[i + 1] + psi[i]);
+
+        values[col    ] += 0.0;
+        values[col + 1] += -psi_s * dx / dy;
+        values[col + 2] += 0.0;
+        values[col + 3] += -psi_w * dy / dx;
+        values[col + 4] +=  psi_s * dx / dy + psi_w * dy / dx + psi_n * dy / dx + psi_e * dx / dy;
+        values[col + 5] += -psi_e * dy / dx;
+        values[col + 6] += 0.0;
+        values[col + 7] += -psi_n * dx / dy;
+        values[col + 8] += 0.0;
+            
+        rhs[row]  = dx * dy * m_mass[0] * m_mass[0] * u_giv[p_sw];
+        rhs[row] += dx * dy * m_mass[0] * m_mass[1] * u_giv[p_s ];
+        rhs[row] += dx * dy * m_mass[0] * m_mass[2] * u_giv[p_se];
+
+        rhs[row] += dx * dy * m_mass[1] * m_mass[0] * u_giv[p_w ];
+        rhs[row] += dx * dy * m_mass[1] * m_mass[1] * u_giv[p_0 ];
+        rhs[row] += dx * dy * m_mass[1] * m_mass[2] * u_giv[p_e ];
+
+        rhs[row] += dx * dy * m_mass[2] * m_mass[0] * u_giv[p_nw];
+        rhs[row] += dx * dy * m_mass[2] * m_mass[1] * u_giv[p_n ];
+        rhs[row] += dx * dy * m_mass[2] * m_mass[2] * u_giv[p_ne];
+    }
+    // first internal east boundary column
+    for (int row = (nx - 2) * ny; row < (nx - 1) * ny; row += 1) 
+    {
+        if (std::fmod(row , ny) == 0) {
+            // south boundary
+            col = outer[row    ];
+            p_0 = col/(9);  // p_s
+
+            values[col     ] = 0.0;
+            values[col +  1] = 0.0;
+            values[col +  2] = 0.0;
+            values[col +  3] = 1.0;
+            values[col +  4] = -1.0;
+            values[col +  5] = 0.0;
+            values[col +  6] = 0.0;
+            values[col +  7] = 0.0;
+            values[col +  8] = 0.0;
+            rhs[row    ] = 0.0;
+            continue;
+        }
+        if (std::fmod(row + 1, ny) == 0) {
+            // north boundary
+            col = outer[row    ];
+            p_0 = col/(9);  // p_n
+
+            values[col     ] = 0.0;
+            values[col +  1] = 0.0;
+            values[col +  2] = 0.0;
+            values[col +  3] = 0.0;
+            values[col +  4] = -1.0;
+            values[col +  5] = 1.0;
+            values[col +  6] = 0.0;
+            values[col +  7] = 0.0;
+            values[col +  8] = 0.0;
+            rhs[row    ] = 0.0;
+            continue;
+        }
+        col = outer[row    ];
+        p_0 = col/(9);  // p_nw
+
+        values[col     ] = 0.0;
+        values[col +  1] = 0.0;
+        values[col +  2] = 0.0;
+        values[col +  3] = 0.0;
+        values[col +  4] = 1.0;
+        values[col +  5] = 0.0;
+        values[col +  6] = 0.0;
+        values[col +  7] = 0.0;
+        values[col +  8] = 0.0;
+        rhs[row    ] = u_giv[p_0];
+    }
+    // south-east corner
+    for (int row = (nx - 1) * ny; row < (nx - 1) * ny + 1; row += 1)
+    {
+        col = outer[row    ];
+        p_0 = col/(9);  // p_se
+
+        values[col     ] = 0.0;
+        values[col +  1] = 0.0;
+        values[col +  2] = 0.0;
+        values[col +  3] = 0.0;
+        values[col +  4] = 0.0;
+        values[col +  5] = 0.0;
+        values[col +  6] = 1.0;
+        values[col +  7] = 0.0;
+        values[col +  8] = 0.0;
+        rhs[row    ] = u_giv[p_0];
+}
+    // east boundary
+    for (int row = (nx - 1) * ny + 1; row < nx * ny - 1; row += 1) 
+    {
+        col = outer[row    ];
+        p_0 = col/(9);  // p_e
+
+        values[col     ] = 0.0;
+        values[col +  1] = 0.0;
+        values[col +  2] = 0.0;
+        values[col +  3] = 0.0;
+        values[col +  4] = -1.0;
+        values[col +  5] = 0.0;
+        values[col +  6] = 0.0;
+        values[col +  7] = 1.0;
+        values[col +  8] = 0.0;
+        rhs[row    ] = 0.0;
+    }
+    // north-east corner
+    for (int row = nx * ny - 1; row < nx * ny; row += 1)
+    {
+        col = outer[row    ];
+        p_0 = col/(9);  // p_ne
+
+        values[col     ] = 0.0;
+        values[col +  1] = 0.0;
+        values[col +  2] = 0.0;
+        values[col +  3] = 0.0;
+        values[col +  4] = 0.0;
+        values[col +  5] = 0.0;
+        values[col +  6] = 0.0;
+        values[col +  7] = 0.0;
+        values[col +  8] = 1.0;
+        rhs[row    ] = u_giv[p_0];
+    }
+
+    if (false)
+    {
+        log_file << "=== Matrix eq7 ========================================" << std::endl;
+        for (int i = 0; i < nxny; ++i)
+        {
+            for (int j = 0; j < nxny; ++j)
+            {
+                log_file << std::showpos << std::setprecision(3) << std::scientific << B.coeff(i, j) << " ";
+                if (std::fmod(j+1,ny) == 0) { log_file << "| "; }
+            }
+            log_file << std::endl;
+            if (std::fmod(i+1,ny) == 0) { log_file << std::endl; }
+        }
+        log_file << "=== RHS eq7 ===========================================" << std::endl;
+        for (int i = 0; i < nxny; ++i)
+        {
+            log_file << std::setprecision(8) << std::scientific << rhs[i] << std::endl;
+            if (std::fmod(i+1,ny) == 0) { log_file << std::endl; }
+        }
+        log_file << "=======================================================" << std::endl;
+    }
 
     Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solverB;
     solverB.compute(B);
@@ -429,178 +596,242 @@ std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(int nx, int ny, 
 std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etaeta, std::ofstream& log_file)
 {
     int nxny = nx*ny;
-    auto err = std::make_unique<std::vector<double>> ();
+    auto eq8 = std::make_unique<std::vector<double>> ();
     std::vector<double> tmp(nxny, NAN);
 
-    Eigen::SparseMatrix<double> A(nxny, nxny);
+    Eigen::SparseMatrix<double, Eigen::RowMajor>  A(nxny, nxny);
     Eigen::VectorXd solution(nxny);           // solution vector u
     Eigen::VectorXd rhs(nxny);                // RHS
+    std::vector< Eigen::Triplet<double> > triplets; 
+    triplets.reserve(9 * nxny); // 9-points per row, nrow = nxny; large enough to avoid reallocation
+    
+    int status = build_matrix_pattern_regularization(triplets, nx, ny);
+    A.setFromTriplets(triplets.begin(), triplets.end());
+    A.makeCompressed(); // Very important for valuePtr() access
 
-    for (int i = 0; i < nxny; ++i) {
-        A.insert(i, i) = 1.0;
-    }
-    solution.setZero();
-    rhs.setZero();
-
-    for (int j = 1; j < ny - 1; ++j)
+    if (false) 
     {
-        for (int i = 1; i < nx - 1; ++i)
+        log_file << "=== Matrix build matrix pattern =======================" << std::endl;
+        for (int i = 0; i < nxny; ++i)
         {
-            int p_0  = p_index(i    , j    , ny);
-            int p_n  = p_index(i    , j + 1, ny);
-            int p_ne = p_index(i + 1, j + 1, ny);
-            int p_e  = p_index(i + 1, j    , ny);
-            int p_se = p_index(i + 1, j - 1, ny);
-            int p_s  = p_index(i    , j - 1, ny);
-            int p_sw = p_index(i - 1, j - 1, ny);
-            int p_w  = p_index(i - 1, j    , ny);
-            int p_nw = p_index(i - 1, j + 1, ny);
-
-            A.coeffRef(p_0, p_sw) = m_mass[0] * m_mass[0];
-            A.coeffRef(p_0, p_s ) = m_mass[0] * m_mass[1] - c_error;
-            A.coeffRef(p_0, p_se) = m_mass[0] * m_mass[2];
-
-            A.coeffRef(p_0, p_w) = m_mass[1] * m_mass[0] - c_error;
-            A.coeffRef(p_0, p_0) = m_mass[1] * m_mass[1] + 4. * c_error;
-            A.coeffRef(p_0, p_e) = m_mass[1] * m_mass[2] - c_error;
-
-            A.coeffRef(p_0, p_nw) = m_mass[2] * m_mass[0];
-            A.coeffRef(p_0, p_n ) = m_mass[2] * m_mass[1] - c_error;
-            A.coeffRef(p_0, p_ne) = m_mass[2] * m_mass[2];
+            for (int j = 0; j < nxny; ++j)
+            {
+                if (A.coeff(i, j) != 0.0)
+                {
+                    log_file << "* ";
+                }
+                else
+                {
+                    log_file << "- ";
+                }
+            }
+            log_file << std::endl;
+            if (std::fmod(i+1,ny) == 0) { log_file << std::endl; }
         }
     }
-    for (int i = 1; i < nx - 1; ++i)  // horizontal direction
+
+    double u0_xixi_max = 0.0;
+    double u0_etaeta_max = 0.0;
+    for (int i = 0; i < nxny; ++i)
     {
-        int j = 0;
-        int p_0  = p_index(i, j    , ny);
-        int p_n  = p_index(i, j + 1, ny);
-        int p_nn = p_index(i, j + 2, ny);
-        A.coeffRef(p_0, p_0 ) =  1.0;
-        A.coeffRef(p_0, p_n ) = -2.0;
-        A.coeffRef(p_0, p_nn) =  1.0;
-
-        j = 1;
-        int p_s  = p_index(i, j - 1, ny);
-        p_0      = p_index(i, j    , ny);
-        p_n      = p_index(i, j + 1, ny);
-        A.coeffRef(p_0, p_s) = 0.0;
-        A.coeffRef(p_0, p_0) = 1.0;
-        A.coeffRef(p_0, p_n) = 0.0;
-
-        j = ny - 1;
-        p_0      = p_index(i, j    , ny);
-        p_s      = p_index(i, j - 1, ny);
-        int p_ss = p_index(i, j - 2, ny);
-        A.coeffRef(p_0, p_0 ) =  1.0;
-        A.coeffRef(p_0, p_s ) = -2.0;
-        A.coeffRef(p_0, p_ss) =  1.0;
-
-        j = ny - 2;
-        p_s  = p_index(i, j - 1, ny);
-        p_0  = p_index(i, j    , ny);
-        p_n  = p_index(i, j + 1, ny);
-        A.coeffRef(p_0, p_s) = 0.0;
-        A.coeffRef(p_0, p_0) = 1.0;
-        A.coeffRef(p_0, p_n) = 0.0;
+        u0_xixi_max = std::max(u0_xixi_max, u0_xixi[i]);
+        u0_etaeta_max = std::max(u0_etaeta_max, u0_etaeta[i]);
     }
-    for (int j = 0; j < ny; ++j)  // vertical direction
+    if (u0_xixi_max == 0.0) { u0_xixi_max = 1.0; }
+    if (u0_etaeta_max == 0.0) { u0_etaeta_max = 1.0; }
+
+    double* values = A.valuePtr();         // pointer to all non-zero values
+    const int* outer = A.outerIndexPtr();   // row start pointers
+
+    int col;
+    int p0;
+
+    // south-west corner
+    for (int row = 0; row < 1; row += 1)
     {
-        int i = 0;
-        int p_0  = p_index(i, j    , ny);
-        int p_e  = p_index(i + 1, j, ny);
-        int p_ee = p_index(i + 2, j, ny);
-        A.coeffRef(p_0, p_0 ) =  1.0;
-        A.coeffRef(p_0, p_e ) = -2.0;
-        A.coeffRef(p_0, p_ee) =  1.0;
+        col = outer[row    ];
+        p0 = col/(9);  // p_sw
 
-        i = 2;
-        int p_w = p_index(i - 1, j, ny);
-        p_0     = p_index(i    , j, ny);
-        p_e     = p_index(i + 1, j, ny);
-        A.coeffRef(p_0, p_w) = 0.0;
-        A.coeffRef(p_0, p_0) = 1.0;
-        A.coeffRef(p_0, p_e) = 0.0;
-
-        i = nx - 1;
-        p_0      = p_index(i    , j, ny);
-        p_w      = p_index(i - 1, j, ny);
-        int p_ww = p_index(i - 2, j, ny);
-        A.coeffRef(p_0, p_0 ) =  1.0;
-        A.coeffRef(p_0, p_w)  = -2.0;
-        A.coeffRef(p_0, p_ww) =  1.0;
-
-        i = nx - 2;
-        p_w = p_index(i - 1, j, ny);
-        p_0 = p_index(i    , j, ny);
-        p_e = p_index(i + 1, j, ny);
-        A.coeffRef(p_0, p_w) = 0.0;
-        A.coeffRef(p_0, p_0) = 1.0;
-        A.coeffRef(p_0, p_e) = 0.0;
+        values[col     ] = -2.0;
+        values[col +  1] = 1.0;
+        values[col +  2] = 0.0;
+        values[col +  3] = 1.0;
+        values[col +  4] = 0.0;
+        values[col +  5] = 0.0;
+        values[col +  6] = 0.0;
+        values[col +  7] = 0.0;
+        values[col +  8] = 0.0;
+        rhs[row    ] = 0.0;
     }
-    for (int j = 1; j < ny - 1; ++j)
+    // west boundary
+    for (int row = 1; row < (ny - 1); row += 1)
     {
-        for (int i = 1; i < nx - 1; ++i)
-        {
-            int p_0  = p_index(i    , j    , ny);
-            int p_n  = p_index(i    , j + 1, ny);
-            int p_ne = p_index(i + 1, j + 1, ny);
-            int p_e  = p_index(i + 1, j    , ny);
-            int p_se = p_index(i + 1, j - 1, ny);
-            int p_s  = p_index(i    , j - 1, ny);
-            int p_sw = p_index(i - 1, j - 1, ny);
-            int p_w  = p_index(i - 1, j    , ny);
-            int p_nw = p_index(i - 1, j + 1, ny);
-            rhs[p_0]  = (u0_xixi[p_sw] + u0_etaeta[p_sw]);
-            rhs[p_0] += (u0_xixi[p_s ] + u0_etaeta[p_s]);
-            rhs[p_0] += (u0_xixi[p_se] + u0_etaeta[p_se]);
-            
-            rhs[p_0] += (u0_xixi[p_w] + u0_etaeta[p_w]);
-            rhs[p_0] += (u0_xixi[p_0] + u0_etaeta[p_0]);
-            rhs[p_0] += (u0_xixi[p_e] + u0_etaeta[p_e]);
-            
-            rhs[p_0] += (u0_xixi[p_nw] + u0_etaeta[p_nw]);
-            rhs[p_0] += (u0_xixi[p_n ] + u0_etaeta[p_n ]);
-            rhs[p_0] += (u0_xixi[p_ne] + u0_etaeta[p_ne]);
-            rhs[p_0] = std::abs(rhs[p_0]);
+        col = outer[row    ];
+        p0 = col/(9);  // p_w
+
+        values[col     ] = 0.0;
+        values[col +  1] = -1.0;
+        values[col +  2] = 0.0;
+        values[col +  3] = 0.0;
+        values[col +  4] = 1.0;
+        values[col +  5] = 0.0;
+        values[col +  6] = 0.0;
+        values[col +  7] = 0.0;
+        values[col +  8] = 0.0;
+        rhs[row    ] = 0.0;
+    }
+    // north-west corner
+    for (int row = ny - 1; row < ny; row += 1)
+    {
+        col = outer[row    ];
+        p0 = col/(9);  // p_nw
+
+        values[col     ] = 0.0;
+        values[col +  1] = 1.0;
+        values[col +  2] = -2.0;
+        values[col +  3] = 0.0;
+        values[col +  4] = 0.0;
+        values[col +  5] = 1.0;
+        values[col +  6] = 0.0;
+        values[col +  7] = 0.0;
+        values[col +  8] = 0.0;
+        rhs[row    ] = 0.0;
+    }
+    // interior with south and north boundary
+    for (int row = ny; row < (nx - 1) * ny; row += 1) 
+    {
+        col = outer[row    ];
+        p0 = col/(9);  // p_0
+
+        if (std::fmod(row , ny) == 0) {
+            // south boundary
+            col = outer[row    ];
+            p0 = col/(9);  // p_s
+
+            values[col     ] = 0.0;
+            values[col +  1] = 0.0;
+            values[col +  2] = 0.0;
+            values[col +  3] = -1.0;
+            values[col +  4] = 1.0;
+            values[col +  5] = 0.0;
+            values[col +  6] = 0.0;
+            values[col +  7] = 0.0;
+            values[col +  8] = 0.0;
+            rhs[row    ] = 0.0;
+            continue;
         }
-    }
-    for (int i = 0; i < nx; ++i)  // horizontal direction
-    {
-        int j = 0;
-        int p_0 = p_index(i, j, ny);
-        rhs[p_0] = 0.0;
+        if (std::fmod(row + 1, ny) == 0) {
+            // north boundary
+            col = outer[row    ];
+            p0 = col/(9);  // p_n
 
-        j = 1;
-        p_0 = p_index(i, j, ny);
-        rhs[p_0] = rhs[p_0];
+            values[col     ] = 0.0;
+            values[col +  1] = 0.0;
+            values[col +  2] = 0.0;
+            values[col +  3] = 0.0;
+            values[col +  4] = 1.0;
+            values[col +  5] = -1.0;
+            values[col +  6] = 0.0;
+            values[col +  7] = 0.0;
+            values[col +  8] = 0.0;
+            rhs[row    ] = 0.0;
+            continue;
+        }
+
+        int p_sw = p0 - ny - 1;
+        int p_w  = p0 - ny    ;
+        int p_nw = p0 - ny + 1;
+        int p_s  = p0 - 1;
+        int p_0  = p0    ;
+        int p_n  = p0 + 1;
+        int p_se = p0 + ny - 1;
+        int p_e  = p0 + ny    ;
+        int p_ne = p0 + ny + 1;
+
+        //values[col     ] = m_mass[0] * m_mass[0];
+        //values[col +  1] = m_mass[1] * m_mass[0] - c_error * u0_etaeta[p_w] / u0_etaeta_max;
+        //values[col +  2] = m_mass[0] * m_mass[2];
+        //values[col +  3] = m_mass[0] * m_mass[1] - c_error * u0_xixi[p_w] / u0_xixi_max;
+        //values[col +  4] = m_mass[1] * m_mass[1] + 2. * c_error * u0_xixi[p_w] / u0_xixi_max + 2. * c_error * u0_etaeta[p_w] / u0_etaeta_max;
+        //values[col +  5] = m_mass[2] * m_mass[1] - c_error * u0_xixi[p_w] / u0_xixi_max;
+        //values[col +  6] = m_mass[2] * m_mass[0];
+        //values[col +  7] = m_mass[1] * m_mass[2] - c_error * u0_etaeta[p_w] / u0_etaeta_max;
+        //values[col +  8] = m_mass[2] * m_mass[2];
         
-        j = ny - 1;
-        p_0 = p_index(i, j, ny);
-        rhs[p_0] = 0;
+        values[col     ] = m_mass[0] * m_mass[0];
+        values[col +  1] = m_mass[0] * m_mass[1] - c_error;
+        values[col +  2] = m_mass[0] * m_mass[2];
+        values[col +  3] = m_mass[1] * m_mass[0] - c_error;
+        values[col +  4] = m_mass[1] * m_mass[1] + 4. * c_error;
+        values[col +  5] = m_mass[1] * m_mass[2] - c_error;
+        values[col +  6] = m_mass[2] * m_mass[0];
+        values[col +  7] = m_mass[2] * m_mass[1] - c_error;
+        values[col +  8] = m_mass[2] * m_mass[2];
 
-        j = ny - 2;
-        p_0 = p_index(i, j, ny);
-        rhs[p_0] = rhs[p_0];
+        rhs[row]  = (u0_xixi[p_sw] + u0_etaeta[p_sw]);
+        rhs[row] += (u0_xixi[p_w ] + u0_etaeta[p_w ]);
+        rhs[row] += (u0_xixi[p_nw] + u0_etaeta[p_nw]);
+        
+        rhs[row] += (u0_xixi[p_s ] + u0_etaeta[p_s ]);
+        rhs[row] += (u0_xixi[p_0 ] + u0_etaeta[p_0 ]);
+        rhs[row] += (u0_xixi[p_n ] + u0_etaeta[p_n ]);
+        
+        rhs[row] += (u0_xixi[p_se] + u0_etaeta[p_se]);
+        rhs[row] += (u0_xixi[p_e ] + u0_etaeta[p_e ]);
+        rhs[row] += (u0_xixi[p_ne] + u0_etaeta[p_ne]);
+        rhs[row] = std::abs(rhs[p_0]);
     }
-    for (int j = 0; j < ny; ++j)  // vertical direction
+    // south-east corner
+    for (int row = (nx - 1) * ny; row < (nx - 1) * ny + 1; row += 1)
     {
-        int i = 0;
-        int p_0 = p_index(i, j, ny);
-        rhs[p_0] = 0.0;
+        col = outer[row    ];
+        p0 = col/(9);  // p_se
 
-        i = 1;
-        p_0 = p_index(i, j, ny);
-        rhs[p_0] = rhs[p_0];
+        values[col     ] = 0.0;
+        values[col +  1] = 0.0;
+        values[col +  2] = 0.0;
+        values[col +  3] = 1.0;
+        values[col +  4] = 0.0;
+        values[col +  5] = 0.0;
+        values[col +  6] = -2.0;
+        values[col +  7] = 1.0;
+        values[col +  8] = 0.0;
+        rhs[row    ] = 0.0;
+}
+    // east boundary
+    for (int row = (nx - 1) * ny + 1; row < nx * ny - 1; row += 1) 
+    {
+        col = outer[row    ];
+        p0 = col/(9);  // p_e
 
-        i = nx - 1;
-        p_0 = p_index(i, j, ny);
-        rhs[p_0] = 0.0;
-
-        i = nx - 2;
-        p_0 = p_index(i, j, ny);
-        rhs[p_0] = rhs[p_0];
+        values[col     ] = 0.0;
+        values[col +  1] = 0.0;
+        values[col +  2] = 0.0;
+        values[col +  3] = 0.0;
+        values[col +  4] = -1.0;
+        values[col +  5] = 0.0;
+        values[col +  6] = 0.0;
+        values[col +  7] = 1.0;
+        values[col +  8] = 0.0;
+        rhs[row    ] = 0.0;
     }
-    // TODO: corner points
+    // north-east corner
+    for (int row = nx * ny - 1; row < nx * ny; row += 1)
+    {
+        col = outer[row    ];
+        p0 = col/(9);  // p_ne
+
+        values[col     ] = 0.0;
+        values[col +  1] = 0.0;
+        values[col +  2] = 0.0;
+        values[col +  3] = 0.0;
+        values[col +  4] = 0.0;
+        values[col +  5] = 1.0;
+        values[col +  6] = 0.0;
+        values[col +  7] = 1.0;
+        values[col +  8] = -2.0;
+        rhs[row    ] = 0.0;
+    }
 
     for (int i = 0; i < nxny; ++i)
     {
@@ -610,34 +841,36 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
     if (false)
     {
         log_file << "=== Matrix eq8 ========================================" << std::endl;
-        log_file << std::setprecision(4) << std::scientific << Eigen::MatrixXd(A) << std::endl;
-        //log_file << "=== Main diagonal eq8 =================================" << std::endl;
-        //log_file << std::setprecision(8) << std::scientific << Eigen::MatrixXd(A).diagonal() << std::endl;
-        //log_file << "=== Eigen values eq8 ==================================" << std::endl;
-        //log_file << std::setprecision(8) << std::scientific << Eigen::MatrixXd(A).eigenvalues() << std::endl;
-    }
-
-    Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solverA;
-    solverA.compute(A);
-    solverA.setTolerance(1e-08);
-    solution = solverA.solve(rhs);
-    //solution = solverA.solveWithGuess(rhs, solution);
-
-    if (false)
-    {
-        log_file << "=== RHS, solution eq8 =================================" << std::endl;
         for (int i = 0; i < nxny; ++i)
         {
-            log_file << std::setprecision(8) << std::scientific << rhs[i] << "  " << solution[i] << std::endl;
+            for (int j = 0; j < nxny; ++j)
+            {
+                log_file << std::showpos << std::setprecision(3) << std::scientific << A.coeff(i, j) << " ";
+                if (std::fmod(j+1,ny) == 0) { log_file << "| "; }
+            }
+            log_file << std::endl;
+            if (std::fmod(i+1,ny) == 0) { log_file << std::endl; }
+        }
+        log_file << "=== RHS eq8 ===========================================" << std::endl;
+        for (int i = 0; i < nxny; ++i)
+        {
+            log_file << std::setprecision(8) << std::scientific << rhs[i] << std::endl;
+            if (std::fmod(i+1,ny) == 0) { log_file << std::endl; }
         }
         log_file << "=======================================================" << std::endl;
     }
 
+    Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solverA;
+    solverA.compute(A);
+    solverA.setTolerance(1e-12);
+    solution = solverA.solve(rhs);
+    //solution = solverA.solveWithGuess(rhs, solution);
+
     for (int i = 0; i < nxny; ++i)
     {
-        err->push_back(solution[i]); // / (err_max + 1e-13);  // to prevent division bij zero
+        eq8->push_back(solution[i]); // / (err_max + 1e-13);  // to prevent division bij zero
     }
-    return err;
+    return eq8;
 }
 int REGULARIZATION::p_index(int i, int j, int ny)
 {
