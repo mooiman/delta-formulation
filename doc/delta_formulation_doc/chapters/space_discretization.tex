@@ -451,28 +451,32 @@ Decrease the grid size $\Dx$:
     \caption{Grid size decreased to $25\ [m]$ ($c_\Psi = 4, \Dx = 25\ [m]$)}
 \end{figure}
 %------------------------------------------------------------------------------
-\section{Compatible initialization}\label{sec:compatible_initialization}
+\section{Compatible initialization in one dimension}\label{sec:compatible_initialization}
 To assure that the given initial condition(s) are compatible with the numerical scheme, the given function need to fulfill the follow equation:
 \begin{align}
     \int_{x_{i-\half}}^{x_{i+\half}} \overline u_{initial}\, dx = \int_{x_{i-\half}}^{x_{i+\half}} u_{given}\, dx \label{eq:compatible_initialization}
 \end{align}
-where $\overline{u}$ is the piecewise function and $u_{given}$ the given initial condition.
+where $\overline{u}$ is the piecewise linear function and $u_{given}$ the given initial condition.
 In case the function $u_{given}$ is an integrable analytic function the integral can be exact computed.
 In discrete form the equation for each control volume reads:
 \begin{align}
     \frac{\Dx_{i-\half}}{2}\,\frac{u_{i-1} + 3 u_i}{4} +
     \frac{\Dx_{i+\half}}{2}\,\frac{3 u_i + u_{i+1}}{4} = \int_{x_{i-\half}}^{x_{i+\half}} u_{given}\, dx
 \end{align}
-Extra equations are needed for the boundary conditions, the following boundary treatment is used at $x=2$ (see  \autoref{sec:boundary_conditions}):
+Extra equations are needed for the boundary conditions, the following boundary treatment is used at $x=0$ (see  \autoref{sec:boundary_conditions}):
 \begin{align}
-    \frac{1}{12} u_0 + \frac{10}{12}u_1 + \frac{1}{12} u_2 = u_{given}(2)
+    \frac{1}{12} u_0 + \frac{10}{12}u_1 + \frac{1}{12} u_2 = u_{given}(0)
 \end{align}
-and similar at the other boundary ($x=10$).
+and similar at the other boundary ($x=12$).
 An illustration off the result of \autoref{eq:compatible_initialization} is given in \autoref{fig:compatible_initial_condition}.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/compatible_initialization_lx=12.0_dx=2.0.pdf}
-    \caption[Illustration of compatible quadratic function]{Illustration of compatible quadratic function. The integral over the control volume of the the given function (blue) is equal represented by the red-function and better then by the green-function, therefor the red function is called compatible with the given function. In green-function is defined with nodes on the given function. Control volumes shown by the green vertical lines. And the gray areas are virtual and are not belonging to the water body (see \autoref{fig:water_body_fve_bc_at_node}). }\label{fig:compatible_initial_condition}
+    \caption[Illustration of compatible quadratic function]{
+    Illustration of compatible quadratic function.
+    The integral over the control volume of the the given function (blue) is equal represented by the red-function and better then by the green-function, therefor the red function is called compatible with the given function.
+    The green-function is defined with nodes on the given function. Control volumes shown by the green vertical lines.
+    And the gray areas are virtual and are not belonging to the water body (see \autoref{fig:water_body_fve_bc_at_node}). }\label{fig:compatible_initial_condition}
     % python script: compatible_initial_function.py
 \end{figure}
 Some numerical items used to generate \autoref{fig:compatible_initial_condition} are $x \in [0, 12]$, $\Dx=2$ and the given function reads:
@@ -484,3 +488,41 @@ Some numerical items used to generate \autoref{fig:compatible_initial_condition}
         -(x-3)^2 + 18 & \qquad x \geq 6
     \end{cases}
 \end{align}
+%------------------------------------------------------------------------------
+\section{Compatible initialization in two dimensions}\label{sec:compatible_initialization}
+To assure that the given initial condition(s) are compatible with the numerical scheme, the given function need to fulfill the follow equation for each control volume:
+\begin{align}
+    \int_{y_{i-\half}}^{x_{i+\half}} \int_{y_{i-\half}}^{x_{i+\half}} \overline u_{initial}\, dxdy = \int_{y_{i-\half}}^{y_{i+\half}} \int_{x_{i-\half}}^{x_{i+\half}} u_{given}\, dxdy \label{eq:compatible_initialization}
+\end{align}
+where $\overline{u}$ is the piecewise linear function and $u_{given}$ the given initial condition.
+See for an example \autoref{fig:subgrid_scale_2d}, when the function $u_{given}$ is constructed by an interpolation method (triangulation, \ldots) between the dots.
+In case the function $u_{given}$ is an integrable analytic function the integral can be exact computed.
+
+On a structured grid one control volume ($cv$) around a node consist of four sub-control volumes ($scv_i$, $i\in\{1,2,3,4\}$).
+\begin{align}
+    &\int_{scv_1} \overline u_{initial}\, d\omega +
+    \int_{scv_2} \overline u_{initial}\, d\omega +
+    \int_{scv_3} \overline u_{initial}\, d\omega +
+    \int_{scv_4} \overline u_{initial}\, d\omega
+    =
+    \nonumber \\
+    & =\int_{scv_1} u_{given}\, d\omega +
+    \int_{scv_2} u_{given}\, d\omega +
+    \int_{scv_3} u_{given}\, d\omega +
+    \int_{scv_4} u_{given}\, d\omega
+\end{align}
+
+Considering one sub-control volume, $scv_3$, and assuming a
+cartesian grid then the discrete form reads :
+\begin{align}
+A_{scv_3} \overline{u}_{qp} = \int_{scv_3} u_{given}\, d\omega
+\end{align}
+with $A_{scv_3} = \Dx_{qp}\Dy_{qp}$ the area of sub-control volume $scv_3$.
+\begin{align}
+    \Dx_{qp} & = \frac{1}{2}\left[\frac{1}{4}\left( 3 (x_{i+1,j} - x_{i,j}) + 1 (x_{i+1,j+1} - x_{i,j+1}) \right)\right]
+    \\
+    \Dy_{qp} & = \frac{1}{2}\left[\frac{1}{4}\left( 3 (y_{i+1,j} - y_{i,j}) + 1 (y_{i+1,j+1} - yx_{i,j+1}) \right)\right]
+    \\
+    \overline{u}_{qp} & = \frac{1}{16} \left( 9 u_{i,j} + 3 u_{i+1,j} + 3 u_{i, j+1} + u_{i+1, j+1} \right)
+\end{align}
+
