@@ -29,7 +29,17 @@ with
     \item[$g$] Acceleration due to gravity, \bunit{\metre\per\square\second}.
     \item[$\nu$] Kinematic viscosity, \bunit{\square\metre\per\second}.
 \end{symbollist}
-
+\vspace{1cm}
+\begin{figure}[H]
+    \centering
+    \begin{center}
+        \def\svgwidth{1.0\textwidth} % scaling text
+        \resizebox{0.9\textwidth}{!}{
+            \input{figures/definition_variables.pdf_tex}
+        }
+    \end{center}
+    \caption{Definition sketch of water level ($\zeta$), bed level ($z_b$) and total water depth ($h$)}\label{fig:definition_variables_1d}
+\end{figure}
 If $u$ is needed for other processes (like morphology and/or post processing) it can be computed according the next equation:
 \begin{align}
     u & = \frac{q}{h}.
