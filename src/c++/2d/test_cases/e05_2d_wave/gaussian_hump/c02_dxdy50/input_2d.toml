@@ -1,8 +1,8 @@
 # Logging = "matrix"  # "iterations", "matrix"
 
 [Domain]
-    mesh_file = "geometry/122x122_net.nc"
-    bed_level_file = "geometry/122x122.bed"  # uniform depth
+    mesh_file = "geometry/122x122_6x6km_net.nc"
+    bed_level_file = "geometry/122x122_6x6km.dep"  # uniform depth
 
 [Time]
     tstart = 0.0                                  # Start time [s]
