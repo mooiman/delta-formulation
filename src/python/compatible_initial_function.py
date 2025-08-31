@@ -54,8 +54,14 @@ def thomas_algorithm_5(a, b, c, d, e, f):
     return f
 
 
-def main(Lx=12., dx=2.):
+def main(Lx=12., dx=4.):
     nx = int(Lx / dx) + 1 + 2  # two extra virtual points
+
+    mass = np.zeros(3, dtype=np.float64)
+    alpha = 0.125
+    mass[0] = alpha
+    mass[1] = 1. - 2. * alpha
+    mass[2] = alpha
 
     refine = 32
     x_ana = np.zeros(refine*(nx-1) + 1, dtype=np.float64)
@@ -86,21 +92,21 @@ def main(Lx=12., dx=2.):
         if x_ana[i] < mid:
             u_ana[i] = a_coef*(x_ana[i] - mid + quart) ** 2.
             #u_ana[i] = a_coef*(x_ana[i] - mid + quart) ** 4.
-            #u_ana[i] = x_ana[i]
+            u_ana[i] = x_ana[i]
         else:
             u_ana[i] = -a_coef*(x_ana[i] - mid - quart) ** 2. + 2. * a_coef*(x_ana[refine] - mid + quart)**2.
             #u_ana[i] = -a_coef*(x_ana[i] - mid - quart) ** 4. + 2. * a_coef*(x_ana[0] - mid + quart)**4.
-            #u_ana[i] = x_ana[i]
+            u_ana[i] = x_ana[i]
         #u_ana[i] = np.sin(1.* math.pi * x_ana[i]/Lx) +2.
     for i in range(0, nx):
         if x[i] < mid:
             u0[i] = a_coef*(x[i] - mid + quart) **2.
             #u0[i] = a_coef*(x[i] - mid + quart) **4.
-            #u0[i] = x[i]
+            u0[i] = x[i]
         else:
             u0[i] = -a_coef*(x[i] - mid - quart) ** 2. + 2. * a_coef*(x[1] - mid + quart) **2.
             #u0[i] = -a_coef*(x[i] - mid - quart) ** 4. + 2. * a_coef*(x[0] - mid + quart) **4.
-            #u0[i] = x[i]
+            u0[i] = x[i]
         #u0[i] = np.sin(1. * math.pi * x[i] / Lx) +2.
 
     # integral of the control volumes (xi-1/2, xi+1/2)
@@ -127,28 +133,25 @@ def main(Lx=12., dx=2.):
         k = i * refine + j - int(refine/2)
         cv_ana[i] += dx/float(refine) * 0.5 * (u_ana[k] + u_ana[k+1])
 
-
-    alpha = 0.125
-    c_error = 0.0
     for i in range(1, nx - 1):
-        b[i] = dx * alpha - c_error
-        c[i] = dx * (1 - 2. * alpha )+ 2. * c_error
-        d[i] = dx * alpha - c_error
+        b[i] = dx * mass[0]
+        c[i] = dx * mass[1]
+        d[i] = dx * mass[2]
         f[i] = cv_ana[i]
     i = 0
     a[i] = 0.
     b[i] = 0.
-    c[i] = 1./12.
-    d[i] = 10./12.
-    e[i] = 1./12.
-    f[i] = u0[i+1]
+    c[i] = dx/2. * 1./12.
+    d[i] = dx/2. * 10./12.
+    e[i] = dx/2. * 1./12.
+    f[i] = dx/2. * u0[i+1]
     i = nx-1
-    a[i] = 1./12.
-    b[i] = 10./12.
-    c[i] = 1./12.
+    a[i] = dx/2. * 1./12.
+    b[i] = dx/2. * 10./12.
+    c[i] = dx/2. * 1./12.
     d[i] = 0.
     e[i] = 0.
-    f[i] = u0[i-1]
+    f[i] = dx/2. * u0[i-1]
 
     ibnd = refine
     jan = x_ana[ibnd]
@@ -163,7 +166,6 @@ def main(Lx=12., dx=2.):
     cv_compatible[i] = dx/2. * 0.25 * (3. * u1[i] + u1[i+1])
     i = nx-1
     cv_compatible[i] = dx/2. * 0.25 * (3. * u1[i] + u1[i-1])
-
 
     # -------------------------------------------------------------------
     # plot the series
