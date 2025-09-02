@@ -823,11 +823,11 @@ int main(int argc, char *argv[])
     status = map_file->add_variable(map_s_name, dim_names, "sea_surface_height_above_geoid", "WaterLevel", "m", "mesh2D", "node");
     status = map_file->add_variable(map_u_name, dim_names, "sea_water_x_velocity", "Velocity (x)", "m s-1", "mesh2D", "node");
     status = map_file->add_variable(map_v_name, dim_names, "sea_water_y_velocity", "Velocity (y)", "m s-1", "mesh2D", "node");
-    status = map_file->add_variable(map_zb_name, dim_names, "", "Bed level", "m", "mesh2D", "node");
+    status = map_file->add_variable(map_zb_name, dim_names, "", "BedLevel", "m", "mesh2D", "node");
     if (regularization_init)
     {
         status = map_file->add_variable(map_psi_11_name, dim_names, "", "Psi_11", "m2 s-1", "mesh2D", "node");
-        status = map_file->add_variable(map_psi_22_name, dim_names, "", "Psi_11", "m2 s-1", "mesh2D", "node");
+        status = map_file->add_variable(map_psi_22_name, dim_names, "", "Psi_22", "m2 s-1", "mesh2D", "node");
         status = map_file->add_variable(map_eq8_name, dim_names, "", "Eq8", "-", "mesh2D", "node");
     }
     if (do_bed_shear_stress)
