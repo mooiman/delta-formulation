@@ -517,12 +517,12 @@ cartesian grid then the discrete form reads :
 \begin{align}
 A_{scv_3} \overline{u}_{qp} = \int_{scv_3} u_{given}\, d\omega
 \end{align}
-with $A_{scv_3} = \Dx_{qp}\Dy_{qp}$ the area of sub-control volume $scv_3$.
+with $A_{scv_3} \approx \Dx_{qp}\Dy_{qp}$ the area of sub-control volume $scv_3$, with
 \begin{align}
-    \Dx_{qp} & = \frac{1}{2}\left[\frac{1}{4}\left( 3 (x_{i+1,j} - x_{i,j}) + 1 (x_{i+1,j+1} - x_{i,j+1}) \right)\right]
+    \Dx_{qp} & = \frac{1}{2}\left[\frac{1}{4}\left( 3 (x_{i+1,j} - x_{i,j}) + 1 (x_{i+1,j+1} - x_{i,j+1}) \right)\right],
     \\
-    \Dy_{qp} & = \frac{1}{2}\left[\frac{1}{4}\left( 3 (y_{i+1,j} - y_{i,j}) + 1 (y_{i+1,j+1} - yx_{i,j+1}) \right)\right]
+    \Dy_{qp} & = \frac{1}{2}\left[\frac{1}{4}\left( 3 (y_{i+1,j} - y_{i,j}) + 1 (y_{i+1,j+1} - yx_{i,j+1}) \right)\right],
     \\
-    \overline{u}_{qp} & = \frac{1}{16} \left( 9 u_{i,j} + 3 u_{i+1,j} + 3 u_{i, j+1} + u_{i+1, j+1} \right)
+    \overline{u}_{qp} & = \frac{1}{16} \left( 9 u_{i,j} + 3 u_{i+1,j} + 3 u_{i, j+1} + u_{i+1, j+1} \right).
 \end{align}
 
