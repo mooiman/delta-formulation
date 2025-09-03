@@ -27,8 +27,7 @@
     do_continuity = true            # continuity equation
     do_q_equation = true            # q momentum equation
     do_r_equation = true            # r momentum equation
-    do_q_convection = false         # Include momentum convection term
-    do_r_convection = false         # Include momentum convection term
+    do_convection = false           # Include momentum convection term
     do_viscosity = false            # Include momentum viscosity term
     do_bed_shear_stress = false     # Include momentum bed shear stress term
     viscosity = 0.01
