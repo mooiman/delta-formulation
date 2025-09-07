@@ -1,6 +1,6 @@
-%% Creator: Inkscape 1.4 (86a8ad7, 2024-10-11), www.inkscape.org
+%% Creator: Inkscape 1.4.2 (f4327f4, 2025-05-13), www.inkscape.org
 %% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
-%% Accompanies image file 'cartesian_grid_along_straight_boundary_essential.pdf' (pdf, eps, ps)
+%% Accompanies image file 'figures/cartesian_grid_along_straight_boundary_essential.pdf' (pdf, eps, ps)
 %%
 %% To include the image in your LaTeX document, write
 %%   \input{<filename>.pdf_tex}
@@ -60,15 +60,17 @@
     \put(0.79657779,0.03289328){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\frac{1}{12}$\end{tabular}}}}%
     \put(0.94711327,0.22643896){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\frac{1}{8}$\end{tabular}}}}%
     \put(0.94711327,0.91460118){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\frac{1}{8}$\end{tabular}}}}%
-    \put(0.09766304,0.93610625){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\frac{1}{96}$\end{tabular}}}}%
-    \put(0.10841557,0.24794403){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\frac{1}{96}$\end{tabular}}}}%
-    \put(0.79657779,0.24794403){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\frac{1}{96}$\end{tabular}}}}%
-    \put(0.79657779,0.93610625){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\frac{1}{96}$\end{tabular}}}}%
-    \put(0.45249669,0.93610625){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\frac{10}{96}$\end{tabular}}}}%
-    \put(0.79657779,0.59202516){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\frac{6}{96}$\end{tabular}}}}%
-    \put(0.10841557,0.59202516){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\frac{6}{96}$\end{tabular}}}}%
-    \put(0.45249669,0.24794403){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\frac{10}{96}$\end{tabular}}}}%
-    \put(0.45249669,0.59202516){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\frac{60}{96}$\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=2]{figures/cartesian_grid_along_straight_boundary_essential.pdf}}%
+    \put(0.10411459,0.24364302){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$0$\end{tabular}}}}%
+    \put(0.10492228,0.58991426){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$1$\end{tabular}}}}%
+    \put(0.10492228,0.93399536){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$2$\end{tabular}}}}%
+    \put(0.44819571,0.93180523){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$5$\end{tabular}}}}%
+    \put(0.4490034,0.58991426){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$4$\end{tabular}}}}%
+    \put(0.33421881,0.65654034){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\Romannum{2}$\end{tabular}}}}%
+    \put(0.33421881,0.48449979){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\Romannum{1}$\end{tabular}}}}%
+    \put(0.4490034,0.24598641){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$3$\end{tabular}}}}%
+    \put(0.79308453,0.24583316){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$6$\end{tabular}}}}%
+    \put(0.79308453,0.59006754){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$7$\end{tabular}}}}%
+    \put(0.79227684,0.93180523){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$8$\end{tabular}}}}%
   \end{picture}%
 \endgroup%

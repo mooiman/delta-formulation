@@ -141,19 +141,19 @@ Just looking to the quadrature point of $scv_3$ as part of the control volume fo
 \begin{align}
     &\quart\Dx\Dy\Dtinv \left( h^{n+1}_{i+\quart, j+\quart} -  h^{n+1,n}_{i+\quart, j+\quart} \right) =
     \\*
-    &= \quart\Dx\Dy\Dtinv \left( \frac{1}{16}\left( 9h^{n+1}_{i, j} + 3 h^{n+1}_{i+1,j}  + 3  h^{n+1}_{i, j+1} + h^{n+1}_{i+1, j+1}\right) \right. +
+    &= \quart\Dx\Dy\Dtinv \left[ \frac{1}{16}\left( 9h^{n+1}_{i, j} + 3 h^{n+1}_{i+1,j}  + 3  h^{n+1}_{i, j+1} + h^{n+1}_{i+1, j+1}\right) \right. +
     \\*
-    &\quad - \left. \frac{1}{16}\left( 9 h^{n}_{i, j} +  3 h^{n}_{i+1,j}  + 3  h^{n}_{i, j+1} + h^{n}_{i+1, j+1}\right)\right)
+    &\quad - \left. \frac{1}{16}\left( 9 h^{n}_{i, j} +  3 h^{n}_{i+1,j}  + 3  h^{n}_{i, j+1} + h^{n}_{i+1, j+1}\right)\right]
 \end{align}
 Written in \deltaformulation  it reads:
 \begin{align}
     &\quart\Dx\Dy\Dtinv \left( h^{n+1}_{i+\quart, j+\quart} -  h^{n}_{i+\quart, j+\quart} \right) =
-    \\*
-    &=\quart\Dx\Dy\Dtinv \left( \frac{1}{16}\left( 9 \Delta h^{n+1,p+1}_{i, j} + 3 \Delta q^{n+1,p+1}_{i+1,j+1}  + 3 \Delta q^{n+1,p+1}_{i, j+1} + \Delta h^{n+1,p+1}_{i+1, j+1}\right) \right) +
-    \\*
-    & + \quart\Dx\Dy\Dtinv \left( \frac{1}{16}\left( 9 h^{n+1,p}_{i, j} + 3 h^{n+1,p}_{i+1,j}  + 3 h^{n+1,p}_{i, j+1} + h^{n+1,p+1}_{i+1, j+1}\right) \right. +
-    \\*
-    &\quad - \left. \frac{1}{16}\left( 9h^{n}_{i, j} +  3 h^{n}_{i+1,j}  + 3  h^{n}_{i, j+1} + h^{n}_{i+1, j+1}\right)\right)
+    \nonumber \\*
+    &=\quart\Dx\Dy\Dtinv \left[ \frac{1}{16}\left( 9 \Delta h^{n+1,p+1}_{i, j} + 3 \Delta q^{n+1,p+1}_{i+1,j+1}  + 3 \Delta q^{n+1,p+1}_{i, j+1} + \Delta h^{n+1,p+1}_{i+1, j+1}\right) \right] +
+    \nonumber \\*
+    & + \quart\Dx\Dy\Dtinv \left[ \frac{1}{16}\left( 9 h^{n+1,p}_{i, j} + 3 h^{n+1,p}_{i+1,j}  + 3 h^{n+1,p}_{i, j+1} + h^{n+1,p+1}_{i+1, j+1}\right) \right. +
+    \nonumber \\*
+    &\quad - \left. \frac{1}{16}\left( 9h^{n}_{i, j} +  3 h^{n}_{i+1,j}  + 3  h^{n}_{i, j+1} + h^{n}_{i+1, j+1}\right)\right]
 \end{align}
 
 %-------------------------------------------------------------------------------
@@ -252,20 +252,20 @@ For a cartesian grid we get:
 Just looking to the quadrature point of $scv_3$ as part of the control volume for node $(i,j)$ the discretization reads:
 \begin{align}
     &\quart\Dx\Dy\Dtinv \left( q^{n+1}_{i+\quart, j+\quart} -  q^{n}_{i+\quart, j+\quart} \right) =
-    \\*
-    &= \quart\Dx\Dy\Dtinv \left( \frac{1}{16}\left( 9 q^{n+1}_{i, j} + 3 q^{n+1}_{i+1,j}  + 3 q^{n+1}_{i, j+1} + q^{n+1}_{i+1, j+1}\right) \right. +
-    \\*
-    &\quad - \left. \frac{1}{16}\left( 9 q^{n}_{i, j} +  3 q^{n}_{i+1,j}  + 3  q^{n}_{i, j+1} + q^{n}_{i+1, j+1}\right)\right)
+    \nonumber \\*
+    &= \quart\Dx\Dy\Dtinv \left[ \frac{1}{16}\left( 9 q^{n+1}_{i, j} + 3 q^{n+1}_{i+1,j}  + 3 q^{n+1}_{i, j+1} + q^{n+1}_{i+1, j+1}\right) \right. +
+    \nonumber\\*
+    &\quad - \left. \frac{1}{16}\left( 9 q^{n}_{i, j} +  3 q^{n}_{i+1,j}  + 3  q^{n}_{i, j+1} + q^{n}_{i+1, j+1}\right)\right]
 \end{align}
 Written in \deltaformulation  it reads:
 \begin{align}
     &\quart\Dx\Dy\Dtinv \left( q^{n+1}_{i+\quart, j+\quart} -  q^{n}_{i+\quart, j+\quart} \right) =
-    \\*
-    &=\quart\Dx\Dy\Dtinv \left( \frac{1}{16}\left( 9 \Delta q^{n+1,p+1}_{i, j} + 3 \Delta q^{n+1,p+1}_{i+1,j+1}  + 3 \Delta q^{n+1,p+1}_{i, j+1} + \Delta q^{n+1,p+1}_{i+1, j+1}\right) \right) +
-    \\*
-    & + \quart\Dx\Dy\Dtinv \left( \frac{1}{16}\left( 9 q^{n+1,p}_{i, j} + 3 q^{n+1,p}_{i+1,j}  + 3 q^{n+1,p}_{i, j+1} + q^{n+1,p+1}_{i+1, j+1}\right) \right. +
-    \\*
-    &\quad - \left. \frac{1}{16}\left( 9 q^{n}_{i, j} +  3 q^{n}_{i+1,j}  + 3  q^{n}_{i, j+1} + q^{n}_{i+1, j+1}\right)\right)
+    \nonumber \\*
+    &=\quart\Dx\Dy\Dtinv \left[ \frac{1}{16}\left( 9 \Delta q^{n+1,p+1}_{i, j} + 3 \Delta q^{n+1,p+1}_{i+1,j+1}  + 3 \Delta q^{n+1,p+1}_{i, j+1} + \Delta q^{n+1,p+1}_{i+1, j+1}\right) \right] +
+    \nonumber \\*
+    & + \quart\Dx\Dy\Dtinv \left[ \frac{1}{16}\left( 9 q^{n+1,p}_{i, j} + 3 q^{n+1,p}_{i+1,j}  + 3 q^{n+1,p}_{i, j+1} + q^{n+1,p+1}_{i+1, j+1}\right) \right. +
+    \nonumber \\*
+    &\quad - \left. \frac{1}{16}\left( 9 q^{n}_{i, j} +  3 q^{n}_{i+1,j}  + 3  q^{n}_{i, j+1} + q^{n}_{i+1, j+1}\right)\right]
 \end{align}
 %--------------------------------------------------------------------------------
 \subsubsection{Pressure term} \label{sec:linearized_pressure_zeta}
@@ -289,7 +289,7 @@ Considering one sub-control volume and only for the $x$-direction (assuming a ca
     & \int_{\textit{scv}} gh \nabla \zeta \, d\omega  \approx
     \\
     & \approx \quart \Dx\Dy\, g h^{n+\theta,p+1}_{qp} \pdiff{\zeta^{n+\theta,p+1}_{qp}}{x}
-    \\
+    \approx \\
    & \approx \quart  \Dx\Dy\, g \left( h^{n+\theta,p}_{qp} + \theta \Delta h^{n+1,p+1}\right)  \pdiff{}{x}\left(\zeta^{n+\theta,p}_{qp} + \theta \Delta \zeta^{n+1,p+1}_{qp}\right)
 \end{align}
 with $qp$ the location of the quadrature point in the sub-control volume.
@@ -315,10 +315,10 @@ with
     \frac{1}{16}\left( 9h^{n+\theta, p}_{i, j} + 3 h^{n+\theta, p}_{i+1,j} + h^{n+\theta, p}_{i+1, j+1} + 3  h^{n+\theta, p}_{i, j+1}\right)
     \\*
     \pdiff{\zeta^{n+\theta, p}_{i+\quart, j+\quart}}{x} & \approx
-   \frac{1}{\Dx}\quart\left( 3 \left(\zeta_{i,j} - \zeta_{i+1,j}\right) + \zeta_{i,j+1} - \zeta_{i+1,j+1} \right)
+   \frac{1}{\Dx}\quart\left[ 3 \left(\zeta_{i,j} - \zeta_{i+1,j}\right) + \left( \zeta_{i,j+1} - \zeta_{i+1,j+1}\right) \right]
    \\*
    \pdiff{\Delta \zeta^{n+1, p+1}_{i+\quart, j+\quart}}{x} & \approx
-   \frac{1}{\Dx}\quart\left( 3 \left(\Delta\zeta^{n+1, p+1}_{i,j} - \Delta\zeta^{n+1, p+1}_{i+1,j}\right) + \Delta\zeta^{n+1, p+1}_{i,j+1} - \Delta\zeta^{n+1, p+1}_{i+1,j+1} \right)
+   \frac{1}{\Dx}\quart\left[ 3 \left(\Delta\zeta^{n+1, p+1}_{i,j} - \Delta\zeta^{n+1, p+1}_{i+1,j}\right) + \left(\Delta\zeta^{n+1, p+1}_{i,j+1} - \Delta\zeta^{n+1, p+1}_{i+1,j+1} \right) \right]
    \\*
    \Delta h^{n+1,p+1}_{i+\quart, j+\quart} & \approx
    \frac{1}{16}\left( 9\Delta h^{n+1,p+1}_{i, j} + 3 \Delta h^{n+1,p+1}_{i+1,j} + \Delta h^{n+1,p+1}_{i+1, j+1} + 3  \Delta h^{n+1,p+1}_{i, j+1}\right)
@@ -638,7 +638,7 @@ Eight faces on a cartesian/curvilinear grid.
     \begin{center}
         \def\svgwidth{0.80\textwidth} % scaling text
         \resizebox{0.65\textwidth}{!}{
-            \input{figures/cartesian_grid_along_straight_boundary_essential.pdf_tex}
+            \input{figures/cartesian_grid_along_straight_boundary_essential_natural.pdf_tex}
         }
     \end{center}
     \caption[Definition of the grid to solve the 2D-shallow water equations at the boundary]{Coefficients of the mass-matrix in 2-dimensions on a structured grid along a straight boundary. The essential boundary condition is located at the cyan-colored line and the natural boundary condition at the orange line.}
@@ -656,7 +656,7 @@ First the \textbf{essential} boundary conditions are discussed and after that th
 A similar derivation can be given for right/east boundary.
 
 %------------------------------------------------------------------------------
-\subsection{Essential boundary condition}
+\subsubsection{Essential boundary condition}
 The \textbf{essential} boundary condition is to be assumed somewhere in the first control volume, ($x_{i_{bc}}$ with $i_{bc} \in [i-\half, i+\half]$ ).
 For simplicity the boundary condition is chosen to be on node $i=1$ (location $x_{1}$).
 
@@ -790,7 +790,27 @@ The \textbf{natural} boundary condition for the left/west boundary, describing t
     - \left(\sqrt{gh} + \frac{q}{h}\right) \underbrace{ \left(\pdiff{h}{t} + \pdiff{q}{x} + \ldots \right) }_{\text{continuity eq.}} + \underbrace{\left(\pdiff{q}{t} + g h \pdiff{\zeta}{x}+\ldots\right)}_{\text{momentum eq.}} = 0
 \end{align}
 where $q$ is normal to this boundary.
-
+\newpage
+\begin{figure}[H]
+    \begin{center}
+        \def\svgwidth{0.80\textwidth} % scaling text
+        \resizebox{0.65\textwidth}{!}{
+            \input{figures/cartesian_grid_along_straight_boundary_essential.pdf_tex}
+        }
+    \end{center}
+    \caption{Essential boundary condition, consider \Romannum{1}}
+    \label{fig:structured_grid_along_straight_boundary_2}
+\end{figure}
+\begin{figure}[H]
+    \begin{center}
+        \def\svgwidth{0.80\textwidth} % scaling text
+        \resizebox{0.65\textwidth}{!}{
+            \input{figures/cartesian_grid_along_straight_boundary_natural.pdf_tex}
+        }
+    \end{center}
+    \caption{Natural boundary condition, consider \Romannum{3}}
+    \label{fig:structured_grid_along_straight_boundary_2}
+\end{figure}
 %------------------------------------------------------------------------------
 \paragraph*{Time derivative, continuity equation}
 At the left/west boundary ($x_{i+\half}$ with $i=0$) the time discretization of the continuity equation for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
@@ -892,7 +912,76 @@ After rearranging the equation into an implicit and an explicit part it reads:
     & \qquad + \left\{
     \frac{1}{\Dx} g h^{n+\theta,p}_{i+\half} \left( \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i}  \right)  \right\}
 \end{align}
+%------------------------------------------------------------------------------
+\paragraph*{Convection, momentum equation}
+The convection term in the interior of the domain reads
+\begin{align}
+    &\nabla \dotp \frac{\vec{q}\vec{q}^T}{h}.
+\end{align}
+%Integrated along a line element of the boundary yields
+%\begin{align}
+%    &\int_\Gamma \left[ \nabla \dotp \frac{\vec{q}\vec{q}^T}{h}\right] \, d\Gamma =
+%    \\
+%    &
+%    \int_\Gamma \left[ \nabla \dotp  \frac{1}{h}\begin{pmatrix} q \\ r \end{pmatrix} \begin{pmatrix} q & r \end{pmatrix}\right] \, d\Gamma =
+%    \\
+%    &=\int_\Gamma \left[ \nabla \dotp
+%    \begin{pmatrix}
+%        qq/h & qr/h \\
+%        rq/h & rr/h
+%    \end{pmatrix}
+%    \right] \, d\Gamma
+%    =\int_\Gamma
+%    \begin{pmatrix}
+%        \pdiff{qq/h}{x} + \pdiff{rq/h}{y} \\
+%        \pdiff{qr/h}{x} + \pdiff{rr/h}{y}
+%    \end{pmatrix}
+%    \, d\Gamma
+%\end{align}
+The finite volume flux through the boundary line element $dl$ yields
+\begin{align}
+    &\int_\Gamma \left[ \nabla \dotp \frac{\vec{q}\vec{q}^T}{h}\right] \, dl =
+    \int_\Gamma
+    \begin{pmatrix}
+        \pdiff{qq/h}{x} + \pdiff{rq/h}{y} \\
+        \pdiff{qr/h}{x} + \pdiff{rr/h}{y}
+    \end{pmatrix}
+    \dotp \vec{n}\, dl
+    = \\
+    & =
+    \left[ \left( \pdiff{qq/h}{x} + \pdiff{rq/h}{y} \right) n_x +
+    \left( \pdiff{qr/h}{x} + \pdiff{rr/h}{y} \right) n_y \right] \norm{dl}
+\end{align}
+with $\vec{n} = (n_x, n_y)^T$ the outward normal vector.
 
+Consider on a cartesian grid the boundary at the west/left side of the domain, ranging over the interval $\left[ x_{i, j-\half}, x_{i, j+\half} \right]$.
+In case we have normal flow at the boundary ($r=0$) this boundary term reads:
+\begin{align}
+    \int^{y_{j+\half}}_{y_{j-\half}}\left(
+    \pdiff{qq/h}{x}
+    \right) \, d\Gamma \approx
+    \half\Dy_{j-\half}\left.\pdiff{qq/h}{x}\right|_{j-\quart} + \half \Dy_{j+\half}\left.\pdiff{qq/h}{x}\right|_{j+\quart}
+\end{align}
+using \autoref{eq:convection_jacobian_qqh} (repeated here)
+\begin{align}
+    \left.\left(\frac{qq}{h}\right)\right|^{n+\theta, p+1} &  \approx
+    \frac{q^{n+\theta, p}q^{n+\theta, p}}{h^{n+\theta, p}}
+    - \frac{q^{n+\theta, p}q^{n+\theta, p}}{(h^{n+\theta, p})^2} \theta\Delta h
+    + \frac{2 q^{n+\theta, p}}{h^{n+\theta, p}} \theta\Delta q.
+\end{align}
+the approximation reads
+\begin{align}
+    &\half\Dy_{j-\half}\left[\frac{q^{n+\theta, p}q^{n+\theta, p}}{h^{n+\theta, p}}
+    - \frac{q^{n+\theta, p}q^{n+\theta, p}}{(h^{n+\theta, p})^2} \theta\Delta h
+    +
+\frac{2 q^{n+\theta, p}}{h^{n+\theta, p}} \theta\Delta q \right]_{j-\quart} +
+    \nonumber \\*
+& +
+    \half \Dy_{j+\half}\left[\frac{q^{n+\theta, p}q^{n+\theta, p}}{h^{n+\theta, p}}
+    - \frac{q^{n+\theta, p}q^{n+\theta, p}}{(h^{n+\theta, p})^2} \theta\Delta h
+    +
+    \frac{2 q^{n+\theta, p}}{h^{n+\theta, p}} \theta\Delta q \right]_{j+\quart}
+\end{align}
 %------------------------------------------------------------------------------
 \subsection{Discretization at corner}
 \begin{figure}[H]
