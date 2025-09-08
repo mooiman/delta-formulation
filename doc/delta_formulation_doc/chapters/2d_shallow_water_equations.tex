@@ -660,7 +660,15 @@ A similar derivation can be given for right/east boundary.
 The \textbf{essential} boundary condition is to be assumed somewhere in the first control volume, ($x_{i_{bc}}$ with $i_{bc} \in [i-\half, i+\half]$ ).
 For simplicity the boundary condition is chosen to be on node $i=1$ (location $x_{1}$).
 
-
+\begin{figure}[H]
+    \begin{center}
+        \def\svgwidth{0.80\textwidth} % scaling text
+        \resizebox{0.65\textwidth}{!}{
+            \input{figures/cartesian_grid_along_straight_boundary_essential.pdf_tex}
+        }
+    \end{center}
+    \caption{Essential boundary condition, dotted lines indicate the border of the control volumes.}    \label{fig:structured_grid_along_straight_boundary_essential}
+\end{figure}
 The \textbf{essential} boundary condition for the left/west boundary at $x_{1}$ reads, describing the ingoing wave (indicated with $h^+$, $q^+$, $r^+$) with as less as possible disturbing the outgoing wave (\autoref{eq:left_right_going_equations}):
 \begin{align}
     \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t} & = F(t)
@@ -790,17 +798,6 @@ The \textbf{natural} boundary condition for the left/west boundary, describing t
     - \left(\sqrt{gh} + \frac{q}{h}\right) \underbrace{ \left(\pdiff{h}{t} + \pdiff{q}{x} + \ldots \right) }_{\text{continuity eq.}} + \underbrace{\left(\pdiff{q}{t} + g h \pdiff{\zeta}{x}+\ldots\right)}_{\text{momentum eq.}} = 0
 \end{align}
 where $q$ is normal to this boundary.
-\newpage
-\begin{figure}[H]
-    \begin{center}
-        \def\svgwidth{0.80\textwidth} % scaling text
-        \resizebox{0.65\textwidth}{!}{
-            \input{figures/cartesian_grid_along_straight_boundary_essential.pdf_tex}
-        }
-    \end{center}
-    \caption{Essential boundary condition, consider \Romannum{1}}
-    \label{fig:structured_grid_along_straight_boundary_2}
-\end{figure}
 \begin{figure}[H]
     \begin{center}
         \def\svgwidth{0.80\textwidth} % scaling text
@@ -808,109 +805,110 @@ where $q$ is normal to this boundary.
             \input{figures/cartesian_grid_along_straight_boundary_natural.pdf_tex}
         }
     \end{center}
-    \caption{Natural boundary condition, consider \Romannum{3}}
-    \label{fig:structured_grid_along_straight_boundary_2}
+    \caption{Natural boundary condition ($i=1$), dotted lines indicate the border of the control volumes.}
+    \label{fig:structured_grid_along_straight_boundary_natural}
 \end{figure}
 %------------------------------------------------------------------------------
 \paragraph*{Time derivative, continuity equation}
-At the left/west boundary ($x_{i+\half}$ with $i=0$) the time discretization of the continuity equation for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
+At the left/west boundary ($x_{i+\half}$ with $i=1$) the time discretization of the continuity equation for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
 \begin{align}
-    \pdiff{h}{t} & \approx \frac{1}{\Dt} \left(  h^{n+1}_{i+\half} - h^{n}_{i+\half} \right)
+    \left.\pdiff{h}{t}\right|_{i-\half, j-\quart} & \approx \frac{1}{\Dt} \left(  h^{n+1}_{i-\half, j-\quart} - h^{n}_{i-\half, j-\quart} \right)
 \end{align}
 A diffusion like term is added to the boundary equation to damp the reflection of spurious waves.
 A coefficient $\alpha_{\it bnd}$ is placed before that extra term, the optimal value of this coefficient is taken from the analysis in \citet{transpeq-analysisdiscretizationinsidedomain_boundaries.mw}.
 \begin{align}
-    & \frac{1}{\Dt}\left( \frac{1}{2} \left( h^{n+1,p+1}_{i} + h^{n+1,p+1}_{i+1} \right)
-    + \frac{\alpha_{\it bnd}}{2} \left( h^{n+1,p+1}_{i} - 2 h^{n+1,p+1}_{i+1} + h^{n+1,p+1}_{i+2}  \right) \right. +
+    & \frac{1}{\Dt}\left( \frac{1}{2} \left( h^{n+1,p+1}_{i-1, j-\quart} + h^{n+1,p+1}_{i, j-\quart} \right)
+    + \frac{\alpha_{\it bnd}}{2} \left( h^{n+1,p+1}_{i-1, j-\quart} - 2 h^{n+1,p+1}_{i, j-\quart} + h^{n+1,p+1}_{i+1, j-\quart}  \right) \right. +
     \nonumber \\*
     & \qquad  - \left. \left(
-    \frac{1}{2} \left( h^{n}_{i} + h^{n}_{i+1} \right)
-    + \frac{\alpha_{\it bnd}}{2}  \left( h^{n}_{i} - 2 h^{n}_{i+1} + h^{n}_{i+2}  \right) \right)
+    \frac{1}{2} \left( h^{n}_{i-1, j-\quart} + h^{n}_{i, j-\quart} \right)
+    + \frac{\alpha_{\it bnd}}{2}  \left( h^{n}_{i-1, j-\quart} - 2 h^{n}_{i, j-\quart} + h^{n}_{i+1, j-\quart}  \right) \right)
     \right)
 \end{align}
 After rearranging the equation to the \deltaformulation, the implicit and the explicit part reads:
 \begin{align}
-    & \frac{1}{\Dt}  \left( \half \left( \Delta h^{n+1, p+1}_{i} + \Delta h^{n+1, p+1}_{i+1} \right) \right. +
+    & \frac{1}{\Dt}  \left( \half \left( \Delta h^{n+1, p+1}_{i-1, j-\quart} + \Delta h^{n+1, p+1}_{i, j-\quart} \right) \right. +
     \nonumber \\*
-    & \qquad + \left. \frac{\alpha_{\it bnd}}{2}\left( \Delta h^{n+1,p+1}_{i} - 2 \Delta h^{n+1,p+1}_{i+1} + \Delta h^{n+1,p+1}_{i+2} \right) \right) +
+    & \qquad + \left. \frac{\alpha_{\it bnd}}{2}\left( \Delta h^{n+1,p+1}_{i-1, j-\quart} - 2 \Delta h^{n+1,p+1}_{i, j-\quart} + \Delta h^{n+1,p+1}_{i+1, j-\quart} \right) \right) +
     \nonumber \\
-    & \qquad + \frac{1}{\Dt} \left\{ \half \left( h^{n+1, p}_{i} + h^{n+1, p}_{i+1} \right)
-    + \frac{\alpha_{\it bnd}}{2}\left(  h^{n+1,p}_{i} - 2 h^{n+1,p}_{i+1}  + h^{n+1,p}_{i+2} \right) + \right.
+    & \qquad + \frac{1}{\Dt} \left\{ \half \left( h^{n+1, p}_{i-1, j-\quart} + h^{n+1, p}_{i, j-\quart} \right)
+    + \frac{\alpha_{\it bnd}}{2}\left(  h^{n+1,p}_{i-1, j-\quart} - 2 h^{n+1,p}_{i, j-\quart}  + h^{n+1,p}_{i+1, j-\quart} \right) + \right.
     \nonumber \\*
     &
-    \qquad \left. - \left( \frac{1}{2} \left( h^{n}_{i} + h^{n}_{i+1} \right)
-    + \frac{\alpha_{\it bnd}}{2}  \left( h^{n}_{i} - 2 h^{n}_{i+1} + h^{n}_{i+2}  \right) \right) \right\}
+    \qquad \left. - \left( \frac{1}{2} \left( h^{n}_{i-1, j-\quart} + h^{n}_{i, j-\quart} \right)
+    + \frac{\alpha_{\it bnd}}{2}  \left( h^{n}_{i-1, j-\quart} - 2 h^{n}_{i, j-\quart} + h^{n}_{i+1, j-\quart}  \right) \right) \right\}
 \end{align}
 %------------------------------------------------------------------------------
 \paragraph*{Mass flux, continuity equation}
-At the left/west boundary ($x_{i+\half}$ with $i=0$) the discretization of the mass flux for the \textbf{natural} boundary condition, describing the outgoing wave (assuming $\lpdiff{r}{y} = 0$), reads:
+At the left/west boundary ($x_{i-\half}$ with $i=1$) the discretization of the mass flux for the \textbf{natural} boundary condition, describing the outgoing wave (assuming $\lpdiff{r}{y} = 0$), reads:
 \todo{Is assumption that  $\lpdiff{r}{y} = 0$, OK?}
 \begin{align}
-    \pdiff{q}{x} & \approx \frac{1}{\Dx} \left(  q^{n+\theta, p+1}_{i+1} - q^{n+\theta, p+1}_{i} \right)
+    \pdiff{q}{x} & \approx \frac{1}{\Dx} \left(  q^{n+\theta, p+1}_{i} - q^{n+\theta, p+1}_{i-1} \right)
 \end{align}
 which will be approximated by
 \begin{align}
-    &\frac{1}{\Dx} \left( \left( q^{n+\theta, p}_{i+1} + \theta \Delta q^{n+1, p+1}_{i+1}\right)
-    - \left( q^{n+\theta, p+1}_{i} + \theta \Delta q^{n+1, p+1}_{i}\right) \right)
+    &\frac{1}{\Dx} \left( \left( q^{n+\theta, p}_{i, j-\quart} + \theta \Delta q^{n+1, p+1}_{i, j-\quart}\right)
+    - \left( q^{n+\theta, p+1}_{i-1, j-\quart} + \theta \Delta q^{n+1, p+1}_{i-1, j-\quart}\right) \right)
     \\
     \Leftrightarrow &
     \\
-    &\frac{1 }{\Dx} \theta \left( \Delta q^{n+1, p+1}_{i+1} - \Delta q^{n+1, p+1}_{i}\right) +
-    \frac{1}{\Dx} \left\{ q^{n+\theta, p}_{i+1} - q^{n+\theta, p+1}_{i} \right\}
+    &\frac{1 }{\Dx} \theta \left( \Delta q^{n+1, p+1}_{i, j-\quart} - \Delta q^{n+1, p+1}_{i-1, j-\quart}\right) +
+    \frac{1}{\Dx} \left\{ q^{n+\theta, p}_{i, j-\quart} - q^{n+\theta, p+1}_{i-1, j-\quart} \right\}
 \end{align}
 %------------------------------------------------------------------------------
 \paragraph*{Time derivative, momentum equation}
-At the left/west boundary ($x_{i+\half}$ with $i=0$) the time discretization of the momentum equation for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
+At the left/west boundary ($x_{i-\half}$ with $i=1$) the time discretization of the momentum equation for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
 \begin{align}
-    \pdiff{q}{t} & \approx \frac{1}{\Dt} \left(  q^{n+1}_{i+\half} - q^{n}_{i+\half} \right)
+    \left. \pdiff{q}{t} \right|_{i-\half, j-\quart} & \approx \frac{1}{\Dt} \left(  q^{n+1}_{i-\half, j-\quart} - q^{n}_{i-\half, j-\quart} \right)
 \end{align}
 A diffusion like term is added to the boundary equation to damp the reflection of spurious waves.
 A coefficient $\alpha_{\it bnd}$ is placed before that extra term, the optimal value of this coefficient is taken from the analysis in \citet{transpeq-analysisdiscretizationinsidedomain_boundaries.mw}.
 \begin{align}
-    & \frac{1}{\Dt}\left( \frac{1}{2} \left( q^{n+1,p+1}_{i} + q^{n+1,p+1}_{i+1} \right)
-    + \frac{\alpha_{\it bnd}}{2} \left( q^{n+1,p+1}_{i} - 2 q^{n+1,p+1}_{i+1} + q^{n+1,p+1}_{i+2}  \right) \right. +
+    & \frac{1}{\Dt}\left( \frac{1}{2} \left( q^{n+1,p+1}_{i-1, j-\quart} + q^{n+1,p+1}_{i, j-\quart} \right)
+    + \frac{\alpha_{\it bnd}}{2} \left( q^{n+1,p+1}_{i-1, j-\quart} - 2 q^{n+1,p+1}_{i, j-\quart} + q^{n+1,p+1}_{i+1, j-\quart}  \right) \right. +
     \nonumber \\*
     & \qquad  - \left. \left(
-    \frac{1}{2} \left( q^{n}_{i} + q^{n}_{i+1} \right)
-    + \frac{\alpha_{\it bnd}}{2}  \left( q^{n}_{i} - 2 q^{n}_{i+1} + q^{n}_{i+2}  \right) \right)
+    \frac{1}{2} \left( q^{n}_{i-1, j-\quart} + q^{n}_{i, j-\quart} \right)
+    + \frac{\alpha_{\it bnd}}{2}  \left( q^{n}_{i-1, j-\quart} - 2 q^{n}_{i, j-\quart} + q^{n}_{i+1, j-\quart}  \right) \right)
     \right)
 \end{align}
 After rearranging the equation to the \deltaformulation, the implicit and the explicit part reads:
 \begin{align}
-    & \frac{1}{\Dt}  \left( \half \left( \Delta q^{n+1, p+1}_{i} + \Delta q^{n+1, p+1}_{i+1} \right) \right. +
+    & \frac{1}{\Dt}  \left( \half \left( \Delta q^{n+1, p+1}_{i-1, j-\quart} + \Delta q^{n+1, p+1}_{i, j-\quart} \right) \right. +
     \nonumber \\*
-    & \qquad + \left. \frac{\alpha_{\it bnd}}{2}\left( \Delta q^{n+1,p+1}_{i} - 2 \Delta q^{n+1,p+1}_{i+1} + \Delta q^{n+1,p+1}_{i+2} \right) \right) +
+    & \qquad + \left. \frac{\alpha_{\it bnd}}{2}\left( \Delta q^{n+1,p+1}_{i-1, j-\quart} - 2 \Delta q^{n+1,p+1}_{i, j-\quart} + \Delta q^{n+1,p+1}_{i+1, j-\quart} \right) \right) +
     \nonumber \\
-    & \qquad +  \frac{1}{\Dt} \left\{ \half \left( q^{n+1, p}_{i} + q^{n+1, p}_{i+1} \right) + \frac{\alpha_{\it bnd}}{2}\left( q^{n+1,p}_{i} - 2 q^{n+1,p}_{i+1}  + q^{n+1,p}_{i+2} \right) + \right.
+    & \qquad +  \frac{1}{\Dt} \left\{ \half \left( q^{n+1, p}_{i-1, j-\quart} + q^{n+1, p}_{i, j-\quart} \right) + \frac{\alpha_{\it bnd}}{2}\left( q^{n+1,p}_{i-1, j-\quart} - 2 q^{n+1,p}_{i, j-\quart}  + q^{n+1,p}_{i+1, j-\quart} \right) + \right.
     \nonumber \\*
     & \qquad
-    \left.  - \frac{1}{2} \left( q^{n}_{i} + q^{n}_{i+1} \right) - \frac{\alpha_{\it bnd}}{2} \left( q^{n}_{i} - 2 q^{n}_{i+1} + q^{n}_{i+2}  \right) \right\}
+    \left.  - \frac{1}{2} \left( q^{n}_{i-1, j-\quart} + q^{n}_{i, j-\quart} \right) - \frac{\alpha_{\it bnd}}{2} \left( q^{n}_{i-1, j-\quart} - 2 q^{n}_{i, j-\quart} + q^{n}_{i+1, j-\quart}  \right) \right\}
 \end{align}
 %------------------------------------------------------------------------------
 \paragraph*{Pressure term, momentum equation}
-At the left/west boundary ($x_{i+\half}$ with $i=0$) the discretization of the pressure term for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
+At the left/west boundary ($x_{i-\half}$ with $i=1$) the discretization of the pressure term for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
 \begin{align}
-    gh \pdiff{\zeta}{x} \approx
-    & g h^{n+\theta,p+1}_{i+\half} \pdiff{}{x} \left( \zeta^{n+\theta,p+1}_{i+\half}\right)
+    \left. \left(gh \pdiff{\zeta}{x}\right)\right|_{i-\half, j-\quart} \approx
+    & g h^{n+\theta,p+1}_{i-\half, j-\quart} \pdiff{}{x} \left( \zeta^{n+\theta,p+1}_{i-\half, j-\quart}\right)
 \end{align}
 In a formulation of the shallow-water equations, where the equation for the free-surface level $\zeta$ reduces to $\zeta = h + z_b$ (excluding drying and flooding), the equations can be simplified, because $\Delta \zeta = \Delta h$ (when $z_b$ is not time dependent).
 In this case, the contributions to the $\Delta \zeta$-equations need to be incorporated in the $\Delta h$-equations.
 The pressure term will then be approximated by
 \begin{align}
-    & \frac{1}{\Dx} g h^{n+\theta,p}_{i+\half} \left( \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i}  \right) +
+    & \frac{1}{\Dx} g h^{n+\theta,p}_{i-\half, j-\quart} \left( \zeta^{n+\theta,p}_{i, j-\quart} - \zeta^{n+\theta,p}_{i-1, j-\quart}  \right) +
     \nonumber \\*
-    & \qquad + \frac{1}{\Dx}  g \left(  \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i} \right) \theta \Delta h^{n+1, p+1}_{i+\half} +
+    & \qquad + \frac{1}{\Dx}  g \left(  \zeta^{n+\theta,p}_{i, j-\quart} - \zeta^{n+\theta,p}_{i-1, j-\quart} \right) \theta \Delta h^{n+1, p+1}_{i-\half, j-\quart} +
     \nonumber \\*
-    & \qquad +   \frac{1}{\Dx} g h^{n+\theta, p}_{i+\half}
-    \theta \left( \Delta \zeta^{n+1,p+1}_{i+1}  - \Delta \zeta^{n+1,p+1}_{i}\right)
+    & \qquad +   \frac{1}{\Dx} g h^{n+\theta, p}_{i-\half, j-\quart}
+    \theta \left( \Delta \zeta^{n+1,p+1}_{i, j-\quart}  - \Delta \zeta^{n+1,p+1}_{i-1, j-\quart}\right)
 \end{align}
 After rearranging the equation into an implicit and an explicit part it reads:
 \begin{align}
-    & \frac{1}{\Dx}  g \left(  \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i} \right) \theta \Delta h^{n+1, p+1}_{i+\half} +   \frac{1}{\Dx} g h^{n+\theta, p}_{i+\half}
-    \theta \left( \Delta \zeta^{n+1,p+1}_{i+1}  - \Delta \zeta^{n+1,p+1}_{i}\right) +
+    & \frac{1}{\Dx}  g \left(  \zeta^{n+\theta,p}_{i, j-\quart} - \zeta^{n+\theta,p}_{i-1, j-\quart} \right) \theta \Delta h^{n+1, p+1}_{i-\half, j-\quart} +
+    \frac{1}{\Dx} g h^{n+\theta, p}_{i-\half, j-\quart}
+    \theta \left( \Delta \zeta^{n+1,p+1}_{i}  - \Delta \zeta^{n+1,p+1}_{i-1, j-\quart}\right) +
     \nonumber \\*
     & \qquad + \left\{
-    \frac{1}{\Dx} g h^{n+\theta,p}_{i+\half} \left( \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i}  \right)  \right\}
+    \frac{1}{\Dx} g h^{n+\theta,p}_{i-\half} \left( \zeta^{n+\theta,p}_{i, j-\quart} - \zeta^{n+\theta,p}_{i-1, j-\quart}  \right)  \right\}
 \end{align}
 %------------------------------------------------------------------------------
 \paragraph*{Convection, momentum equation}
@@ -982,6 +980,9 @@ the approximation reads
     +
     \frac{2 q^{n+\theta, p}}{h^{n+\theta, p}} \theta\Delta q \right]_{j+\quart}
 \end{align}
+%------------------------------------------------------------------------------
+\paragraph*{Bed shear stress, momentum equation}
+\notyet
 %------------------------------------------------------------------------------
 \subsection{Discretization at corner}
 \begin{figure}[H]
