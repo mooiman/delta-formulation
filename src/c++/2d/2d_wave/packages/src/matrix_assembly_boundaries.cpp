@@ -148,18 +148,21 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
             int col_s  = col_b - 3;
             int col_ss = col_s - 3;
             //
-            set_value(values, col_b , theta * w_nat[0] * -c_wave);
-            set_value(values, col_s , theta * w_nat[1] * -c_wave);
-            set_value(values, col_ss, theta * w_nat[2] * -c_wave);
+            set_value(values, col_b , theta * w_ess[0] * -c_wave);
+            set_value(values, col_s , theta * w_ess[1] * -c_wave);
+            set_value(values, col_ss, theta * w_ess[2] * -c_wave);
             // Contribution Delta q
             set_value(values, col_b  + 1, 0.0);
             set_value(values, col_s  + 1, 0.0);
             set_value(values, col_ss + 1, 0.0);
             // Contribution Delta r
-            set_value(values, col_b  + 2, theta * w_nat[0]);
-            set_value(values, col_s  + 2, theta * w_nat[1]);
-            set_value(values, col_ss + 2, theta * w_nat[2]);
+            set_value(values, col_b  + 2, theta * w_ess[0]);
+            set_value(values, col_s  + 2, theta * w_ess[1]);
+            set_value(values, col_ss + 2, theta * w_ess[2]);
             //
+            double htheta_jm12 = w_ess[0] * htheta_b + w_ess[1] * htheta_jm1 + w_ess[2] * htheta_jm2;
+            double rtheta_jm12 = w_ess[0] * rtheta_b + w_ess[1] * rtheta_jm1 + w_ess[2] * rtheta_jm2;
+
             rhs[row] = -( rtheta_jm12 - c_wave * (htheta_jm12 - h_given) );
             if (bc_vars[BC_NORTH] == "zeta")
             {
@@ -194,8 +197,12 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
             set_value(values, col_s  + 2, dtinv * w_ess[1]);
             set_value(values, col_ss + 2, dtinv * w_ess[2]);
             //
-            double dhdt = dtinv * (hp_jm12 - hn_jm12);
-            double drdt = dtinv * (rp_jm12 - rn_jm12);
+            double dhdt = dtinv * (hp_b - hn_b) * w_ess[0]
+                + dtinv * (hp_jm1 - hn_jm1) * w_ess[1]
+                + dtinv * (hp_jm2 - hn_jm2) * w_ess[2];
+            double drdt = dtinv * (rp_b - rn_b) * w_ess[0]
+                + dtinv * (rp_jm1 - rn_jm1) * w_ess[1]
+                + dtinv * (rp_jm2 - rn_jm2) * w_ess[2];
             rhs[row] = -(drdt - con_fac * dhdt);
 
             double corr_term = 0.0;
@@ -206,6 +213,7 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
                 set_value(values, col_s , dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1]);
                 set_value(values, col_ss, dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2]);
 
+                double htheta_jm12 = w_ess[0] * htheta_b + w_ess[1] * htheta_jm1 + w_ess[2] * htheta_jm2;
                 corr_term = - dhdt - ( eps_bc_corr * ((bc[BC_NORTH] - zb_jm12) - htheta_jm12) );
                 rhs[row] += corr_term;
                 sign = 1.0;
@@ -217,6 +225,7 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
                 set_value(values, col_s  + 2, dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1]);
                 set_value(values, col_ss + 2, dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2]);
 
+                double rtheta_jm12 = w_ess[0] * rtheta_b + w_ess[1] * rtheta_jm1 + w_ess[2] * rtheta_jm2;
                 corr_term = - drdt + sign * eps_bc_corr * (bc[BC_NORTH]- qtheta_jm12);
                 rhs[row] += corr_term;
                 sign = 1.0;
@@ -402,18 +411,20 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
             int col_w  = col_b - 9;
             int col_ww = col_w - 9;
             //
-            set_value(values, col_b , theta * w_nat[0] * -c_wave);
-            set_value(values, col_w , theta * w_nat[1] * -c_wave);
-            set_value(values, col_ww, theta * w_nat[2] * -c_wave);
+            set_value(values, col_b , theta * w_ess[0] * -c_wave);
+            set_value(values, col_w , theta * w_ess[1] * -c_wave);
+            set_value(values, col_ww, theta * w_ess[2] * -c_wave);
             // flow x
-            set_value(values, col_b  + 1, theta * w_nat[0]);
-            set_value(values, col_w  + 1, theta * w_nat[1]);
-            set_value(values, col_ww + 1, theta * w_nat[2]);
+            set_value(values, col_b  + 1, theta * w_ess[0]);
+            set_value(values, col_w  + 1, theta * w_ess[1]);
+            set_value(values, col_ww + 1, theta * w_ess[2]);
             // Contribution Delta r
             set_value(values, col_b  + 2, 0.0);
             set_value(values, col_w  + 2, 0.0);
             set_value(values, col_ww + 2, 0.0);
             //
+            double htheta_im12 = w_ess[0] * htheta_b + w_ess[1] * htheta_im1 + w_ess[2] * htheta_im2;
+            double qtheta_im12 = w_ess[0] * qtheta_b + w_ess[1] * qtheta_im1 + w_ess[2] * qtheta_im2;
             rhs[row] = -(qtheta_im12 - c_wave * (htheta_im12 - h_given));
             if (bc_vars[BC_EAST] == "zeta")
             {
@@ -448,8 +459,12 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
             set_value(values, col_w  + 2, 0.0);
             set_value(values, col_ww + 2, 0.0);
             //
-            double dhdt = dtinv * (hp_im12 - hn_im12);
-            double dqdt = dtinv * (qp_im12 - qn_im12);
+            double dhdt = dtinv * (hp_b - hn_b) * w_ess[0]
+                + dtinv * (hp_im1 - hn_im1) * w_ess[1]
+                + dtinv * (hp_im2 - hn_im2) * w_ess[2];
+            double dqdt = dtinv * (qp_b - qn_b) * w_ess[0]
+                + dtinv * (qp_im1 - qn_im1) * w_ess[1]
+                + dtinv * (qp_im2 - qn_im2) * w_ess[2];
             rhs[row] = -(dqdt - con_fac * dhdt);
 
             double corr_term = 0.0;
@@ -460,6 +475,7 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
                 set_value(values, col_w , dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1]);
                 set_value(values, col_ww, dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2]);
 
+                double htheta_im12 = w_ess[0] * htheta_b + w_ess[1] * htheta_im1 + w_ess[2] * htheta_im2;
                 corr_term = - dhdt - ( eps_bc_corr * ( (bc[BC_EAST] - zb_im12) - htheta_im12) );
                 rhs[row] += corr_term;
                 sign = 1.0;
@@ -471,6 +487,7 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
                 set_value(values, col_w  + 1, dtinv * w_ess[1] - eps_bc_corr * theta * w_ess[1]);
                 set_value(values, col_ww + 1, dtinv * w_ess[2] - eps_bc_corr * theta * w_ess[2]);
 
+                double qtheta_im12 = w_ess[0] * qtheta_b + w_ess[1] * qtheta_im1 + w_ess[2] * qtheta_im2;
                 corr_term = - dqdt + sign * eps_bc_corr * (bc[BC_EAST] - qtheta_im12);
                 rhs[row] += corr_term;
                 sign = 1.0;
@@ -657,18 +674,20 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
             int col_n  = col_b + 3;
             int col_nn = col_n + 3;
             //
-            set_value(values, col_b , theta * w_nat[0] * c_wave);
-            set_value(values, col_n , theta * w_nat[1] * c_wave);
-            set_value(values, col_nn, theta * w_nat[2] * c_wave);
+            set_value(values, col_b , theta * w_ess[0] * c_wave);
+            set_value(values, col_n , theta * w_ess[1] * c_wave);
+            set_value(values, col_nn, theta * w_ess[2] * c_wave);
             // Contribution Delta q
             set_value(values, col_b  + 1, 0.0);
             set_value(values, col_n  + 1, 0.0);
             set_value(values, col_nn + 1, 0.0);
             // Contribution Delta r
-            set_value(values, col_b  + 2, theta * w_nat[0]);
-            set_value(values, col_n  + 2, theta * w_nat[1]);
-            set_value(values, col_nn + 2, theta * w_nat[2]);
+            set_value(values, col_b  + 2, theta * w_ess[0]);
+            set_value(values, col_n  + 2, theta * w_ess[1]);
+            set_value(values, col_nn + 2, theta * w_ess[2]);
             //
+            double htheta_jp12 = w_ess[0] * htheta_b + w_ess[1] * htheta_jp1 + w_ess[2] * htheta_jp2;
+            double rtheta_jp12 = w_ess[0] * rtheta_b + w_ess[1] * rtheta_jp1 + w_ess[2] * rtheta_jp2;
             rhs[row] = -( rtheta_jp12 + c_wave * (htheta_jp12 - h_given) );
             if (bc_vars[BC_SOUTH] == "zeta")
             {
@@ -704,8 +723,12 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
             set_value(values, col_n  + 2, dtinv * w_ess[1]);
             set_value(values, col_nn + 2, dtinv * w_ess[2]);
             //
-            double dhdt = dtinv * (hp_jp12 - hn_jp12);
-            double drdt = dtinv * (rp_jp12 - rn_jp12);
+            double dhdt = dtinv * (hp_b - hn_b) * w_ess[0]
+                + dtinv * (hp_jp1 - hn_jp1) * w_ess[1]
+                + dtinv * (hp_jp2 - hn_jp2) * w_ess[2];
+            double drdt = dtinv * (rp_b - rn_b) * w_ess[0]
+                + dtinv * (rp_jp1 - rn_jp1) * w_ess[1]
+                + dtinv * (rp_jp2 - rn_jp2) * w_ess[2];
             rhs[row] = -(drdt + con_fac * dhdt);
 
             double corr_term = 0.0;
@@ -715,6 +738,7 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
                 set_value(values, col_n , dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1]);
                 set_value(values, col_nn, dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2]);
 
+                double htheta_jp12 = w_ess[0] * htheta_b + w_ess[1] * htheta_jp1 + w_ess[2] * htheta_jp2;
                 corr_term = + dhdt + ( eps_bc_corr * ((bc[BC_SOUTH] - zb_jp12) - htheta_jp12) );
                 rhs[row] += corr_term;
             }
@@ -724,6 +748,7 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
                 set_value(values, col_n  + 2, dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1]);
                 set_value(values, col_nn + 2, dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2]);
 
+                double rtheta_jp12 = w_ess[0] * rtheta_b + w_ess[1] * rtheta_jp1 + w_ess[2] * rtheta_jp2;
                 corr_term = - drdt - eps_bc_corr * (bc[BC_SOUTH] - rtheta_jp12);
                 rhs[row] += corr_term;
             }
@@ -909,18 +934,20 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
             int col_ee = col_e + 9;
             // essential boundary condition
                                 //
-            values[col_b ] = theta * w_nat[0] * c_wave;
-            values[col_e ] = theta * w_nat[1] * c_wave;
-            values[col_ee] = theta * w_nat[2] * c_wave;
+            values[col_b ] = theta * w_ess[0] * c_wave;
+            values[col_e ] = theta * w_ess[1] * c_wave;
+            values[col_ee] = theta * w_ess[2] * c_wave;
             // Contribution Delta q
-            values[col_b  + 1] = theta * w_nat[0];
-            values[col_e  + 1] = theta * w_nat[1];
-            values[col_ee + 1] = theta * w_nat[2];
+            values[col_b  + 1] = theta * w_ess[0];
+            values[col_e  + 1] = theta * w_ess[1];
+            values[col_ee + 1] = theta * w_ess[2];
             // Contribution Delta r
             values[col_b  + 2] = 0.0;
             values[col_e  + 2] = 0.0;
             values[col_ee + 2] = 0.0;
             //
+            double htheta_ip12 = w_ess[0] * htheta_b + w_ess[1] * htheta_ip1 + w_ess[2] * htheta_ip2;
+            double qtheta_ip12 = w_ess[0] * qtheta_b + w_ess[1] * qtheta_ip1 + w_ess[2] * qtheta_ip2;
             rhs[row] = -( qtheta_ip12 + c_wave * (htheta_ip12 - h_given) );
             if (bc_vars[BC_WEST] == "zeta")
             {
@@ -956,8 +983,12 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
             set_value(values, col_e  + 2, 0.0);
             set_value(values, col_ee + 2, 0.0);
             //
-            double dhdt = dtinv * (hp_ip12 - hn_ip12);
-            double dqdt = dtinv * (qp_ip12 - qn_ip12);
+            double dhdt = dtinv * (hp_b - hn_b) * w_ess[0]
+                + dtinv * (hp_ip1 - hn_ip1) * w_ess[1]
+                + dtinv * (hp_ip2 - hn_ip2) * w_ess[2];
+            double dqdt = dtinv * (qp_b - qn_b) * w_ess[0]
+                + dtinv * (qp_ip1 - qn_ip1) * w_ess[1]
+                + dtinv * (qp_ip2 - qn_ip2) * w_ess[2];
             rhs[row] = -(dqdt + con_fac * dhdt);
 
             double corr_term = 0.0;
@@ -967,6 +998,7 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
                 set_value(values, col_e , + dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1]);
                 set_value(values, col_ee, + dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2]);
 
+                double htheta_ip12 = w_ess[0] * htheta_b + w_ess[1] * htheta_ip1 + w_ess[2] * htheta_ip2;
                 corr_term = + dhdt + ( eps_bc_corr * ((bc[BC_WEST] - zb_ip12) - htheta_ip12) );
                 rhs[row] += corr_term;
             }
@@ -976,6 +1008,7 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
                 set_value(values, col_e  + 1, dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1]);
                 set_value(values, col_ee + 1, dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2]);
 
+                double qtheta_ip12 = w_ess[0] * qtheta_b + w_ess[1] * qtheta_ip1 + w_ess[2] * qtheta_ip2;
                 corr_term = - dqdt + eps_bc_corr * (bc[BC_WEST] - qtheta_ip12);
                 rhs[row] += corr_term;
             }

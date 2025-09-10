@@ -331,11 +331,11 @@ inline double bed_shear_stress_J_11(double& h, double& q, double& r, double&  cf
 }
 inline double bed_shear_stress_J_12(double& h, double& q, double& r, double&  cf)
 {
-    return cf * abs_vecq(q, r, 1.0) / (h * h) + cf * q*q*q*q/(h * h * abs_vecq(q, r, 3.0));
+    return cf * abs_vecq(q, r, 1.0) / (h * h) + cf * q * q * (q * q + r * r)/(h * h * abs_vecq(q, r, 3.0));
 }
 inline double bed_shear_stress_J_13(double& h, double& q, double& r, double&  cf)
 {
-    return cf * q * r*r*r / (h * h * abs_vecq(q, r, 3.0));
+    return cf * q * r * (q * q + r * r) / (h * h * abs_vecq(q, r, 3.0));
 }
 inline double bed_shear_stress_J_20(double& h, double& q, double& r, double&  cf)
 {
@@ -347,11 +347,11 @@ inline double bed_shear_stress_J_21(double& h, double& q, double& r, double&  cf
 }
 inline double bed_shear_stress_J_22(double& h, double& q, double& r, double&  cf)
 {
-    return cf * r * q*q*q/(h * h * abs_vecq(q, r, 3.0));
+    return cf * r * q * (q * q + r * r)/(h * h * abs_vecq(q, r, 3.0));
 }
 inline double bed_shear_stress_J_23(double& h, double& q, double& r, double&  cf)
 {
-    return cf * abs_vecq(q, r, 1.0) / (h * h) + cf * r*r*r*r/(h * h * abs_vecq(q, r, 3.0));
+    return cf * abs_vecq(q, r, 1.0) / (h * h) + cf * r * r * (q * q + r * r)/(h * h * abs_vecq(q, r, 3.0));
 }
 inline double abs_vecq(double& q_qp, double& r_qp, double a)
 {
