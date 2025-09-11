@@ -46,7 +46,8 @@
 //
 int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & dyinv, double & theta, double & g, double eps_bc_corr, 
-    bool stationary, bool do_convection, int nx, int ny,
+    bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity, 
+    double dx, double dy, int nx, int ny,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
@@ -114,8 +115,8 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
     {
         // Contribution Delta h
         int col_b  = c_eq + 5 * 3;
-        int col_s  = col_b - 3;
-        int col_ss = col_s - 3;
+        int col_s  = c_eq + 4 * 3;
+        int col_ss = c_eq + 3 * 3;
         //
         values[col_b ] =  1.0 * theta;
         values[col_s ] = -1.0 * theta;
@@ -144,33 +145,33 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
         {
             // essential boundary condition
             // first row
-            int col_b  = c_eq + 5 * 3;
-            int col_s  = col_b - 3;
-            int col_ss = col_s - 3;
+            int col_b   = c_eq + 5 * 3;
+            int col_s   = c_eq + 4 * 3;
+            int col_ss  = c_eq + 3 * 3;
             //
-            set_value(values, col_b , theta * w_ess[0] * -c_wave);
-            set_value(values, col_s , theta * w_ess[1] * -c_wave);
-            set_value(values, col_ss, theta * w_ess[2] * -c_wave);
+            set_value(values, col_b , dx * theta * w_ess[0] * -c_wave);
+            set_value(values, col_s , dx * theta * w_ess[1] * -c_wave);
+            set_value(values, col_ss, dx * theta * w_ess[2] * -c_wave);
             // Contribution Delta q
             set_value(values, col_b  + 1, 0.0);
             set_value(values, col_s  + 1, 0.0);
             set_value(values, col_ss + 1, 0.0);
             // Contribution Delta r
-            set_value(values, col_b  + 2, theta * w_ess[0]);
-            set_value(values, col_s  + 2, theta * w_ess[1]);
-            set_value(values, col_ss + 2, theta * w_ess[2]);
+            set_value(values, col_b  + 2, dx * theta * w_ess[0]);
+            set_value(values, col_s  + 2, dx * theta * w_ess[1]);
+            set_value(values, col_ss + 2, dx * theta * w_ess[2]);
             //
             double htheta_jm12 = w_ess[0] * htheta_b + w_ess[1] * htheta_jm1 + w_ess[2] * htheta_jm2;
             double rtheta_jm12 = w_ess[0] * rtheta_b + w_ess[1] * rtheta_jm1 + w_ess[2] * rtheta_jm2;
 
-            rhs[row] = -( rtheta_jm12 - c_wave * (htheta_jm12 - h_given) );
+            rhs[row] = - dx * ( rtheta_jm12 - c_wave * (htheta_jm12 - h_given) );
             if (bc_vars[BC_NORTH] == "zeta")
             {
-                rhs[row] += -2. * c_wave * bc[BC_NORTH];
+                rhs[row] += -2. * dx * c_wave * bc[BC_NORTH];
             }
             if (bc_vars[BC_NORTH] == "q")
             {
-                rhs[row] += -2. * bc[BC_NORTH];
+                rhs[row] += -2. * dx *  bc[BC_NORTH];
             }
         }
         else if (bc_type[BC_NORTH] == "borsboom")
@@ -180,8 +181,8 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
             // first row
             // ----------------------------
             int col_b  = c_eq + 5 * 3;
-            int col_s  = col_b - 3;
-            int col_ss = col_s - 3;
+            int col_s  = c_eq + 4 * 3;
+            int col_ss = c_eq + 3 * 3;
             //
             if (do_convection) { con_fac = c_wave - rp_jm12 / hp_jm12; }
             //
@@ -247,8 +248,8 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
         // q-momentum (tangential equation, q == 0)
         //
         int col_b  = q_eq + 5 * 3;
-        int col_s  = col_b - 3;
-        int col_ss = col_s - 3;
+        int col_s  = q_eq + 4 * 3;
+        int col_ss = q_eq + 3 * 3;
         //
         set_value(values, col_b , 0.0);
         set_value(values, col_s , 0.0);
@@ -268,8 +269,8 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
         // momentum part dr/dt + gh d(zeta)/dy
         //
         col_b  = r_eq + 5 * 3;
-        col_s  = col_b - 3;
-        col_ss = col_s - 3;
+        col_s  = r_eq + 4 * 3;
+        col_ss = r_eq + 3 * 3;
         //
         // Contribution Delta h
         set_value(values, col_b , w_nat[0] * theta * g * dzetady + dyinv * theta * g * htheta_jm12);
@@ -309,7 +310,8 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
 //==============================================================================
 int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & dxinv, double & theta, double & g, double eps_bc_corr, 
-    bool stationary, bool do_convection, int nx, int ny,
+    bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity, 
+    double dx, double dy, int nx, int ny,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
@@ -377,8 +379,8 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
     {
         // Contribution Delta h
         int col_b  = c_eq + 7 * 3;
-        int col_w  = col_b - 9;
-        int col_ww = col_w - 9;
+        int col_w  = c_eq + 4 * 3;
+        int col_ww = c_eq + 1 * 3;
         //
         values[col_b ] =  1.0 * theta;
         values[col_w ] = -1.0 * theta;
@@ -408,8 +410,8 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
             // essential boundary condition
             // first row
             int col_b  = c_eq + 7 * 3;
-            int col_w  = col_b - 9;
-            int col_ww = col_w - 9;
+            int col_w  = c_eq + 4 * 3;
+            int col_ww = c_eq + 1 * 3;
             //
             set_value(values, col_b , theta * w_ess[0] * -c_wave);
             set_value(values, col_w , theta * w_ess[1] * -c_wave);
@@ -442,8 +444,8 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
             // first row
             // ----------------------------
             int col_b  = c_eq + 7 * 3;
-            int col_w  = col_b - 9;
-            int col_ww = col_w - 9;
+            int col_w  = c_eq + 4 * 3;
+            int col_ww = c_eq + 1 * 3;
             //
             if (do_convection) { con_fac = c_wave - qp_im12 / hp_im12; }
             //
@@ -511,8 +513,8 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
         // momentum part dq/dt + gh d(zeta)/dx
         //
         int col_b  = q_eq + 7 * 3;
-        int col_w  = col_b - 9;
-        int col_ww = col_w - 9;
+        int col_w  = q_eq + 4 * 3;
+        int col_ww = q_eq + 1 * 3;
         //
         set_value(values, col_b , w_nat[0] * theta * g * dzetadx + dxinv * theta * g * htheta_im12);
         set_value(values, col_w , w_nat[1] * theta * g * dzetadx - dxinv * theta * g * htheta_im12);
@@ -550,8 +552,8 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
         // r-momentum (tangential equation, r == 0)
         //
         col_b  = r_eq + 7 * 3;
-        col_w  = col_b - 9;
-        col_ww = col_w - 9;
+        col_w  = r_eq + 4 * 3;
+        col_ww = r_eq + 1 * 3;
         // 
         // Contribution Delta h
         set_value(values, col_b , 0.0);
@@ -573,7 +575,8 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
 //==============================================================================
 int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & dyinv, double & theta, double & g, double eps_bc_corr, 
-    bool stationary, bool do_convection, int nx, int ny,
+    bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity, 
+    double dx, double dy, int nx, int ny,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
@@ -639,8 +642,8 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
     {
         // Contribution Delta h
         int col_b  = c_eq + 3 * 3;
-        int col_n  = col_b + 3;
-        int col_nn = col_n + 3;
+        int col_n  = c_eq + 4 * 3;
+        int col_nn = c_eq + 5 * 3;
         //
         values[col_b ] = -1.0 * theta;
         values[col_n ] =  1.0 * theta;
@@ -671,8 +674,8 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
             // ----------------------------
             // first row
             int col_b  = c_eq + 3 * 3;
-            int col_n  = col_b + 3;
-            int col_nn = col_n + 3;
+            int col_n  = c_eq + 4 * 3;
+            int col_nn = c_eq + 5 * 3;
             //
             set_value(values, col_b , theta * w_ess[0] * c_wave);
             set_value(values, col_n , theta * w_ess[1] * c_wave);
@@ -706,8 +709,8 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
             // ----------------------------
             //
             int col_b  = c_eq + 3 * 3;
-            int col_n  = col_b + 3;
-            int col_nn = col_n + 3;
+            int col_n  = c_eq + 4 * 3;
+            int col_nn = c_eq + 5 * 3;
             //
             if (do_convection) { con_fac = c_wave + rp_jp12 / hp_jp12; }
             //
@@ -772,8 +775,8 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
         // q-momentum (tangential equation, q == 0)
         //
         int col_b  = q_eq + 3 * 3;
-        int col_n  = col_b + 3;
-        int col_nn = col_n + 3;
+        int col_n  = q_eq + 4 * 3;
+        int col_nn = q_eq + 5 * 3;
         //
         set_value(values, col_b, 0.0);
         set_value(values, col_n, 0.0);
@@ -793,8 +796,8 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
         // momentum part dr/dt + gh d(zeta)/dy
         //
         col_b  = r_eq + 3 * 3;
-        col_n  = col_b + 3;
-        col_nn = col_n + 3;
+        col_n  = r_eq + 4 * 3;
+        col_nn = r_eq + 5 * 3;
         //
         // Contribution Delta h
         set_value(values, col_b , w_nat[0] * theta * g * dzetady - dyinv * theta * g * htheta_jp12);
@@ -832,7 +835,8 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
 }
 int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & dxinv, double & theta, double & g, double eps_bc_corr, 
-    bool stationary, bool do_convection, int nx, int ny,
+    bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity, 
+    double dx, double dy, int nx, int ny,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
@@ -899,8 +903,8 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
     {
         // Contribution Delta h
         int col_b  = c_eq + 1 * 3; // point of boundary, ie west point of molecule
-        int col_e  = col_b + 9;
-        int col_ee = col_e + 9;
+        int col_e  = c_eq + 4 * 3;
+        int col_ee = c_eq + 7 * 3;
         //
         values[col_b ] = -1.0 * theta;
         values[col_e ] =  1.0 * theta;
@@ -930,8 +934,8 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
             // essential boundary condition
             // first row
             int col_b  = c_eq + 1 * 3;
-            int col_e  = col_b + 9;
-            int col_ee = col_e + 9;
+            int col_e  = c_eq + 4 * 3;
+            int col_ee = c_eq + 7 * 3;
             // essential boundary condition
                                 //
             values[col_b ] = theta * w_ess[0] * c_wave;
@@ -966,8 +970,8 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
             // ----------------------------
             // momentum + c_wave * continuity
             int col_b  = c_eq + 1 * 3;
-            int col_e  = col_b + 9;
-            int col_ee = col_e + 9;
+            int col_e  = c_eq + 4 * 3;
+            int col_ee = c_eq + 7 * 3;
             //
             if (do_convection) { con_fac = c_wave + qp_ip12 / hp_ip12; }
             //
@@ -1019,9 +1023,9 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
         // -----------------------------------------------------------------
         // momentum - c_wave * continuity
         //
-        int col_b  = q_eq + 3;
-        int col_e  = col_b + 9;
-        int col_ee = col_e + 9;
+        int col_b  = q_eq + 1 * 3;
+        int col_e  = q_eq + 4 * 3;
+        int col_ee = q_eq + 7 * 3;
         //
         if (do_convection) { con_fac = c_wave - qp_ip12 / hp_ip12; }
         double dhdt = dtinv * (hp_b - hn_b) * w_nat[0]
@@ -1069,9 +1073,9 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
         //------------------------------------------------------------------
         // third row 
         //------------------------------------------------------------------
-        col_b  = r_eq + 3;
-        col_e  = col_b + 9;
-        col_ee = col_e + 9;
+        col_b  = r_eq + 1 * 3;
+        col_e  = r_eq + 4 * 3;
+        col_ee = r_eq + 7 * 3;
         // Contribution Delta h
         values[col_b     ] = 0.0;
         values[col_e     ] = 0.0;
@@ -1088,8 +1092,7 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
         rhs[row + 2] = 0.0;
     }
     return 0;
-}
-        
+}       
 
 inline void set_value(double * values, int col, double data)
 { 

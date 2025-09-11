@@ -538,9 +538,9 @@ int main(int argc, char *argv[])
     w_ess[0] = 11./24.;
     w_ess[1] = 14./24.;
     w_ess[2] = -1./24.;
-    w_ess[0] = w_nat[0];
-    w_ess[1] = w_nat[1];
-    w_ess[2] = w_nat[2];
+    //w_ess[0] = w_nat[0];
+    //w_ess[1] = w_nat[1];
+    //w_ess[2] = w_nat[2];
 
     //initialize water level
     std::cout << "Initialisation" << std::endl;
@@ -1168,7 +1168,8 @@ int main(int argc, char *argv[])
 
                 status =  boundary_west(values, row, c_eq, q_eq, r_eq, rhs, 
                                         dtinv, dxinv, theta, g, eps_bc_corr, 
-                                        stationary, do_convection, nx, ny,
+                                        stationary, do_convection, do_bed_shear_stress, do_viscosity,
+                                        dx, dy, nx, ny,
                                         hn, qn, rn,
                                         hp, qp, rp,
                                         htheta, qtheta, rtheta,
@@ -1202,7 +1203,8 @@ int main(int argc, char *argv[])
                     // south boundary, over write coefficients
                     status = boundary_south(values, row, c_eq, q_eq, r_eq, rhs, 
                                             dtinv, dxinv, theta, g, eps_bc_corr, 
-                                            stationary, do_convection, nx, ny,
+                                            stationary, do_convection, do_bed_shear_stress, do_viscosity,
+                                            dx, dy, nx, ny,
                                             hn, qn, rn,
                                             hp, qp, rp,
                                             htheta, qtheta, rtheta,
@@ -1213,7 +1215,8 @@ int main(int argc, char *argv[])
                     // north boundary, over write coefficients
                     status = boundary_north(values, row, c_eq, q_eq, r_eq, rhs, 
                                             dtinv, dxinv, theta, g, eps_bc_corr, 
-                                            stationary, do_convection, nx, ny,
+                                            stationary, do_convection, do_bed_shear_stress, do_viscosity,
+                                            dx, dy, nx, ny,
                                             hn, qn, rn,
                                             hp, qp, rp,
                                             htheta, qtheta, rtheta,
@@ -1239,7 +1242,8 @@ int main(int argc, char *argv[])
 
                 status = boundary_east(values, row, c_eq, q_eq, r_eq, rhs, 
                                         dtinv, dxinv, theta, g, eps_bc_corr, 
-                                        stationary, do_convection, nx, ny,
+                                        stationary, do_convection, do_bed_shear_stress, do_viscosity,
+                                        dx, dy, nx, ny,
                                         hn, qn, rn,
                                         hp, qp, rp,
                                         htheta, qtheta, rtheta,
