@@ -5,7 +5,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>--toml c:\Users\janmo\checkouts\git\delta-formulation\src\c++\TRIPLETS\test_cases\e05_2d_wave\wavy_bed_convection\202x6\input_2d.toml</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--toml c:\Users\janmo\checkouts\git\delta-formulation\src\c++\2d\test_cases\e05_2d_wave\gaussian_hump\c00_dxdy250\input_2d.toml</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

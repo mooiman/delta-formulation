@@ -26,23 +26,12 @@
 #include <vector>
 #include <Eigen/Sparse>
 
-#define UNUSED(x) (void)x;
-
 int convection_matrix_rhs(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
     double theta, double dx, double dy, int nx, int ny);
 int convection_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r, 
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     double dx, double dy, int nx, int ny );                // RHS vector [h, q, r]^{n}
-
-inline double convection_J_10(double& h, double& q, double& r, double nxi, double neta);
-inline double convection_J_20(double& h, double& q, double& r, double nxi, double neta);
-inline double convection_J_11(double& h, double& q, double& r, double nxi, double neta);
-inline double convection_J_21(double& h, double& q, double& r, double nxi, double neta);
-inline double convection_J_12(double& h, double& q, double& r, double nxi, double neta);
-inline double convection_J_22(double& h, double& q, double& r, double nxi, double neta);
-inline double convection_J_13(double& h, double& q, double& r, double nxi, double neta);
-inline double convection_J_23(double& h, double& q, double& r, double nxi, double neta);
 
 inline double convection_scvf_xi (double c0, double c1, double c2, double c3);
 inline double convection_scvf_eta(double c0, double c1, double c2, double c3);

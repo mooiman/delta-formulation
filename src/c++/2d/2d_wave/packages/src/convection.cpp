@@ -21,6 +21,7 @@
 //------------------------------------------------------------------------------
 
 #include "convection.h"
+#include "jacobians.h"
 
 //   nw - - - - - - - n - - - - - - - ne        nw - - - - - - - n - - - - - - - ne
 //    |       |       |       |       |          |       |       |       |       |
@@ -661,48 +662,6 @@ int convection_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
 inline int convection_p_index(int i, int j, int ny)
 {
     return i * ny + j;
-}
-inline double convection_J_10(double& h, double& q, double& r, double nxi, double neta)
-{
-    return q * q / h * nxi + q * r / h * neta;
-}
-inline double convection_J_11(double& h, double& q, double& r, double nxi, double neta)
-{
-    // Contribution Delta h
-    return -q * q / (h * h) * nxi - q * r / (h * h) * neta; 
-}
-inline double convection_J_12(double& h, double& q, double& r, double nxi, double neta)
-{
-    // Contribution Delta q
-    return 2. * q / h * nxi + r / h * neta;
-}
-inline double convection_J_13(double& h, double& q, double& r, double nxi, double neta)
-{
-    // Contribution Delta r
-    UNUSED(r);
-    UNUSED(nxi);
-    return q / h * neta;
-}
-inline double convection_J_20(double& h, double& q, double& r, double nxi, double neta)
-{
-    return r * q / h * nxi + r * r / h * neta;
-}
-inline double convection_J_21(double& h, double& q, double& r, double nxi, double neta)
-{
-    // Contribution Delta h
-    return -r * q / (h * h) * nxi - r * r / (h * h) * neta; 
-}
-inline double convection_J_22(double& h, double& q, double& r, double nxi, double neta)
-{
-    // Contribution Delta q
-    UNUSED(q);
-    UNUSED(neta);
-    return r / h * nxi;
-}
-inline double convection_J_23(double& h, double& q, double& r, double nxi, double neta)
-{
-    // Contribution Delta r
-    return q / h * nxi + 2. * r / h * neta;
 }
 
 inline double convection_scvf_xi(double c0, double c1, double c2, double c3)

@@ -41,17 +41,7 @@ void bed_shear_stress_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     double cf, int nx, int ny);
 
-    inline int bed_shear_stress_p_index(int i, int j, int nx);
-    inline double bed_shear_stress_scv(double& c0, double c1, double c2, double c3);
-    inline double bed_shear_stress_J_10(double& h, double& q, double& r, double& cf);  // right hand side q-equation
-    inline double bed_shear_stress_J_11(double& h, double& q, double& r, double& cf);
-    inline double bed_shear_stress_J_12(double& h, double& q, double& r, double& cf);
-    inline double bed_shear_stress_J_13(double& h, double& q, double& r, double& cf);
-    inline double bed_shear_stress_J_20(double& h, double& q, double& r, double& cf);  // right hand side r-equation
-    inline double bed_shear_stress_J_21(double& h, double& q, double& r, double& cf);
-    inline double bed_shear_stress_J_22(double& h, double& q, double& r, double& cf);
-    inline double bed_shear_stress_J_23(double& h, double& q, double& r, double& cf);
-    inline double abs_vecq(double& qp, double& rp, double a);
+    inline int bed_shear_stress_p_index(int i, int j, int ny);
 
     inline void set_value(double * values, int col, double data);
 
