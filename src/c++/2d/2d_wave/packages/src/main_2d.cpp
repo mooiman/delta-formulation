@@ -1241,14 +1241,14 @@ int main(int argc, char *argv[])
                 int r_eq = outer[row + 2];
 
                 status = boundary_east(values, row, c_eq, q_eq, r_eq, rhs, 
-                                        dtinv, dxinv, theta, g, eps_bc_corr, 
-                                        stationary, do_convection, do_bed_shear_stress, do_viscosity,
-                                        dx, dy, nx, ny,
-                                        hn, qn, rn,
-                                        hp, qp, rp,
-                                        htheta, qtheta, rtheta,
-                                        zb, bc_type,  bc_vars, BC_EAST, bc,
-                                        w_nat, w_ess);
+                                       dtinv, dxinv, theta, g, eps_bc_corr, 
+                                       stationary, do_convection, do_bed_shear_stress, do_viscosity,
+                                       dx, dy, nx, ny,
+                                       hn, qn, rn,
+                                       hp, qp, rp,
+                                       htheta, qtheta, rtheta,
+                                       zb, bc_type,  bc_vars, BC_EAST, bc,
+                                       w_nat, w_ess);
             }
             // north-east corner
             for (int row = 3 * nx * ny - 3; row < 3 * nx * ny; row += 3)

@@ -21,6 +21,7 @@
 //------------------------------------------------------------------------------
 
 #include "bed_shear_stress.h"
+#include "jacobians.h"
 
 //------------------------------------------------------------------------------
 int bed_shear_stress_matrix_rhs(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs,
@@ -320,44 +321,6 @@ inline double bed_shear_stress_scv(double& c0, double c1, double c2, double c3)
     // value at the quadrature point of a sub control volume
     double value = 0.0625 * (9.0 * c0 + 3.0 * c1 + 1.0 * c2 + 3.0 * c3);
     return value;
-}
-inline double bed_shear_stress_J_10(double& h, double& q, double& r, double&  cf)
-{
-    return cf * q * abs_vecq(q, r, 1.0) / (h * h);
-}
-inline double bed_shear_stress_J_11(double& h, double& q, double& r, double&  cf)
-{
-    return -2. * cf * q * abs_vecq(q, r, 1.0) / (h * h * h);
-}
-inline double bed_shear_stress_J_12(double& h, double& q, double& r, double&  cf)
-{
-    return cf * abs_vecq(q, r, 1.0) / (h * h) + cf * q * q * (q * q + r * r)/(h * h * abs_vecq(q, r, 3.0));
-}
-inline double bed_shear_stress_J_13(double& h, double& q, double& r, double&  cf)
-{
-    return cf * q * r * (q * q + r * r) / (h * h * abs_vecq(q, r, 3.0));
-}
-inline double bed_shear_stress_J_20(double& h, double& q, double& r, double&  cf)
-{
-    return cf * r * abs_vecq(q, r, 1.0) / (h * h);
-}
-inline double bed_shear_stress_J_21(double& h, double& q, double& r, double&  cf)
-{
-    return -2. * cf * r * abs_vecq(q, r, 1.0) / (h * h * h);
-}
-inline double bed_shear_stress_J_22(double& h, double& q, double& r, double&  cf)
-{
-    return cf * r * q * (q * q + r * r)/(h * h * abs_vecq(q, r, 3.0));
-}
-inline double bed_shear_stress_J_23(double& h, double& q, double& r, double&  cf)
-{
-    return cf * abs_vecq(q, r, 1.0) / (h * h) + cf * r * r * (q * q + r * r)/(h * h * abs_vecq(q, r, 3.0));
-}
-inline double abs_vecq(double& q_qp, double& r_qp, double a)
-{
-    double eps = 0.01;
-    double tilde_abs = std::pow((q_qp*q_qp + r_qp*r_qp)*(q_qp*q_qp + r_qp*r_qp) + eps*eps*eps*eps,0.25 * a);
-    return tilde_abs;
 }
 inline void set_value(double * values, int col, double data){ 
     values[col] += data; 

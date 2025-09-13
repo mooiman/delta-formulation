@@ -52,6 +52,9 @@
     <ClCompile Include="src\build_matrix_pattern_regularization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\jacobians.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\cfts.h">
@@ -106,6 +109,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\build_matrix_pattern_regularization.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jacobians.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
