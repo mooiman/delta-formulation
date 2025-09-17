@@ -642,22 +642,25 @@ Eight faces on a cartesian/curvilinear grid.
 %\notyet
 %------------------------------------------------------------------------------
 \subsection{Discretization at boundary}
-\begin{figure}[H]
-    \begin{center}
-        \def\svgwidth{0.80\textwidth} % scaling text
-        \resizebox{0.65\textwidth}{!}{
-            \input{figures/cartesian_grid_along_straight_boundary_essential_natural.pdf_tex}
-        }
-    \end{center}
-    \caption[Definition of the grid to solve the 2D-shallow water equations at the boundary]{Coefficients of the mass-matrix in 2-dimensions on a structured grid along a straight boundary. The essential boundary condition is located at the cyan-colored line and the natural boundary condition at the orange line.}
-    \label{fig:structured_grid_along_straight_boundary}
-\end{figure}
 For the 2D non-linear wave equations (\autoref{eq:pressure_dependent_on_zeta}) at each boundary boundary conditions need to be prescribed, the number of boundary conditions depends on the flow direction on the boundary.
 Considering a hyperbolic system, if the flow is flowing into the domain two boundary conditions need to prescribed and when the flow is flowing out the domain just one boundary need to prescribed.
 This is according the characteristic theory of 2D hyperbolic systems \citep{DaubertEtGraffe1967}.
 The ingoing information is called the \textbf{essential} boundary condition (Dirichlet or Neumann condition).
 And a boundary condition to handle the outgoing wave is called the \textbf{natural} boundary condition.
 So for inflow there are \textbf{two essential} and \textbf{one natural} boundary condition and for outflow there is \textbf{one} \textbf{essential} boundary condition and \textbf{two} \textbf{natural} boundary conditions.
+
+The natural boundary condition is always located at the boundary of a control volume and the essential (the genuine) boundary condition is always located inside the last control volume of the grid, as indicated in \autoref{fig:structured_grid_along_straight_boundary}.
+\begin{figure}[H]
+    \begin{center}
+        \def\svgwidth{0.80\textwidth} % scaling text
+        \resizebox{0.65\textwidth}{!}{
+            \input{figures/cartesian_grid_along_straight_boundary_essential_natural_2.pdf_tex}
+        }
+    \end{center}
+    \caption[Definition of the grid to solve the 2D-shallow water equations at the boundary]{Dotted lines indicate the border of the control volumes. The natural boundary condition is located at the boundary of a control volume, the orange line and the essential boundary condition is located inside the last control volume, the cyan-colored line.
+    The black diamonds are the location of the quadrature points at the boundary.}
+    \label{fig:structured_grid_along_straight_boundary}
+\end{figure}
 
 The boundary conditions in this section are presented for the left/west boundary.
 First the \textbf{essential} boundary conditions are discussed and after that the \textbf{natural} boundary condition.
@@ -1021,12 +1024,15 @@ The components for the two momentum equations read:
 \end{figure}
 %------------------------------------------------------------------------------
 \subsubsection{Weakly reflective boundary conditions}
-Consider the following weakly reflective boundary conditions:
+Consider the following weakly reflective boundary conditions.
+
+For inflow:
 \begin{align}
     q_{i+\half} + \sqrt{gh_{i+\half}} &= \sqrt{gh^\infty_{i+\half}}, \quad \text{inflow}
     \\
     r_{i+\half} &= 0, \quad \text{inflow}
 \end{align}
+For outflow:
 \begin{align}
     \left.\pdiff{r}{y}\right|_{i+\half} &= 0, \quad \text{outflow}
     \\
