@@ -967,6 +967,17 @@ The finite volume flux through the boundary line element $ds$ yields
 \end{align}
 with $\vec{n} = (n_x, n_y)^T$ the outward normal vector.
 
+Written in linear terms for the derivative they read:
+\begin{align}
+    \pdiff{(qq/h)}{x} &= \frac{2q}{h}\pdiff{q}{x} -\frac{q^2}{h^2} \pdiff{h}{x}
+    \\*
+    \pdiff{(rq/h)}{y} &= \frac{q}{h}\pdiff{r}{y} + \frac{r}{h}\pdiff{q}{y} - \frac{rq}{h^2} \pdiff{h}{y}
+    \\*
+    \pdiff{(qr/h)}{x} &= \frac{r}{h}\pdiff{q}{x} + \frac{q}{h}\pdiff{r}{x} - \frac{qr}{h^2} \pdiff{h}{x}
+    \\*
+    \pdiff{(rr/h)}{y} &= \frac{2r}{h}\pdiff{q}{y} -\frac{r^2}{h^2} \pdiff{h}{y}
+\end{align}
+
 Consider on a cartesian grid the boundary at the west/left side of the domain, ranging over the interval $\left[ \vec{x}_{i-\half, j-\half}, \vec{x}_{i-\half, j+\half} \right]$.
 In case we have normal flow at the boundary ($r=0$) this boundary term reads:
 \begin{align}
@@ -975,28 +986,28 @@ In case we have normal flow at the boundary ($r=0$) this boundary term reads:
     \right) \, ds \approx
     \half\Dy_{i-\half, j-\half}\left.\pdiff{qq/h}{x}\right|_{i-\half, j-\quart} + \half \Dy_{i-\half, j+\half}\left.\pdiff{qq/h}{x}\right|_{i-\half, j+\quart}
 \end{align}
-using \autoref{eq:convection_jacobian_qqh} (repeated here)
+which will be approximated at the quatrature point $qp$ by
 \begin{align}
-    \left.\left(\frac{qq}{h}\right)\right|^{n+\theta, p+1} &  \approx
-    \frac{q^{n+\theta, p}q^{n+\theta, p}}{h^{n+\theta, p}}
-    - \frac{q^{n+\theta, p}q^{n+\theta, p}}{(h^{n+\theta, p})^2} \theta\Delta h
-    + \frac{2 q^{n+\theta, p}}{h^{n+\theta, p}} \theta\Delta q.
+    & \left. \left( \frac{2q}{h}\pdiff{q}{x} - \frac{q^2}{h^2}\pdiff{h}{x}\right) \right|_{qp}
+    \approx
+    \\
+    & \qquad \approx \underbrace{\frac{2q^{n+\theta, p}_{qp}}{ h^{n+\theta, p}_{qp}} \pdiff{}{x}\left( q^{n+\theta, p}_{qp} \right)
+        - \frac{(q^{n+\theta, p}_{qp})^2}{(h^{n+\theta, p}_{qp})^2} \pdiff{}{x} \left( h^{n+\theta, p}_{qp} \right)}_{\textit{ to right handside}} +
+    \nonumber \\
+    & \qquad + \underbrace{\left( -\frac{2q^{n+\theta, p}_{qp}}{ (h^{n+\theta, p}_{qp})^2}  \pdiff{}{x} \left( q^{n+\theta,p}_{qp}  \right)
+        + \frac{2(q^{n+\theta, p}_{qp})^2}{(h^{n+\theta, p}_{qp})^3} \pdiff{}{x} \left( h^{n+\theta,p} _{qp} \right)
+        \right)}_{\cal A} \theta \Delta h^{n+1, p+1}_{qp} +
+    \nonumber \\
+    & \qquad + \underbrace{\left( \frac{2}{ h^{n+\theta, p}_{qp}} \pdiff{}{x} \left( q^{n+\theta, p}_{qp} \right)
+        -  \frac{2q^{n+\theta, p}_{qp}}{(h^{n+\theta, p}_{qp})^2} \pdiff{}{x} \left( h^{n+\theta, p}_{qp} \right)
+        \right)}_{\cal B} \theta \Delta q^{n+1, p+1}_{qp} +
+    \nonumber \\
+    &
+    \qquad + \underbrace{\left(- \frac{(q^{n+\theta, p}_{qp})^2}{(h^{n+\theta, p}_{qp})^2} \right)}_{\cal C} \theta \pdiff{}{x} \left( \Delta h^{n+1, p+1}_{qp} \right)
+    + \underbrace{\frac{2q^{n+\theta, p}_{qp}}{ h^{n+\theta, p}_{qp}}}_{\cal D} \theta \pdiff{}{x} \left(  \Delta q^{n+1, p+1}_{qp} \right)
 \end{align}
-the approximation reads
-\begin{align}
-    &\half\Dy_{i-\half, j-\half}
-    \pdiff{}{x}\left[\frac{q^{n+\theta, p}q^{n+\theta, p}}{h^{n+\theta, p}}
-    - \frac{q^{n+\theta, p}q^{n+\theta, p}}{(h^{n+\theta, p})^2} \theta\Delta h
-    +
-\frac{2 q^{n+\theta, p}}{h^{n+\theta, p}} \theta\Delta q \right]_{i-\half, j-\quart} +
-    \nonumber \\*
-& +
-    \half \Dy_{i-\half, j+\half}
-    \pdiff{}{x}\left[\frac{q^{n+\theta, p}q^{n+\theta, p}}{h^{n+\theta, p}}
-    - \frac{q^{n+\theta, p}q^{n+\theta, p}}{(h^{n+\theta, p})^2} \theta\Delta h
-    +
-    \frac{2 q^{n+\theta, p}}{h^{n+\theta, p}} \theta\Delta q \right]_{i-\half, j+\quart}
-\end{align}
+where $\cal{A}$, $\cal{B}$, $\cal{C}$ and $\cal{D}$ multiplied by $\theta$ are the coefficients in the matrix of the \deltaformulation.
+
 %------------------------------------------------------------------------------
 \paragraph*{Bed shear stress, momentum equation}
 The bed shear stress  term at the boundary  reads:

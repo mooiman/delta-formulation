@@ -949,13 +949,11 @@ After rearranging the equation into an implicit and an explicit part it reads:
 \paragraph*{Convection term, momentum equation}
 At the left/west boundary ($x_{i+\half}$ with $i=0$) the discretization of the convection term for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
 \begin{align}
-    \pdiff{q^2/h}{x} & = \frac{2q}{h}\pdiff{q}{x} - \frac{q^2}{h^2}\pdiff{h}{x} \approx
-    \nonumber \\*
-    & \approx \frac{2q^{n+\theta, p+1}_{i+\half}}{h^{n+\theta, p+1}_{i+\half}}\pdiff{q^{n+\theta, p+1}_{i+\half}}{x} - \frac{(q^{n+\theta, p+1}_{i+\half})^2}{(h^{n+\theta, p+1}_{i+\half})^2}\pdiff{h^{n+\theta, p+1}_{i+\half}}{x}
+    \pdiff{q^2/h}{x} & = \frac{2q}{h}\pdiff{q}{x} - \frac{q^2}{h^2}\pdiff{h}{x}
 \end{align}
 which will be approximated by
 \begin{align}
-    & \left. \frac{2q}{h}\pdiff{q}{x}\right|_{i+\half} - \left. \frac{q^2}{h^2}\pdiff{h}{x}\right|_{i+\half}
+    & \left. \left( \frac{2q}{h}\pdiff{q}{x} - \frac{q^2}{h^2}\pdiff{h}{x}\right) \right|^{n+\theta, p+1}_{i+\half}
     \approx
     \\
     & \qquad \approx \underbrace{\frac{2q^{n+\theta, p}_{i+\half}}{ h^{n+\theta, p}_{i+\half}} \pdiff{}{x}\left( q^{n+\theta, p}_{i+\half} \right)
