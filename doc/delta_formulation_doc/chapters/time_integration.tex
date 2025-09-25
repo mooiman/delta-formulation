@@ -1,6 +1,6 @@
 %------------------------------------------------------------------------------
 \chapter{Time integration scheme}\label{sec:time_integration}
-To derive a time integration we start from the PDE:
+To derive a time integration method we start from the PDE:
 \begin{align}
     \pdiff{\vec{u}}{t} + \vec{f}(\vec{u}) = 0\label{eq:pde}
 \end{align}
@@ -32,7 +32,7 @@ The system of Equations \eqref{eq:pde} can be written as, including the $\theta$
     \vec{f} \left( \vec{u}^{n+\theta} \right) = 0 \label{eq:discretized}
 \end{align}
 with $\Dt_{\it inv} = 1/\Dt$, $\mat{M}$ a mass-matrix and $0 \leq \theta \leq 1$.
-The mass-matrix used in this document for three adjacent grid nodes reads:
+The mass-matrix for three adjacent grid nodes as used in this document reads:
 \begin{align}
     \mat{M} = \begin{pmatrix} \frac{1}{8} \quad \frac{6}{8} \quad \frac{1}{8} \end{pmatrix}
     \label{eq:definition_mass_matrix}
@@ -49,14 +49,14 @@ iterating from $p \rightarrow p+1$ until convergence.
 
 The \textbf{first} term is split to get a so called "Delta" formulation, taking into account the previous iteration:
 \begin{align}
-    &\Dt_{inv} \mat{M} \left( \vec{u}^{n+1,p+1} - \vec{u}^{n+1,p} + \vec{u}^{n+1,p} - \vec{u}^{n} \right) + \dots = 0
+    &\Dt_{inv} \mat{M} \left( \vec{u}^{n+1,p+1} - \vec{u}^{n+1,p} + \vec{u}^{n+1,p} - \vec{u}^{n} \right) + \vec{f} \left( \vec{u}^{n+\theta, p+1} \right) = 0
     \\
-    & \Dt_{inv} \mat{M} \Delta \vec{u}^{n+1,p+1} + \dots  =
-    - \Dt_{inv} \mat{M} \left( \vec{u}^{n+1,p} - \vec{u}^{n} \right)
+    & \Dt_{inv} \mat{M} \Delta \vec{u}^{n+1,p+1}   =
+    - \left[ \Dt_{inv} \mat{M} \left( \vec{u}^{n+1,p} - \vec{u}^{n} \right) + \vec{f} \left( \vec{u}^{n+\theta, p+1} \right) \right]
 \end{align}
 with $\Delta \vec{u}^{n+1,p+1} = \vec{u}^{n+1,p+1} - \vec{u}^{n+1,p}$.
 The right hand side is fully explicit (i.e.\ known at the previous iteration level $p$).
-And if the iteration process is converged, the term at the left hand side is zero (i.e. $\Delta \vec{u}^{n+1,p+1} = 0$) so the right handside represent the time derivative.
+And if the iteration process is converged, the term at the left hand side is zero (i.e. $\Delta \vec{u}^{n+1,p+1} = 0$) so the solution of the PDE is reached.
 
 The \textbf{second} term of \autoref{eq:discretized}
 \begin{align}
@@ -83,9 +83,9 @@ with
 \end{align}
 After subtitution of \autoref{eq:delta_n_theta} into \autoref{eq:NewtonLinearization} we get:
 \begin{align}
-    \vec{f}( \vec{u}^{n+\theta, p+1} ) & = \vec{f}( \vec{u}^{n+\theta, p} ) + \theta \pdiff{\vec{f}(\vec{u}^{n+\theta,p})}{\vec{u}^{n+1,p}} \Delta \vec{u}^{n+1, p+1}
+    \vec{f}( \vec{u}^{n+\theta, p+1} ) & = \vec{f}( \vec{u}^{n+\theta, p} ) + \theta \pdiff{\vec{f}(\vec{u}^{n+\theta,p})}{\vec{u}^{n+1,p}} \Delta \vec{u}^{n+1, p+1}.
 \end{align}
-The Jacobian
+With Jacobian
 \begin{align}
     \mat{J}^{n+1,p} & = \pdiff{\vec{f}(\vec{u}^{n+\theta,p})}{\vec{u}^{n+1,p}}
      = \pdiff{\vec{f}(\theta \vec{u^{n+1,p}} + (1 - \theta) \vec{u}^{n})}{\vec{u}^{n+1,p}}
@@ -95,14 +95,14 @@ function of $\theta \vec{u}^{n+1} + (1-\theta)\vec{u}^{n}$ with respect to $\vec
 The Jacobians needed for the shallow water equations are described in \autoref{sec:jacobians}.
 
 
-The total time integration method read:
+The whole time integration method read:
 \begin{empheq}[box=\fbox]{align}
     &\left(\Dt_{inv} \mat{M} + \theta\mat{J}^{n+1,p}\right)  \Delta \mat{u}^{n+1,p+1} =
     \nonumber \\
-& \qquad = - \left( \Dt_{inv} \mat{M} \left( \vec{u}^{n+1,p} - \vec{u}^{n} \right) + \vec{f} \left( \theta \vec{u}^{n+1,p} + (1-\theta) \vec{u}^{n} \right) \right) \label{eq:Ax=b_b}
+& \qquad = - \left[ \Dt_{inv} \mat{M} \left( \vec{u}^{n+1,p} - \vec{u}^{n} \right) + \vec{f} \left( \theta \vec{u}^{n+1,p} + (1-\theta) \vec{u}^{n} \right) \right] \label{eq:Ax=b_b}
 \end{empheq}
 %
-with $\vec{u}^{n+1,p+1}  = \vec{u}^{n+1,p} + \Delta \vec{u}^{n+1,p+1}$ and right hand side is explicit w.r.t.\  the iterator $p$.
+with $\vec{u}^{n+1,p+1}  = \vec{u}^{n+1,p} + \Delta \vec{u}^{n+1,p+1}$ and with an explicit right hand side w.r.t.\  the iterator $p$.
 In case the Newton iteration process converges, i.e.:
 \begin{align}
     \lim_{p\rightarrow \infty}\left( \Delta \vec{u}^{n+1,p+1}\right) = \lim_{p\rightarrow \infty}\left( \vec{u}^{n+1,p+1} - \vec{u}^{n+1,p} \right) = 0.
@@ -113,7 +113,7 @@ then the left hand side of \autoref{eq:Ax=b_b} is equal to zero and thus it solv
     0 = \Dt_{inv} \mat{M} \left( \vec{u}^{n+1,p} - \vec{u}^{n} \right) + \vec{f} \left( \theta \vec{u}^{n+1,p} + (1-\theta) \vec{u}^{n} \right).
 \end{align}
 %
-Because in the previous part we consider only the first derivative (Jacobian) and assumed that the second derivative is nearly zero, which is not always through.
+Because in the previous part we consider only the first derivative (Jacobian) and assumed that the second derivative is negligible, which is not always through.
 Therefor we will extend the iteration process, see  \autoref{sec:pseudo_time_steppping}.
 See also: \citet{Borsboom1998,Pulliam2014}
 
@@ -145,7 +145,7 @@ As seen in \autoref{sec:fully_implicit} Jacobians need to be computed.
 These Jacobians does not contain only derivatives to the major variables but also to place derivatives, which need special attention (\autoref{sec:jacobians_with_operator}).
 For example for the two dimensional convection flux ($\vec{q}{\vec{q}^T}$) and presure term $gh\nabla \zeta$, where $\vec{q} = (q, r)^T$ and $\zeta$ the water level.
 
-As example we take the integral form of the two dimensional non-linear wave equation.
+As example we take the finite volume approach of the two dimensional non-linear wave equation.
 This equation reads:
 %
 \begin{align}
