@@ -671,7 +671,6 @@ int corner_north_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eig
     return 0;
 }
         
-
 inline int ma_index(int i, int j, int ny_in)
 {
     return i * ny_in + j;
