@@ -20,7 +20,9 @@
 //
 //------------------------------------------------------------------------------
 
+#define NOMINMAX 
 #define _USE_MATH_DEFINES
+
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -33,14 +35,26 @@
 #include <iostream>
 #include <string>
 #include <thread>
-
 #include <vector>
 
 #include <toml.h>
 // for BiCGstab  solver
-#include <Eigen/Dense>
-#include <Eigen/IterativeLinearSolvers>
+//#include <Eigen/Dense>
+//#include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
+#include <Eigen/Core>
+
+// for Algebraic Multigrid solver
+#include <amgcl/adapter/eigen.hpp>
+#include <amgcl/backend/builtin.hpp>
+#include <amgcl/make_solver.hpp>
+#include <amgcl/amg.hpp>
+#include <amgcl/coarsening/smoothed_aggregation.hpp>
+#include <amgcl/relaxation/spai0.hpp>
+#include <amgcl/solver/bicgstab.hpp>
+#include <amgcl/profiler.hpp>
+
+AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 
 #include "bed_level.h"
 #include "bed_shear_stress.h"
@@ -98,6 +112,7 @@ int main(int argc, char *argv[])
 {
     bool stationary = false;
     double sign = 1.0;
+    int solver_iterations = -1;
     std::filesystem::path toml_file_name("---not-defined---");
     int status = -1;
 
@@ -178,7 +193,6 @@ int main(int argc, char *argv[])
     std::string log_filename(out_file + ".log");
     std::string map_filename(out_file + "_map.nc");
     std::string timing_filename(out_file + "_timing.log");
-    std::string model_title("Linear wave equation, BiCGstab");
 
     std::ofstream log_file;
     log_file.open(log_filename);
@@ -250,34 +264,6 @@ int main(int argc, char *argv[])
 
     bool do_bed_shear_stress = tbl_chp["do_bed_shear_stress"].value_or(bool(false));  // default, no bed shear stress
     double chezy_coefficient = tbl_chp["chezy_coefficient"].value_or(double(50.0));
-    if (do_q_equation && do_r_equation)
-    {
-        model_title = "Linear wave equation, BiCGstab";
-        if (do_bed_shear_stress)
-        {
-            model_title = "Linear wave equation + bed shear stress, BiCGstab";
-        }
-        if (do_convection && do_bed_shear_stress)
-        {
-            model_title = "Linear wave equation + convection + bed shear stress, BiCGstab";
-        }
-        if (do_convection)
-        {
-            model_title = "Linear wave equation + convection, BiCGstab";
-        }
-    }
-    else if (do_q_equation)
-    {
-        model_title = "Linear wave equation, only q-equation, BiCGstab";
-    }
-    else if (do_r_equation)
-    {
-        model_title = "Linear wave equation, only r-equation, BiCGstab";
-    }
-    else
-    {
-        model_title = "No q- and no r-equation (=> no waves computed), BiCGstab";
-    }
 
     // Boundary
     tbl_chp = *tbl["Boundary"].as_table();
@@ -307,13 +293,13 @@ int main(int argc, char *argv[])
     bool regularization_init = tbl_chp["regularization_init"].value_or(bool(false));
     bool regularization_iter = tbl_chp["regularization_iter"].value_or(bool(false));
     bool regularization_time = tbl_chp["regularization_time"].value_or(bool(false));
+    std::string linear_solver = tbl_chp["linear_solver"].value_or("bicgstab");
 
     // Output
     tbl_chp = *tbl["Output"].as_table();
     double dt_his = tbl_chp["dt_his"].value_or(double(1.0));  // write interval to his-file
     double dt_map = tbl_chp["dt_map"].value_or(double(0.0));  // write interval to his-file
 
-                          
     struct _mesh2d * mesh2d;
     SGRID* sgrid = new SGRID();
     status = sgrid->open(full_grid_filename.string());
@@ -393,6 +379,41 @@ int main(int argc, char *argv[])
             wrimap = std::max(int(dt * dtinv), int(dt_map * dtinv));     // write interval to map-file (every 1 sec , or every delta t)
         }
     }
+    std::string solver_name("--- undefined ---");
+    if (linear_solver == "bicgstab") { solver_name = "BiCGstab"; }
+    if (linear_solver == "multigrid") { solver_name = "MultiGrid"; }
+
+    std::string model_title("Linear wave equation");
+
+    if (do_q_equation && do_r_equation)
+    {
+        model_title = "Linear wave equation";
+        if (do_bed_shear_stress)
+        {
+            model_title = "Linear wave equation + bed shear stress";
+        }
+        if (do_convection && do_bed_shear_stress)
+        {
+            model_title = "Linear wave equation + convection + bed shear stress";
+        }
+        if (do_convection)
+        {
+            model_title = "Linear wave equation + convection";
+        }
+    }
+    else if (do_q_equation)
+    {
+        model_title = "Linear wave equation, only q-equation";
+    }
+    else if (do_r_equation)
+    {
+        model_title = "Linear wave equation, only r-equation";
+    }
+    else
+    {
+        model_title = "No q- and no r-equation (=> no waves computed)";
+    }
+    model_title += ", " + solver_name;
 
     REGULARIZATION* regularization = new REGULARIZATION(iter_max, g);
 
@@ -1036,15 +1057,15 @@ int main(int argc, char *argv[])
     his_values = { 0.0 };
     his_file->put_variable(his_newton_iter_name, nst_his, his_values);
 
-    std::string his_BiCGstab_iter_name("his_BiCGstab_iterations");
-    his_file->add_variable_without_location(his_BiCGstab_iter_name, "iterations", "BiCGstab iteration", "-");
+    std::string his_LinSolver_iter_name("his_LinSolver_iterations");
+    his_file->add_variable_without_location(his_LinSolver_iter_name, "iterations", "LinSolver iteration", "-");
     his_values = { 0.0 };
-    his_file->put_variable(his_BiCGstab_iter_name, nst_his, his_values);
+    his_file->put_variable(his_LinSolver_iter_name, nst_his, his_values);
 
-    std::string his_BiCGstab_iter_error_name("BiCGstab_iteration_error");
-    his_file->add_variable_without_location(his_BiCGstab_iter_error_name, "iteration_error", "BiCGstab iteration error", "-");
+    std::string his_LinSolver_iter_error_name("LinSolver_iteration_error");
+    his_file->add_variable_without_location(his_LinSolver_iter_error_name, "iteration_error", "LinSolver iteration error", "-");
     his_values = { 0.0 };
-    his_file->put_variable(his_BiCGstab_iter_error_name, nst_his, his_values);
+    his_file->put_variable(his_LinSolver_iter_error_name, nst_his, his_values);
     STOP_TIMER(Writing his-file);
 
     // End define history file
@@ -1078,6 +1099,20 @@ int main(int argc, char *argv[])
     Eigen::IncompleteLUT<double> ilu;
     //Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
     //Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::DiagonalPreconditioner<double> > solver;
+    // 
+    // AMGCL setup
+    using T = double;
+    using Backend = amgcl::backend::builtin<T>;
+    using AMG = amgcl::amg<
+        Backend,
+        amgcl::coarsening::smoothed_aggregation,
+        amgcl::relaxation::spai0
+    >;
+    using Solver = amgcl::make_solver<AMG, amgcl::solver::bicgstab<Backend>>;
+    Solver::params prm;
+    prm.solver.tol = eps_bicgstab;
+    prm.solver.maxiter = 1000;
+               
 
     for (int nst = 1; nst < total_time_steps; ++nst)
     {
@@ -1173,7 +1208,8 @@ int main(int argc, char *argv[])
                                         hn, qn, rn,
                                         hp, qp, rp,
                                         htheta, qtheta, rtheta,
-                                        zb, bc_type,  bc_vars, BC_WEST, bc,
+                                        zb, cf, 
+                                        bc_type,  bc_vars, BC_WEST, bc,
                                         w_nat, w_ess);
             }
             // north-west corner
@@ -1208,7 +1244,8 @@ int main(int argc, char *argv[])
                                             hn, qn, rn,
                                             hp, qp, rp,
                                             htheta, qtheta, rtheta,
-                                            zb, bc_type,  bc_vars, BC_SOUTH, bc,
+                                            zb, cf, 
+                                            bc_type,  bc_vars, BC_SOUTH, bc,
                                             w_nat, w_ess);
                 } 
                 if (std::fmod(row + 3, 3 * ny) == 0) {
@@ -1220,7 +1257,8 @@ int main(int argc, char *argv[])
                                             hn, qn, rn,
                                             hp, qp, rp,
                                             htheta, qtheta, rtheta,
-                                            zb, bc_type,  bc_vars, BC_NORTH, bc,
+                                            zb, cf,
+                                            bc_type,  bc_vars, BC_NORTH, bc,
                                             w_nat, w_ess);
                 }
             }
@@ -1247,7 +1285,8 @@ int main(int argc, char *argv[])
                                        hn, qn, rn,
                                        hp, qp, rp,
                                        htheta, qtheta, rtheta,
-                                       zb, bc_type,  bc_vars, BC_EAST, bc,
+                                       zb, cf,
+                                       bc_type,  bc_vars, BC_EAST, bc,
                                        w_nat, w_ess);
             }
             // north-east corner
@@ -1325,78 +1364,119 @@ int main(int argc, char *argv[])
                 //
                 STOP_TIMER(Viscosity);
             }
-            
-            if (nst == 1 && iter == 0)
-            {
-                START_TIMER(BiCGStab_initialization);
-            }
-            else if (nst != 1)
-            {
-                START_TIMER(BiCGStab);
-            }
 
-            if (logging == "matrix" && (nst == 1 || nst == total_time_steps-1) && iter == 0)
+            ////////////////////////////////////////////////////////////////////
+            if (linear_solver == "bicgstab")
             {
-                log_file << "=== Matrix ============================================" << std::endl;
-                for (int i = 0; i < 3 * nxny; ++i)
-                {
-                    for (int j = 0; j < 3*nxny; ++j)
-                    {
-                        log_file << std::showpos << std::setprecision(3) << std::scientific << A.coeff(i, j) << " ";
-                        if (std::fmod(j+1,3) == 0) { log_file << "| "; }
-                    }
-                    log_file << std::endl;
-                    if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
-                }
-                log_file << "=== Diagonal dominant == diag, off_diag, -, + =========" << std::endl;
-                for (int i = 0; i < 3 * nxny; ++i)
-                {
-                    double off_diag = 0.0;
-                    double diag = 0.0;
-                    for (int j = 0; j < 3*nxny; ++j)
-                    {
-                        if (i != j ) { off_diag += std::abs(A.coeff(i,j)); }
-                        else { diag = std::abs(A.coeff(i,j)); }
-                    }
-                    log_file << std::showpos << std::setprecision(5) << std::scientific << diag << " " << off_diag << " " 
-                        <<  diag - off_diag << " " <<  diag + off_diag << " ";
-                    log_file << std::endl;
-                    if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
-                }
-                log_file << "=== RHS ===============================================" << std::endl;
-                for (int i = 0; i < 3 * nxny; ++i)
-                {
-                    log_file << std::setprecision(8) << std::scientific << rhs[i] << std::endl;
-                    if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
-                }
-            }
 
-            if (nst == 1 && iter == 0)
-            {
-                ilu.setDroptol(1e-02);
-                ilu.setFillfactor(9);
-                //ilu.compute(A);
+                if (nst == 1 && iter == 0)
+                {
+                    START_TIMER(BiCGStab_initialization);
+                }
+                else if (nst != 1)
+                {
+                    START_TIMER(BiCGStab);
+                }
+
+                if (logging == "matrix" && (nst == 1 || nst == total_time_steps-1) && iter == 0)
+                {
+                    log_file << "=== Matrix ============================================" << std::endl;
+                    for (int i = 0; i < 3 * nxny; ++i)
+                    {
+                        for (int j = 0; j < 3*nxny; ++j)
+                        {
+                            log_file << std::showpos << std::setprecision(3) << std::scientific << A.coeff(i, j) << " ";
+                            if (std::fmod(j+1,3) == 0) { log_file << "| "; }
+                        }
+                        log_file << std::endl;
+                        if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
+                    }
+                    log_file << "=== Diagonal dominant == diag, off_diag, -, + =========" << std::endl;
+                    for (int i = 0; i < 3 * nxny; ++i)
+                    {
+                        double off_diag = 0.0;
+                        double diag = 0.0;
+                        for (int j = 0; j < 3*nxny; ++j)
+                        {
+                            if (i != j ) { off_diag += std::abs(A.coeff(i,j)); }
+                            else { diag = std::abs(A.coeff(i,j)); }
+                        }
+                        log_file << std::showpos << std::setprecision(5) << std::scientific << diag << " " << off_diag << " " 
+                            <<  diag - off_diag << " " <<  diag + off_diag << " ";
+                        log_file << std::endl;
+                        if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
+                    }
+                    log_file << "=== RHS ===============================================" << std::endl;
+                    for (int i = 0; i < 3 * nxny; ++i)
+                    {
+                        log_file << std::setprecision(8) << std::scientific << rhs[i] << std::endl;
+                        if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
+                    }
+                }
+
+                if (nst == 1 && iter == 0)
+                {
+                    ilu.setDroptol(1e-02);
+                    ilu.setFillfactor(9);
+                    //ilu.compute(A);
+                }
+                solver.compute(A);
+                solver.setTolerance(eps_bicgstab);
+                solution = solver.solve(rhs);
+                //solution = solver.solveWithGuess(rhs, solution);
+                if (nst == 1 && iter == 0)
+                {
+                    STOP_TIMER(BiCGStab_initialization);
+                }
+                else if (nst != 1)
+                {
+                    STOP_TIMER(BiCGStab);
+                }
+                solver_iterations = solver.iterations();
+                if (logging == "iterations" || logging == "matrix")
+                {
+                    log_file << "time [sec]: " << std::setprecision(4) << std::scientific << time
+                        << "    Newton iteration: " << used_newton_iter
+                        << "    BiCGstab iterations: " << solver.iterations()
+                        << "    estimated error: " << solver.error()
+                        << std::endl;
+                }
             }
-            solver.compute(A);
-            solver.setTolerance(eps_bicgstab);
-            solution = solver.solve(rhs);
-            //solution = solver.solveWithGuess(rhs, solution);
-            if (nst == 1 && iter == 0)
+            ////////////////////////////////////////////////////////////////////
+            else if (linear_solver == "multigrid")
             {
-                STOP_TIMER(BiCGStab_initialization);
+                if (nst == 1 && iter == 0)
+                {
+                    START_TIMER(MULTIGRID_initialization);
+                }
+                else if (nst > 1)
+                {
+                    START_TIMER(MULTIGRID);
+                }
+               
+                Solver solve(A, prm);
+                auto [iters, err] = solve(rhs, solution);
+               
+                 if (nst == 1 && iter == 0)
+                {
+                    STOP_TIMER(MULTIGRID_initialization);
+                }
+                else if (nst > 1)
+                {
+                    STOP_TIMER(MULTIGRID);
+                }
+               solver_iterations = iters;
+                if (logging == "iterations" || logging == "matrix")
+                {
+                    log_file << "time [sec]: " << std::setprecision(4) << std::scientific << time
+                        << "    Newton iteration: " << used_newton_iter
+                        << "    Multigrid iterations: " << iters
+                        << "    estimated error: " << err
+                        << std::endl;
+                }
             }
-            else if (nst != 1)
-            {
-                STOP_TIMER(BiCGStab);
-            }
-            if (logging == "iterations" || logging == "matrix")
-            {
-                log_file << "time [sec]: " << std::setprecision(4) << std::scientific << time
-                    << "    Newton iteration: " << used_newton_iter
-                    << "    BiCGstab iterations: " << solver.iterations()
-                    << "    estimated error: " << solver.error()
-                    << std::endl;
-            }
+            ////////////////////////////////////////////////////////////////////
+
             // 
             // The new solution is the previous iterant plus the delta
             //
@@ -1450,7 +1530,7 @@ int main(int argc, char *argv[])
                 }
                 log_file << "=======================================================" << std::endl;
             }
-            used_lin_solv_iter = std::max(used_lin_solv_iter, (int)solver.iterations());
+            used_lin_solv_iter = std::max(used_lin_solv_iter, (int) solver_iterations);
             if (regularization_iter)
             {
                 START_TIMER(Regularization_iter_loop);
@@ -1628,9 +1708,9 @@ int main(int argc, char *argv[])
             his_values = { double(used_newton_iter) };
             his_file->put_variable(his_newton_iter_name, nst_his, his_values);
             his_values = { double(solver.iterations()) };
-            his_file->put_variable(his_BiCGstab_iter_name, nst_his, his_values);
+            his_file->put_variable(his_LinSolver_iter_name, nst_his, his_values);
             his_values = { solver.error() };
-            his_file->put_variable(his_BiCGstab_iter_error_name, nst_his, his_values);
+            his_file->put_variable(his_LinSolver_iter_error_name, nst_his, his_values);
             STOP_TIMER(Writing his-file);
         }
     } // End of the time loop

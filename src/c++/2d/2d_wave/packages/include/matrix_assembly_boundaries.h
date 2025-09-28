@@ -28,6 +28,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <numeric>
 
 // for BiCGstab  solver
 #include <Eigen/Dense>
@@ -42,7 +43,8 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    std::vector<double>& zb, std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_NORTH, std::vector<double> bc,
+    std::vector<double>& zb, double cf,
+    std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_NORTH, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess);
 
 int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
@@ -52,7 +54,8 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    std::vector<double>& zb, std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_EAST, std::vector<double> bc,
+    std::vector<double>& zb, double cf,
+    std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_EAST, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess);
 
 int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
@@ -62,7 +65,8 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    std::vector<double>& zb, std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_SOUTH, std::vector<double> bc,
+    std::vector<double>& zb, double cf,
+    std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_SOUTH, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess);
 
 int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
@@ -72,8 +76,13 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    std::vector<double>& zb, std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_WEST, std::vector<double> bc,
+    std::vector<double>& zb, double cf,
+    std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_WEST, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess);
+
+// double natural_boundary_qp(std::vector<double>& hp, int p_b, int xi, int eta, std::vector<double>& w, int ny);
+
+void molecule(std::vector<int>& p, int p_sw, int ny);
 
 inline void set_value(double * values, int col, double data);
 inline int ma_index(int i, int j, int ny_in);
