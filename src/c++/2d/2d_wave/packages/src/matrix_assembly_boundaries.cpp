@@ -20,6 +20,7 @@
 //
 //------------------------------------------------------------------------------
 
+#include "interpolations.h"
 #include "jacobians.h"
 #include "matrix_assembly_boundaries.h"
 
@@ -52,7 +53,8 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    std::vector<double>& zb, std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_NORTH, std::vector<double> bc,
+    std::vector<double>& zb, double cf,
+    std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_NORTH, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
     memset(&values[c_eq], 0, 3 * 27 * sizeof(double));  // set all coefficients for one row of c-, q- and r-equation to zero
@@ -652,7 +654,8 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    std::vector<double>& zb, std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_EAST, std::vector<double> bc,
+    std::vector<double>& zb, double cf,
+    std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_EAST, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
     memset(&values[c_eq], 0, 3 * 27 * sizeof(double));  // set all coefficients for one row of c-, q- and r-equation to zero
@@ -996,6 +999,10 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
         double qtheta_b = w_nat[0] * qtheta[p_7] + w_nat[1] * qtheta[p_4] + w_nat[2] * qtheta[p_1];
         double qtheta_s = w_nat[0] * qtheta[p_6] + w_nat[1] * qtheta[p_3] + w_nat[2] * qtheta[p_0];  // south of boundary location
 
+        double rtheta_n = w_nat[0] * rtheta[p_8] + w_nat[1] * rtheta[p_5] + w_nat[2] * rtheta[p_2];  // north of boundary location
+        double rtheta_b = w_nat[0] * rtheta[p_7] + w_nat[1] * rtheta[p_4] + w_nat[2] * rtheta[p_1];
+        double rtheta_s = w_nat[0] * rtheta[p_6] + w_nat[1] * rtheta[p_3] + w_nat[2] * rtheta[p_0];  // south of boundary location
+
         double dzetadx_n = dxinv * (htheta[p_8] + zb[p_8] - htheta[p_5] - zb[p_5]);
         double dzetadx_b = dxinv * (htheta[p_7] + zb[p_7] - htheta[p_4] - zb[p_4]);
         double dzetadx_s = dxinv * (htheta[p_6] + zb[p_6] - htheta[p_3] - zb[p_3]);
@@ -1062,6 +1069,8 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
         //
         double htheta_0 = 0.25 * (3.0 * htheta_b + 1.0 * htheta_n);
         double htheta_1 = 0.25 * (3.0 * htheta_b + 1.0 * htheta_s);
+        double qtheta_0 = 0.25 * (3.0 * qtheta_b + 1.0 * qtheta_n);
+        double qtheta_1 = 0.25 * (3.0 * qtheta_b + 1.0 * qtheta_s);
         double dzetadx_0 = 0.25 * (3.0 * dzetadx_b + 1.0 * dzetadx_n);
         double dzetadx_1 = 0.25 * (3.0 * dzetadx_b + 1.0 * dzetadx_s);
         double dqdt_n = dtinv * (qp_n - qn_n);
@@ -1133,10 +1142,10 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
             set_value(values, col_w  + 2, 0.0);
             set_value(values, col_ww + 2, 0.0);
 
-            double cc_0 = 0.25 * (3.0 * cc_b +  1.0 * cc_s);
-            double cc_1 = 0.25 * (3.0 * cc_b +  1.0 * cc_n);
-            double dd_0 = 0.25 * (3.0 * dd_b +  1.0 * dd_s);
-            double dd_1 = 0.25 * (3.0 * dd_b +  1.0 * dd_n);
+            double cc_0 = 0.25 * (3.0 * cc_b +  1.0 * cc_n);
+            double cc_1 = 0.25 * (3.0 * cc_b +  1.0 * cc_s);
+            double dd_0 = 0.25 * (3.0 * dd_b +  1.0 * dd_n);
+            double dd_1 = 0.25 * (3.0 * dd_b +  1.0 * dd_s);
 
             double dhtheta_0 = 0.25 * (3.0 * dxinv * (htheta[p_7] - htheta[p_4]) +  1.0 * dxinv * (htheta[p_8] - htheta[p_5]));
             double dhtheta_1 = 0.25 * (3.0 * dxinv * (htheta[p_7] - htheta[p_4]) +  1.0 * dxinv * (htheta[p_6] - htheta[p_3]));
@@ -1150,7 +1159,68 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
         }
         if (do_bed_shear_stress)
         {
-        }
+            // East boundary bed shear stress
+            double cf_n = cf;
+            double cf_b = cf;
+            double cf_s = cf;
+            // Contribution Delta h
+            // face 0
+            double face_fac = 0.5 * dy * 0.25;
+            set_value(values, col_nb , face_fac * 1.0 * (theta * w_nat[0] * bed_shear_stress_J_11(htheta_n, qtheta_n, rtheta_n, cf_n)) );    
+            set_value(values, col_nw , face_fac * 1.0 * (theta * w_nat[1] * bed_shear_stress_J_11(htheta_n, qtheta_n, rtheta_n, cf_n)) );    
+            set_value(values, col_nww, face_fac * 1.0 * (theta * w_nat[2] * bed_shear_stress_J_11(htheta_n, qtheta_n, rtheta_n, cf_n)) );    
+            set_value(values, col_b  , face_fac * 4.0 * (theta * w_nat[0] * bed_shear_stress_J_11(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_w  , face_fac * 4.0 * (theta * w_nat[1] * bed_shear_stress_J_11(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_ww , face_fac * 4.0 * (theta * w_nat[2] * bed_shear_stress_J_11(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+                
+            // face 1
+            face_fac = 0.5 * dy * 0.25;
+            set_value(values, col_b  , face_fac * 4.0 * (theta * w_nat[0] * bed_shear_stress_J_11(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_w  , face_fac * 4.0 * (theta * w_nat[1] * bed_shear_stress_J_11(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_ww , face_fac * 4.0 * (theta * w_nat[2] * bed_shear_stress_J_11(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_sb , face_fac * 1.0 * (theta * w_nat[0] * bed_shear_stress_J_11(htheta_s, qtheta_s, rtheta_s, cf_s)) );    
+            set_value(values, col_sw , face_fac * 1.0 * (theta * w_nat[1] * bed_shear_stress_J_11(htheta_s, qtheta_s, rtheta_s, cf_s)) );    
+            set_value(values, col_sww, face_fac * 1.0 * (theta * w_nat[2] * bed_shear_stress_J_11(htheta_s, qtheta_s, rtheta_s, cf_s)) );    
+
+            // Contribution Delta q
+            // face 0
+            face_fac = 0.5 * dy * 0.25;
+            set_value(values, col_nb  + 1, face_fac * 1.0 * (theta * w_nat[0] * bed_shear_stress_J_12(htheta_n, qtheta_n, rtheta_n, cf_n)) );    
+            set_value(values, col_nw  + 1, face_fac * 1.0 * (theta * w_nat[1] * bed_shear_stress_J_12(htheta_n, qtheta_n, rtheta_n, cf_n)) );    
+            set_value(values, col_nww + 1, face_fac * 1.0 * (theta * w_nat[2] * bed_shear_stress_J_12(htheta_n, qtheta_n, rtheta_n, cf_n)) );
+            set_value(values, col_b   + 1, face_fac * 4.0 * (theta * w_nat[0] * bed_shear_stress_J_12(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_w   + 1, face_fac * 4.0 * (theta * w_nat[1] * bed_shear_stress_J_12(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_ww  + 1, face_fac * 4.0 * (theta * w_nat[2] * bed_shear_stress_J_12(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+                
+            // face 1
+            face_fac = 0.5 * dy * 0.25;
+            set_value(values, col_b   + 1, face_fac * 4.0 * (theta * w_nat[0] * bed_shear_stress_J_12(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_w   + 1, face_fac * 4.0 * (theta * w_nat[1] * bed_shear_stress_J_12(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_ww  + 1, face_fac * 4.0 * (theta * w_nat[2] * bed_shear_stress_J_12(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_sb  + 1, face_fac * 1.0 * (theta * w_nat[0] * bed_shear_stress_J_12(htheta_s, qtheta_s, rtheta_s, cf_s)) );    
+            set_value(values, col_sw  + 1, face_fac * 1.0 * (theta * w_nat[1] * bed_shear_stress_J_12(htheta_s, qtheta_s, rtheta_s, cf_s)) );    
+            set_value(values, col_sww + 1, face_fac * 1.0 * (theta * w_nat[2] * bed_shear_stress_J_12(htheta_s, qtheta_s, rtheta_s, cf_s)) );    
+
+            // Contribution Delta r
+            set_value(values, col_b  + 2, 0.0);
+            set_value(values, col_w  + 2, 0.0);
+            set_value(values, col_ww + 2, 0.0);
+
+            // right hand side
+            double rtheta_0 = 0.0;  // no tangential discharge r
+            double rtheta_1 = 0.0;
+            double abs_qtheta_0 = abs_vecq(qtheta_0, rtheta_0, 1.0);
+            double abs_qtheta_1 = abs_vecq(qtheta_1, rtheta_1, 1.0);
+
+            double cf_0 = cf;
+            double cf_1 = cf;
+
+            rhs[row + 1] += - dy * (
+                  0.5 * cf_0 * qtheta_0 * abs_qtheta_0 / (htheta_0 * htheta_0)
+                + 0.5 * cf_1 * qtheta_1 * abs_qtheta_1 / (htheta_1 * htheta_1)
+
+            );
+        }  
         if (do_viscosity)
         {
         }
@@ -1252,7 +1322,8 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    std::vector<double>& zb, std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_SOUTH, std::vector<double> bc,
+    std::vector<double>& zb, double cf, 
+    std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_SOUTH, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
     memset(&values[c_eq], 0, 3 * 27 * sizeof(double));  // set all coefficients for one row of c-, q- and r-equation to zero
@@ -1586,6 +1657,10 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
         double htheta_b = w_nat[0] * htheta[p_3] + w_nat[1] * htheta[p_4] + w_nat[2] * htheta[p_5];
         double htheta_e = w_nat[0] * htheta[p_6] + w_nat[1] * htheta[p_7] + w_nat[2] * htheta[p_8];  // east of boundary location
         //
+        double qtheta_w = w_nat[0] * qtheta[p_0] + w_nat[1] * qtheta[p_1] + w_nat[2] * qtheta[p_2];  // south of boundary location
+        double qtheta_b = w_nat[0] * qtheta[p_3] + w_nat[1] * qtheta[p_4] + w_nat[2] * qtheta[p_5];
+        double qtheta_e = w_nat[0] * qtheta[p_6] + w_nat[1] * qtheta[p_7] + w_nat[2] * qtheta[p_8];  // north of boundary location
+        //
         double rtheta_w = w_nat[0] * rtheta[p_0] + w_nat[1] * rtheta[p_1] + w_nat[2] * rtheta[p_2];  // west of boundary location
         double rtheta_b = w_nat[0] * rtheta[p_3] + w_nat[1] * rtheta[p_4] + w_nat[2] * rtheta[p_5];
         double rtheta_e = w_nat[0] * rtheta[p_6] + w_nat[1] * rtheta[p_7] + w_nat[2] * rtheta[p_8];  // east of boundary location
@@ -1720,19 +1795,19 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
             // Contribution Delta h
             // face 0
             double face_fac = 0.5 * dx * 0.25;
-            set_value(values, col_eb , face_fac * 1.0 * (theta * aa_e * w_nat[0] + dyinv * theta * cc_e));
-            set_value(values, col_en , face_fac * 1.0 * (theta * aa_e * w_nat[1] - dyinv * theta * cc_e));
+            set_value(values, col_eb , face_fac * 1.0 * (theta * aa_e * w_nat[0] - dyinv * theta * cc_e));
+            set_value(values, col_en , face_fac * 1.0 * (theta * aa_e * w_nat[1] + dyinv * theta * cc_e));
             set_value(values, col_enn, face_fac * 1.0 * (theta * aa_e * w_nat[2]));
-            set_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] + dyinv * theta * cc_b));
-            set_value(values, col_n  , face_fac * 3.0 * (theta * aa_b * w_nat[1] - dyinv * theta * cc_b));
+            set_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] - dyinv * theta * cc_b));
+            set_value(values, col_n  , face_fac * 3.0 * (theta * aa_b * w_nat[1] + dyinv * theta * cc_b));
             set_value(values, col_nn , face_fac * 3.0 * (theta * aa_b * w_nat[2]));
 
             //face 1
-            set_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] + dyinv * theta * cc_b));
-            set_value(values, col_n  , face_fac * 3.0 * (theta * aa_b * w_nat[1] - dyinv * theta * cc_b));
+            set_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] - dyinv * theta * cc_b));
+            set_value(values, col_n  , face_fac * 3.0 * (theta * aa_b * w_nat[1] + dyinv * theta * cc_b));
             set_value(values, col_nn , face_fac * 3.0 * (theta * aa_b * w_nat[2]));
-            set_value(values, col_wb , face_fac * 1.0 * (theta * aa_w * w_nat[0] + dyinv * theta * cc_w));
-            set_value(values, col_wn , face_fac * 1.0 * (theta * aa_w * w_nat[1] - dyinv * theta * cc_w));
+            set_value(values, col_wb , face_fac * 1.0 * (theta * aa_w * w_nat[0] - dyinv * theta * cc_w));
+            set_value(values, col_wn , face_fac * 1.0 * (theta * aa_w * w_nat[1] + dyinv * theta * cc_w));
             set_value(values, col_wnn, face_fac * 1.0 * (theta * aa_w * w_nat[2]));
             
             // Contribution Delta q
@@ -1743,19 +1818,19 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
             // Contribution Delta q
             // face 0
             face_fac = 0.5 * dx * 0.25;
-            set_value(values, col_eb  + 2, face_fac * 1.0 * (theta * bb_e * w_nat[0] + dyinv * theta * dd_e));
-            set_value(values, col_en  + 2, face_fac * 1.0 * (theta * bb_e * w_nat[1] - dyinv * theta * dd_e));
+            set_value(values, col_eb  + 2, face_fac * 1.0 * (theta * bb_e * w_nat[0] - dyinv * theta * dd_e));
+            set_value(values, col_en  + 2, face_fac * 1.0 * (theta * bb_e * w_nat[1] + dyinv * theta * dd_e));
             set_value(values, col_enn + 2, face_fac * 1.0 * (theta * bb_e * w_nat[2]));
-            set_value(values, col_b   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[0] + dyinv * theta * dd_b));
-            set_value(values, col_n   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[1] - dyinv * theta * dd_b));
+            set_value(values, col_b   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[0] - dyinv * theta * dd_b));
+            set_value(values, col_n   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[1] + dyinv * theta * dd_b));
             set_value(values, col_nn  + 2, face_fac * 3.0 * (theta * bb_b * w_nat[2]));
 
             // face 1
-            set_value(values, col_b   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[0] + dyinv * theta * dd_b));
-            set_value(values, col_n   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[1] - dyinv * theta * dd_b));
+            set_value(values, col_b   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[0] - dyinv * theta * dd_b));
+            set_value(values, col_n   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[1] + dyinv * theta * dd_b));
             set_value(values, col_nn  + 2, face_fac * 3.0 * (theta * bb_b * w_nat[2]));
-            set_value(values, col_wb  + 2, face_fac * 1.0 * (theta * bb_w * w_nat[0] + dyinv * theta * dd_w));
-            set_value(values, col_wn  + 2, face_fac * 1.0 * (theta * bb_w * w_nat[1] - dyinv * theta * dd_w));
+            set_value(values, col_wb  + 2, face_fac * 1.0 * (theta * bb_w * w_nat[0] - dyinv * theta * dd_w));
+            set_value(values, col_wn  + 2, face_fac * 1.0 * (theta * bb_w * w_nat[1] + dyinv * theta * dd_w));
             set_value(values, col_wnn + 2, face_fac * 1.0 * (theta * bb_w * w_nat[2]));
                         
             double cc_0 = 0.25 * (3.0 * cc_b +  1.0 * cc_e);
@@ -1775,6 +1850,7 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
         }
         if (do_bed_shear_stress)
         {
+            // South boundary bed shear stress
         }
         if (do_viscosity)
         {
@@ -1847,7 +1923,8 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    std::vector<double>& zb, std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_WEST, std::vector<double> bc,
+    std::vector<double>& zb, double cf,
+    std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_WEST, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
     memset(&values[c_eq], 0, 3 * 27 * sizeof(double));  // set all coefficients for one row of c-, q- and r-equation to zero
@@ -2186,6 +2263,10 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
         double qtheta_b = w_nat[0] * qtheta[p_1] + w_nat[1] * qtheta[p_4] + w_nat[2] * qtheta[p_7];
         double qtheta_n = w_nat[0] * qtheta[p_2] + w_nat[1] * qtheta[p_5] + w_nat[2] * qtheta[p_8];  // north of boundary location
 
+        double rtheta_s = 0.0;
+        double rtheta_b = 0.0;
+        double rtheta_n = 0.0;
+
         double dzetadx_s = dxinv * (htheta[p_3] + zb[p_3] - htheta[p_0] - zb[p_0]);
         double dzetadx_b = dxinv * (htheta[p_4] + zb[p_4] - htheta[p_1] - zb[p_1]);
         double dzetadx_n = dxinv * (htheta[p_5] + zb[p_5] - htheta[p_2] - zb[p_2]);
@@ -2253,6 +2334,8 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
         //
         double htheta_0 = 0.25 * (3.0 * htheta_b + 1.0 * htheta_s);
         double htheta_1 = 0.25 * (3.0 * htheta_b + 1.0 * htheta_n);
+        double qtheta_0 = 0.25 * (3.0 * qtheta_b + 1.0 * qtheta_s);
+        double qtheta_1 = 0.25 * (3.0 * qtheta_b + 1.0 * qtheta_n);
         double dzetadx_0 = 0.25 * (3.0 * dzetadx_b + 1.0 * dzetadx_s);
         double dzetadx_1 = 0.25 * (3.0 * dzetadx_b + 1.0 * dzetadx_n);
         double dqdt_s = dtinv * (qp_s - qn_s);
@@ -2341,6 +2424,68 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
         }
         if (do_bed_shear_stress)
         {
+            // West boundary bed shear stress 
+
+            double cf_s = cf;  //cf[p_0] * w_nat[0] + cf[p_3] * w_nat[1] + cf[p_6] * w_nat[2];
+            double cf_b = cf;  //cf[p_1] * w_nat[0] + cf[p_4] * w_nat[1] + cf[p_7] * w_nat[2];
+            double cf_n = cf;  //cf[p_2] * w_nat[0] + cf[p_5] * w_nat[1] + cf[p_8] * w_nat[2];
+            // Contribution Delta h
+            // face 0
+            double face_fac = 0.5 * dy * 0.25;
+            set_value(values, col_sb , face_fac * 1.0 * (theta * w_nat[0] * bed_shear_stress_J_11(htheta_s, qtheta_s, rtheta_s, cf_s)) );    
+            set_value(values, col_se , face_fac * 1.0 * (theta * w_nat[1] * bed_shear_stress_J_11(htheta_s, qtheta_s, rtheta_s, cf_s)) );    
+            set_value(values, col_see, face_fac * 1.0 * (theta * w_nat[2] * bed_shear_stress_J_11(htheta_s, qtheta_s, rtheta_s, cf_s)) );    
+            set_value(values, col_b  , face_fac * 4.0 * (theta * w_nat[0] * bed_shear_stress_J_11(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_e  , face_fac * 4.0 * (theta * w_nat[1] * bed_shear_stress_J_11(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_ee , face_fac * 4.0 * (theta * w_nat[2] * bed_shear_stress_J_11(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+                
+            // face 1
+            face_fac = 0.5 * dy * 0.25;
+            set_value(values, col_b  , face_fac * 4.0 * (theta * w_nat[0] * bed_shear_stress_J_11(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_e  , face_fac * 4.0 * (theta * w_nat[1] * bed_shear_stress_J_11(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_ee , face_fac * 4.0 * (theta * w_nat[2] * bed_shear_stress_J_11(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_nb , face_fac * 1.0 * (theta * w_nat[0] * bed_shear_stress_J_11(htheta_n, qtheta_n, rtheta_n, cf_n)) );    
+            set_value(values, col_ne , face_fac * 1.0 * (theta * w_nat[1] * bed_shear_stress_J_11(htheta_n, qtheta_n, rtheta_n, cf_n)) );    
+            set_value(values, col_nee, face_fac * 1.0 * (theta * w_nat[2] * bed_shear_stress_J_11(htheta_n, qtheta_n, rtheta_n, cf_n)) );    
+
+            // Contribution Delta q
+            // face 0
+            face_fac = 0.5 * dy * 0.25;
+            set_value(values, col_sb  + 1, face_fac * 1.0 * (theta * w_nat[0] * bed_shear_stress_J_12(htheta_s, qtheta_s, rtheta_s, cf_s)) );    
+            set_value(values, col_se  + 1, face_fac * 1.0 * (theta * w_nat[1] * bed_shear_stress_J_12(htheta_s, qtheta_s, rtheta_s, cf_s)) );    
+            set_value(values, col_see + 1, face_fac * 1.0 * (theta * w_nat[2] * bed_shear_stress_J_12(htheta_s, qtheta_s, rtheta_s, cf_s)) );    
+            set_value(values, col_b   + 1, face_fac * 4.0 * (theta * w_nat[0] * bed_shear_stress_J_12(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_e   + 1, face_fac * 4.0 * (theta * w_nat[1] * bed_shear_stress_J_12(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_ee  + 1, face_fac * 4.0 * (theta * w_nat[2] * bed_shear_stress_J_12(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+                
+            // face 1
+            face_fac = 0.5 * dy * 0.25;
+            set_value(values, col_b   + 1, face_fac * 4.0 * (theta * w_nat[0] * bed_shear_stress_J_12(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_e   + 1, face_fac * 4.0 * (theta * w_nat[1] * bed_shear_stress_J_12(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_ee  + 1, face_fac * 4.0 * (theta * w_nat[2] * bed_shear_stress_J_12(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_nb  + 1, face_fac * 1.0 * (theta * w_nat[0] * bed_shear_stress_J_12(htheta_n, qtheta_n, rtheta_n, cf_n)) );    
+            set_value(values, col_ne  + 1, face_fac * 1.0 * (theta * w_nat[1] * bed_shear_stress_J_12(htheta_n, qtheta_n, rtheta_n, cf_n)) );    
+            set_value(values, col_nee + 1, face_fac * 1.0 * (theta * w_nat[2] * bed_shear_stress_J_12(htheta_n, qtheta_n, rtheta_n, cf_n)) );
+
+            // Contribution Delta r
+            set_value(values, col_b  + 2, 0.0);
+            set_value(values, col_e  + 2, 0.0);
+            set_value(values, col_ee + 2, 0.0);
+
+            // right hand side
+            double rtheta_0 = 0.0;  // no tangential discharge r
+            double rtheta_1 = 0.0;
+            double abs_qtheta_0 = abs_vecq(qtheta_0, rtheta_0, 1.0);
+            double abs_qtheta_1 = abs_vecq(qtheta_1, rtheta_1, 1.0);
+
+            double cf_0 = cf;  // scvf_xi(cf[p_1], cf[p_4], cf[p_5], cf[p_2]);
+            double cf_1 = cf;  // scvf_xi(cf[p_1], cf[p_4], cf[p_3], cf[p_0]);
+
+            rhs[row + 1] += - dy * (
+                  0.5 * cf_0 * qtheta_0 * abs_qtheta_0 / (htheta_0 * htheta_0)
+                + 0.5 * cf_1 * qtheta_1 * abs_qtheta_1 / (htheta_1 * htheta_1)
+
+            );
         }
         if (do_viscosity)
         {

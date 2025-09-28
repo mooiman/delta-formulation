@@ -197,6 +197,7 @@
     <ClCompile Include="src\convection.cpp" />
     <ClCompile Include="src\grid.cpp" />
     <ClCompile Include="src\initial_conditions.cpp" />
+    <ClCompile Include="src\interpolations.cpp" />
     <ClCompile Include="src\jacobians.cpp" />
     <ClCompile Include="src\main_2d.cpp" />
     <ClCompile Include="src\matrix_assembly_boundaries.cpp" />
@@ -219,6 +220,7 @@
     <ClInclude Include="include\data_struct.h" />
     <ClInclude Include="include\grid.h" />
     <ClInclude Include="include\initial_conditions.h" />
+    <ClInclude Include="include\interpolations.h" />
     <ClInclude Include="include\jacobians.h" />
     <ClInclude Include="include\matrix_assembly_boundaries.h" />
     <ClInclude Include="include\matrix_assembly_corners.h" />
