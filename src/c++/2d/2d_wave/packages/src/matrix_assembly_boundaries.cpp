@@ -395,6 +395,10 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
         double htheta_b = w_nat[0] * htheta[p_5] + w_nat[1] * htheta[p_4] + w_nat[2] * htheta[p_3];
         double htheta_e = w_nat[0] * htheta[p_8] + w_nat[1] * htheta[p_7] + w_nat[2] * htheta[p_6];  // east of boundary location
 
+        double qtheta_w = w_nat[0] * qtheta[p_2] + w_nat[1] * qtheta[p_1] + w_nat[2] * qtheta[p_0];  // west of boundary location
+        double qtheta_b = w_nat[0] * qtheta[p_5] + w_nat[1] * qtheta[p_4] + w_nat[2] * qtheta[p_3];
+        double qtheta_e = w_nat[0] * qtheta[p_8] + w_nat[1] * qtheta[p_7] + w_nat[2] * qtheta[p_6];  // east of boundary location
+
         double rtheta_w = w_nat[0] * rtheta[p_2] + w_nat[1] * rtheta[p_1] + w_nat[2] * rtheta[p_0];  // west of boundary location
         double rtheta_b = w_nat[0] * rtheta[p_5] + w_nat[1] * rtheta[p_4] + w_nat[2] * rtheta[p_3];
         double rtheta_e = w_nat[0] * rtheta[p_8] + w_nat[1] * rtheta[p_7] + w_nat[2] * rtheta[p_6];  // east of boundary location
@@ -493,6 +497,8 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
         //
         double htheta_0 = 0.25 * (3.0 * htheta_b + 1.0 * htheta_w);
         double htheta_1 = 0.25 * (3.0 * htheta_b + 1.0 * htheta_e);
+        double rtheta_0 = 0.25 * (3.0 * rtheta_b + 1.0 * rtheta_w);
+        double rtheta_1 = 0.25 * (3.0 * rtheta_b + 1.0 * rtheta_e);
         double dzetady_0 = 0.25 * (3.0 * dzetady_b + 1.0 * dzetady_w);
         double dzetady_1 = 0.25 * (3.0 * dzetady_b + 1.0 * dzetady_e);
         double drdt_w = dtinv * (rp_w - rn_w);
@@ -581,6 +587,67 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
         }
         if (do_bed_shear_stress)
         {
+            // North boundary bed shear stress
+
+            double cf_w = cf;
+            double cf_b = cf;
+            double cf_e = cf;
+            // Contribution Delta h
+            // face 0
+            double face_fac = 0.5 * dx * 0.25;
+            set_value(values, col_wb , face_fac * 1.0 * (theta * w_nat[0] * bed_shear_stress_J_21(htheta_w, qtheta_w, rtheta_w, cf_w)) );    
+            set_value(values, col_ws , face_fac * 1.0 * (theta * w_nat[1] * bed_shear_stress_J_21(htheta_w, qtheta_w, rtheta_w, cf_w)) );    
+            set_value(values, col_wss, face_fac * 1.0 * (theta * w_nat[2] * bed_shear_stress_J_21(htheta_w, qtheta_w, rtheta_w, cf_w)) );    
+            set_value(values, col_b  , face_fac * 4.0 * (theta * w_nat[0] * bed_shear_stress_J_21(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_s  , face_fac * 4.0 * (theta * w_nat[1] * bed_shear_stress_J_21(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_ss , face_fac * 4.0 * (theta * w_nat[2] * bed_shear_stress_J_21(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+                
+            // face 1
+            face_fac = 0.5 * dx * 0.25;
+            set_value(values, col_b  , face_fac * 4.0 * (theta * w_nat[0] * bed_shear_stress_J_21(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_s  , face_fac * 4.0 * (theta * w_nat[1] * bed_shear_stress_J_21(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_ss , face_fac * 4.0 * (theta * w_nat[2] * bed_shear_stress_J_21(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_eb , face_fac * 1.0 * (theta * w_nat[0] * bed_shear_stress_J_21(htheta_e, qtheta_e, rtheta_e, cf_e)) );    
+            set_value(values, col_es , face_fac * 1.0 * (theta * w_nat[1] * bed_shear_stress_J_21(htheta_e, qtheta_e, rtheta_e, cf_e)) );    
+            set_value(values, col_ess, face_fac * 1.0 * (theta * w_nat[2] * bed_shear_stress_J_21(htheta_e, qtheta_e, rtheta_e, cf_e)) );    
+
+            // Contribution Delta q
+            set_value(values, col_b  + 1, 0.0);
+            set_value(values, col_s  + 1, 0.0);
+            set_value(values, col_ss + 1, 0.0);
+
+            // Contribution Delta r
+            // face 0
+            face_fac = 0.5 * dx * 0.25;
+            set_value(values, col_wb  + 2, face_fac * 1.0 * (theta * w_nat[0] * bed_shear_stress_J_23(htheta_w, qtheta_w, rtheta_w, cf_w)) );    
+            set_value(values, col_ws  + 2, face_fac * 1.0 * (theta * w_nat[1] * bed_shear_stress_J_23(htheta_w, qtheta_w, rtheta_w, cf_w)) );    
+            set_value(values, col_wss + 2, face_fac * 1.0 * (theta * w_nat[2] * bed_shear_stress_J_23(htheta_w, qtheta_w, rtheta_w, cf_w)) );
+            set_value(values, col_b   + 2, face_fac * 4.0 * (theta * w_nat[0] * bed_shear_stress_J_23(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_s   + 2, face_fac * 4.0 * (theta * w_nat[1] * bed_shear_stress_J_23(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_ss  + 2, face_fac * 4.0 * (theta * w_nat[2] * bed_shear_stress_J_23(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+                
+            // face 1
+            face_fac = 0.5 * dx * 0.25;
+            set_value(values, col_b   + 2, face_fac * 4.0 * (theta * w_nat[0] * bed_shear_stress_J_23(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_s   + 2, face_fac * 4.0 * (theta * w_nat[1] * bed_shear_stress_J_23(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_ss  + 2, face_fac * 4.0 * (theta * w_nat[2] * bed_shear_stress_J_23(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_eb  + 2, face_fac * 1.0 * (theta * w_nat[0] * bed_shear_stress_J_23(htheta_e, qtheta_e, rtheta_e, cf_e)) );    
+            set_value(values, col_es  + 2, face_fac * 1.0 * (theta * w_nat[1] * bed_shear_stress_J_23(htheta_e, qtheta_e, rtheta_e, cf_e)) );    
+            set_value(values, col_ess + 2, face_fac * 1.0 * (theta * w_nat[2] * bed_shear_stress_J_23(htheta_e, qtheta_e, rtheta_e, cf_e)) );    
+
+            // right hand side
+            double qtheta_0 = 0.0;  // no tangential discharge q
+            double qtheta_1 = 0.0;
+            double abs_qtheta_0 = abs_vecq(qtheta_0, rtheta_0, 1.0);
+            double abs_qtheta_1 = abs_vecq(qtheta_1, rtheta_1, 1.0);
+
+            double cf_0 = 0.25 * (3.0 * cf_b + 1.0 * cf_w);
+            double cf_1 = 0.25 * (3.0 * cf_b + 1.0 * cf_e);
+
+            rhs[row + 1] += - dx * (
+                  0.5 * cf_0 * qtheta_0 * abs_qtheta_0 / (htheta_0 * htheta_0)
+                + 0.5 * cf_1 * qtheta_1 * abs_qtheta_1 / (htheta_1 * htheta_1)
+            );
         }
         if (do_viscosity)
         {
@@ -1160,6 +1227,7 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
         if (do_bed_shear_stress)
         {
             // East boundary bed shear stress
+
             double cf_n = cf;
             double cf_b = cf;
             double cf_s = cf;
@@ -1212,8 +1280,8 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
             double abs_qtheta_0 = abs_vecq(qtheta_0, rtheta_0, 1.0);
             double abs_qtheta_1 = abs_vecq(qtheta_1, rtheta_1, 1.0);
 
-            double cf_0 = cf;
-            double cf_1 = cf;
+            double cf_0 = 0.25 * (3.0 * cf_b + 1.0 * cf_n);
+            double cf_1 = 0.25 * (3.0 * cf_b + 1.0 * cf_s);
 
             rhs[row + 1] += - dy * (
                   0.5 * cf_0 * qtheta_0 * abs_qtheta_0 / (htheta_0 * htheta_0)
@@ -1762,6 +1830,8 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
         //
         double htheta_0 = 0.25 * (3.0 * htheta_b + 1.0 * htheta_e);
         double htheta_1 = 0.25 * (3.0 * htheta_b + 1.0 * htheta_w);
+        double rtheta_0 = 0.25 * (3.0 * rtheta_b + 1.0 * rtheta_e);
+        double rtheta_1 = 0.25 * (3.0 * rtheta_b + 1.0 * rtheta_w);
         double dzetady_0 = 0.25 * (3.0 * dzetady_b + 1.0 * dzetady_e);
         double dzetady_1 = 0.25 * (3.0 * dzetady_b + 1.0 * dzetady_w);
         double drdt_w = dtinv * (rp_w - rn_w);
@@ -1851,6 +1921,67 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
         if (do_bed_shear_stress)
         {
             // South boundary bed shear stress
+
+            double cf_w = cf;
+            double cf_b = cf;
+            double cf_e = cf;
+            // Contribution Delta h
+            // face 0
+            double face_fac = 0.5 * dx * 0.25;
+            set_value(values, col_eb , face_fac * 1.0 * (theta * w_nat[0] * bed_shear_stress_J_21(htheta_e, qtheta_e, rtheta_e, cf_e)) );    
+            set_value(values, col_en , face_fac * 1.0 * (theta * w_nat[1] * bed_shear_stress_J_21(htheta_e, qtheta_e, rtheta_e, cf_e)) );    
+            set_value(values, col_enn, face_fac * 1.0 * (theta * w_nat[2] * bed_shear_stress_J_21(htheta_e, qtheta_e, rtheta_e, cf_e)) );    
+            set_value(values, col_b  , face_fac * 4.0 * (theta * w_nat[0] * bed_shear_stress_J_21(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_n  , face_fac * 4.0 * (theta * w_nat[1] * bed_shear_stress_J_21(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_nn , face_fac * 4.0 * (theta * w_nat[2] * bed_shear_stress_J_21(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+                
+            // face 1
+            face_fac = 0.5 * dx * 0.25;
+            set_value(values, col_b  , face_fac * 4.0 * (theta * w_nat[0] * bed_shear_stress_J_21(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_n  , face_fac * 4.0 * (theta * w_nat[1] * bed_shear_stress_J_21(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_nn , face_fac * 4.0 * (theta * w_nat[2] * bed_shear_stress_J_21(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_wb , face_fac * 1.0 * (theta * w_nat[0] * bed_shear_stress_J_21(htheta_w, qtheta_w, rtheta_w, cf_w)) );    
+            set_value(values, col_wn , face_fac * 1.0 * (theta * w_nat[1] * bed_shear_stress_J_21(htheta_w, qtheta_w, rtheta_w, cf_w)) );    
+            set_value(values, col_wnn, face_fac * 1.0 * (theta * w_nat[2] * bed_shear_stress_J_21(htheta_w, qtheta_w, rtheta_w, cf_w)) );    
+
+            // Contribution Delta q
+            set_value(values, col_b  + 1, 0.0);
+            set_value(values, col_n  + 1, 0.0);
+            set_value(values, col_nn + 1, 0.0);
+
+            // Contribution Delta r
+            // face 0
+            face_fac = 0.5 * dx * 0.25;
+            set_value(values, col_eb  + 2, face_fac * 1.0 * (theta * w_nat[0] * bed_shear_stress_J_23(htheta_e, qtheta_e, rtheta_e, cf_e)) );    
+            set_value(values, col_en  + 2, face_fac * 1.0 * (theta * w_nat[1] * bed_shear_stress_J_23(htheta_e, qtheta_e, rtheta_e, cf_e)) );    
+            set_value(values, col_enn + 2, face_fac * 1.0 * (theta * w_nat[2] * bed_shear_stress_J_23(htheta_e, qtheta_e, rtheta_e, cf_e)) );    
+            set_value(values, col_b   + 2, face_fac * 4.0 * (theta * w_nat[0] * bed_shear_stress_J_23(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_n   + 2, face_fac * 4.0 * (theta * w_nat[1] * bed_shear_stress_J_23(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_nn  + 2, face_fac * 4.0 * (theta * w_nat[2] * bed_shear_stress_J_23(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+                
+            // face 1
+            face_fac = 0.5 * dx * 0.25;
+            set_value(values, col_b   + 2, face_fac * 4.0 * (theta * w_nat[0] * bed_shear_stress_J_23(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_n   + 2, face_fac * 4.0 * (theta * w_nat[1] * bed_shear_stress_J_23(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_nn  + 2, face_fac * 4.0 * (theta * w_nat[2] * bed_shear_stress_J_23(htheta_b, qtheta_b, rtheta_b, cf_b)) );    
+            set_value(values, col_wb  + 2, face_fac * 1.0 * (theta * w_nat[0] * bed_shear_stress_J_23(htheta_w, qtheta_w, rtheta_w, cf_w)) );    
+            set_value(values, col_wn  + 2, face_fac * 1.0 * (theta * w_nat[1] * bed_shear_stress_J_23(htheta_w, qtheta_w, rtheta_w, cf_w)) );    
+            set_value(values, col_wnn + 2, face_fac * 1.0 * (theta * w_nat[2] * bed_shear_stress_J_23(htheta_w, qtheta_w, rtheta_w, cf_w)) );
+
+            // right hand side
+            double qtheta_0 = 0.0;  // no tangential discharge q
+            double qtheta_1 = 0.0;
+            double abs_qtheta_0 = abs_vecq(qtheta_0, rtheta_0, 1.0);
+            double abs_qtheta_1 = abs_vecq(qtheta_1, rtheta_1, 1.0);
+
+            double cf_0 = 0.25 * (3.0 * cf_b + 1.0 * cf_e);
+            double cf_1 = 0.25 * (3.0 * cf_b + 1.0 * cf_w);
+
+            rhs[row + 1] += - dx * (
+                  0.5 * cf_0 * qtheta_0 * abs_qtheta_0 / (htheta_0 * htheta_0)
+                + 0.5 * cf_1 * qtheta_1 * abs_qtheta_1 / (htheta_1 * htheta_1)
+
+            );
         }
         if (do_viscosity)
         {
@@ -2426,9 +2557,9 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
         {
             // West boundary bed shear stress 
 
-            double cf_s = cf;  //cf[p_0] * w_nat[0] + cf[p_3] * w_nat[1] + cf[p_6] * w_nat[2];
-            double cf_b = cf;  //cf[p_1] * w_nat[0] + cf[p_4] * w_nat[1] + cf[p_7] * w_nat[2];
-            double cf_n = cf;  //cf[p_2] * w_nat[0] + cf[p_5] * w_nat[1] + cf[p_8] * w_nat[2];
+            double cf_s = cf;
+            double cf_b = cf;
+            double cf_n = cf;
             // Contribution Delta h
             // face 0
             double face_fac = 0.5 * dy * 0.25;
@@ -2478,8 +2609,8 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
             double abs_qtheta_0 = abs_vecq(qtheta_0, rtheta_0, 1.0);
             double abs_qtheta_1 = abs_vecq(qtheta_1, rtheta_1, 1.0);
 
-            double cf_0 = cf;  // scvf_xi(cf[p_1], cf[p_4], cf[p_5], cf[p_2]);
-            double cf_1 = cf;  // scvf_xi(cf[p_1], cf[p_4], cf[p_3], cf[p_0]);
+            double cf_0 = 0.25 * (3.0 * cf_b + 1.0 * cf_s);
+            double cf_1 = 0.25 * (3.0 * cf_b + 1.0 * cf_n);
 
             rhs[row + 1] += - dy * (
                   0.5 * cf_0 * qtheta_0 * abs_qtheta_0 / (htheta_0 * htheta_0)
