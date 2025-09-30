@@ -547,16 +547,31 @@ The components for the two momentum equations read:
     + 2\pdiff{(r/h)}{y} n_y \right] \, dl
     \qquad \textit{r-momentum eq.}
 \end{align}
-where
+Written in linear terms for the derivative they read:
 \begin{align}
-    \cal{A}: & \quad \nu h \pdiff{(q/h)}{x} = \nu \left( \pdiff{q}{x} - \frac{q}{h}\pdiff{h}{x} \right)
+    & \nu h \pdiff{(q/h)}{x} = \nu \left( \pdiff{q}{x} - \frac{q}{h}\pdiff{h}{x} \right),
+%    \\
+    \quad \nu h \pdiff{(q/h)}{y} = \nu \left( \pdiff{q}{y} - \frac{q}{h}\pdiff{h}{y} \right),
     \\
-    \cal{B}: & \quad \nu h \pdiff{(q/h)}{y} = \nu \left( \pdiff{q}{y} - \frac{q}{h}\pdiff{h}{y} \right)
-    \\
-    \cal{C}: & \quad \nu h \pdiff{(r/h)}{x} = \nu \left( \pdiff{r}{x} - \frac{r}{h}\pdiff{h}{x} \right)
-    \\
-    \cal{D}: & \quad \nu h \pdiff{(r/h)}{y} = \nu \left( \pdiff{r}{y} - \frac{r}{h}\pdiff{h}{y} \right)
+    & \nu h \pdiff{(r/h)}{x} = \nu \left( \pdiff{r}{x} - \frac{r}{h}\pdiff{h}{x} \right),
+%    \\
+    \quad \nu h \pdiff{(r/h)}{y} = \nu \left( \pdiff{r}{y} - \frac{r}{h}\pdiff{h}{y} \right)
 \end{align}
+then the equations for the momentum equations read:
+\begin{align}
+    F_q
+    & = \oint_{\Omega}
+    \left[ 2 \nu \left( \pdiff{q}{x} - \frac{q}{h}\pdiff{h}{x}\right)  n_x
+    + \left(\nu \left( \pdiff{q}{y} - \frac{q}{h}\pdiff{h}{y} \right) +
+    \nu \left( \pdiff{r}{x} - \frac{r}{h}\pdiff{h}{x} \right) \right)n_y \right] \, dl
+    \\
+    F_r
+    & = \oint_{\Omega}
+    \left[ \left(\nu \left( \pdiff{r}{x} - \frac{r}{h}\pdiff{h}{x} \right)
+    + \nu \left( \pdiff{q}{y} - \frac{q}{h}\pdiff{h}{y} \right) \right)n_x
+    + 2 \nu \left( \pdiff{r}{y} - \frac{r}{h}\pdiff{h}{y} \right) n_y \right] \, dl
+\end{align}
+
 These equations need to be  discretized on the quadrature points $qp$ at the control volume faces.
 The discretization is first  given for expression $\cal{A}$ (using result from \autoref{sec:jacobians_with_non_linear_quotient_term} for the quotient):
 \begin{align}
@@ -573,30 +588,67 @@ The discretization is first  given for expression $\cal{A}$ (using result from \
     &- \nu_{qp} \left(
     \frac{q^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}} - \frac{q^{n+\theta,p}_{qp}}{(h^{n+\theta,p}_{qp})^2} \theta \Delta h_{qp} +
     \frac{1}{h^{n+\theta,p}_{qp}} \theta \Delta q_{qp}
-    \right)\left(  \pdiff{h^{n+\theta,p}_{qp}}{x} +   \pdiff{}{x}(\theta \Delta h_{qp}) \right) \approx
+    \right)\left(  \pdiff{h^{n+\theta,p}_{qp}}{x} + \pdiff{}{x}(\theta \Delta h_{qp}) \right) \approx
     \\
     & \approx
-    \nu_{qp} \left( \pdiff{q^{n+\theta,p}_{qp}}{x} - \frac{q^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}} \pdiff{h^{n+\theta,p}_{qp}}{x} \right)
+    \underbrace{\nu_{qp} \left( \pdiff{q^{n+\theta,p}_{qp}}{x} - \frac{q^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}} \pdiff{h^{n+\theta,p}_{qp}}{x} \right)}_{\textit {to right hand side}} +
     %
     \\
-& + \nu_{qp}  \frac{q^{n+\theta,p}_{qp}}{(h^{n+\theta,p}_{qp})^2} \pdiff{h^{n+\theta,p}_{qp}}{x}  \theta \Delta h_{qp}
-- \nu_{qp} \frac{1}{h^{n+\theta,p}_{qp}}  \pdiff{h^{n+\theta,p}_{qp}}{x} \theta \Delta q_{qp}
+& + \underbrace{\nu_{qp}  \frac{q^{n+\theta,p}_{qp}}{(h^{n+\theta,p}_{qp})^2} \pdiff{h^{n+\theta,p}_{qp}}{x}}_{{\cal{A}}_1} \theta \Delta h_{qp}
++ \underbrace{\left(- \nu_{qp} \frac{1}{h^{n+\theta,p}_{qp}}  \pdiff{h^{n+\theta,p}_{qp}}{x}\right)}_{{\cal{B}}_1} \theta \Delta q_{qp}
     \\
     & +
-    \nu_{qp} \pdiff{}{x}(\theta \Delta q_{qp}) +
-    \nu_{qp} \frac{q^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}} \pdiff{}{x}(\theta \Delta h_{qp})
+    \underbrace{\nu_{qp}}_{{\cal{C}}_1} \pdiff{}{x}(\theta \Delta q_{qp}) +
+    \underbrace{\nu_{qp} \frac{q^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}}}_{{\cal{D}}_1} \pdiff{}{x}(\theta \Delta h_{qp})
 \end{align}
 the terms $O(\Delta h\pdiff{\Delta h}{x}, \Delta q \pdiff{\Delta h}{x})$ are assumed to negligible.
 In a similar way for the other three expressions:
 \begin{align}
-    \cal{B}: & \quad \nu_{qp} \pdiff{q^{n+\theta, p+1}_{qp}}{y}  -
-\nu_{qp} \frac{q^{n+\theta, p+1}}{h^{n+\theta, p+1}_{qp}}\pdiff{ h^{n+\theta, p+1}_{qp}}{y}
+    & \nu_{qp} \pdiff{q^{n+\theta, p+1}_{qp}}{y}  -
+\nu_{qp} \frac{q^{n+\theta, p+1}}{h^{n+\theta, p+1}_{qp}}\pdiff{ h^{n+\theta, p+1}_{qp}}{y} \approx
 \\
-    \cal{C}: & \quad \nu_{qp} \pdiff{r^{n+\theta, p+1}_{qp}}{x}  -
-\nu_{qp} \frac{r^{n+\theta, p+1}}{h^{n+\theta, p+1}_{qp}}\pdiff{ h^{n+\theta, p+1}_{qp}}{x}
+    & \approx
+\underbrace{\nu_{qp} \left( \pdiff{q^{n+\theta,p}_{qp}}{y} - \frac{q^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}} \pdiff{h^{n+\theta,p}_{qp}}{y} \right)}_{\textit {to right hand side}} +
+%
 \\
-    \cal{D}: & \quad \nu_{qp} \pdiff{r^{n+\theta, p+1}_{qp}}{x}  -
-\nu_{qp} \frac{r^{n+\theta, p+1}}{h^{n+\theta, p+1}_{qp}}\pdiff{ h^{n+\theta, p+1}_{qp}}{x}
+& + \underbrace{\nu_{qp}  \frac{q^{n+\theta,p}_{qp}}{(h^{n+\theta,p}_{qp})^2} \pdiff{h^{n+\theta,p}_{qp}}{y}}_{{\cal{A}}_2} \theta \Delta h_{qp}
++ \underbrace{\left(- \nu_{qp} \frac{1}{h^{n+\theta,p}_{qp}}  \pdiff{h^{n+\theta,p}_{qp}}{y}\right)}_{{\cal{B}}_2} \theta \Delta q_{qp}
+\\
+& +
+\underbrace{\nu_{qp}}_{{\cal{C}}_2} \pdiff{}{y}(\theta \Delta q_{qp}) +
+\underbrace{\nu_{qp} \frac{q^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}}}_{{\cal{D}}_2} \pdiff{}{y}(\theta \Delta h_{qp})
+\end{align}
+and
+\begin{align}
+    & \nu_{qp} \pdiff{r^{n+\theta, p+1}_{qp}}{x}  -
+\nu_{qp} \frac{r^{n+\theta, p+1}}{h^{n+\theta, p+1}_{qp}}\pdiff{ h^{n+\theta, p+1}_{qp}}{x} \approx
+\\
+    & \approx
+\underbrace{\nu_{qp} \left( \pdiff{r^{n+\theta,p}_{qp}}{x} - \frac{r^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}} \pdiff{h^{n+\theta,p}_{qp}}{x} \right)}_{\textit {to right hand side}} +
+%
+\\
+& + \underbrace{\nu_{qp}  \frac{r^{n+\theta,p}_{qp}}{(h^{n+\theta,p}_{qp})^2} \pdiff{h^{n+\theta,p}_{qp}}{x}}_{{\cal{A}}_3} \theta \Delta h_{qp}
++ \underbrace{\left(- \nu_{qp} \frac{1}{h^{n+\theta,p}_{qp}}  \pdiff{h^{n+\theta,p}_{qp}}{x}\right)}_{{\cal{B}}_3} \theta \Delta r_{qp}
+\\
+& +
+\underbrace{\nu_{qp}}_{{\cal{C}}_3} \pdiff{}{x}(\theta \Delta r_{qp}) +
+\underbrace{\nu_{qp} \frac{r^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}}}_{{\cal{D}}_3} \pdiff{}{x}(\theta \Delta h_{qp})
+\end{align}
+and
+\begin{align}
+    & \nu_{qp} \pdiff{r^{n+\theta, p+1}_{qp}}{y}  -
+\nu_{qp} \frac{r^{n+\theta, p+1}}{h^{n+\theta, p+1}_{qp}}\pdiff{ h^{n+\theta, p+1}_{qp}}{y} \approx
+\\
+    & \approx
+\underbrace{\nu_{qp} \left( \pdiff{r^{n+\theta,p}_{qp}}{y} - \frac{r^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}} \pdiff{h^{n+\theta,p}_{qp}}{y} \right)}_{\textit {to right hand side}} +
+%
+\\
+& + \underbrace{\nu_{qp}  \frac{r^{n+\theta,p}_{qp}}{(h^{n+\theta,p}_{qp})^2} \pdiff{h^{n+\theta,p}_{qp}}{y}}_{{\cal{A}}_4} \theta \Delta h_{qp}
++ \underbrace{\left(- \nu_{qp} \frac{1}{h^{n+\theta,p}_{qp}}  \pdiff{h^{n+\theta,p}_{qp}}{y}\right)}_{{\cal{B}}_4} \theta \Delta r_{qp}
+\\
+& +
+\underbrace{\nu_{qp}}_{{\cal{C}}_4} \pdiff{}{y}(\theta \Delta r_{qp}) +
+\underbrace{\nu_{qp} \frac{r^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}}}_{{\cal{D}}_4} \pdiff{}{y}(\theta \Delta h_{qp})
 \end{align}
 
 
