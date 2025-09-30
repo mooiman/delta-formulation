@@ -35,7 +35,7 @@ We assume that the artificial viscosity $\Psi$ is proportional to the numerical 
 \paragraph*{Based on potential energy}
 Looking to square root of the potential energy
 \begin{align}
-    {\it Err}\left(\sqrt{g\hbar}\right) & = \sqrt{g\hbar} - \sqrt{g\hbar} \approx
+    {\it Err}\left(\sqrt{g\hhat}\right) & = \sqrt{g\hhat} - \sqrt{g\hbar} \approx
     \\
     & \approx \sqrt{g\left(\hbar + \frac{1}{8}\Dx^2\pdiff[2]{\hbar}{x}\right)} - \sqrt{g\hbar} =
     \\
@@ -49,7 +49,7 @@ Because $\lpdiff[2]{z_b}{x}$ is negligible, due to the regularization of the bed
 \begin{align}
     {\it Err}\left(\sqrt{g\hhat}\right)  & = \frac{1}{16} \Dx^2 \sqrt{\frac{g}{\hbar}}\ \pdiff[2]{\zeta}{x}
     \\
-    & \Rightarrow \frac{1}{16} \Dxi^2 \sqrt{\frac{g}{\hbar}}\pdiff[2]{\zeta}{\xi}, \bunit{\metre\per\second}.
+    & \Rightarrow \frac{1}{16} \Dxi^2 \sqrt{\frac{g}{\hbar}}\pdiff[2]{\zeta}{\xi}, \quad \bunit{\metre\per\second}.
 \end{align}
 \phantom{text}
 %
@@ -71,7 +71,7 @@ Looking to square root of the kinetic energy: $\sqrt{u^2/2} = \half\sqrt{2} \abs
     \frac{1}{8}\Dx^2\frac{\qbar}{\hbar^2}\pdiff[2]{\hbar}{x} \right)
     \\
     & \Rightarrow \frac{1}{16}\sqrt{2} \Dxi^2 \left( \frac{1}{\hbar} \pdiff[2]{\qbar}{\xi} -
-    \frac{\qbar}{\hbar^2}\pdiff[2]{\hbar}{\xi} \right), \bunit{\metre\per\second}.
+    \frac{\qbar}{\hbar^2}\pdiff[2]{\hbar}{\xi} \right), \quad \bunit{\metre\per\second}.
 \end{align}
 The error function for artificial viscosity  ${\it Err}_\Psi$ reads (comparable with \citet[eq.\ 42]{Borsboom2001}):
 \begin{align}
