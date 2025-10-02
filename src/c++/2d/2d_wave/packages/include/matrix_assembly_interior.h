@@ -43,10 +43,6 @@ int interior(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::Vecto
     std::vector<double>& zb, double dx, double dy, double dxdy, std::vector<double>& mass);
 
 inline void set_value(double * values, int col, double data);
-inline double c_scv(double c0, double c1, double c2, double c3);
-inline double dcdx_scv(double c0, double c1, double c2, double c3);
-inline double dcdy_scv(double c0, double c1, double c2, double c3);
-inline double scvf_n(double c0, double c1, double c2, double c3);
-
 inline int ma_index(int i, int j, int ny_in);
+
 #endif  // __MATRIX_ASSEMBLY_INTERIOR_H__

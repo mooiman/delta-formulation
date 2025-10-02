@@ -46,6 +46,10 @@ int corner_north_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eig
     double theta, int nx, int ny,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta
     );
+inline void set_value(double * values, int col, double data)
+{ 
+    values[col] += data; 
+}
 inline int ma_index(int i, int j, int ny_in);
 
 #endif  // __MATRIX_ASSEMBLY_CORNERS_H__

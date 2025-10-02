@@ -31,7 +31,6 @@
 
 #define UNUSED(x) (void)x;
 
-inline double bed_shear_stress_scv(double& c0, double c1, double c2, double c3);
 double bed_shear_stress_J_10(double& h, double& q, double& r, double& cf);  // right hand side q-equation
 double bed_shear_stress_J_11(double& h, double& q, double& r, double& cf);
 double bed_shear_stress_J_12(double& h, double& q, double& r, double& cf);

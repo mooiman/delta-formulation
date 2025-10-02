@@ -34,15 +34,14 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
-int bed_shear_stress_matrix_rhs(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs,
+int bed_shear_stress_matrix_and_rhs(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
     double cf, double theta, double dx, double dy, int nx, int ny);
-void bed_shear_stress_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r, 
+void bed_shear_stress_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r, 
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     double cf, int nx, int ny);
 
-    inline int bed_shear_stress_p_index(int i, int j, int ny);
-
-    inline void set_value(double * values, int col, double data);
+    inline int bed_shear_stress_idx(int i, int j, int ny);
+    inline void add_value(double * values, int col, double data);
 
 #endif  // __BEDSHEARSTRESS_H__

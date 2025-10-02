@@ -91,8 +91,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <ObjectFileName>release\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>
-      </PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN64;QT_NO_DEBUG;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <ProgramDataBaseFileName>
       </ProgramDataBaseFileName>
@@ -206,6 +205,7 @@
     <ClCompile Include="src\perf_timer.cpp" />
     <ClCompile Include="src\regularization.cpp" />
     <ClCompile Include="src\ugrid2d.cpp" />
+    <ClCompile Include="src\viscosity.cpp" />
     <ClCompile Include="src\wave_2d_version.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -228,6 +228,7 @@
     <ClInclude Include="include\perf_timer.h" />
     <ClInclude Include="include\regularization.h" />
     <ClInclude Include="include\ugrid2d.h" />
+    <ClInclude Include="include\viscosity.h" />
     <ClInclude Include="include\wave_2d_version.h" />
   </ItemGroup>
   <ItemGroup>

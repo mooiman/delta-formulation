@@ -21,6 +21,7 @@
 //------------------------------------------------------------------------------
 
 #include "convection.h"
+#include "interpolations.h"
 #include "jacobians.h"
 
 //   nw - - - - - - - n - - - - - - - ne        nw - - - - - - - n - - - - - - - ne
@@ -41,7 +42,7 @@
 //    |       |       |       |       |          |       |       |       |       |
 //   sw - - - - - - - s - - - - - - - se        sw - - - - - - - s - - - - - - - se
 
-int convection_matrix_rhs(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs,
+int convection_matrix_and_rhs(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
     double theta, double dx, double dy, int nx, int ny)
 {
@@ -89,212 +90,212 @@ int convection_matrix_rhs(double* values, int row, int c_eq, int q_eq, int r_eq,
     //
     // sub control volume 0 ============================================
     // scv_0 face_0
-    h = convection_scvf_xi(htheta[p_0], htheta[p_w], htheta[p_sw], htheta[p_s]);
-    q = convection_scvf_xi(qtheta[p_0], qtheta[p_w], qtheta[p_sw], qtheta[p_s]);
-    r = convection_scvf_xi(rtheta[p_0], rtheta[p_w], rtheta[p_sw], rtheta[p_s]);
+    h = scvf_xi(htheta[p_0], htheta[p_w], htheta[p_sw], htheta[p_s]);
+    q = scvf_xi(qtheta[p_0], qtheta[p_w], qtheta[p_sw], qtheta[p_s]);
+    r = scvf_xi(rtheta[p_0], rtheta[p_w], rtheta[p_sw], rtheta[p_s]);
     nxi = -1.0;
     neta =  0.0;
     scvf_fac = theta * 0.5 * dy * 0.125;
 
-    set_value(values, col_0 , scvf_fac * 3.* convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_w , scvf_fac * 3.* convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_sw, scvf_fac * 1.* convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_s , scvf_fac * 1.* convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_0 , scvf_fac * 3.* convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_w , scvf_fac * 3.* convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_sw, scvf_fac * 1.* convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_s , scvf_fac * 1.* convection_J_11(h, q, r, nxi, neta));
 
-    set_value(values, col_0  + 1, scvf_fac * 3.* convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_w  + 1, scvf_fac * 3.* convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_sw + 1, scvf_fac * 1.* convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_s  + 1, scvf_fac * 1.* convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_0  + 1, scvf_fac * 3.* convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_w  + 1, scvf_fac * 3.* convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_sw + 1, scvf_fac * 1.* convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_s  + 1, scvf_fac * 1.* convection_J_12(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 2, scvf_fac * 3.* convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_w  + 2, scvf_fac * 3.* convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_sw + 2, scvf_fac * 1.* convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_s  + 2, scvf_fac * 1.* convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_0  + 2, scvf_fac * 3.* convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_w  + 2, scvf_fac * 3.* convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_sw + 2, scvf_fac * 1.* convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_s  + 2, scvf_fac * 1.* convection_J_13(h, q, r, nxi, neta));
 
     scvf_fac = 0.5 * dy;
     rhs[row + 1] += -scvf_fac * convection_J_10(h, q, r, nxi, neta);
 
     // scv_0 face_1
-    h = convection_scvf_eta(htheta[p_0], htheta[p_s], htheta[p_sw], htheta[p_w]);
-    q = convection_scvf_eta(qtheta[p_0], qtheta[p_s], qtheta[p_sw], qtheta[p_w]);
-    r = convection_scvf_eta(rtheta[p_0], rtheta[p_s], rtheta[p_sw], rtheta[p_w]);
+    h = scvf_eta(htheta[p_0], htheta[p_s], htheta[p_sw], htheta[p_w]);
+    q = scvf_eta(qtheta[p_0], qtheta[p_s], qtheta[p_sw], qtheta[p_w]);
+    r = scvf_eta(rtheta[p_0], rtheta[p_s], rtheta[p_sw], rtheta[p_w]);
     nxi =  0.0;
     neta = -1.0;
     scvf_fac = theta * 0.5 * dx * 0.125;
 
-    set_value(values, col_0 , scvf_fac * 3.* convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_s , scvf_fac * 3.* convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_sw, scvf_fac * 1.* convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_w , scvf_fac * 1.* convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_0 , scvf_fac * 3.* convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_s , scvf_fac * 3.* convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_sw, scvf_fac * 1.* convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_w , scvf_fac * 1.* convection_J_11(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 1, scvf_fac * 3.* convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_s  + 1, scvf_fac * 3.* convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_sw + 1, scvf_fac * 1.* convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_w  + 1, scvf_fac * 1.* convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_0  + 1, scvf_fac * 3.* convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_s  + 1, scvf_fac * 3.* convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_sw + 1, scvf_fac * 1.* convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_w  + 1, scvf_fac * 1.* convection_J_12(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 2, scvf_fac * 3.* convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_s  + 2, scvf_fac * 3.* convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_sw + 2, scvf_fac * 1.* convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_w  + 2, scvf_fac * 1.* convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_0  + 2, scvf_fac * 3.* convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_s  + 2, scvf_fac * 3.* convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_sw + 2, scvf_fac * 1.* convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_w  + 2, scvf_fac * 1.* convection_J_13(h, q, r, nxi, neta));
     
     scvf_fac = 0.5 * dx;
     rhs[row + 1] += -scvf_fac * convection_J_10(h, q, r, nxi, neta);
  
     // sub control volume 1 ============================================
     // scv_1 face_2
-    h = convection_scvf_eta(htheta[p_0], htheta[p_s], htheta[p_se], htheta[p_e]);
-    q = convection_scvf_eta(qtheta[p_0], qtheta[p_s], qtheta[p_se], qtheta[p_e]);
-    r = convection_scvf_eta(rtheta[p_0], rtheta[p_s], rtheta[p_se], rtheta[p_e]);
+    h = scvf_eta(htheta[p_0], htheta[p_s], htheta[p_se], htheta[p_e]);
+    q = scvf_eta(qtheta[p_0], qtheta[p_s], qtheta[p_se], qtheta[p_e]);
+    r = scvf_eta(rtheta[p_0], rtheta[p_s], rtheta[p_se], rtheta[p_e]);
     nxi =  0.0;
     neta = -1.0;
     scvf_fac = theta * 0.5 * dx * 0.125;
 
-    set_value(values, col_0 , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_s , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_se, scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_e , scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_0 , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_s , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_se, scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_e , scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_s  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_se + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_e  + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_0  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_s  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_se + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_e  + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_s  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_se + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_e  + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_0  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_s  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_se + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_e  + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
     
     scvf_fac = 0.5 * dx;
     rhs[row + 1] += -scvf_fac * convection_J_10(h, q, r, nxi, neta);
 
     // scv_1 face_3
-    h = convection_scvf_xi(htheta[p_0], htheta[p_e], htheta[p_se], htheta[p_s]);
-    q = convection_scvf_xi(qtheta[p_0], qtheta[p_e], qtheta[p_se], qtheta[p_s]);
-    r = convection_scvf_xi(rtheta[p_0], rtheta[p_e], rtheta[p_se], rtheta[p_s]);
+    h = scvf_xi(htheta[p_0], htheta[p_e], htheta[p_se], htheta[p_s]);
+    q = scvf_xi(qtheta[p_0], qtheta[p_e], qtheta[p_se], qtheta[p_s]);
+    r = scvf_xi(rtheta[p_0], rtheta[p_e], rtheta[p_se], rtheta[p_s]);
     nxi =  1.0;
     neta =  0.0;
     scvf_fac = theta * 0.5 * dy * 0.125;
 
-    set_value(values, col_0 , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_e , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_se, scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_s , scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_0 , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_e , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_se, scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_s , scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
 
-    set_value(values, col_0  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_e  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_se + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_s  + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_0  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_e  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_se + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_s  + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_e  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_se + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_s  + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_0  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_e  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_se + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_s  + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
 
     scvf_fac = 0.5 * dy;
     rhs[row + 1] += -scvf_fac * convection_J_10(h, q, r, nxi, neta);
 
     // sub control volume 2 ============================================
     // scv_2 face_4
-    h = convection_scvf_xi(htheta[p_0], htheta[p_e], htheta[p_ne], htheta[p_n]);
-    q = convection_scvf_xi(qtheta[p_0], qtheta[p_e], qtheta[p_ne], qtheta[p_n]);
-    r = convection_scvf_xi(rtheta[p_0], rtheta[p_e], rtheta[p_ne], rtheta[p_n]);
+    h = scvf_xi(htheta[p_0], htheta[p_e], htheta[p_ne], htheta[p_n]);
+    q = scvf_xi(qtheta[p_0], qtheta[p_e], qtheta[p_ne], qtheta[p_n]);
+    r = scvf_xi(rtheta[p_0], rtheta[p_e], rtheta[p_ne], rtheta[p_n]);
     nxi =  1.0;
     neta =  0.0;
     scvf_fac = theta * 0.5 * dy * 0.125;
 
-    set_value(values, col_0 , scvf_fac * 3.* convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_e , scvf_fac * 3.* convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_ne, scvf_fac * 1.* convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_n , scvf_fac * 1.* convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_0 , scvf_fac * 3.* convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_e , scvf_fac * 3.* convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_ne, scvf_fac * 1.* convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_n , scvf_fac * 1.* convection_J_11(h, q, r, nxi, neta));
 
-    set_value(values, col_0  + 1, scvf_fac * 3.* convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_e  + 1, scvf_fac * 3.* convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_ne + 1, scvf_fac * 1.* convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_n  + 1, scvf_fac * 1.* convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_0  + 1, scvf_fac * 3.* convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_e  + 1, scvf_fac * 3.* convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_ne + 1, scvf_fac * 1.* convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_n  + 1, scvf_fac * 1.* convection_J_12(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 2, scvf_fac * 3.* convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_e  + 2, scvf_fac * 3.* convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_ne + 2, scvf_fac * 1.* convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_n  + 2, scvf_fac * 1.* convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_0  + 2, scvf_fac * 3.* convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_e  + 2, scvf_fac * 3.* convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_ne + 2, scvf_fac * 1.* convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_n  + 2, scvf_fac * 1.* convection_J_13(h, q, r, nxi, neta));
 
     scvf_fac = 0.5 * dy;
     rhs[row + 1] += -scvf_fac * convection_J_10(h, q, r, nxi, neta);
 
     // scv_2 face_5
-    h = convection_scvf_eta(htheta[p_0], htheta[p_n], htheta[p_ne], htheta[p_e]);
-    q = convection_scvf_eta(qtheta[p_0], qtheta[p_n], qtheta[p_ne], qtheta[p_e]);
-    r = convection_scvf_eta(rtheta[p_0], rtheta[p_n], rtheta[p_ne], rtheta[p_e]);
+    h = scvf_eta(htheta[p_0], htheta[p_n], htheta[p_ne], htheta[p_e]);
+    q = scvf_eta(qtheta[p_0], qtheta[p_n], qtheta[p_ne], qtheta[p_e]);
+    r = scvf_eta(rtheta[p_0], rtheta[p_n], rtheta[p_ne], rtheta[p_e]);
     nxi =  0.0;
     neta =  1.0;
     scvf_fac = theta * 0.5 * dx * 0.125;
     
-    set_value(values, col_0 , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_n , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_ne, scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_e , scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_0 , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_n , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_ne, scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_e , scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_n  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_ne + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_e  + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_0  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_n  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_ne + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_e  + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_n  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_ne + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_e  + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_0  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_n  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_ne + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_e  + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
     
     scvf_fac = 0.5 * dx;
     rhs[row + 1] += -scvf_fac * convection_J_10(h, q, r, nxi, neta);
 
     // sub control volume 3 ============================================
     // scv_3 face_6
-    h = convection_scvf_eta(htheta[p_0], htheta[p_n], htheta[p_nw], htheta[p_w]);
-    q = convection_scvf_eta(qtheta[p_0], qtheta[p_n], qtheta[p_nw], qtheta[p_w]);
-    r = convection_scvf_eta(rtheta[p_0], rtheta[p_n], rtheta[p_nw], rtheta[p_w]);
+    h = scvf_eta(htheta[p_0], htheta[p_n], htheta[p_nw], htheta[p_w]);
+    q = scvf_eta(qtheta[p_0], qtheta[p_n], qtheta[p_nw], qtheta[p_w]);
+    r = scvf_eta(rtheta[p_0], rtheta[p_n], rtheta[p_nw], rtheta[p_w]);
     nxi =  0.0;
     neta =  1.0;
     scvf_fac = theta * 0.5 * dx * 0.125;
     
-    set_value(values, col_0 , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_n , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_nw, scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_w , scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_0 , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_n , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_nw, scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_w , scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_n  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_nw + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_w  + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_0  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_n  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_nw + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_w  + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_n  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_nw + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_w  + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_0  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_n  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_nw + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_w  + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
     
     scvf_fac = 0.5 * dx;
     rhs[row + 1] += -scvf_fac * convection_J_10(h, q, r, nxi, neta);
 
     // scv_3 face_7
-    h = convection_scvf_xi(htheta[p_0], htheta[p_w], htheta[p_nw], htheta[p_n]);
-    q = convection_scvf_xi(qtheta[p_0], qtheta[p_w], qtheta[p_nw], qtheta[p_n]);
-    r = convection_scvf_xi(rtheta[p_0], rtheta[p_w], rtheta[p_nw], rtheta[p_n]);
+    h = scvf_xi(htheta[p_0], htheta[p_w], htheta[p_nw], htheta[p_n]);
+    q = scvf_xi(qtheta[p_0], qtheta[p_w], qtheta[p_nw], qtheta[p_n]);
+    r = scvf_xi(rtheta[p_0], rtheta[p_w], rtheta[p_nw], rtheta[p_n]);
     nxi = -1.0;
     neta =  0.0;
     scvf_fac = theta * 0.5 * dy * 0.125;
 
-    set_value(values, col_0 , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_w , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_nw, scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
-    set_value(values, col_n , scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_0 , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_w , scvf_fac * 3. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_nw, scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
+    add_value(values, col_n , scvf_fac * 1. * convection_J_11(h, q, r, nxi, neta));
 
-    set_value(values, col_0  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_w  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_nw + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
-    set_value(values, col_n  + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_0  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_w  + 1, scvf_fac * 3. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_nw + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
+    add_value(values, col_n  + 1, scvf_fac * 1. * convection_J_12(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_w  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_nw + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
-    set_value(values, col_n  + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_0  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_w  + 2, scvf_fac * 3. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_nw + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
+    add_value(values, col_n  + 2, scvf_fac * 1. * convection_J_13(h, q, r, nxi, neta));
 
     scvf_fac = 0.5 * dy;
     rhs[row + 1] += -scvf_fac * convection_J_10(h, q, r, nxi, neta);
@@ -314,212 +315,212 @@ int convection_matrix_rhs(double* values, int row, int c_eq, int q_eq, int r_eq,
     //
     // sub control volume 0 ============================================
     // scv_0 face_0
-    h = convection_scvf_xi(htheta[p_0], htheta[p_w], htheta[p_sw], htheta[p_s]);
-    q = convection_scvf_xi(qtheta[p_0], qtheta[p_w], qtheta[p_sw], qtheta[p_s]);
-    r = convection_scvf_xi(rtheta[p_0], rtheta[p_w], rtheta[p_sw], rtheta[p_s]);
+    h = scvf_xi(htheta[p_0], htheta[p_w], htheta[p_sw], htheta[p_s]);
+    q = scvf_xi(qtheta[p_0], qtheta[p_w], qtheta[p_sw], qtheta[p_s]);
+    r = scvf_xi(rtheta[p_0], rtheta[p_w], rtheta[p_sw], rtheta[p_s]);
     nxi = -1.0;
     neta =  0.0;
     scvf_fac = theta * 0.5 * dy * 0.125;
     
-    set_value(values, col_0 , scvf_fac * 3.* convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_w , scvf_fac * 3.* convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_sw, scvf_fac * 1.* convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_s , scvf_fac * 1.* convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_0 , scvf_fac * 3.* convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_w , scvf_fac * 3.* convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_sw, scvf_fac * 1.* convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_s , scvf_fac * 1.* convection_J_21(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 1, scvf_fac * 3.* convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_w  + 1, scvf_fac * 3.* convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_sw + 1, scvf_fac * 1.* convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_s  + 1, scvf_fac * 1.* convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_0  + 1, scvf_fac * 3.* convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_w  + 1, scvf_fac * 3.* convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_sw + 1, scvf_fac * 1.* convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_s  + 1, scvf_fac * 1.* convection_J_22(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 2, scvf_fac * 3.* convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_w  + 2, scvf_fac * 3.* convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_sw + 2, scvf_fac * 1.* convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_s  + 2, scvf_fac * 1.* convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_0  + 2, scvf_fac * 3.* convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_w  + 2, scvf_fac * 3.* convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_sw + 2, scvf_fac * 1.* convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_s  + 2, scvf_fac * 1.* convection_J_23(h, q, r, nxi, neta));
     
     scvf_fac = 0.5 * dy;
     rhs[row + 2] += -scvf_fac * convection_J_20(h, q, r, nxi, neta);
 
     // scv_0 face_1
-    h = convection_scvf_eta(htheta[p_0], htheta[p_s], htheta[p_sw], htheta[p_w]);
-    q = convection_scvf_eta(qtheta[p_0], qtheta[p_s], qtheta[p_sw], qtheta[p_w]);
-    r = convection_scvf_eta(rtheta[p_0], rtheta[p_s], rtheta[p_sw], rtheta[p_w]);
+    h = scvf_eta(htheta[p_0], htheta[p_s], htheta[p_sw], htheta[p_w]);
+    q = scvf_eta(qtheta[p_0], qtheta[p_s], qtheta[p_sw], qtheta[p_w]);
+    r = scvf_eta(rtheta[p_0], rtheta[p_s], rtheta[p_sw], rtheta[p_w]);
     nxi =  0.0;
     neta = -1.0;
     scvf_fac = theta * 0.5 * dx * 0.125;
 
-    set_value(values, col_0 , scvf_fac * 3.* convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_s , scvf_fac * 3.* convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_sw, scvf_fac * 1.* convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_w , scvf_fac * 1.* convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_0 , scvf_fac * 3.* convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_s , scvf_fac * 3.* convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_sw, scvf_fac * 1.* convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_w , scvf_fac * 1.* convection_J_21(h, q, r, nxi, neta));
 
-    set_value(values, col_0  + 1, scvf_fac * 3.* convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_s  + 1, scvf_fac * 3.* convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_sw + 1, scvf_fac * 1.* convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_w  + 1, scvf_fac * 1.* convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_0  + 1, scvf_fac * 3.* convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_s  + 1, scvf_fac * 3.* convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_sw + 1, scvf_fac * 1.* convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_w  + 1, scvf_fac * 1.* convection_J_22(h, q, r, nxi, neta));
 
-    set_value(values, col_0  + 2, scvf_fac * 3.* convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_s  + 2, scvf_fac * 3.* convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_sw + 2, scvf_fac * 1.* convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_w  + 2, scvf_fac * 1.* convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_0  + 2, scvf_fac * 3.* convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_s  + 2, scvf_fac * 3.* convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_sw + 2, scvf_fac * 1.* convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_w  + 2, scvf_fac * 1.* convection_J_23(h, q, r, nxi, neta));
 
     scvf_fac = 0.5 * dx;
     rhs[row + 2] += -scvf_fac * convection_J_20(h, q, r, nxi, neta);
  
     // sub control volume 1 ============================================
     // scv_1 face_2
-    h = convection_scvf_eta(htheta[p_0], htheta[p_s], htheta[p_se], htheta[p_e]);
-    q = convection_scvf_eta(qtheta[p_0], qtheta[p_s], qtheta[p_se], qtheta[p_e]);
-    r = convection_scvf_eta(rtheta[p_0], rtheta[p_s], rtheta[p_se], rtheta[p_e]);
+    h = scvf_eta(htheta[p_0], htheta[p_s], htheta[p_se], htheta[p_e]);
+    q = scvf_eta(qtheta[p_0], qtheta[p_s], qtheta[p_se], qtheta[p_e]);
+    r = scvf_eta(rtheta[p_0], rtheta[p_s], rtheta[p_se], rtheta[p_e]);
     nxi =  0.0;
     neta = -1.0;
     scvf_fac = theta * 0.5 * dx * 0.125;
 
-    set_value(values, col_0 , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_s , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_se, scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_e , scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_0 , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_s , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_se, scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_e , scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
 
-    set_value(values, col_0  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_s  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_se + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_e  + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_0  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_s  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_se + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_e  + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
 
-    set_value(values, col_0  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_s  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_se + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_e  + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_0  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_s  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_se + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_e  + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
 
     scvf_fac = 0.5 * dx;
     rhs[row + 2] += -scvf_fac * convection_J_20(h, q, r, nxi, neta);
 
     // scv_1 face_3
-    h = convection_scvf_xi(htheta[p_0], htheta[p_e], htheta[p_se], htheta[p_s]);
-    q = convection_scvf_xi(qtheta[p_0], qtheta[p_e], qtheta[p_se], qtheta[p_s]);
-    r = convection_scvf_xi(rtheta[p_0], rtheta[p_e], rtheta[p_se], rtheta[p_s]);
+    h = scvf_xi(htheta[p_0], htheta[p_e], htheta[p_se], htheta[p_s]);
+    q = scvf_xi(qtheta[p_0], qtheta[p_e], qtheta[p_se], qtheta[p_s]);
+    r = scvf_xi(rtheta[p_0], rtheta[p_e], rtheta[p_se], rtheta[p_s]);
     nxi =  1.0;
     neta =  0.0;
     scvf_fac = theta * 0.5 * dy * 0.125;
     
-    set_value(values, col_0 , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_e , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_se, scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_s , scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_0 , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_e , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_se, scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_s , scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_e  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_se + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_s  + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_0  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_e  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_se + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_s  + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_e  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_se + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_s  + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_0  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_e  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_se + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_s  + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
     
     scvf_fac = 0.5 * dy;
     rhs[row + 2] += -scvf_fac * convection_J_20(h, q, r, nxi, neta);
 
     // sub control volume 2 ============================================
     // scv_2 face_4
-    h = convection_scvf_xi(htheta[p_0], htheta[p_e], htheta[p_ne], htheta[p_n]);
-    q = convection_scvf_xi(qtheta[p_0], qtheta[p_e], qtheta[p_ne], qtheta[p_n]);
-    r = convection_scvf_xi(rtheta[p_0], rtheta[p_e], rtheta[p_ne], rtheta[p_n]);
+    h = scvf_xi(htheta[p_0], htheta[p_e], htheta[p_ne], htheta[p_n]);
+    q = scvf_xi(qtheta[p_0], qtheta[p_e], qtheta[p_ne], qtheta[p_n]);
+    r = scvf_xi(rtheta[p_0], rtheta[p_e], rtheta[p_ne], rtheta[p_n]);
     nxi =  1.0;
     neta =  0.0;
     scvf_fac = theta * 0.5 * dy * 0.125;
     
-    set_value(values, col_0 , scvf_fac * 3.* convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_e , scvf_fac * 3.* convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_ne, scvf_fac * 1.* convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_n , scvf_fac * 1.* convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_0 , scvf_fac * 3.* convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_e , scvf_fac * 3.* convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_ne, scvf_fac * 1.* convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_n , scvf_fac * 1.* convection_J_21(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 1, scvf_fac * 3.* convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_e  + 1, scvf_fac * 3.* convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_ne + 1, scvf_fac * 1.* convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_n  + 1, scvf_fac * 1.* convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_0  + 1, scvf_fac * 3.* convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_e  + 1, scvf_fac * 3.* convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_ne + 1, scvf_fac * 1.* convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_n  + 1, scvf_fac * 1.* convection_J_22(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 2, scvf_fac * 3.* convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_e  + 2, scvf_fac * 3.* convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_ne + 2, scvf_fac * 1.* convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_n  + 2, scvf_fac * 1.* convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_0  + 2, scvf_fac * 3.* convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_e  + 2, scvf_fac * 3.* convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_ne + 2, scvf_fac * 1.* convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_n  + 2, scvf_fac * 1.* convection_J_23(h, q, r, nxi, neta));
     
     scvf_fac = 0.5 * dy;
     rhs[row + 2] += -scvf_fac * convection_J_20(h, q, r, nxi, neta);
 
     // scv_2 face_5
-    h = convection_scvf_eta(htheta[p_0], htheta[p_n], htheta[p_ne], htheta[p_e]);
-    q = convection_scvf_eta(qtheta[p_0], qtheta[p_n], qtheta[p_ne], qtheta[p_e]);
-    r = convection_scvf_eta(rtheta[p_0], rtheta[p_n], rtheta[p_ne], rtheta[p_e]);
+    h = scvf_eta(htheta[p_0], htheta[p_n], htheta[p_ne], htheta[p_e]);
+    q = scvf_eta(qtheta[p_0], qtheta[p_n], qtheta[p_ne], qtheta[p_e]);
+    r = scvf_eta(rtheta[p_0], rtheta[p_n], rtheta[p_ne], rtheta[p_e]);
     nxi =  0.0;
     neta =  1.0;
     scvf_fac = theta * 0.5 * dx * 0.125;
 
-    set_value(values, col_0 , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_n , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_ne, scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_e , scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_0 , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_n , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_ne, scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_e , scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
 
-    set_value(values, col_0  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_n  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_ne + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_e  + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_0  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_n  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_ne + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_e  + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
 
-    set_value(values, col_0  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_n  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_ne + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_e  + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_0  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_n  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_ne + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_e  + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
 
     scvf_fac = 0.5 * dx;
     rhs[row + 2] += -scvf_fac * convection_J_20(h, q, r, nxi, neta);
 
     // sub control volume 3 ============================================
     // scv_3 face_6
-    h = convection_scvf_eta(htheta[p_0], htheta[p_n], htheta[p_nw], htheta[p_w]);
-    q = convection_scvf_eta(qtheta[p_0], qtheta[p_n], qtheta[p_nw], qtheta[p_w]);
-    r = convection_scvf_eta(rtheta[p_0], rtheta[p_n], rtheta[p_nw], rtheta[p_w]);
+    h = scvf_eta(htheta[p_0], htheta[p_n], htheta[p_nw], htheta[p_w]);
+    q = scvf_eta(qtheta[p_0], qtheta[p_n], qtheta[p_nw], qtheta[p_w]);
+    r = scvf_eta(rtheta[p_0], rtheta[p_n], rtheta[p_nw], rtheta[p_w]);
     nxi =  0.0;
     neta =  1.0;
     scvf_fac = theta * 0.5 * dx * 0.125;
 
-    set_value(values, col_0 , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_n , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_nw, scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_w , scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_0 , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_n , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_nw, scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_w , scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
 
-    set_value(values, col_0  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_n  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_nw + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_w  + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_0  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_n  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_nw + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_w  + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
 
-    set_value(values, col_0  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_n  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_nw + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_w  + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_0  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_n  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_nw + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_w  + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
 
     scvf_fac = 0.5 * dx;
     rhs[row + 2] += -scvf_fac * convection_J_20(h, q, r, nxi, neta);
 
     // scv_3 face_7
-    h = convection_scvf_xi(htheta[p_0], htheta[p_w], htheta[p_nw], htheta[p_n]);
-    q = convection_scvf_xi(qtheta[p_0], qtheta[p_w], qtheta[p_nw], qtheta[p_n]);
-    r = convection_scvf_xi(rtheta[p_0], rtheta[p_w], rtheta[p_nw], rtheta[p_n]);
+    h = scvf_xi(htheta[p_0], htheta[p_w], htheta[p_nw], htheta[p_n]);
+    q = scvf_xi(qtheta[p_0], qtheta[p_w], qtheta[p_nw], qtheta[p_n]);
+    r = scvf_xi(rtheta[p_0], rtheta[p_w], rtheta[p_nw], rtheta[p_n]);
     nxi = -1.0;
     neta =  0.0;
     scvf_fac = theta * 0.5 * dy * 0.125;
     
-    set_value(values, col_0 , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_w , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_nw, scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
-    set_value(values, col_n , scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_0 , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_w , scvf_fac * 3. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_nw, scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
+    add_value(values, col_n , scvf_fac * 1. * convection_J_21(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_w  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_nw + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
-    set_value(values, col_n  + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_0  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_w  + 1, scvf_fac * 3. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_nw + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
+    add_value(values, col_n  + 1, scvf_fac * 1. * convection_J_22(h, q, r, nxi, neta));
     
-    set_value(values, col_0  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_w  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_nw + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
-    set_value(values, col_n  + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_0  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_w  + 2, scvf_fac * 3. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_nw + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
+    add_value(values, col_n  + 2, scvf_fac * 1. * convection_J_23(h, q, r, nxi, neta));
     
     scvf_fac = 0.5 * dy;
     rhs[row + 2] += -scvf_fac * convection_J_20(h, q, r, nxi, neta);
@@ -527,7 +528,7 @@ int convection_matrix_rhs(double* values, int row, int c_eq, int q_eq, int r_eq,
 
     return 0;
 }
-int convection_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r, 
+int convection_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r, 
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     double dx, double dy, int nx, int ny)                          // RHS vector [h, q, r]^{n}
 {
@@ -547,20 +548,20 @@ int convection_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
     {
         for (int j = 1; j < ny - 1; ++j)
         {
-            int p_0  = convection_p_index(i    , j    , ny); // central point of control volume
-            int p_sw = convection_p_index(i - 1, j - 1, ny);  
-            int p_s  = convection_p_index(i    , j - 1, ny);  
-            int p_se = convection_p_index(i + 1, j - 1, ny);  
-            int p_w  = convection_p_index(i - 1, j    , ny);  
-            int p_e  = convection_p_index(i + 1, j    , ny);  
-            int p_nw = convection_p_index(i - 1, j + 1, ny);  
-            int p_n  = convection_p_index(i    , j + 1, ny);  
-            int p_ne = convection_p_index(i + 1, j + 1, ny);  
+            int p_0  = convection_idx(i    , j    , ny); // central point of control volume
+            int p_sw = convection_idx(i - 1, j - 1, ny);  
+            int p_s  = convection_idx(i    , j - 1, ny);  
+            int p_se = convection_idx(i + 1, j - 1, ny);  
+            int p_w  = convection_idx(i - 1, j    , ny);  
+            int p_e  = convection_idx(i + 1, j    , ny);  
+            int p_nw = convection_idx(i - 1, j + 1, ny);  
+            int p_n  = convection_idx(i    , j + 1, ny);  
+            int p_ne = convection_idx(i + 1, j + 1, ny);  
 
             // scv_0 face_0
-            h = convection_scvf_xi(hn[p_0], hn[p_w], hn[p_sw], hn[p_s]);
-            q = convection_scvf_xi(qn[p_0], qn[p_w], qn[p_sw], qn[p_s]);
-            r = convection_scvf_xi(rn[p_0], rn[p_w], rn[p_sw], rn[p_s]);
+            h = scvf_xi(hn[p_0], hn[p_w], hn[p_sw], hn[p_s]);
+            q = scvf_xi(qn[p_0], qn[p_w], qn[p_sw], qn[p_s]);
+            r = scvf_xi(rn[p_0], rn[p_w], rn[p_sw], rn[p_s]);
 
             nxi = -1.0;
             neta = 0.0;
@@ -570,9 +571,9 @@ int convection_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             rhs_r[p_0] += neta_dl * convection_J_20(h, q, r, nxi, neta);
 
             // scv_0 face_1
-            h = convection_scvf_eta(hn[p_0], hn[p_s], hn[p_sw], hn[p_w]);
-            q = convection_scvf_eta(qn[p_0], qn[p_s], qn[p_sw], qn[p_w]);
-            r = convection_scvf_eta(rn[p_0], rn[p_s], rn[p_sw], rn[p_w]);
+            h = scvf_eta(hn[p_0], hn[p_s], hn[p_sw], hn[p_w]);
+            q = scvf_eta(qn[p_0], qn[p_s], qn[p_sw], qn[p_w]);
+            r = scvf_eta(rn[p_0], rn[p_s], rn[p_sw], rn[p_w]);
 
             nxi = 0.0;
             neta = -1.0;
@@ -583,9 +584,9 @@ int convection_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
 
             // sub control volume 1 ============================================
             // scv_1 face_2
-            h = convection_scvf_eta(hn[p_0], hn[p_s], hn[p_se], hn[p_e]);
-            q = convection_scvf_eta(qn[p_0], qn[p_s], qn[p_se], qn[p_e]);
-            r = convection_scvf_eta(rn[p_0], rn[p_s], rn[p_se], rn[p_e]);
+            h = scvf_eta(hn[p_0], hn[p_s], hn[p_se], hn[p_e]);
+            q = scvf_eta(qn[p_0], qn[p_s], qn[p_se], qn[p_e]);
+            r = scvf_eta(rn[p_0], rn[p_s], rn[p_se], rn[p_e]);
 
             nxi = 0.0;
             neta = -1.0;
@@ -595,9 +596,9 @@ int convection_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             rhs_r[p_0] += neta_dl * convection_J_20(h, q, r, nxi, neta);
 
             // scv_1 face_3
-            h = convection_scvf_xi(hn[p_0], hn[p_e], hn[p_se], hn[p_s]);
-            q = convection_scvf_xi(qn[p_0], qn[p_e], qn[p_se], qn[p_s]);
-            r = convection_scvf_xi(rn[p_0], rn[p_e], rn[p_se], rn[p_s]);
+            h = scvf_xi(hn[p_0], hn[p_e], hn[p_se], hn[p_s]);
+            q = scvf_xi(qn[p_0], qn[p_e], qn[p_se], qn[p_s]);
+            r = scvf_xi(rn[p_0], rn[p_e], rn[p_se], rn[p_s]);
 
             nxi = 1.0;
             neta = 0.0;
@@ -608,9 +609,9 @@ int convection_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
 
             // sub control volume 2 ============================================
             // scv_2 face_4
-            h = convection_scvf_xi(hn[p_0], hn[p_e], hn[p_ne], hn[p_n]);
-            q = convection_scvf_xi(qn[p_0], qn[p_e], qn[p_ne], qn[p_n]);
-            r = convection_scvf_xi(rn[p_0], rn[p_e], rn[p_ne], rn[p_n]);
+            h = scvf_xi(hn[p_0], hn[p_e], hn[p_ne], hn[p_n]);
+            q = scvf_xi(qn[p_0], qn[p_e], qn[p_ne], qn[p_n]);
+            r = scvf_xi(rn[p_0], rn[p_e], rn[p_ne], rn[p_n]);
 
             nxi = 1.0;
             neta = 0.0;
@@ -620,9 +621,9 @@ int convection_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             rhs_r[p_0] += neta_dl * convection_J_20(h, q, r, nxi, neta);
 
             // scv_2 face_5
-            h = convection_scvf_eta(hn[p_0], hn[p_n], hn[p_ne], hn[p_e]);
-            q = convection_scvf_eta(qn[p_0], qn[p_n], qn[p_ne], qn[p_e]);
-            r = convection_scvf_eta(rn[p_0], rn[p_n], rn[p_ne], rn[p_e]);
+            h = scvf_eta(hn[p_0], hn[p_n], hn[p_ne], hn[p_e]);
+            q = scvf_eta(qn[p_0], qn[p_n], qn[p_ne], qn[p_e]);
+            r = scvf_eta(rn[p_0], rn[p_n], rn[p_ne], rn[p_e]);
 
             nxi = 0.0;
             neta = 1.0;
@@ -633,9 +634,9 @@ int convection_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
 
             // sub control volume 3 ============================================
             // scv_3 face_6
-            h = convection_scvf_eta(hn[p_0], hn[p_n], hn[p_nw], hn[p_w]);
-            q = convection_scvf_eta(qn[p_0], qn[p_n], qn[p_nw], qn[p_w]);
-            r = convection_scvf_eta(rn[p_0], rn[p_n], rn[p_nw], rn[p_w]);
+            h = scvf_eta(hn[p_0], hn[p_n], hn[p_nw], hn[p_w]);
+            q = scvf_eta(qn[p_0], qn[p_n], qn[p_nw], qn[p_w]);
+            r = scvf_eta(rn[p_0], rn[p_n], rn[p_nw], rn[p_w]);
 
             nxi = 0.0;
             neta = 1.0;
@@ -645,9 +646,9 @@ int convection_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             rhs_r[p_0] += neta_dl * convection_J_20(h, q, r, nxi, neta);
 
             // scv_3 face_7
-            h = convection_scvf_xi(hn[p_0], hn[p_w], hn[p_nw], hn[p_n]);
-            q = convection_scvf_xi(qn[p_0], qn[p_w], qn[p_nw], qn[p_n]);
-            r = convection_scvf_xi(rn[p_0], rn[p_w], rn[p_nw], rn[p_n]);
+            h = scvf_xi(hn[p_0], hn[p_w], hn[p_nw], hn[p_n]);
+            q = scvf_xi(qn[p_0], qn[p_w], qn[p_nw], qn[p_n]);
+            r = scvf_xi(rn[p_0], rn[p_w], rn[p_nw], rn[p_n]);
 
             nxi = -1.0;
             neta = 0.0;
@@ -659,68 +660,12 @@ int convection_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
     }
     return 0;
 }
-inline int convection_p_index(int i, int j, int ny)
+inline int convection_idx(int i, int j, int ny)
 {
     return i * ny + j;
 }
 
-inline double convection_scvf_xi(double c0, double c1, double c2, double c3)
-{
-// face 0 c_{i-1/2, j-1/4}
-// face 3 c_{i+1/2, j-1/4}
-// face 4 c_{i+1/2, j+1/4}
-// face 7 c_{i-1/2, j+1/4}
-
-//  2 - - - - - - - 3 3 - - - - - - - 2
-//  |       |       | |       |       | 
-//  |       |       | |       |       | 
-//  |       |       | |       |       | 
-//  | - - - - - - - | | - - - - - - - | 
-//  |       |       | |       |       | 
-//  |       x       | |       x       | 
-//  |       |       | |       |       | 
-//  1 - - - - - - - 0 0 - - - - - - - 1 
-//  1 - - - - - - - 0 0 - - - - - - - 1
-//  |       |       | |       |       | 
-//  |       x       | |       x       | 
-//  |       |       | |       |       | 
-//  | - - - - - - - | | - - - - - - - | 
-//  |       |       | |       |       | 
-//  |       |       | |       |       | 
-//  |       |       | |       |       | 
-//  2 - - - - - - - 3 3 - - - - - - - 2 
-
-    return 0.125 * (3. * c0 + 3. * c1 + 1. * c2 + 1. * c3);
-}
-inline double convection_scvf_eta(double c0, double c1, double c2, double c3)
-{
-// face 1 c_{i-1/4, j-1/2}
-// face 2 c_{i+1/4, j-1/2}
-// face 5 c_{i+1/4, j+1/2}
-// face 6 c_{i-1/4, j+1/2}
-
-//   2 - - - - - - - 1 1 - - - - - - - 2
-//   |       |       | |       |       |
-//   |       |       | |       |       |
-//   |       |       | |       |       |
-//   | - - - - - x - | | - x - - - - - |
-//   |       |       | |       |       |
-//   |       |       | |       |       |
-//   |       |       | |       |       |
-//   3 - - - - - - - 0 0 - - - - - - - 3
-//   3 - - - - - - - 0 0 - - - - - - - 3
-//   |       |       | |       |       |
-//   |       |       | |       |       |
-//   |       |       | |       |       |
-//   | - - - - - x - | | - x - - - - - |
-//   |       |       | |       |       |
-//   |       |       | |       |       |
-//   |       |       | |       |       |
-//   2 - - - - - - - 1 1 - - - - - - - 2
-
-    return 0.125 * (3. * c0 + 3. * c1 + 1. * c2 + 1. * c3);
-}
-inline void set_value(double * values, int col, double data){ 
+inline void add_value(double * values, int col, double data){ 
     values[col] += data; 
 }
 

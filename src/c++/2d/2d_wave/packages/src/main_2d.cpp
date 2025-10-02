@@ -65,12 +65,14 @@ AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 #include "convection.h"
 #include "grid.h"
 #include "initial_conditions.h"
+#include "interpolations.h"
 #include "perf_timer.h"
 #include "matrix_assembly_boundaries.h"
 #include "matrix_assembly_corners.h"
 #include "matrix_assembly_interior.h"
 #include "regularization.h"
 #include "ugrid2d.h"
+#include "viscosity.h"
 
 void GetArguments(long argc, char** argv, std::filesystem::path & file_name);
 int get_toml_array(toml::table, std::string, std::vector<std::string>&);
@@ -78,7 +80,6 @@ int get_toml_array(toml::table, std::string, std::vector<double>&);
 int get_toml_array(toml::table, std::string, std::vector<bool>&);
 
 int idx(int i, int j, int ny);
-double c_scv(double, double, double, double);
 double scvf_n(double c0, double c1, double c2, double c3);
 double dcdx_scv(double, double, double, double);
 double dcdy_scv(double, double, double, double);
@@ -390,15 +391,15 @@ int main(int argc, char *argv[])
         model_title = "Linear wave equation";
         if (do_bed_shear_stress)
         {
-            model_title = "Linear wave equation + bed shear stress";
-        }
-        if (do_convection && do_bed_shear_stress)
-        {
-            model_title = "Linear wave equation + convection + bed shear stress";
+            model_title += " + bed shear stress";
         }
         if (do_convection)
         {
-            model_title = "Linear wave equation + convection";
+            model_title += " + convection";
+        }
+        if (do_viscosity)
+        {
+            model_title += " + viscosity";
         }
     }
     else if (do_q_equation)
@@ -498,18 +499,21 @@ int main(int argc, char *argv[])
     std::vector<double> dh(nxny, 0.);                     // delta for water depth
     std::vector<double> dq(nxny, 0.);                     // delta for q-flux
     std::vector<double> dr(nxny, 0.);                     // delta for r-flux
-    std::vector<double> s_giv(nxny, 0.);                     // water level, given
-    std::vector<double> u_giv(nxny, 0.);                     // u-velocity, given
-    std::vector<double> v_giv(nxny, 0.);                     // v-velocity, given
-    std::vector<double> s(nxny, 0.);                     // water level, needed for post-processing
-    std::vector<double> u(nxny, 0.);                     // u-velocity, needed for post-processing
-    std::vector<double> v(nxny, 0.);                     // v-velocity, needed for post-processing
+    std::vector<double> s_giv(nxny, 0.);                  // water level, given
+    std::vector<double> u_giv(nxny, 0.);                  // u-velocity, given
+    std::vector<double> v_giv(nxny, 0.);                  // v-velocity, given
+    std::vector<double> s(nxny, 0.);                      // water level, needed for post-processing
+    std::vector<double> u(nxny, 0.);                      // u-velocity, needed for post-processing
+    std::vector<double> v(nxny, 0.);                      // v-velocity, needed for post-processing
+    std::vector<double> visc_given(nxny, visc_const);     // Initialize viscosity array with given value
+    std::vector<double> visc_reg(nxny, visc_const);       // Initialize given viscosity array with regularized value
+    std::vector<double> visc(nxny, visc_const);           // Viscosity array used for computation, adjusted for cell peclet number
     std::vector<double> delta_h(nxny, 0.);
     std::vector<double> delta_q(nxny, 0.);
     std::vector<double> delta_r(nxny, 0.);
     std::vector<double> post_q;              // needed for postprocessing; bed shear stress; convection;
     std::vector<double> post_r;              // needed for postprocessing; bed shear stress; convection;
-    if (do_bed_shear_stress || do_convection)
+    if (do_bed_shear_stress || do_convection || do_viscosity)
     {
         post_q.resize(nxny, 0.);              // needed for postprocessing; bed shear stress; convection;
         post_r.resize(nxny, 0.);              // needed for postprocessing; bed shear stress; convection;
@@ -597,7 +601,12 @@ int main(int argc, char *argv[])
     {
         START_TIMER(Regularization_init);
         regularization->given_function(zb, psi_11, psi_22, eq8, zb_giv, nx, ny, dx, dy, c_psi, log_file);
-        //regularization->given_function(visc_reg, psi, visc_giv, nx, ny, dx, dy, c_psi);
+        regularization->given_function(visc_reg, psi_11, psi_22, eq8, visc_given, nx, ny, dx, dy, c_psi, log_file);
+        for (int i = 0; i < visc_reg.size(); ++i)
+        {
+            visc[i] = visc_reg[i] + std::sqrt(psi_11[i] * psi_11[i] + psi_22[i] * psi_22[i]);
+        }
+
         STOP_TIMER(Regularization_init);
     }
     else
@@ -605,6 +614,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < zb_giv.size(); ++i)
         {
             zb[i] = zb_giv[i];
+            visc_reg[i] = visc_given[i];
         }
     }
     for (int k = 0; k < zb_giv.size(); ++k)
@@ -834,6 +844,8 @@ int main(int argc, char *argv[])
     std::string map_beds_r_name("bed_stress_r");
     std::string map_conv_q_name("convection_q");
     std::string map_conv_r_name("convection_r");
+    std::string map_visc_q_name("viscosity_q");
+    std::string map_visc_r_name("viscosity_r");
 
     status = map_file->add_variable(map_h_name, dim_names, "sea_floor_depth_below_sea_surface", "Water depth", "m", "mesh2D", "node");
     status = map_file->add_variable(map_q_name, dim_names, "", "Water flux (x)", "m2 s-1", "mesh2D", "node");
@@ -851,6 +863,7 @@ int main(int argc, char *argv[])
         status = map_file->add_variable(map_psi_22_name, dim_names, "", "Psi_22", "m2 s-1", "mesh2D", "node");
         status = map_file->add_variable(map_eq8_name, dim_names, "", "Eq8", "-", "mesh2D", "node");
     }
+
     if (do_bed_shear_stress)
     {
         status = map_file->add_variable(map_beds_q_name, dim_names, "", "Bed shear stress (x)", "m2 s-2", "mesh2D", "node");
@@ -860,6 +873,11 @@ int main(int argc, char *argv[])
     {
         status = map_file->add_variable(map_conv_q_name, dim_names, "", "Convection (x)", "m2 s-2", "mesh2D", "node");
         status = map_file->add_variable(map_conv_r_name, dim_names, "", "Convection (y)", "m2 s-2", "mesh2D", "node");
+    }
+    if (do_viscosity)
+    {
+        status = map_file->add_variable(map_visc_q_name, dim_names, "", "Viscosity (x)", "m2 s-1", "mesh2D", "node");
+        status = map_file->add_variable(map_visc_r_name, dim_names, "", "Viscosity (y)", "m2 s-1", "mesh2D", "node");
     }
 
     // Put data on map file
@@ -884,15 +902,21 @@ int main(int argc, char *argv[])
     }
     if (do_bed_shear_stress)
     {
-        bed_shear_stress_rhs(post_q, post_r, hn, qn, rn, cf, nx, ny);
+        bed_shear_stress_post_rhs(post_q, post_r, hn, qn, rn, cf, nx, ny);
         map_file->put_time_variable(map_beds_q_name, nst_map, post_q);
         map_file->put_time_variable(map_beds_r_name, nst_map, post_r);
     }
     if (do_convection)
     {
-        convection_rhs(post_q, post_r, hn, qn, rn, dx, dy, nx, ny);
+        convection_post_rhs(post_q, post_r, hn, qn, rn, dx, dy, nx, ny);
         map_file->put_time_variable(map_conv_q_name, nst_map, post_q);
         map_file->put_time_variable(map_conv_r_name, nst_map, post_r);
+    }
+    if (do_viscosity)
+    {
+        viscosity_post_rhs(post_q, post_r, hn, qn, rn, visc, dx, dy, nx, ny);
+        map_file->put_time_variable(map_visc_q_name, nst_map, post_q);
+        map_file->put_time_variable(map_visc_r_name, nst_map, post_r);
     }
     STOP_TIMER(Writing map-file);
 
@@ -1317,10 +1341,10 @@ int main(int argc, char *argv[])
                     int q_eq = outer[row + 1];
                     int r_eq = outer[row + 2];
 
-                    status = bed_shear_stress_matrix_rhs(values, row, c_eq, q_eq, r_eq, rhs,
+                    status = bed_shear_stress_matrix_and_rhs(values, row, c_eq, q_eq, r_eq, rhs,
                                 htheta, qtheta, rtheta, cf, theta, dx, dy, nx, ny);
                     // boundary_south
-                    // boundray_north
+                    // boundary_north
                 }
                 // corner_south_east
                 // boundary_east
@@ -1345,10 +1369,10 @@ int main(int argc, char *argv[])
                     int q_eq = outer[row + 1];
                     int r_eq = outer[row + 2];
 
-                    status = convection_matrix_rhs(values, row, c_eq, q_eq, r_eq, rhs,
+                    status = convection_matrix_and_rhs(values, row, c_eq, q_eq, r_eq, rhs,
                                 htheta, qtheta, rtheta, theta, dx, dy, nx, ny);
                     // boundary_south
-                    // boundray_north
+                    // boundary_north
                 }
                 // corner_south_east
                 // boundary_east
@@ -1362,6 +1386,29 @@ int main(int argc, char *argv[])
                 //
                 // viscosity
                 //
+                // For the moment only interior nodes (2025-08-13)
+                // Do not clear the rows, but add the viscosity terms
+
+                // corner_south_west
+                // boundary_west
+                // corner_north_west
+
+                // interior with south and north boundary
+                for (int row = 3 * ny; row < 3 * (nx - 1) * ny; row += 3) 
+                {
+                    int c_eq = outer[row    ];
+                    int q_eq = outer[row + 1];
+                    int r_eq = outer[row + 2];
+
+                    status = viscosity_matrix_and_rhs(values, row, c_eq, q_eq, r_eq, rhs,
+                                htheta, qtheta, rtheta, visc, theta, dx, dy, nx, ny);
+                    // boundary_south
+                    // boundary_north
+                }
+                // corner_south_east
+                // boundary_east
+                // corner_north_east
+
                 STOP_TIMER(Viscosity);
             }
 
@@ -1639,17 +1686,23 @@ int main(int argc, char *argv[])
                 map_file->put_time_variable(map_psi_22_name, nst_map, psi_22);
                 map_file->put_time_variable(map_eq8_name, nst_map, eq8);
             }
+            if (do_convection)
+            {
+                convection_post_rhs(post_q, post_r, hn, qn, rn, dx, dy, nx, ny);
+                map_file->put_time_variable(map_conv_q_name, nst_map, post_q);
+                map_file->put_time_variable(map_conv_r_name, nst_map, post_r);
+            }
             if (do_bed_shear_stress)
             {
-                bed_shear_stress_rhs(post_q, post_r, hn, qn, rn, cf, nx, ny);
+                bed_shear_stress_post_rhs(post_q, post_r, hn, qn, rn, cf, nx, ny);
                 map_file->put_time_variable(map_beds_q_name, nst_map, post_q);
                 map_file->put_time_variable(map_beds_r_name, nst_map, post_r);
             }
-            if (do_convection)
+            if (do_viscosity)
             {
-                convection_rhs(post_q, post_r, hn, qn, rn, dx, dy, nx, ny);
-                map_file->put_time_variable(map_conv_q_name, nst_map, post_q);
-                map_file->put_time_variable(map_conv_r_name, nst_map, post_r);
+                viscosity_post_rhs(post_q, post_r, hn, qn, rn, visc, dx, dy, nx, ny);
+                map_file->put_time_variable(map_visc_q_name, nst_map, post_q);
+                map_file->put_time_variable(map_visc_r_name, nst_map, post_r);
             }
             STOP_TIMER(Writing map-file);
         }
@@ -1732,46 +1785,6 @@ int main(int argc, char *argv[])
 inline int idx(int i, int j, int ny)
 {
     return i * ny + j;
-}
-inline double c_scv(double c0, double c1, double c2, double c3)
-{
-    // value at subcontrol volume
-    return 0.0625 * (9. * c0 + 3. * c1 +  3. * c2 + c3);
-}
-inline double dcdx_scv(double c0, double c1, double c2, double c3)
-{
-    // value quadrature point (i+1/4, j+1/4) at subcontrol volume
-    return 0.25 * (3. * c0 - 3. * c1 + c2 - c3);
-}
-inline double dcdy_scv(double c0, double c1, double c2, double c3)
-{
-    // value quadrature point (i+1/4, j+1/4) at subcontrol volume
-    return 0.25 * (3. * c0 - 3. * c1 + c2 - c3);
-}
-inline double scvf_n(double c0, double c1, double c2, double c3)
-{
-    // dcdx normal at subcontrol volume edge
-    return 0.125 * (3. * c0 + 3. * c1 + c2 + c3);
-}
-inline double dcdx_scvf_n(double c0, double c1, double c2, double c3)
-{
-    // dcdx normal at subcontrol volume edge
-    return 0.25 * (3. * c0 - 3. * c1 + c2 - c3);
-}
-inline double dcdx_scvf_t(double c0, double c1, double c2, double c3)
-{
-    // dcdx tangential at subcontrol volume edge
-    return 0.5 * (c1 - c0 + c2 - c3);
-}
-inline double dcdy_scvf_n(double c0, double c1, double c2, double c3)
-{
-    // dcdy normal at subcontrol volume edge
-    return 0.25 * (3. * c0 - 3. * c1 + c2 - c3);
-}
-inline double dcdy_scvf_t(double c0, double c1, double c2, double c3)
-{
-    // dcdy tangential at subcontrol volume edge
-    return 0.5 * (c3 - c0 + c2 - c1);
 }
 std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs_name)
 {

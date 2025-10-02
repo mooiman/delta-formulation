@@ -20,6 +20,7 @@
 //
 //------------------------------------------------------------------------------
 
+#include "interpolations.h"
 #include "matrix_assembly_interior.h"
 
 //------------------------------------------------------------------------------
@@ -218,14 +219,14 @@ int interior(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::Vecto
     // scv_1 face_7
     // No contribution to r-momentum equation
 
-    double fluxx_0 = -0.5 * dy * scvf_n(qtheta_0, qtheta_w, qtheta_s, qtheta_sw);
-    double fluxy_1 = -0.5 * dx * scvf_n(rtheta_0, rtheta_s, rtheta_w, rtheta_sw);
-    double fluxy_2 = -0.5 * dx * scvf_n(rtheta_0, rtheta_s, rtheta_e, rtheta_se);
-    double fluxx_3 =  0.5 * dy * scvf_n(qtheta_0, qtheta_e, qtheta_s, qtheta_se);
-    double fluxx_4 =  0.5 * dy * scvf_n(qtheta_0, qtheta_e, qtheta_n, qtheta_ne);
-    double fluxy_5 =  0.5 * dx * scvf_n(rtheta_0, rtheta_n, rtheta_e, rtheta_ne);
-    double fluxy_6 =  0.5 * dx * scvf_n(rtheta_0, rtheta_n, rtheta_w, rtheta_nw);
-    double fluxx_7 = -0.5 * dy * scvf_n(qtheta_0, qtheta_w, qtheta_n, qtheta_nw);
+    double fluxx_0 = -0.5 * dy * scvf_xi (qtheta_0, qtheta_w, qtheta_s, qtheta_sw);
+    double fluxy_1 = -0.5 * dx * scvf_eta(rtheta_0, rtheta_s, rtheta_w, rtheta_sw);
+    double fluxy_2 = -0.5 * dx * scvf_eta(rtheta_0, rtheta_s, rtheta_e, rtheta_se);
+    double fluxx_3 =  0.5 * dy * scvf_xi (qtheta_0, qtheta_e, qtheta_s, qtheta_se);
+    double fluxx_4 =  0.5 * dy * scvf_xi (qtheta_0, qtheta_e, qtheta_n, qtheta_ne);
+    double fluxy_5 =  0.5 * dx * scvf_eta(rtheta_0, rtheta_n, rtheta_e, rtheta_ne);
+    double fluxy_6 =  0.5 * dx * scvf_eta(rtheta_0, rtheta_n, rtheta_w, rtheta_nw);
+    double fluxx_7 = -0.5 * dy * scvf_xi (qtheta_0, qtheta_w, qtheta_n, qtheta_nw);
 
     double flux = (fluxx_0 + fluxy_1 + fluxy_2 + fluxx_3 + fluxx_4 + fluxy_5 + fluxy_6 + fluxx_7);
     rhs[row] += -flux;
@@ -466,27 +467,6 @@ inline int ma_index(int i, int j, int ny_in)
 {
     return i * ny_in + j;
 }
-inline double c_scv(double c0, double c1, double c2, double c3)
-{
-    // value at subcontrol volume
-    return 0.0625 * (9. * c0 + 3. * c1 +  3. * c2 + c3);
-}
-inline double dcdx_scv(double c0, double c1, double c2, double c3)
-{
-    // value quadrature point (i+1/4, j+1/4) at subcontrol volume
-    return 0.25 * (3. * c0 - 3. * c1 + c2 - c3);
-}
-inline double dcdy_scv(double c0, double c1, double c2, double c3)
-{
-    // value quadrature point (i+1/4, j+1/4) at subcontrol volume
-    return 0.25 * (3. * c0 - 3. * c1 + c2 - c3);
-}
-inline double scvf_n(double c0, double c1, double c2, double c3)
-{
-    // dcdx normal at subcontrol volume edge
-    return 0.125 * (3. * c0 + 3. * c1 + c2 + c3);
-}
-
 inline void set_value(double * values, int col, double data){ 
     values[col] += data; 
 }

@@ -547,7 +547,7 @@ The components for the two momentum equations read:
     + 2\pdiff{(r/h)}{y} n_y \right] \, dl
     \qquad \textit{r-momentum eq.}
 \end{align}
-Written in linear terms for the derivative they read:
+Written in linear terms for the derivative which read:
 \begin{align}
     & \nu h \pdiff{(q/h)}{x} = \nu \left( \pdiff{q}{x} - \frac{q}{h}\pdiff{h}{x} \right),
 %    \\
@@ -577,11 +577,11 @@ The discretization is first  given for expression $\cal{A}$ (using result from \
 \begin{align}
      & \nu_{qp} \pdiff{q^{n+\theta, p+1}_{qp}}{x}  -
     \nu_{qp} \frac{q^{n+\theta, p+1}}{h^{n+\theta, p+1}_{qp}}\pdiff{ h^{n+\theta, p+1}_{qp}}{x} \approx
-    \\
+    \\*
     & \approx
 %    \nu_{qp} \pdiff{(q^{n+\theta,p}_{qp} +  \theta \Delta q_{qp})}{x}
 %    - \nu_{qp} \frac{(q^{n+\theta,p}_{qp} +  \theta \Delta q_{qp})}{h^{n+\theta,p}_{qp}} (1 -  \frac{1}{h^{n+\theta,p}_{qp}}\theta \Delta h_{qp})  \pdiff{(h^{n+\theta,p}_{qp} +  \theta \Delta h_{qp})}{x} =
-%    \\
+%    \\*
 %    & =
     \nu_{qp} \pdiff{q^{n+\theta,p}_{qp}}{x} + \nu_{qp} \pdiff{}{x}(\theta \Delta q_{qp}) +
     \nonumber \\
@@ -593,13 +593,14 @@ The discretization is first  given for expression $\cal{A}$ (using result from \
     & \approx
     \underbrace{\nu_{qp} \left( \pdiff{q^{n+\theta,p}_{qp}}{x} - \frac{q^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}} \pdiff{h^{n+\theta,p}_{qp}}{x} \right)}_{\textit {to right hand side}} +
     %
-    \\
+    \\*
 & + \underbrace{\nu_{qp}  \frac{q^{n+\theta,p}_{qp}}{(h^{n+\theta,p}_{qp})^2} \pdiff{h^{n+\theta,p}_{qp}}{x}}_{{\cal{A}}_1} \theta \Delta h_{qp}
 + \underbrace{\left(- \nu_{qp} \frac{1}{h^{n+\theta,p}_{qp}}  \pdiff{h^{n+\theta,p}_{qp}}{x}\right)}_{{\cal{B}}_1} \theta \Delta q_{qp}
-    \\
+    \\*
     & +
     \underbrace{\nu_{qp}}_{{\cal{C}}_1} \pdiff{}{x}(\theta \Delta q_{qp}) +
-    \underbrace{\nu_{qp} \frac{q^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}}}_{{\cal{D}}_1} \pdiff{}{x}(\theta \Delta h_{qp})
+    \underbrace{\left(-\nu_{qp} \frac{q^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}}\right)}_{{\cal{D}}_1}
+     \pdiff{}{x}(\theta \Delta h_{qp})
 \end{align}
 the terms $O(\Delta h\pdiff{\Delta h}{x}, \Delta q \pdiff{\Delta h}{x})$ are assumed to negligible.
 In a similar way for the other three expressions:
@@ -610,13 +611,13 @@ In a similar way for the other three expressions:
     & \approx
 \underbrace{\nu_{qp} \left( \pdiff{q^{n+\theta,p}_{qp}}{y} - \frac{q^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}} \pdiff{h^{n+\theta,p}_{qp}}{y} \right)}_{\textit {to right hand side}} +
 %
-\\
+\\*
 & + \underbrace{\nu_{qp}  \frac{q^{n+\theta,p}_{qp}}{(h^{n+\theta,p}_{qp})^2} \pdiff{h^{n+\theta,p}_{qp}}{y}}_{{\cal{A}}_2} \theta \Delta h_{qp}
 + \underbrace{\left(- \nu_{qp} \frac{1}{h^{n+\theta,p}_{qp}}  \pdiff{h^{n+\theta,p}_{qp}}{y}\right)}_{{\cal{B}}_2} \theta \Delta q_{qp}
-\\
+\\*
 & +
 \underbrace{\nu_{qp}}_{{\cal{C}}_2} \pdiff{}{y}(\theta \Delta q_{qp}) +
-\underbrace{\nu_{qp} \frac{q^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}}}_{{\cal{D}}_2} \pdiff{}{y}(\theta \Delta h_{qp})
+\underbrace{\left(-\nu_{qp} \frac{q^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}} \right)}_{{\cal{D}}_2} \pdiff{}{y}(\theta \Delta h_{qp})
 \end{align}
 and
 \begin{align}
@@ -626,13 +627,13 @@ and
     & \approx
 \underbrace{\nu_{qp} \left( \pdiff{r^{n+\theta,p}_{qp}}{x} - \frac{r^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}} \pdiff{h^{n+\theta,p}_{qp}}{x} \right)}_{\textit {to right hand side}} +
 %
-\\
+\\*
 & + \underbrace{\nu_{qp}  \frac{r^{n+\theta,p}_{qp}}{(h^{n+\theta,p}_{qp})^2} \pdiff{h^{n+\theta,p}_{qp}}{x}}_{{\cal{A}}_3} \theta \Delta h_{qp}
 + \underbrace{\left(- \nu_{qp} \frac{1}{h^{n+\theta,p}_{qp}}  \pdiff{h^{n+\theta,p}_{qp}}{x}\right)}_{{\cal{B}}_3} \theta \Delta r_{qp}
-\\
+\\*
 & +
 \underbrace{\nu_{qp}}_{{\cal{C}}_3} \pdiff{}{x}(\theta \Delta r_{qp}) +
-\underbrace{\nu_{qp} \frac{r^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}}}_{{\cal{D}}_3} \pdiff{}{x}(\theta \Delta h_{qp})
+\underbrace{\left( -\nu_{qp} \frac{r^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}} \right)}_{{\cal{D}}_3} \pdiff{}{x}(\theta \Delta h_{qp})
 \end{align}
 and
 \begin{align}
@@ -642,13 +643,13 @@ and
     & \approx
 \underbrace{\nu_{qp} \left( \pdiff{r^{n+\theta,p}_{qp}}{y} - \frac{r^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}} \pdiff{h^{n+\theta,p}_{qp}}{y} \right)}_{\textit {to right hand side}} +
 %
-\\
+\\*
 & + \underbrace{\nu_{qp}  \frac{r^{n+\theta,p}_{qp}}{(h^{n+\theta,p}_{qp})^2} \pdiff{h^{n+\theta,p}_{qp}}{y}}_{{\cal{A}}_4} \theta \Delta h_{qp}
 + \underbrace{\left(- \nu_{qp} \frac{1}{h^{n+\theta,p}_{qp}}  \pdiff{h^{n+\theta,p}_{qp}}{y}\right)}_{{\cal{B}}_4} \theta \Delta r_{qp}
-\\
+\\*
 & +
 \underbrace{\nu_{qp}}_{{\cal{C}}_4} \pdiff{}{y}(\theta \Delta r_{qp}) +
-\underbrace{\nu_{qp} \frac{r^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}}}_{{\cal{D}}_4} \pdiff{}{y}(\theta \Delta h_{qp})
+\underbrace{\left( -\nu_{qp} \frac{r^{n+\theta,p}_{qp}}{h^{n+\theta,p}_{qp}} \right)}_{{\cal{D}}_4} \pdiff{}{y}(\theta \Delta h_{qp})
 \end{align}
 
 
@@ -868,7 +869,7 @@ where $q$ is normal to this boundary.
             \input{figures/cartesian_grid_along_straight_boundary_natural.pdf_tex}
         }
     \end{center}
-    \caption{Natural boundary condition ($i=1$), dotted lines indicate the border of the control volumes. 
+    \caption{Natural boundary condition ($i=1$), dotted lines indicate the border of the control volumes.
              The diamonds indicate the quadrature points.}
     \label{fig:structured_grid_along_straight_boundary_natural}
 \end{figure}
@@ -1045,7 +1046,7 @@ which will be approximated at the quatrature point $qp$ by
     \approx
     \\
     & \qquad \approx \underbrace{\frac{2q^{n+\theta, p}_{qp}}{ h^{n+\theta, p}_{qp}} \pdiff{}{x}\left( q^{n+\theta, p}_{qp} \right)
-        - \frac{(q^{n+\theta, p}_{qp})^2}{(h^{n+\theta, p}_{qp})^2} \pdiff{}{x} \left( h^{n+\theta, p}_{qp} \right)}_{\textit{ to right handside}} +
+        - \frac{(q^{n+\theta, p}_{qp})^2}{(h^{n+\theta, p}_{qp})^2} \pdiff{}{x} \left( h^{n+\theta, p}_{qp} \right)}_{\textit{ to right hand side}} +
     \nonumber \\
     & \qquad + \underbrace{\left( -\frac{2q^{n+\theta, p}_{qp}}{ (h^{n+\theta, p}_{qp})^2}  \pdiff{}{x} \left( q^{n+\theta,p}_{qp}  \right)
         + \frac{2(q^{n+\theta, p}_{qp})^2}{(h^{n+\theta, p}_{qp})^3} \pdiff{}{x} \left( h^{n+\theta,p} _{qp} \right)
