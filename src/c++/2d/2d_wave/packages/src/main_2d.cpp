@@ -80,7 +80,6 @@ int get_toml_array(toml::table, std::string, std::vector<double>&);
 int get_toml_array(toml::table, std::string, std::vector<bool>&);
 
 int idx(int i, int j, int ny);
-double scvf_n(double c0, double c1, double c2, double c3);
 double dcdx_scv(double, double, double, double);
 double dcdy_scv(double, double, double, double);
 double dcdx_scvf_n(double, double, double, double);
@@ -1103,6 +1102,29 @@ int main(int argc, char *argv[])
         std::this_thread::sleep_for(timespan);
         //std::cin.ignore();
     }
+    if (logging == "pattern")
+    {
+        log_file << "=== Matrix build matrix pattern =======================" << std::endl;
+        for (int i = 0; i < 3 * nxny; ++i)
+        {
+            for (int j = 0; j < 3*nxny; ++j)
+            {
+                if (A.coeff(i, j) != 0.0)
+                {
+                    log_file << "* ";
+                }
+                else
+                {
+                    log_file << "- ";
+                    //log_file << std::showpos << std::setprecision(3) << std::scientific << A.coeff(i, j) << " ";
+                }
+                if (std::fmod(j+1,3) == 0) { log_file << "| "; }
+            }
+            log_file << std::endl;
+            if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
+        }
+    }
+
     STOP_TIMER(Initialization);
     
     std::cout << "Start time-loop" << std::endl;
@@ -1149,28 +1171,6 @@ int main(int argc, char *argv[])
         boundary_condition(bc[BC_SOUTH], bc_vals[BC_SOUTH], time, treg, select);
         boundary_condition(bc[BC_WEST ], bc_vals[BC_WEST ], time, treg, select);
 
-        if (logging == "pattern")
-        {
-            log_file << "=== Matrix build matrix pattern =======================" << std::endl;
-            for (int i = 0; i < 3 * nxny; ++i)
-            {
-                for (int j = 0; j < 3*nxny; ++j)
-                {
-                    if (A.coeff(i, j) != 0.0)
-                    {
-                        log_file << "* ";
-                    }
-                    else
-                    {
-                        log_file << "- ";
-                        //log_file << std::showpos << std::setprecision(3) << std::scientific << A.coeff(i, j) << " ";
-                    }
-                    if (std::fmod(j+1,3) == 0) { log_file << "| "; }
-                }
-                log_file << std::endl;
-                if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
-            }
-        }
         int used_newton_iter = 0;
         int used_lin_solv_iter = 0;
         START_TIMER(Newton iteration);
