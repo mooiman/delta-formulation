@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\viscosity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ugrid2d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\regularization.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\perf_timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\matrix_assembly_interior.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\matrix_assembly_corners.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\matrix_assembly_boundaries.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\interpolations.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\initial_conditions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\heat_2d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cfts.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\build_matrix_pattern_regularization.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\build_matrix_pattern.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\boundary_condition.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\write_input_toml_to_logfile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\read_input_toml_file.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\heat_2d_version.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\observation_stations.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\boundary_condition.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\build_matrix_pattern.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\build_matrix_pattern_regularization.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cfts.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\compile_date_and_time.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\data_struct.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\grid.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\initial_conditions.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\interpolations.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\matrix_assembly_boundaries.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\matrix_assembly_corners.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\matrix_assembly_interior.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\viscosity.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ugrid2d.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\regularization.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\perf_timer.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\heat_2d_version.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\data_input_struct.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\read_input_toml_file.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\observation_stations.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="include\heat_2d_version.h.vcs">
+      <Filter>Include Files</Filter>
+    </None>
+    <None Include="include\version_number.ini">
+      <Filter>Include Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Include Files">
+      <UniqueIdentifier>{36a94483-fa0a-4cb5-a62e-cc71d95cdc78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{9a16cdbf-66b0-4123-baac-74d762484ed4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

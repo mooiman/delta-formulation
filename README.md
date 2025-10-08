@@ -6,3 +6,11 @@ Therefor the data is adjusted in that way that the second derivatives of all dat
 This step in the procedure is called *regularization*.
 And the numerical scheme is chosen to be central in space, no dissipation is added to the model by the numerical method, just higher order (third-order) dispersion.
 After the regularization and the central discretization the numerical method is accurate (second order), reliable (numerical are small compared to errors in the mathematical model), efficient (Newton quadratic convergence), robust (fully implicit). 
+
+## Development environment
+At this moment the development environment is based on Visual Studio 2022.
+
+## Environment variables
+Environment variables (example)
+BOOST_ROOT_DIR=c:\boost\boost_1_87_0
+NETCDF_DIR=c:\Program Files\netCDF 4.9.2

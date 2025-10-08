@@ -1,0 +1,153 @@
+%-------------------------------------------------------------------------------
+\chapter{Heat 2D equation}
+%-------------------------------------------------------------------------------
+Consider the non-linear heat equation
+\begin{subequations}
+    \begin{align}
+    \pdiff{u}{t}
+    - \nabla \dotp \left( \bPsi \nabla u \right) = 0,
+\end{align}
+\end{subequations}
+with
+\begin{symbollist}
+    \item[$u$] Temperature, \bunit{\celsius}.
+    \item[$\bPsi$] 2-dimensional thermal diffusivity, \bunit{\square\metre\per\second}.
+\end{symbollist}
+$\bPsi$ the thermal diffusivity is defined as:
+\begin{align}
+    \bPsi =
+    \begin{pmatrix}
+        \Psi_{11} & \Psi_{12} \\
+        \Psi_{21} & \Psi_{22}
+    \end{pmatrix}
+\end{align}
+
+\subsection*{Finite Volume approach}
+Integrating the equations over a finite volume $\Omega$ yields:
+\begin{align}
+    \int_\Omega \pdiff{h}{t}\, d\omega &
+    - \int_\Omega \nabla \dotp \left( \bPsi \nabla u \right) \, d\omega = 0
+    \label{eq:heat_2d_equation}
+\end{align}
+with
+
+
+
+%-------------------------------------------------------------------------------
+\section{Space discretization, structured}
+\begin{figure}[H]
+    \begin{center}
+        \def\svgwidth{0.80\textwidth} % scaling text
+        \resizebox{0.65\textwidth}{!}{
+            \input{figures/cartesian_grid_interior_2d.pdf_tex}
+        }
+    \end{center}
+    \caption[Definition of the grid to solve the 2D-shallow water equations in the interior area]{Coefficients for the mass-matrix and the control volume in 2-dimensions in the interior area, on a structured grid. The black dots indicate the location of the quadrature points, and black diamonds the flux points.}
+    \label{fig:2d_structured_grid}
+\end{figure}
+For the space discretization of an arbitrary function $u$ on the quadrature point of a sub-control volume the following space interpolations are used:
+\begin{align}
+    \left. u\right|_{i+\quart, j+\quart} & \approx \frac{1}{16}\left( 9u_{i, j} + 3 u_{i+1,j} + u_{i+1, j+1} + 3  u_{i, j+1}\right)
+    \\
+    \left.u\right|_{i+\half, j+\quart} & \approx \frac{1}{8} \left( 3 u_{i,j} + 3 u_{i+1,j} + u_{i+1, j+1} + u_{i, j+1} \right)
+    \\
+    \left. u \right|_{i+\quart, j+\half} & \approx \frac{1}{8} \left( 3 u_{i, j} + u_{i+1, j} + u_{i+1, j+1}  + 3 u_{i, j+1} \right)
+\end{align}
+See for the locations \autoref{fig:2d_structured_grid}.
+%-------------------------------------------------------------------------------
+\subsection{Discretizations heat equation}
+The discretization of heat \autoref{eq:heat_2d_equation} will be presented term by term.
+%-------------------------------------------------------------------------------
+\subsubsection{Time derivative}
+The discretization of the time derivative term of the continuity equation reads:
+\begin{align}
+    \int_{\Omega} \pdiff{u}{t}\, d\omega
+\end{align}
+which will be approximated by the sum of the integral over the sub-control volumes.
+On a structured grid one control volume ($cv$) around a node consist of four sub-control volumes ($scv_i$, $i\in\{0,1,2,3\}$).
+\begin{align}
+    \int_{cv} \pdiff{u}{t}\, d\omega =
+    \int_{scv_0} \pdiff{u}{t}\, d\omega +
+    \int_{scv_1} \pdiff{u}{t}\, d\omega +
+    \int_{scv_2} \pdiff{u}{t}\, d\omega +
+    \int_{scv_3} \pdiff{u}{t}\, d\omega
+\end{align}
+For a cartesian grid we get:
+\begin{align}
+    \int_{cv} \pdiff{h}{t}\, d\omega \approx &
+    \quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i-\quart, j-\quart} -  h^{n+1,n}_{i-\quart, j-\quart} \right) +
+    \nonumber \\*
+    &\quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i+\quart, j-\quart} -  h^{n+1,n}_{i+\quart, j-\quart} \right) +
+    \nonumber \\*
+    &\quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i+\quart, j+\quart} -  h^{n+1,n}_{i+\quart, j+\quart} \right) +
+    \nonumber \\*
+    &\quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i-\quart, j+\quart} -  h^{n+1,n}_{i-\quart, j+\quart} \right)
+\end{align}
+Just looking to the quadrature point of $scv_0$ as part of the control volume for node $(i,j)$ the discretization reads:
+\begin{align}
+    &\quart\Dx\Dy\Dtinv \left( h^{n+1}_{i-\quart, j-\quart} -  h^{n+1,n}_{i-\quart, j-\quart} \right) =
+    \\*
+    &= \quart\Dx\Dy\Dtinv \left[ \frac{1}{16}\left( 9h^{n+1}_{i, j} + 3 h^{n+1}_{i-1,j}  + 3  h^{n+1}_{i, j-1} + h^{n+1}_{i-1, j-1}\right) \right. +
+    \\*
+    &\quad - \left. \frac{1}{16}\left( 9 h^{n}_{i, j} +  3 h^{n}_{i-1,j}  + 3  h^{n}_{i, j-1} + h^{n}_{i-1, j-1}\right)\right]
+\end{align}
+Written in \deltaformulation  it reads:
+\begin{align}
+    &\quart\Dx\Dy\Dtinv \left( h^{n+1}_{i-\quart, j-\quart} -  h^{n}_{i-\quart, j-\quart} \right) =
+    \nonumber \\*
+    &=\quart\Dx\Dy\Dtinv \left[ \frac{1}{16}\left( 9 \Delta h^{n+1,p+1}_{i, j} + 3 \Delta q^{n+1,p+1}_{i-1,j}  + 3 \Delta q^{n+1,p+1}_{i, j-1} + \Delta h^{n+1,p+1}_{i-1, j-1}\right) \right] +
+    \nonumber \\*
+    & + \quart\Dx\Dy\Dtinv \left[ \frac{1}{16}\left( 9 h^{n+1,p}_{i, j} + 3 h^{n+1,p}_{i-1,j}  + 3 h^{n+1,p}_{i, j-1} + h^{n+1,p+1}_{i-1, j-1}\right) \right. +
+    \nonumber \\*
+    &\quad - \left. \frac{1}{16}\left( 9h^{n}_{i, j} +  3 h^{n}_{i-1,j}  + 3  h^{n}_{i, j-1} + h^{n}_{i-1, j-1}\right)\right]
+\end{align}
+
+%--------------------------------------------------------------------------------
+\subsubsection{Viscosity}
+The viscosity term in vector notation reads:
+\begin{align}
+    &\int_\Omega \nabla \dotp \left( \mat{\Psi} \nabla u \right) \, d\omega  =
+    \oint_{\Omega}  \left(  \mat{\Psi} \nabla u \right) \dotp \vec{n}\, dl \approx
+    \\
+    & \oint_{\Omega}  \left( \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y}  \right) n_x + \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}  \right) n_y \right) \norm{dl}
+\end{align}
+with $\vec{n} = (n_x, n_y)^T$ the outward normal vector.
+
+Integration of the term for the eight quadrature points $qp$, for each face of the control volume $scv$  we get:
+%
+\begin{align}
+&
+\left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right) n_x \norm{dl} +
+\left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) n_y \norm{dl}
+\end{align}
+If the  viscosity is isotropic ($\Psi_{12} = \Psi_{21} = 0$) these equations reduce to:
+\begin{align}
+    &
+    \left( \Psi_{11} \pdiff{{u}}{x} \right) n_x \norm{dl} +
+    \left( \Psi_{22} \pdiff{{u}}{y} \right) n_y \norm{dl}
+\end{align}
+
+Define the components of $\bPsi$ at different locations with $(\mu, \nu) \in \{ 1, 2\}$ as
+%
+\begin{align}
+    \left. \overline\Psi_{\mu\nu} \right|_{i+\half,j+\quart} = \frac{1}{8} \left(\left. 3\Psi_{\mu\nu} \right|_{i,j}
+    + \left. 3\Psi_{\mu\nu} \right|_{i+1,j} + \left. \Psi_{\mu\nu} \right|_{i+1,j+1}  + \left. \Psi_{\mu\nu} \right|_{i,j+1}\right)
+\end{align}
+%
+and define the partial differentials as
+\begin{align}
+    \left. \pdiff{u}{x} \right|_{i+\half,j+\quart} =  \quart \left(3\frac{u_{i+1,j} - u_{i,j}}{\Dx_{i+\half,j}} + \frac{u_{i+1,j+1} - u_{i,j+1}}{\Dx_{i+\half,j+1}}\right)
+    \\
+    \left. \pdiff{u}{y} \right|_{i+\half,j+\quart} =  \half \left(\frac{u_{i,j+1} - u_{i,j}}{\Dy_{i,j+\half}} + \frac{u_{i+1,j+1} - u_{i+1,j}}{\Dy_{i+1,j+\half}}\right)
+\end{align}
+
+In case the viscosity is isotropic it reads:
+\begin{align}
+    \bPsi =
+    \begin{pmatrix}
+        \Psi & 0 \\
+        0 & \Psi
+    \end{pmatrix}
+\end{align}
+(isotropic, $\Psi_{11} = \Psi_{22} = \Psi$ and $\Psi_{12} = \Psi_{21} = 0$).
+and then the discretization is straight forward.
