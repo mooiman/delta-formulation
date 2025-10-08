@@ -77,7 +77,6 @@ AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 
 void GetArguments(long argc, char** argv, std::filesystem::path & file_name);
 
-int idx(int i, int j, int ny);
 double dcdx_scv(double, double, double, double);
 double dcdy_scv(double, double, double, double);
 double dcdx_scvf_n(double, double, double, double);
@@ -157,7 +156,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
     const std::chrono::zoned_time now{ std::chrono::current_zone(), std::chrono::system_clock::now() };
-    auto start_date_time = "00:00:00 00-00-00";  //std::format("{:%F %H:%M:%OS %Oz}", now);
+    auto start_date_time = std::format("{:%F %H:%M:%OS %Oz}", now);
     std::cout << std::endl;
     std::cout << "======================================================" << std::endl;
     std::cout << "Executable compiled : " << compileDateTime() << std::endl;
@@ -241,7 +240,6 @@ int main(int argc, char *argv[])
         xy_points.push_back(point);
     }
     KDTree xy_tree(xy_points);
-
 
     double dx = x[ny] - x[0];
     double dy = y[1] - y[0];
@@ -449,12 +447,12 @@ int main(int argc, char *argv[])
     }
     else
     {
-        for (int i = 0; i < visc_given.size(); ++i)
+        for (size_t i = 0; i < visc_given.size(); ++i)
         {
             visc_reg[i] = visc_given[i];
         }
     }
-    for (int k = 0; k < visc_given.size(); ++k)
+    for (size_t k = 0; k < visc_given.size(); ++k)
     {
         hp[k] = hn[k]; 
     }
@@ -571,8 +569,7 @@ int main(int argc, char *argv[])
     }
     his_file->add_time_series();
 
-    std::string his_h_name("hn_2d");
-
+    std::string his_h_name("Tn_2d");
     his_file->add_variable(his_h_name, "", "Temperature", "degC");
 
     // Put data on time history file
@@ -1140,10 +1137,6 @@ int main(int argc, char *argv[])
     std::chrono::duration<int, std::milli> timespan(1000);
     std::this_thread::sleep_for(timespan);
     return 0;
-}
-inline int idx(int i, int j, int ny)
-{
-    return i * ny + j;
 }
 
 //------------------------------------------------------------------------------

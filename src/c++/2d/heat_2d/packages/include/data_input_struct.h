@@ -34,7 +34,6 @@ struct _ObservationPoint {
     double y;
     std::string name;
 };
-
 struct _log {
     std::string logging;
 };

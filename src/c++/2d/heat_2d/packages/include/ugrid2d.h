@@ -69,7 +69,6 @@ private:
     std::string m_time_units;
     std::vector<int> m_mesh2d_edge_nodes;
 
-
     std::string compileDateTime();
     int set_global_attribute(std::string name, std::string value);
     int set_attribute(std::string var, std::string att_name, double att_val);

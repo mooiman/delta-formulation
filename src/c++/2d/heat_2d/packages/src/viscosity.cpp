@@ -41,9 +41,9 @@
 //    |       |       |       |       |          |       |       |       |       |
 //   sw - - - - - - - s - - - - - - - se        sw - - - - - - - s - - - - - - - se
 
-int viscosity_matrix_and_rhs(double* values, int row, int c_eq, Eigen::VectorXd& rhs,
+int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs,
     std::vector<double>& Ttheta,
-    std::vector<double>& visc, double theta, double dx, double dy, int nx, int ny)
+    std::vector<double>& visc, double theta, double dx, double dy, size_t nx, size_t ny)
 {
     double n_xi = 0.0;  // xi-component of the outward normal vector
     double n_eta = 0.0;  // eta-component of the outward normal vector
@@ -220,7 +220,7 @@ int viscosity_matrix_and_rhs(double* values, int row, int c_eq, Eigen::VectorXd&
 }
 int viscosity_post_rhs(std::vector<double>& rhs_q,
     std::vector<double>& Tn,
-    std::vector<double>& visc, double dx, double dy, int nx, int ny)                          // RHS vector [h, q, r]^{n}
+    std::vector<double>& visc, double dx, double dy, size_t nx, size_t ny)                          // RHS vector [h, q, r]^{n}
 {
     // Viscosity for post processing; WITHOUT integration over the control volumes, just the line-integral.
     double nxi;
@@ -345,12 +345,12 @@ int viscosity_post_rhs(std::vector<double>& rhs_q,
     }
     return 0;
 }
-inline int viscosity_idx(int i, int j, int ny)
+inline size_t viscosity_idx(size_t i, size_t j, size_t ny)
 {
     return i * ny + j;
 }
 
-inline void add_value(double * values, int col, double data){ 
+inline void add_value(double * values, size_t col, double data){ 
     values[col] += data; 
 }
 

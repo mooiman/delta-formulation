@@ -44,12 +44,12 @@
 //
 //corner nodes
 //
-int corner_north_east(double* values, int row, int c_eq, Eigen::VectorXd& rhs, 
-    double theta, int nx, int ny,
+int corner_north_east(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs, 
+    double theta, size_t nx, size_t ny,
     std::vector<double>& htheta)
 {
-    int p0 = c_eq/(9);
-    int p1 = p0 - ny;
+    size_t p0 = c_eq/(9);
+    size_t p1 = p0 - ny;
     int p2 = p0 - 1;
     rhs[row    ] = htheta[p1] - 2.0 * htheta[p0] + htheta[p2];
 
@@ -70,13 +70,13 @@ int corner_north_east(double* values, int row, int c_eq, Eigen::VectorXd& rhs,
 
     return 0;
 }
-int corner_south_east(double* values, int row, int c_eq, Eigen::VectorXd& rhs, 
-    double theta, int nx, int ny,
+int corner_south_east(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs, 
+    double theta, size_t nx, size_t ny,
     std::vector<double>& htheta)
 {
-    int p0 = c_eq/(9);
-    int p1 = p0 - ny;
-    int p2 = p0 + 1;
+    size_t p0 = c_eq/(9);
+    size_t p1 = p0 - ny;
+    size_t p2 = p0 + 1;
     rhs[row    ] = htheta[p1] - 2.0 * htheta[p0] + htheta[p2];
 
     //--------------------------------------------------------------------------
@@ -97,13 +97,13 @@ int corner_south_east(double* values, int row, int c_eq, Eigen::VectorXd& rhs,
 
     return 0;
 }
-int corner_south_west(double* values, int row, int c_eq, Eigen::VectorXd& rhs, 
-    double theta, int nx, int ny,
+int corner_south_west(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs, 
+    double theta, size_t nx, size_t ny,
     std::vector<double>& htheta)
 {
-    int p0 = c_eq/(9);
-    int p1 = p0 + 1;
-    int p2 = p0 + ny;
+    size_t p0 = c_eq/(9);
+    size_t p1 = p0 + 1;
+    size_t p2 = p0 + ny;
     rhs[row    ] = htheta[p1] - 2.0 * htheta[p0] + htheta[p2];
 
     //--------------------------------------------------------------------------
@@ -124,13 +124,13 @@ int corner_south_west(double* values, int row, int c_eq, Eigen::VectorXd& rhs,
 
     return 0;
 }
-int corner_north_west(double* values, int row, int c_eq, Eigen::VectorXd& rhs, 
-    double theta, int nx, int ny,
+int corner_north_west(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs, 
+    double theta, size_t nx, size_t ny,
     std::vector<double>& htheta)
 {
-    int p0 = c_eq/(9);
-    int p1 = p0 - 1;
-    int p2 = p0 + ny;
+    size_t p0 = c_eq/(9);
+    size_t p1 = p0 - 1;
+    size_t p2 = p0 + ny;
     rhs[row    ] = htheta[p1] - 2.0 * htheta[p0] + htheta[p2];
 
     //--------------------------------------------------------------------------
@@ -151,7 +151,7 @@ int corner_north_west(double* values, int row, int c_eq, Eigen::VectorXd& rhs,
     return 0;
 }
         
-inline int ma_index(int i, int j, int ny_in)
+inline size_t ma_index(size_t i, size_t j, size_t ny_in)
 {
     return i * ny_in + j;
 }

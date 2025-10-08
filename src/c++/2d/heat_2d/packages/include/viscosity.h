@@ -26,13 +26,13 @@
 #include <vector>
 #include <Eigen/Sparse>
 
-int viscosity_matrix_and_rhs(double* values, int row, int c_eq, Eigen::VectorXd& rhs,
+int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs,
     std::vector<double>& Ttheta, 
-    std::vector<double>& visc, double theta, double dx, double dy, int nx, int ny);
+    std::vector<double>& visc, double theta, double dx, double dy, size_t nx, size_t ny);
 int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& Tn,
-    std::vector<double>& visc, double dx, double dy, int nx, int ny);
+    std::vector<double>& visc, double dx, double dy, size_t nx, size_t ny);
 
-inline int viscosity_idx(int i, int j, int nx);
-inline void add_value(double * values, int col, double data);
+inline size_t viscosity_idx(size_t i, size_t j, size_t nx);
+inline void add_value(double * values, size_t col, double data);
 
 #endif  // __VISCOSITY_H__

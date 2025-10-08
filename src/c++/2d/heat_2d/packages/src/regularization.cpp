@@ -183,7 +183,7 @@ void REGULARIZATION::given_function(
 
 void REGULARIZATION::first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx)
 {
-    size_t nx = (int)eps.size();
+    size_t nx = eps.size();
     std::vector<double> pe(nx, 0.0);
     double pe_threshold = 1.8;
 

@@ -113,6 +113,19 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     log_file << "    " << "tstart = " << format_as_double(data.time.tstart) << std::endl;
     log_file << "    " << "tstop = " << format_as_double(data.time.tstop) << std::endl;
 
+    // Observation points
+    log_file << std::endl;
+    log_file << "# Hard coded observation points are not listed" << std::endl;
+    log_file << std::endl;
+    for (size_t i = 0; i < data.obs_points.size(); ++i)
+    {
+        log_file << "[[ObservationPoint]]" << std::endl;
+        log_file << "    x    = " << data.obs_points[i].x    << std::endl;
+        log_file << "    y    = " << data.obs_points[i].y    << std::endl;
+        log_file << "    name = " << data.obs_points[i].name << std::endl;
+        if (i < data.obs_points.size() - 1) { log_file << std::endl; }
+    }
+
     return 0;
 }
 std::string bool_value_as_string(bool value)

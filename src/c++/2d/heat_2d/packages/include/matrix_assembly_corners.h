@@ -30,26 +30,25 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
-int corner_north_east(double* values, int row, int c_eq, Eigen::VectorXd& rhs, 
-    double theta, int nx, int ny,
+int corner_north_east(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs, 
+    double theta, size_t nx, size_t ny,
     std::vector<double>& htheta
     );
-int corner_south_east(double* values, int row, int c_eq, Eigen::VectorXd& rhs, 
-    double theta, int nx, int ny,
+int corner_south_east(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs, 
+    double theta, size_t nx, size_t ny,
     std::vector<double>& htheta
     );
-int corner_south_west(double* values, int row, int c_eq, Eigen::VectorXd& rhs, 
-    double theta, int nx, int ny,
+int corner_south_west(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs, 
+    double theta, size_t nx, size_t ny,
     std::vector<double>& htheta
     );
-int corner_north_west(double* values, int row, int c_eq, Eigen::VectorXd& rhs, 
-    double theta, int nx, int ny,
+int corner_north_west(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs, 
+    double theta, size_t nx, size_t ny,
     std::vector<double>& htheta
     );
-inline void set_value(double * values, int col, double data)
+inline void set_value(double * values, size_t col, double data)
 { 
     values[col] += data; 
 }
-inline int ma_index(int i, int j, int ny_in);
 
 #endif  // __MATRIX_ASSEMBLY_CORNERS_H__

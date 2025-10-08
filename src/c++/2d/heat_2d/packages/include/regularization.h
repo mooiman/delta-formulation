@@ -46,6 +46,7 @@ public:
         size_t nx, size_t ny, double dx, double dy, double c_psi, std::ofstream& log_file);
 
     void first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx);
+
 private:
     std::unique_ptr<std::vector<double>> solve_eq7(size_t nx, size_t ny, double dx, double dy, 
         std::vector<double> psi_11, std::vector<double> psi_22, std::vector<double> u_giv, std::ofstream& log_file);

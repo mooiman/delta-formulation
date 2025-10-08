@@ -55,9 +55,9 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
-int interior_time(double* values, int row, int c_eq, Eigen::VectorXd& rhs, 
+int interior_time(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double theta, 
-    int nx, int ny,
+    size_t nx, size_t ny,
     std::vector<double>& Tn,
     std::vector<double>& Tp, 
     double dx, double dy, double dxdy, std::vector<double>& mass)
@@ -69,24 +69,24 @@ int interior_time(double* values, int row, int c_eq, Eigen::VectorXd& rhs,
 
     memset(&values[c_eq], 0, 9 * sizeof(double));  // set all coefficients for one row of Delta T to zero
 
-    int p_sw = p_0 - ny - 1;
-    int p_w  = p_0 - ny;
-    int p_nw = p_0 - ny + 1;
-    int p_s  = p_0 - 1; 
-    int p_n  = p_0 + 1;
-    int p_se = p_0 + ny - 1;
-    int p_e  = p_0 + ny;
-    int p_ne = p_0 + ny + 1;
+    size_t p_sw = p_0 - ny - 1;
+    size_t p_w  = p_0 - ny;
+    size_t p_nw = p_0 - ny + 1;
+    size_t p_s  = p_0 - 1; 
+    size_t p_n  = p_0 + 1;
+    size_t p_se = p_0 + ny - 1;
+    size_t p_e  = p_0 + ny;
+    size_t p_ne = p_0 + ny + 1;
 
-    int col_sw = c_eq;
-    int col_w  = c_eq + 1;
-    int col_nw = c_eq + 2;
-    int col_s  = c_eq + 3;
-    int col_0  = c_eq + 4;
-    int col_n  = c_eq + 5;
-    int col_se = c_eq + 6;
-    int col_e  = c_eq + 7;
-    int col_ne = c_eq + 8;
+    size_t col_sw = c_eq;
+    size_t col_w  = c_eq + 1;
+    size_t col_nw = c_eq + 2;
+    size_t col_s  = c_eq + 3;
+    size_t col_0  = c_eq + 4;
+    size_t col_n  = c_eq + 5;
+    size_t col_se = c_eq + 6;
+    size_t col_e  = c_eq + 7;
+    size_t col_ne = c_eq + 8;
 
     //------------------------------------------------------------------------
     // heat-equation
@@ -120,7 +120,6 @@ int interior_time(double* values, int row, int c_eq, Eigen::VectorXd& rhs,
     return 0;
 }
         
-
-inline void set_value(double * values, int col, double data){ 
+inline void set_value(double * values, size_t col, double data){ 
     values[col] += data; 
 }

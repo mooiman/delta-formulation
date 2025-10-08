@@ -46,10 +46,10 @@
 // boundary nodes
 //
 //==============================================================================
-int boundary_north(double* values, int row, int c_eq, Eigen::VectorXd& rhs, 
+int boundary_north(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs, 
     double & dtinv,double & theta, double eps_bc_corr, 
     bool stationary, 
-    double dx, double dy, int nx, int ny,
+    double dx, double dy, size_t nx, size_t ny,
     std::vector<double>& Tn, 
     std::vector<double>& Tp, 
     std::vector<double>& Ttheta,
@@ -57,15 +57,15 @@ int boundary_north(double* values, int row, int c_eq, Eigen::VectorXd& rhs,
 {
     memset(&values[c_eq], 0, 9 * sizeof(double));  // set all coefficients for one row of r-equation to zero
 
-    int p_5 = c_eq/(9);  // node number of boundary point, ie north point of molecule
-    int p_4 = p_5 - 1;
-    int p_3 = p_5 - 2;
-    int p_0 = p_5 - ny - 2;
-    int p_1 = p_5 - ny - 1;
-    int p_2 = p_5 - ny;
-    int p_6 = p_5 + ny - 2;
-    int p_7 = p_5 + ny - 1;
-    int p_8 = p_5 + ny;
+    size_t p_5 = c_eq/(9);  // node number of boundary point, ie north point of molecule
+    size_t p_4 = p_5 - 1;
+    size_t p_3 = p_5 - 2;
+    size_t p_0 = p_5 - ny - 2;
+    size_t p_1 = p_5 - ny - 1;
+    size_t p_2 = p_5 - ny;
+    size_t p_6 = p_5 + ny - 2;
+    size_t p_7 = p_5 + ny - 1;
+    size_t p_8 = p_5 + ny;
 
     double T_given = bc[BC_NORTH] ;
 
@@ -94,10 +94,10 @@ int boundary_north(double* values, int row, int c_eq, Eigen::VectorXd& rhs,
     return 0;
 }
 //==============================================================================
-int boundary_east(double* values, int row, int c_eq, Eigen::VectorXd& rhs, 
+int boundary_east(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & theta, double eps_bc_corr, 
     bool stationary, 
-    double dx, double dy, int nx, int ny,
+    double dx, double dy, size_t nx, size_t ny,
     std::vector<double>& Tn, 
     std::vector<double>& Tp, 
     std::vector<double>& Ttheta,
@@ -105,22 +105,22 @@ int boundary_east(double* values, int row, int c_eq, Eigen::VectorXd& rhs,
 {
     memset(&values[c_eq], 0, 9 * sizeof(double));  // set all coefficients for one row r-equation to zero
 
-    int p_7 = c_eq/(9);  // node number of boundary point, ie east point of molecule
-    int p_8 = p_7 + 1;
-    int p_6 = p_7 - 1;
-    int p_5 = p_7 - ny + 1;
-    int p_4 = p_7 - ny;
-    int p_3 = p_7 - ny - 1;
-    int p_2 = p_7 - 2 * ny + 1;
-    int p_1 = p_7 - 2 * ny;
-    int p_0 = p_7 - 2 * ny - 1;
+    size_t p_7 = c_eq/(9);  // node number of boundary point, ie east point of molecule
+    size_t p_8 = p_7 + 1;
+    size_t p_6 = p_7 - 1;
+    size_t p_5 = p_7 - ny + 1;
+    size_t p_4 = p_7 - ny;
+    size_t p_3 = p_7 - ny - 1;
+    size_t p_2 = p_7 - 2 * ny + 1;
+    size_t p_1 = p_7 - 2 * ny;
+    size_t p_0 = p_7 - 2 * ny - 1;
 
     double T_given = bc[BC_EAST] ;
 
     // eeast
-    int col_b  = c_eq + 7 * 1;
-    int col_w  = c_eq + 4 * 1;
-    int col_ww = c_eq + 1 * 1;
+    size_t col_b  = c_eq + 7 * 1;
+    size_t col_w  = c_eq + 4 * 1;
+    size_t col_ww = c_eq + 1 * 1;
     if (bc_type[BC_EAST] == "neumann")
     {
         // Contribution Delta h
@@ -142,10 +142,10 @@ int boundary_east(double* values, int row, int c_eq, Eigen::VectorXd& rhs,
     return 0;
 }
 //==============================================================================
-int boundary_south(double* values, int row, int c_eq, Eigen::VectorXd& rhs, 
+int boundary_south(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & theta, double eps_bc_corr, 
     bool stationary, 
-    double dx, double dy, int nx, int ny,
+    double dx, double dy, size_t nx, size_t ny,
     std::vector<double>& Tn, 
     std::vector<double>& Tp, 
     std::vector<double>& Ttheta,
@@ -153,21 +153,21 @@ int boundary_south(double* values, int row, int c_eq, Eigen::VectorXd& rhs,
 {
     memset(&values[c_eq], 0, 9 * sizeof(double));  // set all coefficients for one row of r-equation to zero
 
-    int p_3 = c_eq/(9);  // node number of boundary point, ie south point of molecule
-    int p_4 = p_3 + 1;
-    int p_5 = p_3 + 2;
-    int p_0 = p_3 - ny;
-    int p_1 = p_3 - ny + 1;
-    int p_2 = p_3 - ny + 2;
-    int p_6 = p_3 + ny;
-    int p_7 = p_3 + ny + 1;
-    int p_8 = p_3 + ny + 2;
+    size_t p_3 = c_eq/(9);  // node number of boundary point, ie south point of molecule
+    size_t p_4 = p_3 + 1;
+    size_t p_5 = p_3 + 2;
+    size_t p_0 = p_3 - ny;
+    size_t p_1 = p_3 - ny + 1;
+    size_t p_2 = p_3 - ny + 2;
+    size_t p_6 = p_3 + ny;
+    size_t p_7 = p_3 + ny + 1;
+    size_t p_8 = p_3 + ny + 2;
 
     double T_given = bc[BC_SOUTH];
     // ssouth
-    int col_b  = c_eq + 3 * 1;
-    int col_n  = c_eq + 4 * 1;
-    int col_nn = c_eq + 5 * 1;
+    size_t col_b  = c_eq + 3 * 1;
+    size_t col_n  = c_eq + 4 * 1;
+    size_t col_nn = c_eq + 5 * 1;
     if (bc_type[BC_SOUTH] == "neumann")
     {
         // Contribution Delta h
@@ -189,10 +189,10 @@ int boundary_south(double* values, int row, int c_eq, Eigen::VectorXd& rhs,
     return 0;
 }
 //==============================================================================
-int boundary_west(double* values, int row, int c_eq, Eigen::VectorXd& rhs, 
+int boundary_west(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & theta, double eps_bc_corr, 
     bool stationary, 
-    double dx, double dy, int nx, int ny,
+    double dx, double dy, size_t nx, size_t ny,
     std::vector<double>& Tn, 
     std::vector<double>& Tp, 
     std::vector<double>& Ttheta,
@@ -200,21 +200,21 @@ int boundary_west(double* values, int row, int c_eq, Eigen::VectorXd& rhs,
 {
     memset(&values[c_eq], 0, 9 * sizeof(double));  // set all coefficients for one row of r-equation to zero
 
-    int p_1 = c_eq/(9);  // node number of boundary point, ie west point of molucule
-    int p_0 = p_1 - 1;
-    int p_2 = p_1 + 1;
-    int p_3 = p_1 + ny - 1;
-    int p_4 = p_1 + ny;
-    int p_5 = p_1 + ny + 1;
-    int p_6 = p_1 + 2 * ny - 1;
-    int p_7 = p_1 + 2 * ny;
-    int p_8 = p_1 + 2 * ny + 1;
+    size_t p_1 = c_eq/(9);  // node number of boundary point, ie west point of molucule
+    size_t p_0 = p_1 - 1;
+    size_t p_2 = p_1 + 1;
+    size_t p_3 = p_1 + ny - 1;
+    size_t p_4 = p_1 + ny;
+    size_t p_5 = p_1 + ny + 1;
+    size_t p_6 = p_1 + 2 * ny - 1;
+    size_t p_7 = p_1 + 2 * ny;
+    size_t p_8 = p_1 + 2 * ny + 1;
 
     double T_given = bc[BC_WEST];
     // wwest
-    int col_b  = c_eq + 1 * 1; // point of boundary, ie west point of molecule
-    int col_e  = c_eq + 4 * 1;
-    int col_ee = c_eq + 7 * 1;
+    size_t col_b  = c_eq + 1 * 1; // point of boundary, ie west point of molecule
+    size_t col_e  = c_eq + 4 * 1;
+    size_t col_ee = c_eq + 7 * 1;
     if (bc_type[BC_WEST] == "neumann")
     {
         // Contribution Delta h
@@ -235,7 +235,7 @@ int boundary_west(double* values, int row, int c_eq, Eigen::VectorXd& rhs,
     return 0;
 }
 //==============================================================================
-void  molecule(std::vector<int>& p, int p_sw, int ny)
+void  molecule(std::vector<int>& p, size_t p_sw, size_t ny)
 {
         p[0] = p_sw;
         p[1] = p_sw + 1;
@@ -247,11 +247,11 @@ void  molecule(std::vector<int>& p, int p_sw, int ny)
         p[7] = p_sw + 2 * ny + 1;
         p[8] = p_sw + 2 * ny + 2;
 }
-inline void set_value(double * values, int col, double data)
+inline void set_value(double * values, size_t col, double data)
 { 
     values[col] += data; 
 }
-inline int ma_index(int i, int j, int ny_in)
+inline size_t ma_index(size_t i, size_t j, size_t ny_in)
 {
     return i * ny_in + j;
 }

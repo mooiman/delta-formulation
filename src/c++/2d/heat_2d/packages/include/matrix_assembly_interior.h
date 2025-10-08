@@ -34,13 +34,13 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
-int interior_time(double* values, int row, int c_eq, Eigen::VectorXd& rhs, 
+int interior_time(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double theta,
-    int nx, int ny,
+    size_t nx, size_t ny,
     std::vector<double>& Tn, 
     std::vector<double>& Tp,
     double dx, double dy, double dxdy, std::vector<double>& mass);
 
-inline void set_value(double * values, int col, double data);
+inline void set_value(double * values, size_t col, double data);
 
 #endif  // __MATRIX_ASSEMBLY_INTERIOR_H__
