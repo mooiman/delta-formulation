@@ -38,6 +38,7 @@
 #include <vector>
 
 #include <toml.h>
+#include <include/KDtree.hpp>
 // for BiCGstab  solver
 //#include <Eigen/Dense>
 //#include <Eigen/IterativeLinearSolvers>
@@ -63,6 +64,7 @@ AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 #include "cfts.h"
 #include "compile_date_and_time.h"
 #include "convection.h"
+#include "data_input_struct.h"
 #include "grid.h"
 #include "initial_conditions.h"
 #include "interpolations.h"
@@ -70,30 +72,21 @@ AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 #include "matrix_assembly_boundaries.h"
 #include "matrix_assembly_corners.h"
 #include "matrix_assembly_interior.h"
+#include "observation_stations.h"
+#include "read_input_toml_file.h"
 #include "regularization.h"
 #include "ugrid2d.h"
 #include "viscosity.h"
 
 void GetArguments(long argc, char** argv, std::filesystem::path & file_name);
-int get_toml_array(toml::table, std::string, std::vector<std::string>&);
-int get_toml_array(toml::table, std::string, std::vector<double>&);
-int get_toml_array(toml::table, std::string, std::vector<bool>&);
 
-int idx(int i, int j, int ny);
-double dcdx_scv(double, double, double, double);
-double dcdy_scv(double, double, double, double);
-double dcdx_scvf_n(double, double, double, double);
-double dcdx_scvf_t(double, double, double, double);
-double dcdy_scvf_n(double, double, double, double);
-double dcdy_scvf_n(double, double, double, double);
-std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs_name);
-std::string string_format_with_zeros(double value, int width);
-
+int write_used_input(struct _data_input data, std::ofstream & log_file);
+inline size_t main_idx(size_t i, size_t j, size_t ny);
 
 // Solve the linear wave equation
 // Continuity equation: d(h)/dt + d(q)/dx = 0
-// Momentum equation: d(q)/dt + gh d(zeta)/dx = 0
-// Momentum equation: d(r)/dt + gh d(zeta)/dy = 0
+// Momentum equation  : d(q)/dt + gh d(zeta)/dx + convection + bed_shear_stress - diffusivity = 0
+// Momentum equation  : d(r)/dt + gh d(zeta)/dy + convection + bed_shear_stress - diffusivity = 0
 
 std::string compileDateTime()
 {
@@ -131,8 +124,6 @@ int main(int argc, char *argv[])
     exec_dir = exec_file.parent_path();
     start_dir = std::filesystem::current_path();
 
-    toml::table tbl;
-    toml::table tbl_chp;  // table for a chapter
     if (argc == 3)
     {
         (void)GetArguments(argc, argv, toml_file_name);
@@ -148,8 +139,6 @@ int main(int argc, char *argv[])
         }
         input_dir = std::filesystem::absolute(toml_file_name);
         input_dir.remove_filename();
-        tbl = toml::parse_file(toml_file_name.c_str());
-        // std::cout << tbl << "\n";
         output_dir = input_dir;
         output_dir += "/output/";
         std::filesystem::create_directory(output_dir);
@@ -185,7 +174,23 @@ int main(int argc, char *argv[])
     std::string out_file;
     std::stringstream ss;
 
-    std::string logging = tbl["Logging"].value_or("None");
+    struct _data_input input_data;
+    input_data = read_toml_file(input_dir, toml_file_name);
+    if (input_data.numerics.dt == 0.0) { stationary = true;  }
+    if (stationary) { 
+        input_data.boundary.treg = 0.0; 
+        input_data.numerics.theta = 1.0;
+    }
+    if (input_data.initial.gauss_mu != -INFINITY)
+    {
+        input_data.initial.gauss_mu_x = input_data.initial.gauss_mu; 
+        input_data.initial.gauss_mu_y = 0.0;  // only shift on x-axis
+    }
+    if (input_data.initial.gauss_sigma != -INFINITY)
+    {
+        input_data.initial.gauss_sigma_x = input_data.initial.gauss_sigma; 
+        input_data.initial.gauss_sigma_y = input_data.initial.gauss_sigma; 
+    }
 
     ss << "2d_wave";
     out_file = output_dir.string() + ss.str();
@@ -200,112 +205,19 @@ int main(int argc, char *argv[])
     std::cout << "=== Input file =======================================" << std::endl;
     std::cout << std::filesystem::absolute(toml_file_name) << std::endl;
     std::cout << "======================================================" << std::endl;
-    log_file << std::endl;
+
     log_file << "======================================================" << std::endl;
     log_file << "Executable compiled: " << compileDateTime() << std::endl;
     log_file << "Start time         : " << start_date_time << std::endl;
     log_file << "=== Input file =======================================" << std::endl;
     log_file << toml_file_name << std::endl;
-    log_file << "=== Copy of the input file ============================" << std::endl;
-    log_file << tbl << "\n";  // Write input TOML file to log_file
-    log_file << "=======================================================" << std::endl;
-    log_file << std::endl;
-
-    tbl_chp = *tbl["Numerics"].as_table();
-    double dt = tbl_chp["dt"].value_or(double(0.0));  // dt == 0 => default stationary
-    double dtpseu = tbl_chp["dtpseu"].value_or(double(0.0));  // dt == 0 => default stationary
-    if (dt == 0.0) { stationary = true;  }
-    // Time
-    tbl_chp = *tbl["Time"].as_table();
-    double tstart = tbl_chp["tstart"].value_or(double(0.0));
-    double tstop = tbl_chp["tstop"].value_or(double(60.));
-    
-    // Initial
-    std::vector<std::string> ini_vars;  // get the element as an array
-    tbl_chp = *tbl["Initial"].as_table();
-    status = get_toml_array(tbl_chp, "ini_vars", ini_vars);
-    double gauss_amp  = tbl_chp["gauss_amp"].value_or(double(0.0));   // amplitude of the gaussian hump at the boundary
-    double gauss_mu   = tbl_chp["gauss_mu"].value_or(double(-INFINITY));
-    double gauss_mu_x = tbl_chp["gauss_mu_x"].value_or(double(0.0));
-    double gauss_mu_y = tbl_chp["gauss_mu_y"].value_or(double(0.0));
-    double gauss_sigma = tbl_chp["gauss_sigma"].value_or(double(-INFINITY));
-    double gauss_sigma_x = tbl_chp["gauss_sigma_x"].value_or(double(1.0));
-    double gauss_sigma_y = tbl_chp["gauss_sigma_y"].value_or(double(1.0));
-    if (gauss_mu != -INFINITY)
-    {
-        gauss_mu_x = gauss_mu; 
-        gauss_mu_y = 0.0;  // only shift on x-axis
-    }
-    if (gauss_sigma != -INFINITY)
-    {
-        gauss_sigma_x = gauss_sigma; 
-        gauss_sigma_y = gauss_sigma; 
-    }
-
-    // Domain
-    tbl_chp = *tbl["Domain"].as_table();
-    std::string grid_filename = tbl_chp["mesh_file"].value_or("--none--");
-    std::filesystem::path full_grid_filename = input_dir;
-    full_grid_filename += grid_filename;
-    std::string bed_level_filename = tbl_chp["bed_level_file"].value_or("--none--");
-    std::filesystem::path full_bed_level_filename = input_dir;
-    full_bed_level_filename += bed_level_filename;
-
-    //Physics
-    tbl_chp = *tbl["Physics"].as_table();
-    double g = tbl_chp["g"].value_or(double(9.81));  // Gravitational acceleration
-    bool do_continuity = tbl_chp["do_continuity"].value_or(bool(true));  // default, continuity
-    bool do_q_equation = tbl_chp["do_q_equation"].value_or(bool(true));  // default, q_equation
-    bool do_r_equation = tbl_chp["do_r_equation"].value_or(bool(true));  // default, r_equation
-    bool do_convection = tbl_chp["do_convection"].value_or(bool(false));  // default, no convection
-    
-    bool do_viscosity = tbl_chp["do_viscosity"].value_or(bool(false));  // default, no viscosity
-    double visc_const = tbl_chp["viscosity"].value_or(double(0.0001));  // default 1e-4
-
-    bool do_bed_shear_stress = tbl_chp["do_bed_shear_stress"].value_or(bool(false));  // default, no bed shear stress
-    double chezy_coefficient = tbl_chp["chezy_coefficient"].value_or(double(50.0));
-
-    // Boundary
-    tbl_chp = *tbl["Boundary"].as_table();
-    double eps_bc_corr = tbl_chp["eps_bc_corr"].value_or(double(0.0001));  // default 1e-4
-    std::vector<std::string> bc_type;
-    status = get_toml_array(tbl_chp, "bc_type", bc_type);
-    double treg = tbl_chp["treg"].value_or(double(150.0));
-    if (stationary) { treg = 0.0; }
-    std::vector<std::string> bc_vars;  // get the element as an array
-    status = get_toml_array(tbl_chp, "bc_vars", bc_vars);
-    std::vector<double> bc_vals;
-    status = get_toml_array(tbl_chp, "bc_vals", bc_vals);
-    std::vector<bool> bc_absorbing;
-    status = get_toml_array(tbl_chp, "bc_absorbing", bc_absorbing);
-
-    // Numerics
-    tbl_chp = *tbl["Numerics"].as_table();
-//    double dt = tbl["Numerics"]["dt"].value_or(double(1.0));  // default stationary
-    if (dt == 0.0) { stationary = true; }
-    double theta = tbl_chp["theta"].value_or(double(0.501));
-    if (stationary) { theta = 1.0; }
-    double c_psi = tbl_chp["c_psi"].value_or(double(4.));
-    int iter_max = tbl_chp["iter_max"].value_or(int(50));
-    double eps_newton = tbl_chp["eps_newton"].value_or(double(1.0e-12));
-    double eps_bicgstab = tbl_chp["eps_bicgstab"].value_or(double(1.0e-12));
-    double eps_abs = tbl_chp["eps_absolute"].value_or(double(1.0e-2));  // epsilon needed to approximate the abs-function by a continues function
-    bool regularization_init = tbl_chp["regularization_init"].value_or(bool(false));
-    bool regularization_iter = tbl_chp["regularization_iter"].value_or(bool(false));
-    bool regularization_time = tbl_chp["regularization_time"].value_or(bool(false));
-    std::string linear_solver = tbl_chp["linear_solver"].value_or("bicgstab");
-
-    // Output
-    tbl_chp = *tbl["Output"].as_table();
-    double dt_his = tbl_chp["dt_his"].value_or(double(1.0));  // write interval to his-file
-    double dt_map = tbl_chp["dt_map"].value_or(double(0.0));  // write interval to his-file
 
     struct _mesh2d * mesh2d;
     SGRID* sgrid = new SGRID();
-    status = sgrid->open(full_grid_filename.string());
+    status = sgrid->open(input_data.domain.full_grid_filename.string());
     if (status != 0) 
     {
-        log_file << "Error: Failed to open grid file: " << full_grid_filename.string() << std::endl;
+        log_file << "Error: Failed to open grid file: " << input_data.domain.full_grid_filename.string() << std::endl;
         std::chrono::duration<int, std::milli> timespan(3000);
         std::this_thread::sleep_for(timespan);
         //std::cin.ignore();
@@ -314,18 +226,18 @@ int main(int argc, char *argv[])
     status = sgrid->read();  // reading mesh
     mesh2d = sgrid->get_mesh_2d();
 
-    int nx = mesh2d->node[0]->dims[0]; // including virtual points
-    int ny = mesh2d->node[0]->dims[1]; // including virtual points
+    size_t nx = mesh2d->node[0]->dims[0]; // including virtual points
+    size_t ny = mesh2d->node[0]->dims[1]; // including virtual points
 
     std::vector<double>& x = mesh2d->node[0]->x; // reference to original x-coordinate
     std::vector<double>& y = mesh2d->node[0]->y; // reference to original y-coordinate
 
     BED_LEVEL * bed = new BED_LEVEL();
-    status = bed->open(full_bed_level_filename.string());
+    status = bed->open(input_data.domain.full_bed_level_filename.string());
     if (status != 0)
     {
-        std::cout << "Failed to open file: " << full_bed_level_filename.string() << std::endl;
-        log_file << "Failed to open file: " << full_bed_level_filename.string() << std::endl;
+        std::cout << "Failed to open file: " << input_data.domain.full_bed_level_filename.string() << std::endl;
+        log_file << "Failed to open file: " << input_data.domain.full_bed_level_filename.string() << std::endl;
         std::chrono::duration<int, std::milli> timespan(3000);
         std::this_thread::sleep_for(timespan);
         //std::cin.ignore();
@@ -334,6 +246,15 @@ int main(int argc, char *argv[])
     status = bed->read(nx, ny);
     std::vector<double> zb_giv = bed->get_bed_level();
 
+    //  Create kdtree, needed to locate the obsservation points
+    std::vector<std::vector<double>> xy_points;
+    for (size_t i = 0; i < x.size(); ++i)
+    {
+        std::vector<double> point = {x[i], y[i]};
+        xy_points.push_back(point);
+    }
+    KDTree xy_tree(xy_points);
+
     double dx = x[ny] - x[0];
     double dy = y[1] - y[0];
     double Lx = dx * mesh2d->face[0]->dims[0];
@@ -341,71 +262,71 @@ int main(int argc, char *argv[])
 
     double dxinv = 1./dx;                               // invers grid size [m]
     double dyinv = 1./dy;                               // invers grid size [m]
-    int nxny = nx * ny;                                   // total number of nodes
+    size_t nxny = nx * ny;                                   // total number of nodes
     double dxdy = dx * dy ;                               // area of control volume
     //if (viscosity == 0.0)
     //{
     //    viscosity = 0.2 * std::sqrt(dx*dx + dy*dy);
     //}
 
-    int total_time_steps = int((tstop - tstart) / dt) + 1;  // Number of time steps [-]
+    int total_time_steps = int((input_data.time.tstop - input_data.time.tstart) / input_data.numerics.dt) + 1;  // Number of time steps [-]
     double dtinv;                                         // Inverse of dt, if dt==0 then stationary solution [1/s]
     double dtpseuinv = 0.0;                                     // Inverse of dtpseu
     int wrihis;                                           // write interval to his-file
     int wrimap;                                           // write interval to map-file
     if (stationary)
     {
-        dt = 0.0;                                         // Time step size [s]
+        input_data.numerics.dt = 0.0;                                         // Time step size [s]
         dtinv = 0.0;                                      // stationary solution
-        eps_bc_corr = 1.0;
-        iter_max = 2 * iter_max;
-        theta = 1.0;                                      // Stationary solution
-        tstop = 1.;
+        input_data.boundary.eps_bc_corr = 1.0;
+        input_data.numerics.iter_max = 2 * input_data.numerics.iter_max;
+        input_data.numerics.theta = 1.0;                                      // Stationary solution
+        input_data.time.tstop = 1.;
         total_time_steps = 2;                             // initial step (step 1), stationary result (step 2)
-        treg = 0.0;                                       // Thatcher-Harleman return time [s], when zero supply boundary value immediately
+        input_data.boundary.treg = 0.0;                                       // Thatcher-Harleman return time [s], when zero supply boundary value immediately
         wrihis = 1;                                       // write interval to his-file
         wrimap = 1;                                       // write interval to map-file
     }
     else
     {
-        dtinv = 1. / dt;                                  // Inverse of dt [1/s]
-        wrihis = std::max(int(dt * dtinv), int(dt_his * dtinv));      // write interval to his-file (every delta t)
-        if (dt_map == 0.0)
+        dtinv = 1. / input_data.numerics.dt;                                  // Inverse of dt [1/s]
+        wrihis = std::max(int(input_data.numerics.dt * dtinv), int(input_data.output.dt_his * dtinv));      // write interval to his-file (every delta t)
+        if (input_data.output.dt_map == 0.0)
         {
             wrimap = total_time_steps - 1;  // write only first and last time step
         }
         else
         {
-            wrimap = std::max(int(dt * dtinv), int(dt_map * dtinv));     // write interval to map-file (every 1 sec , or every delta t)
+            wrimap = std::max(int(input_data.numerics.dt * dtinv), int(input_data.output.dt_map * dtinv));     // write interval to map-file (every 1 sec , or every delta t)
         }
     }
     std::string solver_name("--- undefined ---");
-    if (linear_solver == "bicgstab") { solver_name = "BiCGstab"; }
-    if (linear_solver == "multigrid") { solver_name = "MultiGrid"; }
+    if (input_data.numerics.linear_solver == "bicgstab") { solver_name = "BiCGstab"; }
+    if (input_data.numerics.linear_solver == "multigrid") { solver_name = "MultiGrid"; }
 
     std::string model_title("Linear wave equation");
 
-    if (do_q_equation && do_r_equation)
+    if (input_data.physics.do_q_equation && input_data.physics.do_r_equation)
     {
         model_title = "Linear wave equation";
-        if (do_bed_shear_stress)
+        if (input_data.physics.do_bed_shear_stress)
         {
             model_title += " + bed shear stress";
         }
-        if (do_convection)
+        if (input_data.physics.do_convection)
         {
             model_title += " + convection";
         }
-        if (do_viscosity)
+        if (input_data.physics.do_viscosity)
         {
             model_title += " + viscosity";
         }
     }
-    else if (do_q_equation)
+    else if (input_data.physics.do_q_equation)
     {
         model_title = "Linear wave equation, only q-equation";
     }
-    else if (do_r_equation)
+    else if (input_data.physics.do_r_equation)
     {
         model_title = "Linear wave equation, only r-equation";
     }
@@ -415,77 +336,53 @@ int main(int argc, char *argv[])
     }
     model_title += ", " + solver_name;
 
-    REGULARIZATION* regularization = new REGULARIZATION(iter_max, g);
+    REGULARIZATION* regularization = new REGULARIZATION(input_data.numerics.iter_max, input_data.physics.g);
 
     log_file << "=== Used input variables ==============================" << std::endl;
-    log_file << "[Domain]" << std::endl;
-    log_file << "mesh_file = " << grid_filename << std::endl;
-    log_file << "bed_level_file = " << bed_level_filename << std::endl;
+    status = write_used_input(input_data, log_file);
+    log_file << "=======================================================" << std::endl;
 
-    log_file << std::endl << "[Time]" << std::endl;
-    log_file << "tstart = " << tstart << std::endl;
-    log_file << "tstop = " << tstop << std::endl;
+    // Copy input data to loccal data
+    std::string logging = input_data.log.logging;
 
-    log_file << std::endl << "[Initial]" << std::endl;
-    log_file << "ini_vars = ";
-    for (int i = 0; i < ini_vars.size(); ++i)
-    {
-        log_file << ini_vars[i];
-        if (i < ini_vars.size() - 1) { log_file << ", "; }
-    }
-    log_file << std::endl;
-    log_file << "Gauss_amp = " << gauss_amp << std::endl;
-    log_file << "Gauss_mu = " << gauss_mu << std::endl;
-    log_file << "Gauss_mu_x = " << gauss_mu_x << std::endl;
-    log_file << "Gauss_mu_y = " << gauss_mu_y << std::endl;
-    log_file << "Gauss_sigma = " << gauss_sigma << std::endl;
-    log_file << "Gauss_sigma_x = " << gauss_sigma_x << std::endl;
-    log_file << "Gauss_sigma_y = " << gauss_sigma_y << std::endl;
+    double eps_bc_corr = input_data.boundary.eps_bc_corr;
+    double treg = input_data.boundary.treg;
+    std::vector<std::string> bc_type = input_data.boundary.bc_type;
+    std::vector<std::string> bc_vars = input_data.boundary.bc_vars;
+    std::vector<double> bc_vals = input_data.boundary.bc_vals;
 
-    log_file << std::endl << "[Boundary]" << std::endl;
-    log_file << "bc_type = ";
-    for (int i = 0; i < bc_type.size() - 1; ++i) { log_file << bc_type[i] << ", "; }
-    log_file << bc_type[bc_type.size() - 1] << std::endl;
-    log_file << "bc_vars = ";
-    for (int i = 0; i < bc_vars.size() - 1; ++i) { log_file << bc_vars[i] << ", "; }
-    log_file << bc_vars[bc_vars.size() - 1] << std::endl;
-    log_file << "bc_vals = ";
-    for (int i = 0; i < bc_vals.size() - 1; ++i) { log_file << bc_vals[i] << ", "; }
-    log_file << bc_vals[bc_vals.size() - 1] << std::endl;
-    log_file << "bc_absorbing = ";
-    for (int i = 0; i < bc_absorbing.size() - 1; ++i) { log_file << bc_absorbing[i] << ", "; }
-    log_file << bc_absorbing[bc_absorbing.size() - 1] << std::endl;
-    log_file << "treg = " << treg << std::endl;
-    log_file << "eps_bc_corr = " << eps_bc_corr << std::endl;
+    double gauss_amp = input_data.initial.gauss_amp;
+    double gauss_mu = input_data.initial.gauss_mu;
+    double gauss_mu_x = input_data.initial.gauss_mu_x;
+    double gauss_mu_y = input_data.initial.gauss_mu_y;
+    double gauss_sigma = input_data.initial.gauss_sigma;
+    double gauss_sigma_x = input_data.initial.gauss_sigma_x;
+    double gauss_sigma_y = input_data.initial.gauss_sigma_y;
+    std::vector<std::string> ini_vars = input_data.initial.ini_vars;
 
-    log_file << std::endl << "[Physics]" << std::endl;
-    log_file << "do_continuity = " << do_continuity << std::endl;
-    log_file << "do_q_equation = " << do_q_equation << std::endl;
-    log_file << "do_r_equation = " << do_r_equation << std::endl;
-    log_file << "do_convection = " << do_convection << std::endl;
-    log_file << "do_bed_shear_stress = " << do_bed_shear_stress << std::endl;
-    log_file << "chezy_coefficient = " << chezy_coefficient << std::endl;
-    log_file << "do_viscosity = " << do_viscosity << std::endl;
-    log_file << "viscosity = " << visc_const << std::endl;
+    double dt = input_data.numerics.dt;
+    double c_psi = input_data.numerics.c_psi;
+    double eps_bicgstab = input_data.numerics.eps_bicgstab;
+    double eps_newton = input_data.numerics.eps_newton;
+    double theta = input_data.numerics.theta;
+    double iter_max = input_data.numerics.iter_max;
+    std::string linear_solver = input_data.numerics.linear_solver;
+    bool regularization_iter = input_data.numerics.regularization_iter;
+    bool regularization_init = input_data.numerics.regularization_init;
 
-    log_file << std::endl << "[Numerics]" << std::endl;
-    log_file << "dt = " << dt << std::endl;
-    log_file << "dx = " << dx << std::endl;
-    log_file << "dy = " << dy << std::endl;
-    log_file << "theta = " << theta << std::endl;
-    log_file << "c_psi = " << c_psi << std::endl;
-    log_file << "iter_max = " << iter_max << std::endl;
-    log_file << "eps_newton = " << eps_newton << std::endl;
-    log_file << "eps_bicgstab = " << eps_bicgstab << std::endl;
-    log_file << "eps_abs_function = " << eps_abs << std::endl;
-    log_file << "regularization_init = " << regularization_init << std::endl;
-    log_file << "regularization_iter = " << regularization_iter << std::endl;
-    log_file << "regularization_time = " << regularization_time << std::endl;
+    double g = input_data.physics.g;
+    double chezy_coefficient = input_data.physics.chezy_coefficient;
+    double visc_const = input_data.physics.visc_const;
+    bool do_linear_waves = input_data.physics.do_linear_waves;
+    bool do_bed_shear_stress = input_data.physics.do_bed_shear_stress;
+    bool do_convection = input_data.physics.do_convection;
+    bool do_viscosity = input_data.physics.do_viscosity;
 
-    log_file << std::endl << "[Output]" << std::endl;
-    log_file << "dt_his = " << dt_his << std::endl;
-    log_file << "dt_map = " << dt_map << std::endl;
+    double tstart = input_data.time.tstart;
+    double tstop = input_data.time.tstop;
 
+
+    // Declare arrays
     std::vector<double> mass(3, 0.);  // weighting coefficients of the mass-matrix in x-direction
 
     std::vector<double> zb(nxny, 0.);                     // regularized bed level
@@ -571,12 +468,12 @@ int main(int argc, char *argv[])
     status = 0;
     double min_zb = *std::min_element(zb_giv.begin(), zb_giv.end());
 
-    log_file << "-------------------------------------------------------" << std::endl;
     log_file << "Nodes   : " << nx << "x" << ny << "=" << nxny << std::endl;
     log_file << "Elements: " << (nx - 1) << "x" << (ny - 1) << "=" << (nx - 1) * (ny - 1) << std::endl;
     log_file << "Volumes : " << (nx - 2) << "x" << (ny - 2) << "=" << (nx - 2) * (ny - 2) << std::endl;
     log_file << "CFL (2D): " << std::sqrt(g * std::abs(min_zb)) * dt * std::sqrt(( 1./(dx*dx) + 1./(dy*dy))) << std::endl;
     log_file << "CFL (1D): " << std::sqrt(g * std::abs(min_zb)) * dt /dx << std::endl;
+    if (do_viscosity) { log_file << "Ddt/d^2 : " << visc_const * dt * std::sqrt(( 1./(dx*dx) + 1./(dy*dy))) << std::endl; }
     log_file << "LxLy    : " << Lx - 2. * dx << "x" << Ly - 2. * dy << " without virtual cells" << std::endl;
     log_file << "dxdy    : " << dx << "x" << dy << "=" << dxdy << " [m2]" << std::endl;
     log_file << "nxny    : " << nx << "x" << ny << "=" << nxny << std::endl;
@@ -601,7 +498,7 @@ int main(int argc, char *argv[])
         START_TIMER(Regularization_init);
         regularization->given_function(zb, psi_11, psi_22, eq8, zb_giv, nx, ny, dx, dy, c_psi, log_file);
         regularization->given_function(visc_reg, psi_11, psi_22, eq8, visc_given, nx, ny, dx, dy, c_psi, log_file);
-        for (int i = 0; i < visc_reg.size(); ++i)
+        for (size_t i = 0; i < visc_reg.size(); ++i)
         {
             visc[i] = visc_reg[i] + std::sqrt(psi_11[i] * psi_11[i] + psi_22[i] * psi_22[i]);
         }
@@ -610,13 +507,13 @@ int main(int argc, char *argv[])
     }
     else
     {
-        for (int i = 0; i < zb_giv.size(); ++i)
+        for (size_t i = 0; i < zb_giv.size(); ++i)
         {
             zb[i] = zb_giv[i];
             visc_reg[i] = visc_given[i];
         }
     }
-    for (int k = 0; k < zb_giv.size(); ++k)
+    for (size_t k = 0; k < zb_giv.size(); ++k)
     {
         hn[k] = s_giv[k] - zb[k];  // Initial water depth
         qn[k] = hn[k] * u_giv[k];  // Initial q=hu -velocity
@@ -627,7 +524,7 @@ int main(int argc, char *argv[])
         rp[k] = rn[k]; 
     }
 
-    for (int i = 0; i < nx*ny; ++i)
+    for (size_t i = 0; i < nx*ny; ++i)
     {
         s[i] = hn[i] + zb[i];
         u[i] = qn[i] / hn[i];
@@ -657,173 +554,16 @@ int main(int argc, char *argv[])
     int nr_faces = (nx - 1) * (ny - 1);
     int mesh2d_nmax_face_nodes = 4;  // all elements are quads
     status = map_file->def_dimensions(nr_nodes, nr_edges, nr_faces, mesh2d_nmax_face_nodes);
-
-    std::vector<std::string> dim_names;
-    dim_names.clear();
-    dim_names.push_back("mesh2d_nEdges");
-    dim_names.push_back("Two");
-    status = map_file->add_mesh2d_edge_nodes("mesh2d_edge_nodes", dim_names, "Each edge connects two nodes");
-    dim_names.clear();
-    dim_names.push_back("mesh2d_nFaces");
-    dim_names.push_back("mesh2d_nMax_face_nodes");
-    status = map_file->add_mesh2d_edge_nodes("mesh2d_face_nodes", dim_names, "Each face contains four nodes");
-    std::vector<int> mesh2d_edge_nodes;
-    std::vector<int> mesh2d_face_nodes;
-    std::vector<int> nodes_per_face;
-    std::vector<int> node_mask(nr_nodes, 0);
-
-    int p0 = 0;
-    int p1 = 0;
-    for (int i = 0; i < nx - 1; ++i)
-    {
-        for (int j = 0; j < ny - 1; ++j)
-        {
-            p0 = idx(i    , j, ny);
-            p1 = idx(i + 1, j, ny);
-            if (node_mask[p0] <= 1 || node_mask[p1] <= 1)
-            {
-                mesh2d_edge_nodes.push_back(p0);
-                mesh2d_edge_nodes.push_back(p1);
-                node_mask[p0] += 1;
-                node_mask[p1] += 1;
-            }
-
-            p0 = idx(i + 1, j    , ny);
-            p1 = idx(i + 1, j + 1, ny);
-            if (node_mask[p0] <= 1 || node_mask[p1] <= 1)
-            {
-                mesh2d_edge_nodes.push_back(p0);
-                mesh2d_edge_nodes.push_back(p1);
-                node_mask[p0] += 1;
-                node_mask[p1] += 1;
-            }
-
-            p0 = idx(i + 1, j + 1, ny);
-            p1 = idx(i    , j + 1, ny);
-            if (node_mask[p0] <= 1 || node_mask[p1] <= 1)
-            {
-                mesh2d_edge_nodes.push_back(p0);
-                mesh2d_edge_nodes.push_back(p1);
-                node_mask[p0] += 1;
-                node_mask[p1] += 1;
-            }
-
-            p0 = idx(i    , j + 1, ny);
-            p1 = idx(i    , j    , ny);
-            if (node_mask[p0] <= 1 || node_mask[p1] <= 1)
-            {
-                mesh2d_edge_nodes.push_back(p0);
-                mesh2d_edge_nodes.push_back(p1);
-                node_mask[p0] += 1;
-                //node_mask[p1] += 1;
-            }
-        }
-    }
-    status = map_file->put_variable_2("mesh2d_edge_nodes", mesh2d_edge_nodes);
-    
-    int p2;
-    int p3;
-    double fill_value = mesh2d->node[0]->fill_value;
-    for (int i = 0; i < nx - 1; ++i)
-    {
-        for (int j = 0; j < ny - 1; ++j)
-        {
-            p0 = idx(i    , j    , ny);
-            p1 = idx(i + 1, j    , ny);
-            p2 = idx(i + 1, j + 1, ny);
-            p3 = idx(i    , j + 1, ny);
-            if ((x[p0] != fill_value || y[p0] != fill_value) &&
-                (x[p1] != fill_value || y[p1] != fill_value) &&
-                (x[p2] != fill_value || y[p2] != fill_value) &&
-                (x[p3] != fill_value || y[p3] != fill_value) )
-            {
-                mesh2d_face_nodes.push_back(p0);
-                mesh2d_face_nodes.push_back(p1);
-                mesh2d_face_nodes.push_back(p2);
-                mesh2d_face_nodes.push_back(p3);
-            }
-        }
-    }
-    status = map_file->put_variable_4("mesh2d_face_nodes", mesh2d_face_nodes);
-
-    fill_value = mesh2d->node[0]->fill_value;
-    dim_names.clear();
-    dim_names.push_back("mesh2d_nNodes");
-    status = map_file->add_variable("mesh2d_node_x", dim_names, "projection_x_coordinate", "x", "m");
-    status = map_file->add_attribute("mesh2d_node_x", "_FillValue", fill_value);
-    status = map_file->add_variable("mesh2d_node_y", dim_names, "projection_y_coordinate", "y", "m");
-    status = map_file->add_attribute("mesh2d_node_y", "_FillValue", fill_value);
-    status = map_file->put_variable("mesh2d_node_x", x);
-    status = map_file->put_variable("mesh2d_node_y", y);
-
-    // Compute edges centres
-    std::vector<double> edge_x;
-    std::vector<double> edge_y;
-
-    for (int i = 0; i < mesh2d_edge_nodes.size(); i += 2)
-    {
-        p0 = mesh2d_edge_nodes[i];
-        p1 = mesh2d_edge_nodes[i+1];
-        edge_x.push_back(0.5 * (x[p0] + x[p1]));
-        edge_y.push_back(0.5 * (y[p0] + y[p1]));
-    }
-    dim_names.clear();
-    dim_names.push_back("mesh2d_nEdges");
-    status = map_file->add_variable("mesh2d_edge_x", dim_names, "projection_x_coordinate", "x", "m");
-    status = map_file->add_attribute("mesh2d_edge_x", "_FillValue", fill_value);
-    status = map_file->add_variable("mesh2d_edge_y", dim_names, "projection_y_coordinate", "y", "m");
-    status = map_file->add_attribute("mesh2d_edge_y", "_FillValue", fill_value);
-    status = map_file->put_variable("mesh2d_edge_x", edge_x);
-    status = map_file->put_variable("mesh2d_edge_y", edge_y);
-
-    // Compute mass centres of faces
-    std::vector<double> xmc;
-    std::vector<double> ymc;
-    for (int i = 0; i < nx - 1; ++i)
-    {
-        for (int j = 0; j < ny - 1; ++j)
-        {
-            p0 = idx(i    , j    , ny);
-            p1 = idx(i + 1, j    , ny);
-            p2 = idx(i + 1, j + 1, ny);
-            p3 = idx(i    , j + 1, ny);
-            xmc.push_back(0.25 * (x[p0] + x[p1] + x[p2] + x[p3]));
-            ymc.push_back(0.25 * (y[p0] + y[p1] + y[p2] + y[p3]));
-        }
-    }
-    fill_value = mesh2d->face[0]->fill_value;
-    dim_names.clear();
-    dim_names.push_back("mesh2d_nFaces");
-    status = map_file->add_variable("mesh2d_face_x", dim_names, "projection_x_coordinate", "x", "m");
-    status = map_file->add_attribute("mesh2d_face_x", "_FillValue", fill_value);
-    status = map_file->add_variable("mesh2d_face_y", dim_names, "projection_y_coordinate", "y", "m");
-    status = map_file->add_attribute("mesh2d_face_y", "_FillValue", fill_value);
-    status = map_file->put_variable("mesh2d_face_x", xmc);
-    status = map_file->put_variable("mesh2d_face_y", ymc);
-
-    // Compute area of faces
-    std::vector<double> cell_area;
-    for (int i = 0; i < nx - 1; ++i)
-    {
-        for (int j = 0; j < ny - 1; ++j)
-        {
-            p0 = idx(i    , j    , ny);
-            p1 = idx(i + 1, j    , ny);
-            p2 = idx(i + 1, j + 1, ny);
-            p3 = idx(i    , j + 1, ny);
-            double area = std::abs(0.5 * ((x[p0] * y[p1] + x[p1] * y[p2] + x[p2] * y[p3] + x[p3] * y[p0]) - (y[p0] * x[p1] + y[p1] * x[p2] + y[p2] * x[p3] + y[p3] * x[p0])));
-            cell_area.push_back(area);
-        }
-    }
-    dim_names.clear();
-    dim_names.push_back("mesh2d_nFaces");
-    status = map_file->add_variable("cell_area", dim_names, "cell_area", "-", "m2", "mesh2D", "face");
-    status = map_file->add_attribute("cell_area", "coordinates", "mesh2d_face_x, mesh2d_face_y");
-    status = map_file->put_variable("cell_area", cell_area);
+    status = map_file->add_edge_nodes(nx, ny);
+    status = map_file->add_face_nodes(x, y, mesh2d->node[0]->fill_value, nx, ny);
+    status = map_file->add_node_coords(x, y, mesh2d->node[0]->fill_value);
+    status = map_file->add_edge_coords(x, y, mesh2d->node[0]->fill_value);
+    status = map_file->add_face_mass_centres(x, y, mesh2d->node[0]->fill_value, nx, ny);
+    status = map_file->add_face_area(x, y, mesh2d->node[0]->fill_value, nx, ny);
 
     status = map_file->add_time_series();
 
-    dim_names.clear();
+    std::vector<std::string> dim_names;
     dim_names.push_back("time");
     dim_names.push_back("mesh2d_nNodes");
     std::string map_h_name("hn_2d");
@@ -927,35 +667,6 @@ int main(int argc, char *argv[])
     CFTS* his_file = new CFTS();
     status = his_file->open(nc_hisfile, model_title);
 
-    // Initialize observation station locations
-    int centre = idx(nx / 2, ny / 2, ny);
-    int w_bnd  = idx(1     , ny / 2, ny);  // at boundary, not at virtual point
-    int e_bnd  = idx(nx - 2, ny / 2, ny);  // at boundary, not at virtual point
-    int s_bnd  = idx(nx / 2, 1     , ny);
-    int n_bnd  = idx(nx / 2, ny - 2, ny);
-
-    int sw_bnd = idx(1     , 1     , ny);
-    int ne_bnd = idx(nx - 2, ny - 2, ny);
-    int nw_bnd = idx(1     , ny - 2, ny);
-    int se_bnd = idx(nx - 2, 1     , ny);
-
-    //Station halfway to boundary
-
-    int hw_bnd  = idx(    nx / 4 + 1,     ny / 2    , ny);
-    int he_bnd  = idx(3 * nx / 4 - 1,     ny / 2    , ny);
-    int hs_bnd  = idx(    nx / 2    ,     ny / 4 + 1, ny);
-    int hn_bnd  = idx(    nx / 2    , 3 * ny / 4 - 1, ny);
-
-    int hsw_bnd = idx(    nx / 4 + 1,     ny / 4 + 1, ny);
-    int hne_bnd = idx(3 * nx / 4 - 1, 3 * ny / 4 - 1, ny);
-    int hnw_bnd = idx(    nx / 4 + 1, 3 * ny / 4 - 1, ny);
-    int hse_bnd = idx(3 * nx / 4 - 1,     ny / 4 + 1, ny);
-
-    int p_a;
-    int p_b;
-    int p_c;
-    int p_d;
-
     if (int(2500. / dx) * dx != 2500. || int(2500. / dy) * dy != 2500.)
     {
         std::cout << "----------------------------" << std::endl;
@@ -966,59 +677,21 @@ int main(int argc, char *argv[])
         //std::cin.ignore();
         exit(1);
     }
-    double x_a = std::min(Lx / 2., 2500.);
-    double x_b = std::min(Lx / 2., 2000.);
-    double x_c = std::min(Lx / 2., 1500.);
-    double x_d = std::min(Lx / 2., 0.);
-    double y_a = std::min(Ly / 2., 0.);
-    double y_b = std::min(Ly / 2., 1500.);
-    double y_c = std::min(Ly / 2., 2000.);
-    double y_d = std::min(Ly / 2., 2500.);
-    p_a = idx(int((y_a / dy) + nx / 2), int((x_a / dx) + ny / 2), ny);
-    p_b = idx(int((y_b / dy) + nx / 2), int((x_b / dx) + ny / 2), ny);
-    p_c = idx(int((y_c / dy) + nx / 2), int((x_c / dx) + ny / 2), ny);
-    p_d = idx(int((y_d / dy) + nx / 2), int((x_d / dx) + ny / 2), ny);
 
-    std::vector<double> x_obs = { x[p_a], x[p_b], x[p_c], x[p_d], x[centre], 
-        x[n_bnd], x[ne_bnd], x[e_bnd], x[se_bnd], x[s_bnd], x[sw_bnd], x[w_bnd], x[nw_bnd],
-        x[hn_bnd], x[hne_bnd], x[he_bnd], x[hse_bnd], x[hs_bnd], x[hsw_bnd], x[hw_bnd], x[hnw_bnd]
-    };
-    std::vector<double> y_obs = { y[p_a], y[p_b], y[p_c], y[p_d], y[centre], 
-        y[n_bnd], y[ne_bnd], y[e_bnd], y[se_bnd], y[s_bnd], y[sw_bnd], y[w_bnd], y[nw_bnd],
-        y[hn_bnd], y[hne_bnd], y[he_bnd], y[hse_bnd], y[hs_bnd], y[hsw_bnd], y[hw_bnd], y[hnw_bnd],
-    };
-    int nsig = 0;
-    for (int i = 0; i < x_obs.size(); ++i)
+    std::vector<std::string> obs_station_names;
+    status = def_observation_stations(obs_station_names, input_data.obs_points, xy_tree, x, y, Lx, Ly, dx, dy, nx, ny);
     {
-        nsig = std::max(nsig, (int)std::log10(x_obs[i]));
+        std::vector<double> x_obs;
+        std::vector<double> y_obs;
+        for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+        {
+            auto obs = input_data.obs_points[i];
+            x_obs.push_back(obs.x);
+            y_obs.push_back(obs.y);
+        }
+
+        his_file->add_stations(obs_station_names, x_obs, y_obs);
     }
-    //nsig += 1;
-
-    std::vector<std::string> obs_stations;
-    obs_stations.push_back(setup_obs_name(x[p_a], y[p_a], nsig, "A"));
-    obs_stations.push_back(setup_obs_name(x[p_b], y[p_b], nsig, "B"));
-    obs_stations.push_back(setup_obs_name(x[p_c], y[p_c], nsig, "C"));
-    obs_stations.push_back(setup_obs_name(x[p_d], y[p_d], nsig, "D"));
-    obs_stations.push_back(setup_obs_name(x[centre], y[centre], nsig, "Centre"));
-    obs_stations.push_back(setup_obs_name(x[n_bnd] , y[n_bnd] , nsig, "N"));
-    obs_stations.push_back(setup_obs_name(x[ne_bnd], y[ne_bnd], nsig, "NE"));
-    obs_stations.push_back(setup_obs_name(x[e_bnd] , y[e_bnd] , nsig, "E"));
-    obs_stations.push_back(setup_obs_name(x[se_bnd], y[se_bnd], nsig, "SE"));
-    obs_stations.push_back(setup_obs_name(x[s_bnd] , y[s_bnd] , nsig, "S"));
-    obs_stations.push_back(setup_obs_name(x[sw_bnd], y[sw_bnd], nsig, "SW"));
-    obs_stations.push_back(setup_obs_name(x[w_bnd] , y[w_bnd] , nsig, "W"));
-    obs_stations.push_back(setup_obs_name(x[nw_bnd], y[nw_bnd], nsig, "NW"));
-
-    obs_stations.push_back(setup_obs_name(x[hn_bnd] , y[hn_bnd] , nsig, "Halfway N"));
-    obs_stations.push_back(setup_obs_name(x[hne_bnd], y[hne_bnd], nsig, "Halfway NE"));
-    obs_stations.push_back(setup_obs_name(x[he_bnd] , y[he_bnd] , nsig, "Halfway E"));
-    obs_stations.push_back(setup_obs_name(x[hse_bnd], y[hse_bnd], nsig, "Halfway SE"));
-    obs_stations.push_back(setup_obs_name(x[hs_bnd] , y[hs_bnd] , nsig, "Halfway S"));
-    obs_stations.push_back(setup_obs_name(x[hsw_bnd], y[hsw_bnd], nsig, "Halfway SW"));
-    obs_stations.push_back(setup_obs_name(x[hw_bnd] , y[hw_bnd] , nsig, "Halfway W"));
-    obs_stations.push_back(setup_obs_name(x[hnw_bnd], y[hnw_bnd], nsig, "Halfway NW"));
-
-    his_file->add_stations(obs_stations, x_obs, y_obs);
     his_file->add_time_series();
 
     std::string his_h_name("hn_2d");
@@ -1039,54 +712,63 @@ int main(int argc, char *argv[])
     START_TIMER(Writing his-file);
     int nst_his = 0;
     his_file->put_time(nst_his, time);
-    std::vector<double> his_values = { hn[p_a], hn[p_b], hn[p_c], hn[p_d], hn[centre], 
-        hn[n_bnd], hn[ne_bnd], hn[e_bnd], hn[se_bnd], hn[s_bnd], hn[sw_bnd], hn[w_bnd], hn[nw_bnd],
-        hn[hn_bnd], hn[hne_bnd], hn[he_bnd], hn[hse_bnd], hn[hs_bnd], hn[hsw_bnd], hn[hw_bnd], hn[hnw_bnd]
-    };
+    std::vector<double> his_values;
+    for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+    {
+        his_values.push_back(hn[input_data.obs_points[i].idx]);
+    }
     his_file->put_variable(his_h_name, nst_his, his_values);
 
-    his_values = { qn[p_a], qn[p_b], qn[p_c], qn[p_d], qn[centre], 
-        qn[n_bnd], qn[ne_bnd], qn[e_bnd], qn[se_bnd], qn[s_bnd], qn[sw_bnd], qn[w_bnd], qn[nw_bnd],
-        qn[hn_bnd], qn[hne_bnd], qn[he_bnd], qn[hse_bnd], qn[hs_bnd], qn[hsw_bnd], qn[hw_bnd], qn[hnw_bnd]
-    };
+    his_values.clear();
+    for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+    {
+        his_values.push_back(qn[input_data.obs_points[i].idx]);
+    }
     his_file->put_variable(his_q_name, nst_his, his_values);
- 
-    his_values = { rn[p_a], rn[p_b], rn[p_c], rn[p_d], rn[centre], 
-        rn[n_bnd], rn[ne_bnd], rn[e_bnd], rn[se_bnd], rn[s_bnd], rn[sw_bnd], rn[w_bnd], rn[nw_bnd],
-        rn[hn_bnd], rn[hne_bnd], rn[he_bnd], rn[hse_bnd], rn[hs_bnd], rn[hsw_bnd], rn[hw_bnd], rn[hnw_bnd]
-    };
+
+    his_values.clear();
+    for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+    {
+        his_values.push_back(rn[input_data.obs_points[i].idx]);
+    }
     his_file->put_variable(his_r_name, nst_his, his_values);
 
-    his_values = { s[p_a], s[p_b], s[p_c], s[p_d], s[centre], 
-        s[n_bnd], s[ne_bnd], s[e_bnd], s[se_bnd], s[s_bnd], s[sw_bnd], s[w_bnd], s[nw_bnd],
-        s[hn_bnd], s[hne_bnd], s[he_bnd], s[hse_bnd], s[hs_bnd], s[hsw_bnd], s[hw_bnd], s[hnw_bnd]
-    };
+    his_values.clear();
+    for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+    {
+        his_values.push_back(s[input_data.obs_points[i].idx]);
+    }
     his_file->put_variable(his_s_name, nst_his, his_values);
 
-    his_values = { u[p_a], u[p_b], u[p_c], u[p_d], u[centre], 
-        u[n_bnd], u[ne_bnd], u[e_bnd], u[se_bnd], u[s_bnd], u[sw_bnd], u[w_bnd], u[nw_bnd],
-        u[hn_bnd], u[hne_bnd], u[he_bnd], u[hse_bnd], u[hs_bnd], u[hsw_bnd], u[hw_bnd], u[hnw_bnd]
-    };
+    his_values.clear();
+    for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+    {
+        his_values.push_back(u[input_data.obs_points[i].idx]);
+    }
     his_file->put_variable(his_u_name, nst_his, his_values);
 
-    his_values = { v[p_a], v[p_b], v[p_c], v[p_d], v[centre], 
-        v[n_bnd], v[ne_bnd], v[e_bnd], v[se_bnd], v[s_bnd], v[sw_bnd], v[w_bnd], v[nw_bnd],
-        v[hn_bnd], v[hne_bnd], v[he_bnd], v[hse_bnd], v[hs_bnd], v[hsw_bnd], v[hw_bnd], v[hnw_bnd]
-    };
+    his_values.clear();
+    for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+    {
+        his_values.push_back(v[input_data.obs_points[i].idx]);
+    }
     his_file->put_variable(his_v_name, nst_his, his_values);
 
     std::string his_newton_iter_name("his_newton_iterations");
     his_file->add_variable_without_location(his_newton_iter_name, "iterations", "Newton iteration", "-");
+    his_values.clear();
     his_values = { 0.0 };
     his_file->put_variable(his_newton_iter_name, nst_his, his_values);
 
     std::string his_LinSolver_iter_name("his_LinSolver_iterations");
     his_file->add_variable_without_location(his_LinSolver_iter_name, "iterations", "LinSolver iteration", "-");
+    his_values.clear();
     his_values = { 0.0 };
     his_file->put_variable(his_LinSolver_iter_name, nst_his, his_values);
 
     std::string his_LinSolver_iter_error_name("LinSolver_iteration_error");
     his_file->add_variable_without_location(his_LinSolver_iter_error_name, "iteration_error", "LinSolver iteration error", "-");
+    his_values.clear();
     his_values = { 0.0 };
     his_file->put_variable(his_LinSolver_iter_error_name, nst_his, his_values);
     STOP_TIMER(Writing his-file);
@@ -1105,7 +787,7 @@ int main(int argc, char *argv[])
     if (logging == "pattern")
     {
         log_file << "=== Matrix build matrix pattern =======================" << std::endl;
-        for (int i = 0; i < 3 * nxny; ++i)
+        for (size_t i = 0; i < 3 * nxny; ++i)
         {
             for (int j = 0; j < 3*nxny; ++j)
             {
@@ -1173,6 +855,7 @@ int main(int argc, char *argv[])
 
         int used_newton_iter = 0;
         int used_lin_solv_iter = 0;
+
         START_TIMER(Newton iteration);
         for (int iter = 0; iter < iter_max; ++iter)
         {
@@ -1185,7 +868,7 @@ int main(int argc, char *argv[])
             // interior nodes
             //
             START_TIMER(Linear wave);
-            for (int k = 0; k < nxny; ++k)
+            for (size_t k = 0; k < nxny; ++k)
             {
                 htheta[k] = theta * hp[k] + (1.0 - theta) * hn[k];
                 qtheta[k] = theta * qp[k] + (1.0 - theta) * qn[k];
@@ -1200,6 +883,8 @@ int main(int argc, char *argv[])
             //int nrow = A.rows();  // ==A.outerSize()
             //int nr_nodes = A.cols()/3;
 
+            if (do_linear_waves)
+            {
             // row 0, 1, 2; sw-corner
             // row 3,..., 3 * (ny - 1) - 1: west boundary
             // row 3 * (ny - 1), +1, +2; nw-corner
@@ -1210,7 +895,7 @@ int main(int argc, char *argv[])
             // row 3 * nx * ny - 3, +1, +2 : ne-corner
 
            // south-west corner
-            for (int row = 0; row < 3; row += 3)
+            for (size_t row = 0; row < 3; row += 3)
             {
                 int c_eq = outer[row    ];
                 int q_eq = outer[row + 1];
@@ -1219,7 +904,7 @@ int main(int argc, char *argv[])
                     theta, nx, ny, htheta, qtheta, rtheta);
             }
             // west boundary
-            for (int row = 3; row < 3 * (ny - 1); row += 3)
+            for (size_t row = 3; row < 3 * (ny - 1); row += 3)
             {
                 int c_eq = outer[row    ];
                 int q_eq = outer[row + 1];
@@ -1237,7 +922,7 @@ int main(int argc, char *argv[])
                                         w_nat, w_ess);
             }
             // north-west corner
-            for (int row = 3 * (ny - 1); row < 3 * ny; row += 3)
+            for (size_t row = 3 * (ny - 1); row < 3 * ny; row += 3)
             {
                 int c_eq = outer[row    ];
                 int q_eq = outer[row + 1];
@@ -1246,7 +931,7 @@ int main(int argc, char *argv[])
                     theta, nx, ny, htheta, qtheta, rtheta);
             }
             // interior with south and north boundary
-            for (int row = 3 * ny; row < 3 * (nx - 1) * ny; row += 3) 
+            for (size_t row = 3 * ny; row < 3 * (nx - 1) * ny; row += 3) 
             {
                 int c_eq = outer[row    ];
                 int q_eq = outer[row + 1];
@@ -1287,7 +972,7 @@ int main(int argc, char *argv[])
                 }
             }
             // south-east corner
-            for (int row = 3 * (nx - 1) * ny; row < 3 * (nx - 1) * ny + 3; row += 3)
+            for (size_t row = 3 * (nx - 1) * ny; row < 3 * (nx - 1) * ny + 3; row += 3)
             {
                 int c_eq = outer[row    ];
                 int q_eq = outer[row + 1];
@@ -1296,7 +981,7 @@ int main(int argc, char *argv[])
                     theta, nx, ny, htheta, qtheta, rtheta);
             }
             // east boundary
-            for (int row = 3 * (nx - 1) * ny + 3; row < 3 * nx * ny - 3; row += 3) 
+            for (size_t row = 3 * (nx - 1) * ny + 3; row < 3 * nx * ny - 3; row += 3) 
             {
                 int c_eq = outer[row    ];
                 int q_eq = outer[row + 1];
@@ -1314,7 +999,7 @@ int main(int argc, char *argv[])
                                        w_nat, w_ess);
             }
             // north-east corner
-            for (int row = 3 * nx * ny - 3; row < 3 * nx * ny; row += 3)
+            for (size_t row = 3 * nx * ny - 3; row < 3 * nx * ny; row += 3)
             {
                 int c_eq = outer[row    ];
                 int q_eq = outer[row + 1];
@@ -1322,6 +1007,7 @@ int main(int argc, char *argv[])
                 status =  corner_north_east(values, row, c_eq, q_eq, r_eq, rhs, 
                     theta, nx, ny, htheta, qtheta, rtheta);
             }
+            } // end do_linear_wave
             STOP_TIMER(Linear wave);
 
             if (do_bed_shear_stress)
@@ -1394,7 +1080,7 @@ int main(int argc, char *argv[])
                 // corner_north_west
 
                 // interior with south and north boundary
-                for (int row = 3 * ny; row < 3 * (nx - 1) * ny; row += 3) 
+                for (size_t row = 3 * ny; row < 3 * (nx - 1) * ny; row += 3) 
                 {
                     int c_eq = outer[row    ];
                     int q_eq = outer[row + 1];
@@ -1428,7 +1114,7 @@ int main(int argc, char *argv[])
                 if (logging == "matrix" && (nst == 1 || nst == total_time_steps-1) && iter == 0)
                 {
                     log_file << "=== Matrix ============================================" << std::endl;
-                    for (int i = 0; i < 3 * nxny; ++i)
+                    for (size_t i = 0; i < 3 * nxny; ++i)
                     {
                         for (int j = 0; j < 3*nxny; ++j)
                         {
@@ -1439,7 +1125,7 @@ int main(int argc, char *argv[])
                         if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
                     }
                     log_file << "=== Diagonal dominant == diag, off_diag, -, + =========" << std::endl;
-                    for (int i = 0; i < 3 * nxny; ++i)
+                    for (size_t i = 0; i < 3 * nxny; ++i)
                     {
                         double off_diag = 0.0;
                         double diag = 0.0;
@@ -1454,7 +1140,7 @@ int main(int argc, char *argv[])
                         if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
                     }
                     log_file << "=== RHS ===============================================" << std::endl;
-                    for (int i = 0; i < 3 * nxny; ++i)
+                    for (size_t i = 0; i < 3 * nxny; ++i)
                     {
                         log_file << std::setprecision(8) << std::scientific << rhs[i] << std::endl;
                         if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
@@ -1533,12 +1219,12 @@ int main(int argc, char *argv[])
             dh_maxi = 0;
             dq_maxi = 0;
             dr_maxi = 0;
-            int k = 0;
-            for (int i = 0; i < nx; i++)
+            size_t k = 0;
+            for (size_t i = 0; i < nx; i++)
             {
-                for (int j = 0; j < ny; j++)
+                for (size_t j = 0; j < ny; j++)
                 {
-                    k = idx(i, j ,ny);
+                    k = main_idx(i, j ,ny);
                     // needed for postprocessing
                     hp[k] += solution[3 * k];
                     qp[k] += solution[3 * k + 1];
@@ -1566,12 +1252,12 @@ int main(int argc, char *argv[])
             if (logging == "matrix" && (nst == 1 || nst == total_time_steps-1) && iter == 0)
             {
                 log_file << "=== Solution ==========================================" << std::endl;
-                for (int i = 0; i < 3 * nxny; ++i)
+                for (size_t i = 0; i < 3 * nxny; ++i)
                 {
                     log_file << std::setprecision(8) << std::scientific << solution[i] << std::endl;
                 }
                 log_file << "=== hp, qp, rp, zeta ==================================" << std::endl;
-                for (int i = 0; i < nxny; ++i)
+                for (size_t i = 0; i < nxny; ++i)
                 {
                     log_file << std::setprecision(8) << std::scientific << hp[i] << ", " << qp[i] << ", " << rp[i] << ", " << hp[i] + zb[i] << std::endl;
                 }
@@ -1581,13 +1267,13 @@ int main(int argc, char *argv[])
             if (regularization_iter)
             {
                 START_TIMER(Regularization_iter_loop);
-                //for (int i = 0; i < nr_nodes; ++i)
+                //for (size_t i = 0; i < nr_nodes; ++i)
                 //{
                 //    u[i] = qp[i] / hp[i];
                 //}
                 //(void)regular->first_derivative(psi, visc_reg, u, dx);
                 STOP_TIMER(Regularization_iter_loop);
-                //for (int i = 0; i < nr_nodes; ++i)
+                //for (size_t i = 0; i < nr_nodes; ++i)
                 //{
                     //visc[i] = visc_reg[i] * std::abs(psi[i]);
                     //pe[i] = qp[i] / hp[i] * dx / visc[i];
@@ -1648,7 +1334,7 @@ int main(int argc, char *argv[])
         //STOP_TIMER(Regularization_time_loop);
         //if (regularization_time)
         //{
-        //    for (int i = 0; i < nr_nodes; ++i)
+        //    for (size_t i = 0; i < nr_nodes; ++i)
         //    {
         //        visc[i] = visc_reg[i] * std::abs(psi[i]);
         //        pe[i] = u[i] * dx / visc[i];
@@ -1722,46 +1408,54 @@ int main(int argc, char *argv[])
             }
             his_file->put_time(nst_his, time);
 
-            his_values = { hn[p_a], hn[p_b], hn[p_c], hn[p_d], hn[centre], 
-                hn[n_bnd], hn[ne_bnd], hn[e_bnd], hn[se_bnd], hn[s_bnd], hn[sw_bnd], hn[w_bnd], hn[nw_bnd],
-                hn[hn_bnd], hn[hne_bnd], hn[he_bnd], hn[hse_bnd], hn[hs_bnd], hn[hsw_bnd], hn[hw_bnd], hn[hnw_bnd]
-            };
+            his_values.clear();
+            for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+            {
+                his_values.push_back(hn[input_data.obs_points[i].idx]);
+            }
             his_file->put_variable(his_h_name, nst_his, his_values);
 
-            his_values = { qn[p_a], qn[p_b], qn[p_c], qn[p_d], qn[centre], 
-                qn[n_bnd], qn[ne_bnd], qn[e_bnd], qn[se_bnd], qn[s_bnd], qn[sw_bnd], qn[w_bnd], qn[nw_bnd],
-                qn[hn_bnd], qn[hne_bnd], qn[he_bnd], qn[hse_bnd], qn[hs_bnd], qn[hsw_bnd], qn[hw_bnd], qn[hnw_bnd]
-            };
+            his_values.clear();
+            for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+            {
+                his_values.push_back(qn[input_data.obs_points[i].idx]);
+            }
             his_file->put_variable(his_q_name, nst_his, his_values);
- 
-            his_values = { rn[p_a], rn[p_b], rn[p_c], rn[p_d], rn[centre], 
-                rn[n_bnd], rn[ne_bnd], rn[e_bnd], rn[se_bnd], rn[s_bnd], rn[sw_bnd], rn[w_bnd], rn[nw_bnd],
-                rn[hn_bnd], rn[hne_bnd], rn[he_bnd], rn[hse_bnd], rn[hs_bnd], rn[hsw_bnd], rn[hw_bnd], rn[hnw_bnd]
-            };
+
+            his_values.clear();
+            for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+            {
+                his_values.push_back(rn[input_data.obs_points[i].idx]);
+            }
             his_file->put_variable(his_r_name, nst_his, his_values);
 
-            his_values = { s[p_a], s[p_b], s[p_c], s[p_d], s[centre], 
-                s[n_bnd], s[ne_bnd], s[e_bnd], s[se_bnd], s[s_bnd], s[sw_bnd], s[w_bnd], s[nw_bnd],
-                s[hn_bnd], s[hne_bnd], s[he_bnd], s[hse_bnd], s[hs_bnd], s[hsw_bnd], s[hw_bnd], s[hnw_bnd]
-            };
+            his_values.clear();
+            for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+            {
+                his_values.push_back(s[input_data.obs_points[i].idx]);
+            }
             his_file->put_variable(his_s_name, nst_his, his_values);
 
-            his_values = { u[p_a], u[p_b], u[p_c], u[p_d], u[centre], 
-                u[n_bnd], u[ne_bnd], u[e_bnd], u[se_bnd], u[s_bnd], u[sw_bnd], u[w_bnd], u[nw_bnd],
-                u[hn_bnd], u[hne_bnd], u[he_bnd], u[hse_bnd], u[hs_bnd], u[hsw_bnd], u[hw_bnd], u[hnw_bnd]
-            };
+            his_values.clear();
+            for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+            {
+                his_values.push_back(u[input_data.obs_points[i].idx]);
+            }
             his_file->put_variable(his_u_name, nst_his, his_values);
 
-            his_values = { v[p_a], v[p_b], v[p_c], v[p_d], v[centre], 
-                v[n_bnd], v[ne_bnd], v[e_bnd], v[se_bnd], v[s_bnd], v[sw_bnd], v[w_bnd], v[nw_bnd],
-                v[hn_bnd], v[hne_bnd], v[he_bnd], v[hse_bnd], v[hs_bnd], v[hsw_bnd], v[hw_bnd], v[hnw_bnd]
-            };
+            his_values.clear();
+            for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+            {
+                his_values.push_back(v[input_data.obs_points[i].idx]);
+            }
             his_file->put_variable(his_v_name, nst_his, his_values);
 
             his_values = { double(used_newton_iter) };
             his_file->put_variable(his_newton_iter_name, nst_his, his_values);
+            his_values.clear();
             his_values = { double(solver.iterations()) };
             his_file->put_variable(his_LinSolver_iter_name, nst_his, his_values);
+            his_values.clear();
             his_values = { solver.error() };
             his_file->put_variable(his_LinSolver_iter_error_name, nst_his, his_values);
             STOP_TIMER(Writing his-file);
@@ -1782,33 +1476,10 @@ int main(int argc, char *argv[])
     std::this_thread::sleep_for(timespan);
     return 0;
 }
-inline int idx(int i, int j, int ny)
+inline size_t main_idx(size_t i, size_t j, size_t ny)
 {
     return i * ny + j;
 }
-std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs_name)
-{
-    std::string ss_x;
-    std::string ss_y;
-    ss_x = string_format_with_zeros(x_obs, nsig + 3);
-    ss_y = string_format_with_zeros(y_obs, nsig + 3);
-
-    //ss_x << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << x_obs;
-    //ss_y << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << y_obs;
-    return (obs_name + " (" + ss_x + ", " + ss_y + ") ");
-}
-std::string string_format_with_zeros(double value, int width) 
-{
-    std::ostringstream oss;
-    if (value < 0) {
-        oss << '-';
-        oss << std::setw(width - 1) << std::setfill('0') << std::fixed << std::setprecision(1) << -value;
-    } else {
-        oss << std::setw(width) << std::setfill('0') << std::fixed << std::setprecision(1) << value;
-    }
-    return oss.str();
-}
-
 //------------------------------------------------------------------------------
 /* @@ GetArguments
 *
@@ -1836,52 +1507,3 @@ void GetArguments(long argc,   /* I Number of command line arguments */
     }
     return;
 }
-int get_toml_array(toml::table tbl, std::string keyw, std::vector<std::string>& values)
-{
-    int status = 1;
-    toml::array& arr = *tbl.get_as<toml::array>(keyw);
-    if (&arr != nullptr)
-    {
-        values.clear();
-        for (auto&& elem : arr)
-        {
-            auto e = elem.value_or("none");
-            values.emplace_back(e);
-        }
-    }
-    if (&arr != nullptr) status = 0;
-    return status;
-}
-int get_toml_array(toml::table tbl, std::string keyw, std::vector<double>& values)
-{
-    int status = 1;
-    toml::array& arr = *tbl.get_as<toml::array>(keyw);
-    if (&arr != nullptr)
-    {
-        values.clear();
-        for (auto&& elem : arr)
-        {
-            auto e = elem.value_or(0.0);
-            values.emplace_back(e);
-        }
-    }
-    if (&arr != nullptr) status = 0;
-    return status;
-}
-int get_toml_array(toml::table tbl, std::string keyw, std::vector<bool>& values)
-{
-    int status = 1;
-    toml::array& arr = *tbl.get_as<toml::array>(keyw);
-    if (&arr != nullptr)
-    {
-        values.clear();
-        for (auto&& elem : arr)
-        {
-            auto e = elem.value_or(false);
-            values.emplace_back(e);
-        }
-    }
-    if (&arr != nullptr) status = 0;
-    return status;
-}
-

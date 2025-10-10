@@ -61,11 +61,11 @@ REGULARIZATION::REGULARIZATION(int iter_max, double g) :
 void REGULARIZATION::given_function( 
     std::vector<double>& u_out, std::vector<double>& psi_11, std::vector<double>& psi_22, std::vector<double>& eq8, 
     std::vector<double>& u_giv_in,
-    int nx, int ny, double dx, double dy, double c_psi, std::ofstream& log_file)
+    size_t nx, size_t ny, double dx, double dy, double c_psi, std::ofstream& log_file)
 {
     double diff_max0 = 0.0;
     double diff_max1 = 0.0;
-    int nxny = nx * ny;
+    size_t nxny = nx * ny;
     std::vector<double> u_giv(nxny, 0.);
     std::vector<double> u0(nxny, 0.);
     std::vector<double> u1(nxny, 0.);
@@ -78,7 +78,7 @@ void REGULARIZATION::given_function(
     double u_giv_range = *u_giv_in_max - *u_giv_in_min > min_range ? *u_giv_in_max - *u_giv_in_min : min_range;
     u_giv_range = 1.0;
     
-    for (int i = 0; i < nxny; ++i)
+    for (size_t i = 0; i < nxny; ++i)
     {
         // scaling of the input array u_giv_in
         u0[i] = u_giv_in[i] / u_giv_range;
@@ -90,15 +90,15 @@ void REGULARIZATION::given_function(
         //std::cout << "Compute second derivative" << std::endl;
         double u0_xixi_max = 0.0;
         double u0_etaeta_max = 0.0;
-        for (int j = 1; j < ny - 1; ++j)
+        for (size_t j = 1; j < ny - 1; ++j)
         {
-            for (int i = 1; i < nx - 1; ++i)
+            for (size_t i = 1; i < nx - 1; ++i)
             {
-                int p_0 = p_index(i, j    , ny);
-                int p_n = p_index(i, j + 1, ny);
-                int p_e = p_index(i + 1, j, ny);
-                int p_s = p_index(i, j - 1, ny);
-                int p_w = p_index(i - 1, j, ny);
+                size_t p_0 = p_index(i, j    , ny);
+                size_t p_n = p_index(i, j + 1, ny);
+                size_t p_e = p_index(i + 1, j, ny);
+                size_t p_s = p_index(i, j - 1, ny);
+                size_t p_w = p_index(i - 1, j, ny);
                 u0_xixi[p_0]   = std::abs((u0[p_e] - 2. * u0[p_0] + u0[p_w]));
                 u0_etaeta[p_0] = std::abs((u0[p_n] - 2. * u0[p_0] + u0[p_s]));
                 u0_xixi_max = std::max(u0_xixi_max, std::abs(u0_xixi[p_0]));
@@ -108,42 +108,42 @@ void REGULARIZATION::given_function(
         double smooth= std::max(u0_xixi_max, u0_etaeta_max);
         if (smooth < m_u0_is_smooth)
         {
-            for (int i = 0; i < nxny; ++i)
+            for (size_t i = 0; i < nxny; ++i)
             {
                 //u_out[i] = u_giv_in[i];
             }
             //return;
         }
 
-        for (int i = 0; i < nx; ++i)  // horizontal direction
+        for (size_t i = 0; i < nx; ++i)  // horizontal direction
         {
-            int j = 0;
-            int p_0  = p_index(i, j    , ny);
-            int p_n  = p_index(i, j + 1, ny);
-            int p_nn = p_index(i, j + 2, ny);
+            size_t j = 0;
+            size_t p_0  = p_index(i, j    , ny);
+            size_t p_n  = p_index(i, j + 1, ny);
+            size_t p_nn = p_index(i, j + 2, ny);
             u0_etaeta[p_0] = u0_etaeta[p_nn];
             u0_etaeta[p_n] = u0_etaeta[p_nn];
 
             j = ny - 1;
-            p_0      = p_index(i, j    , ny);
-            int p_s  = p_index(i, j - 1, ny);
-            int p_ss = p_index(i, j - 2, ny);
+            p_0         = p_index(i, j    , ny);
+            size_t p_s  = p_index(i, j - 1, ny);
+            size_t p_ss = p_index(i, j - 2, ny);
             u0_etaeta[p_0] = u0_etaeta[p_ss];
             u0_etaeta[p_s] = u0_etaeta[p_ss];
         }
-        for (int j = 0; j < ny; ++j)  // vertical direction
+        for (size_t j = 0; j < ny; ++j)  // vertical direction
         {
-            int i = 0;
-            int p_0  = p_index(i    , j, ny);
-            int p_e  = p_index(i + 1, j, ny);
-            int p_ee = p_index(i + 2, j, ny);
+            size_t i = 0;
+            size_t p_0  = p_index(i    , j, ny);
+            size_t p_e  = p_index(i + 1, j, ny);
+            size_t p_ee = p_index(i + 2, j, ny);
             u0_xixi[p_0] = u0_xixi[p_ee];
             u0_xixi[p_e] = u0_xixi[p_ee];
 
             i = nx - 1;
             p_0      = p_index(i    , j, ny);
-            int p_w  = p_index(i - 1, j, ny);
-            int p_ww = p_index(i - 2, j, ny);
+            size_t p_w  = p_index(i - 1, j, ny);
+            size_t p_ww = p_index(i - 2, j, ny);
             u0_xixi[p_0] = u0_xixi[p_ww];
             u0_xixi[p_w] = u0_xixi[p_ww];
         }
@@ -151,7 +151,7 @@ void REGULARIZATION::given_function(
 //------------------------------------------------------------------------------
         eq8 = *(this->solve_eq8(nx, ny, dx, dy, c_psi, u0, u0_xixi, u0_etaeta, log_file));
 //------------------------------------------------------------------------------
-        for (int i = 0; i < nxny; ++i)
+        for (size_t i = 0; i < nxny; ++i)
         {
             psi_11[i] = c_psi * (dx * dx + dy * dy) * eq8[i]/2.0;  // divide by 2: then is equal to 1D if dx=dy
             psi_22[i] = c_psi * (dx * dx + dy * dy) * eq8[i]/2.0;  // divide by 2: then is equal to 1D if dx=dy
@@ -161,7 +161,7 @@ void REGULARIZATION::given_function(
 //------------------------------------------------------------------------------
 
         diff_max1 = 0.0;
-        for (int i = 0; i < nxny; ++i)
+        for (size_t i = 0; i < nxny; ++i)
         {
             diff_max1 = std::max(diff_max1, std::abs(u0[i] - u_giv[i]));
         }
@@ -175,7 +175,7 @@ void REGULARIZATION::given_function(
             break;
         }
     }
-    for (int i = 0; i < nxny; ++i)
+    for (size_t i = 0; i < nxny; ++i)
     {
         u_out[i] = u0[i] * u_giv_range;
     }
@@ -183,15 +183,15 @@ void REGULARIZATION::given_function(
 
 void REGULARIZATION::first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx)
 {
-    int nx = (int)eps.size();
+    size_t nx = eps.size();
     std::vector<double> pe(nx, 0.0);
     double pe_threshold = 1.8;
 
-    for (int i = 0; i < nx; ++i)
+    for (size_t i = 0; i < nx; ++i)
     {
         pe[i] = std::abs(u[i] * dx / eps[i]);
     }
-    for (int i = 0; i < nx; ++i)
+    for (size_t i = 0; i < nx; ++i)
     {
         psi[i] = 1.0;
         if (pe[i] > pe_threshold)
@@ -200,10 +200,10 @@ void REGULARIZATION::first_derivative(std::vector<double>& psi, std::vector<doub
         }
     }
 }
-std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, double dx, double dy, 
+std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t ny, double dx, double dy, 
     std::vector<double> psi_11, std::vector<double> psi_22, std::vector<double> u_giv, std::ofstream& log_file)
 {
-    int nxny = nx * ny;
+    size_t nxny = nx * ny;
     auto u = std::make_unique<std::vector<double>> ();
     std::vector<double> tmp(nxny, 0.0);
 
@@ -220,11 +220,11 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
     double* values = B.valuePtr();         // pointer to all non-zero values
     const int* outer = B.outerIndexPtr();   // row start pointers
 
-    int col;
-    int p_0;
+    size_t col;
+    size_t p_0;
 
     // south-west corner
-    for (int row = 0; row < 1; row += 1)
+    for (size_t row = 0; row < 1; row += 1)
     {
         col = outer[row    ];
         p_0 = col/(9);  // p_sw
@@ -241,7 +241,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
         rhs[row    ] = u_giv[p_0];
     }
     // west boundary
-    for (int row = 1; row < (ny - 1); row += 1)
+    for (size_t row = 1; row < (ny - 1); row += 1)
     {
         col = outer[row    ];
         p_0 = col/(9);  // p_w
@@ -258,7 +258,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
         rhs[row    ] = 0.0;
     }
     // north-west corner
-    for (int row = ny - 1; row < ny; row += 1)
+    for (size_t row = ny - 1; row < ny; row += 1)
     {
         col = outer[row    ];
         p_0 = col/(9);  // p_nw
@@ -276,7 +276,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
     }
     //
     // first internal west boundary column
-    for (int row = ny; row < 2 * ny; row += 1) 
+    for (size_t row = ny; row < 2 * ny; row += 1) 
     {
         if (std::fmod(row , ny) == 0) {
             // south boundary
@@ -328,7 +328,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
     }
 
     // interior with south and north boundary
-    for (int row = 2 * ny; row < (nx - 2) * ny; row += 1) 
+    for (size_t row = 2 * ny; row < (nx - 2) * ny; row += 1) 
     {
         if (std::fmod(row , ny) == 0) {
             // south boundary
@@ -401,17 +401,17 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
         }
 
         col = outer[row    ];
-        int p0 = col/(9);  // p_s
+        size_t p0 = col/(9);  // p_s
 
-        int p_sw = p0 - ny - 1;
-        int p_w  = p0 - ny    ;
-        int p_nw = p0 - ny + 1;
-        int p_s  = p0 - 1;
-        int p_0  = p0    ;
-        int p_n  = p0 + 1;
-        int p_se = p0 + ny - 1;
-        int p_e  = p0 + ny    ;
-        int p_ne = p0 + ny + 1;
+        size_t p_sw = p0 - ny - 1;
+        size_t p_w  = p0 - ny    ;
+        size_t p_nw = p0 - ny + 1;
+        size_t p_s  = p0 - 1;
+        size_t p_0  = p0    ;
+        size_t p_n  = p0 + 1;
+        size_t p_se = p0 + ny - 1;
+        size_t p_e  = p0 + ny    ;
+        size_t p_ne = p0 + ny + 1;
         
         values[col     ] = dx * dy * m_mass[0] * m_mass[0];
         values[col +  1] = dx * dy * m_mass[0] * m_mass[1];
@@ -454,7 +454,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
         rhs[row] += dx * dy * m_mass[2] * m_mass[2] * u_giv[p_ne];
     }
     // first internal east boundary column
-    for (int row = (nx - 2) * ny; row < (nx - 1) * ny; row += 1) 
+    for (size_t row = (nx - 2) * ny; row < (nx - 1) * ny; row += 1) 
     {
         if (std::fmod(row , ny) == 0) {
             // south boundary
@@ -505,7 +505,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
         rhs[row    ] = u_giv[p_0];
     }
     // south-east corner
-    for (int row = (nx - 1) * ny; row < (nx - 1) * ny + 1; row += 1)
+    for (size_t row = (nx - 1) * ny; row < (nx - 1) * ny + 1; row += 1)
     {
         col = outer[row    ];
         p_0 = col/(9);  // p_se
@@ -522,7 +522,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
         rhs[row    ] = u_giv[p_0];
 }
     // east boundary
-    for (int row = (nx - 1) * ny + 1; row < nx * ny - 1; row += 1) 
+    for (size_t row = (nx - 1) * ny + 1; row < nx * ny - 1; row += 1) 
     {
         col = outer[row    ];
         p_0 = col/(9);  // p_e
@@ -539,7 +539,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
         rhs[row    ] = 0.0;
     }
     // north-east corner
-    for (int row = nx * ny - 1; row < nx * ny; row += 1)
+    for (size_t row = nx * ny - 1; row < nx * ny; row += 1)
     {
         col = outer[row    ];
         p_0 = col/(9);  // p_ne
@@ -559,9 +559,9 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
     if (false)
     {
         log_file << "=== Matrix eq7 ========================================" << std::endl;
-        for (int i = 0; i < nxny; ++i)
+        for (size_t i = 0; i < nxny; ++i)
         {
-            for (int j = 0; j < nxny; ++j)
+            for (size_t j = 0; j < nxny; ++j)
             {
                 log_file << std::showpos << std::setprecision(3) << std::scientific << B.coeff(i, j) << " ";
                 if (std::fmod(j+1,ny) == 0) { log_file << "| "; }
@@ -570,7 +570,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
             if (std::fmod(i+1,ny) == 0) { log_file << std::endl; }
         }
         log_file << "=== RHS eq7 ===========================================" << std::endl;
-        for (int i = 0; i < nxny; ++i)
+        for (size_t i = 0; i < nxny; ++i)
         {
             log_file << std::setprecision(8) << std::scientific << rhs[i] << std::endl;
             if (std::fmod(i+1,ny) == 0) { log_file << std::endl; }
@@ -583,7 +583,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
     solution = solverB.solve(rhs);
     //solution = solverB.solveWithGuess(rhs, solution);
 
-    for (int i = 0; i < nxny; ++i)
+    for (size_t i = 0; i < nxny; ++i)
     {
         u->push_back(solution[i]);
     }
@@ -592,10 +592,10 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(int nx, int ny, d
 };
 
 
-std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(int nx, int ny, double dx, double dy, double c_error, 
+std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(size_t nx, size_t ny, double dx, double dy, double c_error, 
 std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etaeta, std::ofstream& log_file)
 {
-    int nxny = nx*ny;
+    size_t nxny = nx*ny;
     auto eq8 = std::make_unique<std::vector<double>> ();
     std::vector<double> tmp(nxny, NAN);
 
@@ -612,9 +612,9 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
     if (false) 
     {
         log_file << "=== Matrix build matrix pattern =======================" << std::endl;
-        for (int i = 0; i < nxny; ++i)
+        for (size_t i = 0; i < nxny; ++i)
         {
-            for (int j = 0; j < nxny; ++j)
+            for (size_t j = 0; j < nxny; ++j)
             {
                 if (A.coeff(i, j) != 0.0)
                 {
@@ -632,7 +632,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
 
     double u0_xixi_max = 0.0;
     double u0_etaeta_max = 0.0;
-    for (int i = 0; i < nxny; ++i)
+    for (size_t i = 0; i < nxny; ++i)
     {
         u0_xixi_max = std::max(u0_xixi_max, u0_xixi[i]);
         u0_etaeta_max = std::max(u0_etaeta_max, u0_etaeta[i]);
@@ -643,11 +643,11 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
     double* values = A.valuePtr();         // pointer to all non-zero values
     const int* outer = A.outerIndexPtr();   // row start pointers
 
-    int col;
-    int p0;
+    size_t col;
+    size_t p0;
 
     // south-west corner
-    for (int row = 0; row < 1; row += 1)
+    for (size_t row = 0; row < 1; row += 1)
     {
         col = outer[row    ];
         p0 = col/(9);  // p_sw
@@ -664,7 +664,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
         rhs[row    ] = 0.0;
     }
     // west boundary
-    for (int row = 1; row < (ny - 1); row += 1)
+    for (size_t row = 1; row < (ny - 1); row += 1)
     {
         col = outer[row    ];
         p0 = col/(9);  // p_w
@@ -681,7 +681,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
         rhs[row    ] = 0.0;
     }
     // north-west corner
-    for (int row = ny - 1; row < ny; row += 1)
+    for (size_t row = ny - 1; row < ny; row += 1)
     {
         col = outer[row    ];
         p0 = col/(9);  // p_nw
@@ -698,7 +698,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
         rhs[row    ] = 0.0;
     }
     // interior with south and north boundary
-    for (int row = ny; row < (nx - 1) * ny; row += 1) 
+    for (size_t row = ny; row < (nx - 1) * ny; row += 1) 
     {
         col = outer[row    ];
         p0 = col/(9);  // p_0
@@ -738,15 +738,15 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
             continue;
         }
 
-        int p_sw = p0 - ny - 1;
-        int p_w  = p0 - ny    ;
-        int p_nw = p0 - ny + 1;
-        int p_s  = p0 - 1;
-        int p_0  = p0    ;
-        int p_n  = p0 + 1;
-        int p_se = p0 + ny - 1;
-        int p_e  = p0 + ny    ;
-        int p_ne = p0 + ny + 1;
+        size_t p_sw = p0 - ny - 1;
+        size_t p_w  = p0 - ny    ;
+        size_t p_nw = p0 - ny + 1;
+        size_t p_s  = p0 - 1;
+        size_t p_0  = p0    ;
+        size_t p_n  = p0 + 1;
+        size_t p_se = p0 + ny - 1;
+        size_t p_e  = p0 + ny    ;
+        size_t p_ne = p0 + ny + 1;
 
         //values[col     ] = m_mass[0] * m_mass[0];
         //values[col +  1] = m_mass[1] * m_mass[0] - c_error * u0_etaeta[p_w] / u0_etaeta_max;
@@ -782,7 +782,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
         rhs[row] = std::abs(rhs[p_0]);
     }
     // south-east corner
-    for (int row = (nx - 1) * ny; row < (nx - 1) * ny + 1; row += 1)
+    for (size_t row = (nx - 1) * ny; row < (nx - 1) * ny + 1; row += 1)
     {
         col = outer[row    ];
         p0 = col/(9);  // p_se
@@ -799,7 +799,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
         rhs[row    ] = 0.0;
 }
     // east boundary
-    for (int row = (nx - 1) * ny + 1; row < nx * ny - 1; row += 1) 
+    for (size_t row = (nx - 1) * ny + 1; row < nx * ny - 1; row += 1) 
     {
         col = outer[row    ];
         p0 = col/(9);  // p_e
@@ -816,7 +816,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
         rhs[row    ] = 0.0;
     }
     // north-east corner
-    for (int row = nx * ny - 1; row < nx * ny; row += 1)
+    for (size_t row = nx * ny - 1; row < nx * ny; row += 1)
     {
         col = outer[row    ];
         p0 = col/(9);  // p_ne
@@ -833,7 +833,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
         rhs[row    ] = 0.0;
     }
 
-    for (int i = 0; i < nxny; ++i)
+    for (size_t i = 0; i < nxny; ++i)
     {
         solution[i] = u0[i];
     }
@@ -841,9 +841,9 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
     if (false)
     {
         log_file << "=== Matrix eq8 ========================================" << std::endl;
-        for (int i = 0; i < nxny; ++i)
+        for (size_t i = 0; i < nxny; ++i)
         {
-            for (int j = 0; j < nxny; ++j)
+            for (size_t j = 0; j < nxny; ++j)
             {
                 log_file << std::showpos << std::setprecision(3) << std::scientific << A.coeff(i, j) << " ";
                 if (std::fmod(j+1,ny) == 0) { log_file << "| "; }
@@ -852,7 +852,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
             if (std::fmod(i+1,ny) == 0) { log_file << std::endl; }
         }
         log_file << "=== RHS eq8 ===========================================" << std::endl;
-        for (int i = 0; i < nxny; ++i)
+        for (size_t i = 0; i < nxny; ++i)
         {
             log_file << std::setprecision(8) << std::scientific << rhs[i] << std::endl;
             if (std::fmod(i+1,ny) == 0) { log_file << std::endl; }
@@ -866,13 +866,13 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
     solution = solverA.solve(rhs);
     //solution = solverA.solveWithGuess(rhs, solution);
 
-    for (int i = 0; i < nxny; ++i)
+    for (size_t i = 0; i < nxny; ++i)
     {
         eq8->push_back(solution[i]); // / (err_max + 1e-13);  // to prevent division bij zero
     }
     return eq8;
 }
-int REGULARIZATION::p_index(int i, int j, int ny)
+size_t REGULARIZATION::p_index(size_t i, size_t j, size_t ny)
 {
     return i * ny + j;
 }

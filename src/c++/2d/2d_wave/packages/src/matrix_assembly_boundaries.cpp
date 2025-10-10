@@ -46,10 +46,11 @@
 //
 // boundary nodes
 //
-int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+//==============================================================================
+int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & dyinv, double & theta, double & g, double eps_bc_corr, 
     bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity, 
-    double dx, double dy, int nx, int ny,
+    double dx, double dy, size_t nx, size_t ny,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
@@ -59,15 +60,15 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
 {
     memset(&values[c_eq], 0, 3 * 27 * sizeof(double));  // set all coefficients for one row of c-, q- and r-equation to zero
 
-    int p_5 = c_eq/(3*27);  // node number of boundary point, ie north point of molecule
-    int p_4 = p_5 - 1;
-    int p_3 = p_5 - 2;
-    int p_0 = p_5 - ny - 2;
-    int p_1 = p_5 - ny - 1;
-    int p_2 = p_5 - ny;
-    int p_6 = p_5 + ny - 2;
-    int p_7 = p_5 + ny - 1;
-    int p_8 = p_5 + ny;
+    size_t p_5 = c_eq/(3*27);  // node number of boundary point, ie north point of molecule
+    size_t p_4 = p_5 - 1;
+    size_t p_3 = p_5 - 2;
+    size_t p_0 = p_5 - ny - 2;
+    size_t p_1 = p_5 - ny - 1;
+    size_t p_2 = p_5 - ny;
+    size_t p_6 = p_5 + ny - 2;
+    size_t p_7 = p_5 + ny - 1;
+    size_t p_8 = p_5 + ny;
 
     double htheta_b = w_nat[0] * htheta[p_5] + w_nat[1] * htheta[p_4] + w_nat[2] * htheta[p_3];
     double zb_b = w_nat[0] * zb[p_5] + w_nat[1] * zb[p_4] + w_nat[2] * zb[p_3];
@@ -79,34 +80,66 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
     double con_fac = c_wave;
 
     // nnorth
-    if (bc_type[BC_NORTH] == "dirichlet")
+    if (bc_type[BC_NORTH] == "dirichlet" || bc_type[BC_NORTH] == "neumann")
     {
-        // Contribution Delta h
-        int col_b  = c_eq + 5 * 3;
-        int col_s  = c_eq + 4 * 3;
-        int col_ss = c_eq + 3 * 3;
-        values[col_b ] =  1.0 * theta;
-        values[col_s ] = -1.0 * theta;
-        values[col_ss] = 0.0;
-        rhs[row] = -(htheta[p_5] + zb[p_5] - htheta[p_4] - zb[p_4]);
+        if (bc_type[BC_NORTH] == "dirichlet")
+        {
+            // Contribution Delta h
+            size_t col_b  = c_eq + 5 * 3;
+            size_t col_s  = c_eq + 4 * 3;
+            size_t col_ss = c_eq + 3 * 3;
+            values[col_b ] =  1.0 * theta;
+            values[col_s ] = -1.0 * theta;
+            values[col_ss] = 0.0;
+            rhs[row] = -(htheta[p_5] + zb[p_5] - htheta[p_4] - zb[p_4]);
 
-        // Contribution Delta q
-        col_b  = q_eq + 5 * 3;
-        col_s  = q_eq + 4 * 3;
-        col_ss = q_eq + 3 * 3;
-        values[col_b  + 1] = 1.0 * theta;
-        values[col_s  + 1] =-1.0 * theta;
-        values[col_ss + 1] = 0.0;
-        rhs[row + 1] = -(qtheta[p_5] - qtheta[p_4]);
+            // Contribution Delta q
+            col_b  = q_eq + 5 * 3;
+            col_s  = q_eq + 4 * 3;
+            col_ss = q_eq + 3 * 3;
+            values[col_b  + 1] = 0.5 * theta;
+            values[col_s  + 1] = 0.5 * theta;
+            values[col_ss + 1] = 0.0;
+            rhs[row + 1] = 0.0;
 
-        // Contribution Delta r
-        col_b  = r_eq + 5 * 3;
-        col_s  = r_eq + 4 * 3;
-        col_ss = r_eq + 3 * 3;
-        values[col_b  + 2]  = 0.5 * theta;
-        values[col_s  + 2]  = 0.5 * theta;
-        values[col_ss + 2]  = 0.0;
-        rhs[row + 2] = 0.0;
+            // Contribution Delta r
+            col_b  = r_eq + 5 * 3;
+            col_s  = r_eq + 4 * 3;
+            col_ss = r_eq + 3 * 3;
+            values[col_b  + 2]  = 0.5 * theta;
+            values[col_s  + 2]  = 0.5 * theta;
+            values[col_ss + 2]  = 0.0;
+            rhs[row + 2] = 0.0;
+        }
+        else if (bc_type[BC_NORTH] == "neumann")
+        {
+            // Contribution Delta h
+            size_t col_b  = c_eq + 5 * 3;
+            size_t col_s  = c_eq + 4 * 3;
+            size_t col_ss = c_eq + 3 * 3;
+            values[col_b ] =  1.0 * theta;
+            values[col_s ] = -1.0 * theta;
+            values[col_ss] = 0.0;
+            rhs[row] = -(htheta[p_5] + zb[p_5] - htheta[p_4] - zb[p_4]);
+
+            // Contribution Delta q
+            col_b  = q_eq + 5 * 3;
+            col_s  = q_eq + 4 * 3;
+            col_ss = q_eq + 3 * 3;
+            values[col_b  + 1] = 1.0 * theta;
+            values[col_s  + 1] =-1.0 * theta;
+            values[col_ss + 1] = 0.0;
+            rhs[row + 1] = -(qtheta[p_5] - qtheta[p_4]);
+
+            // Contribution Delta r
+            col_b  = r_eq + 5 * 3;
+            col_s  = r_eq + 4 * 3;
+            col_ss = r_eq + 3 * 3;
+            values[col_b  + 2]  = 0.5 * theta;
+            values[col_s  + 2]  = 0.5 * theta;
+            values[col_ss + 2]  = 0.0;
+            rhs[row + 2] = 0.0;
+        }
     }
     else
     {
@@ -115,15 +148,15 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
             // essential boundary condition
             // ----------------------------
             // first row
-            int col_wb  = c_eq + 2 * 3;
-            int col_ws  = c_eq + 1 * 3;
-            int col_wss = c_eq + 0 * 3;
-            int col_b   = c_eq + 5 * 3;
-            int col_s   = c_eq + 4 * 3;
-            int col_ss  = c_eq + 3 * 3;
-            int col_eb  = c_eq + 8 * 3;
-            int col_es  = c_eq + 7 * 3;
-            int col_ess = c_eq + 6 * 3;
+            size_t col_wb  = c_eq + 2 * 3;
+            size_t col_ws  = c_eq + 1 * 3;
+            size_t col_wss = c_eq + 0 * 3;
+            size_t col_b   = c_eq + 5 * 3;
+            size_t col_s   = c_eq + 4 * 3;
+            size_t col_ss  = c_eq + 3 * 3;
+            size_t col_eb  = c_eq + 8 * 3;
+            size_t col_es  = c_eq + 7 * 3;
+            size_t col_ess = c_eq + 6 * 3;
             //
             // face_0 
             double face_fac = 0.5 * dx * 0.25;
@@ -233,15 +266,15 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
             //------------------------------------------------------------------
             // first row
             //
-            int col_wb  = c_eq + 2 * 3;
-            int col_ws  = c_eq + 1 * 3;
-            int col_wss = c_eq + 0 * 3;
-            int col_b   = c_eq + 5 * 3;
-            int col_s   = c_eq + 4 * 3;
-            int col_ss  = c_eq + 3 * 3;
-            int col_eb  = c_eq + 8 * 3;
-            int col_es  = c_eq + 7 * 3;
-            int col_ess = c_eq + 6 * 3;
+            size_t col_wb  = c_eq + 2 * 3;
+            size_t col_ws  = c_eq + 1 * 3;
+            size_t col_wss = c_eq + 0 * 3;
+            size_t col_b   = c_eq + 5 * 3;
+            size_t col_s   = c_eq + 4 * 3;
+            size_t col_ss  = c_eq + 3 * 3;
+            size_t col_eb  = c_eq + 8 * 3;
+            size_t col_es  = c_eq + 7 * 3;
+            size_t col_ess = c_eq + 6 * 3;
             //
             if (do_convection) { con_fac = c_wave - rp_b / hp_b; }
             //
@@ -412,15 +445,15 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
         // second row
         // q-momentum (tangential equation, q == 0)
         //
-        int col_wb  = q_eq + 2 * 3;
-        int col_ws  = q_eq + 1 * 3;
-        int col_wss = q_eq + 0 * 3;
-        int col_b   = q_eq + 5 * 3;
-        int col_s   = q_eq + 4 * 3;
-        int col_ss  = q_eq + 3 * 3;
-        int col_eb  = q_eq + 8 * 3;
-        int col_es  = q_eq + 7 * 3;
-        int col_ess = q_eq + 6 * 3;
+        size_t col_wb  = q_eq + 2 * 3;
+        size_t col_ws  = q_eq + 1 * 3;
+        size_t col_wss = q_eq + 0 * 3;
+        size_t col_b   = q_eq + 5 * 3;
+        size_t col_s   = q_eq + 4 * 3;
+        size_t col_ss  = q_eq + 3 * 3;
+        size_t col_eb  = q_eq + 8 * 3;
+        size_t col_es  = q_eq + 7 * 3;
+        size_t col_ess = q_eq + 6 * 3;
         //
         set_value(values, col_b , 0.0);
         set_value(values, col_s , 0.0);
@@ -714,10 +747,10 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
     return 0;
 }
 //==============================================================================
-int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & dxinv, double & theta, double & g, double eps_bc_corr, 
     bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity, 
-    double dx, double dy, int nx, int ny,
+    double dx, double dy, size_t nx, size_t ny,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
@@ -747,34 +780,66 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
     double con_fac = c_wave;
 
     // eeast
-    if (bc_type[BC_EAST] == "dirichlet")
+    if (bc_type[BC_EAST] == "dirichlet" || bc_type[BC_EAST] == "neumann")
     {
-        // Contribution Delta h
-        int col_b  = c_eq + 7 * 3;
-        int col_w  = c_eq + 4 * 3;
-        int col_ww = c_eq + 1 * 3;
-        values[col_b ] =  1.0 * theta;
-        values[col_w ] = -1.0 * theta;
-        values[col_ww] = 0.0;
-        rhs[row] = -(htheta[p_7] + zb[p_7] - htheta[p_4] - zb[p_4]);
+        if (bc_type[BC_EAST] == "dirichlet")
+        {
+            // Contribution Delta h
+            size_t col_b  = c_eq + 7 * 3;
+            size_t col_w  = c_eq + 4 * 3;
+            size_t col_ww = c_eq + 1 * 3;
+            values[col_b ] =  1.0 * theta;
+            values[col_w ] = -1.0 * theta;
+            values[col_ww] = 0.0;
+            rhs[row] = -(htheta[p_7] + zb[p_7] - htheta[p_4] - zb[p_4]);
 
-        // Contribution Delta q
-        col_b  = q_eq + 7 * 3;
-        col_w  = q_eq + 4 * 3;
-        col_ww = q_eq + 1 * 3;
-        values[col_b  + 1] = 0.5 * theta;
-        values[col_w  + 1] = 0.5 * theta;
-        values[col_ww + 1] = 0.0;
-        rhs[row + 1] = 0.0;
+            // Contribution Delta q
+            col_b  = q_eq + 7 * 3;
+            col_w  = q_eq + 4 * 3;
+            col_ww = q_eq + 1 * 3;
+            values[col_b  + 1] = 0.5 * theta;
+            values[col_w  + 1] = 0.5 * theta;
+            values[col_ww + 1] = 0.0;
+            rhs[row + 1] = 0.0;
 
-        // Contribution Delta r
-        col_b  = r_eq + 7 * 3;
-        col_w  = r_eq + 4 * 3;
-        col_ww = r_eq + 1 * 3;
-        values[col_b  + 2]  =  1.0 * theta;
-        values[col_w  + 2]  = -1.0 * theta;
-        values[col_ww + 2]  = 0.0;
-        rhs[row + 2] = -(rtheta[p_7] - rtheta[p_4]);
+            // Contribution Delta r
+            col_b  = r_eq + 7 * 3;
+            col_w  = r_eq + 4 * 3;
+            col_ww = r_eq + 1 * 3;
+            values[col_b  + 2]  = 0.5 * theta;
+            values[col_w  + 2]  = 0.5 * theta;
+            values[col_ww + 2]  = 0.0;
+            rhs[row + 2] = 0.0;
+        }
+        else if (bc_type[BC_EAST] == "neumann")
+        {
+            // Contribution Delta h
+            size_t col_b  = c_eq + 7 * 3;
+            size_t col_w  = c_eq + 4 * 3;
+            size_t col_ww = c_eq + 1 * 3;
+            values[col_b ] =  1.0 * theta;
+            values[col_w ] = -1.0 * theta;
+            values[col_ww] = 0.0;
+            rhs[row] = -(htheta[p_7] + zb[p_7] - htheta[p_4] - zb[p_4]);
+
+            // Contribution Delta q
+            col_b  = q_eq + 7 * 3;
+            col_w  = q_eq + 4 * 3;
+            col_ww = q_eq + 1 * 3;
+            values[col_b  + 1] = 0.5 * theta;
+            values[col_w  + 1] = 0.5 * theta;
+            values[col_ww + 1] = 0.0;
+            rhs[row + 1] = 0.0;
+
+            // Contribution Delta r
+            col_b  = r_eq + 7 * 3;
+            col_w  = r_eq + 4 * 3;
+            col_ww = r_eq + 1 * 3;
+            values[col_b  + 2]  =  1.0 * theta;
+            values[col_w  + 2]  = -1.0 * theta;
+            values[col_ww + 2]  = 0.0;
+            rhs[row + 2] = -(rtheta[p_7] - rtheta[p_4]);
+        }
     }
     else
     {
@@ -783,15 +848,15 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
             // essential boundary condition
             // ----------------------------
             // first row
-            int col_nb  = c_eq + 8 * 3;
-            int col_nw  = c_eq + 5 * 3;
-            int col_nww = c_eq + 2 * 3;
-            int col_b  = c_eq + 7 * 3;
-            int col_w  = c_eq + 4 * 3;
-            int col_ww = c_eq + 1 * 3;
-            int col_sb  = c_eq + 6 * 3;
-            int col_sw  = c_eq + 3 * 3;
-            int col_sww = c_eq + 0 * 3;
+            size_t col_nb  = c_eq + 8 * 3;
+            size_t col_nw  = c_eq + 5 * 3;
+            size_t col_nww = c_eq + 2 * 3;
+            size_t col_b  = c_eq + 7 * 3;
+            size_t col_w  = c_eq + 4 * 3;
+            size_t col_ww = c_eq + 1 * 3;
+            size_t col_sb  = c_eq + 6 * 3;
+            size_t col_sw  = c_eq + 3 * 3;
+            size_t col_sww = c_eq + 0 * 3;
             //
             // face_0 
             double face_fac = 0.5 * dy * 0.25;
@@ -900,15 +965,15 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
             //------------------------------------------------------------------
             // first row
             //
-            int col_nb  = c_eq + 8 * 3;
-            int col_nw  = c_eq + 5 * 3;
-            int col_nww = c_eq + 2 * 3;
-            int col_b   = c_eq + 7 * 3;
-            int col_w   = c_eq + 4 * 3;
-            int col_ww  = c_eq + 1 * 3;
-            int col_sb  = c_eq + 6 * 3;
-            int col_sw  = c_eq + 3 * 3;
-            int col_sww = c_eq + 0 * 3;
+            size_t col_nb  = c_eq + 8 * 3;
+            size_t col_nw  = c_eq + 5 * 3;
+            size_t col_nww = c_eq + 2 * 3;
+            size_t col_b   = c_eq + 7 * 3;
+            size_t col_w   = c_eq + 4 * 3;
+            size_t col_ww  = c_eq + 1 * 3;
+            size_t col_sb  = c_eq + 6 * 3;
+            size_t col_sw  = c_eq + 3 * 3;
+            size_t col_sww = c_eq + 0 * 3;
             //
             if (do_convection) { con_fac = c_wave - qp_b / hp_b; }
             //
@@ -1079,15 +1144,15 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
         // second row
         // momentum part dq/dt + gh d(zeta)/dx
         //
-        int col_nb  = q_eq + 8 * 3;
-        int col_nw  = q_eq + 5 * 3;
-        int col_nww = q_eq + 2 * 3;
-        int col_b   = q_eq + 7 * 3;
-        int col_w   = q_eq + 4 * 3;
-        int col_ww  = q_eq + 1 * 3;
-        int col_sb  = q_eq + 6 * 3;
-        int col_sw  = q_eq + 3 * 3;
-        int col_sww = q_eq + 0 * 3;
+        size_t col_nb  = q_eq + 8 * 3;
+        size_t col_nw  = q_eq + 5 * 3;
+        size_t col_nww = q_eq + 2 * 3;
+        size_t col_b   = q_eq + 7 * 3;
+        size_t col_w   = q_eq + 4 * 3;
+        size_t col_ww  = q_eq + 1 * 3;
+        size_t col_sb  = q_eq + 6 * 3;
+        size_t col_sw  = q_eq + 3 * 3;
+        size_t col_sww = q_eq + 0 * 3;
         //
         // Contribution Delta h
         // face 0
@@ -1383,10 +1448,10 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
     return 0;
 }
 //==============================================================================
-int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & dyinv, double & theta, double & g, double eps_bc_corr, 
     bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity, 
-    double dx, double dy, int nx, int ny,
+    double dx, double dy, size_t nx, size_t ny,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
@@ -1415,34 +1480,66 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
     double con_fac = c_wave;
 
     // ssouth
-    if (bc_type[BC_SOUTH] == "dirichlet")
+    if (bc_type[BC_SOUTH] == "dirichlet" || bc_type[BC_SOUTH] == "neumann")
     {
-        // Contribution Delta h
-        int col_b  = c_eq + 3 * 3;
-        int col_n  = c_eq + 4 * 3;
-        int col_nn = c_eq + 5 * 3;
-        values[col_b ] = -1.0 * theta;
-        values[col_n ] =  1.0 * theta;
-        values[col_nn] = 0.0;
-        rhs[row] = -(htheta[p_4] + zb[p_4] - htheta[p_3] - zb[p_3]);
+        if (bc_type[BC_SOUTH] == "dirichlet")
+        {
+            // Contribution Delta h
+            size_t col_b  = c_eq + 3 * 3;
+            size_t col_n  = c_eq + 4 * 3;
+            size_t col_nn = c_eq + 5 * 3;
+            values[col_b ] = -1.0 * theta;
+            values[col_n ] =  1.0 * theta;
+            values[col_nn] = 0.0;
+            rhs[row] = -(htheta[p_4] + zb[p_4] - htheta[p_3] - zb[p_3]);
 
-        // Contribution Delta q
-        col_b  = q_eq + 3 * 3;
-        col_n  = q_eq + 4 * 3;
-        col_nn = q_eq + 5 * 3;
-        values[col_b  + 1] = -1.0 * theta;
-        values[col_n  + 1] =  1.0 * theta;
-        values[col_nn + 1] = 0.0;
-        rhs[row + 1] = -(qtheta[p_4] - qtheta[p_3]);
+            // Contribution Delta q
+            col_b  = q_eq + 3 * 3;
+            col_n  = q_eq + 4 * 3;
+            col_nn = q_eq + 5 * 3;
+            values[col_b  + 1] = 0.5 * theta;
+            values[col_n  + 1] = 0.5 * theta;
+            values[col_nn + 1] = 0.0;
+            rhs[row + 1] = 0.0;
 
-        // Contribution Delta r
-        col_b  = r_eq + 3 * 3;
-        col_n  = r_eq + 4 * 3;
-        col_nn = r_eq + 5 * 3;
-        values[col_b  + 2]  = 0.5 * theta;
-        values[col_n  + 2]  = 0.5 * theta;
-        values[col_nn + 2]  = 0.0;
-        rhs[row + 2] = 0.0;
+            // Contribution Delta r
+            col_b  = r_eq + 3 * 3;
+            col_n  = r_eq + 4 * 3;
+            col_nn = r_eq + 5 * 3;
+            values[col_b  + 2]  = 0.5 * theta;
+            values[col_n  + 2]  = 0.5 * theta;
+            values[col_nn + 2]  = 0.0;
+            rhs[row + 2] = 0.0;
+        }
+        else if (bc_type[BC_SOUTH] == "neumann")
+        {
+            // Contribution Delta h
+            size_t col_b  = c_eq + 3 * 3;
+            size_t col_n  = c_eq + 4 * 3;
+            size_t col_nn = c_eq + 5 * 3;
+            values[col_b ] = -1.0 * theta;
+            values[col_n ] =  1.0 * theta;
+            values[col_nn] = 0.0;
+            rhs[row] = -(htheta[p_4] + zb[p_4] - htheta[p_3] - zb[p_3]);
+
+            // Contribution Delta q
+            col_b  = q_eq + 3 * 3;
+            col_n  = q_eq + 4 * 3;
+            col_nn = q_eq + 5 * 3;
+            values[col_b  + 1] = -1.0 * theta;
+            values[col_n  + 1] =  1.0 * theta;
+            values[col_nn + 1] = 0.0;
+            rhs[row + 1] = -(qtheta[p_4] - qtheta[p_3]);
+
+            // Contribution Delta r
+            col_b  = r_eq + 3 * 3;
+            col_n  = r_eq + 4 * 3;
+            col_nn = r_eq + 5 * 3;
+            values[col_b  + 2]  = 0.5 * theta;
+            values[col_n  + 2]  = 0.5 * theta;
+            values[col_nn + 2]  = 0.0;
+            rhs[row + 2] = 0.0;
+        }
     }
     else
     {
@@ -1451,15 +1548,15 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
             // Essential boundary condition
             // ----------------------------
             // first row
-            int col_wb  = c_eq + 0 * 3;
-            int col_wn  = c_eq + 1 * 3;
-            int col_wnn = c_eq + 2 * 3;
-            int col_b   = c_eq + 3 * 3;
-            int col_n   = c_eq + 4 * 3;
-            int col_nn  = c_eq + 5 * 3;
-            int col_eb  = c_eq + 6 * 3;
-            int col_en  = c_eq + 7 * 3;
-            int col_enn = c_eq + 8 * 3;
+            size_t col_wb  = c_eq + 0 * 3;
+            size_t col_wn  = c_eq + 1 * 3;
+            size_t col_wnn = c_eq + 2 * 3;
+            size_t col_b   = c_eq + 3 * 3;
+            size_t col_n   = c_eq + 4 * 3;
+            size_t col_nn  = c_eq + 5 * 3;
+            size_t col_eb  = c_eq + 6 * 3;
+            size_t col_en  = c_eq + 7 * 3;
+            size_t col_enn = c_eq + 8 * 3;
             //
             // face 0 
             double face_fac = 0.5 * dx * 0.25;
@@ -1569,15 +1666,15 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
             //------------------------------------------------------------------
             // first row
             //
-            int col_wb  = c_eq + 0 * 3;
-            int col_wn  = c_eq + 1 * 3;
-            int col_wnn = c_eq + 2 * 3;
-            int col_b   = c_eq + 3 * 3;
-            int col_n   = c_eq + 4 * 3;
-            int col_nn  = c_eq + 5 * 3;
-            int col_eb  = c_eq + 6 * 3;
-            int col_en  = c_eq + 7 * 3;
-            int col_enn = c_eq + 8 * 3;
+            size_t col_wb  = c_eq + 0 * 3;
+            size_t col_wn  = c_eq + 1 * 3;
+            size_t col_wnn = c_eq + 2 * 3;
+            size_t col_b   = c_eq + 3 * 3;
+            size_t col_n   = c_eq + 4 * 3;
+            size_t col_nn  = c_eq + 5 * 3;
+            size_t col_eb  = c_eq + 6 * 3;
+            size_t col_en  = c_eq + 7 * 3;
+            size_t col_enn = c_eq + 8 * 3;
             //
             if (do_convection) { con_fac = c_wave + rp_b / hp_b; }
             //
@@ -1742,15 +1839,15 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
         // second row
         // q-momentum (tangential equation, q == 0)
         //
-        int col_wb  = q_eq + 0 * 3;
-        int col_wn  = q_eq + 1 * 3;
-        int col_wnn = q_eq + 2 * 3;
-        int col_b   = q_eq + 3 * 3;
-        int col_n   = q_eq + 4 * 3;
-        int col_nn  = q_eq + 5 * 3;
-        int col_eb  = q_eq + 6 * 3;
-        int col_en  = q_eq + 7 * 3;
-        int col_enn = q_eq + 8 * 3;
+        size_t col_wb  = q_eq + 0 * 3;
+        size_t col_wn  = q_eq + 1 * 3;
+        size_t col_wnn = q_eq + 2 * 3;
+        size_t col_b   = q_eq + 3 * 3;
+        size_t col_n   = q_eq + 4 * 3;
+        size_t col_nn  = q_eq + 5 * 3;
+        size_t col_eb  = q_eq + 6 * 3;
+        size_t col_en  = q_eq + 7 * 3;
+        size_t col_enn = q_eq + 8 * 3;
         //
         set_value(values, col_b, 0.0);
         set_value(values, col_n, 0.0);
@@ -2047,10 +2144,10 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
     }
     return 0;
 }
-int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & dxinv, double & theta, double & g, double eps_bc_corr, 
     bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity, 
-    double dx, double dy, int nx, int ny,
+    double dx, double dy, size_t nx, size_t ny,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
@@ -2060,15 +2157,15 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
 {
     memset(&values[c_eq], 0, 3 * 27 * sizeof(double));  // set all coefficients for one row of c-, q- and r-equation to zero
 
-    int p_1 = c_eq/(3*27);  // node number of boundary point, ie west point of molucule
-    int p_0 = p_1 - 1;
-    int p_2 = p_1 + 1;
-    int p_3 = p_1 + ny - 1;
-    int p_4 = p_1 + ny;
-    int p_5 = p_1 + ny + 1;
-    int p_6 = p_1 + 2 * ny - 1;
-    int p_7 = p_1 + 2 * ny;
-    int p_8 = p_1 + 2 * ny + 1;
+    size_t p_1 = c_eq/(3*27);  // node number of boundary point, ie west point of molucule
+    size_t p_0 = p_1 - 1;
+    size_t p_2 = p_1 + 1;
+    size_t p_3 = p_1 + ny - 1;
+    size_t p_4 = p_1 + ny;
+    size_t p_5 = p_1 + ny + 1;
+    size_t p_6 = p_1 + 2 * ny - 1;
+    size_t p_7 = p_1 + 2 * ny;
+    size_t p_8 = p_1 + 2 * ny + 1;
 
     double htheta_b = w_nat[0] * htheta[p_1] + w_nat[1] * htheta[p_4] + w_nat[2] * htheta[p_7];
     double zb_b = w_nat[0] * zb[p_1] + w_nat[1] * zb[p_4] + w_nat[2] * zb[p_7];
@@ -2079,34 +2176,66 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
     double con_fac = c_wave;
 
     // wwest
-    if (bc_type[BC_WEST] == "dirichlet")
+    if (bc_type[BC_WEST] == "dirichlet" || bc_type[BC_WEST] == "neumann")
     {
-        // Contribution Delta h
-        int col_b  = c_eq + 1 * 3; // point of boundary, ie west point of molecule
-        int col_e  = c_eq + 4 * 3;
-        int col_ee = c_eq + 7 * 3;
-        values[col_b ] = -1.0 * theta;
-        values[col_e ] =  1.0 * theta;
-        values[col_ee] = 0.0;
-        rhs[row] = -(htheta[p_4] + zb[p_4] - htheta[p_1] - zb[p_1]);
+        if (bc_type[BC_WEST] == "dirichlet")
+        {
+            // Contribution Delta h
+            size_t col_b  = c_eq + 1 * 3; // point of boundary, ie west point of molecule
+            size_t col_e  = c_eq + 4 * 3;
+            size_t col_ee = c_eq + 7 * 3;
+            values[col_b ] = -1.0 * theta;
+            values[col_e ] =  1.0 * theta;
+            values[col_ee] = 0.0;
+            rhs[row] = -(htheta[p_4] + zb[p_4] - htheta[p_1] - zb[p_1]);
 
-        // Contribution Delta q
-        col_b  = q_eq + 1 * 3;
-        col_e  = q_eq + 4 * 3;
-        col_ee = q_eq + 7 * 3;
-        values[col_b  + 1] = 0.5 * theta;
-        values[col_e  + 1] = 0.5 * theta;
-        values[col_ee + 1] = 0.0;
-        rhs[row + 1] = 0.0;
+            // Contribution Delta q
+            col_b  = q_eq + 1 * 3;
+            col_e  = q_eq + 4 * 3;
+            col_ee = q_eq + 7 * 3;
+            values[col_b  + 1] = 0.5 * theta;
+            values[col_e  + 1] = 0.5 * theta;
+            values[col_ee + 1] = 0.0;
+            rhs[row + 1] = 0.0;
 
-        // Contribution Delta r
-        col_b  = r_eq + 1 * 3;
-        col_e  = r_eq + 4 * 3;
-        col_ee = r_eq + 7 * 3;
-        values[col_b  + 2]  = -1.0 * theta;
-        values[col_e  + 2]  =  1.0 * theta;
-        values[col_ee + 2]  = 0.0;
-        rhs[row + 2] = -(rtheta[p_4] - rtheta[p_1]);
+            // Contribution Delta r
+            col_b  = r_eq + 1 * 3;
+            col_e  = r_eq + 4 * 3;
+            col_ee = r_eq + 7 * 3;
+            values[col_b  + 2]  = 0.5 * theta;
+            values[col_e  + 2]  = 0.5 * theta;
+            values[col_ee + 2]  = 0.0;
+            rhs[row + 2] = 0.0;
+        }
+        else if (bc_type[BC_WEST] == "neumann")
+        {
+            // Contribution Delta h
+            size_t col_b  = c_eq + 1 * 3; // point of boundary, ie west point of molecule
+            size_t col_e  = c_eq + 4 * 3;
+            size_t col_ee = c_eq + 7 * 3;
+            values[col_b ] = -1.0 * theta;
+            values[col_e ] =  1.0 * theta;
+            values[col_ee] = 0.0;
+            rhs[row] = -(htheta[p_4] + zb[p_4] - htheta[p_1] - zb[p_1]);
+
+            // Contribution Delta q
+            col_b  = q_eq + 1 * 3;
+            col_e  = q_eq + 4 * 3;
+            col_ee = q_eq + 7 * 3;
+            values[col_b  + 1] = 0.5 * theta;
+            values[col_e  + 1] = 0.5 * theta;
+            values[col_ee + 1] = 0.0;
+            rhs[row + 1] = 0.0;
+
+            // Contribution Delta r
+            col_b  = r_eq + 1 * 3;
+            col_e  = r_eq + 4 * 3;
+            col_ee = r_eq + 7 * 3;
+            values[col_b  + 2]  = -1.0 * theta;
+            values[col_e  + 2]  =  1.0 * theta;
+            values[col_ee + 2]  = 0.0;
+            rhs[row + 2] = -(rtheta[p_4] - rtheta[p_1]);
+        }
     }
     else
     {
@@ -2114,15 +2243,15 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
         {
             // essential boundary condition
             // first row
-            int col_sb  = c_eq + 0 * 3;
-            int col_se  = c_eq + 3 * 3;
-            int col_see = c_eq + 6 * 3;
-            int col_b  = c_eq + 1 * 3;
-            int col_e  = c_eq + 4 * 3;
-            int col_ee = c_eq + 7 * 3;
-            int col_nb  = c_eq + 2 * 3;
-            int col_ne  = c_eq + 5 * 3;
-            int col_nee = c_eq + 8 * 3;
+            size_t col_sb  = c_eq + 0 * 3;
+            size_t col_se  = c_eq + 3 * 3;
+            size_t col_see = c_eq + 6 * 3;
+            size_t col_b  = c_eq + 1 * 3;
+            size_t col_e  = c_eq + 4 * 3;
+            size_t col_ee = c_eq + 7 * 3;
+            size_t col_nb  = c_eq + 2 * 3;
+            size_t col_ne  = c_eq + 5 * 3;
+            size_t col_nee = c_eq + 8 * 3;
             //
             // face 0
             double face_fac = 0.5 * dy * 0.25;
@@ -2231,15 +2360,15 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
             //------------------------------------------------------------------
             // first row
             //
-            int col_sb  = c_eq + 0 * 3;
-            int col_se  = c_eq + 3 * 3;
-            int col_see = c_eq + 6 * 3;
-            int col_b   = c_eq + 1 * 3;
-            int col_e   = c_eq + 4 * 3;
-            int col_ee  = c_eq + 7 * 3;
-            int col_nb  = c_eq + 2 * 3;
-            int col_ne  = c_eq + 5 * 3;
-            int col_nee = c_eq + 8 * 3;
+            size_t col_sb  = c_eq + 0 * 3;
+            size_t col_se  = c_eq + 3 * 3;
+            size_t col_see = c_eq + 6 * 3;
+            size_t col_b   = c_eq + 1 * 3;
+            size_t col_e   = c_eq + 4 * 3;
+            size_t col_ee  = c_eq + 7 * 3;
+            size_t col_nb  = c_eq + 2 * 3;
+            size_t col_ne  = c_eq + 5 * 3;
+            size_t col_nee = c_eq + 8 * 3;
             //
             if (do_convection) { con_fac = c_wave + qp_b / hp_b; }
             //
@@ -2407,15 +2536,15 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
         // second row
         // momentum part dq/dt + gh d(zeta)/dx 
         //
-        int col_sb  = q_eq + 0 * 3;
-        int col_se  = q_eq + 3 * 3;
-        int col_see = q_eq + 6 * 3;
-        int col_b   = q_eq + 1 * 3;
-        int col_e   = q_eq + 4 * 3;
-        int col_ee  = q_eq + 7 * 3;
-        int col_nb  = q_eq + 2 * 3;
-        int col_ne  = q_eq + 5 * 3;
-        int col_nee = q_eq + 8 * 3;
+        size_t col_sb  = q_eq + 0 * 3;
+        size_t col_se  = q_eq + 3 * 3;
+        size_t col_see = q_eq + 6 * 3;
+        size_t col_b   = q_eq + 1 * 3;
+        size_t col_e   = q_eq + 4 * 3;
+        size_t col_ee  = q_eq + 7 * 3;
+        size_t col_nb  = q_eq + 2 * 3;
+        size_t col_ne  = q_eq + 5 * 3;
+        size_t col_nee = q_eq + 8 * 3;
         //
         // Contribution Delta h
         // face 0
@@ -2708,7 +2837,7 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
     }
     return 0;
 }
-void  molecule(std::vector<int>& p, int p_sw, int ny)
+void  molecule(std::vector<size_t>& p, size_t p_sw, size_t ny)
 {
         p[0] = p_sw;
         p[1] = p_sw + 1;
@@ -2720,11 +2849,11 @@ void  molecule(std::vector<int>& p, int p_sw, int ny)
         p[7] = p_sw + 2 * ny + 1;
         p[8] = p_sw + 2 * ny + 2;
 }
-inline void set_value(double * values, int col, double data)
+inline void set_value(double * values, size_t col, double data)
 { 
     values[col] += data; 
 }
-inline int ma_index(int i, int j, int ny_in)
+inline size_t ma_index(size_t i, size_t j, size_t ny_in)
 {
     return i * ny_in + j;
 }

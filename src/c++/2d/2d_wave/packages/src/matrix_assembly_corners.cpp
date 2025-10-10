@@ -44,8 +44,8 @@
 //
 //corner nodes
 //
-int corner_north_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
-    double theta, int nx, int ny,
+int corner_north_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+    double theta, size_t nx, size_t ny,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta)
 {
     int p0 = c_eq/(3*27);
@@ -201,8 +201,8 @@ int corner_north_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eig
 
     return 0;
 }
-int corner_south_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
-    double theta, int nx, int ny,
+int corner_south_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+    double theta, size_t nx, size_t ny,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta)
 {
     int p0 = c_eq/(3*27);
@@ -358,8 +358,8 @@ int corner_south_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eig
 
     return 0;
 }
-int corner_south_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
-    double theta, int nx, int ny,
+int corner_south_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+    double theta, size_t nx, size_t ny,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta)
 {
     int p0 = c_eq/(3*27);
@@ -514,8 +514,8 @@ int corner_south_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eig
     values[r_eq + 26] = 0.0;   // Delta r
     return 0;
 }
-int corner_north_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
-    double theta, int nx, int ny,
+int corner_north_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+    double theta, size_t nx, size_t ny,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta)
 {
     int p0 = c_eq/(3*27);
@@ -670,9 +670,3 @@ int corner_north_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eig
     values[r_eq + 26] = 0.0;   // Delta r
     return 0;
 }
-        
-inline int ma_index(int i, int j, int ny_in)
-{
-    return i * ny_in + j;
-}
-

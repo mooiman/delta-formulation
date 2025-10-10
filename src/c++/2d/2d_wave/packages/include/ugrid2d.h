@@ -49,7 +49,12 @@ public:
     int add_ntw_edge_nodes(std::string var_name, std::vector<std::string> dim_names, std::string cf_role, std::string long_name);
     int add_geom_coordinate(std::string var_name, std::vector<std::string> dim_names, std::string cf_role, std::string std_name, std::string long_name, std::string unit);
     int add_node_count(std::string var_name, std::vector<std::string> dim_names, std::string long_name);
-    int add_mesh2d_edge_nodes(std::string var_name, std::vector<std::string> dim_names, std::string long_name);
+    int add_edge_nodes(size_t nx, size_t ny);
+    int add_face_nodes(std::vector<double> & x, std::vector<double> & y, double fill_value, size_t nx, size_t ny);
+    int add_node_coords(std::vector<double> & x, std::vector<double> & y,  double fill_value);
+    int add_edge_coords(std::vector<double> & x, std::vector<double> & y,  double fill_value);
+    int add_face_mass_centres(std::vector<double> & x, std::vector<double> & y, double fill_value, size_t nx, size_t ny);
+    int add_face_area(std::vector<double> & x, std::vector<double> & y,  double fill_value, size_t nx, size_t ny);
     int add_time_series(void);
     int put_time(int i, double time);
     int put_time_variable(std::string var_name, int i_time, std::vector<double> values);
@@ -62,11 +67,15 @@ private:
     int m_ncid;
     int m_times;
     std::string m_time_units;
+    std::vector<int> m_mesh2d_edge_nodes;
 
     std::string compileDateTime();
     int set_global_attribute(std::string name, std::string value);
     int set_attribute(std::string var, std::string att_name, double att_val);
     int set_attribute(std::string var, std::string att_name, int att_val);
     int set_attribute(std::string var, std::string att_name, std::string att_val);
+
+    int add_mesh2d_edge_nodes(std::string var_name, std::vector<std::string> dim_names, std::string long_name);
+    inline size_t idx(size_t i, size_t j, size_t ny);
 };
 #endif __UGRID2D_H__

@@ -44,7 +44,7 @@ void initial_conditions(std::vector<double>& x, std::vector<double>& y, size_t n
             // 
             // initialization via water level, u-velocity and v-velocity
             //
-            k = p_index(i, j, ny);
+            k = p_idx(i, j, ny);
             if (ini_vars[0] == "zeta")
             {
                 if (ini_vars[1] == "zeta_constant")
@@ -53,14 +53,14 @@ void initial_conditions(std::vector<double>& x, std::vector<double>& y, size_t n
                 }
                 else if (ini_vars[1] == "zeta_linear_y")
                 {
-                    size_t k0 = p_index(i, 0, ny);
-                    size_t k1 = p_index(j, ny - 1, ny);
+                    size_t k0 = p_idx(i, 0, ny);
+                    size_t k1 = p_idx(j, ny - 1, ny);
                     s_giv = amp * (y[k] - y[0]) / (y[k1] - y[k0]); // initial water level
                 }
                 else if (ini_vars[1] == "zeta_linear_x")
                 {
-                    size_t k0 = p_index(0     , 0, ny);
-                    size_t k1 = p_index(nx - 1, 0, ny);
+                    size_t k0 = p_idx(0     , 0, ny);
+                    size_t k1 = p_idx(nx - 1, 0, ny);
                     s_giv = amp * (x[k] - x[0]) / (x[k1] - x[k0]); // initial water level
                 }
                 else if (ini_vars[1] == "zeta_gauss_hump")
@@ -107,7 +107,7 @@ void initial_conditions(std::vector<double>& x, std::vector<double>& y, size_t n
         }
     }
 }
-inline int p_index(int i, int j, int ny)
+inline size_t p_idx(size_t i, size_t j, size_t ny)
 {
     return i * ny + j;
 }

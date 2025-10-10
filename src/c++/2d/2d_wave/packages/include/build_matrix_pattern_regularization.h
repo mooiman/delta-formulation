@@ -26,7 +26,7 @@
 #include <vector>
 #include <Eigen/Sparse>
 
-    int build_matrix_pattern_regularization(std::vector< Eigen::Triplet<double> >& triplets, int nx, int ny);
-    inline int bmp_index(int i, int j, int nx);
+    int build_matrix_pattern_regularization(std::vector< Eigen::Triplet<double> >& triplets, size_t nx, size_t ny);
+    inline size_t bmp_idx(size_t i, size_t j, size_t nx);
 
 #endif  // __BUILD_MATRIX_PATTERN_H__

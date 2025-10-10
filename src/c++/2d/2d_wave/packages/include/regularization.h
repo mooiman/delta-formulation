@@ -43,13 +43,14 @@ public:
     void given_function(
         std::vector<double>& u_out, std::vector<double>& psi_11, std::vector<double>& psi_22, std::vector<double>& eq8,
         std::vector<double>& u_giv,
-        int nx, int ny, double dx, double dy, double c_psi, std::ofstream& log_file);
+        size_t nx, size_t ny, double dx, double dy, double c_psi, std::ofstream& log_file);
 
     void first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx);
+
 private:
-    std::unique_ptr<std::vector<double>> solve_eq7(int nx, int ny, double dx, double dy, 
+    std::unique_ptr<std::vector<double>> solve_eq7(size_t nx, size_t ny, double dx, double dy, 
         std::vector<double> psi_11, std::vector<double> psi_22, std::vector<double> u_giv, std::ofstream& log_file);
-    std::unique_ptr<std::vector<double>> solve_eq8(int nx, int ny, double dx, double dy, double c_psi, std::vector<double> u0, 
+    std::unique_ptr<std::vector<double>> solve_eq8(size_t nx, size_t ny, double dx, double dy, double c_psi, std::vector<double> u0, 
         std::vector<double> u0_xixi, std::vector<double> u0_etaeta, std::ofstream& log_file);
 
     int m_iter_max;
@@ -59,7 +60,7 @@ private:
     std::vector<double> m_mass;
     double eps_smooth;  // epsilon of regularization process
     double m_u0_is_smooth;  // is function u0 is smooth enough, 
-    int p_index(int i, int j, int ny);
+    size_t p_index(size_t i, size_t j, size_t ny);
 };
 
 #endif __2D_REGULARIZATION_H__

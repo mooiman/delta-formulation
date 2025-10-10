@@ -36,6 +36,6 @@ void initial_conditions(std::vector<double>& x, std::vector<double>& y, size_t n
     std::vector<double>& s, std::vector<double>& u, std::vector<double>& v,
     std::vector<std::string>& ini_vars, double gauss_amp, double gauss_mu_x, double gauss_mu_y, double gauss_sigma_x, double gauss_sigma_y);
 
-inline int p_index(int i, int j, int ny);
+inline size_t p_idx(size_t i, size_t j, size_t ny);
 
 #endif __INITIAL_CONDITIONS_H__

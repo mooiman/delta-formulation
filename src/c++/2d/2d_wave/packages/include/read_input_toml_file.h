@@ -20,20 +20,13 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __VISCOSITY_H__
-#define __VISCOSITY_H__
+#ifndef __READ_TOML_FILE_H__
+#define __READ_TOML_FILE_H__
 
-#include <vector>
-#include <Eigen/Sparse>
+#include "toml.h"
 
-int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs,
-    std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    std::vector<double>& visc, double theta, double dx, double dy, size_t nx, size_t ny);
-int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r, 
-    std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
-    std::vector<double>& visc, double dx, double dy, size_t nx, size_t ny);
+_data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::path & toml_file_name);
 
-inline size_t viscosity_idx(size_t i, size_t j, size_t nx);
-inline void add_value(double * values, size_t col, double data);
+std::vector<_ObservationPoint> read_observation_points(toml::table tbl);
 
-#endif  // __VISCOSITY_H__
+#endif  // __READ_TOML_FILE_H__

@@ -24,7 +24,7 @@
 
 //------------------------------------------------------------------------------
 int build_matrix_pattern(std::vector< Eigen::Triplet<double> >& triplets,
-int nx, int ny)
+size_t nx, size_t ny)
 {
     //    x - - - - - - - x - - - - - - - x 
     //    |               |               |  
@@ -44,23 +44,23 @@ int nx, int ny)
     //    |               |               |  
     //    x - - - - - - - x - - - - - - - x 
 
-    for (int i = 1; i < nx - 1; ++i)
+    for (size_t i = 1; i < nx - 1; ++i)
     {
-        for (int j = 1; j < ny - 1; ++j)
+        for (size_t j = 1; j < ny - 1; ++j)
         {
-            int ph_sw = bmp_index(i - 1, j - 1, ny);  
-            int ph_s  = bmp_index(i    , j - 1, ny);  
-            int ph_se = bmp_index(i + 1, j - 1, ny);  
-            int ph_w  = bmp_index(i - 1, j    , ny);  
-            int ph_0  = bmp_index(i    , j    , ny); // central point of control volume
-            int ph_e  = bmp_index(i + 1, j    , ny);  
-            int ph_nw = bmp_index(i - 1, j + 1, ny);  
-            int ph_n  = bmp_index(i    , j + 1, ny);  
-            int ph_ne = bmp_index(i + 1, j + 1, ny);  
+            size_t ph_sw = bmp_idx(i - 1, j - 1, ny);  
+            size_t ph_s  = bmp_idx(i    , j - 1, ny);  
+            size_t ph_se = bmp_idx(i + 1, j - 1, ny);  
+            size_t ph_w  = bmp_idx(i - 1, j    , ny);  
+            size_t ph_0  = bmp_idx(i    , j    , ny); // central point of control volume
+            size_t ph_e  = bmp_idx(i + 1, j    , ny);  
+            size_t ph_nw = bmp_idx(i - 1, j + 1, ny);  
+            size_t ph_n  = bmp_idx(i    , j + 1, ny);  
+            size_t ph_ne = bmp_idx(i + 1, j + 1, ny);  
 
-            int c_eq = 3 * ph_0;
-            int q_eq = 3 * ph_0 + 1;
-            int r_eq = 3 * ph_0 + 2;
+            size_t c_eq = 3 * ph_0;
+            size_t q_eq = 3 * ph_0 + 1;
+            size_t r_eq = 3 * ph_0 + 2;
             
             triplets.emplace_back(c_eq, 3 * ph_0     , 1.0);
             triplets.emplace_back(c_eq, 3 * ph_sw    , 1.0);
@@ -158,22 +158,22 @@ int nx, int ny)
     //
     if (true)  // nnorth boundary
     {
-        int j = ny - 1;
-        for (int i = 1; i < nx - 1; ++i)
+        size_t j = ny - 1;
+        for (size_t i = 1; i < nx - 1; ++i)
         {
-            int p0 = bmp_index(i - 1, j    , ny);
-            int p1 = bmp_index(i    , j    , ny);
-            int p2 = bmp_index(i + 1, j    , ny);
-            int p3 = bmp_index(i - 1, j - 1, ny);
-            int p4 = bmp_index(i    , j - 1, ny);
-            int p5 = bmp_index(i + 1, j - 1, ny);
-            int p6 = bmp_index(i - 1, j - 2, ny);
-            int p7 = bmp_index(i    , j - 2, ny);
-            int p8 = bmp_index(i + 1, j - 2, ny);
+            size_t p0 = bmp_idx(i - 1, j    , ny);
+            size_t p1 = bmp_idx(i    , j    , ny);
+            size_t p2 = bmp_idx(i + 1, j    , ny);
+            size_t p3 = bmp_idx(i - 1, j - 1, ny);
+            size_t p4 = bmp_idx(i    , j - 1, ny);
+            size_t p5 = bmp_idx(i + 1, j - 1, ny);
+            size_t p6 = bmp_idx(i - 1, j - 2, ny);
+            size_t p7 = bmp_idx(i    , j - 2, ny);
+            size_t p8 = bmp_idx(i + 1, j - 2, ny);
 
-            int c_eq = 3 * p1;    // continuity equation
-            int q_eq = c_eq + 1;  // q-momentum equation
-            int r_eq = c_eq + 2;  // r-momentum equation
+            size_t c_eq = 3 * p1;    // continuity equation
+            size_t q_eq = c_eq + 1;  // q-momentum equation
+            size_t r_eq = c_eq + 2;  // r-momentum equation
 
             triplets.emplace_back(c_eq, 3 * p0    , 1.0);
             triplets.emplace_back(c_eq, 3 * p1    , 1.0);
@@ -268,22 +268,22 @@ int nx, int ny)
     }
     if (true)  // eeast boundary
     {
-        int i = nx - 1;
-        for (int j = 1; j < ny - 1; ++j)
+        size_t i = nx - 1;
+        for (size_t j = 1; j < ny - 1; ++j)
         {
-            int p0 = bmp_index(i    , j - 1, ny);
-            int p1 = bmp_index(i - 1, j - 1, ny);
-            int p2 = bmp_index(i - 2, j - 1, ny);
-            int p3 = bmp_index(i    , j    , ny);
-            int p4 = bmp_index(i - 1, j    , ny);
-            int p5 = bmp_index(i - 2, j    , ny);
-            int p6 = bmp_index(i    , j + 1, ny);
-            int p7 = bmp_index(i - 1, j + 1, ny);
-            int p8 = bmp_index(i - 2, j + 1, ny);
+            size_t p0 = bmp_idx(i    , j - 1, ny);
+            size_t p1 = bmp_idx(i - 1, j - 1, ny);
+            size_t p2 = bmp_idx(i - 2, j - 1, ny);
+            size_t p3 = bmp_idx(i    , j    , ny);
+            size_t p4 = bmp_idx(i - 1, j    , ny);
+            size_t p5 = bmp_idx(i - 2, j    , ny);
+            size_t p6 = bmp_idx(i    , j + 1, ny);
+            size_t p7 = bmp_idx(i - 1, j + 1, ny);
+            size_t p8 = bmp_idx(i - 2, j + 1, ny);
 
-            int c_eq = 3 * p3;    // continuity equation
-            int q_eq = c_eq + 1;  // q-momentum equation
-            int r_eq = c_eq + 2;  // r-momentum equation
+            size_t c_eq = 3 * p3;    // continuity equation
+            size_t q_eq = c_eq + 1;  // q-momentum equation
+            size_t r_eq = c_eq + 2;  // r-momentum equation
 
             triplets.emplace_back(c_eq, 3 * p0    , 1.0);
             triplets.emplace_back(c_eq, 3 * p1    , 1.0);
@@ -378,22 +378,22 @@ int nx, int ny)
     }
     if (true)  // ssouth boundary
     {
-        int j = 0;
-        for (int i = 1; i < nx - 1; ++i)
+        size_t j = 0;
+        for (size_t i = 1; i < nx - 1; ++i)
         {
-            int p0 = bmp_index(i - 1, j    , ny);
-            int p1 = bmp_index(i    , j    , ny);
-            int p2 = bmp_index(i + 1, j    , ny);
-            int p3 = bmp_index(i - 1, j + 1, ny);
-            int p4 = bmp_index(i    , j + 1, ny);
-            int p5 = bmp_index(i + 1, j + 1, ny);
-            int p6 = bmp_index(i - 1, j + 2, ny);
-            int p7 = bmp_index(i    , j + 2, ny);
-            int p8 = bmp_index(i + 1, j + 2, ny);
+            size_t p0 = bmp_idx(i - 1, j    , ny);
+            size_t p1 = bmp_idx(i    , j    , ny);
+            size_t p2 = bmp_idx(i + 1, j    , ny);
+            size_t p3 = bmp_idx(i - 1, j + 1, ny);
+            size_t p4 = bmp_idx(i    , j + 1, ny);
+            size_t p5 = bmp_idx(i + 1, j + 1, ny);
+            size_t p6 = bmp_idx(i - 1, j + 2, ny);
+            size_t p7 = bmp_idx(i    , j + 2, ny);
+            size_t p8 = bmp_idx(i + 1, j + 2, ny);
 
-            int c_eq = 3 * p1;    // continuity equation
-            int q_eq = c_eq + 1;  // q-momentum equation
-            int r_eq = c_eq + 2;  // r-momentum equation
+            size_t c_eq = 3 * p1;    // continuity equation
+            size_t q_eq = c_eq + 1;  // q-momentum equation
+            size_t r_eq = c_eq + 2;  // r-momentum equation
 
             triplets.emplace_back(c_eq, 3 * p0    , 1.0);
             triplets.emplace_back(c_eq, 3 * p1    , 1.0);
@@ -488,22 +488,22 @@ int nx, int ny)
     }
     if (true)  // wwest boundary(2D)
     {
-        int i = 0;
-        for (int j = 1; j < ny - 1; ++j)
+        size_t i = 0;
+        for (size_t j = 1; j < ny - 1; ++j)
         {            
-            int p0 = bmp_index(i    , j - 1, ny);
-            int p1 = bmp_index(i + 1, j - 1, ny);
-            int p2 = bmp_index(i + 2, j - 1, ny);
-            int p3 = bmp_index(i    , j    , ny);
-            int p4 = bmp_index(i + 1, j    , ny);
-            int p5 = bmp_index(i + 2, j    , ny);
-            int p6 = bmp_index(i    , j + 1, ny);
-            int p7 = bmp_index(i + 1, j + 1, ny);
-            int p8 = bmp_index(i + 2, j + 1, ny);
+            size_t p0 = bmp_idx(i    , j - 1, ny);
+            size_t p1 = bmp_idx(i + 1, j - 1, ny);
+            size_t p2 = bmp_idx(i + 2, j - 1, ny);
+            size_t p3 = bmp_idx(i    , j    , ny);
+            size_t p4 = bmp_idx(i + 1, j    , ny);
+            size_t p5 = bmp_idx(i + 2, j    , ny);
+            size_t p6 = bmp_idx(i    , j + 1, ny);
+            size_t p7 = bmp_idx(i + 1, j + 1, ny);
+            size_t p8 = bmp_idx(i + 2, j + 1, ny);
 
-            int c_eq = 3 * p3;     // continuity equation
-            int q_eq = c_eq + 1;   // q-momentum equation
-            int r_eq = c_eq + 2;   // r-momentum equation
+            size_t c_eq = 3 * p3;     // continuity equation
+            size_t q_eq = c_eq + 1;   // q-momentum equation
+            size_t r_eq = c_eq + 2;   // r-momentum equation
 
             triplets.emplace_back(c_eq, 3 * p0    , 1.0);
             triplets.emplace_back(c_eq, 3 * p1    , 1.0);
@@ -601,22 +601,22 @@ int nx, int ny)
     //
     if (true)  // NE-corner
     {
-        int i = nx - 1;
-        int j = ny - 1;
+        size_t i = nx - 1;
+        size_t j = ny - 1;
 
-        int p0 = bmp_index(i    , j    , ny);
-        int p1 = bmp_index(i - 1, j    , ny);
-        int p2 = bmp_index(i - 2, j    , ny);
-        int p3 = bmp_index(i    , j - 1, ny);
-        int p4 = bmp_index(i - 1, j - 1, ny);
-        int p5 = bmp_index(i - 2, j - 1, ny);
-        int p6 = bmp_index(i    , j - 2, ny);
-        int p7 = bmp_index(i - 1, j - 2, ny);
-        int p8 = bmp_index(i - 2, j - 2, ny);
+        size_t p0 = bmp_idx(i    , j    , ny);
+        size_t p1 = bmp_idx(i - 1, j    , ny);
+        size_t p2 = bmp_idx(i - 2, j    , ny);
+        size_t p3 = bmp_idx(i    , j - 1, ny);
+        size_t p4 = bmp_idx(i - 1, j - 1, ny);
+        size_t p5 = bmp_idx(i - 2, j - 1, ny);
+        size_t p6 = bmp_idx(i    , j - 2, ny);
+        size_t p7 = bmp_idx(i - 1, j - 2, ny);
+        size_t p8 = bmp_idx(i - 2, j - 2, ny);
 
-        int c_eq = 3 * p0;    // continuity equation
-        int q_eq = c_eq + 1;  // q-momentum equation
-        int r_eq = c_eq + 2;  // r-momentum equation
+        size_t c_eq = 3 * p0;    // continuity equation
+        size_t q_eq = c_eq + 1;  // q-momentum equation
+        size_t r_eq = c_eq + 2;  // r-momentum equation
 
             triplets.emplace_back(c_eq, 3 * p0    , 1.0);
             triplets.emplace_back(c_eq, 3 * p1    , 1.0);
@@ -710,22 +710,22 @@ int nx, int ny)
     }
     if (true)  // SE-corner
     {
-        int i = nx - 1;
-        int j = 0;
+        size_t i = nx - 1;
+        size_t j = 0;
 
-        int p0 = bmp_index(i    , j   , ny);
-        int p1 = bmp_index(i - 1, j   , ny);
-        int p2 = bmp_index(i - 2, j   , ny);
-        int p3 = bmp_index(i    , j + 1, ny);
-        int p4 = bmp_index(i - 1, j + 1, ny);
-        int p5 = bmp_index(i - 2, j + 1, ny);
-        int p6 = bmp_index(i    , j + 2, ny);
-        int p7 = bmp_index(i - 1, j + 2, ny);
-        int p8 = bmp_index(i - 2, j + 2, ny);
+        size_t p0 = bmp_idx(i    , j   , ny);
+        size_t p1 = bmp_idx(i - 1, j   , ny);
+        size_t p2 = bmp_idx(i - 2, j   , ny);
+        size_t p3 = bmp_idx(i    , j + 1, ny);
+        size_t p4 = bmp_idx(i - 1, j + 1, ny);
+        size_t p5 = bmp_idx(i - 2, j + 1, ny);
+        size_t p6 = bmp_idx(i    , j + 2, ny);
+        size_t p7 = bmp_idx(i - 1, j + 2, ny);
+        size_t p8 = bmp_idx(i - 2, j + 2, ny);
 
-        int c_eq = 3 * p0;    // continuity equation
-        int q_eq = c_eq + 1;  // q-momentum equation
-        int r_eq = c_eq + 2;  // r-momentum equation
+        size_t c_eq = 3 * p0;    // continuity equation
+        size_t q_eq = c_eq + 1;  // q-momentum equation
+        size_t r_eq = c_eq + 2;  // r-momentum equation
 
             triplets.emplace_back(c_eq, 3 * p0    , 1.0);
             triplets.emplace_back(c_eq, 3 * p1    , 1.0);
@@ -819,22 +819,22 @@ int nx, int ny)
     }
     if (true)  // SW-corner
     {
-        int i = 0;
-        int j = 0;
+        size_t i = 0;
+        size_t j = 0;
 
-        int p0 = bmp_index(i    , j   , ny);
-        int p1 = bmp_index(i + 1, j   , ny);
-        int p2 = bmp_index(i + 2, j   , ny);
-        int p3 = bmp_index(i    , j + 1, ny);
-        int p4 = bmp_index(i + 1, j + 1, ny);
-        int p5 = bmp_index(i + 2, j + 1, ny);
-        int p6 = bmp_index(i    , j + 2, ny);
-        int p7 = bmp_index(i + 1, j + 2, ny);
-        int p8 = bmp_index(i + 2, j + 2, ny);
+        size_t p0 = bmp_idx(i    , j   , ny);
+        size_t p1 = bmp_idx(i + 1, j   , ny);
+        size_t p2 = bmp_idx(i + 2, j   , ny);
+        size_t p3 = bmp_idx(i    , j + 1, ny);
+        size_t p4 = bmp_idx(i + 1, j + 1, ny);
+        size_t p5 = bmp_idx(i + 2, j + 1, ny);
+        size_t p6 = bmp_idx(i    , j + 2, ny);
+        size_t p7 = bmp_idx(i + 1, j + 2, ny);
+        size_t p8 = bmp_idx(i + 2, j + 2, ny);
 
-        int c_eq = 3 * p0;    // continuity equation
-        int q_eq = c_eq + 1;  // q-momentum equation
-        int r_eq = c_eq + 2;  // r-momentum equation
+        size_t c_eq = 3 * p0;    // continuity equation
+        size_t q_eq = c_eq + 1;  // q-momentum equation
+        size_t r_eq = c_eq + 2;  // r-momentum equation
 
             triplets.emplace_back(c_eq, 3 * p0    , 1.0);
             triplets.emplace_back(c_eq, 3 * p1    , 1.0);
@@ -928,21 +928,21 @@ int nx, int ny)
     }
     if (true)  // NW-corner
     {
-        int i = 0;
-        int j = ny - 1;
-        int p0 = bmp_index(i    , j   , ny);
-        int p1 = bmp_index(i + 1, j   , ny);
-        int p2 = bmp_index(i + 2, j   , ny);
-        int p3 = bmp_index(i    , j - 1, ny);
-        int p4 = bmp_index(i + 1, j - 1, ny);
-        int p5 = bmp_index(i + 2, j - 1, ny);
-        int p6 = bmp_index(i    , j - 2, ny);
-        int p7 = bmp_index(i + 1, j - 2, ny);
-        int p8 = bmp_index(i + 2, j - 2, ny);
+        size_t i = 0;
+        size_t j = ny - 1;
+        size_t p0 = bmp_idx(i    , j   , ny);
+        size_t p1 = bmp_idx(i + 1, j   , ny);
+        size_t p2 = bmp_idx(i + 2, j   , ny);
+        size_t p3 = bmp_idx(i    , j - 1, ny);
+        size_t p4 = bmp_idx(i + 1, j - 1, ny);
+        size_t p5 = bmp_idx(i + 2, j - 1, ny);
+        size_t p6 = bmp_idx(i    , j - 2, ny);
+        size_t p7 = bmp_idx(i + 1, j - 2, ny);
+        size_t p8 = bmp_idx(i + 2, j - 2, ny);
 
-        int c_eq = 3 * p0;    // continuity equation
-        int q_eq = c_eq + 1;  // q-momentum equation
-        int r_eq = c_eq + 2;  // r-momentum equation
+        size_t c_eq = 3 * p0;    // continuity equation
+        size_t q_eq = c_eq + 1;  // q-momentum equation
+        size_t r_eq = c_eq + 2;  // r-momentum equation
 
             triplets.emplace_back(c_eq, 3 * p0    , 1.0);
             triplets.emplace_back(c_eq, 3 * p1    , 1.0);
@@ -1037,7 +1037,7 @@ int nx, int ny)
         
     return 0;
 }
-inline int bmp_index(int i, int j, int ny_in)
+inline size_t bmp_idx(size_t i, size_t j, size_t ny_in)
 {
     return i * ny_in + j;
 }

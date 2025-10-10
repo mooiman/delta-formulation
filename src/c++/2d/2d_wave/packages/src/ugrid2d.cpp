@@ -121,6 +121,219 @@ int UGRID2D::def_dimensions(int nr_mesh_nodes, int nr_mesh_edges, int nr_mesh_fa
     status = nc_def_dim(m_ncid, "Two", 2, &dim_id);
     return status;
 }
+int UGRID2D::add_edge_nodes(size_t nx, size_t ny)
+{
+    int status;
+    std::vector<std::string> dim_names;
+    dim_names.push_back("mesh2d_nEdges");
+    dim_names.push_back("Two");
+    status = this->add_mesh2d_edge_nodes("mesh2d_edge_nodes", dim_names, "Each edge connects two nodes");
+
+    size_t nr_nodes = nx * ny;
+    //int nr_edges = (nx - 1) * ny + nx * (ny - 1);
+    std::vector<int> node_mask(nr_nodes, 0);
+
+    size_t p0 = 0;
+    size_t p1 = 0;
+    for (size_t i = 0; i < nx - 1; ++i)
+    {
+        for (size_t j = 0; j < ny - 1; ++j)
+        {
+            p0 = idx(i    , j, ny);
+            p1 = idx(i + 1, j, ny);
+            if (node_mask[p0] <= 1 || node_mask[p1] <= 1)
+            {
+                m_mesh2d_edge_nodes.push_back(p0);
+                m_mesh2d_edge_nodes.push_back(p1);
+                node_mask[p0] += 1;
+                node_mask[p1] += 1;
+            }
+
+            p0 = idx(i + 1, j    , ny);
+            p1 = idx(i + 1, j + 1, ny);
+            if (node_mask[p0] <= 1 || node_mask[p1] <= 1)
+            {
+                m_mesh2d_edge_nodes.push_back(p0);
+                m_mesh2d_edge_nodes.push_back(p1);
+                node_mask[p0] += 1;
+                node_mask[p1] += 1;
+            }
+
+            p0 = idx(i + 1, j + 1, ny);
+            p1 = idx(i    , j + 1, ny);
+            if (node_mask[p0] <= 1 || node_mask[p1] <= 1)
+            {
+                m_mesh2d_edge_nodes.push_back(p0);
+                m_mesh2d_edge_nodes.push_back(p1);
+                node_mask[p0] += 1;
+                node_mask[p1] += 1;
+            }
+
+            p0 = idx(i    , j + 1, ny);
+            p1 = idx(i    , j    , ny);
+            if (node_mask[p0] <= 1 || node_mask[p1] <= 1)
+            {
+                m_mesh2d_edge_nodes.push_back(p0);
+                m_mesh2d_edge_nodes.push_back(p1);
+                node_mask[p0] += 1;
+                //node_mask[p1] += 1;
+            }
+        }
+    }
+    status = this->put_variable_2("mesh2d_edge_nodes", m_mesh2d_edge_nodes);
+
+    return status;
+}
+int UGRID2D::add_face_nodes(std::vector<double> & x, std::vector<double> & y, double fill_value, size_t nx, size_t ny)
+{
+    int status;
+
+    size_t p0;
+    size_t p1;
+    size_t p2;
+    size_t p3;
+    std::vector<int> mesh2d_face_nodes;
+
+    for (int i = 0; i < nx - 1; ++i)
+    {
+        for (int j = 0; j < ny - 1; ++j)
+        {
+            p0 = idx(i    , j    , ny);
+            p1 = idx(i + 1, j    , ny);
+            p2 = idx(i + 1, j + 1, ny);
+            p3 = idx(i    , j + 1, ny);
+            if ((x[p0] != fill_value || y[p0] != fill_value) &&
+                (x[p1] != fill_value || y[p1] != fill_value) &&
+                (x[p2] != fill_value || y[p2] != fill_value) &&
+                (x[p3] != fill_value || y[p3] != fill_value) )
+            {
+                mesh2d_face_nodes.push_back(p0);
+                mesh2d_face_nodes.push_back(p1);
+                mesh2d_face_nodes.push_back(p2);
+                mesh2d_face_nodes.push_back(p3);
+            }
+        }
+    }
+    std::vector<std::string> dim_names;
+    dim_names.push_back("mesh2d_nFaces");
+    dim_names.push_back("mesh2d_nMax_face_nodes");
+
+    status = this->add_mesh2d_edge_nodes("mesh2d_face_nodes", dim_names, "Each face contains four nodes");
+    status = this->put_variable_4("mesh2d_face_nodes", mesh2d_face_nodes);
+
+    return status;
+}
+int UGRID2D::add_node_coords(std::vector<double> & x, std::vector<double> & y, double fill_value)
+{
+    int status = 1;
+    std::vector<std::string> dim_names;
+    dim_names.push_back("mesh2d_nNodes");
+    status = this->add_variable("mesh2d_node_x", dim_names, "projection_x_coordinate", "x", "m");
+    status = this->add_attribute("mesh2d_node_x", "_FillValue", fill_value);
+    status = this->put_variable("mesh2d_node_x", x);
+
+    status = this->add_variable("mesh2d_node_y", dim_names, "projection_y_coordinate", "y", "m");
+    status = this->add_attribute("mesh2d_node_y", "_FillValue", fill_value);
+    status = this->put_variable("mesh2d_node_y", y);
+
+    return status;
+}
+int UGRID2D::add_edge_coords(std::vector<double> & x, std::vector<double> & y, double fill_value)
+{
+    int status = 1;
+
+    // Compute edges centres
+    int p0;
+    int p1;
+    std::vector<double> edge_x;
+    std::vector<double> edge_y;
+    for (int i = 0; i < m_mesh2d_edge_nodes.size(); i += 2)
+    {
+        p0 = m_mesh2d_edge_nodes[i];
+        p1 = m_mesh2d_edge_nodes[i+1];
+        edge_x.push_back(0.5 * (x[p0] + x[p1]));
+        edge_y.push_back(0.5 * (y[p0] + y[p1]));
+    }
+
+    std::vector<std::string> dim_names;
+    dim_names.push_back("mesh2d_nEdges");
+    status = this->add_variable("mesh2d_edge_x", dim_names, "projection_x_coordinate", "x", "m");
+    status = this->add_attribute("mesh2d_edge_x", "_FillValue", fill_value);
+    status = this->put_variable("mesh2d_edge_x", edge_x);
+
+    status = this->add_variable("mesh2d_edge_y", dim_names, "projection_y_coordinate", "y", "m");
+    status = this->add_attribute("mesh2d_edge_y", "_FillValue", fill_value);
+    status = this->put_variable("mesh2d_edge_y", edge_y);
+
+    return status;
+}
+int UGRID2D::add_face_mass_centres(std::vector<double> & x, std::vector<double> & y, double fill_value, size_t nx, size_t ny)
+{
+    int status = 1;
+
+    // Compute mass centres of faces
+    size_t p0;
+    size_t p1;
+    size_t p2;
+    size_t p3;
+    std::vector<double> xmc;
+    std::vector<double> ymc;
+    for (size_t i = 0; i < nx - 1; ++i)
+    {
+        for (size_t j = 0; j < ny - 1; ++j)
+        {
+            p0 = idx(i    , j    , ny);
+            p1 = idx(i + 1, j    , ny);
+            p2 = idx(i + 1, j + 1, ny);
+            p3 = idx(i    , j + 1, ny);
+            xmc.push_back(0.25 * (x[p0] + x[p1] + x[p2] + x[p3]));
+            ymc.push_back(0.25 * (y[p0] + y[p1] + y[p2] + y[p3]));
+        }
+    }
+    std::vector<std::string> dim_names;
+    dim_names.push_back("mesh2d_nFaces");
+    status = this->add_variable("mesh2d_face_x", dim_names, "projection_x_coordinate", "x", "m");
+    status = this->add_attribute("mesh2d_face_x", "_FillValue", fill_value);
+    status = this->put_variable("mesh2d_face_x", xmc);
+
+    status = this->add_variable("mesh2d_face_y", dim_names, "projection_y_coordinate", "y", "m");
+    status = this->add_attribute("mesh2d_face_y", "_FillValue", fill_value);
+    status = this->put_variable("mesh2d_face_y", ymc);
+
+    return status;
+}
+int UGRID2D::add_face_area(std::vector<double> & x, std::vector<double> & y, double fill_value, size_t nx, size_t ny)
+{
+    int status = 1;
+
+    // Compute area of faces
+    size_t p0;
+    size_t p1;
+    size_t p2;
+    size_t p3;
+    std::vector<double> cell_area;
+    for (size_t i = 0; i < nx - 1; ++i)
+    {
+        for (size_t j = 0; j < ny - 1; ++j)
+        {
+            p0 = idx(i    , j    , ny);
+            p1 = idx(i + 1, j    , ny);
+            p2 = idx(i + 1, j + 1, ny);
+            p3 = idx(i    , j + 1, ny);
+            double area = std::abs(0.5 * ((x[p0] * y[p1] + x[p1] * y[p2] + x[p2] * y[p3] + x[p3] * y[p0]) - (y[p0] * x[p1] + y[p1] * x[p2] + y[p2] * x[p3] + y[p3] * x[p0])));
+            cell_area.push_back(area);
+        }
+    }
+
+    std::vector<std::string> dim_names;
+    dim_names.push_back("mesh2d_nFaces");
+    status = this->add_variable("cell_area", dim_names, "cell_area", "-", "m2", "mesh2D", "face");
+    status = this->add_attribute("cell_area", "coordinates", "mesh2d_face_x, mesh2d_face_y");
+    status = this->put_variable("cell_area", cell_area);
+
+    return status;
+}
+
 int UGRID2D::add_variable(std::string var_name, std::vector<std::string> dim_names, std::string std_name, std::string long_name, std::string unit)
 {
     int dim_id;
@@ -424,6 +637,10 @@ int UGRID2D::put_variable_4(std::string var_name, std::vector<int> values)
     return status;
 }
 ////////////////////////////////////////////////////////////////////////////////
+inline size_t UGRID2D::idx(size_t i, size_t j, size_t ny)
+{
+    return i * ny + j;
+}
 int UGRID2D::set_global_attribute(std::string att_name, std::string att_value)
 {
     int status = nc_put_att_text(m_ncid, NC_GLOBAL, att_name.data(), att_value.size(), att_value.data());

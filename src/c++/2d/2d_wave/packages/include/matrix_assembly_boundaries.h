@@ -36,10 +36,10 @@
 #include <Eigen/Sparse>
 
 
-int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & dyinv, double & theta, double & g, double eps_bc_corr, 
     bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity,
-    double dx, double dy, int nx, int ny,
+    double dx, double dy, size_t nx, size_t ny,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
@@ -47,10 +47,10 @@ int boundary_north(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
     std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_NORTH, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess);
 
-int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & dxinv, double & theta, double & g, double eps_bc_corr, 
     bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity,
-    double dx, double dy, int nx, int ny,
+    double dx, double dy, size_t nx, size_t ny,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
@@ -58,10 +58,10 @@ int boundary_east(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
     std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_EAST, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess);
 
-int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & dxinv, double & theta, double & g, double eps_bc_corr, 
     bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity,
-    double dx, double dy, int nx, int ny,
+    double dx, double dy, size_t nx, size_t ny,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
@@ -69,10 +69,10 @@ int boundary_south(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen:
     std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_SOUTH, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess);
 
-int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & dxinv, double & theta, double & g, double eps_bc_corr, 
     bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity,
-    double dx, double dy, int nx, int ny,
+    double dx, double dy, size_t nx, size_t ny,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
@@ -82,9 +82,9 @@ int boundary_west(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::
 
 // double natural_boundary_qp(std::vector<double>& hp, int p_b, int xi, int eta, std::vector<double>& w, int ny);
 
-void molecule(std::vector<int>& p, int p_sw, int ny);
+void molecule(std::vector<size_t>& p, size_t p_sw, size_t ny);
 
-inline void set_value(double * values, int col, double data);
-inline int ma_index(int i, int j, int ny_in);
+inline void set_value(double * values, size_t col, double data);
+inline size_t ma_index(size_t i, size_t j, size_t ny_in);
 
 #endif  // __MATRIX_ASSEMBLY_BOUNDARIES_H__

@@ -823,13 +823,13 @@ int SGRID::read_variables_with_cf_role(int i_var, std::string var_name, std::str
             status = nc_inq_varndims(this->m_ncid, var_id, &ndims);
             dimids = (int*)malloc(sizeof(int) * ndims);
             status = nc_inq_vardimid(this->m_ncid, var_id, dimids);
-            int imax_node = m_dimids[dimids[0]];
-            int jmax_node = 0;
+            size_t imax_node = m_dimids[dimids[0]];
+            size_t jmax_node = 0;
             if (m_ftype == FILE_TYPE::KISS)
             {
                 status = nc_inq_varid(this->m_ncid, m_mesh2d_strings[nr_mesh2d - 1]->y_node_name.c_str(), &var_id);
                 status = nc_inq_varndims(this->m_ncid, var_id, &ndims);
-                dimids = (int*)malloc(sizeof(int) * ndims);
+                dimids = (int*)malloc(sizeof(size_t) * ndims);
                 status = nc_inq_vardimid(this->m_ncid, var_id, dimids);
                 jmax_node = (int)m_dimids[dimids[0]];
             }
@@ -846,10 +846,10 @@ int SGRID::read_variables_with_cf_role(int i_var, std::string var_name, std::str
                 m_mesh2d->edge[nr_mesh2d - 1]->edge_nodes[i] = mesh2d_edge_nodes + _two * i;
             }
             // vertical edges
-            int k = -1;
-            for (int i = 0; i <imax_node; ++i)
+            size_t k = -1;
+            for (size_t i = 0; i <imax_node; ++i)
             {
-                for (int j = 0; j < jmax_node-1; ++j)
+                for (size_t j = 0; j < jmax_node-1; ++j)
                 {
                     k += 1;
                     m_mesh2d->edge[nr_mesh2d - 1]->edge_nodes[k][0] = i * jmax_node + j;
@@ -857,9 +857,9 @@ int SGRID::read_variables_with_cf_role(int i_var, std::string var_name, std::str
                 }
             }
             //horizontal edges
-            for (int j = 0; j < jmax_node; ++j)
+            for (size_t j = 0; j < jmax_node; ++j)
             {
-                for (int i = 0; i < imax_node - 1; ++i)
+                for (size_t i = 0; i < imax_node - 1; ++i)
                 {
                     k += 1;
                     m_mesh2d->edge[nr_mesh2d - 1]->edge_nodes[k][0] = i * jmax_node + j;
@@ -955,8 +955,8 @@ int SGRID::read_variables_with_cf_role(int i_var, std::string var_name, std::str
             dimids = (int*)malloc(sizeof(int) * ndims);
             status = nc_inq_vardimid(this->m_ncid, var_id, dimids);
 
-            int m_max;
-            int n_max;
+            size_t m_max;
+            size_t n_max;
             if (m_ftype == FILE_TYPE::KISS)
             {
                 m_max = imax_node;

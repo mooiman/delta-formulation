@@ -29,17 +29,13 @@ BED_LEVEL::BED_LEVEL()
 //------------------------------------------------------------------------------
 BED_LEVEL::~BED_LEVEL()
 {
-    if (m_fname.is_open())
-    {
-        m_fname.close();
-    }    
+}
 //------------------------------------------------------------------------------
 long BED_LEVEL::open(std::string filename)
 {
     long status = 1;
     m_fname.open(filename);
-    if (m_fname.is_open()) 
-    {
+    if (m_fname.is_open()) {
         status = 0;
     }
     return status;

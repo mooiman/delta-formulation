@@ -83,7 +83,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;.\include;..\..\..\lib\amgcl;..\..\..\lib\eigen;..\..\..\lib\toml++;%BOOST_ROOT_DIR%;%NETCDF_DIR%;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;.\include;..\..\..\lib\amgcl;..\..\..\lib\eigen;..\..\..\lib\toml++;%BOOST_ROOT_DIR%;%KDTREE_DIR%;%NETCDF_DIR%;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -permissive- -Zc:__cplusplus -Zc:externConstexpr -utf-8 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -107,7 +107,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%NETCDF_DIR%\lib\netcdf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%KDTREE_DIR%\lib\kdtree.lib;%NETCDF_DIR%\lib\netcdf.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\lib\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -137,7 +137,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;.\include;..\..\..\lib\amgcl;..\..\..\lib\eigen;..\..\..\lib\toml++;%BOOST_ROOT_DIR%;%NETCDF_DIR%;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;.\include;..\..\..\lib\amgcl;..\..\..\lib\eigen;..\..\..\lib\toml++;%BOOST_ROOT_DIR%;%KDTREE_DIR%;%NETCDF_DIR%;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -permissive- -Zc:__cplusplus -Zc:externConstexpr -utf-8 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>true</BrowseInformation>
@@ -159,7 +159,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%NETCDF_DIR%\lib\netcdf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%KDTREE_DIR%\lib\kdtree_dbg.lib;%NETCDF_DIR%\lib\netcdf.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\lib\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -202,11 +202,14 @@
     <ClCompile Include="src\matrix_assembly_boundaries.cpp" />
     <ClCompile Include="src\matrix_assembly_corners.cpp" />
     <ClCompile Include="src\matrix_assembly_interior.cpp" />
+    <ClCompile Include="src\observation_stations.cpp" />
     <ClCompile Include="src\perf_timer.cpp" />
+    <ClCompile Include="src\read_input_toml_file.cpp" />
     <ClCompile Include="src\regularization.cpp" />
     <ClCompile Include="src\ugrid2d.cpp" />
     <ClCompile Include="src\viscosity.cpp" />
     <ClCompile Include="src\wave_2d_version.cpp" />
+    <ClCompile Include="src\write_input_toml_to_logfile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\bed_level.h" />
@@ -217,6 +220,7 @@
     <ClInclude Include="include\cfts.h" />
     <ClInclude Include="include\compile_date_and_time.h" />
     <ClInclude Include="include\convection.h" />
+    <ClInclude Include="include\data_input_struct.h" />
     <ClInclude Include="include\data_struct.h" />
     <ClInclude Include="include\grid.h" />
     <ClInclude Include="include\initial_conditions.h" />
@@ -225,7 +229,9 @@
     <ClInclude Include="include\matrix_assembly_boundaries.h" />
     <ClInclude Include="include\matrix_assembly_corners.h" />
     <ClInclude Include="include\matrix_assembly_interior.h" />
+    <ClInclude Include="include\observation_stations.h" />
     <ClInclude Include="include\perf_timer.h" />
+    <ClInclude Include="include\read_input_toml_file.h" />
     <ClInclude Include="include\regularization.h" />
     <ClInclude Include="include\ugrid2d.h" />
     <ClInclude Include="include\viscosity.h" />
