@@ -80,9 +80,9 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
     double con_fac = c_wave;
 
     // nnorth
-    if (bc_type[BC_NORTH] == "dirichlet" || bc_type[BC_NORTH] == "neumann")
+    if (bc_type[BC_NORTH] == "no-slip" || bc_type[BC_NORTH] == "free-slip")
     {
-        if (bc_type[BC_NORTH] == "dirichlet")
+        if (bc_type[BC_NORTH] == "no-slip")
         {
             // Contribution Delta h
             size_t col_b  = c_eq + 5 * 3;
@@ -111,7 +111,7 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             values[col_ss + 2]  = 0.0;
             rhs[row + 2] = 0.0;
         }
-        else if (bc_type[BC_NORTH] == "neumann")
+        else if (bc_type[BC_NORTH] == "free-slip")
         {
             // Contribution Delta h
             size_t col_b  = c_eq + 5 * 3;
@@ -619,6 +619,7 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
                 );
         }
         if (do_bed_shear_stress)
+        //if (false)
         {
             // North boundary bed shear stress
 
@@ -780,9 +781,9 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     double con_fac = c_wave;
 
     // eeast
-    if (bc_type[BC_EAST] == "dirichlet" || bc_type[BC_EAST] == "neumann")
+    if (bc_type[BC_EAST] == "no-slip" || bc_type[BC_EAST] == "free-slip")
     {
-        if (bc_type[BC_EAST] == "dirichlet")
+        if (bc_type[BC_EAST] == "no-slip")
         {
             // Contribution Delta h
             size_t col_b  = c_eq + 7 * 3;
@@ -811,7 +812,7 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             values[col_ww + 2]  = 0.0;
             rhs[row + 2] = 0.0;
         }
-        else if (bc_type[BC_EAST] == "neumann")
+        else if (bc_type[BC_EAST] == "free-slip")
         {
             // Contribution Delta h
             size_t col_b  = c_eq + 7 * 3;
@@ -1290,6 +1291,7 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
                 );
         }
         if (do_bed_shear_stress)
+        //if (false)
         {
             // East boundary bed shear stress
 
@@ -1480,9 +1482,9 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
     double con_fac = c_wave;
 
     // ssouth
-    if (bc_type[BC_SOUTH] == "dirichlet" || bc_type[BC_SOUTH] == "neumann")
+    if (bc_type[BC_SOUTH] == "no-slip" || bc_type[BC_SOUTH] == "free-slip")
     {
-        if (bc_type[BC_SOUTH] == "dirichlet")
+        if (bc_type[BC_SOUTH] == "no-slip")
         {
             // Contribution Delta h
             size_t col_b  = c_eq + 3 * 3;
@@ -1511,7 +1513,7 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             values[col_nn + 2]  = 0.0;
             rhs[row + 2] = 0.0;
         }
-        else if (bc_type[BC_SOUTH] == "neumann")
+        else if (bc_type[BC_SOUTH] == "free-slip")
         {
             // Contribution Delta h
             size_t col_b  = c_eq + 3 * 3;
@@ -2016,6 +2018,7 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
                 );
         }
         if (do_bed_shear_stress)
+        //if (false)
         {
             // South boundary bed shear stress
 
@@ -2176,9 +2179,9 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     double con_fac = c_wave;
 
     // wwest
-    if (bc_type[BC_WEST] == "dirichlet" || bc_type[BC_WEST] == "neumann")
+    if (bc_type[BC_WEST] == "no-slip" || bc_type[BC_WEST] == "free-slip")
     {
-        if (bc_type[BC_WEST] == "dirichlet")
+        if (bc_type[BC_WEST] == "no-slip")
         {
             // Contribution Delta h
             size_t col_b  = c_eq + 1 * 3; // point of boundary, ie west point of molecule
@@ -2207,7 +2210,7 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             values[col_ee + 2]  = 0.0;
             rhs[row + 2] = 0.0;
         }
-        else if (bc_type[BC_WEST] == "neumann")
+        else if (bc_type[BC_WEST] == "free-slip")
         {
             // Contribution Delta h
             size_t col_b  = c_eq + 1 * 3; // point of boundary, ie west point of molecule
@@ -2683,6 +2686,7 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
                 );
         }
         if (do_bed_shear_stress)
+        //if (false)
         {
             // West boundary bed shear stress 
 
