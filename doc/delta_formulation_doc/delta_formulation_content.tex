@@ -98,10 +98,12 @@ Thea Vuik\newline
 \nomenclature{$g$}{\si{\metre\per\square\second}}{Gravitational constant}
 \nomenclature{$\theta$}{\si{-}}{$\theta$-method. If $\theta=1$ then it is a fully implicit method and if $\theta=0$ then it is a fully explicit method.}
 \nomenclature{$\nu$}{\si{\square\metre\per\second}}{Kinematic viscosity}
-\nomenclature{$\eps$}{\si{\metre\per\square\second}}{Multiplier of the correction term for the essential boundary condition, $\zeta$-boundary}
-\nomenclature{$\eps$}{\si{\per\second}}{Multiplier of the correction term for the essential boundary condition, $q$-boundary}
+\nomenclature{$\eps_\zeta$}{\si{\metre\per\square\second}}{Multiplier of the correction term for the essential boundary condition, $\zeta$-boundary}
+\nomenclature{$\eps_q$}{\si{\per\second}}{Multiplier of the correction term for the essential boundary condition, $q$-boundary}
 \nomenclature{$c_f$}{\si{-}}{Bed shear stress coefficient}
 \nomenclature{$C$}{\si{\metre^{\half}\, \second^{-1}}}{Ch\'ezy coefficient}
+\nomenclature{$\mu$}{\si{\metre}}{Centre of the Gaussian hump}
+\nomenclature{$\sigma$}{\si{\metre}}{Spreading of the Gaussian hump}
 
 
 
@@ -113,11 +115,12 @@ Thea Vuik\newline
 \input{chapters/space_discretization}
 %------------------------------------------------------------------------------
 \part{1D Wave}
-\input{chapters/shallow_water_equations.tex}
-\input{chapters/numerical_experiments.tex}
+\input{chapters/1d_shallow_water_equations.tex}
+\input{chapters/1d_numerical_experiments.tex}
 %------------------------------------------------------------------------------
 \part{2D Wave}
 \input{chapters/2d_shallow_water_equations.tex}
+%\input{chapters/2d_numerical_experiments.tex}
 %--------------------------------------------------------------------------------
 %\chapter{1D Wave equation}\label{sec:1d_non_linear_wave_equation}
 %\section{Riemann invariants}
@@ -130,9 +133,9 @@ Thea Vuik\newline
 %--------------------------------------------------------------------------------
 \part{Appendices}
 \appendix
-\input{chapters/error_estimation_1d.tex}
-\input{chapters/diagonalise_1d_swe}
+\input{chapters/1d_error_estimation.tex}
+\input{chapters/1d_diagonalise_swe}
 \input{chapters/error_function_artificial_viscosity.tex}
 \input{chapters/linearization_in_time.tex}
-\input{chapters/regularization_2d.tex}
+\input{chapters/2d_regularization.tex}
 \end{document}
