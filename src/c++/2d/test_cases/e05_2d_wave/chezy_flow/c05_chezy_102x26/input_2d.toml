@@ -15,7 +15,7 @@
     gauss_sigma = 350.0    # width of the gaussian hump
 
 [Boundary] # north, east, south, west
-    bc_type = ["dirichlet", "borsboom", "dirichlet", "borsboom"] # Type "borsboom", "dirichlet", "mooiman" 
+    bc_type = ["free-slip", "borsboom", "free-slip", "borsboom"] # Type "borsboom", "free-slip", "mooiman" 
     bc_vars = ["-", "zeta", "-", "q"]
     bc_vals = [0.0, 0.0, 0.0, 4.0]
     bc_absorbing = [false, true, false, true]
