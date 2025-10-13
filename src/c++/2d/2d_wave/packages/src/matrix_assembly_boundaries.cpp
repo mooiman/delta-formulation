@@ -276,7 +276,7 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             size_t col_es  = c_eq + 7 * 3;
             size_t col_ess = c_eq + 6 * 3;
             //
-            if (do_convection) { con_fac = c_wave - rp_b / hp_b; }
+            if (do_convection) { con_fac = c_wave + rp_b / hp_b; }
             //
             // Contribution Delta h
             // face 0 
@@ -440,7 +440,7 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         double dzetady_b = dyinv * (htheta[p_5] + zb[p_5] - htheta[p_4] - zb[p_4]);
         double dzetady_e = dyinv * (htheta[p_8] + zb[p_8] - htheta[p_7] - zb[p_7]);
         // ---------------------------------------------------------------------
-        if (do_convection) { con_fac = c_wave + rp_b / hp_b; }
+        if (do_convection) { con_fac = c_wave - rp_b / hp_b; }
         // ---------------------------------------------------------------------
         // second row
         // q-momentum (tangential equation, q == 0)
@@ -619,7 +619,6 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
                 );
         }
         if (do_bed_shear_stress)
-        //if (false)
         {
             // North boundary bed shear stress
 
@@ -976,7 +975,7 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             size_t col_sw  = c_eq + 3 * 3;
             size_t col_sww = c_eq + 0 * 3;
             //
-            if (do_convection) { con_fac = c_wave - qp_b / hp_b; }
+            if (do_convection) { con_fac = c_wave + qp_b / hp_b; }
             //
             // Contribution Delta h
             // face 0
@@ -1140,7 +1139,7 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
         double dzetadx_b = dxinv * (htheta[p_7] + zb[p_7] - htheta[p_4] - zb[p_4]);
         double dzetadx_s = dxinv * (htheta[p_6] + zb[p_6] - htheta[p_3] - zb[p_3]);
         // ---------------------------------------------------------------------
-        if (do_convection) { con_fac = c_wave + qp_b / hp_b; }
+        if (do_convection) { con_fac = c_wave - qp_b / hp_b; }
         // ---------------------------------------------------------------------
         // second row
         // momentum part dq/dt + gh d(zeta)/dx
@@ -1291,7 +1290,6 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
                 );
         }
         if (do_bed_shear_stress)
-        //if (false)
         {
             // East boundary bed shear stress
 
@@ -1678,7 +1676,7 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             size_t col_en  = c_eq + 7 * 3;
             size_t col_enn = c_eq + 8 * 3;
             //
-            if (do_convection) { con_fac = c_wave + rp_b / hp_b; }
+            if (do_convection) { con_fac = c_wave - rp_b / hp_b; }
             //
             // Contribution h
             // face 0
@@ -1836,7 +1834,7 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         double dzetady_b = dyinv * (htheta[p_4] + zb[p_4] - htheta[p_3] - zb[p_3]);
         double dzetady_e = dyinv * (htheta[p_7] + zb[p_7] - htheta[p_6] - zb[p_6]);
         // ---------------------------------------------------------------------
-        if (do_convection) { con_fac = c_wave - rp_b / hp_b; }
+        if (do_convection) { con_fac = c_wave + rp_b / hp_b; }
         // ---------------------------------------------------------------------
         // second row
         // q-momentum (tangential equation, q == 0)
@@ -2018,7 +2016,6 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
                 );
         }
         if (do_bed_shear_stress)
-        //if (false)
         {
             // South boundary bed shear stress
 
@@ -2373,7 +2370,7 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             size_t col_ne  = c_eq + 5 * 3;
             size_t col_nee = c_eq + 8 * 3;
             //
-            if (do_convection) { con_fac = c_wave + qp_b / hp_b; }
+            if (do_convection) { con_fac = c_wave - qp_b / hp_b; }
             //
             // Contribution Delta h
             // face 0
@@ -2534,7 +2531,7 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
         double dzetadx_b = dxinv * (htheta[p_4] + zb[p_4] - htheta[p_1] - zb[p_1]);
         double dzetadx_n = dxinv * (htheta[p_5] + zb[p_5] - htheta[p_2] - zb[p_2]);
         // ---------------------------------------------------------------------
-        if (do_convection) { con_fac = c_wave - qp_b / hp_b; }
+        if (do_convection) { con_fac = c_wave + qp_b / hp_b; }
         // ---------------------------------------------------------------------
         // second row
         // momentum part dq/dt + gh d(zeta)/dx 
@@ -2686,7 +2683,6 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
                 );
         }
         if (do_bed_shear_stress)
-        //if (false)
         {
             // West boundary bed shear stress 
 
