@@ -1,0 +1,250 @@
+\documentclass[subfooter, backcover]{mooiman_memo}
+\hypersetup
+{
+    pdfauthor   = {Mooiman},
+}
+\addbibresource{./common/literature_references.bib}
+
+\usepackage{empheq}
+\usepackage{cancel}
+
+\usepackage{bm}
+\renewcommand{\vec}[1]{\mbox{\boldmath ${#1}$} }
+
+\sisetup{mode=math}
+\captionsetup[subfigure]{justification=RaggedRight}
+
+\allowdisplaybreaks[1]
+
+\newcommand{\ii}{{\rm i}}
+\newcommand{\Dx}{\Delta x}
+\newcommand{\Dy}{\Delta y}
+\newcommand{\Dh}{\Delta h}
+\newcommand{\Dq}{\Delta q}
+\newcommand{\Dr}{\Delta r}
+\newcommand{\Dxi}{\Delta \xi}
+\newcommand{\Deta}{\Delta \eta}
+\newcommand{\Dt}{\Delta t}
+\newcommand{\Dtinv}{\Delta t_{\it{inv}}}
+
+\newcommand{\mat}[1]{\mbox{\boldmath ${\rm #1}$} }
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\quart}{\frac{1}{4}}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\Fabs}[1]{F_{\it abs}(#1)\xspace}  % Continue function for the absolute value
+\newcommand{\eps}{\varepsilon}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\bunit}[1]{\text{\normalfont [}{\unit{#1}}\text{\normalfont ]}}
+\newcommand{\bqty}[2]{\text{\num{#1}}\ \text{\normalfont [}{\unit{#2}}\text{\normalfont ]}}
+\newcommand{\Pe}{{Pe}\xspace}
+\newcommand{\bPsi}{\boldsymbol{\Psi}}
+
+\newcommand{\utilde}{\widetilde{u}}
+\newcommand{\ubar}{\overline{u}}
+\newcommand{\uhat }{\widehat{u}}
+\newcommand{\htilde}{\widetilde{h}}
+\renewcommand{\hbar}{\overline{h}}  % overrule the Planck constant
+\newcommand{\hhat }{\widehat{h}}
+\newcommand{\qtilde}{\widetilde{q}}
+\newcommand{\qbar}{\overline{q}}
+\newcommand{\qhat }{\widehat{q}}
+
+\newcommand{\maplesoft}{\textbf{Maplesoft}}
+\newcommand{\deltaformulation}{$\Delta$-formulation\xspace}
+\newcommand{\notyet}{\textbf{Not yet documented}\newline}
+
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\white}[1]{\textcolor{white}{#1}}
+
+\begin{document}
+
+\title{Manual, Two step FVE method}
+\subtitle{A numerical modeling technique designed for error insight}
+\contact{J.\ Mooiman}
+\author{Jan Mooiman}
+\partner{}
+
+\documentid{ID-20251012}
+\version{000}
+\date{\today~\currenttime} % start of writing document
+\status{\textbf{Work in progress}}
+
+\memoSubject{Manual, Two step FVE method}
+\memoTo{}
+
+\mooimantitle
+%\deltarestitle
+%------------------------------------------------------------------------------
+\chapter{Description of input file}
+Nine observation points are hard coded in the software, these are located at:
+\begin{enumerate}
+    \item the centre of the grid.
+    \item in the middle of the north boundary.
+    \item in the middle of the east boundary.
+    \item in the middle of the south boundary.
+    \item in the middle of the west boundary.
+    \item in the North-East corner of the grid.
+    \item in the South-East corner of the grid.
+    \item in the South-West corner of the grid.
+    \item in the North-West corner of the grid.
+\end{enumerate}
+Extra observation points can be specified in the input file according the description in \autoref{sec:file_description}
+%------------------------------------------------------------------------------
+\section{File description} \label{sec:file_description}
+Items in the color red are only to be used in the development stage of the software.
+An example input file is given in \autoref{sec:example_input}.
+%------------------------------------------------------------------------------
+{{\small%\setlength{\tabcolsep}{1pt}
+\begin{longtable}{p{35mm} p{20mm} p{\textwidth-55mm-36pt}}
+    \caption{Standard input-file with default settings.\label{tab:appmdudefaults}} \\ \topline
+    \rowcolor{mgreen1}
+    \white{\textbf{Keyword}}   &  \white{\textbf{Default}}  &  \white{\textbf{Description}}   \\ \hline
+    \endfirsthead
+    \multicolumn{3}{@{}l}{\textsl{(continued from previous page)}} \\
+    \topline
+    \rowcolor{mgreen1}
+    \white{\textbf{Keyword}}   &  \white{\textbf{Default}}  &  \white{\textbf{Description}}   \\
+    \topline
+    \endhead
+    \multicolumn{3}{@{}l}{\textsl{(continued on next page)}} \\  % no horizontal lines, they should only be written by the table itself
+    \endfoot
+    \bottomline
+    \endlastfoot
+%
+logging & "None" & "iterations" | "matrix" | "pattern" \\*
+\midline
+%
+\textbf{\texttt{[Boundary]}} & & \\*
+treg         & 150.0 & Regularization time boundary signal \\*
+eps\_bc\_corr  & 0.01  & Boundary correction term to force the boundary value to the given boundary value \\*
+bc\_type      & [\ ,\ ,\ ,\ ] &  ["free-slip" | "no-slip" | "borsboom" | "mooiman" ] \\*
+bc\_vars      & [\ ,\ ,\ ,\ ] & ["-" | "zeta" | "q"] \\*
+bc\_vals      & [\ ,\ ,\ ,\ ] & [Real value] \\*
+bc\_absorbing & [\ ,\ ,\ ,\ ] & [Boolean value] \\*
+\midline
+%
+\textbf{\texttt{[Domain]}} & & \\*
+bed-level-file    &-& Name of bed-level-file between  double quotes \\*
+mesh-file         &-& Name of mesh file point between double quotes \\*
+\midline
+%
+\textbf{\texttt{[Initial]}}  && \\*
+ini\_vars & None & ["zeta", "zeta\_gauss\_hump" | "zeta\_constant" | "zeta\_gauss\_hump\_x" |  "zeta\_gauss\_hump\_y"]  \\*
+gauss\_amp & 0.0 & \\*
+gauss\_mu & 0.0& \\*
+gauss\_mu\_x & 0.0 & \\*
+gauss\_mu\_y & 0.0 & \\*
+gauss\_sigma & 350.0 & \\*
+gauss\_sigma\_x & 350.0 & Optional if "gauss\_sigma" is not specified \\*
+gauss\_sigma\_y & 350.0 & Optional if "gauss\_sigma" is not specified \\
+\midline
+%
+\multicolumn{3}{@{}l}{\textbf{\texttt{[Numerics]}} } \\*
+dt & 5.0  & Time step size [s], if dt == 0: then stationary simulation \\*
+theta & 0.501  & Implicitness factor (0.5 <= theta <= 1.0) \\*
+c\_psi & 4.0 & Smoothness factor used for regularization \\*
+iter\_max & 25  & Maximum number of nonlinear iterations \\*
+eps\_newton & 1e-12 & Accuracy of the Newton solver (non-linear)\\*
+eps\_bicgstab & 1e-06 & Accuracy of the linear solver\\*
+eps\_abs\_function & 0.01 & Smoothing factor for the absolute-function\\*
+linear\_solver & "bicgstab" & Type of linear solver "bicgstab", {\color{red} "multigrid" } \\*
+regularization\_init & false & true, false \\*
+regularization\_iter & false & true, false \\*
+regularization\_time & false & true, false \\*
+\midline
+%
+\multicolumn{3}{@{}l}{\textbf{\texttt{[Physics]}} } \\*
+\red{do\_linear\_waves} & \red{true} &  \red{true, false} \\*
+\red{do\_continuity}    & \red{true} &  \red{true, false} \\*
+\red{do\_q\_equation}   & \red{true} &  \red{true, false} \\*
+\red{do\_r\_equation}   & \red{true} &  \red{true, false} \\*
+do\_convection & false & true, false \\*
+do\_bed\_shear\_stress & false & true, false \\*
+do\_viscosity & false & true, false \\*
+chezy\_coefficient & 25.0 & Bed friction coefficient\\*
+viscosity & 0.01 & Diffusity coefficient\\*
+\midline
+%
+%
+\multicolumn{3}{@{}l}{\textbf{\texttt{[Output]}} } \\*
+dt\_his & dt & Time interval to write the history file, \bunit{\second}\\*
+dt\_map & $60.0$ & Time interval to write the history file, \bunit{\second} \\*
+\midline
+%
+%
+\multicolumn{3}{@{}l}{\textbf{\texttt{[Time]}} } \\*
+start & 0.0 & Start time of the simulation, \bunit{\second} \\*
+stop & 60.0 & Stop time of the simulation, \bunit{\second} \\*
+\midline
+%
+\multicolumn{3}{@{}l}{\textbf{\texttt{[[ObservationPoint]]}} } \\*
+{x}    &-& $x$-coordinate of the observation point\\*
+{y}    &-& $y$-coordinate of the observation point\\*
+{name} &-& Name of observation point between double quotes \\
+\midline
+
+\end{longtable}
+
+%
+%================================================================================
+\newpage
+\section{Example input file}\label{sec:example_input}
+\begin{Verbatim}[fontsize=\scriptsize]
+logging = "None"  # "iterations", "matrix", "pattern"
+
+[Boundary]  # north, east, south, west
+bc_type = ["borsboom", "borsboom", "borsboom", "borsboom"]  # Type "neumann", "dirichlet"
+bc_vars = ["zeta", "zeta", "zeta", "zeta"]
+bc_absorbing = [true, true, true, true]
+bc_vals = [0.0, 0.0, 0.0, 0.0]
+treg = 150.0  # Regularization time boundary signal
+eps_bc_corr = 0.01
+
+[Domain]
+mesh_file = "geometry/62x62_6x6km_net.nc"
+bed_level_file = "geometry/62x62_6x6km_flat.dep"
+
+[Initial]
+ini_vars = ["zeta", "zeta_gauss_hump"]
+Gauss_amp = 1.0
+Gauss_mu = 0.0
+Gauss_mu_x = 0.0
+Gauss_mu_y = 0.0
+Gauss_sigma = 350.0
+Gauss_sigma_x = 350.0
+Gauss_sigma_y = 350.0
+
+[Numerics]
+dt = 5.0  # Time step size [s], if dt == 0: then stationary problem
+theta = 0.501  # Implicitness factor (0.5 <= theta <= 1.0)
+c_psi = 4.0
+iter_max = 25  # Maximum number of nonlinear iterations
+eps_newton = 1e-12
+eps_bicgstab = 1e-06
+eps_abs_function = 0.01
+linear_solver = "bicgstab"  # "bicgstab", "multigrid"
+regularization_init = false
+regularization_iter = false
+regularization_time = false
+
+[Physics]
+do_linear_waves = true
+do_continuity = true
+do_q_equation = true
+do_r_equation = true
+do_convection = false
+do_bed_shear_stress = false
+do_viscosity = false
+chezy_coefficient = 25.0
+viscosity = 100.0
+
+[Output]
+dt_his = 0.01
+dt_map = 30.0
+
+[Time]
+tstart = 0.0
+tstop = 1800.0
+\end{Verbatim}
+
+\end{document}

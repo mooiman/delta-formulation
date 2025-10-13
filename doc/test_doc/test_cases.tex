@@ -1,0 +1,139 @@
+\documentclass{mooiman_report}
+\hypersetup
+{
+    pdfauthor   = {Mooiman},
+}
+\addbibresource{./common/literature_references.bib}
+
+\usepackage{empheq}
+\usepackage{cancel}
+
+\usepackage{bm}
+\renewcommand{\vec}[1]{\bm{#1}}
+
+\sisetup{mode=math}
+\captionsetup[subfigure]{justification=RaggedRight}
+
+\allowdisplaybreaks[1]
+
+\newcommand{\ii}{{\rm i}}
+\newcommand{\Dx}{\Delta x}
+\newcommand{\Dy}{\Delta y}
+\newcommand{\Dxi}{\Delta \xi}
+\newcommand{\Deta}{\Delta \eta}
+\newcommand{\Dt}{\Delta t}
+\newcommand{\Dtinv}{\Delta t_{\it{inv}}}
+\newcommand{\mat}[1]{\mbox{\boldmath ${\rm #1}$} }
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\quart}{\frac{1}{4}}
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\Fabs}[1]{F_{\it abs}(#1)\xspace}  % Continue function for the absolute value
+\newcommand{\eps}{\varepsilon}
+\newcommand{\norm}[1]{\left|\left| #1 \right|\right|}
+\newcommand{\bunit}[1]{\text{\normalfont [}\textit{\unit{#1}}\text{\normalfont ]}}
+\newcommand{\bqty}[2]{\text{\num{#1}}\ \text{\normalfont [}\textit{\unit{#2}}\text{\normalfont ]}}
+\newcommand{\Pe}{\textit{Pe}\xspace}
+\newcommand{\bPsi}{\boldsymbol{\Psi}}
+
+\newcommand{\utilde}{\widetilde{u}}
+\newcommand{\ubar}{\overline{u}}
+\newcommand{\uhat }{\widehat{u}}
+\newcommand{\htilde}{\widetilde{h}}
+\renewcommand{\hbar}{\overline{h}}  % overrule the Planck constant
+\newcommand{\hhat }{\widehat{h}}
+\newcommand{\qtilde}{\widetilde{q}}
+\newcommand{\qbar}{\overline{q}}
+\newcommand{\qhat }{\widehat{q}}
+
+\newcommand{\maplesoft}{\textbf{Maplesoft}}
+\newcommand{\deltaformulation}{$\Delta$-formulation\xspace}
+\newcommand{\notyet}{\textbf{Not yet documented}\newline}
+
+\begin{document}
+%    \memoSubject{-}
+%    \memoDate{\today~\currenttime}
+%    \memoFrom{Jan Mooiman}
+%    \memoTo{-}
+%    \memoVersion{001}
+
+    \mooimantitle
+    %------------------------------------------------------------------------------
+
+\section{Bed levels}
+\subsection{Tile}
+\subsection{Rotated patches}
+
+\section{Backwater, flat bed}
+\subsection{Backwater due to bed shear stress, flat bed; $\Dx=\bqty{10}{\metre}$}
+\subsection{Backwater due to bed shear stress, flat bed; $\Dx=\bqty{5}{\metre}$}
+\subsection{Backwater due to numerics, flat bed; $\Dx=\bqty{10}{\metre}$}
+\subsection{Backwater due to numerics, flat bed; $\Dx=\bqty{5}{\metre}$}
+
+\section{Ch\'ezy flow, sloped}
+\subsection{Ch\'ezy; $\Dx=\bqty{10}{\metre}$}
+\subsection{Ch\'ezy; $\Dx=\bqty{5}{\metre}$}
+
+\section{Emptying -- Filling}
+\subsection{Emptying; $\Dx, \Dy=\bqty{100}{\metre}$}
+\subsection{Filling; $\Dx, \Dy=\bqty{100}{\metre}$}
+
+\section{Gaussian hump}
+\subsection{6x6 $\bunit{\kilo\metre}$, $\Dx, \Dy=\bqty{250}{\metre}$}
+\subsection{6x6 $\bunit{\kilo\metre}$, $\Dx, \Dy=\bqty{100}{\metre}$}
+\subsection{6x6 $\bunit{\kilo\metre}$, $\Dx, \Dy=\bqty{50}{\metre}$}
+\subsection{12x12 $\bunit{\kilo\metre}$, $\Dx, \Dy=\bqty{100}{\metre}$}
+
+\section{Gaussian hump, dirichlet}
+\subsection{6x6 $\bunit{\kilo\metre}$, ${\it CFL} = \bqty{3}{-}$}
+\subsection{6x6 $\bunit{\kilo\metre}$, ${\it CFL} = \bqty{6}{-}$}
+\subsection{6x6 $\bunit{\kilo\metre}$, ${\it CFL} = \bqty{12}{-}$}
+
+\section{Gaussian hump, MSc Mooiman}
+\subsection{4x2 $\bunit{\kilo\metre}$, $\Dx, \Dy=\bqty{20}{\metre}$}
+\subsection{4x4 $\bunit{\kilo\metre}$, $\Dx, \Dy=\bqty{20}{\metre}$}
+
+\section{Flat bed}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{10}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{5}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{2.}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{1.25}{\metre}$}
+
+\section{Flat bed with bed shear stress}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{10}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{5}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{2.}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{1.25}{\metre}$}
+
+
+\section{Wavy bed}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{10}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{5}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{2.}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{1.25}{\metre}$}
+
+\section{Wavy bed with bed shear stress}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{10}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{5}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{2.}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{1.25}{\metre}$}
+
+\section{Wavy bed with convection}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{10}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{5}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{2.}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{1.25}{\metre}$}
+
+\section{Wavy bed with convection and bed shear stress}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{10}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{5}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{2.}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{1.25}{\metre}$}
+
+\section{Wavy bed sloped with convection and bed shear stress}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{10}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{5}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{2.}{\metre}$}
+\subsection{1000x240 $\bunit{\metre}$, $\Dx, \Dy=\bqty{1.25}{\metre}$}
+
+    %------------------------------------------------------------------------------
+\end{document}
