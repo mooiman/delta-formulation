@@ -1,0 +1,681 @@
+<FlowDocument xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" FontFamily="Segoe UI" FontSize="12">
+  <FlowDocument.Tag><![CDATA[{
+  "timestamp": "2025-05-29 17:45:53",
+  "files": {
+    "C:\\Users\\janmo\\checkouts\\git\\delta-formulation\\src\\c++\\0d\\0d_air_pollution\\packages\\air_pollution.vcxproj": {
+      "before": "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",
+      "after": "7Vp7c9u4Eb+/O9PvwGqckdSrRDmW7TiSeGNLsk9ztvyQbE87ntFQJCSj4asA6Ed7/Sj9rl08CJIi5fjRpJm7ZJJIAnbx3P3tDwv8p/nDD92fHnzPuEOE4jDoVTabrYqBAid0cbDsVWK2aHyo/GT98Q/dMxL+HTnMGKCFHXtsapMlYrRXOYix51aMaRh69Eo30+btQMsBSNwyFn00TercIt+mTR87JKThgjWd0DdddIe8MELE9OmcN2W+b7W2KtCjYXRHDPlHJIwj49ieI69XUYPoh8ECL2NiMxg0lcIgXlZrjALHi13Uq1wgD9kU/fqw0040QCfXlKVkuma+mA+G/+meeTZbhMS3oJGuqX/JeiiQa1Sm/JnBDdA8Xj45NCHxPx9Y19RrLJccpgCbwR5zy37khXPbKyz0UYxd61/D9ubOwWB7s9E+aLcaW5s7h4293dZWY7C33d5t7+0OD1vtf+u1ETpqvS7CkI1tH9HIdpCFA4aI7fAtbaAH24881DXzIkrvF/R4HxLXOmdXk9ndVgu2IilSEtc4cMN7Ko002SZlndZmq9nqmk+KqGbO2QkV9m3AlrqYD61XqW7UdHm92utVq8bphfGn4QOmjNZytTf/YE0mHaVar1gbtZOJaE7ZyQAT8KiQPNZvdItdU3+VG8KNKt0R5Rd+FBJmqGZ6lY3aVV855JnNbus3J9rH+lHUVC7bjKAlWjHMsp3OTzBnwfVfN2rJGooJZzypWklcM6eSOJh2GA4PE8Ssu832Vuo4Sala7tOYRTHTq2IR6bE3XXO1RinsT49PcIB9/E9E+xdxMMU+OsZzYpPHS2ovkbUAqwUr+qycaq9/a3MLRIQP9QRQDh88MtDPlSeyWQyaPkbI2o8iDzsCk1b8VFQrvRE3cx+52GaobKrl9Ur5jGAfJieXo9xj8iJaDy0QIcjlK75PnFvMwPJighSQkXXVSv+SIoE/cnExohYjMSxMsZwrCGdftdmcGa/4U852CuamsfGLGpvLEfj3YGrJRL89Qyu1m9HLsC6PcUVlja51AOeZK8kMTaAxg4Jr8HxFBWC9HE8VYTlnACUMuBTgbqZxiBJP23wOYgVeg1uds1FAme15EEkUpkMIlJyrzgNHUq28FuYaurEH3uqEBHWWMe7cY5fTtk5EINzSOOJxRIQcJfhM933j7DIe/S3MTYZOg1ORXkUbyDhkh2EcALc9QMD5kAqwvUo/piz0RSDv9L1+6EfYQ7nt/TwZWE8Zzpk0Rk4Y1D6eIMqjmSGt2Q4cGObPeHkLrBs9sMyQPxpOGHuuEYTM8EIIRchIGchf+HfhHh0DPgSZ9+1HISyYNyhDiHCY99jURm3KWUvGIPvPMcPhA0MBPzqkZq7oRVb41ZafkIskeExuEVivXpiie0NAIpwzQmRdZUEZEtOMQazE55HmcC9uJwUCcNTiuLRVcaqX9KxWyswsVXGhX7J2Gb/6na5cYig5I+WbeWLzU6e265xc4mdAq8Bu3oDTG7VJ6MX8mMDtb46Dm41apI6Mdfiex3xJNkAy6R8i8lv7L/Qg20x6kN7Mge5Ns4TV4/DB24G4kzaadDNaBgCY0qwVH39Df5JqlrSZdHeMg09wzCfIRwGExzd0pc4LKw0m/bzCPjIeCUH7a1tHvvcvYxv5Pr60ZWR7e9ouSslkzu1fZCfZjlVYVpklfuKGvb3qzzIF9c5GTWUYJoNfcjWQcpEpKaGo2jojSBCK4R2YMODVKBA/1TFrXe0z2dpLQkgp8cwO+BubKU9fAReGLACHXQn7b56vZnXK8yGk77sy/2N7ajEAqUXyhh+Gj1AAqSuG3ENggnQV6AVMdvIynWaneYOlHXTejYfT/uBwNhhdvOs0mzfyr4fnNwgvUZAvAurp/fhj513tqREBKj9VXTat04gvILUaf3M+kjvbi1HfpszgP3Hg4QCJr5QR7LAJ/A9HGlHCbkl4D7/G6N5owKHfx5TiO9QQlbOZE3kx5f/Eb6CriASwP5Shh4gYDZFgNhr3W+3NVkt+ftiDz3Z7b29HfLa3k89d9fuDkZ28GnduxslcpHPx3aMU+XMPkWNI0sFgjzk5hulmUkxrRXQjBzBR7pk8ASy1VbgoVmgdARsZlUOha43DALInayq18vDBQWJXfrYDF7ZgaU0eA6drFsu1yumcB2ZuhtzqMtNbqUgVoAPIn8n5nNgPkwghFxJu2WItDDgUkdCB40hIUqej1ux6NB6cXk86l+NR/3Qw7MDvnXbnfDobn84Gw4PLo85YfryrrWkD9m9NTWqsqcA05FNM0nuF8syAwyWx/YHN7API/et1EcGhtEarQjoRViZJJ8ps4PSWINtF7uD4GFLTeYFVRZ7z4xuvIFxJ61ItPoFDOIEVnTCbsDg6sAPAEqVUXqdVpzAads2TkzO2LxLVkAEQuUYZGtfX6yaubRJwf+C3MJb4H9KzuUItCguIHTWN/i1yPlFLJSG6Zkmd1ju2g2UMx1eYYODakLanzHWi6D3k4AtVWglC4GHseTxE0mSbc2VacrWNWV90sLlbbB6qtJrI7gIdkMYsD/HSCeTara+XTUCGNzn6q0a7nDWmHaT4O0ARCly4VOOhIov15vHowAwQc9xFE9A+h+lZpRy2ZSvKelN8OxueIJ7wYJI5AK+GqHqu72ITuREUq8vGkWBwxTzZH48Oh5PpYHg2BBgY9//6kYFz9KoQNrbeV42A512q6ZWF4k1N2BQf7oIgWjACl4tVfUtZ3WnCFU6zVTWieA4pd7j8mYafUNCr7mzvbc932pvttuMsNt1F1fCU9fWqfwbxZL+zKXBeU3l5SOGYMnxAjjjuAQJx4sYjijSfdbXa/hI6sBoDEmNfW69bKDsQPU2JxRXm6tnmySMPhE551yDgdqMmT0D1jZo88yV4CuaREdMjvACHD/nljMvBFxyC41yCh6V1WnUSzyePQBJ8i5OFkF8FpkUZqddhJ0BD6qvdE+x6qQUrTOOoKqD0EtJby4DHxNUaPYxhYAO3GBISEgWMMr4Xy7VKDmL5bWQWh6VU18wMrHuBaBgTB6l0YzreNPh9PiZvvS+JzK8PyRADS0cFd92Z00w6VO7QsO0Wvx2T35KZFhXkxXRKMgSzF02JVwErFW89yq1i+XfC/1sl/K665vuqdB94RkI254CEX4P5J/N8Fu8fYMoR7MW8X3L6Nez/9bgC3pei2nOp/godF/xN83W+6b9l0g4vYEoiCKxjCTGXUekQDvcyWH1n75oXpaHqO3uX2aDv7D0AKEq4vaZva9m5JOBrq3UDryTvGZb9nYzzZ6iapuuVLZLub52MqwzZ6+Pl/5GHp7Qcgo1m0emjW0qcG9/GQRMyPsnl63pJZ8Ho8yQh0byY8fwcycoXXrPmH7eKjlX6Ph2iysLfiM7hTYW8lX9aNtO91ih2/rKXS5D/409zkgE8/YggfdaRe3iy5tFS5hFq8lop8+YgeSqg33LIw306EqCvPKus66mKk90rTGPbm7DYxWEaO/l1O6jwB4CQ8UrX0yyIizRsoWldav0X"
+    },
+    "C:\\Users\\janmo\\checkouts\\git\\delta-formulation\\src\\c++\\0d\\0d_air_pollution\\packages\\air_pollution.vcxproj.user": {
+      "before": "7ZNNa8JAEIY99FTofwipED2Y9QtpJYkUbUuhB7VSL4LEZBO33d0J+5Eq+OO7iXjwA3rooZfCsrAz77wzuw97e1WpeIMNo1aOhSTAfbvlNm0L8whiwlPf1ipp3NmD4ObaGwv4wJGyZgBUvh/0Qy0E5sq2jAuXvr1WKusjJKM1ZqF0GYkESEiUGwFDMc4xhQwLxORKExqjdrPZsY27ZRX+JqO2zwJ0ZqFLwSHwmKhyTqdaM6eEpFqERaS+q9bGNFQJCFZ3fN8Z4ZVOd5te19n7mw6T2ehlGgz7i4kyq+d23c5ivzOZR+1m637Z63poLytmMjWvEIW09EqxeOQ5EcCZuXA5nsmjnwSH2ica5iCCOeExfMmjKg+diC71HgJjIY8fRKqL/jJoNBQYcu6C8EyrZZRlbhE4meis7JL3HMSnwT0iwgAGsQ2qtTegunhXE6ufWJ6pS3zoiN9v6U0xxaHE//z+jp9XEC1+fPAN",
+      "after": "7VNNSwMxFCx4E/wPYSlse+imfiAiu1ukVS8eioq9CLLdzW6jSd7ykqwt9D/5F02qPfTDU68eM29m3vCGfB21WvFgLgVpGGoOKglOo35AmMqh4KpKAmvK3lUwSE+O4zHCO8sNeQYQ+mXNH1pEpkxAnIvSSTAzpr6mVOczJjMdSZ4jaChNlIOkBWuYgJohlXpquSjoWb9/Hjh3Qry/m5jFPYKtCd0HDkEV3Kxyhu2Oe5W8sph5pLtsd8YiMyWg7IZJEo7Y1FbL+eVF+OPvNjxAnokVXjG8VQ1HUNKFT2P658hHc9K16k5kDWA64aqAT72hiukW6Ve6QRqClJkqbrCyfrNOez0D7v7RK1e1NW95XUce2Eq0I9vnPQH8cKWNOLqaABdpu/MEwvrrOKy7ZbnDXpVAN1o4tINHJlim2X8Lh7YQ+17870u/AQ=="
+    }
+  }
+}]]></FlowDocument.Tag>
+  <Section Margin="0,24" TextAlignment="Center">
+    <Paragraph FontSize="24" FontWeight="Bold" Margin="12,0">
+      <LineBreak />
+      <Span Foreground="Gray">Qt Visual Studio Tools</Span>
+    </Paragraph>
+    <Paragraph FontSize="42" Margin="12,0" FontWeight="Bold">
+      <Span TextDecorations="Underline">Project Format Conversion</Span>
+    </Paragraph>
+    <Paragraph Margin="12,8" FontSize="18">
+      <Span>Report generated on 2025-05-29 17:45:53</Span>
+    </Paragraph>
+  </Section>
+  <Section>
+    <Paragraph FontSize="32" FontWeight="Bold" Margin="12,0">
+      <Span>Files</Span>
+    </Paragraph>
+    <Paragraph Margin="24,12,0,0">
+      <Span FontFamily="Consolas" FontSize="14" Background="WhiteSmoke"><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj]]></Span>
+      <LineBreak />
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj?before">[Before]</Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj?after">[After]</Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj?diff&amp;before&amp;after">
+                        [Diff before/after]
+                    </Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj?diff&amp;before&amp;current">
+                        [Diff before/current]
+                    </Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj?diff&amp;after&amp;current">
+                        [Diff after/current]
+                    </Hyperlink>
+      <LineBreak />
+    </Paragraph>
+    <Paragraph Margin="24,12,0,0">
+      <Span FontFamily="Consolas" FontSize="14" Background="WhiteSmoke"><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj.user]]></Span>
+      <LineBreak />
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj.user?before">[Before]</Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj.user?after">[After]</Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj.user?diff&amp;before&amp;after">
+                        [Diff before/after]
+                    </Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj.user?diff&amp;before&amp;current">
+                        [Diff before/current]
+                    </Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj.user?diff&amp;after&amp;current">
+                        [Diff after/current]
+                    </Hyperlink>
+      <LineBreak />
+    </Paragraph>
+  </Section>
+  <Section>
+    <Paragraph FontSize="32" FontWeight="Bold" Margin="12,0">
+      <Span>Changes</Span>
+    </Paragraph>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Converting custom build steps to Qt/MSBuild items]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      ]]></Span><Span Background="LightCoral"><![CDATA[<AdditionalIncludeDirectories>.;.]]></Span><Span><![CDATA[\include;%NETCDF_DIR%;..\..\..\lib\eigen;..\..\..\lib\toml++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      ]]></Span><Span Background="LightGreen"><![CDATA[<AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;.]]></Span><Span><![CDATA[\include;%NETCDF_DIR%;..\..\..\lib\eigen;..\..\..\lib\toml++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      ]]></Span><Span Background="LightCoral"><![CDATA[<AdditionalIncludeDirectories>.;.]]></Span><Span><![CDATA[\include;%NETCDF_DIR%;..\..\..\lib\eigen;..\..\..\lib\toml++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      ]]></Span><Span Background="LightGreen"><![CDATA[<AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;.]]></Span><Span><![CDATA[\include;%NETCDF_DIR%;..\..\..\lib\eigen;..\..\..\lib\toml++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Enabling multi-processor compilation]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[      <MultiProcessorCompilation>true</MultiProcessorCompilation>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[      <MultiProcessorCompilation>true</MultiProcessorCompilation>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Project format version]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[    ]]></Span><Span Background="LightCoral"><![CDATA[<Keyword>Qt4VSv1.0</Keyword>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[    ]]></Span><Span Background="LightGreen"><![CDATA[<Keyword>QtVS_v304</Keyword>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Fallback for QTMSBUILD environment variable]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Default Qt properties]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <Import Project="$(QtMsBuild)\qt_defaults.props" Condition="Exists('$(QtMsBuild)\qt_defaults.props')" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Qt build settings]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Warn if Qt/MSBuild is not found]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') OR !Exists('$(QtMsBuild)\Qt.props')">]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  </Target>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Qt property sheet]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <Import Project="$(QtMsBuild)\Qt.props" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <Import Project="$(QtMsBuild)\Qt.props" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Qt targets]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Copying Qt build reference to QtInstall project property]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)]]></Span><Span Background="LightCoral"><![CDATA['=='Release|x64'" />]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)]]></Span><Span Background="LightGreen"><![CDATA['=='Release|x64'">]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[  ]]></Span><Span Background="LightCoral"><![CDATA[<PropertyGroup Label="QtSettings" Condition="'$]]></Span><Span><![CDATA[(]]></Span><Span Background="LightCoral"><![CDATA[Configuration)|$(Platform]]></Span><Span><![CDATA[)]]></Span><Span Background="LightCoral"><![CDATA['=='Debug|x64'" />]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[    ]]></Span><Span Background="LightGreen"><![CDATA[<QtInstall>$]]></Span><Span><![CDATA[(]]></Span><Span Background="LightGreen"><![CDATA[DefaultQtVersion]]></Span><Span><![CDATA[)]]></Span><Span Background="LightGreen"><![CDATA[</QtInstall>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  </PropertyGroup>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <QtInstall>$(DefaultQtVersion)</QtInstall>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  </PropertyGroup>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Removing Qt module macros from resource compiler properties]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;QT_NO_DEBUG;]]></Span><Span Background="LightCoral"><![CDATA[QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;]]></Span><Span><![CDATA[%(PreprocessorDefinitions)</PreprocessorDefinitions>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;QT_NO_DEBUG;]]></Span><Span><![CDATA[%(PreprocessorDefinitions)</PreprocessorDefinitions>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;]]></Span><Span Background="LightCoral"><![CDATA[QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;]]></Span><Span><![CDATA[_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;]]></Span><Span><![CDATA[_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Adding Qt module names to QtModules project property]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <QtModules>core;gui;widgets;printsupport</QtModules>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <QtModules>core;gui;widgets;printsupport</QtModules>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Removing project user properties (format version 2)]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      <UserProperties ]]></Span><Span Background="LightCoral"><![CDATA[Qt5Version_x0020_x64="$(DefaultQtVersion)" ]]></Span><Span><![CDATA[/>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      <UserProperties ]]></Span><Span><![CDATA[/>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Removing old properties from .user file]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_air_pollution\packages\air_pollution.vcxproj.user]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightCoral"><![CDATA[    <QTDIR>C:\Qt\Qt6.4.3\6.4.3\msvc2019_64</QTDIR>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightCoral"><![CDATA[    <QTDIR>C:\Qt\Qt6.4.3\6.4.3\msvc2019_64</QTDIR>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+  </Section>
+  <Section>
+    <Paragraph />
+  </Section>
+</FlowDocument>
+<!--OorfTwv+cnMl9ZP0WeLeg+gIzdpFvc/8AgsTv6bio2M=-->
