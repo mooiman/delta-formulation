@@ -202,23 +202,18 @@ reads:
 \end{align}
 The linearization in time reads:
 \begin{align}
-    &q^{n+\theta, p} + \theta \Delta q  + r^{n+\theta, p} + \theta \Delta r
+    &\left(q^{n+\theta, p} + \theta \Delta q\right) n_x  + \left(r^{n+\theta, p} + \theta \Delta r\right) n_y
 \end{align}
 This terms need to be computed for each of the control volume faces, taken into account the outward normal.
 Eight faces on a structured grid.
-For the quadrature point $(i+\half, j+\quart)$ where $\vec{n} = (1,0)^T$ and $1\, dl = \half \Dy$ reads:
+For the quadrature point $(i+\half, j+\quart)$ where $\vec{n} = (1,0)^T$ and $\norm{dl} = \half \Dy$ it reads:
 \begin{align}
-  &\left( q^{n+\theta, p}_{i+\half, j+\quart} + \theta \Delta q_{i+\half, j+\quart}  + r^{n+\theta, p}_{i+\half, j+\quart} + \theta \Delta r_{i+\half, j+\quart} \right) \begin{pmatrix} 1 \\ 0 \end{pmatrix} dl \approx
-  \\*
- & \approx \half \Dy\ \frac{1}{8} \left( 3 q^{n+\theta, p}_{i,j} + 3 q^{n+\theta, p}_{i+1,j} + q^{n+\theta, p}_{i+1, j+1} + q^{n+\theta, p}_{i, j+1} \right)
- +
- \\*
- &+ \half \Dy\ \frac{1}{8} \theta \left( 3 \Delta q_{i,j} + 3 \Delta q_{i+1,j} + \Delta q_{i+1, j+1} + \Delta q_{i, j+1} \right)
- \\*
- &+\half \Dy\ \frac{1}{8} \left( 3 r^{n+\theta, p}_{i,j} + 3 r^{n+\theta, p}_{i+1,j} + r^{n+\theta, p}_{i+1, j+1} + r^{n+\theta, p}_{i, j+1} \right)
-\\*
-&+ \half \Dy\ \frac{1}{8} \theta \left( 3 \Delta r_{i,j} + 3 \Delta r_{i+1,j} + \Delta r_{i+1, j+1} + \Delta r_{i, j+1} \right)
-\\*
+    &\left( q^{n+\theta, p}_{i+\half, j+\quart} + \theta \Delta q_{i+\half, j+\quart} \right) \norm{dl} \approx
+    \\*
+    & \approx \half \Dy\ \frac{1}{8} \left( 3 q^{n+\theta, p}_{i,j} + 3 q^{n+\theta, p}_{i+1,j} + q^{n+\theta, p}_{i+1, j+1} + q^{n+\theta, p}_{i, j+1} \right)
+    +
+    \\*
+    &+ \half \Dy\ \frac{1}{8} \theta \left( 3 \Delta q_{i,j} + 3 \Delta q_{i+1,j} + \Delta q_{i+1, j+1} + \Delta q_{i, j+1} \right)
 \end{align}
 %-------------------------------------------------------------------------------
 \subsection{Discretizations momentum equations}
