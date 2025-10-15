@@ -1,0 +1,1120 @@
+\chapter{Curvilinear coordinate transformation}\label{app:CoordinateTransform}
+A curvilinear coordinate transformation is employed to enable the calculation of non-rectangular bodies of water.
+Two grids are introduced: a curvilinear $xy$-grid, following the curvature of the shallow water body and a computational/numerical $\xi \eta$-grid, created by mapping the curvilinear $xy$-grid to an orthogonal coordinate system via a coordinate transformation.
+After transformation, the body-fitted grid is orthogonal.
+The global Cartesian coordinate system $x,y$ is used for reference of the numerical grid.
+An example of this is sketched in \autoref{fig:grids}.
+%
+\begin{figure}[H]
+    \begin{center}
+        \def\svgwidth{0.80\textwidth} % scaling text
+        \resizebox{0.99\textwidth}{!}{
+            \input{figures/coordinate_transformation.pdf_tex}
+        }
+    \end{center}
+	\caption{Mesh mapping from the physical Cartesian $xy$-grid to the numerical $\xi\eta$-grid and vice versa.}
+\label{fig:grids}
+\end{figure}
+%
+Following the chain rule and assuming time-independent grids, we can express the differential operators in the global coordinate system as functions of the differential operators in the body-fitted curvilinear grid as follows:
+%
+\begin{align}\label{1ordertransx}
+	\pdiff{}{x} = \pdiff{\xi}{x} \pdiff{}{\xi}+\pdiff{\eta}{x}\pdiff{}{\eta},
+\end{align}
+\begin{align} \label{1ordertransy}
+	\pdiff{}{y} = \pdiff{\xi}{y}\pdiff{}{\xi}+\pdiff{\eta}{y}\pdiff{}{\eta},
+\end{align}
+%
+where the transformation coefficients $\pdiff{\xi}{x}$, $\pdiff{\eta}{x}$, $\pdiff{\xi}{y}$, $\pdiff{\eta}{y}$ are known and can be determined by the grid definitions.
+However, they cannot be calculated directly.
+Hence, a Jacobian grid transformation formulation is employed.
+
+%-------------------------------------------------------------------------------
+\section{Jacobian grid transformation formulation}
+In the previous section, transformation coefficients are given in the direct form, i.e.\ from the physical coordinates ($x$, $y$) to the curvilinear coordinates ($\xi$, $\eta$).
+The transformation coefficients are more consistently calculated in $\xi\eta$-coordinates.
+This is easily observed when re-examining \autoref{fig:grids}: An attempt to calculate the derivative of e.g.\ $\xi$ along the $x$-coordinate requires interpolation of $\xi$ since the numerical grid does not necessarily align with the physical grid's $x$-coordinate.
+The same holds for $y$.
+However, differences in $x$, $y$, as well as $\xi$ and $\eta$ are properly defined by the points in the transformed coordinate system $(\xi,\eta)$.
+Hence the inverted derivatives, e.g.\ $\pdiff{x}{\xi}$, can be calculated without interpolation.
+Our goal is therefore to express transformation coefficients of \autoref{1ordertransx} and \eqref{1ordertransy} in terms of its inverted derivatives.
+We can write:
+%
+\begin{align}
+	\begin{pmatrix} \pdiff{}{\xi} \\ \pdiff{}{\eta} \end{pmatrix}
+	=
+	\begin{pmatrix}
+		\pdiff{x}{\xi} &
+		\pdiff{y}{\xi} \\
+		\pdiff{x}{\eta} &
+		\pdiff{y}{\eta}
+	\end{pmatrix}
+	\begin{pmatrix} \pdiff{}{x} \\ \pdiff{}{y} \end{pmatrix},
+\end{align}
+%
+of which the inverse is
+%
+\begin{align}\label{inversetransformation}
+	\begin{pmatrix} \pdiff{}{x} \\ \pdiff{}{y} \end{pmatrix}
+	=
+	\begin{pmatrix}
+		\pdiff{x}{\xi} &
+		\pdiff{y}{\xi} \\
+		\pdiff{x}{\eta} &
+		\pdiff{y}{\eta}
+	\end{pmatrix}^{-1}
+	\begin{pmatrix} \pdiff{}{\xi} \\ \pdiff{}{\eta} \end{pmatrix}.
+\end{align}
+%
+Considering the partial derivatives in the body-fitted grid directly, we can write instead.
+%
+\begin{align}\label{directtransformation}
+	\begin{pmatrix} \pdiff{}{x} \\ \pdiff{}{y} \end{pmatrix}
+	=
+	\begin{pmatrix}
+		\pdiff{\xi}{x} &
+		\pdiff{\eta}{x} \\
+		\pdiff{\xi}{y} &
+		\pdiff{\eta}{y}
+	\end{pmatrix}
+	\begin{pmatrix} \pdiff{}{\xi} \\ \pdiff{}{\eta} \end{pmatrix}.
+\end{align}
+%
+Combining \autoref{inversetransformation} and \eqref{directtransformation}, we find:
+%
+\begin{align}
+	\begin{pmatrix}
+		\pdiff{\xi}{x} &
+		\pdiff{\eta}{x} \\
+		\pdiff{\xi}{y} &
+		\pdiff{\eta}{y}
+	\end{pmatrix}
+	=
+	\begin{pmatrix}
+		\pdiff{x}{\xi} &
+		\pdiff{y}{\xi} \\
+		\pdiff{x}{\eta} &
+		\pdiff{y}{\eta}
+	\end{pmatrix}^{-1}.
+\end{align}
+%
+We introduce a shorthand notation for the transformation coefficients with a subscript, e.g.\ $\xi_x = \pdiff{\xi}{x}$ and calculate the inverse of the right-hand side to give:
+%
+\begin{align}
+	\begin{pmatrix}
+		\xi_x &
+		\eta_x \\
+		\xi_y &
+		\eta_y
+	\end{pmatrix}
+	=
+	\frac{1}{x_{\xi}y_{\eta}-y_{\xi}x_{\eta}}
+	\begin{pmatrix}
+		y_{\eta} &
+		-y_{\xi}\\
+		-x_{\eta} &
+		x_{\xi}
+	\end{pmatrix}
+	=
+	\frac{1}{J}
+	\begin{pmatrix}
+		y_{\eta} &
+		-y_{\xi}\\
+		-x_{\eta} &
+		x_{\xi}
+	\end{pmatrix}
+\end{align}
+leading to
+\begin{align}
+	\xi_x=\frac{1}{J}y_{\eta}, \quad \eta_x = -\frac{1}{J}y_{\xi}, \quad
+	\xi_y=-\frac{1}{J}x_{\eta}, \quad \eta_y = \frac{1}{J}x_{\xi}.
+\end{align}
+where $J = x_{\xi}y_{\eta}-x_{\eta}y_{\xi}$ is the determinant of the coordinate transformation matrix.
+
+Hence, we can use the following to transform the partial derivatives present in the equations:
+	\begin{align}\label{trans}
+		\pdiff{}{x}
+		=\xi_x\pdiff{}{\xi}
+		+ \eta_x\pdiff{}{\eta}
+		=\frac{1}{J}\Big(y_{\eta} \pdiff{}{\xi}
+		-y_{\xi}\pdiff{}{\eta}\Big)
+	\end{align}
+	\begin{align}
+		\pdiff{}{y}
+		=\xi_y\pdiff{}{\xi}
+		+\eta_y \pdiff{}{\eta}
+		=\frac{1}{J}\Big(-x_{\eta}\pdiff{}{\xi}
+		+x_{\xi}\pdiff{}{\eta}
+		\Big)
+	\end{align}
+%
+Second-order derivatives are instead transformed by applying this operator twice.
+This yields:
+%
+\begin{align}
+	\pdiff[2]{}{x}
+	&=\frac{1}{J}\Big[y_{\eta} \pdiff{}{\xi} \Big( \frac{1}{J}\Big(y_{\eta} \pdiff{}{\xi}
+	-y_{\xi}\pdiff{}{\eta}\Big)\Big)
+	-y_{\xi}\pdiff{}{\eta} \Big( \frac{1}{J}\Big(y_{\eta} \pdiff{}{\xi}
+	-y_{\xi}\pdiff{}{\eta}\Big) \Big) \Big],
+\\
+\pdiff[2]{}{y}
+		&=\frac{1}{J}\Big[-x_{\eta}\pdiff{}{\xi} \Big( \frac{1}{J}\Big(-x_{\eta}\pdiff{}{\xi}
+		+x_{\xi}\pdiff{}{\eta}
+		\Big)\Big)
+		+x_{\xi}\pdiff{}{\eta} \Big(\frac{1}{J}\Big(-x_{\eta}\pdiff{}{\xi}
+		+x_{\xi}\pdiff{}{\eta}
+		\Big) \Big)
+		\Big],
+\end{align}
+%
+which can be rewritten to:
+%
+\begin{align}
+	\begin{aligned}
+		\pdiff[2]{}{x} & =
+		\frac{y_{\eta}}{J^2} y_{\eta} \pdiff[2]{}{\xi}
+		+ y_{\xi} \frac{y_{\xi}}{J^2} \pdiff[2]{}{\eta}
+		- 2\frac{y_{\eta}}{J^2} y_{\xi}\pdiff{^2}{\xi \partial \eta} + \\
+		& +  \Big(
+		\frac{y_{\xi} y_{\eta}J_{\eta}}{J^3}
+		- \frac{y_{\eta}^2 J_{\xi}}{J^3}
+		+ \frac{y_{\eta}y_{\xi\eta}}{J^2}
+		-  \frac{y_{\eta \eta} y_{\xi}}{J^2}
+		\Big)\pdiff{}{\xi} +\\
+		& + \Big(
+		\frac{y_{\eta} y_{\xi} J_{\xi}}{J^3}
+		- \frac{y_{\xi}^2 J_{\eta}}{J^3}
+		+  \frac{y_{\xi \eta}y_{\xi}}{J^2}
+		- \frac{ y_{\xi\xi} y_{\eta}}{J^2}
+		\Big)\pdiff{}{\eta}
+	\end{aligned}
+\end{align}
+\begin{align}
+    \begin{aligned}
+		\pdiff[2]{}{y} & =
+	    x_{\eta}\frac{x_{\eta}}{J^2}\pdiff[2]{}{\xi}
+		+ x_{\xi}\frac{x_{\xi}}{J^2}\pdiff[2]{}{\eta}
+		- 2 x_{\xi}\frac{x_{\eta}}{J^2}\pdiff{^2}{\xi \partial\eta} + \\
+		& + \Big(
+		\frac{x_{\xi}x_{\eta}J_{\eta}}{J^3}
+		-\frac{x_{\eta}^2J_{\xi}}{J^3}
+		+ \frac{x_{\xi\eta} x_{\eta}}{J^2}
+		- \frac{x_{\eta\eta}x_{\xi}}{J^2}
+		\Big) \pdiff{}{\xi} + \\
+		&+ \Big(
+		\frac{x_{\eta}x_{\xi}J_{\xi}}{J^3}
+		- \frac{ x_{\xi}^2J_{\eta}}{J^3}
+		+ \frac{x_{\xi\eta}x_{\xi}}{J^2}
+		- \frac{x_{\xi \xi}x_{\eta}}{J^2}
+		\Big) \pdiff{}{\eta},
+    \end{aligned}
+\end{align}
+%
+after repeated application of the chain rule, which should equal the application of the chain rule directly:
+%
+\begin{align}\label{2orderpartialtransxfinal}
+	\pdiff[2]{}{x}
+	= \xi_x^2 \pdiff[2]{}{\xi}
+	+ \eta_x^2 \pdiff[2]{}{\eta}
+	+ 2\eta_x\xi_x \pdiff{^2}{\xi \partial \eta}
+	+ \xi_{xx} \pdiff{}{\xi}
+	+ \eta_{xx} \pdiff{}{\eta},
+\end{align}
+%
+\begin{align}\label{2orderpartialtransyfinal}
+	\pdiff[2]{}{y}
+	= \xi_y^2 \pdiff[2]{}{\xi}
+	+ \eta_y^2 \pdiff[2]{}{\eta}
+	+ 2\eta_y\xi_y\pdiff{^2}{\xi \partial \eta}
+	+ \xi_{yy} \pdiff{}{\xi}
+	+ \eta_{yy}\pdiff{}{\eta}.
+\end{align}
+%
+from which we can find the following relations:
+%
+\begin{align}
+		\xi_{xx} &=
+		\frac{y_{\xi} y_{\eta}J_{\eta}}{J^3}
+		- \frac{y_{\eta}^2 J_{\xi}}{J^3}
+		+ \frac{y_{\eta}y_{\xi\eta}}{J^2}
+		-  \frac{y_{\eta \eta} y_{\xi}}{J^2} \\
+		\eta_{xx} &=
+		\frac{y_{\eta} y_{\xi} J_{\xi}}{J^3}
+		- \frac{y_{\xi}^2 J_{\eta}}{J^3}
+		+  \frac{y_{\xi \eta}y_{\xi}}{J^2}
+		- \frac{ y_{\xi\xi} y_{\eta}}{J^2} \\
+		\xi_{yy} &=
+		\frac{x_{\xi}x_{\eta}J_{\eta}}{J^3}
+		-\frac{x_{\eta}^2J_{\xi}}{J^3}
+		+ \frac{x_{\xi\eta} x_{\eta}}{J^2}
+		- \frac{x_{\eta\eta}x_{\xi}}{J^2} \\
+		\eta_{yy} &=
+		\frac{x_{\eta}x_{\xi}J_{\xi}}{J^3}
+		- \frac{ x_{\xi}^2J_{\eta}}{J^3}
+		+ \frac{x_{\xi\eta}x_{\xi}}{J^2}
+		- \frac{x_{\xi \xi}x_{\eta}}{J^2}
+\end{align}
+
+%-------------------------------------------------------------------------------
+\section{Transforming the terms}
+For completeness, we show the transformation of various terms here since some particular choices will be made to ease the implementation.
+For example, transforming the spatial derivatives in the continuity equation in a conservative form (using $y_{\xi\eta} = x_{\xi\eta} = 0$), yields
+%
+\begin{align}
+	\pdiff{q}{x} + \pdiff{r}{y}  & = \frac{1}{J} \Bigg(  y_{\eta} \pdiff{q}{\xi}
+    -y_{\xi}\pdiff{q}{\eta} +\left( - x_{\eta}\pdiff{r}{\xi}
+    +x_{\xi}\pdiff{r}{\eta} \right) \Bigg) =
+     \\
+    & =\frac{1}{J}\Bigg( \pdiff{}{\xi} \left( y_{\eta} q - x_{\eta} r \right) + \pdiff{}{\eta} \left( -y_{\xi} q + x_{\xi} r \right)\Bigg),
+\end{align}
+in vector notation it reads:
+\begin{align}
+    \frac{1}{J}
+    \begin{pmatrix}
+    \pdiff{}{\xi} \\ \pdiff{}{\eta}
+    \end{pmatrix}
+     \dotp
+     \begin{pmatrix}
+        y_{\eta} q - x_{\eta} r \\ -y_{\xi} q + x_{\xi} r
+    \end{pmatrix}
+\end{align}
+%
+Taking the finite volume approach, yields
+\begin{align}
+&\frac{1}{J}\int_{\Omega_{\xi\exta}}
+\begin{pmatrix}
+    \pdiff{}{\xi} \\ \pdiff{}{\eta}
+\end{pmatrix}
+\dotp
+\begin{pmatrix}
+    y_{\eta} q - x_{\eta} r \\ -y_{\xi} q + x_{\xi} r
+\end{pmatrix}
+\, \dl
+=
+\frac{1}{J}\oint_{\partial\Omega_{\xi\eta}}
+\begin{pmatrix}
+    y_{\eta} q - x_{\eta} r \\ -y_{\xi} q + x_{\xi} r
+\end{pmatrix}
+\dotp
+\begin{pmatrix}
+    n_\xi \\ n_\eta
+\end{pmatrix}
+\, dl =
+\\
+&
+\frac{1}{J}\oint_{\partial\Omega_{\xi\eta}} \left( \left( y_{\eta} q - x_{\eta} r \right)n_\xi + \left( -y_{\xi} q + x_{\xi} r \right) n_\eta \right)\, dl
+\end{align}
+%
+Likewise, the convection term in the $x$-momentum equation can be transformed as:
+%
+\begin{align}
+	\pdiff{(q^2/h)}{x} + \pdiff{(qr/h)}{y} =
+\end{align}
+\begin{align}
+	= \frac{1}{J} \left(y_{\eta} \pdiff{(q^2/h)}{\xi} - y_{\xi} \pdiff{(q^2/h)}{\eta} -x_{\eta} \pdiff{(qr/h)}{\xi} + x_{\xi} \pdiff{(qr/h)}{\eta}\right) =
+\end{align}
+\begin{align}
+	\begin{aligned}
+		&= \frac{1}{J} \Bigg(y_{\eta} \pdiff{(q^2/h)}{\xi} - y_{\xi} \pdiff{(q^2/h)}{\eta} + \frac{q^2}{h} \pdiff{}{\xi} y_{\eta} - \frac{q^2}{h} \pdiff{}{\eta} y_{\xi} +  \\
+		&-x_{\eta} \pdiff{(qr/h)}{\xi} + x_{\xi} \pdiff{(qr/h)}{\eta} - \frac{qr}{h} \pdiff{}{\xi} x_{\eta} + \frac{qr}{h} \pdiff{}{\eta} x_{\xi} \Bigg) =
+	\end{aligned}
+\end{align}
+\begin{align}
+	= \frac{1}{J} \pdiff{}{\xi}\left(y_{\eta} \frac{q^2}{h} - x_{\eta} \frac{qr}{h} \right) + \frac{1}{J} \pdiff{}{\eta}\left(-y_{\xi} \frac{q^2}{h} + x_{\xi} \frac{qr}{h} \right).
+\end{align}
+%
+Taking the finite volume approach and applying Green's theorem, yields
+\begin{align}
+    \frac{1}{J}\oint_{\partial\Omega} \left( \left( \frac{q^2}{h} - x_{\eta} \frac{qr}{h} \right) n_\xi + \left(-y_{\xi} \frac{q^2}{h} + x_{\xi} \frac{qr}{h} \right) n_\eta \right)\, dl.
+\end{align}
+
+The $x$ and $y$-momentum equation diffusion terms are treated here as well due to their complexity.
+They can be transformed as:
+	\begin{align}
+		\pdiff{}{x}\left(2\nu h \pdiff{(q/h)}{x}\right) =
+	\end{align}
+	\begin{align}
+		=\frac{1}{J} \left[
+		y_{\eta}\pdiff{}{\xi}\left( \frac{2\nu h}{J} \left(
+		y_{\eta}\pdiff{(q/h)}{\xi}
+		- y_{\xi}\pdiff{(q/h)}{\eta}\right) \right)
+		- y_{\xi}\pdiff{}{\eta}\left(\frac{2\nu h}{J} \left(
+		y_{\eta}\pdiff{(q/h)}{\xi}
+		-y_{\xi}\pdiff{(q/h)}{\eta} \right) \right) \right] =
+	\end{align}
+	\begin{align}
+		\begin{aligned}
+			&=\frac{1}{J} \Bigg[
+			y_{\eta} \pdiff{}{\xi}\left( \frac{2\nu h}{J}\right) \left(
+			y_{\eta}\pdiff{(q/h)}{\xi}
+			- y_{\xi}\pdiff{(q/h)}{\eta}\right)
+			+ \frac{2\nu h}{J} \pdiff{}{\xi} \left(
+			y_{\eta}\pdiff{(q/h)}{\xi}
+			- y_{\xi}\pdiff{(q/h)}{\eta}\right) +
+            \\
+			&- y_{\xi}\left(\pdiff{}{\eta} \left(\frac{2\nu h}{J}\right) \left(
+			y_{\eta}\pdiff{(q/h)}{\xi}
+			-y_{\xi}\pdiff{(q/h)}{\eta} \right)
+			+\frac{2\nu h}{J} \pdiff{}{\eta}\left(
+			y_{\eta}\pdiff{(q/h)}{\xi}
+			-y_{\xi}\pdiff{(q/h)}{\eta} \right)
+			\right) \Bigg] =
+		\end{aligned}
+	\end{align}
+	\begin{align}
+		\begin{aligned}
+			&=\frac{2}{J} \Bigg[
+			y_{\eta} \pdiff{}{\xi}\left( \frac{\nu h}{J}\right) \left(
+			y_{\eta}\pdiff{(q/h)}{\xi}
+			- y_{\xi}\pdiff{(q/h)}{\eta}\right)
+			+ \frac{\nu h}{J} \pdiff{}{\xi} \left(
+			y_{\eta}\pdiff{(q/h)}{\xi}
+			- y_{\xi}\pdiff{(q/h)}{\eta}\right) +
+            \\
+			&- y_{\xi}\left(\pdiff{}{\eta} \left(\frac{\nu h}{J}\right) \left(
+			y_{\eta}\pdiff{(q/h)}{\xi}
+			-y_{\xi}\pdiff{(q/h)}{\eta} \right)
+			+\frac{\nu h}{J} \pdiff{}{\eta}\left(
+			y_{\eta}\pdiff{(q/h)}{\xi}
+			-y_{\xi}\pdiff{(q/h)}{\eta} \right)
+			\right) \Bigg]
+		\end{aligned}
+	\end{align}
+%
+for the $x$-momentum equation the viscous terms can be transformed as:
+	\begin{align}
+		\begin{aligned}
+			- \pdiff{}{x}\left(2\nu h\pdiff{(q/h)}{x} \right)
+			- \pdiff{}{y}\left(\nu h\pdiff{(r/h)}{x} + \nu h \pdiff{(q/h)}{y} \right) =
+		\end{aligned}
+	\end{align}
+	\begin{align}
+		\begin{aligned}
+			=&- \frac{y_{\eta}}{J} \pdiff{}{\xi}\left( 2\nu h\pdiff{(q/h)}{x} \right)
+			+ \frac{y_{\xi}}{J} \pdiff{}{\eta}\left(2\nu h\pdiff{(q/h)}{x} \right) +
+            \\
+			&+ \frac{x_{\eta}}{J}\pdiff{}{\xi}\left(\nu h\pdiff{(r/h)}{x} + \nu h \pdiff{(q/h)}{y} \right)
+			- \frac{x_{\xi}}{J} \pdiff{}{\eta}\left(\nu h\pdiff{(r/h)}{x} + \nu h \pdiff{(q/h)}{y} \right)
+		\end{aligned}
+	\end{align}
+	\begin{align}
+		\begin{aligned}
+			=&- \frac{1}{J} \pdiff{}{\xi}\left[ 2\nu y_{\eta} h\pdiff{(q/h)}{x} - \nu h x_{\eta}\pdiff{(r/h)}{x} + \nu h x_{\eta} \pdiff{(q/h)}{y}\right] +
+            \\
+			& + \frac{1}{J} \pdiff{}{\eta}\left[ 2\nu y_{\xi} h\pdiff{(q/h)}{x} - \nu h x_{\xi} \pdiff{(r/h)}{x} + \nu h x_{\xi} \pdiff{(q/h)}{y}  \right]
+		\end{aligned}
+	\end{align}
+	\begin{align}
+		\begin{aligned}
+			=&- \frac{1}{J} \pdiff{}{\xi}\Bigg[ \frac{\nu h}{J} \bigg(
+			2 y_{\eta}  y_{\eta} \pdiff{(q/h)}{\xi}
+			- 2 y_{\eta} y_{\xi} \pdiff{(q/h)}{\eta}
+			- x_{\eta}y_{\eta} \pdiff{(r/h)}{\xi} +
+            \\
+			& \qquad \qquad + x_{\eta}y_{\xi} \pdiff{(r/h)}{\eta}
+			- x_{\eta}^2\pdiff{(q/h)}{\xi}
+			+ x_{\eta}x_{\xi}\pdiff{(q/h)}{\eta}\Bigg] + \\
+			&+ \frac{1}{J} \pdiff{}{\eta}\Bigg[ \frac{\nu h}{J} \bigg(
+			2 y_{\xi}y_{\eta} \pdiff{(q/h)}{\xi}
+			- 2 y_{\xi}y_{\xi} \pdiff{(q/h)}{\eta}
+			- x_{\xi}y_{\eta} \pdiff{(r/h)}{\xi}
+			+ x_{\xi}y_{\xi} \pdiff{(r/h)}{\eta} +
+            \\
+			& \qquad \qquad - x_{\xi} x_{\eta} \pdiff{(q/h)}{\xi}
+			+ x_{\xi}^2 \pdiff{(q/h)}{\eta}   \Bigg]\\
+		\end{aligned}
+	\end{align}
+%
+	\begin{align}
+		\begin{aligned}
+			=&- \frac{1}{J} \pdiff{}{\xi}\Bigg[ \frac{\nu h}{J} \bigg(
+			- x_{\eta} \pdiff{}{\xi}\left( x_{\eta}\frac{q}{h} + y_{\eta}\frac{r}{h}  \right)
+			+ x_{\eta} \pdiff{}{\eta}\left( x_{\xi} \frac{q}{h} + y_{\xi} \frac{r}{h}  \right) +
+            \\
+			& \qquad \qquad + 2 y_{\eta}  \pdiff{(y_{\eta}\ q/h)}{\xi}
+			- 2 y_{\eta}  \pdiff{(y_{\xi}\ q/h)}{\eta} \Bigg]\\
+			&+ \frac{1}{J} \pdiff{}{\eta}\Bigg[ \frac{\nu h}{J} \bigg(
+			- x_{\xi} \pdiff{}{\xi}\left( x_{\eta}\frac{q}{h} + y_{\eta}\frac{r}{h}  \right)
+			+ x_{\xi} \pdiff{}{\eta}\left( x_{\xi} \frac{q}{h} + y_{\xi} \frac{r}{h}  \right) +
+            \\
+			& \qquad \qquad + 2 y_{\xi} \pdiff{(y_{\eta}\ q/h)}{\xi}
+			- 2 y_{\xi} \pdiff{(y_{\xi}\ q/h)}{\eta} \Bigg]\\
+		\end{aligned}
+	\end{align}
+%
+for the $y$-momentum equation the viscous terms can be transformed as:
+	\begin{align}
+		\begin{aligned}
+			- \pdiff{}{x}\left(\nu h\pdiff{(r/h)}{x} + \nu h \pdiff{(q/h)}{y} \right)
+			- \pdiff{}{y}\left(2\nu h\pdiff{(r/h)}{y} \right) =
+		\end{aligned}
+	\end{align}
+%
+	\begin{align}
+		\begin{aligned}
+			=& - \frac{y_{\eta}}{J} \pdiff{}{\xi} \left( \nu h\pdiff{(r/h)}{x} + \nu h \pdiff{(q/h)}{y} \right)
+			+ \frac{y_{\xi}}{J} \pdiff{}{\eta} \left(\nu h\pdiff{(r/h)}{x} + \nu h \pdiff{(q/h)}{y} \right) +
+            \\
+			& + \frac{x_{\eta}}{J} \pdiff{}{\xi} \left(2\nu h\pdiff{(r/h)}{y} \right)
+			- \frac{x_{\xi}}{J} \pdiff{}{\eta} \left(2\nu h\pdiff{(r/h)}{y} \right) =
+		\end{aligned}
+	\end{align}
+%
+	\begin{align}
+		\begin{aligned}
+			=& - \frac{1}{J} \pdiff{}{\xi} \left[\nu h y_{\eta} \pdiff{(r/h)}{x} + \nu h y_{\eta} \pdiff{(q/h)}{y} - 2 \nu h x_{\eta} \pdiff{(r/h)}{y} \right] +
+            \\
+			&+ \frac{1}{J} \pdiff{}{\eta} \left[\nu h y_{\xi} \pdiff{(r/h)}{x} + \nu h y_{\xi} \pdiff{(q/h)}{y} - 2 \nu h x_{\xi} \pdiff{(r/h)}{y} \right] =
+		\end{aligned}
+	\end{align}
+%
+	\begin{align}
+		\begin{aligned}
+			=& - \frac{1}{J} \pdiff{}{\xi} \Bigg[\frac{\nu h y_{\eta}y_{\eta} }{J}  \pdiff{(r/h)}{\xi} - \frac{\nu h y_{\eta} y_{\xi}}{J} \pdiff{(r/h)}{\eta} + \frac{\nu h y_{\eta} x_{\eta}}{J} \pdiff{(q/h)}{\xi} - \frac{\nu h y_{\eta} x_{\xi}}{J} \pdiff{(q/h)}{\eta} +
+            \\
+			& \qquad \qquad + \frac{2 \nu h x_{\eta}^2}{J} \pdiff{(r/h)}{\xi} - \frac{2 \nu h x_{\xi} x_{\eta} }{J} \pdiff{(r/h)}{\eta} \Bigg]
+            +
+            \\
+			&+ \frac{1}{J} \pdiff{}{\eta} \Bigg[\frac{\nu h y_{\xi} y_{\eta} }{J}\pdiff{(r/h)}{\xi} - \frac{\nu h y_{\xi} y_{\xi}}{J} \pdiff{(r/h)}{\eta} + \frac{\nu h y_{\xi} x_{\eta}}{J} \pdiff{(q/h)}{\xi} - \frac{\nu h y_{\xi} x_{\xi}}{J} \pdiff{(q/h)}{\eta} +
+            \\
+			& \qquad \qquad + \frac{2 \nu h x_{\eta}x_{\xi}}{J} \pdiff{(r/h)}{\xi} - \frac{2 \nu h x_{\xi}^2}{J} \pdiff{(r/h)}{\eta} \Bigg] =
+		\end{aligned}
+	\end{align}
+%
+	\begin{align}
+		\begin{aligned}
+			=& - \frac{1}{J} \pdiff{}{\xi} \Bigg[ \frac{\nu h}{J} \bigg(y_{\eta}^2 \pdiff{(r/h)}{\xi} - y_{\eta} y_{\xi} \pdiff{(r/h)}{\eta} + y_{\eta} x_{\eta} \pdiff{(q/h)}{\xi} - y_{\eta} x_{\xi} \pdiff{(q/h)}{\eta}+
+            \\
+			& \qquad \qquad + 2  x_{\eta}^2 \pdiff{(r/h)}{\xi} - 2  x_{\xi} x_{\eta}  \pdiff{(r/h)}{\eta} \bigg) \Bigg] +
+            \\
+			&+ \frac{1}{J} \pdiff{}{\eta} \Bigg[ \frac{\nu h}{J} \bigg(y_{\xi} y_{\eta} \pdiff{(r/h)}{\xi} - y_{\xi}^2 \pdiff{(r/h)}{\eta} + y_{\xi} x_{\eta} \pdiff{(q/h)}{\xi} - y_{\xi} x_{\xi} \pdiff{(q/h)}{\eta} +
+            \\
+			& \qquad \qquad + 2 x_{\eta}x_{\xi} \pdiff{(r/h)}{\xi} - 2x_{\xi}^2 \pdiff{(r/h)}{\eta} \bigg) \Bigg] =
+		\end{aligned}
+	\end{align}
+%
+	\begin{align}
+		\begin{aligned}
+			=& - \frac{1}{J} \pdiff{}{\xi} \Bigg[\frac{\nu h}{J} \bigg(
+			y_{\eta} \pdiff{}{\xi} \left(y_{\eta} \frac{r}{h}
+			+ x_{\eta} \frac{q}{h}\right)
+			- y_{\eta} \pdiff{}{\eta} \left( y_{\xi} \frac{r}{h}
+			+ x_{\xi} \frac{q}{h}  \right) +
+            \\
+			& \qquad \qquad + 2 x_{\eta} \pdiff{(x_{\eta}\ r/h)}{\xi}
+			- 2 x_{\eta}  \pdiff{(x_{\xi}\ r/h)}{\eta} \bigg) \Bigg]\\
+			& + \frac{1}{J} \pdiff{}{\eta} \Bigg[\frac{\nu h}{J} \bigg(
+			y_{\xi} \pdiff{}{\xi} \left(y_{\eta} \frac{r}{h}
+			+ x_{\eta} \frac{q}{h}\right) +
+            \\
+			&\qquad \qquad - y_{\xi} \pdiff{}{\eta} \left( y_{\xi} \frac{r}{h}
+			+ x_{\xi} \frac{q}{h} \right)
+			+ 2 x_{\xi} \pdiff{(x_{\eta}\ r/h)}{\xi}
+			- 2 x_{\xi} \pdiff{(x_{\xi}\ r/h)}{\eta} \bigg) \Bigg].
+		\end{aligned}
+	\end{align}
+
+%-------------------------------------------------------------------------------
+\section{Transformed 2D Shallow Water Equations}
+Given the above, the 2D Shallow water equations can be transformed to generalized coordinates, resulting in:
+%
+	\begin{align}\label{CurviContinuity_Expanded}
+		J \pdiff{h}{t} +\pdiff{}{\xi} \left( y_{\eta}\, q - x_{\eta}\, r \right) + \pdiff{}{\eta} \left( -y_{\xi}\, q + x_{\xi}\, r \right) = 0,
+	\end{align}
+	\begin{align}\label{CurviXmom_Expanded}
+		\begin{aligned}
+			J \pdiff{q}{t}
+			&+ \pdiff{}{\xi} \left( y_{\eta}\, \frac{q^2}{h} - x_{\eta}\, \frac{q r}{h} \right)
+			+ \pdiff{}{\eta} \left( -y_{\xi}\, \frac{q^2}{h} + x_{\xi}\, \frac{q r}{h} \right)
+			+ g h \left( y_{\eta}\, \pdiff{\zeta}{\xi} - y_{\xi}\, \pdiff{\zeta}{\eta} \right) +
+            \\
+			&+ J c_f \frac{q\, |\mathbf{q}|}{h^2}
+			+ \pdiff{}{\xi}\Bigg[ \frac{\nu h}{J} \bigg(
+			x_{\eta} \pdiff{}{\xi}\left( x_{\eta}\frac{q}{h} + y_{\eta}\frac{r}{h}  \right)
+			- x_{\eta} \pdiff{}{\eta}\left( x_{\xi} \frac{q}{h} + y_{\xi} \frac{r}{h}  \right) +
+            \\
+			& - 2 y_{\eta}  \pdiff{(y_{\eta}\ q/h)}{\xi}
+			+ 2 y_{\eta}  \pdiff{(y_{\xi}\ q/h)}{\eta} \bigg)\Bigg]
+			+ \pdiff{}{\eta}\Bigg[ \frac{\nu h}{J} \bigg(
+			- x_{\xi} \pdiff{}{\xi}\left( x_{\eta}\frac{q}{h} + y_{\eta}\frac{r}{h}  \right) +
+            \\
+			&+ x_{\xi} \pdiff{}{\eta}\left( x_{\xi} \frac{q}{h} + y_{\xi} \frac{r}{h}  \right)
+			+ 2 y_{\xi} \pdiff{(y_{\eta}\ q/h)}{\xi}
+			- 2 y_{\xi} \pdiff{(y_{\xi}\ q/h)}{\eta} \bigg) \Bigg] = 0,
+		\end{aligned}
+	\end{align}
+	\begin{align}\label{CurviYmom_Expanded}
+		\begin{aligned}
+			J \pdiff{r}{t}
+			&+ \pdiff{}{\xi} \left( y_{\eta}\, \frac{q r}{h} - x_{\eta}\, \frac{r^2}{h} \right)
+			+ \pdiff{}{\eta} \left( -y_{\xi}\, \frac{q r}{h} + x_{\xi}\, \frac{r^2}{h} \right)
+			+ g h \left( -x_{\eta}\, \pdiff{\zeta}{\xi} + x_{\xi}\, \pdiff{\zeta}{\eta} \right) +
+            \\
+			&+ J c_f \frac{r\, |\mathbf{q}|}{h^2}
+			+  \pdiff{}{\xi} \Bigg[\frac{\nu h}{J} \bigg(
+			-y_{\eta} \pdiff{}{\xi} \left(
+			x_{\eta} \frac{q}{h} + y_{\eta} \frac{r}{h} \right) + \\
+			&+ y_{\eta} \pdiff{}{\eta} \left(
+			x_{\xi} \frac{q}{h} + y_{\xi} \frac{r}{h}  \right)
+			- 2 x_{\eta} \pdiff{(x_{\eta}\ r/h)}{\xi}
+			+ 2 x_{\eta}  \pdiff{(x_{\xi}\ r/h)}{\eta} \bigg) \Bigg] +
+            \\
+			&+  \pdiff{}{\eta} \Bigg[\frac{\nu h}{J} \bigg(
+			y_{\xi} \pdiff{}{\xi} \left(x_{\eta} \frac{q}{h}
+			+ y_{\eta} \frac{r}{h} \right) + \\
+			&- y_{\xi} \pdiff{}{\eta} \left( x_{\xi} \frac{q}{h} +  y_{\xi} \frac{r}{h} \right)
+			+ 2 x_{\xi} \pdiff{(x_{\eta}\ r/h)}{\xi}
+			- 2 x_{\xi} \pdiff{(x_{\xi}\ r/h)}{\eta} \bigg) \Bigg] = 0.
+		\end{aligned}
+	\end{align}
+%
+with transformation coefficients presented using the subscript notation.
+However, the above equations are in differential form.
+We will write the equations in an integral form:
+%
+\begin{align}\label{eq:generalizedeq}
+	\int \pdiff{\mathbf{U}}{\partial t}dV + \int \nabla \cdot \mathbf{F} dV - \int \mathbf{S}dV = 0
+\end{align}
+%
+where the $\nabla$-operator for use in the $\xi\eta$-grid, now reads:
+%
+\begin{align}
+	\nabla=
+	\begin{pmatrix}
+		\pdiff{}{\xi}\\
+		\pdiff{}{\eta}
+	\end{pmatrix},
+\end{align}
+%
+However, this definition is not necessary yet as we will be applying Gauss' theorem (for internal points) to \autoref{eq:generalizedeq}, which yields:
+%
+\begin{align}
+	\int \pdiff{\mathbf{U}}{\partial t}dV + \oint \mathbf{F}\cdot \mathbf{n}dS - \int \mathbf{S}dV = 0,
+\end{align}
+%
+where $\mathbf{F}$ consists of continuity, convective and viscous contributions which are split in $\xi$ and $\eta$ directions:
+%
+	\begin{align}\label{eq:FxysplitT}
+		\mathbf{F}_{\texttt{cont},\xi}=
+		\begin{pmatrix}
+			y_{\eta}\, q - x_{\eta}\, r\\
+			0\\
+			0
+		\end{pmatrix},
+		\quad
+		\mathbf{F}_{\texttt{cont},\eta}=
+		\begin{pmatrix}
+			-y_{\xi}\, q + x_{\xi}\, r\\
+			0 \\
+			0
+		\end{pmatrix}
+	\end{align}
+	\begin{align}
+		\mathbf{F}_{\texttt{conv},\xi}=
+		\begin{pmatrix}
+			0\\
+			y_{\eta}\, \frac{q^2}{h} - x_{\eta}\, \frac{q r}{h}\\
+			y_{\eta}\, \frac{q r}{h} - x_{\eta}\, \frac{r^2}{h}
+		\end{pmatrix},
+		\quad
+		\mathbf{F}_{\texttt{conv},\eta}=
+		\begin{pmatrix}
+			0\\
+			-y_{\xi}\, \frac{q^2}{h} + x_{\xi}\, \frac{q r}{h}
+			\\
+			-y_{\xi}\, \frac{q r}{h} + x_{\xi}\, \frac{r^2}{h}
+		\end{pmatrix}
+	\end{align}
+	\begin{align}
+		\mathbf{F}_{\texttt{visc},\xi}=
+		\begin{pmatrix}
+			0 \\
+			\frac{\nu h}{J} \bigg[
+			x_{\eta} \pdiff{}{\xi}\left( x_{\eta}\frac{q}{h} + y_{\eta}\frac{r}{h}  \right)
+			- x_{\eta} \pdiff{}{\eta}\left( x_{\xi} \frac{q}{h} + y_{\xi} \frac{r}{h}  \right)
+			- 2 y_{\eta}  \pdiff{(y_{\eta}\ q/h)}{\xi}
+			+ 2 y_{\eta}  \pdiff{(y_{\xi}\ q/h)}{\eta}\bigg]\\
+			\frac{\nu h}{J} \bigg[
+			-y_{\eta} \pdiff{}{\xi} \left(
+			x_{\eta} \frac{q}{h}+ y_{\eta} \frac{r}{h} \right)
+			+ y_{\eta} \pdiff{}{\eta} \left(
+			x_{\xi} \frac{q}{h} + y_{\xi} \frac{r}{h}  \right)
+			- 2 x_{\eta} \pdiff{(x_{\eta}\ r/h)}{\xi}
+			+ 2 x_{\eta}  \pdiff{(x_{\xi}\ r/h)}{\eta} \bigg]
+		\end{pmatrix}.
+	\end{align}
+	\begin{align}
+		\mathbf{F}_{\texttt{visc},\eta}=
+		\begin{pmatrix}
+			0 \\
+			\frac{\nu h}{J} \bigg[
+			- x_{\xi} \pdiff{}{\xi}\left( x_{\eta}\frac{q}{h} + y_{\eta}\frac{r}{h}  \right)
+			+ x_{\xi} \pdiff{}{\eta}\left( x_{\xi} \frac{q}{h} + y_{\xi} \frac{r}{h}  \right)
+			+ 2 y_{\xi} \pdiff{(y_{\eta}\ q/h)}{\xi}
+			- 2 y_{\xi} \pdiff{(y_{\xi}\ q/h)}{\eta} \bigg]
+			\\
+			\frac{\nu h}{J} \bigg[
+			y_{\xi} \pdiff{}{\xi} \left(x_{\eta} \frac{q}{h}
+			+ y_{\eta} \frac{r}{h} \right)
+			- y_{\xi} \pdiff{}{\eta} \left( x_{\xi} \frac{q}{h} +  y_{\xi} \frac{r}{h} \right)
+			+ 2 x_{\xi} \pdiff{(x_{\eta}\ r/h)}{\xi}
+			- 2 x_{\xi} \pdiff{(x_{\xi}\ r/h)}{\eta} \bigg]
+		\end{pmatrix}
+	\end{align}
+%
+Applying the chain rule to the derivatives of combined functions yields:
+%
+	\begin{align} \label{eq:Fvisc_transformed_xietasplit_chainrule}
+		\mathbf{F}_{\texttt{visc},\xi}=
+		\begin{pmatrix}
+			0 \\
+			\\
+			\frac{\nu h}{J} \bigg[
+			\underbrace{-\frac{x_{\eta} q}{h^2}\pdiff{(x_{\eta}\ h)}{\xi}
+				+ \frac{x_{\eta}}{h} \pdiff{(x_{\eta}\ q)}{\xi}
+				- \frac{x_{\eta}r}{h^2} \pdiff{(y_{\eta}\ h)}{\xi}
+				+ \frac{x_{\eta}}{h} \pdiff{(y_{\eta}\ r)}{\xi}}_{x_{\eta} \pdiff{}{\xi}\left( x_{\eta}\frac{q}{h} + y_{\eta}\frac{r}{h}  \right)}\\
+			\underbrace{- \frac{x_{\eta} }{h} \pdiff{(x_{\xi}\ q)}{\eta}
+				+ \frac{x_{\eta} q}{h^2} \pdiff{ (x_{\xi}\ h)}{\eta}
+				- \frac{x_{\eta} }{h} \pdiff{(y_{\xi}\ r)}{\eta}
+				+ \frac{x_{\eta} r}{h^2} \pdiff{ (y_{\xi}\ h)}{\eta}}_{ - x_{\eta} \pdiff{}{\eta}\left( x_{\xi} \frac{q}{h} + y_{\xi} \frac{r}{h}  \right)}\\
+			\underbrace{- \frac{2 y_{\eta}}{h}  \pdiff{ (y_{\eta}\ q)}{\xi}
+				+ \frac{2 y_{\eta} q }{h^2}  \pdiff{ (y_{\eta}\ h)}{\xi}
+				+ \frac{2 y_{\eta}}{h}  \pdiff{(y_{\xi}\ q)}{\eta}
+				- \frac{2 y_{\eta} q}{h^2} \pdiff{(y_{\xi}\ h)}{\eta}}_{        - 2 y_{\eta} \pdiff{(x_{\eta}\ q/h)}{\xi}
+				+ y x_{\eta}  \pdiff{(x_{\xi}\ q/h)}{\eta}}\bigg]\\
+			\frac{\nu h}{J} \bigg[
+			\underbrace{- \frac{y_{\eta}}{h} \pdiff{(x_{\eta}\ q)}{\xi}
+				+ \frac{y_{\eta}\ q }{h^2} \pdiff{(x_{\eta}\ h)}{\xi}
+				- \frac{y_{\eta}}{h} \pdiff{(y_{\eta}\ r)}{\xi}
+				+ \frac{y_{\eta}\ r }{h^2} \pdiff{(y_{\eta}\ h)}{\xi}}_{-y_{\eta} \pdiff{}{\xi} \left(
+				x_{\eta} \frac{q}{h}+ y_{\eta} \frac{r}{h} \right)}\\
+			\underbrace{+\frac{y_{\eta}}{h}   \pdiff{(x_{\xi}\ q)}{\eta}
+				-\frac{y_{\eta}q}{h^2}   \pdiff{(x_{\xi}\ h)}{\eta}
+				+ \frac{y_{\eta}}{h} \pdiff{(y_{\xi}\ r)}{\eta}
+				- \frac{y_{\eta}r}{h^2} \pdiff{(y_{\xi}\ h)}{\eta}}_{ y_{\eta} \pdiff{}{\eta} \left(
+				x_{\xi} \frac{q}{h} + y_{\xi} \frac{r}{h}  \right)}\\
+			\underbrace{- \frac{2 x_{\eta}}{h} \pdiff{(x_{\eta}\ r)}{\xi}
+				+ \frac{2 x_{\eta}r}{h^2} \pdiff{(x_{\eta}\  h)}{\xi}
+				+ \frac{2 x_{\eta}}{h}  \pdiff{(x_{\xi}\ r)}{\eta}
+				- \frac{2 x_{\eta}r}{h^2}  \pdiff{(x_{\xi}\ h)}{\eta}}_{        - 2 x_{\eta} \pdiff{(x_{\eta}\ r/h)}{\xi}
+				+ 2 x_{\eta}  \pdiff{(x_{\xi}\ r/h)}{\eta}}\bigg]
+		\end{pmatrix}
+	\end{align}
+	\begin{align}
+		\mathbf{F}_{\texttt{visc},\eta}=
+		\begin{pmatrix}
+			0 \\
+			\\
+			\frac{\nu h}{J} \bigg[
+			\underbrace{- \frac{x_{\xi} }{h}\pdiff{(x_{\eta}\ q)}{\xi}
+				+ \frac{x_{\xi}\ q}{h^2}\pdiff{(x_{\eta}\ h)}{\xi}
+				- \frac{x_{\xi}}{h} \pdiff{(y_{\eta}\ r)}{\xi}
+				+ \frac{x_{\xi}\ r}{h^2}\pdiff{(y_{\eta}\ h)}{\xi}}_{ - x_{\xi} \pdiff{}{\xi}\left( x_{\eta}\frac{q}{h} + y_{\eta}\frac{r}{h}  \right)}\\
+			\underbrace{+\frac{x_{\xi}}{h} \pdiff{(x_{\xi}\ q)}{\eta}
+				-\frac{x_{\xi}\ q}{h^2}\pdiff{(x_{\xi}\ h)}{\eta}
+				+ \frac{y_{\xi}}{h} \pdiff{(x_{\xi}\ r)}{\eta}
+				- \frac{y_{\xi}\ r}{h^2} \pdiff{(x_{\xi}\ h)}{\eta}}_{ x_{\xi} \pdiff{}{\eta}\left( x_{\xi} \frac{q}{h} + y_{\xi} \frac{r}{h}  \right)}\\
+			\underbrace{+ \frac{2 y_{\xi}}{h} \pdiff{(y_{\eta}\ q)}{\xi}
+				- \frac{2 y_{\xi}\ q}{h^2} \pdiff{(y_{\eta}\ h)}{\xi}
+				- \frac{2 y_{\xi}}{h} \pdiff{(y_{\xi}\ q)}{\eta}
+				+ \frac{2 y_{\xi}\ q}{h^2} \pdiff{(y_{\xi}\ h)}{\eta} }_{        2 y_{\xi} \pdiff{(y_{\eta}\ q/h)}{\xi}
+				- 2 y_{\xi} \pdiff{(y_{\xi}\ q/h)}{\eta}}
+			\bigg]\\
+			\frac{\nu h}{J} \bigg[
+			\underbrace{\frac{y_{\xi} }{h} \pdiff{(x_{\eta}\ q)}{\xi}
+				- \frac{y_{\xi}\ q}{h^2} \pdiff{(x_{\eta}\ h)}{\xi}
+				+ \frac{y_{\xi} }{h} \pdiff{(y_{\eta}\ r)}{\xi}
+				+ \frac{y_{\xi}\ r}{h^2} \pdiff{(y_{\eta}\ h)}{\xi}}_{y_{\xi} \pdiff{}{\xi} \left(x_{\eta} \frac{q}{h}
+				+ y_{\eta} \frac{r}{h} \right)} \\
+			\underbrace{- \frac{y_{\xi}}{h} \pdiff{(x_{\xi}\ q)}{\eta}
+				+ \frac{y_{\xi}q}{h^2} \pdiff{(x_{\xi}\ h)}{\eta}
+				- \frac{y_{\xi}}{h} \pdiff{(y_{\xi}\ r)}{\eta}
+				- \frac{y_{\xi}\ r}{h^2} \pdiff{(y_{\xi}\ h)}{\eta}}_{- y_{\xi} \pdiff{}{\eta} \left( x_{\xi} \frac{q}{h} +  y_{\xi} \frac{r}{h} \right)} \\
+			\underbrace{+ \frac{2 x_{\xi}}{h} \pdiff{(x_{\eta}\ r)}{\xi}
+				- \frac{2 x_{\xi}\ r}{h^2} \pdiff{(x_{\eta}\ h)}{\xi}
+				- \frac{2 x_{\xi}}{h} \pdiff{(x_{\xi}\ r)}{\eta}
+				+ \frac{2 x_{\xi}\ r}{h^2} \pdiff{(x_{\xi}\ h)}{\eta}}_{2 x_{\xi} \pdiff{(x_{\eta}\ r/h)}{\xi}
+				- 2 x_{\xi} \pdiff{(x_{\xi}\ r/h)}{\eta}}
+			\bigg]
+		\end{pmatrix}
+	\end{align}
+The source terms are split again into pressure gradient and bed shear stress-based sources, $\mathbf{S} = \mathbf{S}_{\texttt{pg}} + \mathbf{S}_{\texttt{bs}}$.
+Note that the expression for the bed shear stress matches that presented before in \autoref{eq:Sxysplit} due to the absence of spatial derivatives.
+%
+\begin{align}
+	\mathbf{S}_{\texttt{pg}}=
+	\begin{pmatrix}
+		0\\
+		g h \left( y_{\eta}\, \pdiff{\zeta}{\xi} - y_{\xi}\, \pdiff{\zeta}{\eta} \right)\\
+		g h \left( -x_{\eta}\, \pdiff{\zeta}{\xi} + x_{\xi}\, \pdiff{\zeta}{\eta} \right)
+	\end{pmatrix},
+	\quad
+	\mathbf{S}_{\texttt{bs}}=
+	\begin{pmatrix}
+		0 \\
+		- J c_f \frac{q|\mathbf{q}|}{h^2} \\
+		- J c_f \frac{r|\mathbf{q}|}{h^2}
+	\end{pmatrix},
+\end{align}
+%-------------------------------------------------------------------------------
+\section{Transformed Jacobians}
+We will derive the Jacobians in the numerical grid from the above definitions of the flux and source terms.
+%-------------------------------------------------------------------------------
+\subsection{Continuity Flux Jacobians}
+In $\xi$, the continuity flux and its Jacobian read:
+%
+\begin{align}
+	\mathbf{F}_{\texttt{cont},\xi}=
+	\begin{pmatrix}
+		y_{\eta}\, q - x_{\eta}\, r\\
+		0\\
+		0
+	\end{pmatrix}, \quad
+	\mathbf{J}^{CT,\xi}=
+	\begin{pmatrix}
+		0 & y_{\eta} & -x_{\eta}\\
+		%
+		0
+		& 0
+		& 0\\
+		%
+		0
+		& 0
+		& 0
+	\end{pmatrix}.
+\end{align}
+%
+The continuity flux in $\eta$ and its Jacobian read:
+%
+\begin{align}
+	\mathbf{F}_{\texttt{cont},\eta}=
+	\begin{pmatrix}
+		-y_{\xi}\, q + x_{\xi}\, r\\
+		0 \\
+		0
+	\end{pmatrix}, \quad
+	\mathbf{J}^{CT,\eta}=
+	\begin{pmatrix}
+		0 & -y_{\xi} &  x_{\xi}\\
+		%
+		0
+		& 0
+		& 0\\
+		%
+		0
+		& 0
+		& 0
+	\end{pmatrix}.
+\end{align}
+%-------------------------------------------------------------------------------
+\subsection{Convective Flux Jacobians}
+In $\xi$, the convective flux and its Jacobian read:
+%
+\begin{align}
+	\mathbf{F}_{\texttt{conv},\xi}=
+	\begin{pmatrix}
+		0\\
+		y_{\eta}\, \frac{q^2}{h} - x_{\eta}\, \frac{q r}{h}\\
+		y_{\eta}\, \frac{q r}{h} - x_{\eta}\, \frac{r^2}{h}
+	\end{pmatrix}, \quad
+	\mathbf{J}^{CF,\xi}=
+	\begin{pmatrix}
+		0 & 0 & 0\\
+		%
+		-y_{\eta}\frac{q^2}{h^2} + x_{\eta} \frac{qr}{h^2}
+		& y_{\eta}\frac{2q}{h} - x_{\eta} \frac{r}{h}
+		& - x_{\eta} \frac{q}{h}\\
+		%
+		-y_{\eta}\, \frac{q r}{h^2} + x_{\eta}\, \frac{r^2}{h^2}
+		& y_{\eta}\, \frac{q}{h}
+		& y_{\eta}\, \frac{q}{h} - x_{\eta}\, \frac{2r}{h}
+	\end{pmatrix}.
+\end{align}
+%
+The convective flux in $\eta$ and its Jacobian read:
+%
+\begin{align}
+	\mathbf{F}_{\texttt{conv},\eta}=
+	\begin{pmatrix}
+		0\\
+		y_{\eta}\, \frac{q^2}{h} - x_{\eta}\, \frac{q r}{h}\\
+		y_{\eta}\, \frac{q r}{h} - x_{\eta}\, \frac{r^2}{h}
+	\end{pmatrix}, \quad
+	\mathbf{J}^{CF,\eta}=
+	\begin{pmatrix}
+		0 & 0 & 0\\
+		%
+		-y_{\eta}\, \frac{q^2}{h^2} + x_{\eta}\, \frac{q r}{h^2}
+		&y_{\eta}\, \frac{2q}{h} - x_{\eta}\, \frac{r}{h}
+		& - x_{\eta}\, \frac{q}{h}\\
+		%
+		-y_{\eta}\, \frac{q r}{h^2} + x_{\eta}\, \frac{r^2}{h^2}
+		& y_{\eta}\, \frac{r}{h}
+		& y_{\eta}\, \frac{q}{h} - x_{\eta}\, \frac{2r}{h}
+	\end{pmatrix}.
+\end{align}
+%-------------------------------------------------------------------------------
+\subsection{Viscous Flux Jacobians}
+The viscous flux terms are not repeated here for brevity.
+The jacobians of $\mathbf{F}_{\texttt{conv},\xi}$ and $\mathbf{F}_{\texttt{conv},\eta}$ are extensive and split up in their respective columns, for example:
+%
+\begin{align}
+	\mathbf{J}^{\texttt{F},\xi} = \Big(
+	\pdiff{\mathbf{J}^{\texttt{F},\xi}}{h} \quad
+	\pdiff{\mathbf{J}^{\texttt{F},\xi}}{q} \quad
+	\pdiff{\mathbf{J}^{\texttt{F},\xi}}{r}\Big)
+\end{align}
+%
+where the column vectors are:
+%
+\begin{align}
+	\pdiff{\mathbf{J}^{\texttt{VF},\xi}}{h}=
+		\begin{pmatrix}
+	0 \\
+	\\
+	%
+	\frac{\nu}{J} \bigg[
+		-\frac{x_{\eta} q}{h^2}\pdiff{(x_{\eta}\ h)}{\xi}
+		+ \frac{x_{\eta}}{h} \pdiff{(x_{\eta}\ q)}{\xi}
+		- \frac{x_{\eta}r}{h^2} \pdiff{(y_{\eta}\ h)}{\xi}
+		+ \frac{x_{\eta}}{h} \pdiff{(y_{\eta}\ r)}{\xi}\\
+		- \frac{x_{\eta} }{h} \pdiff{(x_{\xi}\ q)}{\eta}
+		+ \frac{x_{\eta} q}{h^2} \pdiff{ (x_{\xi}\ h)}{\eta}
+		- \frac{x_{\eta} }{h} \pdiff{(y_{\xi}\ r)}{\eta}
+		+ \frac{x_{\eta} r}{h^2} \pdiff{ (y_{\xi}\ h)}{\eta}\\
+		- \frac{2 y_{\eta}}{h}  \pdiff{ (y_{\eta}\ q)}{\xi}
+		+ \frac{2 y_{\eta} q }{h^2}  \pdiff{ (y_{\eta}\ h)}{\xi}
+		+ \frac{2 y_{\eta}}{h}  \pdiff{(y_{\xi}\ q)}{\eta}
+		- \frac{2 y_{\eta} q}{h^2} \pdiff{(y_{\xi}\ h)}{\eta}\Bigg]\\
+	+\frac{\nu h}{J} \bigg[
+		\frac{x_{\eta} q}{2h^3}\pdiff{(x_{\eta}\ h)}{\xi}
+		-\frac{x_{\eta} q}{h^2}\pdiff{(x_{\eta}\ \cdot)}{\xi}
+		- \frac{x_{\eta}}{h^2} \pdiff{(x_{\eta}\ q)}{\xi}
+		+ \frac{x_{\eta}r}{2h^3} \pdiff{(y_{\eta}\ h)}{\xi} \\
+		- \frac{x_{\eta}r}{h^2} \pdiff{(y_{\eta}\ \cdot)}{\xi}
+		- \frac{x_{\eta}}{h^2} \pdiff{(y_{\eta}\ r)}{\xi}
+		+ \frac{x_{\eta} }{h^2} \pdiff{(x_{\xi}\ q)}{\eta}
+		- \frac{x_{\eta} q}{2h^3} \pdiff{ (x_{\xi}\ h)}{\eta}\\
+		+ \frac{x_{\eta} q}{h^2} \pdiff{ (x_{\xi}\ \cdot)}{\eta}
+		+ \frac{x_{\eta} }{h^2} \pdiff{(y_{\xi}\ r)}{\eta}
+		- \frac{x_{\eta} r}{2h^3} \pdiff{ (y_{\xi}\ h)}{\eta}
+		+ \frac{2 y_{\eta}}{h^2}  \pdiff{ (y_{\eta}\ q)}{\xi} \\
+		- \frac{2 y_{\eta} q }{2h^3}  \pdiff{ (y_{\eta}\ h)}{\xi}
+		+ \frac{2 y_{\eta} q }{h^2}  \pdiff{ (y_{\eta}\ \cdot)}{\xi}
+		- \frac{2 y_{\eta}}{h^2}  \pdiff{(y_{\xi}\ q)}{\eta}
+		+ \frac{2 y_{\eta} q}{2h^3} \pdiff{(y_{\xi}\ h)}{\eta}
+		- \frac{2 y_{\eta} q}{h^2} \pdiff{(y_{\xi}\ \cdot)}{\eta}\Bigg]
+		\\
+		\\
+	%
+		\frac{\nu}{J} \bigg[
+		- \frac{y_{\eta}}{h} \pdiff{(x_{\eta}\ q)}{\xi}
+		+ \frac{y_{\eta}\ q }{h^2} \pdiff{(x_{\eta}\ h)}{\xi}
+		- \frac{y_{\eta}}{h} \pdiff{(y_{\eta}\ r)}{\xi}
+		+ \frac{y_{\eta}\ r }{h^2} \pdiff{(y_{\eta}\ h)}{\xi}\\
+		+ \frac{y_{\eta}}{h}   \pdiff{(x_{\xi}\ q)}{\eta}
+		- \frac{y_{\eta}q}{h^2}   \pdiff{(x_{\xi}\ h)}{\eta}
+		+ \frac{y_{\eta}}{h} \pdiff{(y_{\xi}\ r)}{\eta}
+		- \frac{y_{\eta}r}{h^2} \pdiff{(y_{\xi}\ h)}{\eta}\\
+		- \frac{2 x_{\eta}}{h} \pdiff{(x_{\eta}\ r)}{\xi}
+		+ \frac{2 x_{\eta}r}{h^2} \pdiff{(x_{\eta}\  h)}{\xi}
+		+ \frac{2 x_{\eta}}{h}  \pdiff{(x_{\xi}\ r)}{\eta}
+		- \frac{2 x_{\eta}r}{h^2}  \pdiff{(x_{\xi}\ h)}{\eta}\bigg]\\
+		+ \frac{\nu h}{J} \bigg[
+		\frac{y_{\eta}}{h^2} \pdiff{(x_{\eta}\ q)}{\xi}
+		- \frac{y_{\eta}\ q }{2h^3} \pdiff{(x_{\eta}\ h)}{\xi}
+		+ \frac{y_{\eta}\ q }{h^2} \pdiff{(x_{\eta}\ \cdot)}{\xi}
+		+ \frac{y_{\eta}}{h^2} \pdiff{(y_{\eta}\ r)}{\xi}\\
+		- \frac{y_{\eta}\ r }{2h^3} \pdiff{(y_{\eta}\ h)}{\xi}
+		+ \frac{y_{\eta}\ r }{h^2} \pdiff{(y_{\eta}\ \cdot)}{\xi}
+		- \frac{y_{\eta}}{h^2}   \pdiff{(x_{\xi}\ q)}{\eta}
+		+ \frac{y_{\eta}q}{2h^3}   \pdiff{(x_{\xi}\ h)}{\eta}\\
+		- \frac{y_{\eta}q}{h^2}   \pdiff{(x_{\xi}\ \cdot)}{\eta}
+		- \frac{y_{\eta}}{h^2} \pdiff{(y_{\xi}\ r)}{\eta}
+		+ \frac{y_{\eta}r}{2h^3} \pdiff{(y_{\xi}\ h)}{\eta}
+		- \frac{y_{\eta}r}{h^2} \pdiff{(y_{\xi}\ \cdot)}{\eta}\\
+		+ \frac{2 x_{\eta}}{h^2} \pdiff{(x_{\eta}\ r)}{\xi}
+		- \frac{2 x_{\eta}r}{2h^3} \pdiff{(x_{\eta}\  h)}{\xi}
+		+ \frac{2 x_{\eta}r}{h^2} \pdiff{(x_{\eta}\  \cdot)}{\xi}
+		- \frac{2 x_{\eta}}{h^2}  \pdiff{(x_{\xi}\ r)}{\eta}\\
+		+ \frac{2 x_{\eta}r}{2h^3}  \pdiff{(x_{\xi}\ h)}{\eta}
+		- \frac{2 x_{\eta}r}{h^2}  \pdiff{(x_{\xi}\ \cdot)}{\eta}\bigg]
+\end{pmatrix}
+\end{align}
+%
+\begin{align}
+	\pdiff{\mathbf{J}^{\texttt{VF},\xi}}{q}=
+		\begin{pmatrix}
+	0 \\
+	\\
+	\frac{\nu h}{J} \bigg[
+	-\frac{x_{\eta}}{h^2}\pdiff{(x_{\eta}\ h)}{\xi}
+	+ \frac{x_{\eta}}{h} \pdiff{(x_{\eta}\ \cdot)}{\xi}
+	- \frac{x_{\eta} }{h} \pdiff{(x_{\xi}\ \cdot)}{\eta}
+	+ \frac{x_{\eta} }{h^2} \pdiff{ (x_{\xi}\ h)}{\eta}\\
+	- \frac{2 y_{\eta}}{h}  \pdiff{ (y_{\eta}\ \cdot)}{\xi}
+	+ \frac{2 y_{\eta} }{h^2}  \pdiff{ (y_{\eta}\ h)}{\xi}
+	+ \frac{2 y_{\eta}}{h}  \pdiff{(y_{\xi}\ )}{\eta}
+	- \frac{2 y_{\eta} }{h^2} \pdiff{(y_{\xi}\ h)}{\eta}\bigg]\\
+	\frac{\nu h}{J} \bigg[
+	- \frac{y_{\eta}}{h} \pdiff{(x_{\eta}\ \cdot)}{\xi}
+	+ \frac{y_{\eta}\ }{h^2} \pdiff{(x_{\eta}\ h)}{\xi}
+	+\frac{y_{\eta}}{h}   \pdiff{(x_{\xi}\ \cdot)}{\eta}
+	-\frac{y_{\eta}}{h^2}   \pdiff{(x_{\xi}\ h)}{\eta}\bigg]
+\end{pmatrix},
+\end{align}
+%
+and
+%
+\begin{align}
+	\pdiff{\mathbf{J}^{\texttt{VF},\xi}}{r}=
+		\begin{pmatrix}
+	0 \\
+	\\
+	\frac{\nu h}{J} \bigg[
+	- \frac{x_{\eta}}{h^2} \pdiff{(y_{\eta}\ h)}{\xi}
+	+ \frac{x_{\eta}}{h} \pdiff{(y_{\eta}\ \cdot)}{\xi}\\
+	- \frac{x_{\eta} }{h} \pdiff{(y_{\xi}\ \cdot)}{\eta}
+	+ \frac{x_{\eta}}{h^2} \pdiff{ (y_{\xi}\ h)}{\eta}\bigg]\\
+	\frac{\nu h}{J} \bigg[
+	- \frac{y_{\eta}}{h} \pdiff{(y_{\eta}\ \cdot)}{\xi}
+	+ \frac{y_{\eta}\ }{h^2} \pdiff{(y_{\eta}\ h)}{\xi}\\
+	+ \frac{y_{\eta}}{h} \pdiff{(y_{\xi} )}{\eta}
+	- \frac{y_{\eta}}{h^2} \pdiff{(y_{\xi}\ h)}{\eta}\\
+	- \frac{2 x_{\eta}}{h} \pdiff{(x_{\eta}\ \cdot)}{\xi}
+	+ \frac{2 x_{\eta}}{h^2} \pdiff{(x_{\eta}\  h)}{\xi}
+	+ \frac{2 x_{\eta}}{h}  \pdiff{(x_{\xi}\ \cdot)}{\eta}
+	- \frac{2 x_{\eta}}{h^2}  \pdiff{(x_{\xi}\ h)}{\eta}\bigg]
+\end{pmatrix} ,
+\end{align}
+%
+and in the $\eta$-direction:
+%
+\begin{align}
+	\pdiff{\mathbf{J}^{\texttt{VF},\eta}}{h}=
+		\begin{pmatrix}
+		0 \\
+		\\
+		\frac{\nu}{J} \bigg[
+		- \frac{x_{\xi} }{h}\pdiff{(x_{\eta}\ q)}{\xi}
+		+ \frac{x_{\xi}\ q}{h^2}\pdiff{(x_{\eta}\ h)}{\xi}
+		- \frac{x_{\xi}}{h} \pdiff{(y_{\eta}\ r)}{\xi}
+		+ \frac{x_{\xi}\ r}{h^2}\pdiff{(y_{\eta}\ h)}{\xi}\\
+		+ \frac{x_{\xi}}{h} \pdiff{(x_{\xi}\ q)}{\eta}
+		- \frac{x_{\xi}\ q}{h^2}\pdiff{(x_{\xi}\ h)}{\eta}
+		+ \frac{y_{\xi}}{h} \pdiff{(x_{\xi}\ r)}{\eta}
+		- \frac{y_{\xi}\ r}{h^2} \pdiff{(x_{\xi}\ h)}{\eta}\\
+		+ \frac{2 y_{\xi}}{h} \pdiff{(y_{\eta}\ q)}{\xi}
+		- \frac{2 y_{\xi}\ q}{h^2} \pdiff{(y_{\eta}\ h)}{\xi}
+		- \frac{2 y_{\xi}}{h} \pdiff{(y_{\xi}\ q)}{\eta}
+		+ \frac{2 y_{\xi}\ q}{h^2} \pdiff{(y_{\xi}\ h)}{\eta}
+		\bigg]\\
+		+ \frac{\nu h}{J} \bigg[
+		+ \frac{x_{\xi} }{h^2}\pdiff{(x_{\eta}\ q)}{\xi}
+		- \frac{x_{\xi}\ q}{2h^3}\pdiff{(x_{\eta}\ h)}{\xi}
+		+ \frac{x_{\xi}\ q}{h^2}\pdiff{(x_{\eta}\ \cdot)}{\xi}
+		+ \frac{x_{\xi}}{h^2} \pdiff{(y_{\eta}\ r)}{\xi}\\
+		- \frac{x_{\xi}\ r}{2h^3}\pdiff{(y_{\eta}\ h)}{\xi}
+		+ \frac{x_{\xi}\ r}{h^2}\pdiff{(y_{\eta}\ \cdot)}{\xi}
+		- \frac{x_{\xi}}{h^2} \pdiff{(x_{\xi}\ q)}{\eta}
+		+ \frac{x_{\xi}\ q}{2h^3}\pdiff{(x_{\xi}\ h)}{\eta}\\
+		- \frac{x_{\xi}\ q}{h^2}\pdiff{(x_{\xi}\ \cdot)}{\eta}
+		- \frac{y_{\xi}}{h^2} \pdiff{(x_{\xi}\ r)}{\eta}
+		+ \frac{y_{\xi}\ r}{2h^3} \pdiff{(x_{\xi}\ h)}{\eta}
+		- \frac{y_{\xi}\ r}{h^2} \pdiff{(x_{\xi}\ \cdot)}{\eta}\\
+		- \frac{2 y_{\xi}}{h^2} \pdiff{(y_{\eta}\ q)}{\xi}
+		+ \frac{2 y_{\xi}\ q}{2h^3} \pdiff{(y_{\eta}\ h)}{\xi}
+		- \frac{2 y_{\xi}\ q}{h^2} \pdiff{(y_{\eta}\ \cdot)}{\xi}
+		+ \frac{2 y_{\xi}}{h^2} \pdiff{(y_{\xi}\ q)}{\eta} \\
+		- \frac{2 y_{\xi}\ q}{2h^3} \pdiff{(y_{\xi}\ h)}{\eta}
+		+ \frac{2 y_{\xi}\ q}{h^2} \pdiff{(y_{\xi}\ \cdot)}{\eta}
+		\bigg]\\
+		\\
+		\frac{\nu}{J} \bigg[
+		\frac{y_{\xi} }{h} \pdiff{(x_{\eta}\ q)}{\xi}
+		- \frac{y_{\xi}\ q}{h^2} \pdiff{(x_{\eta}\ h)}{\xi}
+		+ \frac{y_{\xi} }{h} \pdiff{(y_{\eta}\ r)}{\xi}
+		+ \frac{y_{\xi}\ r}{h^2} \pdiff{(y_{\eta}\ h)}{\xi} \\
+		- \frac{y_{\xi}}{h} \pdiff{(x_{\xi}\ q)}{\eta}
+		+ \frac{y_{\xi}q}{h^2} \pdiff{(x_{\xi}\ h)}{\eta}
+		- \frac{y_{\xi}}{h} \pdiff{(y_{\xi}\ r)}{\eta}
+		- \frac{y_{\xi}\ r}{h^2} \pdiff{(y_{\xi}\ h)}{\eta} \\
+		+ \frac{2 x_{\xi}}{h} \pdiff{(x_{\eta}\ r)}{\xi}
+		- \frac{2 x_{\xi}\ r}{h^2} \pdiff{(x_{\eta}\ h)}{\xi}
+		- \frac{2 x_{\xi}}{h} \pdiff{(x_{\xi}\ r)}{\eta}
+		+ \frac{2 x_{\xi}\ r}{h^2} \pdiff{(x_{\xi}\ h)}{\eta}
+		\bigg]\\
+		+		\frac{\nu h}{J} \bigg[
+		-\frac{y_{\xi} }{h^2} \pdiff{(x_{\eta}\ q)}{\xi}
+		+ \frac{y_{\xi}\ q}{2h^3} \pdiff{(x_{\eta}\ h)}{\xi}
+		- \frac{y_{\xi}\ q}{h^2} \pdiff{(x_{\eta}\ \cdot)}{\xi}
+		- \frac{y_{\xi} }{h^2} \pdiff{(y_{\eta}\ r)}{\xi} \\
+		- \frac{y_{\xi}\ r}{2h^3} \pdiff{(y_{\eta}\ h)}{\xi}
+		+ \frac{y_{\xi}\ r}{h^2} \pdiff{(y_{\eta}\ \cdot)}{\xi}
+		+ \frac{y_{\xi}}{h^2} \pdiff{(x_{\xi}\ q)}{\eta}
+		- \frac{y_{\xi}q}{2h^3} \pdiff{(x_{\xi}\ h)}{\eta} \\
+		+ \frac{y_{\xi}q}{h^2} \pdiff{(x_{\xi}\ \cdot)}{\eta}
+		+ \frac{y_{\xi}}{h^2} \pdiff{(y_{\xi}\ r)}{\eta}
+		+ \frac{y_{\xi}\ r}{2h^3} \pdiff{(y_{\xi}\ h)}{\eta}
+		- \frac{y_{\xi}\ r}{h^2} \pdiff{(y_{\xi}\ \cdot)}{\eta}\\
+		- \frac{2 x_{\xi}}{h^2} \pdiff{(x_{\eta}\ r)}{\xi}
+		+ \frac{2 x_{\xi}\ r}{2h^3} \pdiff{(x_{\eta}\ h)}{\xi}
+		- \frac{2 x_{\xi}\ r}{h^2} \pdiff{(x_{\eta}\ \cdot)}{\xi}
+		+ \frac{2 x_{\xi}}{h^2} \pdiff{(x_{\xi}\ r)}{\eta} \\
+		- \frac{2 x_{\xi}\ r}{2h^3} \pdiff{(x_{\xi}\ h)}{\eta}
+		+ \frac{2 x_{\xi}\ r}{h^2} \pdiff{(x_{\xi}\ \cdot)}{\eta}
+		\bigg]
+	\end{pmatrix},
+\end{align}
+
+\begin{align}
+	\pdiff{\mathbf{J}^{\texttt{VF},\eta}}{q}=
+		\begin{pmatrix}
+	0 \\
+	\\
+	\frac{\nu h}{J} \bigg[
+	- \frac{x_{\xi} }{h}\pdiff{(x_{\eta}\ \cdot)}{\xi}
+	+ \frac{x_{\xi}\ }{h^2}\pdiff{(x_{\eta}\ h)}{\xi}
+	+ \frac{x_{\xi}}{h} \pdiff{(x_{\xi}\ \cdot)}{\eta}
+	- \frac{x_{\xi}}{h^2}\pdiff{(x_{\xi}\ h)}{\eta}\\
+	+ \frac{2 y_{\xi}}{h} \pdiff{(y_{\eta}\ \cdot)}{\xi}
+	- \frac{2 y_{\xi}}{h^2} \pdiff{(y_{\eta}\ h)}{\xi}
+	- \frac{2 y_{\xi}}{h} \pdiff{(y_{\xi}\ \cdot)}{\eta}
+	+ \frac{2 y_{\xi}\ }{h^2} \pdiff{(y_{\xi}\ h)}{\eta}
+	\bigg]\\
+	+\frac{\nu h}{J} \bigg[
+	\frac{y_{\xi} }{h} \pdiff{(x_{\eta}\ \cdot)}{\xi}
+	- \frac{y_{\xi}\ }{h^2} \pdiff{(x_{\eta}\ h)}{\xi}
+	- \frac{y_{\xi}}{h} \pdiff{(x_{\xi}\ \cdot)}{\eta}
+	+ \frac{y_{\xi}}{h^2} \pdiff{(x_{\xi}\ h)}{\eta}
+	\bigg]
+\end{pmatrix},
+\end{align}
+%
+and
+%
+\begin{align}
+	\pdiff{\mathbf{J}^{\texttt{VF},\eta}}{r}=
+		\begin{pmatrix}
+	0 \\
+	\\
+	\frac{\nu h}{J} \bigg[
+	- \frac{x_{\xi}}{h} \pdiff{(y_{\eta}\ \cdot)}{\xi}
+	+ \frac{x_{\xi}\ }{h^2}\pdiff{(y_{\eta}\ h)}{\xi}
+	+ \frac{y_{\xi}}{h} \pdiff{(x_{\xi}\ \cdot)}{\eta}
+	- \frac{y_{\xi}\ }{h^2} \pdiff{(x_{\xi}\ h)}{\eta}
+	\bigg]\\
+	\frac{\nu h}{J} \bigg[
+	+ \frac{y_{\xi} }{h} \pdiff{(y_{\eta}\ \cdot)}{\xi}
+	+ \frac{y_{\xi}\ }{h^2} \pdiff{(y_{\eta}\ h)}{\xi}
+	- \frac{y_{\xi}}{h} \pdiff{(y_{\xi}\ \cdot)}{\eta}
+	- \frac{y_{\xi}\ }{h^2} \pdiff{(y_{\xi}\ h)}{\eta} \\
+	+ \frac{2 x_{\xi}}{h} \pdiff{(x_{\eta}\ \cdot)}{\xi}
+	- \frac{2 x_{\xi}\ }{h^2} \pdiff{(x_{\eta}\ h)}{\xi}
+	- \frac{2 x_{\xi}}{h} \pdiff{(x_{\xi}\ \cdot)}{\eta}
+	+ \frac{2 x_{\xi}\ }{h^2} \pdiff{(x_{\xi}\ h)}{\eta}
+	\bigg]
+\end{pmatrix},
+\end{align}
