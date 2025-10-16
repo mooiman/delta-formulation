@@ -20,9 +20,9 @@
 //
 //------------------------------------------------------------------------------
 
+double c_scv(double c0, double c1, double c2, double c3);
 double scvf_xi(double c0, double c1, double c2, double c3);
 double scvf_eta(double c0, double c1, double c2, double c3);
-double c_scv(double c0, double c1, double c2, double c3);
 double dcdx_scv(double c0, double c1, double c2, double c3);
 double dcdy_scv(double c0, double c1, double c2, double c3);
 double dcdx_scvf_n(double c0, double c1, double c2, double c3);

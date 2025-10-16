@@ -939,6 +939,7 @@ int main(int argc, char *argv[])
 
                 status =  interior(values, row, c_eq, q_eq, r_eq, rhs, 
                                     dtinv, dxinv, theta, g, do_convection, nx, ny,
+                                    x, y,
                                     hn, qn, rn,
                                     hp, qp, rp,
                                     htheta, qtheta, rtheta,

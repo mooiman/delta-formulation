@@ -320,7 +320,12 @@ int UGRID2D::add_face_area(std::vector<double> & x, std::vector<double> & y, dou
             p1 = idx(i + 1, j    , ny);
             p2 = idx(i + 1, j + 1, ny);
             p3 = idx(i    , j + 1, ny);
-            double area = std::abs(0.5 * ((x[p0] * y[p1] + x[p1] * y[p2] + x[p2] * y[p3] + x[p3] * y[p0]) - (y[p0] * x[p1] + y[p1] * x[p2] + y[p2] * x[p3] + y[p3] * x[p0])));
+            //
+            // Area: $J = x_\xi y_\eta - y_\xi x_\eta$
+            //
+            double area = std::abs(   0.5* ( (x[p1]-x[p0]) + (x[p2]- x[p3]) ) * 0.5 *( (y[p3]-y[p0]) + (y[p2] - y[p1]) )
+                                    - 0.5* ( (y[p1]-y[p0]) + (y[p2]- y[p3]) ) * 0.5 *( (x[p3]-x[p0]) + (x[p2] - x[p1]) )
+                );
             cell_area.push_back(area);
         }
     }
