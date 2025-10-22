@@ -1143,6 +1143,7 @@ int main(int argc, char *argv[])
                     log_file << "=== RHS ===============================================" << std::endl;
                     for (size_t i = 0; i < 3 * nxny; ++i)
                     {
+                        log_file << std::showpos << std::setprecision(3) << i << "   ";
                         log_file << std::setprecision(8) << std::scientific << rhs[i] << std::endl;
                         if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
                     }
