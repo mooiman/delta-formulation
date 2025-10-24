@@ -1032,7 +1032,7 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             double dqdt_s = dtinv * (qp_s - qn_s);
             double dqdt_0 = 0.25 * ( 3.0 * dqdt_b + 1.0 * dqdt_n);
             double dqdt_1 = 0.25 * ( 3.0 * dqdt_b + 1.0 * dqdt_s);
-            rhs[row] = - dx * ( 0.5 * (dqdt_0 - con_fac * dhdt_0) 
+            rhs[row] = - dy * ( 0.5 * (dqdt_0 - con_fac * dhdt_0) 
                               + 0.5 * (dqdt_1 - con_fac * dhdt_1) 
                               );
 
