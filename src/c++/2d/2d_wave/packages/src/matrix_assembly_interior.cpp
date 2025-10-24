@@ -231,7 +231,6 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     double flux = (fluxx_0 + fluxy_1 + fluxy_2 + fluxx_3 + fluxx_4 + fluxy_5 + fluxy_6 + fluxx_7);
     rhs[row] += -flux;
 
-
     //--------------------------------------------------------------------------
     // q-equation
     // 
@@ -287,6 +286,7 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     double dzetadx_3 = 1.0 / dx * dcdx_scv(htheta_0 + zb[p_0], htheta_w + zb[p_w], htheta_n  + zb[p_n ], htheta_nw + zb[p_nw]);
     //
     // theta * g * dzeta/dx * Delta h
+    //
     // Contribution to Delta h
     double fac = theta * scv_area * g * 0.0625;
     // sub control volume 0 ============================================
@@ -428,7 +428,8 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     set_value(values, col_nw, fac * (1. * dzetady_3));
     set_value(values, col_w , fac * (3. * dzetady_3));
     //
-    // theta * h * d(Delta zeta)/dy
+    // theta * g * h * d(Delta zeta)/dy
+    //
     fac = theta * scv_area * g * 0.25 / dy;
     // sub control volume 0 ============================================
     // scv_0
