@@ -34,7 +34,7 @@ The grid in \autoref{fig:water_body_fve_bc_at_node} is equidistant but that is n
 \subsection{Quadrature rule, source term}\label{sec:source_quadrature_rule}
 The finite volume approach for the function $u(x,t)$ reads:
 \begin{align}
-    \int_\Omega u \, d\Omega = \int_{x_{i-\half}}^{x_{i+\half}} u \, dx
+    \int_\Omega u \, d\omega = \int_{x_{i-\half}}^{x_{i+\half}} u \, dx
 \end{align}
 Using piecewise linear functions between the non-equidistant nodes the quadrature rule reads:
 \begin{align}
@@ -61,7 +61,7 @@ Higher order quadrature rules may be chosen, but they are not discussed in this 
 %            \import{figures}{1d-integration_1_points_gauss.pdf_tex}
 %        }
 %    \end{center}
-%    \caption{Quadratic function approximated with 1-point Gauss.} \label{fig:1d_integration_1points_gauss}
+%    \caption{Quadratic function approximated by 1-point Gauss.} \label{fig:1d_integration_1points_gauss}
 %    \end{subfigure}
 %\hfill
 %    \begin{subfigure}{0.475\textwidth}
@@ -71,7 +71,7 @@ Higher order quadrature rules may be chosen, but they are not discussed in this 
 %            \import{figures}{1d-integration_2_points_gauss.pdf_tex}
 %        }
 %    \end{center}
-%    \caption{Quadratic function approximated with 2-point Gauss.} \label{fig:1d_integration_2points_gauss}
+%    \caption{Quadratic function approximated by 2-point Gauss.} \label{fig:1d_integration_2points_gauss}
 %    \end{subfigure}
 %    \caption{Integration of a quadratic function over the control volume  $[x_{i-\half}, x_{i+\half}]$. 1-point Gauss is exact for linear functions but not for quadratic functions, 2-points Gauss is exact for linear, quadratic and cubic functions.} \label{fig:1d_integration}
 %\end{figure}
