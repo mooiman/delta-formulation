@@ -47,35 +47,33 @@ A graphical interpretation is given in \autoref{fig:1d_integration_1points_gauss
 \begin{figure}[H]
         \begin{center}
             \resizebox{0.9\textwidth}{!}{
-                \import{figures}{1d-integration.pdf_tex}
+                \import{figures}{1d-integration_1_points_gauss.pdf_tex}
             }
         \end{center}
-    \caption{Integration of a quadratic function at $x_i$ over the control volume from $x_{i-\half}$ to $x_{i+\half}$ with the 1 point Gauss approximation, with 2 point Guass it is exact.}\label{fig:1d_integration_1points_gauss}
+    \caption{Integration of a quadratic function at $x_i$ over the control volume from $x_{i-\half}$ to $x_{i+\half}$. 1-point Gauss is exact for linear functions but not for quadratic functions.}\label{fig:1d_integration_1points_gauss}
 \end{figure}
 Higher order quadrature rules may be chosen, but they are not discussed in this report.
 %\begin{figure}[H]
-%    \begin{subfigure}{0.5\textwidth}
+%    \begin{subfigure}{0.475\textwidth}
 %       \begin{center}
 %        \def\svgwidth{1.2\textwidth} % scaling text
 %        \resizebox{0.9\textwidth}{!}{
 %            \import{figures}{1d-integration_1_points_gauss.pdf_tex}
 %        }
 %    \end{center}
-%    \caption{Approximated with 1 point Gauss (piecewise linear). Thicker black line.} \label{fig:1d_integration_1points_gauss}
+%    \caption{Quadratic function approximated with 1-point Gauss.} \label{fig:1d_integration_1points_gauss}
 %    \end{subfigure}
-%%
-%    \begin{subfigure}{0.5\textwidth}
+%\hfill
+%    \begin{subfigure}{0.475\textwidth}
 %    \begin{center}
 %        \def\svgwidth{1.2\textwidth} % scaling text
 %        \resizebox{0.9\textwidth}{!}{
 %            \import{figures}{1d-integration_2_points_gauss.pdf_tex}
 %        }
 %    \end{center}
-%    \caption{Approximated with 2 point Gauss (quadratic). Thicker black line.} \label{fig:1d_integration_2points_gauss}
+%    \caption{Quadratic function approximated with 2-point Gauss.} \label{fig:1d_integration_2points_gauss}
 %    \end{subfigure}
-%    \caption{Integration of a function (cyan line) over the control volume  $[x_{i-\half}, x_{i+\half}]$. Thicker and thinner black lines are given to show the difference between the two approximations. \newline
-%    Black dots: Node values of the function.\newline
-%    }\label{fig:1d_integration}
+%    \caption{Integration of a quadratic function over the control volume  $[x_{i-\half}, x_{i+\half}]$. 1-point Gauss is exact for linear functions but not for quadratic functions, 2-points Gauss is exact for linear, quadratic and cubic functions.} \label{fig:1d_integration}
 %\end{figure}
 
 %------------------------------------------------------------------------------

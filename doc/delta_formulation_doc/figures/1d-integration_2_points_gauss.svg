@@ -24,9 +24,9 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="true"
-     inkscape:zoom="11.773513"
-     inkscape:cx="398.86141"
-     inkscape:cy="78.523717"
+     inkscape:zoom="2.9433782"
+     inkscape:cx="265.1715"
+     inkscape:cy="98.696117"
      inkscape:window-width="1920"
      inkscape:window-height="1111"
      inkscape:window-x="-9"
@@ -60,7 +60,7 @@
        ry="0" />
     <path
        style="fill:#ffffff;stroke:#0000ff;stroke-width:0.3;stroke-dasharray:none;stroke-opacity:1"
-       d="M 150,75 150.00001,5.3551288e-7"
+       d="m 150,75 1e-5,-69.9999995"
        id="path2136"
        sodipodi:nodetypes="cc" />
     <rect
@@ -79,7 +79,7 @@
        y="42.5" />
     <path
        style="fill:#ffffff;stroke:#0000ff;stroke-width:0.3;stroke-dasharray:none;stroke-opacity:1"
-       d="M 84.921406,75 85.000002,5.3551288e-7"
+       d="m 84.921406,75 0.0786,-69.9999995"
        id="path2134"
        sodipodi:nodetypes="cc" />
     <rect
@@ -89,11 +89,6 @@
        height="41.928608"
        x="97.499664"
        y="33.071728" />
-    <path
-       style="fill:none;fill-opacity:0.3;stroke:#ff00ff;stroke-width:1;stroke-opacity:1"
-       d="M 60.000004,70.000002 C 126.25001,42.500001 105,-13.750001 190.00001,10"
-       id="path3"
-       sodipodi:nodetypes="cc" />
     <path
        style="fill:#00ff00;fill-opacity:0;stroke-width:2.56816;stroke-opacity:0.3"
        d="m 151.52657,241.67072 c 0.031,-27.80444 -0.57341,-55.46224 -0.16528,-83.26298 l 9.74439,-7.62714 c 68.12685,-53.324354 135.04453,-89.731526 201.0632,-111.231159 11.31426,-3.684602 33.15793,-9.48195 34.59732,-9.48195 0.3115,0 -0.62276,53.289108 -0.62276,117.382129 v 116.53276 c -81.53884,-0.045 -163.07808,0 -244.61687,0 z"
@@ -237,10 +232,5 @@
        cy="32.953835"
        rx="0.53934622"
        ry="0.50563705" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:0.1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       d="m 59.773958,69.838334 50.000002,-40 80,-19.9999959"
-       id="path240"
-       sodipodi:nodetypes="ccc" />
   </g>
 </svg>

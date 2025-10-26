@@ -49,4 +49,8 @@ The Gaussian hump test case is used to determine the reflection of a wave at the
     \caption{Schematization area: \emph{[-6000,6000]x[-6000, 6000]} \bunit{m} and \emph{[-6000, 6000]x\newline [-3000, 3000]} \bunit{\metre}. The observation points at $y=\bqty{3000}{\metre}$ are present on both meshes and are used to determine the refelection of a wave at these location}\label{fig:two_mesh_reflection}
 \end{figure}
 
+The reflection coefficient is determined by:
+\begin{align}
+    R = \frac{  \abs{\max(h_{\it small}) - \max(h_{\it large})}}{\abs{\max(h_{\it large})} } \times 100\ \%, \quad 0 < t < \bqty{1800}{\second}
+\end{align}
 \notyet
