@@ -54,11 +54,11 @@
     \lineheight{1}%
     \setlength\tabcolsep{0pt}%
     \put(0,0){\includegraphics[width=\unitlength,page=1]{1d-integration_2_points_gauss.pdf}}%
-    \put(0.09627329,0.03416149){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$x_{i-1}$\end{tabular}}}}%
-    \put(0.2515528,0.03416149){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$x_{i-\frac12}$\end{tabular}}}}%
-    \put(0.64751553,0.03416149){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$x_{i+\frac12}$\end{tabular}}}}%
-    \put(0.4068323,0.03416149){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$x_{i}$\end{tabular}}}}%
-    \put(0.90372671,0.03416149){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$x_{i+1}$\end{tabular}}}}%
+    \put(0.09627329,0.0341615){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$x_{i-1}$\end{tabular}}}}%
+    \put(0.2515528,0.0341615){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$x_{i-\frac12}$\end{tabular}}}}%
+    \put(0.64751553,0.0341615){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$x_{i+\frac12}$\end{tabular}}}}%
+    \put(0.4068323,0.0341615){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$x_{i}$\end{tabular}}}}%
+    \put(0.90372671,0.0341615){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$x_{i+1}$\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=2]{1d-integration_2_points_gauss.pdf}}%
   \end{picture}%
 \endgroup%

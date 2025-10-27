@@ -43,38 +43,38 @@ Using piecewise linear functions between the non-equidistant nodes the quadratur
     & \approx \frac{\Dx_{i-\half}}{2} \frac{u_{i-1} + 3 u_{i}}{4} + \frac{\Dx_{i+\half}}{2} \frac{3 u_{i} + u_{i+1}}{4} \label{eq:integral_control_volume}
 \end{align}
 where the control volume is split into two adjacent sub-control volumes  $[x_{i-\half}, x_i]$ and $[x_i, x_{i+\half}]$.
-A graphical interpretation is given in \autoref{fig:1d_integration_1points_gauss}.
+A graphical interpretation of this method is given in \autoref{fig:1d_integration_gauss}.
 \begin{figure}[H]
         \begin{center}
             \resizebox{0.9\textwidth}{!}{
-                \import{figures}{1d-integration_1_points_gauss.pdf_tex}
+                \import{figures}{1d-integration.pdf_tex}
             }
         \end{center}
-    \caption{Integration of a quadratic function at $x_i$ over the control volume from $x_{i-\half}$ to $x_{i+\half}$. 1-point Gauss is exact for linear functions but not for quadratic functions.}\label{fig:1d_integration_1points_gauss}
+    \caption[Illustration of the 1-point Gauss integration method of a linear functions.]{1-point Gauss integration of a linear function around $x_i$ over the control volume from $x_{i-\half}$ to $x_{i+\half}$, which is exact.  Black line: linear function between dots. Open bullets the integration points. }\label{fig:1d_integration_gauss}
 \end{figure}
-Higher order quadrature rules may be chosen, but they are not discussed in this report.
-%\begin{figure}[H]
-%    \begin{subfigure}{0.475\textwidth}
-%       \begin{center}
-%        \def\svgwidth{1.2\textwidth} % scaling text
-%        \resizebox{0.9\textwidth}{!}{
-%            \import{figures}{1d-integration_1_points_gauss.pdf_tex}
-%        }
-%    \end{center}
-%    \caption{Quadratic function approximated by 1-point Gauss.} \label{fig:1d_integration_1points_gauss}
-%    \end{subfigure}
-%\hfill
-%    \begin{subfigure}{0.475\textwidth}
-%    \begin{center}
-%        \def\svgwidth{1.2\textwidth} % scaling text
-%        \resizebox{0.9\textwidth}{!}{
-%            \import{figures}{1d-integration_2_points_gauss.pdf_tex}
-%        }
-%    \end{center}
-%    \caption{Quadratic function approximated by 2-point Gauss.} \label{fig:1d_integration_2points_gauss}
-%    \end{subfigure}
-%    \caption{Integration of a quadratic function over the control volume  $[x_{i-\half}, x_{i+\half}]$. 1-point Gauss is exact for linear functions but not for quadratic functions, 2-points Gauss is exact for linear, quadratic and cubic functions.} \label{fig:1d_integration}
-%\end{figure}
+Higher order quadrature rules may be chosen, but they are not discussed in this report, but an illustration is given in \autoref{fig:1d_integration}.
+\begin{figure}[H]
+    \begin{subfigure}{0.475\textwidth}
+       \begin{center}
+        \def\svgwidth{1.2\textwidth} % scaling text
+        \resizebox{0.9\textwidth}{!}{
+            \import{figures}{1d-integration_1_points_gauss.pdf_tex}
+        }
+    \end{center}
+    \caption{Quadratic function approximated by 1-point Gauss.} \label{fig:1d_integration_1points_gauss}
+    \end{subfigure}
+\hfill
+    \begin{subfigure}{0.475\textwidth}
+    \begin{center}
+        \def\svgwidth{1.2\textwidth} % scaling text
+        \resizebox{0.9\textwidth}{!}{
+            \import{figures}{1d-integration_2_points_gauss.pdf_tex}
+        }
+    \end{center}
+    \caption{Quadratic function approximated by 2-point Gauss.} \label{fig:1d_integration_2points_gauss}
+    \end{subfigure}
+    \caption[Illustration of the 1-point and 2-point Gauss integration method of a quadratic function.]{Integration of a quadratic function over the control volume  $[x_{i-\half}, x_{i+\half}]$. 1-point Gauss is exact \textbf{only} for constant and linear functions, 2-points Gauss is exact for constant, linear, quadratic and cubic functions.} \label{fig:1d_integration}
+\end{figure}
 
 %------------------------------------------------------------------------------
 \subsection{Quadrature rule, flux term}\label{sec:flux_quadrature_rule}
