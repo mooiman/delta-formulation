@@ -1789,8 +1789,8 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
                 double rtheta_0 = 0.25 * (3.0 * rtheta_b + 1.0 * rtheta_w);
                 double rtheta_1 = 0.25 * (3.0 * rtheta_b + 1.0 * rtheta_e);
 
-                corr_term =  dx * ( 0.5 * (- drdt_0 - eps_bc_corr * (bc[BC_SOUTH] - rtheta_0)) +
-                                    0.5 * (- drdt_1 - eps_bc_corr * (bc[BC_SOUTH] - rtheta_1))
+                corr_term =  dx * ( 0.5 * (- drdt_0 + eps_bc_corr * (bc[BC_SOUTH] - rtheta_0)) +
+                                    0.5 * (- drdt_1 + eps_bc_corr * (bc[BC_SOUTH] - rtheta_1))
                                   );
                 rhs[row] += corr_term;
             }
