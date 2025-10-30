@@ -80,9 +80,9 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
     double con_fac = c_wave;
 
     // nnorth
-    if (bc_type[BC_NORTH] == "no-slip" || bc_type[BC_NORTH] == "free-slip")
+    if (bc_type[BC_NORTH] == "no_slip" || bc_type[BC_NORTH] == "free_slip")
     {
-        if (bc_type[BC_NORTH] == "no-slip")
+        if (bc_type[BC_NORTH] == "no_slip")
         {
             // Contribution Delta h
             size_t col_b  = c_eq + 5 * 3;
@@ -111,7 +111,7 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             values[col_ss + 2]  = 0.0;
             rhs[row + 2] = 0.0;
         }
-        else if (bc_type[BC_NORTH] == "free-slip")
+        else if (bc_type[BC_NORTH] == "free_slip")
         {
             // Contribution Delta h
             size_t col_b  = c_eq + 5 * 3;
@@ -780,9 +780,9 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     double con_fac = c_wave;
 
     // eeast
-    if (bc_type[BC_EAST] == "no-slip" || bc_type[BC_EAST] == "free-slip")
+    if (bc_type[BC_EAST] == "no_slip" || bc_type[BC_EAST] == "free_slip")
     {
-        if (bc_type[BC_EAST] == "no-slip")
+        if (bc_type[BC_EAST] == "no_slip")
         {
             // Contribution Delta h
             size_t col_b  = c_eq + 7 * 3;
@@ -811,7 +811,7 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             values[col_ww + 2]  = 0.0;
             rhs[row + 2] = 0.0;
         }
-        else if (bc_type[BC_EAST] == "free-slip")
+        else if (bc_type[BC_EAST] == "free_slip")
         {
             // Contribution Delta h
             size_t col_b  = c_eq + 7 * 3;
@@ -1480,9 +1480,9 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
     double con_fac = c_wave;
 
     // ssouth
-    if (bc_type[BC_SOUTH] == "no-slip" || bc_type[BC_SOUTH] == "free-slip")
+    if (bc_type[BC_SOUTH] == "no_slip" || bc_type[BC_SOUTH] == "free_slip")
     {
-        if (bc_type[BC_SOUTH] == "no-slip")
+        if (bc_type[BC_SOUTH] == "no_slip")
         {
             // Contribution Delta h
             size_t col_b  = c_eq + 3 * 3;
@@ -1511,7 +1511,7 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             values[col_nn + 2]  = 0.0;
             rhs[row + 2] = 0.0;
         }
-        else if (bc_type[BC_SOUTH] == "free-slip")
+        else if (bc_type[BC_SOUTH] == "free_slip")
         {
             // Contribution Delta h
             size_t col_b  = c_eq + 3 * 3;
@@ -2176,9 +2176,9 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     double con_fac = c_wave;
 
     // wwest
-    if (bc_type[BC_WEST] == "no-slip" || bc_type[BC_WEST] == "free-slip")
+    if (bc_type[BC_WEST] == "no_slip" || bc_type[BC_WEST] == "free_slip")
     {
-        if (bc_type[BC_WEST] == "no-slip")
+        if (bc_type[BC_WEST] == "no_slip")
         {
             // Contribution Delta h
             size_t col_b  = c_eq + 1 * 3; // point of boundary, ie west point of molecule
@@ -2207,7 +2207,7 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             values[col_ee + 2]  = 0.0;
             rhs[row + 2] = 0.0;
         }
-        else if (bc_type[BC_WEST] == "free-slip")
+        else if (bc_type[BC_WEST] == "free_slip")
         {
             // Contribution Delta h
             size_t col_b  = c_eq + 1 * 3; // point of boundary, ie west point of molecule
