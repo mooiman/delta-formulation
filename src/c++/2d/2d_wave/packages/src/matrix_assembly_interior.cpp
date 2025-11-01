@@ -665,78 +665,78 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     double dx_deta_3 = 0.25 * (3. * (x[p_n] - x[p_0]) + 1. * (x[p_nw] - x[p_w]));
 
     dzetadxi_0 = dcdx_scv(htheta_0 + zb[p_0], htheta_w + zb[p_w], htheta_s  + zb[p_s ], htheta_sw + zb[p_sw]);
-    dzetadxi_1 = -0.5 * dx_deta_1 * dcdx_scv(htheta_e + zb[p_e], htheta_0 + zb[p_0], htheta_se + zb[p_se], htheta_s  + zb[p_s ]);
-    dzetadxi_2 = -0.5 * dx_deta_2 * dcdx_scv(htheta_e + zb[p_e], htheta_0 + zb[p_0], htheta_ne + zb[p_ne], htheta_n  + zb[p_n ]);
-    dzetadxi_3 = -0.5 * dx_deta_3 * dcdx_scv(htheta_0 + zb[p_0], htheta_w + zb[p_w], htheta_n  + zb[p_n ], htheta_nw + zb[p_nw]);
+    dzetadxi_1 = dcdx_scv(htheta_e + zb[p_e], htheta_0 + zb[p_0], htheta_se + zb[p_se], htheta_s  + zb[p_s ]);
+    dzetadxi_2 = dcdx_scv(htheta_e + zb[p_e], htheta_0 + zb[p_0], htheta_ne + zb[p_ne], htheta_n  + zb[p_n ]);
+    dzetadxi_3 = dcdx_scv(htheta_0 + zb[p_0], htheta_w + zb[p_w], htheta_n  + zb[p_n ], htheta_nw + zb[p_nw]);
 
-    dzetadeta_0 = 0.5 * dx_dxi_0 * dcdy_scv(htheta_0 + zb[p_0], htheta_s + zb[p_s], htheta_w  + zb[p_w ], htheta_sw + zb[p_sw]);
-    dzetadeta_1 = 0.5 * dx_dxi_1 * dcdy_scv(htheta_0 + zb[p_0], htheta_s + zb[p_s], htheta_e  + zb[p_e ], htheta_se + zb[p_se]);
-    dzetadeta_2 = 0.5 * dx_dxi_2 * dcdy_scv(htheta_n + zb[p_n], htheta_0 + zb[p_0], htheta_ne + zb[p_ne], htheta_e  + zb[p_e ]);
-    dzetadeta_3 = 0.5 * dx_dxi_3 * dcdy_scv(htheta_n + zb[p_n], htheta_0 + zb[p_0], htheta_nw + zb[p_nw], htheta_w  + zb[p_w ]);
+    dzetadeta_0 = dcdy_scv(htheta_0 + zb[p_0], htheta_s + zb[p_s], htheta_w  + zb[p_w ], htheta_sw + zb[p_sw]);
+    dzetadeta_1 = dcdy_scv(htheta_0 + zb[p_0], htheta_s + zb[p_s], htheta_e  + zb[p_e ], htheta_se + zb[p_se]);
+    dzetadeta_2 = dcdy_scv(htheta_n + zb[p_n], htheta_0 + zb[p_0], htheta_ne + zb[p_ne], htheta_e  + zb[p_e ]);
+    dzetadeta_3 = dcdy_scv(htheta_n + zb[p_n], htheta_0 + zb[p_0], htheta_nw + zb[p_nw], htheta_w  + zb[p_w ]);
 
     // theta * dzeta/dy * Delta h
     // sub control volume 0 ============================================
     fac = theta * 0.25 * g;
     // Contribution to Delta h
     // scv_0
-    add_value(values, col_0 , fac * (-0.5 * dx_deta_0 * dzetadxi_0 * 9./16. + dzetadeta_0 * 9./16.));
-    add_value(values, col_w , fac * (-0.5 * dx_deta_0 * dzetadxi_0 * 3./16. + dzetadeta_0 * 3./16.));
-    add_value(values, col_sw, fac * (-0.5 * dx_deta_0 * dzetadxi_0 * 1./16. + dzetadeta_0 * 1./16.));
-    add_value(values, col_s , fac * (-0.5 * dx_deta_0 * dzetadxi_0 * 3./16. + dzetadeta_0 * 3./16.));
+    add_value(values, col_0 , fac * (-0.5 * dx_deta_0 * dzetadxi_0 * 9./16. + 0.5 * dx_dxi_0 * dzetadeta_0 * 9./16.));
+    add_value(values, col_w , fac * (-0.5 * dx_deta_0 * dzetadxi_0 * 3./16. + 0.5 * dx_dxi_0 * dzetadeta_0 * 3./16.));
+    add_value(values, col_sw, fac * (-0.5 * dx_deta_0 * dzetadxi_0 * 1./16. + 0.5 * dx_dxi_0 * dzetadeta_0 * 1./16.));
+    add_value(values, col_s , fac * (-0.5 * dx_deta_0 * dzetadxi_0 * 3./16. + 0.5 * dx_dxi_0 * dzetadeta_0 * 3./16.));
     // sub control volume 1 ============================================
     // scv_1
-    add_value(values, col_0 , fac * (dzetadxi_1 * 9./16. + dzetadeta_1) * 9./16.);
-    add_value(values, col_s , fac * (dzetadxi_1 * 3./16. + dzetadeta_1) * 3./16.);
-    add_value(values, col_se, fac * (dzetadxi_1 * 1./16. + dzetadeta_1) * 1./16.);
-    add_value(values, col_e , fac * (dzetadxi_1 * 3./16. + dzetadeta_1) * 3./16.);
+    add_value(values, col_0 , fac * (-0.5 * dx_deta_1 * dzetadxi_1 * 9./16. + 0.5 * dx_dxi_1 * dzetadeta_1) * 9./16.);
+    add_value(values, col_s , fac * (-0.5 * dx_deta_1 * dzetadxi_1 * 3./16. + 0.5 * dx_dxi_1 * dzetadeta_1) * 3./16.);
+    add_value(values, col_se, fac * (-0.5 * dx_deta_1 * dzetadxi_1 * 1./16. + 0.5 * dx_dxi_1 * dzetadeta_1) * 1./16.);
+    add_value(values, col_e , fac * (-0.5 * dx_deta_1 * dzetadxi_1 * 3./16. + 0.5 * dx_dxi_1 * dzetadeta_1) * 3./16.);
     // sub control volume 2 ============================================
     // scv_2
-    add_value(values, col_0 , fac * (dzetadxi_2 * 9./16. + dzetadeta_2 * 9./16.));
-    add_value(values, col_e , fac * (dzetadxi_2 * 3./16. + dzetadeta_2 * 3./16.));
-    add_value(values, col_ne, fac * (dzetadxi_2 * 1./16. + dzetadeta_2 * 1./16.));
-    add_value(values, col_n , fac * (dzetadxi_2 * 3./16. + dzetadeta_2 * 3./16.));
+    add_value(values, col_0 , fac * (-0.5 * dx_deta_2 * dzetadxi_2 * 9./16. + 0.5 * dx_dxi_2 * dzetadeta_2 * 9./16.));
+    add_value(values, col_e , fac * (-0.5 * dx_deta_2 * dzetadxi_2 * 3./16. + 0.5 * dx_dxi_2 * dzetadeta_2 * 3./16.));
+    add_value(values, col_ne, fac * (-0.5 * dx_deta_2 * dzetadxi_2 * 1./16. + 0.5 * dx_dxi_2 * dzetadeta_2 * 1./16.));
+    add_value(values, col_n , fac * (-0.5 * dx_deta_2 * dzetadxi_2 * 3./16. + 0.5 * dx_dxi_2 * dzetadeta_2 * 3./16.));
     // sub control volume 3 ============================================
     // scv_3
-    add_value(values, col_0 , fac * (dzetadxi_3 * 9./16. + dzetadeta_3 * 9./16.));
-    add_value(values, col_n , fac * (dzetadxi_3 * 3./16. + dzetadeta_3 * 3./16.));
-    add_value(values, col_nw, fac * (dzetadxi_3 * 1./16. + dzetadeta_3 * 1./16.));
-    add_value(values, col_w , fac * (dzetadxi_3 * 3./16. + dzetadeta_3 * 3./16.));
+    add_value(values, col_0 , fac * (-0.5 * dx_deta_3 * dzetadxi_3 * 9./16. + 0.5 * dx_dxi_3 * dzetadeta_3 * 9./16.));
+    add_value(values, col_n , fac * (-0.5 * dx_deta_3 * dzetadxi_3 * 3./16. + 0.5 * dx_dxi_3 * dzetadeta_3 * 3./16.));
+    add_value(values, col_nw, fac * (-0.5 * dx_deta_3 * dzetadxi_3 * 1./16. + 0.5 * dx_dxi_3 * dzetadeta_3 * 1./16.));
+    add_value(values, col_w , fac * (-0.5 * dx_deta_3 * dzetadxi_3 * 3./16. + 0.5 * dx_dxi_3 * dzetadeta_3 * 3./16.));
     //
     // theta * g * h * d(Delta zeta)/dy
     //
     fac = theta * g * 0.25 * dx_dxi * 0.25;
     // sub control volume 0 ============================================
     // scv_0
-    add_value(values, col_0 , fac * (+ 3. * depth_0));
-    add_value(values, col_w , fac * (+ 1. * depth_0));
-    add_value(values, col_sw, fac * (- 1. * depth_0));
-    add_value(values, col_s , fac * (- 3. * depth_0));
+    add_value(values, col_0 , fac * ( 3. * 0.5 * -dx_deta_0 * depth_0 + 3. * 0.5 * dx_dxi_0 * depth_0));
+    add_value(values, col_w , fac * (-3. * 0.5 * -dx_deta_0 * depth_0 + 1. * 0.5 * dx_dxi_0 * depth_0));
+    add_value(values, col_sw, fac * (-1. * 0.5 * -dx_deta_0 * depth_0 - 1. * 0.5 * dx_dxi_0 * depth_0));
+    add_value(values, col_s , fac * ( 1. * 0.5 * -dx_deta_0 * depth_0 - 3. * 0.5 * dx_dxi_0 * depth_0));
     // sub control volume 1 ============================================
     // scv_1
-    add_value(values, col_0 , fac * (+ 3. * depth_1));
-    add_value(values, col_s , fac * (- 3. * depth_1));
-    add_value(values, col_se, fac * (- 1. * depth_1));
-    add_value(values, col_e , fac * (+ 1. * depth_1));
+    add_value(values, col_0 , fac * (-3. * 0.5 * -dx_deta_1 * depth_0 + 3. * 0.5 * dx_dxi_1 * depth_1));
+    add_value(values, col_s , fac * (-1. * 0.5 * -dx_deta_1 * depth_0 - 3. * 0.5 * dx_dxi_1 * depth_1));
+    add_value(values, col_se, fac * ( 1. * 0.5 * -dx_deta_1 * depth_0 - 1. * 0.5 * dx_dxi_1 * depth_1));
+    add_value(values, col_e , fac * ( 3. * 0.5 * -dx_deta_1 * depth_0 + 1. * 0.5 * dx_dxi_1 * depth_1));
     // sub control volume 2 ============================================
     // scv_2
-    add_value(values, col_0 , fac * (- 3. * depth_2));
-    add_value(values, col_e , fac * (- 1. * depth_2));
-    add_value(values, col_ne, fac * (+ 1. * depth_2));
-    add_value(values, col_n , fac * (+ 3. * depth_2));
+    add_value(values, col_0 , fac * (-3. * 0.5 * -dx_deta_2 * depth_0 - 3. * 0.5 * dx_dxi_2 * depth_2));
+    add_value(values, col_e , fac * ( 3. * 0.5 * -dx_deta_2 * depth_0 - 1. * 0.5 * dx_dxi_2 * depth_2));
+    add_value(values, col_ne, fac * ( 1. * 0.5 * -dx_deta_2 * depth_0 + 1. * 0.5 * dx_dxi_2 * depth_2));
+    add_value(values, col_n , fac * (-1. * 0.5 * -dx_deta_2 * depth_0 + 3. * 0.5 * dx_dxi_2 * depth_2));
     // sub control volume 3 ============================================
     // scv_3
-    add_value(values, col_0 , fac * (- 3. * depth_3));
-    add_value(values, col_n , fac * (+ 3. * depth_3));
-    add_value(values, col_nw, fac * (+ 1. * depth_3));
-    add_value(values, col_w , fac * (- 1. * depth_3));
+    add_value(values, col_0 , fac * ( 3. * 0.5 * -dx_deta_3 * depth_0 - 3. * 0.5 * dx_dxi_3 * depth_3));
+    add_value(values, col_n , fac * ( 1. * 0.5 * -dx_deta_3 * depth_0 + 3. * 0.5 * dx_dxi_3 * depth_3));
+    add_value(values, col_nw, fac * (-1. * 0.5 * -dx_deta_3 * depth_0 + 1. * 0.5 * dx_dxi_3 * depth_3));
+    add_value(values, col_w , fac * (-3. * 0.5 * -dx_deta_3 * depth_0 - 1. * 0.5 * dx_dxi_3 * depth_3));
     // 
     // RHS r-momentum equation
     //
     rhs[row + 2] += - 0.25 * g * (
-        depth_0 * dzetadeta_0 + 
-        depth_1 * dzetadeta_1 + 
-        depth_2 * dzetadeta_2 + 
-        depth_3 * dzetadeta_3
+        depth_0 * (0.5 * -dx_deta_0 * dzetadxi_0 + 0.5 * dx_dxi_0 * dzetadeta_0) + 
+        depth_1 * (0.5 * -dx_deta_1 * dzetadxi_1 + 0.5 * dx_dxi_1 * dzetadeta_1) + 
+        depth_2 * (0.5 * -dx_deta_2 * dzetadxi_2 + 0.5 * dx_dxi_2 * dzetadeta_2) + 
+        depth_3 * (0.5 * -dx_deta_3 * dzetadxi_3 + 0.5 * dx_dxi_3 * dzetadeta_3)
         );
 
     return 0;
