@@ -584,10 +584,10 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     // RHS q-momentum equation
     //
     rhs[row + 1] += - 0.25 * g * (
-        depth_0 * (0.5 * dy_deta_0 * dzetadxi_0 - 0.5 * dy_dxi_2 * dzetadeta_0) + 
-        depth_1 * (0.5 * dy_deta_1 * dzetadxi_1 - 0.5 * dy_dxi_2 * dzetadeta_1) +
-        depth_2 * (0.5 * dy_deta_2 * dzetadxi_2 - 0.5 * dy_dxi_2 * dzetadeta_2) +
-        depth_3 * (0.5 * dy_deta_3 * dzetadxi_3 - 0.5 * dy_dxi_2 * dzetadeta_3)
+        depth_0 * (dy_deta_0 * dzetadxi_0 - dy_dxi_0 * dzetadeta_0) + 
+        depth_1 * (dy_deta_1 * dzetadxi_1 - dy_dxi_1 * dzetadeta_1) +
+        depth_2 * (dy_deta_2 * dzetadxi_2 - dy_dxi_2 * dzetadeta_2) +
+        depth_3 * (dy_deta_3 * dzetadxi_3 - dy_dxi_3 * dzetadeta_3)
         );
     //
     //==========================================================================
@@ -733,10 +733,10 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     // RHS r-momentum equation
     //
     rhs[row + 2] += - 0.25 * g * (
-        depth_0 * (0.5 * -dx_deta_0 * dzetadxi_0 + 0.5 * dx_dxi_0 * dzetadeta_0) + 
-        depth_1 * (0.5 * -dx_deta_1 * dzetadxi_1 + 0.5 * dx_dxi_1 * dzetadeta_1) + 
-        depth_2 * (0.5 * -dx_deta_2 * dzetadxi_2 + 0.5 * dx_dxi_2 * dzetadeta_2) + 
-        depth_3 * (0.5 * -dx_deta_3 * dzetadxi_3 + 0.5 * dx_dxi_3 * dzetadeta_3)
+        depth_0 * (-dx_deta_0 * dzetadxi_0 + dx_dxi_0 * dzetadeta_0) + 
+        depth_1 * (-dx_deta_1 * dzetadxi_1 + dx_dxi_1 * dzetadeta_1) + 
+        depth_2 * (-dx_deta_2 * dzetadxi_2 + dx_dxi_2 * dzetadeta_2) + 
+        depth_3 * (-dx_deta_3 * dzetadxi_3 + dx_dxi_3 * dzetadeta_3)
         );
 
     return 0;
