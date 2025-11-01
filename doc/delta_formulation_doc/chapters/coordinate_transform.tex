@@ -1,8 +1,7 @@
 \chapter{Curvilinear coordinate transformation}\label{app:CoordinateTransform}
 A curvilinear coordinate transformation is employed to enable the calculation of non-rectangular bodies of water.
 Two grids are introduced: a curvilinear $xy$-grid, following the curvature of the shallow water body and a computational/numerical $\xi \eta$-grid, created by mapping the curvilinear $xy$-grid to an orthogonal coordinate system via a coordinate transformation.
-After transformation, the body-fitted grid is orthogonal.
-The global Cartesian coordinate system $x,y$ is used for reference of the numerical grid.
+The global Cartesian $xy$-coordinate system is used for reference of the numerical grid.
 An example of this is sketched in \autoref{fig:grids}.
 %
 \begin{figure}[H]
@@ -19,94 +18,52 @@ An example of this is sketched in \autoref{fig:grids}.
 Following the chain rule and assuming time-independent grids, we can express the differential operators in the global coordinate system as functions of the differential operators in the body-fitted curvilinear grid as follows:
 %
 \begin{align}\label{1ordertransx}
-	\pdiff{}{x} = \pdiff{\xi}{x} \pdiff{}{\xi}+\pdiff{\eta}{x}\pdiff{}{\eta},
+	\pdiff{}{x} &= \pdiff{\xi}{x} \pdiff{}{\xi}+\pdiff{\eta}{x}\pdiff{}{\eta},
+\\
+ \label{1ordertransy}
+	\pdiff{}{y} &= \pdiff{\xi}{y}\pdiff{}{\xi}+\pdiff{\eta}{y}\pdiff{}{\eta},
 \end{align}
-\begin{align} \label{1ordertransy}
-	\pdiff{}{y} = \pdiff{\xi}{y}\pdiff{}{\xi}+\pdiff{\eta}{y}\pdiff{}{\eta},
+in matrix-vector notation these equations reads:
+\begin{align}
+    \begin{pmatrix} \pdiff{}{x} \\ \pdiff{}{y} \end{pmatrix}
+    =
+    \begin{pmatrix}
+        \pdiff{\xi}{x} &
+        \pdiff{\eta}{x} \\
+        \pdiff{\xi}{y} &
+        \pdiff{\eta}{y}
+    \end{pmatrix}
+    \begin{pmatrix} \pdiff{}{\xi} \\ \pdiff{}{\eta} \end{pmatrix}.
+    \label{eq:grid_transformation}
 \end{align}
 %
-where the transformation coefficients $\pdiff{\xi}{x}$, $\pdiff{\eta}{x}$, $\pdiff{\xi}{y}$, $\pdiff{\eta}{y}$ are known and can be determined by the grid definitions.
-However, they cannot be calculated directly.
-Hence, a Jacobian grid transformation formulation is employed.
+where the transformation coefficients $\pdiff{\xi}{x}$, $\pdiff{\eta}{x}$, $\pdiff{\xi}{y}$, $\pdiff{\eta}{y}$ are unknown and but can be determined by the grid definitions.
 
-%-------------------------------------------------------------------------------
-\section{Jacobian grid transformation formulation}
-In the previous section, transformation coefficients are given in the direct form, i.e.\ from the physical coordinates ($x$, $y$) to the curvilinear coordinates ($\xi$, $\eta$).
-The transformation coefficients are more consistently calculated in $\xi\eta$-coordinates.
-This is easily observed when re-examining \autoref{fig:grids}: An attempt to calculate the derivative of e.g.\ $\xi$ along the $x$-coordinate requires interpolation of $\xi$ since the numerical grid does not necessarily align with the physical grid's $x$-coordinate.
-The same holds for $y$.
-However, differences in $x$, $y$, as well as $\xi$ and $\eta$ are properly defined by the points in the transformed coordinate system $(\xi,\eta)$.
-Hence the inverted derivatives, e.g.\ $\pdiff{x}{\xi}$, can be calculated without interpolation.
-Our goal is therefore to express transformation coefficients of \autoref{1ordertransx} and \eqref{1ordertransy} in terms of its inverted derivatives.
-We can write:
+The goal is to express the transformation coefficients of \autoref{eq:grid_transformation} in terms of its inverted derivatives (grid definitions).
+The inverse transformation reads:
 %
-\begin{align}
-	\begin{pmatrix} \pdiff{}{\xi} \\ \pdiff{}{\eta} \end{pmatrix}
-	=
-	\begin{pmatrix}
-		\pdiff{x}{\xi} &
-		\pdiff{y}{\xi} \\
-		\pdiff{x}{\eta} &
-		\pdiff{y}{\eta}
-	\end{pmatrix}
-	\begin{pmatrix} \pdiff{}{x} \\ \pdiff{}{y} \end{pmatrix},
-\end{align}
-%
-of which the inverse is
-%
-\begin{align}\label{inversetransformation}
-	\begin{pmatrix} \pdiff{}{x} \\ \pdiff{}{y} \end{pmatrix}
-	=
-	\begin{pmatrix}
-		\pdiff{x}{\xi} &
-		\pdiff{y}{\xi} \\
-		\pdiff{x}{\eta} &
-		\pdiff{y}{\eta}
-	\end{pmatrix}^{-1}
-	\begin{pmatrix} \pdiff{}{\xi} \\ \pdiff{}{\eta} \end{pmatrix}.
-\end{align}
-%
-Considering the partial derivatives in the body-fitted grid directly, we can write instead.
-%
-\begin{align}\label{directtransformation}
-	\begin{pmatrix} \pdiff{}{x} \\ \pdiff{}{y} \end{pmatrix}
-	=
-	\begin{pmatrix}
-		\pdiff{\xi}{x} &
-		\pdiff{\eta}{x} \\
-		\pdiff{\xi}{y} &
-		\pdiff{\eta}{y}
-	\end{pmatrix}
-	\begin{pmatrix} \pdiff{}{\xi} \\ \pdiff{}{\eta} \end{pmatrix}.
-\end{align}
-%
-Combining \autoref{inversetransformation} and \eqref{directtransformation}, we find:
-%
-\begin{align}
-	\begin{pmatrix}
-		\pdiff{\xi}{x} &
-		\pdiff{\eta}{x} \\
-		\pdiff{\xi}{y} &
-		\pdiff{\eta}{y}
-	\end{pmatrix}
-	=
-	\begin{pmatrix}
-		\pdiff{x}{\xi} &
-		\pdiff{y}{\xi} \\
-		\pdiff{x}{\eta} &
-		\pdiff{y}{\eta}
-	\end{pmatrix}^{-1}.
+\begin{align}\label{}
+    \begin{pmatrix} \pdiff{}{\xi} \\ \pdiff{}{\eta} \end{pmatrix}
+    =
+    \begin{pmatrix}
+        \pdiff{x}{\xi} &
+        \pdiff{y}{\xi} \\
+        \pdiff{x}{\eta} &
+        \pdiff{y}{\eta}
+    \end{pmatrix}
+    \begin{pmatrix} \pdiff{}{x} \\ \pdiff{}{y} \end{pmatrix}.
+    \label{eq:inverse_grid_transformation}
 \end{align}
 %
 We introduce a shorthand notation for the transformation coefficients with a subscript, e.g.\ $\xi_x = \pdiff{\xi}{x}$ and calculate the inverse of the right-hand side to give:
 %
 \begin{align}
 	\begin{pmatrix}
-		\xi_x &
-		\eta_x \\
-		\xi_y &
-		\eta_y
-	\end{pmatrix}
+		x_\xi &
+		y_\xi \\
+		x_\eta &
+		y_\eta
+	\end{pmatrix}^{-1}
 	=
 	\frac{1}{x_{\xi}y_{\eta}-y_{\xi}x_{\eta}}
 	\begin{pmatrix}
@@ -123,32 +80,43 @@ We introduce a shorthand notation for the transformation coefficients with a sub
 		-x_{\eta} &
 		x_{\xi}
 	\end{pmatrix}
+    \label{eq:inverse_transformation}
+\end{align}
+with the Jacobian determinant defined as:
+\begin{align}
+J =
+\begin{vmatrix}
+    \pdiff{x}{\xi} & \pdiff{x}{\eta} \\
+    \pdiff{y}{\xi} & \pdiff{y}{\eta}
+\end{vmatrix}
+= x_{\xi}y_{\eta}-y_{\xi}x_{\eta}.
 \end{align}
 leading to
 \begin{align}
 	\xi_x=\frac{1}{J}y_{\eta}, \quad \eta_x = -\frac{1}{J}y_{\xi}, \quad
 	\xi_y=-\frac{1}{J}x_{\eta}, \quad \eta_y = \frac{1}{J}x_{\xi}.
+    \label{eq:inverse_transformation_1}
 \end{align}
 where $J = x_{\xi}y_{\eta}-x_{\eta}y_{\xi}$ is the determinant of the coordinate transformation matrix.
 
-Hence, we can use the following to transform the partial derivatives present in the equations:
+Hence, we can use \autoref{eq:inverse_transformation_1} to transform the partial derivatives (\autoref{eq:grid_transformation}) leading to:
 	\begin{align}\label{trans}
 		\pdiff{}{x}
-		=\xi_x\pdiff{}{\xi}
+		&=\xi_x\pdiff{}{\xi}
 		+ \eta_x\pdiff{}{\eta}
-		=\frac{1}{J}\Big(y_{\eta} \pdiff{}{\xi}
-		-y_{\xi}\pdiff{}{\eta}\Big)
-	\end{align}
-	\begin{align}
+		=\frac{1}{J}\left(y_{\eta} \pdiff{}{\xi}
+		-y_{\xi}\pdiff{}{\eta}\right)
+\\
 		\pdiff{}{y}
-		=\xi_y\pdiff{}{\xi}
+		&=\xi_y\pdiff{}{\xi}
 		+\eta_y \pdiff{}{\eta}
-		=\frac{1}{J}\Big(-x_{\eta}\pdiff{}{\xi}
+		=\frac{1}{J}\left(-x_{\eta}\pdiff{}{\xi}
 		+x_{\xi}\pdiff{}{\eta}
-		\Big)
+		\right)
 	\end{align}
-%
-Second-order derivatives are instead transformed by applying this operator twice.
+%--------------------------------------------------------------------------------
+\paragraph*{Second derivatives}
+Second derivatives are instead transformed by applying this operator twice.
 This yields:
 %
 \begin{align}
@@ -259,30 +227,27 @@ from which we can find the following relations:
 %-------------------------------------------------------------------------------
 \section{Transforming the terms}
 For completeness, we show the transformation of various terms here since some particular choices will be made to ease the implementation.
-For example, transforming the spatial derivatives in the continuity equation in a conservative form (using $y_{\xi\eta} = x_{\xi\eta} = 0$), yields
+For example, transforming the spatial derivatives in the continuity equation in a conservative form
 %
 \begin{align}
 	\pdiff{q}{x} + \pdiff{r}{y}  & = \frac{1}{J} \Bigg(  y_{\eta} \pdiff{q}{\xi}
     -y_{\xi}\pdiff{q}{\eta} +\left( - x_{\eta}\pdiff{r}{\xi}
-    +x_{\xi}\pdiff{r}{\eta} \right) \Bigg) =
-     \\
-    & =\frac{1}{J}\Bigg( \pdiff{}{\xi} \left( y_{\eta} q - x_{\eta} r \right) + \pdiff{}{\eta} \left( -y_{\xi} q + x_{\xi} r \right)\Bigg),
+    +x_{\xi}\pdiff{r}{\eta} \right) \Bigg)
 \end{align}
-in vector notation it reads:
+and adding $(y_{\eta\xi} - y_{\xi\eta})q$ and $(x_{\eta\xi} - x_{\xi\eta})r$, yields
 \begin{align}
-    \frac{1}{J}
-    \begin{pmatrix}
-    \pdiff{}{\xi} \\ \pdiff{}{\eta}
-    \end{pmatrix}
-     \dotp
-     \begin{pmatrix}
-        y_{\eta} q - x_{\eta} r \\ -y_{\xi} q + x_{\xi} r
-    \end{pmatrix}
+    \pdiff{q}{x} + \pdiff{r}{y}
+    & = \frac{1}{J} \Bigg(
+    y_{\eta} \pdiff{q}{\xi}- y_{\xi}\pdiff{q}{\eta} + {\color{blue}y_{\eta\xi}q - y_{\xi\eta}q}
+    \\
+    & \qquad - x_{\eta}\pdiff{r}{\xi} + x_{\xi}\pdiff{r}{\eta} +{\color{blue}x_{\eta\xi}r - x_{\xi\eta}r} \Bigg)
+    \\
+    & =\frac{1}{J}\Bigg( \pdiff{}{\xi} \left( y_{\eta} q - x_{\eta} r \right) + \pdiff{}{\eta} \left( -y_{\xi} q + x_{\xi} r \right)\Bigg),
 \end{align}
 %
 Taking the finite volume approach, yields
 \begin{align}
-&\frac{1}{J}\int_{\Omega_{\xi\exta}}
+&\frac{1}{J}\int_{\Omega_{\xi\eta}}
 \begin{pmatrix}
     \pdiff{}{\xi} \\ \pdiff{}{\eta}
 \end{pmatrix}
@@ -290,7 +255,7 @@ Taking the finite volume approach, yields
 \begin{pmatrix}
     y_{\eta} q - x_{\eta} r \\ -y_{\xi} q + x_{\xi} r
 \end{pmatrix}
-\, \dl
+\, dl
 =
 \frac{1}{J}\oint_{\partial\Omega_{\xi\eta}}
 \begin{pmatrix}
@@ -304,20 +269,22 @@ Taking the finite volume approach, yields
 \\
 &
 \frac{1}{J}\oint_{\partial\Omega_{\xi\eta}} \left( \left( y_{\eta} q - x_{\eta} r \right)n_\xi + \left( -y_{\xi} q + x_{\xi} r \right) n_\eta \right)\, dl
+\label{eq:transformed_mass_flux}
 \end{align}
 %
-Likewise, the convection term in the $x$-momentum equation can be transformed as:
+%--------------------------------------------------------------------------------
+\subsection{Convection term}
+The convection term in the $x$-momentum equation can be transformed as:
 %
 \begin{align}
-	\pdiff{(q^2/h)}{x} + \pdiff{(qr/h)}{y} =
-\end{align}
-\begin{align}
-	= \frac{1}{J} \left(y_{\eta} \pdiff{(q^2/h)}{\xi} - y_{\xi} \pdiff{(q^2/h)}{\eta} -x_{\eta} \pdiff{(qr/h)}{\xi} + x_{\xi} \pdiff{(qr/h)}{\eta}\right) =
+	&\pdiff{(q^2/h)}{x} + \pdiff{(qr/h)}{y} =
+\\
+	&= \frac{1}{J} \left(y_{\eta} \pdiff{(q^2/h)}{\xi} - y_{\xi} \pdiff{(q^2/h)}{\eta} -x_{\eta} \pdiff{(qr/h)}{\xi} + x_{\xi} \pdiff{(qr/h)}{\eta}\right) =
 \end{align}
 \begin{align}
 	\begin{aligned}
-		&= \frac{1}{J} \Bigg(y_{\eta} \pdiff{(q^2/h)}{\xi} - y_{\xi} \pdiff{(q^2/h)}{\eta} + \frac{q^2}{h} \pdiff{}{\xi} y_{\eta} - \frac{q^2}{h} \pdiff{}{\eta} y_{\xi} +  \\
-		&-x_{\eta} \pdiff{(qr/h)}{\xi} + x_{\xi} \pdiff{(qr/h)}{\eta} - \frac{qr}{h} \pdiff{}{\xi} x_{\eta} + \frac{qr}{h} \pdiff{}{\eta} x_{\xi} \Bigg) =
+		&= \frac{1}{J} \Bigg(y_{\eta} \pdiff{(q^2/h)}{\xi} - y_{\xi} \pdiff{(q^2/h)}{\eta} + {\color{blue}\frac{q^2}{h}  y_{\xi\eta} - \frac{q^2}{h} y_{\eta\xi}} +  \\
+		&\quad -x_{\eta} \pdiff{(qr/h)}{\xi} + x_{\xi} \pdiff{(qr/h)}{\eta} {\color{blue} - \frac{qr}{h}  x_{\xi\eta} + \frac{qr}{h} x_{\eta\xi}} \Bigg) =
 	\end{aligned}
 \end{align}
 \begin{align}
@@ -326,8 +293,47 @@ Likewise, the convection term in the $x$-momentum equation can be transformed as
 %
 Taking the finite volume approach and applying Green's theorem, yields
 \begin{align}
-    \frac{1}{J}\oint_{\partial\Omega} \left( \left( \frac{q^2}{h} - x_{\eta} \frac{qr}{h} \right) n_\xi + \left(-y_{\xi} \frac{q^2}{h} + x_{\xi} \frac{qr}{h} \right) n_\eta \right)\, dl.
+    \frac{1}{J}\oint_{\partial\Omega} \left( \left( y_{\eta}\frac{q^2}{h} - x_{\eta} \frac{qr}{h} \right) n_\xi + \left(-y_{\xi} \frac{q^2}{h} + x_{\xi} \frac{qr}{h} \right) n_\eta \right)\, dl.
 \end{align}
+which is equal to (and look to the similarity with \autoref{eq:transformed_mass_flux})
+\begin{align}
+    \frac{1}{J}\oint_{\partial\Omega} \left[  \left( y_{\eta}q - x_{\eta} r \right) \frac{q}{h}  n_\xi + \left( -y_{\xi}q  + x_{\xi}r\right) \frac{q}{h} n_\eta \right] \, dl.\label{eq:transformed_convection_x}
+\end{align}
+
+A similar transformation is valid for the convection term in the $y$-momentum equation, which reads
+\begin{align}
+    &\pdiff{(rq/h)}{x} + \pdiff{(r^2/h)}{y} =
+\\
+    &= \frac{1}{J} \left(y_{\eta} \pdiff{(rq/h)}{\xi} - y_{\xi} \pdiff{(rq/h)}{\eta} -x_{\eta} \pdiff{(r^2/h)}{\xi} + x_{\xi} \pdiff{(r^2/h)}{\eta}\right) =
+\end{align}
+\begin{align}
+    \begin{aligned}
+        &= \frac{1}{J} \Bigg(y_{\eta} \pdiff{(rq/h)}{\xi} - y_{\xi} \pdiff{(rq/h)}{\eta} + {\color{blue}\frac{rq}{h}  y_{\xi\eta} - \frac{rq}{h} y_{\eta\xi}} +  \\
+        &\quad -x_{\eta} \pdiff{(r^2/h)}{\xi} + x_{\xi} \pdiff{(r^2/h)}{\eta} {\color{blue} - \frac{r^2}{h}  x_{\xi\eta} + \frac{r^2}{h} x_{\eta\xi}} \Bigg) =
+    \end{aligned}
+\end{align}
+\begin{align}
+    = \frac{1}{J} \pdiff{}{\xi}\left(y_{\eta} \frac{rq}{h} - x_{\eta} \frac{r^2}{h} \right) + \frac{1}{J} \pdiff{}{\eta}\left(-y_{\xi} \frac{rq}{h} + x_{\xi} \frac{r^2}{h} \right).
+\end{align}
+Taking the finite volume approach and applying Green's theorem, yields
+\begin{align}
+    \frac{1}{J}\oint_{\partial\Omega} \left(
+    \left(y_{\eta} \frac{rq}{h} - x_{\eta} \frac{r^2}{h} \right) n_\xi
+    + \left(-y_{\xi} \frac{rq}{h} + x_{\xi} \frac{r^2}{h} \right) n_\eta
+     \right)
+    \, dl
+\end{align}
+which is equal to (and look to the similarity with \autoref{eq:transformed_mass_flux})
+\begin{align}
+    \frac{1}{J}\oint_{\partial\Omega} \left[
+    \left(y_{\eta} q - x_{\eta} r \right)\frac{r}{h} n_\xi
+    + \left(-y_{\xi} q + x_{\xi} r \right)\frac{r}{h} n_\eta
+    \right]
+    \, dl
+\end{align}
+%\newpage
+%--------------------------------------------------------------------------------
+\subsection{Viscosity term}
 
 The $x$ and $y$-momentum equation diffusion terms are treated here as well due to their complexity.
 They can be transformed as:
@@ -574,7 +580,7 @@ However, the above equations are in differential form.
 We will write the equations in an integral form:
 %
 \begin{align}\label{eq:generalizedeq}
-	\int \pdiff{\mathbf{U}}{\partial t}dV + \int \nabla \cdot \mathbf{F} dV - \int \mathbf{S}dV = 0
+	\int \pdiff{\mathbf{U}}{t}dV + \int \nabla \cdot \mathbf{F} dV - \int \mathbf{S}dV = 0
 \end{align}
 %
 where the $\nabla$-operator for use in the $\xi\eta$-grid, now reads:
@@ -590,7 +596,7 @@ where the $\nabla$-operator for use in the $\xi\eta$-grid, now reads:
 However, this definition is not necessary yet as we will be applying Gauss' theorem (for internal points) to \autoref{eq:generalizedeq}, which yields:
 %
 \begin{align}
-	\int \pdiff{\mathbf{U}}{\partial t}dV + \oint \mathbf{F}\cdot \mathbf{n}dS - \int \mathbf{S}dV = 0,
+	\int \pdiff{\mathbf{U}}{t}dV + \oint \mathbf{F}\cdot \mathbf{n}dS - \int \mathbf{S}dV = 0,
 \end{align}
 %
 where $\mathbf{F}$ consists of continuity, convective and viscous contributions which are split in $\xi$ and $\eta$ directions:

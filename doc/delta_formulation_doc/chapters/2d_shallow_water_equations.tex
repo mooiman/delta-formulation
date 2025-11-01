@@ -87,16 +87,28 @@ Integrating the equations over a finite volume $\Omega$ yields:
 \label{eq:pressure_dependent_on_zeta}
 \end{subequations}
 
+The 'linear' shallow water equations in curvilinear coordinates read:
+\begin{align}
+&J \pdiff{h}{t} +\pdiff{}{\xi} \left( y_{\eta}\, q - x_{\eta}\, r \right) + \pdiff{}{\eta} \left( -y_{\xi}\, q + x_{\xi}\, r \right) = 0,
+\label{eq:continuity_curvi}
+\\*
+&J \pdiff{q}{t} + g h \left( y_{\eta}\, \pdiff{\zeta}{\xi} - y_{\xi}\, \pdiff{\zeta}{\eta} \right) = 0, & \textit{q-momentum eq.}
+ \label{eq:q_momentum_curvi}
+\\*
+&J \pdiff{r}{t} + g h \left( -x_{\eta}\, \pdiff{\zeta}{\xi} + x_{\xi}\, \pdiff{\zeta}{\eta} \right) = 0, & \textit{r-momentum eq.}
+ \label{eq:r_momentum_curvi}
+\end{align}
+
 %-------------------------------------------------------------------------------
 \section{Space discretization, structured}
-\begin{figure}[H]
+\begin{figure}[h]
     \begin{center}
         \def\svgwidth{0.80\textwidth} % scaling text
         \resizebox{0.65\textwidth}{!}{
             \import{figures}{cartesian_grid_interior_2d.pdf_tex}
         }
     \end{center}
-    \caption[Definition of the grid to solve the 2D-shallow water equations in the interior area]{Coefficients for the mass-matrix and the control volume in 2-dimensions in the interior area, on a structured grid. The black dots indicate the location of the quadrature points, and black diamonds the flux points.}
+    \caption[Definition of the grid to solve the 2D-shallow water equations in the interior area]{Definition of the grid to solve the 2D-shallow water equations in the interior area. The black dots indicate the location of the quadrature points, and black diamonds the flux points.}
     \label{fig:2d_structured_grid}
 \end{figure}
 For the space discretizations of an arbitrary function $u$ on the quadrature point of a sub-control volume the following space interpolations are used, $u \in \{h,q,r\}$:
@@ -110,25 +122,27 @@ For the space discretizations of an arbitrary function $u$ on the quadrature poi
 See for the locations \autoref{fig:2d_structured_grid}.
 %-------------------------------------------------------------------------------
 \subsection{Discretizations continuity equation}
-The discretization of continuity \autoref{eq:pressure_dependent_on_zeta_a} will be presented term by term.
+The discretization of continuity \autoref{eq:continuity_curvi} will be presented term by term.
 %-------------------------------------------------------------------------------
 \subsubsection{Time derivative}
 The discretization of the time derivative term of the continuity equation reads:
 \begin{align}
-    \int_{\Omega} \pdiff{h}{t}\, d\omega
+    J \int_{\Omega} \pdiff{h}{t}\, d\omega
 \end{align}
 which will be approximated by the sum of the integral over the sub-control volumes.
 On a structured grid one control volume ($cv$) around a node consist of four sub-control volumes ($scv_i$, $i\in\{0,1,2,3\}$).
 \begin{align}
-    \int_{cv} \pdiff{h}{t}\, d\omega =
-    \int_{scv_1} \pdiff{h}{t}\, d\omega +
-    \int_{scv_2} \pdiff{h}{t}\, d\omega +
-    \int_{scv_3} \pdiff{h}{t}\, d\omega +
-    \int_{scv_4} \pdiff{h}{t}\, d\omega
+    J_{cv}\int_{cv} \pdiff{h}{t}\, d\omega &=
+    J_{scv_0}\int_{scv_0} \pdiff{h}{t}\, d\omega +
+    J_{scv_1}\int_{scv_1} \pdiff{h}{t}\, d\omega +
+    \nonumber \\*
+    &\quad
+    +J_{scv_2}\int_{scv_2} \pdiff{h}{t}\, d\omega +
+    J_{scv_3}\int_{scv_3} \pdiff{h}{t}\, d\omega
 \end{align}
 For a curvilinear grid we get:
 \begin{align}
-    \int_{cv} \pdiff{h}{t}\, d\omega \approx &
+    J_{cv}\int_{cv} \pdiff{h}{t}\, d\omega \approx &
     J_{scv_0}\Dtinv \left( h^{n+1,p+1}_{i-\quart, j-\quart} -  h^{n+1,n}_{i-\quart, j-\quart} \right) +
     \nonumber \\*
     &J_{scv_1}\Dtinv \left( h^{n+1,p+1}_{i+\quart, j-\quart} -  h^{n+1,n}_{i+\quart, j-\quart} \right) +
@@ -137,7 +151,8 @@ For a curvilinear grid we get:
     \nonumber \\*
     &J_{scv_3}\Dtinv \left( h^{n+1,p+1}_{i-\quart, j+\quart} -  h^{n+1,n}_{i-\quart, j+\quart} \right)
 \end{align}
-with $J_{scv_i}$ the area of the sub control volume $i$, for cartesian coordinates we have $J_{scv_i} = \quart \Dx\Dy$.
+with $J_{scv_i}$ the area of the sub control volume $i$.
+For cartesian coordinates we have $J_{scv_i} = \quart \Dx\Dy$.
 
 Just looking to the quadrature point of $scv_2$ as part of the control volume for node $(i,j)$ the discretization reads:
 \begin{align}
@@ -164,6 +179,110 @@ with
 where $x_\xi$, $y_\eta$, $y_\xi$ and $x_\eta$ at the quadrature point $qp$ are
 \begin{align}
     x_{\xi_{qp}}  & = \quart ( 3 (x_{i+1,j} - x_{i,j}) + 1 (x_{i+1,j+1} - x_{i,j+1}) )
+    \label{eq:scv2_dx_dxi}
+    \\
+    y_{\eta_{qp}} & = \quart ( 3 (y_{i,j+1} - y_{i,j}) + 1 (y_{i+1,j+1} - y_{i+1,j}) )
+    \label{eq:scv2_dy_deta}
+    \\
+    y_{\xi_{qp}}  & = \quart ( 3 (y_{i+1,j} - y_{i,j}) + 1 (y_{i+1,j+1} - y_{i,j+1}) )
+    \label{eq:scv2_dy_dxi}
+    \\
+    x_{\eta_{qp}} & = \quart ( 3 (x_{i,j+1} - x_{i,j}) + 1 (x_{i+1,j+1} - x_{i+1,j})  )
+    \label{eq:scv2_dx_deta}
+\end{align}
+%-------------------------------------------------------------------------------
+\subsubsection{Mass flux}
+The discretization of the mass flux term of the continuity equation
+\begin{align}
+    \oint_{\partial\Omega_{\xi\eta}} \left( \left( y_{\eta} q - x_{\eta} r \right)n_\xi + \left( -y_{\xi} q + x_{\xi} r \right) n_\eta \right)\, dl
+\end{align}
+will be given is this section (\autoref{eq:transformed_mass_flux}, multiplied by $J$).
+Where $\vec{n} = (n_\xi, n_\eta)^T$ is the outward normal vector.
+
+The linearization in time reads:
+\begin{align}
+    \oint_{\partial\Omega_{\xi\eta}} \Big[&\left( y_\eta\left(q^{n+\theta, p} + \theta \Delta q\right) - x_\eta \left( r^{n+\theta, p} + \theta \Delta r  \right)
+    \right) n_{\xi}
+    \nonumber\\*
+    &\qquad  + \left(-y_\xi\left(r^{n+\theta, p} + \theta \Delta r\right) +
+      x_\xi\left( r^{n+\theta, p} + \theta \Delta r  \right) \right) n_\eta
+      \Big]\, dl
+\end{align}
+This terms need to be computed for each of the control volume faces, taken into account the outward normal.
+Eight faces on a structured grid.
+For the quadrature point $(i+\half, j+\quart)$ where $\vec{n} = (1,0)^T$ and $\norm{dl} = \half$, reads:
+\begin{align}
+&\left( y_\eta\left(q^{n+\theta, p} + \theta \Delta q\right) - x_\eta \left( r^{n+\theta, p} + \theta \Delta r  \right)
+    \right) n_{\xi}  \norm{dl} \approx
+    \\
+  &\approx \left[ \half y_\eta\left( q^{n+\theta, p} + \theta \Delta q \right)  -
+  \half x_\eta \left( r^{n+\theta, p} + \theta \Delta r  \right) \right] n_\xi
+\end{align}
+with
+\begin{align}
+    & y_\eta\big|_{i+\half, j+\quart} = \half \left( y_{i,j+1} - y_{i, j} \right) +
+    \half \left( y_{i+1,j+1} - y_{i+1, j} \right)
+    \\*
+    & x_\eta\big|_{i+\half, j+\quart} = \quart \left(3 \left( x_{i+1,j} - x_{i, j} \right) +
+ \left( x_{i+1,j+1} - x_{i, j+1} \right) \right)
+\end{align}
+and for terms related to $q$ we get (similar for $r$):
+\begin{align}
+    q\big|^{n+\theta,p}_{i+\half, j+\quart} &= \frac{1}{8}\left(3 q^{n+\theta,p}_{i,j} + 3 q^{n+\theta,p}_{i+1,j} + 1 q^{n+\theta,p}_{i,j+1} + 1 q^{n+\theta,p}_{i+1,j+1} \right)
+    \label{eq:belong_to_rhs}
+    \\
+    \theta \Delta q\big|_{i+\half, j+\quart} &= \theta\frac{1}{8}\left(3 \Delta q_{i,j} + 3 \Delta q_{i+1,j} + 1 \Delta q_{i,j+1} + 1 \Delta q_{i+1,j+1} \right) \label{eq:belong_to_matrix}
+\end{align}
+\Autoref{eq:belong_to_rhs} is part of the right hand side and \autoref{eq:belong_to_matrix} is a part of the matrix coefficients.
+%-------------------------------------------------------------------------------
+\subsection{Discretizations momentum equations}
+The discretization of momentum \autoref{eq:pressure_dependent_on_zeta_b} will be presented term by term.
+%--------------------------------------------------------------------------------
+\subsubsection{Time derivative}
+The discretization of the time derivative term of the momentum equation is only shown for the $q$-momentum equation, the time derivative for the $r$-momentum equation is similar. The time derivative for the $q$-momentum equation reads:
+\begin{align}
+    J \int_{\Omega} \pdiff{q}{t}\, d\omega
+\end{align}
+which will be approximated by the sum of the integral over the sub-control volumes.
+On a structured grid one control volume ($cv$) around a node consist of four sub-control volumes ($scv_i$, $i\in\{0,1,2,3\}$).
+For a curvilinear grid we get:
+\begin{align}
+    \int_{cv} \pdiff{q}{t}\, d\omega \approx &
+    J_{scv_0} \Dtinv \left( q^{n+1}_{i-\quart, j-\quart} -  q^{n}_{i-\quart, j-\quart} \right) +
+    \nonumber \\*
+    &J_{scv_1} \Dtinv \left( q^{n+1}_{i+\quart, j-\quart} -  q^{n}_{i+\quart, j-\quart} \right) +
+    \nonumber \\*
+    &J_{scv_3} \Dtinv \left( q^{n+1}_{i+\quart, j+\quart} -  q^{n}_{i+\quart, j+\quart} \right) +
+    \nonumber \\*
+    &J_{scv_3} \Dtinv \left( q^{n+1}_{i-\quart, j+\quart} -  q^{n}_{i-\quart, j+\quart} \right)
+\end{align}
+with $J_{scv_i}$ the area of the sub control volume $i$, for cartesian coordinates we have $J_{scv_i} = \quart \Dx\Dy$.
+
+Just looking to the quadrature point of $scv_2$ as part of the control volume for node $(i,j)$ the discretization reads:
+\begin{align}
+    &J_{scv_2}\Dtinv \left( q^{n+1}_{i+\quart, j+\quart} -  q^{n+1,n}_{i+\quart, j+\quart} \right) =
+    \\*
+    &= J_{scv_2}\Dtinv \left[ \frac{1}{16}\left( 9q^{n+1}_{i, j} + 3 q^{n+1}_{i+1,j}  + 3  q^{n+1}_{i, j+1} + q^{n+1}_{i+1, j+1}\right) \right. +
+    \\*
+    &\quad - \left. \frac{1}{16}\left( 9 q^{n}_{i, j} +  3 q^{n}_{i+1,j}  + 3  q^{n}_{i, j+1} + q^{n}_{i+1, j+1}\right)\right]
+\end{align}
+Written in \deltaformulation  it reads:
+\begin{align}
+    &J_{scv_2}\Dtinv \left( q^{n+1}_{i+\quart, j+\quart} -  q^{n}_{i+\quart, j+\quart} \right) =
+    \nonumber \\*
+    &=J_{scv_2}\Dtinv \left[ \frac{1}{16}\left( 9 \Delta q^{n+1,p+1}_{i, j} + 3 \Delta q^{n+1,p+1}_{i+1,j+1}  + 3 \Delta q^{n+1,p+1}_{i, j+1} + \Delta q^{n+1,p+1}_{i+1, j+1}\right) \right] +
+    \nonumber \\*
+    & + J_{scv_2}\Dtinv \left[ \frac{1}{16}\left( 9 q^{n+1,p}_{i, j} + 3 q^{n+1,p}_{i+1,j}  + 3 q^{n+1,p}_{i, j+1} + q^{n+1,p+1}_{i+1, j+1}\right) \right. +
+    \nonumber \\*
+    &\quad - \left. \frac{1}{16}\left( 9q^{n}_{i, j} +  3 q^{n}_{i+1,j}  + 3  q^{n}_{i, j+1} + q^{n}_{i+1, j+1}\right)\right]
+\end{align}
+with
+\begin{align}
+    J_{scv_2} &= x_\xi y_\eta - y_\xi x_\eta
+\end{align}
+where $x_\xi$, $y_\eta$, $y_\xi$ and $x_\eta$ at the quadrature point $qp$ are
+\begin{align}
+    x_{\xi_{qp}}  & = \quart ( 3 (x_{i+1,j} - x_{i,j}) + 1 (x_{i+1,j+1} - x_{i,j+1}) )
     \\
     y_{\eta_{qp}} & = \quart ( 3 (y_{i,j+1} - y_{i,j}) + 1 (y_{i+1,j+1} - y_{i+1,j}) )
     \\
@@ -171,267 +290,190 @@ where $x_\xi$, $y_\eta$, $y_\xi$ and $x_\eta$ at the quadrature point $qp$ are
     \\
     x_{\eta_{qp}} & = \quart ( 3 (x_{i,j+1} - x_{i,j}) + 1 (x_{i+1,j+1} - x_{i+1,j})  )
 \end{align}
-%-------------------------------------------------------------------------------
-\subsubsection{Mass flux}
-The discretization of the mass flux term of the continuity equation reads:
-\begin{align}
-\int_\Omega \nabla \dotp \vec{q}\, d\omega =
-\oint_{\partial\Omega} \vec{q} \dotp \vec{n} \, dl =
-\oint_{\partial\Omega}
-\begin{pmatrix}
-    q \\
-    r
-\end{pmatrix}
-\dotp
-\begin{pmatrix}
-    n_x \\
-    n_y
-\end{pmatrix}
-    \, dl
-=
-\oint_{\partial\Omega} \left( q n_x + r n_y \right) \, dl
-\end{align}
-with $\vec{n} = (n_x, n_y)^T$ the outward normal vector.
 
-The component for the continuity equation reads:
-\begin{align}
-    F_{{\it mf}} = q n_x + r n_y
-\end{align}
-
-The Jacobian \textbf{at the faces of the control volume} for the mass flux term
-reads:
-\begin{align}
-    %    &\begin{pmatrix}
-        %    J_{11} &  J_{12} &  J_{13}
-        %    \\
-        %     J_{21} &  J_{22} &  J_{23}
-        %    \end{pmatrix}
-    %    \rightarrow
-    &\begin{pmatrix}
-        \pdiff{F_{{\it mf}}}{h} & \pdiff{F_{{\it mf}}}{q} & \pdiff{F_{{\it mf}}}{r}
-    \end{pmatrix}
-    =
-    \begin{pmatrix}
-        0 & 1 & 1
-    \end{pmatrix}
-\end{align}
-The linearization in time reads:
-\begin{align}
-    &q^{n+\theta, p} + \theta \Delta q  + r^{n+\theta, p} + \theta \Delta r
-\end{align}
-This terms need to be computed for each of the control volume faces, taken into account the outward normal.
-Eight faces on a structured grid.
-For the quadrature point $(i+\half, j+\quart)$ where $\vec{n} = (1,0)^T$ and $1\, dl = \half \Dy$ reads:
-\begin{align}
-  &\left( q^{n+\theta, p}_{i+\half, j+\quart} + \theta \Delta q_{i+\half, j+\quart}  + r^{n+\theta, p}_{i+\half, j+\quart} + \theta \Delta r_{i+\half, j+\quart} \right) \begin{pmatrix} 1 \\ 0 \end{pmatrix} dl \approx
-  \\*
- & \approx \half \Dy\ \frac{1}{8} \left( 3 q^{n+\theta, p}_{i,j} + 3 q^{n+\theta, p}_{i+1,j} + q^{n+\theta, p}_{i+1, j+1} + q^{n+\theta, p}_{i, j+1} \right)
- +
- \\*
- &+ \half \Dy\ \frac{1}{8} \theta \left( 3 \Delta q_{i,j} + 3 \Delta q_{i+1,j} + \Delta q_{i+1, j+1} + \Delta q_{i, j+1} \right)
- \\*
- &+\half \Dy\ \frac{1}{8} \left( 3 r^{n+\theta, p}_{i,j} + 3 r^{n+\theta, p}_{i+1,j} + r^{n+\theta, p}_{i+1, j+1} + r^{n+\theta, p}_{i, j+1} \right)
-\\*
-&+ \half \Dy\ \frac{1}{8} \theta \left( 3 \Delta r_{i,j} + 3 \Delta r_{i+1,j} + \Delta r_{i+1, j+1} + \Delta r_{i, j+1} \right)
-\\*
-\end{align}
-%-------------------------------------------------------------------------------
-\subsection{Discretizations momentum equations}
-The discretization of momentum \autoref{eq:pressure_dependent_on_zeta_b} will be presented term by term.
-%--------------------------------------------------------------------------------
-\subsubsection{Time derivative}
-The discretization of the time derivative term of the momentum equation is only shown for the q-momentum equation, the time derivative for the $r$-momentum equation is similar. The time derivation for the $q$-momentum equation reads:
-\begin{align}
-    \int_{\Omega} \pdiff{q}{t}\, d\omega
-\end{align}
-which will be approximated by the sum of the integral over the sub-control volumes.
-On a structured grid one control volume ($cv$) around a node consist of four sub-control volumes ($scv_i$, $i\in\{0,1,2,3\}$).
-\begin{align}
-    \int_{cv} \pdiff{q}{t}\, d\omega =
-    \int_{scv_0} \pdiff{q}{t}\, d\omega +
-    \int_{scv_1} \pdiff{q}{t}\, d\omega +
-    \int_{scv_2} \pdiff{q}{t}\, d\omega +
-    \int_{scv_3} \pdiff{q}{t}\, d\omega
-\end{align}
-For a cartesian grid we get:
-\begin{align}
-    \int_{cv} \pdiff{q}{t}\, d\omega \approx &
-    \quart\Dx\Dy\Dtinv \left( q^{n+1}_{i-\quart, j-\quart} -  q^{n}_{i-\quart, j-\quart} \right) +
-    \nonumber \\*
-    &\quart\Dx\Dy\Dtinv \left( q^{n+1}_{i+\quart, j-\quart} -  q^{n}_{i+\quart, j-\quart} \right) +
-    \nonumber \\*
-    &\quart\Dx\Dy\Dtinv \left( q^{n+1}_{i+\quart, j+\quart} -  q^{n}_{i+\quart, j+\quart} \right) +
-    \nonumber \\*
-    &\quart\Dx\Dy\Dtinv \left( q^{n+1}_{i-\quart, j+\quart} -  q^{n}_{i-\quart, j+\quart} \right)
-\end{align}
-Just looking to the quadrature point of $scv_2$ as part of the control volume for node $(i,j)$ the discretization reads:
-\begin{align}
-    &\quart\Dx\Dy\Dtinv \left( q^{n+1}_{i+\quart, j+\quart} -  q^{n}_{i+\quart, j+\quart} \right) =
-    \nonumber \\*
-    &= \quart\Dx\Dy\Dtinv \left[ \frac{1}{16}\left( 9 q^{n+1}_{i, j} + 3 q^{n+1}_{i+1,j}  + 3 q^{n+1}_{i, j+1} + q^{n+1}_{i+1, j+1}\right) \right. +
-    \nonumber\\*
-    &\quad - \left. \frac{1}{16}\left( 9 q^{n}_{i, j} +  3 q^{n}_{i+1,j}  + 3  q^{n}_{i, j+1} + q^{n}_{i+1, j+1}\right)\right]
-\end{align}
-Written in \deltaformulation  it reads:
-\begin{align}
-    &\quart\Dx\Dy\Dtinv \left( q^{n+1}_{i+\quart, j+\quart} -  q^{n}_{i+\quart, j+\quart} \right) =
-    \nonumber \\*
-    &=\quart\Dx\Dy\Dtinv \left[ \frac{1}{16}\left( 9 \Delta q^{n+1,p+1}_{i, j} + 3 \Delta q^{n+1,p+1}_{i+1,j+1}  + 3 \Delta q^{n+1,p+1}_{i, j+1} + \Delta q^{n+1,p+1}_{i+1, j+1}\right) \right] +
-    \nonumber \\*
-    & + \quart\Dx\Dy\Dtinv \left[ \frac{1}{16}\left( 9 q^{n+1,p}_{i, j} + 3 q^{n+1,p}_{i+1,j}  + 3 q^{n+1,p}_{i, j+1} + q^{n+1,p+1}_{i+1, j+1}\right) \right. +
-    \nonumber \\*
-    &\quad - \left. \frac{1}{16}\left( 9 q^{n}_{i, j} +  3 q^{n}_{i+1,j}  + 3  q^{n}_{i, j+1} + q^{n}_{i+1, j+1}\right)\right]
-\end{align}
 %--------------------------------------------------------------------------------
 \subsubsection{Pressure term} \label{sec:linearized_pressure_zeta}
 In this section we use that the pressure term is dependent on $\zeta$.
+The discretization of the pressure term
 \begin{align}
-    \int_{\Omega} gh \nabla \zeta \, d\omega
+    &g h \left( y_{\eta}\, \pdiff{\zeta}{\xi} - y_{\xi}\, \pdiff{\zeta}{\eta} \right), \qquad &\textit{$q$-momentum eq.}
+    \\*
+    &g h \left( -x_{\eta}\, \pdiff{\zeta}{\xi} + x_{\xi}\, \pdiff{\zeta}{\eta} \right). \qquad &\textit{$r$-momentum eq.}
 \end{align}
-The integral over a control volume will be a sum of integrals over the sub control volumes.
+will be given in this section (multiplied by $J$).
+The integral over a control volume will be the sum of integrals over the sub control volumes.
 On a structured grid one control volume ($cv$) around a node consist of four sub-control volumes ($scv_i$, $i\in\{0,1,2,3\}$).
+Thus
 \begin{align}
-    \int_{cv}    gh \nabla \zeta\, d\omega =
-    \int_{scv_0} gh \nabla \zeta\, d\omega +
-    \int_{scv_1} gh \nabla \zeta\, d\omega +
-    \int_{scv_2} gh \nabla \zeta\, d\omega +
-    \int_{scv_3} gh \nabla \zeta\, d\omega
+    gh \nabla \zeta\big|_{sc} =
+    gh \nabla \zeta\big|_{scv_0} +
+    gh \nabla \zeta\big|_{scv_1} +
+    gh \nabla \zeta\big|_{scv_2} +
+    gh \nabla \zeta\big|_{scv_3}
 \end{align}
-
-
-Considering one sub-control volume and only for the $x$-direction (assuming a cartesian grid) then it reads:
+%
+%--------------------------------------------------------------------------------
+\paragraph*{$q$-momentum}
+Considering one sub-control volume and only for the $x$-direction (similar for the $y$-direction) then the linearization in time reads:
 \begin{align}
-    & \int_{\textit{scv}} gh \nabla \zeta \, d\omega  \approx
+    & g h \left( y_{\eta}\, \pdiff{\zeta}{\xi} - y_{\xi}\, \pdiff{\zeta}{\eta} \right) \approx
     \\
-    & \approx \quart \Dx\Dy\, g h^{n+\theta,p+1}_{qp} \pdiff{\zeta^{n+\theta,p+1}_{qp}}{x}
-    \approx \\
-   & \approx \quart  \Dx\Dy\, g \left( h^{n+\theta,p}_{qp} + \theta \Delta h^{n+1,p+1}\right)  \pdiff{}{x}\left(\zeta^{n+\theta,p}_{qp} + \theta \Delta \zeta^{n+1,p+1}_{qp}\right)
+%    & \approx g h^{n+\theta,p+1}_{qp} \left( y_{\eta_{qp}}\pdiff{\zeta^{n+\theta,p+1}_{qp}}{\xi}
+%    - y_{\xi_{qp}}\, \pdiff{\zeta^{n+\theta,p+1}_{qp}}{\eta} \right)\approx \\
+   & \approx g \left( h^{n+\theta,p}_{qp} + \theta \Delta h_{qp}\right)  \times
+   \\*
+   & \qquad \times \left( y_{\eta_{qp}}\, \pdiff{}{\xi}\left(\zeta^{n+\theta,p}_{qp} + \theta \Delta \zeta_{qp} \right)
+ - y_{\xi_{qp}}\, \pdiff{}{\eta}\left(\zeta^{n+\theta,p}_{qp} + \theta \Delta \zeta_{qp}   \right)
+   \right)
 \end{align}
 with $qp$ the location of the quadrature point in the sub-control volume.
 Assume that the higher order terms are negligible then the discretization for each of the 4 sub-control volumes reads:
+%
 \begin{align}
-        \quart  \Dx\Dy\, g \left(
-        h^{n+\theta, p}_{qp} \pdiff{\zeta^{n+\theta, p}_{qp}}{x}
-        + h^{n+\theta, p}_{qp} \pdiff{}{x} (\theta \Delta \zeta^{n+1, p+1}_{qp})
-        + \pdiff{\zeta^{n+\theta, p}_{qp}}{x} \theta \Delta h^{n+1,p+1}_{qp}
-          \right)
+&g h^{n+\theta,p}_{qp} \left( y_{\eta_{qp}}\pdiff{}{\xi}\left( \zeta^{n+\theta,p}_{qp} \right)
+- y_{\xi_{qp}}\, \pdiff{}{\eta}\left(\zeta^{n+\theta,p}_{qp} \right) \right) +
+\\
+&\qquad + g h^{n+\theta,p}_{qp} \left( y_{\eta_{qp}}\pdiff{}{\xi}\left(\theta\Delta \zeta_{qp}\right)
+- y_{\xi_{qp}}\, \pdiff{}{\eta} \left(\theta\Delta\zeta_{qp} \right)
+\right) +
+\\
+&\qquad + g
+\left( y_{\eta_{qp}}\, \pdiff{}{\xi}\left(\zeta^{n+\theta,p}_{qp} \right)
+ - y_{\xi_{qp}}\, \pdiff{}{\eta}\left(\zeta^{n+\theta,p}_{qp} \right)
+\right)\theta \Delta h_{qp}
 \end{align}
-Just looking to the quadrature point of $scv_3$ as part of the control volume for node $(i,j)$ the discretization reads:
-\begin{align}
-    \quart  \Dx\Dy\, g \left(
-    h^{n+\theta, p}_{i+\quart, j+\quart} \pdiff{\zeta^{n+\theta, p}_{i+\quart, j+\quart}}{x}
-    + h^{n+\theta, p}_{i+\quart, j+\quart} \pdiff{}{x}(\theta \Delta \zeta^{n+1, p+1}_{i+\quart, j+\quart})
-    + \pdiff{\zeta^{n+\theta, p}_{i+\quart, j+\quart}}{x} \theta \Delta h^{n+1,p+1}_{i+\quart, j+\quart}
-    \right)
-\end{align}
-with
+Just looking to the quadrature point of $scv_2$ as part of the control volume for node $(i,j)$ the discretization reads (term by term):
 \begin{align}
     h^{n+\theta, p}_{i+\quart, j+\quart} & \approx
     \frac{1}{16}\left( 9h^{n+\theta, p}_{i, j} + 3 h^{n+\theta, p}_{i+1,j} + h^{n+\theta, p}_{i+1, j+1} + 3  h^{n+\theta, p}_{i, j+1}\right)
     \\*
-    \pdiff{\zeta^{n+\theta, p}_{i+\quart, j+\quart}}{x} & \approx
-   \frac{1}{\Dx}\quart\left[ 3 \left(\zeta_{i,j} - \zeta_{i+1,j}\right) + \left( \zeta_{i,j+1} - \zeta_{i+1,j+1}\right) \right]
+    \pdiff{\zeta^{n+\theta, p}_{i+\quart, j+\quart}}{\xi} & \approx
+   \left[ 3 \left(\zeta_{i+1,j} - \zeta_{i,j}\right) + \left( \zeta_{i+1,j+1} - \zeta_{i,j+1}\right) \right]
    \\*
-   \pdiff{\Delta \zeta^{n+1, p+1}_{i+\quart, j+\quart}}{x} & \approx
-   \frac{1}{\Dx}\quart\left[ 3 \left(\Delta\zeta^{n+1, p+1}_{i,j} - \Delta\zeta^{n+1, p+1}_{i+1,j}\right) + \left(\Delta\zeta^{n+1, p+1}_{i,j+1} - \Delta\zeta^{n+1, p+1}_{i+1,j+1} \right) \right]
-   \\*
+\pdiff{\zeta^{n+\theta, p}_{i+\quart, j+\quart}}{\eta} & \approx
+\left[ 3 \left(\zeta_{i,j+1} - \zeta_{i,j}\right) + \left( \zeta_{i+1,j+1} - \zeta_{i+1,j}\right) \right]
+\\*
+   \pdiff{\Delta \zeta^{n+1, p+1}_{i+\quart, j+\quart}}{\xi} & \approx
+   \quart\left[ 3 \left(\Delta\zeta_{i+1,j} - \Delta\zeta_{i,j}\right) + \left(\Delta\zeta_{i+1,j+1} - \Delta\zeta_{i,j+1} \right) \right]
+\\*
+   \pdiff{\Delta \zeta^{n+1, p+1}_{i+\quart, j+\quart}}{\eta} & \approx
+\quart\left[ 3 \left(\Delta\zeta_{i,j+1} - \Delta\zeta_{i,j}\right) + \left(\Delta\zeta_{i+1,j+1} - \Delta\zeta_{i+1,j} \right) \right]
+\\*
    \Delta h^{n+1,p+1}_{i+\quart, j+\quart} & \approx
-   \frac{1}{16}\left( 9\Delta h^{n+1,p+1}_{i, j} + 3 \Delta h^{n+1,p+1}_{i+1,j} + \Delta h^{n+1,p+1}_{i+1, j+1} + 3  \Delta h^{n+1,p+1}_{i, j+1}\right)
+   \frac{1}{16}\left( 9\Delta h_{i, j} + 3 \Delta h_{i+1,j} + \Delta h_{i+1, j+1} + 3  \Delta h_{i, j+1}\right)
 \end{align}
-\paragraph*{Example}
-Set $\Delta x = \bqty{100}{\metre}$, $\lpdiff{\zeta}{x}=0$, estimate the coefficients in the matrix for a single sub-control volume:
+%
+%--------------------------------------------------------------------------------
+\paragraph*{$r$-momentum}
+For the $r$-momentum equation:
 \begin{align}
-    \Delta h_{i,j} = \quart \Dx\Dy g \frac{1}{16} \left[ 9\ 3\ 1\ 3  \right] = \num{1562.5} \times  \left[ 9\ 3\ 1\ 3  \right]
+    & g h \left( -x_{\eta}\, \pdiff{\zeta}{\xi} + x_{\xi}\, \pdiff{\zeta}{\eta} \right) \approx
+    \\
+    %    & \approx g h^{n+\theta,p+1}_{qp} \left( y_{\eta_{qp}}\pdiff{\zeta^{n+\theta,p+1}_{qp}}{\xi}
+    %    - y_{\xi_{qp}}\, \pdiff{\zeta^{n+\theta,p+1}_{qp}}{\eta} \right)\approx \\
+    & \approx g \left( h^{n+\theta,p}_{qp} + \theta \Delta h_{qp}\right)  \times
+    \\*
+    & \qquad \times \left( -x_{\eta_{qp}}\, \pdiff{}{\xi}\left(\zeta^{n+\theta,p}_{qp} + \theta \Delta \zeta_{qp} \right)
+    + x_{\xi_{qp}}\, \pdiff{}{\eta}\left(\zeta^{n+\theta,p}_{qp} + \theta \Delta \zeta_{qp}   \right)
+    \right)
+\end{align}
+with $qp$ the location of the quadrature point in the sub-control volume.
+The discretization for each of the 4 sub-control volumes reads:
+%
+\begin{align}
+    &g h^{n+\theta,p}_{qp} \left( -x_{\eta_{qp}}\pdiff{}{\xi}\left( \zeta^{n+\theta,p}_{qp} \right)
+    +x_{\xi_{qp}}\, \pdiff{}{\eta}\left(\zeta^{n+\theta,p}_{qp} \right) \right) +
+    \\
+    &\qquad + g h^{n+\theta,p}_{qp} \left( -x_{\eta_{qp}}\pdiff{}{\xi}\left(\theta\Delta \zeta_{qp}\right)
+    + x_{\xi_{qp}}\, \pdiff{}{\eta} \left(\theta\Delta\zeta_{qp} \right)
+    \right) +
+    \\
+    &\qquad + g
+    \left(- x_{\eta_{qp}}\, \pdiff{}{\xi}\left(\zeta^{n+\theta,p}_{qp} \right)
+    +x_{\xi_{qp}}\, \pdiff{}{\eta}\left(\zeta^{n+\theta,p}_{qp} \right)
+    \right)\theta \Delta h_{qp}
 \end{align}
 %--------------------------------------------------------------------------------
 \subsubsection{Convection}
-The convection term in vector notation reads:
+The discretization of the convection term
 \begin{align}
-    \int_\Omega \nabla \dotp \left( \frac{\vec{q}\vec{q}^T}{h} \right)\, d\omega =
-    \oint_{\Omega}  \left( \frac{\vec{q}\vec{q}^T}{h} \right) \dotp \vec{n} \, dl =
-    \oint_{\Omega}
-    \begin{pmatrix}
-        qq/h & qr/h \\
-        rq/h & rr/h
-    \end{pmatrix}
-    \dotp
-    \begin{pmatrix}
-        n_x \\
-        n_y
-    \end{pmatrix}
-     \, dl
-\end{align}
-with $\vec{n} = (n_x, n_y)^T$ the outward normal vector.
-
-The components for the two momentum equations read:
-\begin{align}
-    F_q
-    & = \oint_{\Omega} \left(\frac{qq}{h}{n_x} + \frac{qr}{h}{n_y}\right) \, dl
-    \qquad \textit{q-momentum eq.}
+    &\oint_{\partial\Omega_{\xi\eta}} \left[  \left( y_{\eta}q - x_{\eta} r \right) \frac{q}{h}  n_\xi + \left( -y_{\xi}q  + x_{\xi}r\right) \frac{q}{h} n_\eta \right] \, dl,\qquad \textit{$q$-momentum eq.}
     \\
-    F_r
-    & = \oint_{\Omega} \left(\frac{rq}{h}{n_x} + \frac{rr}{h}{n_y}\right) \, dl
-    \qquad \textit{r-momentum eq.}
+    &\oint_{\partial\Omega_{\xi\eta}} \left[  \left( y_{\eta}q - x_{\eta} r \right) \frac{r}{h}  n_\xi + \left( -y_{\xi}q  + x_{\xi}r\right) \frac{r}{h} n_\eta \right] \, dl,\qquad \textit{$r$-momentum eq.}
 \end{align}
-%The Jacobian \textbf{at the faces of the control volume} for each term of the convection term reads:
-%\begin{align}
-%    &\begin{pmatrix}
-%        \pdiff{}{h}(\frac{qq}{h}) & \pdiff{}{q}(\frac{qq}{h}) & \pdiff{}{r}(\frac{qq}{h})
-%    \end{pmatrix}
-%    =
-%    \begin{pmatrix}
-%    - \frac{qq}{h^2} & \frac{2q}{h}  & 0
-%    \end{pmatrix}
-%\\
-%    &\begin{pmatrix}
-%    \pdiff{}{h}(\frac{qr}{h}) & \pdiff{}{q}(\frac{qr}{h}) & \pdiff{}{r}(\frac{qr}{h})
-%\end{pmatrix}
-%=
-%\begin{pmatrix}
-%    - \frac{qr}{h^2} & \frac{r}{h}  & \frac{q}{h}
-%\end{pmatrix}
-%\\
-%    &\begin{pmatrix}
-%    \pdiff{}{h}(\frac{rq}{h}) & \pdiff{}{q}(\frac{rq}{h}) & \pdiff{}{r}(\frac{rq}{h})
-%\end{pmatrix}
-%=
-%\begin{pmatrix}
-%    - \frac{rq}{h^2} & \frac{r}{h}  & \frac{q}{h}
-%\end{pmatrix}
-%\\
-%    &\begin{pmatrix}
-%    \pdiff{}{h}(\frac{rr}{h}) & \pdiff{}{q}(\frac{rr}{h}) & \pdiff{}{r}(\frac{rr}{h})
-%\end{pmatrix}
-%=
-%\begin{pmatrix}
-%    - \frac{rr}{h^2} & 0 & \frac{2r}{h}
-%\end{pmatrix}
-%\end{align}
+will be given in this section (\autoref{eq:transformed_convection_x}, multiplied with $J$).
+Where $\vec{n} = (n_\xi, n_\eta)^T$ is the outward normal vector.
+
+Considering one sub-control volume and only for the $x$-direction (similar for the
+$y$-direction) then the linearization in time reads:
 %
-The linearization in time for the $q$-momentum equation reads (see \autoref{eq:2d_convection_q_equation}):
 \begin{align}
-    &\frac{q^{n+\theta, p}_{qp}q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_x+ \frac{q^{n+\theta, p}_{qp}r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_y
-    + \left( -\frac{q^{n+\theta, p}_{qp}q^{n+\theta, p}_{qp}}{(h^{n+\theta, p}_{qp})^2} n_x -
-    \frac{q^{n+\theta, p}_{qp}r^{n+\theta, p}_{qp}}{(h^{n+\theta, p}_{qp})^2} n_y \right) \theta \Delta h +
-    \nonumber \\*
-    & + \left( \frac{2 q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_x +  \frac{r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_y \right) \theta \Delta q
-    + \left( 0\, n_x + \frac{q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_y \right) \theta \Delta r
+    \oint_{\partial\Omega_{\xi\eta}} & \Bigg[\left( y_\eta\left(q^{n+\theta, p} + \theta \Delta q\right) - x_\eta \left( r^{n+\theta, p} + \theta \Delta r  \right) \right)
+    \frac{q^{n+\theta, p} + \theta \Delta q}{h^{n+\theta, p} + \theta \Delta h} n_{\xi} +
+    \nonumber\\*
+    &\quad  + \left(-y_\xi\left(q^{n+\theta, p} + \theta \Delta q\right) +
+    x_\xi\left( r^{n+\theta, p} + \theta \Delta r \right) \right) \frac{q^{n+\theta, p} + \theta \Delta q}{h^{n+\theta, p} + \theta \Delta h} n_\eta
+    \Bigg]\, dl
+\end{align}
+These terms need to be computed for each of the control volume faces, taken
+into account the outward normal. Eight faces on a structured grid.
+
+The linearization in time for the $q$-momentum equation reads (see \autoref{eq:2d_convection_q_equation}):
+%
+\begin{align}
+& \half \left( y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p} \right)
+\frac{q^{n+\theta, p}}{h^{n+\theta, p}} n_{\xi}
++ \half \left(-y_\xi q^{n+\theta, p} +
+x_\xi r^{n+\theta, p} \right) \frac{q^{n+\theta, p}}{h^{n+\theta, p}} n_\eta +
+\\
+& + \half \theta \Delta h \Bigg[
+\left( \frac{- y_\eta (q^{n+\theta, p})^2 + x_\eta {q^{n+\theta, p} r^{n+\theta, p}}}{(h^{n+\theta, p})^2} \right) n_\xi+
+\left( \frac{- x_\xi q^{n+\theta, p}r^{n+\theta, p} + y_\xi (r^{n+\theta, p})^2}{(h^{n+\theta, p})^2} \right) n_\eta
+\Bigg]+
+\\
+& + \half \theta \Delta q \Bigg[
+\left( \frac{   2y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\xi +
+\left( \frac{ - 2y_\xi  q^{n+\theta, p} + x_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta
+\Bigg] +
+\\
+& + \half \theta \Delta r \Bigg[
+ \left( \frac{ - x_\eta q^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\xi +
+ \left( \frac{   x_\xi  q^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta
+\Bigg]
 \end{align}
 and for the $r$-momentum equation:
+%
 \begin{align}
-    &\frac{r^{n+\theta, p}_{qp}q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_x+
-     \frac{r^{n+\theta, p}_{qp}r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_y
-   + \left( -\frac{r^{n+\theta, p}_{qp}q^{n+\theta, p}_{qp}}{(h^{n+\theta, p}_{qp})^2} n_x -
-\frac{r^{n+\theta, p}_{qp}r^{n+\theta, p}_{qp}}{(h^{n+\theta, p}_{qp})^2} n_y \right) \theta \Delta h +
-\nonumber \\*
-& +
-\left( \frac{r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_x  + 0\, n_y \right) \theta \Delta q +
-\left (
-\frac{q^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_x
-+ \frac{2 r^{n+\theta, p}_{qp}}{h^{n+\theta, p}_{qp}} n_y \right) \theta \Delta r
+    \oint_{\partial\Omega_{\xi\eta}} & \Bigg[ \left( y_{\eta}\left(q^{n+\theta, p} + \theta \Delta q\right) - x_{\eta} \left(r^{n+\theta, p} + \theta \Delta r\right) \right) \frac{r^{n+\theta, p} + \theta \Delta r}{h^{n+\theta, p} + \theta \Delta h}  n_\xi +
+    \nonumber \\*
+    &\quad + \left( -y_{\xi}\left(q^{n+\theta, p} + \theta \Delta q\right)  + x_{\xi}\left(r^{n+\theta, p} + \theta \Delta r\right)\right) \frac{r^{n+\theta, p} + \theta \Delta r}{h^{n+\theta, p} + \theta \Delta h} n_\eta \Bigg] \, dl
+\end{align}
+The linearization in time for the $r$-momentum equation reads (see \autoref{eq:2d_convection_r_equation}):
+\begin{align}
+& \half \left( y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p} \right)
+\frac{r^{n+\theta, p}}{h^{n+\theta, p}} n_{\xi}
++ \half \left(-y_\xi q^{n+\theta, p} +
+x_\xi r^{n+\theta, p} \right) \frac{r^{n+\theta, p}}{h^{n+\theta, p}} n_\eta +
+\\
+& + \half \theta \Delta h \Bigg[
+\left( \frac{- y_\eta q^{n+\theta, p} r^{n+\theta, p} + x_\eta (r^{n+\theta, p})^2}{(h^{n+\theta, p})^2}
+\right) n_\xi +
+\left( \frac{y_\xi q^{n+\theta, p}r^{n+\theta, p} - x_\xi  (r^{n+\theta, p})^2}{(h^{n+\theta, p})^2}
+\right) n_\eta
+\Bigg] +
+\\
+& + \half \theta \Delta q \Bigg[
+\left( \frac{   y_\eta r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\xi +
+\left( \frac{ - y_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta
+\Bigg]
+\\
+& + \half \theta \Delta r \Bigg[
+\left( \frac{  y_\eta q^{n+\theta, p} - 2 x_\eta r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\xi+
+\left( \frac{- y_\xi  q^{n+\theta, p} + 2 x_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta
+\Bigg] +
 \end{align}
 
-This terms need to be computed for each of the control volume faces, taken into account the outward normal.
+These terms need to be computed for each of the control volume faces, taken into account the outward normal.
 Eight faces on a cartesian/curvilinear grid.
 
 %--------------------------------------------------------------------------------
