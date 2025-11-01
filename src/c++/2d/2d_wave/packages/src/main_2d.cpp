@@ -260,8 +260,6 @@ int main(int argc, char *argv[])
     double Lx = dx * mesh2d->face[0]->dims[0];
     double Ly = dy * mesh2d->face[0]->dims[1];
 
-    double dxinv = 1./dx;                               // invers grid size [m]
-    double dyinv = 1./dy;                               // invers grid size [m]
     size_t nxny = nx * ny;                                   // total number of nodes
     double dxdy = dx * dy ;                               // area of control volume
     //if (viscosity == 0.0)
@@ -667,16 +665,16 @@ int main(int argc, char *argv[])
     CFTS* his_file = new CFTS();
     status = his_file->open(nc_hisfile, model_title);
 
-    if (int(2500. / dx) * dx != 2500. || int(2500. / dy) * dy != 2500.)
-    {
-        std::cout << "----------------------------" << std::endl;
-        std::cout << "dx=" << dx << " or dy=" << dy << " is not a divider of 2500 [m]" << std::endl;
-        std::cout << "Press Enter to finish";
-        std::chrono::duration<int, std::milli> timespan(3000);
-        std::this_thread::sleep_for(timespan);
-        //std::cin.ignore();
-        exit(1);
-    }
+    //if (int(2500. / dx) * dx != 2500. || int(2500. / dy) * dy != 2500.)
+    //{
+    //    std::cout << "----------------------------" << std::endl;
+    //    std::cout << "dx=" << dx << " or dy=" << dy << " is not a divider of 2500 [m]" << std::endl;
+    //    std::cout << "Press Enter to finish";
+    //    std::chrono::duration<int, std::milli> timespan(3000);
+    //    std::this_thread::sleep_for(timespan);
+    //    //std::cin.ignore();
+    //    exit(1);
+    //}
 
     std::vector<std::string> obs_station_names;
     status = def_observation_stations(obs_station_names, input_data.obs_points, xy_tree, x, y, Lx, Ly, dx, dy, nx, ny);
@@ -911,9 +909,10 @@ int main(int argc, char *argv[])
                 int r_eq = outer[row + 2];
 
                 status =  boundary_west(values, row, c_eq, q_eq, r_eq, rhs, 
-                                        dtinv, dxinv, theta, g, eps_bc_corr, 
+                                        dtinv, theta, g, eps_bc_corr, 
                                         stationary, do_convection, do_bed_shear_stress, do_viscosity,
-                                        dx, dy, nx, ny,
+                                        nx, ny,
+                                        x, y, 
                                         hn, qn, rn,
                                         hp, qp, rp,
                                         htheta, qtheta, rtheta,
@@ -938,19 +937,20 @@ int main(int argc, char *argv[])
                 int r_eq = outer[row + 2];
 
                 status =  interior(values, row, c_eq, q_eq, r_eq, rhs, 
-                                    dtinv, dxinv, theta, g, do_convection, nx, ny,
+                                    dtinv, theta, g, do_convection, nx, ny,
                                     x, y,
                                     hn, qn, rn,
                                     hp, qp, rp,
                                     htheta, qtheta, rtheta,
-                                    zb, dx, dy, dxdy, mass);
+                                    zb, mass);
 
                 if (std::fmod(row , 3 * ny) == 0) {
                     // south boundary, over write coefficients
                     status = boundary_south(values, row, c_eq, q_eq, r_eq, rhs, 
-                                            dtinv, dxinv, theta, g, eps_bc_corr, 
+                                            dtinv, theta, g, eps_bc_corr, 
                                             stationary, do_convection, do_bed_shear_stress, do_viscosity,
-                                            dx, dy, nx, ny,
+                                            nx, ny,
+                                            x, y,
                                             hn, qn, rn,
                                             hp, qp, rp,
                                             htheta, qtheta, rtheta,
@@ -961,9 +961,10 @@ int main(int argc, char *argv[])
                 if (std::fmod(row + 3, 3 * ny) == 0) {
                     // north boundary, over write coefficients
                     status = boundary_north(values, row, c_eq, q_eq, r_eq, rhs, 
-                                            dtinv, dxinv, theta, g, eps_bc_corr, 
+                                            dtinv, theta, g, eps_bc_corr, 
                                             stationary, do_convection, do_bed_shear_stress, do_viscosity,
-                                            dx, dy, nx, ny,
+                                            nx, ny,
+                                            x, y,
                                             hn, qn, rn,
                                             hp, qp, rp,
                                             htheta, qtheta, rtheta,
@@ -989,9 +990,10 @@ int main(int argc, char *argv[])
                 int r_eq = outer[row + 2];
 
                 status = boundary_east(values, row, c_eq, q_eq, r_eq, rhs, 
-                                       dtinv, dxinv, theta, g, eps_bc_corr, 
+                                       dtinv, theta, g, eps_bc_corr, 
                                        stationary, do_convection, do_bed_shear_stress, do_viscosity,
-                                       dx, dy, nx, ny,
+                                       nx, ny,
+                                       x, y,
                                        hn, qn, rn,
                                        hp, qp, rp,
                                        htheta, qtheta, rtheta,

@@ -15,7 +15,7 @@
     gauss_sigma = 350.0    # width of the gaussian hump
 
 [Boundary] # north, east, south, west
-    bc_type = ["borsboom", "borsboom", "borsboom", "borsboom"] # Type "borsboom", "free-slip", "mooiman" 
+    bc_type = ["borsboom", "borsboom", "borsboom", "borsboom"] # Type "borsboom", "free_slip", "mooiman" 
     bc_vars = ["zeta", "zeta", "zeta", "zeta"]
     bc_vals = [0.01, 0.01, 0.01, 0.01]
     bc_absorbing = [true, true, true, true]
@@ -36,7 +36,7 @@
 [Numerics]
     dt = 20.0                                     # Time step size [s], if dt == 0: then stationary problem
     iter_max = 25                                 # Maximum number of nonlinear iterations
-    theta = 0.501                                 # Implicitness factor (0.5 <= theta <= 1.0)
+    theta = 1.00                                 # Implicitness factor (0.5 <= theta <= 1.0)
     regularization_init = true
     regularization_iter = false
     regularization_time = false

@@ -37,9 +37,10 @@
 
 
 int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
-    double & dtinv, double & dyinv, double & theta, double & g, double eps_bc_corr, 
+    double & dtinv, double & theta, double & g, double eps_bc_corr, 
     bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity,
-    double dx, double dy, size_t nx, size_t ny,
+    size_t nx, size_t ny,
+    std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
@@ -48,9 +49,10 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
     std::vector<double>& w_nat, std::vector<double>& w_ess);
 
 int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
-    double & dtinv, double & dxinv, double & theta, double & g, double eps_bc_corr, 
+    double & dtinv, double & theta, double & g, double eps_bc_corr, 
     bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity,
-    double dx, double dy, size_t nx, size_t ny,
+    size_t nx, size_t ny,
+    std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
@@ -59,9 +61,10 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     std::vector<double>& w_nat, std::vector<double>& w_ess);
 
 int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
-    double & dtinv, double & dxinv, double & theta, double & g, double eps_bc_corr, 
+    double & dtinv, double & theta, double & g, double eps_bc_corr, 
     bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity,
-    double dx, double dy, size_t nx, size_t ny,
+    size_t nx, size_t ny,
+    std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
@@ -70,9 +73,10 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
     std::vector<double>& w_nat, std::vector<double>& w_ess);
 
 int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
-    double & dtinv, double & dxinv, double & theta, double & g, double eps_bc_corr, 
+    double & dtinv, double & theta, double & g, double eps_bc_corr, 
     bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity,
-    double dx, double dy, size_t nx, size_t ny,
+    size_t nx, size_t ny,
+    std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,

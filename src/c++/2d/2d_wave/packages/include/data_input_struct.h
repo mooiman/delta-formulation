@@ -43,7 +43,6 @@ struct _boundary {
     std::vector<double> bc_vals;
     std::vector<std::string> bc_type;
     std::vector<std::string> bc_vars;
-    std::vector<bool> bc_absorbing;
 };
 struct _domain {
     std::string grid_filename;

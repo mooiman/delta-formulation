@@ -137,3 +137,69 @@ double dcdy_scvf_t(double c0, double c1, double c2, double c3)
     return 1./2. * (c0 - c1 + c2 - c3);
 }
 
+std::vector<double> cv_nodes(double x0, double x1, double x2, double x3)
+{
+    std::vector<double> x_pol;
+    x_pol.push_back(x0);
+    x_pol.push_back(x1);
+    x_pol.push_back(x2);
+    x_pol.push_back(x3);
+
+    return x_pol;
+}
+std::vector<double> scv_nodes(int scv_i, double x0, double x1, double x2, double x3)
+{
+    std::vector<double> x_pol;
+    double mc_x = 0.25 * (x0 + x1 + x2 + x3);
+    double edge_0 = 0.5 * ( x0 + x1);
+    double edge_1 = 0.5 * ( x1 + x2);
+    double edge_2 = 0.5 * ( x2 + x3);
+    double edge_3 = 0.5 * ( x3 + x0);
+    if (scv_i == 0)
+    {
+        x_pol.push_back(x0); 
+        x_pol.push_back(edge_0); 
+        x_pol.push_back(mc_x); 
+        x_pol.push_back(edge_3); 
+    }
+    else if (scv_i == 1)
+    {
+        x_pol.push_back(x1); 
+        x_pol.push_back(edge_1); 
+        x_pol.push_back(mc_x); 
+        x_pol.push_back(edge_0); 
+    }
+    else if (scv_i == 2)
+    {
+        x_pol.push_back(x2); 
+        x_pol.push_back(edge_3); 
+        x_pol.push_back(mc_x); 
+        x_pol.push_back(edge_1); 
+    }
+    else if (scv_i == 3)
+    {
+        x_pol.push_back(x3); 
+        x_pol.push_back(edge_3); 
+        x_pol.push_back(mc_x); 
+        x_pol.push_back(edge_2); 
+    }
+    return x_pol;
+}
+double polygon_area(std::vector<double>& x, std::vector<double>& y)
+{
+    double area = 0.0;
+    for (size_t i = 0; i < x.size()-1; ++i)
+    {
+        area += x[i] * y[i+1];
+    }
+    area += x[x.size() - 1] * y[0];
+
+    for (size_t i = 0; i < x.size()-1; ++i)
+    {
+        area -= y[i] * x[i+1];
+    }
+    area -= y[x.size() - 1] * x[0];
+
+    area *= 0.5;
+    return area;
+}
