@@ -1099,21 +1099,21 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
                 if (stationary) { sign = -1.0; }
                 // face 0
                 face_fac = 0.5 * dy_deta_0 * 0.25;
-                set_value(values, col_b  + 1, face_fac * 1.0 * (dtinv * w_ess[0] - eps_bc_corr * theta * w_ess[0]));
-                set_value(values, col_w  + 1, face_fac * 1.0 * (dtinv * w_ess[1] - eps_bc_corr * theta * w_ess[1]));
-                set_value(values, col_ww + 1, face_fac * 1.0 * (dtinv * w_ess[2] - eps_bc_corr * theta * w_ess[2]));
-                set_value(values, col_b  + 1, face_fac * 3.0 * (dtinv * w_ess[0] - eps_bc_corr * theta * w_ess[0]));
-                set_value(values, col_w  + 1, face_fac * 3.0 * (dtinv * w_ess[1] - eps_bc_corr * theta * w_ess[1]));
-                set_value(values, col_ww + 1, face_fac * 3.0 * (dtinv * w_ess[2] - eps_bc_corr * theta * w_ess[2]));
+                set_value(values, col_nb  + 1, face_fac * 1.0 * (dtinv * w_ess[0] - eps_bc_corr * theta * w_ess[0]));
+                set_value(values, col_nw  + 1, face_fac * 1.0 * (dtinv * w_ess[1] - eps_bc_corr * theta * w_ess[1]));
+                set_value(values, col_nww + 1, face_fac * 1.0 * (dtinv * w_ess[2] - eps_bc_corr * theta * w_ess[2]));
+                set_value(values, col_b   + 1, face_fac * 3.0 * (dtinv * w_ess[0] - eps_bc_corr * theta * w_ess[0]));
+                set_value(values, col_w   + 1, face_fac * 3.0 * (dtinv * w_ess[1] - eps_bc_corr * theta * w_ess[1]));
+                set_value(values, col_ww  + 1, face_fac * 3.0 * (dtinv * w_ess[2] - eps_bc_corr * theta * w_ess[2]));
 
                 // face 1
                 face_fac = 0.5 * dy_deta_1 * 0.25;
-                set_value(values, col_b  + 1, face_fac * 3.0 * (dtinv * w_ess[0] - eps_bc_corr * theta * w_ess[0]));
-                set_value(values, col_w  + 1, face_fac * 3.0 * (dtinv * w_ess[1] - eps_bc_corr * theta * w_ess[1]));
-                set_value(values, col_ww + 1, face_fac * 3.0 * (dtinv * w_ess[2] - eps_bc_corr * theta * w_ess[2]));
-                set_value(values, col_b  + 1, face_fac * 1.0 * (dtinv * w_ess[0] - eps_bc_corr * theta * w_ess[0]));
-                set_value(values, col_w  + 1, face_fac * 1.0 * (dtinv * w_ess[1] - eps_bc_corr * theta * w_ess[1]));
-                set_value(values, col_ww + 1, face_fac * 1.0 * (dtinv * w_ess[2] - eps_bc_corr * theta * w_ess[2]));
+                set_value(values, col_b   + 1, face_fac * 3.0 * (dtinv * w_ess[0] - eps_bc_corr * theta * w_ess[0]));
+                set_value(values, col_w   + 1, face_fac * 3.0 * (dtinv * w_ess[1] - eps_bc_corr * theta * w_ess[1]));
+                set_value(values, col_ww  + 1, face_fac * 3.0 * (dtinv * w_ess[2] - eps_bc_corr * theta * w_ess[2]));
+                set_value(values, col_sb  + 1, face_fac * 1.0 * (dtinv * w_ess[0] - eps_bc_corr * theta * w_ess[0]));
+                set_value(values, col_sw  + 1, face_fac * 1.0 * (dtinv * w_ess[1] - eps_bc_corr * theta * w_ess[1]));
+                set_value(values, col_sww + 1, face_fac * 1.0 * (dtinv * w_ess[2] - eps_bc_corr * theta * w_ess[2]));
 
                 double qtheta_0 = 0.25 * (3.0 * qtheta_b + 1.0 * qtheta_n);
                 double qtheta_1 = 0.25 * (3.0 * qtheta_b + 1.0 * qtheta_s);
@@ -1813,16 +1813,14 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
                 set_value(values, col_eb  + 2, face_fac * 1.0 * (dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0]));
                 set_value(values, col_en  + 2, face_fac * 1.0 * (dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1]));
                 set_value(values, col_enn + 2, face_fac * 1.0 * (dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2]));
-
-                set_value(values, col_b  + 2, face_fac * 3.0 * (dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0]));
-                set_value(values, col_n  + 2, face_fac * 3.0 * (dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1]));
-                set_value(values, col_nn + 2, face_fac * 3.0 * (dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2]));
+                set_value(values, col_b   + 2, face_fac * 3.0 * (dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0]));
+                set_value(values, col_n   + 2, face_fac * 3.0 * (dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1]));
+                set_value(values, col_nn  + 2, face_fac * 3.0 * (dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2]));
 
                 face_fac = 0.5 * dx_dxi_1 * 0.25;
-                set_value(values, col_b  + 2, face_fac * 3.0 * (dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0]));
-                set_value(values, col_n  + 2, face_fac * 3.0 * (dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1]));
-                set_value(values, col_nn + 2, face_fac * 3.0 * (dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2]));
-
+                set_value(values, col_b   + 2, face_fac * 3.0 * (dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0]));
+                set_value(values, col_n   + 2, face_fac * 3.0 * (dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1]));
+                set_value(values, col_nn  + 2, face_fac * 3.0 * (dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2]));
                 set_value(values, col_wb  + 2, face_fac * 1.0 * (dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0]));
                 set_value(values, col_wn  + 2, face_fac * 1.0 * (dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1]));
                 set_value(values, col_wnn + 2, face_fac * 1.0 * (dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2]));

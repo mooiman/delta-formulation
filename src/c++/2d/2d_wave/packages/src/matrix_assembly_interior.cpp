@@ -184,36 +184,44 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     //
     // Mass flux
     // 
+    double fluxx_0 = 0.0;
+    double fluxy_1 = 0.0;
+    double fluxy_2 = 0.0;
+    double fluxx_3 = 0.0;
+    double fluxx_4 = 0.0;
+    double fluxy_5 = 0.0;
+    double fluxy_6 = 0.0;
+    double fluxx_7 = 0.0;
+
     // d(q)/dxi
     // 
     // sub control volume 0 ============================================
+    // 
+    // scv_0 face_0
     double dy_dxi  = dcdx_scvf_n(y[p_0], y[p_w], y[p_s], y[p_sw]);
     double dx_dxi  = dcdx_scvf_n(x[p_0], x[p_w], x[p_s], x[p_sw]);
     double dy_deta = dcdy_scvf_t(y[p_0], y[p_s], y[p_w], y[p_sw]);
     double dx_deta = dcdy_scvf_t(x[p_0], x[p_s], x[p_w], x[p_sw]);
-    // 
-    // scv_0 face_0
+
     double n_xi = -1.0;
     double n_eta = 0.0;
 
-    double dl_y = 0.5 * dy_deta * n_xi;  // length in y-direction
-    double dl_x = 0.5 * dx_deta * n_xi;  // length in x-direction
+    double dl_y = 0.5 * n_xi;  // length in y-direction
+    double dl_x = 0.5 * n_xi;  // length in x-direction
 
-    add_value(values, col_0  + 1, theta * dl_y * 0.125 * 3.);
-    add_value(values, col_w  + 1, theta * dl_y * 0.125 * 3.);
-    add_value(values, col_sw + 1, theta * dl_y * 0.125 * 1.);
-    add_value(values, col_s  + 1, theta * dl_y * 0.125 * 1.);
-    if (true)
-    {
-    add_value(values, col_0  + 2, -theta * dl_x * 0.125 * 3.);
-    add_value(values, col_w  + 2, -theta * dl_x * 0.125 * 3.);
-    add_value(values, col_sw + 2, -theta * dl_x * 0.125 * 1.);
-    add_value(values, col_s  + 2, -theta * dl_x * 0.125 * 1.);
-    }
+    add_value(values, col_0  + 1, theta * dl_y * dy_deta * 0.125 * 3.);
+    add_value(values, col_w  + 1, theta * dl_y * dy_deta * 0.125 * 3.);
+    add_value(values, col_sw + 1, theta * dl_y * dy_deta * 0.125 * 1.);
+    add_value(values, col_s  + 1, theta * dl_y * dy_deta * 0.125 * 1.);
+
+    add_value(values, col_0  + 2, -theta * dl_x * dx_deta * 0.125 * 3.);
+    add_value(values, col_w  + 2, -theta * dl_x * dx_deta * 0.125 * 3.);
+    add_value(values, col_sw + 2, -theta * dl_x * dx_deta * 0.125 * 1.);
+    add_value(values, col_s  + 2, -theta * dl_x * dx_deta * 0.125 * 1.);
 
     // rhs
-    double fluxx_0 = (scvf_xi(qtheta_0, qtheta_w, qtheta_s, qtheta_sw)) * dl_y 
-                   - (scvf_xi(rtheta_0, rtheta_w, rtheta_s, rtheta_sw)) * dl_x;
+    fluxx_0 = dy_deta * (scvf_xi(qtheta_0, qtheta_w, qtheta_s, qtheta_sw)) * dl_y 
+            - dx_deta * (scvf_xi(rtheta_0, rtheta_w, rtheta_s, rtheta_sw)) * dl_x;
     //
     // scv_0 face_1
     // No contribution to Delta r and rhs
@@ -230,22 +238,22 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     n_xi = 1.0;
     n_eta = 0.0;
 
-    dl_y = 0.5 * dy_deta * n_xi;  // length in y-direction
-    dl_x = 0.5 * dx_deta * n_xi;  // length in x-direction
+    dl_y = 0.5 * n_xi;  // length in y-direction
+    dl_x = 0.5 * n_xi;  // length in x-direction
 
-    add_value(values, col_0  + 1, theta * dl_y * 0.125 * 3.);
-    add_value(values, col_e  + 1, theta * dl_y * 0.125 * 3.);
-    add_value(values, col_se + 1, theta * dl_y * 0.125 * 1.);
-    add_value(values, col_s  + 1, theta * dl_y * 0.125 * 1.);
+    add_value(values, col_0  + 1, theta * dl_y * dy_deta * 0.125 * 3.);
+    add_value(values, col_e  + 1, theta * dl_y * dy_deta * 0.125 * 3.);
+    add_value(values, col_se + 1, theta * dl_y * dy_deta * 0.125 * 1.);
+    add_value(values, col_s  + 1, theta * dl_y * dy_deta * 0.125 * 1.);
 
-    add_value(values, col_0  + 2, -theta * dl_x * 0.125 * 3.);
-    add_value(values, col_s  + 2, -theta * dl_x * 0.125 * 3.);
-    add_value(values, col_se + 2, -theta * dl_x * 0.125 * 1.);
-    add_value(values, col_e  + 2, -theta * dl_x * 0.125 * 1.);
+    add_value(values, col_0  + 2, -theta * dl_x * dx_deta * 0.125 * 3.);
+    add_value(values, col_s  + 2, -theta * dl_x * dx_deta * 0.125 * 3.);
+    add_value(values, col_se + 2, -theta * dl_x * dx_deta * 0.125 * 1.);
+    add_value(values, col_e  + 2, -theta * dl_x * dx_deta * 0.125 * 1.);
 
     // rhs
-    double fluxx_3 = (scvf_xi(qtheta_e, qtheta_0, qtheta_se, qtheta_s)) * dl_y 
-                   - (scvf_xi(rtheta_e, rtheta_0, rtheta_se, rtheta_s)) * dl_x;
+    fluxx_3 = dy_deta * (scvf_xi(qtheta_e, qtheta_0, qtheta_se, qtheta_s)) * dl_y 
+            - dx_deta * (scvf_xi(rtheta_e, rtheta_0, rtheta_se, rtheta_s)) * dl_x;
     
     // sub control volume 2 ============================================
     // scv_2 face_4
@@ -257,21 +265,21 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     n_xi =  1.0;
     n_eta = 0.0;
 
-    dl_y = 0.5 * dy_deta * n_xi;  // length in y-direction
-    dl_x = 0.5 * dx_deta * n_xi;  // length in x-direction
+    dl_y = 0.5 * n_xi;  // length in y-direction
+    dl_x = 0.5 * n_xi;  // length in x-direction
 
-    add_value(values, col_0  + 1, theta * dl_y * 0.125 * 3.);
-    add_value(values, col_e  + 1, theta * dl_y * 0.125 * 3.);
-    add_value(values, col_ne + 1, theta * dl_y * 0.125 * 1.);
-    add_value(values, col_n  + 1, theta * dl_y * 0.125 * 1.);
+    add_value(values, col_0  + 1, theta * dl_y * dy_deta * 0.125 * 3.);
+    add_value(values, col_e  + 1, theta * dl_y * dy_deta * 0.125 * 3.);
+    add_value(values, col_ne + 1, theta * dl_y * dy_deta * 0.125 * 1.);
+    add_value(values, col_n  + 1, theta * dl_y * dy_deta * 0.125 * 1.);
 
-    add_value(values, col_0  + 2, -theta * dl_x * 0.125 * 3.);
-    add_value(values, col_e  + 2, -theta * dl_x * 0.125 * 3.);
-    add_value(values, col_ne + 2, -theta * dl_x * 0.125 * 1.);
-    add_value(values, col_n  + 2, -theta * dl_x * 0.125 * 1.);
+    add_value(values, col_0  + 2, -theta * dl_x * dx_deta * 0.125 * 3.);
+    add_value(values, col_e  + 2, -theta * dl_x * dx_deta * 0.125 * 3.);
+    add_value(values, col_ne + 2, -theta * dl_x * dx_deta * 0.125 * 1.);
+    add_value(values, col_n  + 2, -theta * dl_x * dx_deta * 0.125 * 1.);
 
-    double fluxx_4 = (scvf_xi(qtheta_e, qtheta_0, qtheta_ne, qtheta_n)) * dl_y 
-                   - (scvf_xi(rtheta_e, rtheta_0, rtheta_ne, rtheta_n)) * dl_x;
+    fluxx_4 = dy_deta * (scvf_xi(qtheta_e, qtheta_0, qtheta_ne, qtheta_n)) * dl_y 
+            - dx_deta * (scvf_xi(rtheta_e, rtheta_0, rtheta_ne, rtheta_n)) * dl_x;
     // scv_2 face_5
     // No contribution to Delta r and rhs
                                 
@@ -288,26 +296,25 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     n_xi = -1.0;
     n_eta = 0.0;
 
-    dl_y = 0.5 * dy_deta * n_xi;  // length in y-direction
-    dl_x = 0.5 * dx_deta * n_xi;  // length in x-direction
+    dl_y = 0.5 * n_xi;  // length in y-direction
+    dl_x = 0.5 * n_xi;  // length in x-direction
 
-    add_value(values, col_0  + 1, theta * dl_y * 0.125 * 3.);
-    add_value(values, col_w  + 1, theta * dl_y * 0.125 * 3.);
-    add_value(values, col_n  + 1, theta * dl_y * 0.125 * 1.);
-    add_value(values, col_nw + 1, theta * dl_y * 0.125 * 1.);
+    add_value(values, col_0  + 1, theta * dl_y * dy_deta * 0.125 * 3.);
+    add_value(values, col_w  + 1, theta * dl_y * dy_deta * 0.125 * 3.);
+    add_value(values, col_n  + 1, theta * dl_y * dy_deta * 0.125 * 1.);
+    add_value(values, col_nw + 1, theta * dl_y * dy_deta * 0.125 * 1.);
 
-    add_value(values, col_0  + 2, theta * dl_x * 0.125 * 3.);
-    add_value(values, col_w  + 2, theta * dl_x * 0.125 * 3.);
-    add_value(values, col_n  + 2, theta * dl_x * 0.125 * 1.);
-    add_value(values, col_nw + 2, theta * dl_x * 0.125 * 1.);
+    add_value(values, col_0  + 2, -theta * dl_x * dx_deta * 0.125 * 3.);
+    add_value(values, col_w  + 2, -theta * dl_x * dx_deta * 0.125 * 3.);
+    add_value(values, col_n  + 2, -theta * dl_x * dx_deta * 0.125 * 1.);
+    add_value(values, col_nw + 2, -theta * dl_x * dx_deta * 0.125 * 1.);
 
-    double fluxx_7 = (scvf_xi(qtheta_0, qtheta_w, qtheta_nw, qtheta_n)) * dl_y 
-                   - (scvf_xi(rtheta_0, rtheta_w, rtheta_nw, rtheta_n)) * dl_x;
+    fluxx_7 = dy_deta * (scvf_xi(qtheta_0, qtheta_w, qtheta_n, qtheta_nw)) * dl_y 
+            - dx_deta * (scvf_xi(rtheta_0, rtheta_w, rtheta_n, rtheta_nw)) * dl_x;
     //
     // mass flux
     // 
     // d(r)/deta
-    //
     //
     // sub control volume 0 ============================================
     //
@@ -322,22 +329,22 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     n_xi = 0.0;
     n_eta = -1.0;
 
-    dl_y = 0.5 * dy_dxi * n_eta;  // length in y-direction
-    dl_x = 0.5 * dx_dxi * n_eta;  // length in x-direction
+    dl_y = 0.5 * n_eta;  // length in y-direction
+    dl_x = 0.5 * n_eta;  // length in x-direction
 
-    add_value(values, col_0  + 1, -theta * dl_y * 0.125 * 3.);
-    add_value(values, col_s  + 1, -theta * dl_y * 0.125 * 3.);
-    add_value(values, col_w  + 1, -theta * dl_y * 0.125 * 1.);
-    add_value(values, col_sw + 1, -theta * dl_y * 0.125 * 1.);
+    add_value(values, col_0  + 1, -theta * dl_y * dy_dxi * 0.125 * 3.);
+    add_value(values, col_s  + 1, -theta * dl_y * dy_dxi * 0.125 * 3.);
+    add_value(values, col_w  + 1, -theta * dl_y * dy_dxi * 0.125 * 1.);
+    add_value(values, col_sw + 1, -theta * dl_y * dy_dxi * 0.125 * 1.);
 
-    add_value(values, col_0  + 2, theta * dl_x * 0.125 * 3.);
-    add_value(values, col_s  + 2, theta * dl_x * 0.125 * 3.);
-    add_value(values, col_w  + 2, theta * dl_x * 0.125 * 1.);
-    add_value(values, col_sw + 2, theta * dl_x * 0.125 * 1.);
+    add_value(values, col_0  + 2, theta * dl_x * dx_dxi * 0.125 * 3.);
+    add_value(values, col_s  + 2, theta * dl_x * dx_dxi * 0.125 * 3.);
+    add_value(values, col_w  + 2, theta * dl_x * dx_dxi * 0.125 * 1.);
+    add_value(values, col_sw + 2, theta * dl_x * dx_dxi * 0.125 * 1.);
 
     // rhs
-    double fluxy_1 = - (scvf_eta(qtheta_0, qtheta_s, qtheta_sw, qtheta_w)) * dl_y 
-                     + (scvf_eta(rtheta_0, rtheta_s, rtheta_sw, rtheta_w)) * dl_x;
+    fluxy_1 = - dy_dxi * (scvf_eta(qtheta_0, qtheta_s, qtheta_sw, qtheta_w)) * dl_y 
+              + dx_dxi * (scvf_eta(rtheta_0, rtheta_s, rtheta_sw, rtheta_w)) * dl_x;
     //                                        
     // sub control volume 1 ============================================
     // scv_1 face_2
@@ -349,22 +356,22 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     n_xi = 0.0;
     n_eta = -1.0;
 
-    dl_y = 0.5 * dy_dxi * n_eta;  // length in y-direction
-    dl_x = 0.5 * dx_dxi * n_eta;  // length in x-direction
+    dl_y = 0.5 * n_eta;  // length in y-direction
+    dl_x = 0.5 * n_eta;  // length in x-direction
 
-    add_value(values, col_0  + 1, -theta * dl_y * 0.125 * 3.);
-    add_value(values, col_s  + 1, -theta * dl_y * 0.125 * 3.);
-    add_value(values, col_se + 1, -theta * dl_y * 0.125 * 1.);
-    add_value(values, col_e  + 1, -theta * dl_y * 0.125 * 1.);
+    add_value(values, col_0  + 1, -theta * dl_y * dy_dxi * 0.125 * 3.);
+    add_value(values, col_s  + 1, -theta * dl_y * dy_dxi * 0.125 * 3.);
+    add_value(values, col_se + 1, -theta * dl_y * dy_dxi * 0.125 * 1.);
+    add_value(values, col_e  + 1, -theta * dl_y * dy_dxi * 0.125 * 1.);
 
-    add_value(values, col_0  + 2, theta * dl_x * 0.125 * 3.);
-    add_value(values, col_s  + 2, theta * dl_x * 0.125 * 3.);
-    add_value(values, col_se + 2, theta * dl_x * 0.125 * 1.);
-    add_value(values, col_e  + 2, theta * dl_x * 0.125 * 1.);
+    add_value(values, col_0  + 2, theta * dl_x * dx_dxi * 0.125 * 3.);
+    add_value(values, col_s  + 2, theta * dl_x * dx_dxi * 0.125 * 3.);
+    add_value(values, col_se + 2, theta * dl_x * dx_dxi * 0.125 * 1.);
+    add_value(values, col_e  + 2, theta * dl_x * dx_dxi * 0.125 * 1.);
 
     // rhs
-    double fluxy_2 = - (scvf_eta(qtheta_0, qtheta_s, qtheta_se, qtheta_e)) * dl_y 
-                     + (scvf_eta(rtheta_0, rtheta_s, rtheta_se, rtheta_e)) * dl_x;
+    fluxy_2 = - (scvf_eta(qtheta_0, qtheta_s, qtheta_se, qtheta_e)) * dl_y 
+              + dx_dxi * (scvf_eta(rtheta_0, rtheta_s, rtheta_se, rtheta_e)) * dl_x;
     // scv_1 face_3
     // No contribution to r-momentum equation
                             
@@ -380,22 +387,22 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     n_xi =  0.0;
     n_eta = 1.0;
 
-    dl_y = 0.5 * dy_dxi * n_eta;  // length in y-direction
-    dl_x = 0.5 * dx_dxi * n_eta;  // length in x-direction
+    dl_y = 0.5 * n_eta;  // length in y-direction
+    dl_x = 0.5 * n_eta;  // length in x-direction
 
-    add_value(values, col_0  + 1, -theta * dl_y * 0.125 * 3.);
-    add_value(values, col_n  + 1, -theta * dl_y * 0.125 * 3.);
-    add_value(values, col_e  + 1, -theta * dl_y * 0.125 * 1.);
-    add_value(values, col_ne + 1, -theta * dl_y * 0.125 * 1.);
+    add_value(values, col_0  + 1, -theta * dl_y * dy_dxi * 0.125 * 3.);
+    add_value(values, col_n  + 1, -theta * dl_y * dy_dxi * 0.125 * 3.);
+    add_value(values, col_e  + 1, -theta * dl_y * dy_dxi * 0.125 * 1.);
+    add_value(values, col_ne + 1, -theta * dl_y * dy_dxi * 0.125 * 1.);
 
-    add_value(values, col_0  + 2, theta * dl_x * 0.125 * 3.);
-    add_value(values, col_n  + 2, theta * dl_x * 0.125 * 3.);
-    add_value(values, col_e  + 2, theta * dl_x * 0.125 * 1.);
-    add_value(values, col_ne + 2, theta * dl_x * 0.125 * 1.);
+    add_value(values, col_0  + 2, theta * dl_x * dx_dxi * 0.125 * 3.);
+    add_value(values, col_n  + 2, theta * dl_x * dx_dxi * 0.125 * 3.);
+    add_value(values, col_e  + 2, theta * dl_x * dx_dxi * 0.125 * 1.);
+    add_value(values, col_ne + 2, theta * dl_x * dx_dxi * 0.125 * 1.);
 
     // rhs
-    double fluxy_5 = - (scvf_eta(qtheta_n, qtheta_0, qtheta_ne, qtheta_e)) * dl_y 
-                     + (scvf_eta(rtheta_n, rtheta_0, rtheta_ne, rtheta_e)) * dl_x;
+    fluxy_5 = - dy_dxi * (scvf_eta(qtheta_n, qtheta_0, qtheta_ne, qtheta_e)) * dl_y 
+              + dx_dxi * (scvf_eta(rtheta_n, rtheta_0, rtheta_ne, rtheta_e)) * dl_x;
                            
     // sub control volume 3 ============================================
     dy_dxi  = dcdx_scvf_t(y[p_0], y[p_w], y[p_n], y[p_nw]);
@@ -406,22 +413,22 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     n_xi =  0.0;
     n_eta = 1.0;
 
-    dl_y = 0.5 * dy_dxi * n_eta;  // length in y-direction
-    dl_x = 0.5 * dx_dxi * n_eta;  // length in x-direction
+    dl_y = 0.5 * n_eta;  // length in y-direction
+    dl_x = 0.5 * n_eta;  // length in x-direction
 
-    add_value(values, col_0  + 1, -theta * dl_y * 0.125 * 3.);
-    add_value(values, col_n  + 1, -theta * dl_y * 0.125 * 3.);
-    add_value(values, col_nw + 1, -theta * dl_y * 0.125 * 1.);
-    add_value(values, col_w  + 1, -theta * dl_y * 0.125 * 1.);
+    add_value(values, col_0  + 1, -theta * dl_y * dy_dxi * 0.125 * 3.);
+    add_value(values, col_n  + 1, -theta * dl_y * dy_dxi * 0.125 * 3.);
+    add_value(values, col_nw + 1, -theta * dl_y * dy_dxi * 0.125 * 1.);
+    add_value(values, col_w  + 1, -theta * dl_y * dy_dxi * 0.125 * 1.);
 
-    add_value(values, col_0  + 2, theta * dl_x * 0.125 * 3.);
-    add_value(values, col_n  + 2, theta * dl_x * 0.125 * 3.);
-    add_value(values, col_nw + 2, theta * dl_x * 0.125 * 1.);
-    add_value(values, col_w  + 2, theta * dl_x * 0.125 * 1.);
+    add_value(values, col_0  + 2, theta * dl_x * dx_dxi * 0.125 * 3.);
+    add_value(values, col_n  + 2, theta * dl_x * dx_dxi * 0.125 * 3.);
+    add_value(values, col_nw + 2, theta * dl_x * dx_dxi * 0.125 * 1.);
+    add_value(values, col_w  + 2, theta * dl_x * dx_dxi * 0.125 * 1.);
 
     // rhs
-    double fluxy_6 = - (scvf_eta(qtheta_n, qtheta_0, qtheta_nw, qtheta_w)) * dl_y 
-                     + (scvf_eta(rtheta_n, rtheta_0, rtheta_nw, rtheta_w)) * dl_x;
+    fluxy_6 = - dy_dxi * (scvf_eta(qtheta_n, qtheta_0, qtheta_nw, qtheta_w)) * dl_y 
+              + dx_dxi * (scvf_eta(rtheta_n, rtheta_0, rtheta_nw, rtheta_w)) * dl_x;
     // scv_1 face_7
     // No contribution to Delta q and rhs
 
@@ -738,7 +745,6 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
         depth_2 * (-dx_deta_2 * dzetadxi_2 + dx_dxi_2 * dzetadeta_2) + 
         depth_3 * (-dx_deta_3 * dzetadxi_3 + dx_dxi_3 * dzetadeta_3)
         );
-
     return 0;
 }
         
