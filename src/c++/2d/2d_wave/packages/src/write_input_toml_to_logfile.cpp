@@ -41,7 +41,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
 
     log_file << "    " << "bc_type      = [\"";
     for (int i = 0; i < data.boundary.bc_type.size() - 1; ++i) { log_file << data.boundary.bc_type[i] << "\", \""; }
-    log_file << data.boundary.bc_type[data.boundary.bc_type.size() - 1] << "\"]  # Type \"free_slip\", \"no-slip\", \"borsboom\", \"mooiman\"  " << std::endl;
+    log_file << data.boundary.bc_type[data.boundary.bc_type.size() - 1] << "\"]  # Type \"free_slip\", \"no_slip\", \"borsboom\", \"mooiman\"  " << std::endl;
     
     log_file << "    " << "bc_vars      = [\"";
     for (int i = 0; i < data.boundary.bc_vars.size() - 1; ++i) { log_file << data.boundary.bc_vars[i] << "\", \""; }
