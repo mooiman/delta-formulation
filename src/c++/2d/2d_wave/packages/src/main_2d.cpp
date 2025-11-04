@@ -1116,6 +1116,7 @@ int main(int argc, char *argv[])
                     log_file << "=== Matrix ============================================" << std::endl;
                     for (size_t i = 0; i < 3 * nxny; ++i)
                     {
+                        log_file << std::showpos << std::setprecision(3) << i << "   ";
                         for (int j = 0; j < 3*nxny; ++j)
                         {
                             log_file << std::showpos << std::setprecision(3) << std::scientific << A.coeff(i, j) << " ";
@@ -1129,6 +1130,7 @@ int main(int argc, char *argv[])
                     {
                         double off_diag = 0.0;
                         double diag = 0.0;
+                        log_file << std::showpos << std::setprecision(3) << i << "   ";
                         for (int j = 0; j < 3*nxny; ++j)
                         {
                             if (i != j ) { off_diag += std::abs(A.coeff(i,j)); }
