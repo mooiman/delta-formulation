@@ -45,6 +45,7 @@
 #include <Eigen/Sparse>
 #include <Eigen/Core>
 
+#if defined(MULTIGRID)
 // for Algebraic Multigrid solver
 #include <amgcl/adapter/eigen.hpp>
 #include <amgcl/backend/builtin.hpp>
@@ -56,6 +57,7 @@
 #include <amgcl/profiler.hpp>
 
 AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
+#endif
 
 #include "bed_level.h"
 #include "bed_shear_stress.h"
@@ -301,6 +303,15 @@ int main(int argc, char *argv[])
     std::string solver_name("--- undefined ---");
     if (input_data.numerics.linear_solver == "bicgstab") { solver_name = "BiCGstab"; }
     if (input_data.numerics.linear_solver == "multigrid") { solver_name = "MultiGrid"; }
+    if (solver_name == "MultiGrid")
+    { 
+        std::cout << "Multigrid option not supported by this execuable. Adjust code and recompile it" << std::endl;
+        log_file << "Multigrid option not supported by this execuable. Adjust code and recompile it" << std::endl;
+        std::chrono::duration<int, std::milli> timespan(3000);
+        std::this_thread::sleep_for(timespan);
+        //std::cin.ignore();
+        exit(1);
+    }
 
     std::string model_title("Linear wave equation");
 
@@ -826,6 +837,7 @@ int main(int argc, char *argv[])
     //Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
     //Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::DiagonalPreconditioner<double> > solver;
     // 
+#if defined(MULTIGRID)
     // AMGCL setup
     using T = double;
     using Backend = amgcl::backend::builtin<T>;
@@ -838,7 +850,7 @@ int main(int argc, char *argv[])
     Solver::params prm;
     prm.solver.tol = eps_bicgstab;
     prm.solver.maxiter = 1000;
-               
+#endif               
 
     for (int nst = 1; nst < total_time_steps; ++nst)
     {
@@ -1182,6 +1194,7 @@ int main(int argc, char *argv[])
                 }
             }
             ////////////////////////////////////////////////////////////////////
+#if defined(MULTIGRID)
             else if (linear_solver == "multigrid")
             {
                 if (nst == 1 && iter == 0)
@@ -1214,6 +1227,7 @@ int main(int argc, char *argv[])
                         << std::endl;
                 }
             }
+#endif
             ////////////////////////////////////////////////////////////////////
 
             // 
