@@ -158,10 +158,10 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     double dx_deta_2 = 0.25 * (3. * (x[p_n] - x[p_0]) + 1. * (x[p_ne] - x[p_e ]));
     double dx_deta_3 = 0.25 * (3. * (x[p_n] - x[p_0]) + 1. * (x[p_nw] - x[p_w ]));
 
-    scv_area_0 = 0.25 * (dx_dxi_0 * dy_deta_0 - dy_dxi_0 * dx_deta_0);
-    scv_area_1 = 0.25 * (dx_dxi_1 * dy_deta_1 - dy_dxi_1 * dx_deta_1);
-    scv_area_2 = 0.25 * (dx_dxi_2 * dy_deta_2 - dy_dxi_2 * dx_deta_2);
-    scv_area_3 = 0.25 * (dx_dxi_3 * dy_deta_3 - dy_dxi_3 * dx_deta_3);
+    //scv_area_0 = 0.25 * (dx_dxi_0 * dy_deta_0 - dy_dxi_0 * dx_deta_0);
+    //scv_area_1 = 0.25 * (dx_dxi_1 * dy_deta_1 - dy_dxi_1 * dx_deta_1);
+    //scv_area_2 = 0.25 * (dx_dxi_2 * dy_deta_2 - dy_dxi_2 * dx_deta_2);
+    //scv_area_3 = 0.25 * (dx_dxi_3 * dy_deta_3 - dy_dxi_3 * dx_deta_3);
 
     double cv_area = scv_area_0 + scv_area_1 + scv_area_2 + scv_area_3;
     double scv_area_frac_0 = scv_area_0/cv_area;
