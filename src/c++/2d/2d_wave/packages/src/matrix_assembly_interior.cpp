@@ -67,8 +67,8 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
 {
     int p_0 = c_eq/(3*27);  // node number;  // centre of discretization molecule
     // if node number is south or north boundary point, exit the function
-    if (std::fmod(p_0, ny) == 0) { return 1; }  // south boundary
-    if (std::fmod(p_0 + 1, ny) == 0) { return 2; }  // north boundary
+    if (p_0 % ny == 0) { return 1; }  // south boundary
+    if (p_0 + 1 % ny == 0) { return 2; }  // north boundary
 
     memset(&values[c_eq], 0, 3 * 27 * sizeof(double));  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
 
@@ -137,6 +137,31 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     x_pol = scv_nodes(3, x[p_0], x[p_n], x[p_nw], x[p_w]);
     y_pol = scv_nodes(3, y[p_0], y[p_n], y[p_nw], y[p_w]);
     double scv_area_3 = polygon_area(x_pol, y_pol);
+
+    double dy_deta_0 = 0.25 * (3. * (y[p_0] - y[p_s]) + 1. * (y[p_w ] - y[p_sw]));
+    double dy_deta_1 = 0.25 * (3. * (y[p_0] - y[p_s]) + 1. * (y[p_e ] - y[p_se]));
+    double dy_deta_2 = 0.25 * (3. * (y[p_n] - y[p_0]) + 1. * (y[p_ne] - y[p_e ]));
+    double dy_deta_3 = 0.25 * (3. * (y[p_n] - y[p_0]) + 1. * (y[p_nw] - y[p_w ]));
+
+    double dy_dxi_0 = 0.25 * (3. * (y[p_0] - y[p_w]) + 1. * (y[p_s ] - y[p_sw]));
+    double dy_dxi_1 = 0.25 * (3. * (y[p_e] - y[p_0]) + 1. * (y[p_se] - y[p_s ]));
+    double dy_dxi_2 = 0.25 * (3. * (y[p_e] - y[p_0]) + 1. * (y[p_ne] - y[p_n ]));
+    double dy_dxi_3 = 0.25 * (3. * (y[p_0] - y[p_w]) + 1. * (y[p_n ] - y[p_nw]));
+
+    double dx_dxi_0 = 0.25 * (3. * (x[p_0] - x[p_w]) + 1. * (x[p_s ] - x[p_sw]));
+    double dx_dxi_1 = 0.25 * (3. * (x[p_e] - x[p_0]) + 1. * (x[p_se] - x[p_s ]));
+    double dx_dxi_2 = 0.25 * (3. * (x[p_e] - x[p_0]) + 1. * (x[p_ne] - x[p_n ]));
+    double dx_dxi_3 = 0.25 * (3. * (x[p_0] - x[p_w]) + 1. * (x[p_n ] - x[p_nw]));
+
+    double dx_deta_0 = 0.25 * (3. * (x[p_0] - x[p_s]) + 1. * (x[p_w ] - x[p_sw]));
+    double dx_deta_1 = 0.25 * (3. * (x[p_0] - x[p_s]) + 1. * (x[p_e ] - x[p_se]));
+    double dx_deta_2 = 0.25 * (3. * (x[p_n] - x[p_0]) + 1. * (x[p_ne] - x[p_e ]));
+    double dx_deta_3 = 0.25 * (3. * (x[p_n] - x[p_0]) + 1. * (x[p_nw] - x[p_w ]));
+
+    scv_area_0 = 0.25 * (dx_dxi_0 * dy_deta_0 - dy_dxi_0 * dx_deta_0);
+    scv_area_1 = 0.25 * (dx_dxi_1 * dy_deta_1 - dy_dxi_1 * dx_deta_1);
+    scv_area_2 = 0.25 * (dx_dxi_2 * dy_deta_2 - dy_dxi_2 * dx_deta_2);
+    scv_area_3 = 0.25 * (dx_dxi_3 * dy_deta_3 - dy_dxi_3 * dx_deta_3);
 
     double cv_area = scv_area_0 + scv_area_1 + scv_area_2 + scv_area_3;
     double scv_area_frac_0 = scv_area_0/cv_area;
@@ -471,23 +496,23 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     double depth_2 = c_scv(htheta_0, htheta_e, htheta_n, htheta_ne);
     double depth_3 = c_scv(htheta_0, htheta_n, htheta_w, htheta_nw);
 
-    double dy_deta_0 = 0.25 * (3. * (y[p_0] - y[p_s]) + 1. * (y[p_w ] - y[p_sw]));
-    double dy_deta_1 = 0.25 * (3. * (y[p_0] - y[p_s]) + 1. * (y[p_e ] - y[p_se]));
-    double dy_deta_2 = 0.25 * (3. * (y[p_n] - y[p_0]) + 1. * (y[p_ne] - y[p_e ]));
-    double dy_deta_3 = 0.25 * (3. * (y[p_n] - y[p_0]) + 1. * (y[p_nw] - y[p_w ]));
+    dy_deta_0 = 0.25 * (3. * (y[p_0] - y[p_s]) + 1. * (y[p_w ] - y[p_sw]));
+    dy_deta_1 = 0.25 * (3. * (y[p_0] - y[p_s]) + 1. * (y[p_e ] - y[p_se]));
+    dy_deta_2 = 0.25 * (3. * (y[p_n] - y[p_0]) + 1. * (y[p_ne] - y[p_e ]));
+    dy_deta_3 = 0.25 * (3. * (y[p_n] - y[p_0]) + 1. * (y[p_nw] - y[p_w ]));
 
-    double dy_dxi_0 = 0.25 * (3. * (y[p_0] - y[p_w]) + 1. * (y[p_s ] - y[p_sw]));
-    double dy_dxi_1 = 0.25 * (3. * (y[p_e] - y[p_0]) + 1. * (y[p_se] - y[p_s ]));
-    double dy_dxi_2 = 0.25 * (3. * (y[p_e] - y[p_0]) + 1. * (y[p_ne] - y[p_n ]));
-    double dy_dxi_3 = 0.25 * (3. * (y[p_0] - y[p_w]) + 1. * (y[p_n ] - y[p_nw]));
+    dy_dxi_0 = 0.25 * (3. * (y[p_0] - y[p_w]) + 1. * (y[p_s ] - y[p_sw]));
+    dy_dxi_1 = 0.25 * (3. * (y[p_e] - y[p_0]) + 1. * (y[p_se] - y[p_s ]));
+    dy_dxi_2 = 0.25 * (3. * (y[p_e] - y[p_0]) + 1. * (y[p_ne] - y[p_n ]));
+    dy_dxi_3 = 0.25 * (3. * (y[p_0] - y[p_w]) + 1. * (y[p_n ] - y[p_nw]));
     
     double dzetadxi_0 = dcdx_scv(htheta_0 + zb[p_0], htheta_w + zb[p_w], htheta_s  + zb[p_s ], htheta_sw + zb[p_sw]);
     double dzetadxi_1 = dcdx_scv(htheta_e + zb[p_e], htheta_0 + zb[p_0], htheta_se + zb[p_se], htheta_s  + zb[p_s ]);
     double dzetadxi_2 = dcdx_scv(htheta_e + zb[p_e], htheta_0 + zb[p_0], htheta_ne + zb[p_ne], htheta_n  + zb[p_n ]);
     double dzetadxi_3 = dcdx_scv(htheta_0 + zb[p_0], htheta_w + zb[p_w], htheta_n  + zb[p_n ], htheta_nw + zb[p_nw]);
     
-    double dzetadeta_0 = dcdy_scv(htheta_0 + zb[p_0], htheta_w + zb[p_s], htheta_s  + zb[p_w ], htheta_sw + zb[p_sw]);
-    double dzetadeta_1 = dcdy_scv(htheta_0 + zb[p_0], htheta_w + zb[p_s], htheta_s  + zb[p_e ], htheta_sw + zb[p_se]);
+    double dzetadeta_0 = dcdy_scv(htheta_0 + zb[p_0], htheta_s + zb[p_s], htheta_w  + zb[p_w ], htheta_sw + zb[p_sw]);
+    double dzetadeta_1 = dcdy_scv(htheta_0 + zb[p_0], htheta_s + zb[p_s], htheta_e  + zb[p_e ], htheta_se + zb[p_se]);
     double dzetadeta_2 = dcdy_scv(htheta_n + zb[p_n], htheta_0 + zb[p_0], htheta_ne + zb[p_ne], htheta_e  + zb[p_e ]);
     double dzetadeta_3 = dcdy_scv(htheta_n + zb[p_n], htheta_0 + zb[p_0], htheta_nw + zb[p_nw], htheta_w  + zb[p_w ]);
     //
@@ -615,15 +640,15 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     depth_2 = c_scv(htheta_0, htheta_e, htheta_n, htheta_ne);
     depth_3 = c_scv(htheta_0, htheta_n, htheta_w, htheta_nw);
 
-    double dx_dxi_0 = 0.25 * (3. * (x[p_0] - x[p_w]) + 1. * (x[p_s ] - x[p_sw]));
-    double dx_dxi_1 = 0.25 * (3. * (x[p_e] - x[p_0]) + 1. * (x[p_se] - x[p_s ]));
-    double dx_dxi_2 = 0.25 * (3. * (x[p_e] - x[p_0]) + 1. * (x[p_ne] - x[p_n ]));
-    double dx_dxi_3 = 0.25 * (3. * (x[p_0] - x[p_w]) + 1. * (x[p_n ] - x[p_nw]));
+    dx_dxi_0 = 0.25 * (3. * (x[p_0] - x[p_w]) + 1. * (x[p_s ] - x[p_sw]));
+    dx_dxi_1 = 0.25 * (3. * (x[p_e] - x[p_0]) + 1. * (x[p_se] - x[p_s ]));
+    dx_dxi_2 = 0.25 * (3. * (x[p_e] - x[p_0]) + 1. * (x[p_ne] - x[p_n ]));
+    dx_dxi_3 = 0.25 * (3. * (x[p_0] - x[p_w]) + 1. * (x[p_n ] - x[p_nw]));
 
-    double dx_deta_0 = 0.25 * (3. * (x[p_0] - x[p_s]) + 1. * (x[p_w ] - x[p_sw]));
-    double dx_deta_1 = 0.25 * (3. * (x[p_0] - x[p_s]) + 1. * (x[p_e ] - x[p_se]));
-    double dx_deta_2 = 0.25 * (3. * (x[p_n] - x[p_0]) + 1. * (x[p_ne] - x[p_e ]));
-    double dx_deta_3 = 0.25 * (3. * (x[p_n] - x[p_0]) + 1. * (x[p_nw] - x[p_w ]));
+    dx_deta_0 = 0.25 * (3. * (x[p_0] - x[p_s]) + 1. * (x[p_w ] - x[p_sw]));
+    dx_deta_1 = 0.25 * (3. * (x[p_0] - x[p_s]) + 1. * (x[p_e ] - x[p_se]));
+    dx_deta_2 = 0.25 * (3. * (x[p_n] - x[p_0]) + 1. * (x[p_ne] - x[p_e ]));
+    dx_deta_3 = 0.25 * (3. * (x[p_n] - x[p_0]) + 1. * (x[p_nw] - x[p_w ]));
 
     dzetadxi_0 = dcdx_scv(htheta_0 + zb[p_0], htheta_w + zb[p_w], htheta_s  + zb[p_s ], htheta_sw + zb[p_sw]);
     dzetadxi_1 = dcdx_scv(htheta_e + zb[p_e], htheta_0 + zb[p_0], htheta_se + zb[p_se], htheta_s  + zb[p_s ]);
