@@ -68,7 +68,7 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     int p_0 = c_eq/(3*27);  // node number;  // centre of discretization molecule
     // if node number is south or north boundary point, exit the function
     if (p_0 % ny == 0) { return 1; }  // south boundary
-    if (p_0 + 1 % ny == 0) { return 2; }  // north boundary
+    if ((p_0 + 1) % ny == 0) { return 2; }  // north boundary
 
     memset(&values[c_eq], 0, 3 * 27 * sizeof(double));  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
 
