@@ -37,73 +37,70 @@ void initial_conditions(std::vector<double>& x, std::vector<double>& y, size_t n
     double u_giv = 0.0;
     double v_giv = 0.0;
     size_t k;
-    for (size_t i = 0; i < nx; i++)
+    for (size_t var_i = 0; var_i < ini_vars.size(); var_i ++)
     {
-        for (size_t j = 0; j < ny; j++)
+        for (size_t i = 0; i < nx; i++)
         {
-            // 
-            // initialization via water level, u-velocity and v-velocity
-            //
-            k = p_idx(i, j, ny);
-            if (ini_vars[0] == "zeta")
+            for (size_t j = 0; j < ny; j++)
             {
-                if (ini_vars[1] == "zeta_constant")
+                // 
+                // initialization via water level, u-velocity and v-velocity
+                //
+                k = p_idx(i, j, ny);
+                if (ini_vars[var_i] == "zeta_constant")
                 {
                     s_giv = amp;  // initial water level
                 }
-                else if (ini_vars[1] == "zeta_linear_y")
+                else if (ini_vars[var_i] == "zeta_linear_y")
                 {
                     size_t k0 = p_idx(i, 0, ny);
                     size_t k1 = p_idx(j, ny - 1, ny);
                     s_giv = amp * (y[k] - y[0]) / (y[k1] - y[k0]); // initial water level
                 }
-                else if (ini_vars[1] == "zeta_linear_x")
+                else if (ini_vars[var_i] == "zeta_linear_x")
                 {
                     size_t k0 = p_idx(0     , 0, ny);
                     size_t k1 = p_idx(nx - 1, 0, ny);
                     s_giv = amp * (x[k] - x[0]) / (x[k1] - x[k0]); // initial water level
                 }
-                else if (ini_vars[1] == "zeta_gauss_hump")
+                else if (ini_vars[var_i] == "zeta_gauss_hump")
                 {
                     s_giv = amp * std::exp(
                         -(  (x[k] - gauss_mu_x) * (x[k] - gauss_mu_x) / (2. * gauss_sigma_x * gauss_sigma_x) +
                             (y[k] - gauss_mu_y) * (y[k] - gauss_mu_y) / (2. * gauss_sigma_y * gauss_sigma_y)
                             ) );  // initial water level
                 }
-                else if (ini_vars[1] == "zeta_gauss_hump_x")
+                else if (ini_vars[var_i] == "zeta_gauss_hump_x")
                 {
                     s_giv = amp * std::exp( -(x[k] - gauss_mu_x) * (x[k] - gauss_mu_x) / (2. * gauss_sigma_x * gauss_sigma_x) );  // initial water level
                 }
-                else if (ini_vars[1] == "zeta_gauss_hump_y")
+                else if (ini_vars[var_i] == "zeta_gauss_hump_y")
                 {
                     s_giv = amp * std::exp( -(y[k] - gauss_mu_y) * (y[k] - gauss_mu_y) / (2. * gauss_sigma_y * gauss_sigma_y) );  // initial water level
+                }
+                else if (ini_vars[var_i] == "u_constant")
+                {
+                    u_giv = amp;  // initial water level
+                }
+                else if (ini_vars[var_i] == "v_constant")
+                {
+                    v_giv = amp;  // initial water level
                 }
                 else
                 {
                     std::cout << "----------------------------" << std::endl;
                     std::cout << "Initialization variables." << std::endl;
-                    std::cout << "Option: " << ini_vars[1] << "\' is not supported to intialize the water level ." << std::endl;
+                    std::cout << "Option: \"" << ini_vars[0] << "\" is not supported." << std::endl;
                     //std::cout << "Press Enter to finish";
                     //std::cin.ignore();
                     std::chrono::duration<int, std::milli> timespan(3000);
                     std::this_thread::sleep_for(timespan);
                     exit(1);
                 }
+                s[k] = s_giv;
+                u[k] = u_giv;  // Initial q=hu -velocity
+                v[k] = v_giv;  // Initial r=hv -velocity
             }
-            else
-            {
-                std::cout << "----------------------------" << std::endl;
-                std::cout << "Initialization variables." << std::endl;
-                std::cout << "Option: " << ini_vars[0] << "\' is not supported." << std::endl;
-                //std::cout << "Press Enter to finish";
-                //std::cin.ignore();
-                std::chrono::duration<int, std::milli> timespan(3000);
-                std::this_thread::sleep_for(timespan);
-                exit(1);
-            }
-            s[k] = s_giv;
-            u[k] = u_giv;  // Initial q=hu -velocity
-            v[k] = v_giv;  // Initial r=hv -velocity
         }
     }
 }
