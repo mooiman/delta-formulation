@@ -9,14 +9,14 @@
     tstop = 4.0                                # End time [s]
         
 [Initial]
-    ini_vars = ["zeta", "zeta_constant"]
+    ini_vars = ["zeta_constant"]
     gauss_amp = 0.0 # amplitude of the gaussian hump
     gauss_mu = 0.0    # location of the top of the gaussian hump
     gauss_sigma = 350.0    # width of the gaussian hump
 
 [Boundary] # north, east, south, west
     bc_type = ["free_slip", "free_slip", "free_slip", "free_slip"] # Type "borsboom", "free_slip", "mooiman" 
-    bc_vars = ["zeta", "zeta", "zeta", "zeta"]
+    bc_vars = ["zeta", "zeta", "zeta"]
     bc_vals = [0.0, 0.0, 0.0, 0.0]
     bc_absorbing = [true, true, true, true]
     treg = 150.0                                  # Regularization time boundary signal
