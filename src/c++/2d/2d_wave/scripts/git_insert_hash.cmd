@@ -25,7 +25,7 @@ IF EXIST %TEMPTEXTFILE% (
 
 REM Is there any modification since the last push
 set GIT_MODIFIED=
-FOR /f %%i in ('git diff --stat origin/main') do set GIT_MODIFIED=M-
+FOR /f %%i in ('git diff --stat origin/curvilinear') do set GIT_MODIFIED=M-
 
 REM GET THE GIT SHORT HASH
 FOR /f %%i in ('git rev-parse --short HEAD') do set GIT_HASH=%%i
