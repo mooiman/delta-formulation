@@ -68,7 +68,7 @@ long BED_LEVEL::read(int nx, int ny)
         std::getline(m_fname, line);
         iss.clear();
         iss.str(line);
-        if (std::fmod(k + 1, nx*ny) == 0) { break; }
+        if ((k + 1) % (nx*ny) == 0) { break; }
     }
     if (k + 1 == nx * ny)
     {

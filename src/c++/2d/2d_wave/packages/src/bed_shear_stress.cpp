@@ -56,8 +56,8 @@ int bed_shear_stress_matrix_and_rhs(double* values, int row, int c_eq, int q_eq,
     // 
     int p_0 = c_eq/(3*27);  // node number;  // centre of discretization molecule
     // if node number is south or north boundary point, exit the function
-    if (std::fmod(p_0, ny) == 0) { return 1; }  // south boundary
-    if (std::fmod(p_0 + 1, ny) == 0) { return 2; }  // north boundary
+    if (p_0 % ny == 0) { return 1; }  // south boundary
+    if ((p_0 + 1) % ny == 0) { return 2; }  // north boundary
 
     int p_sw = p_0 - ny - 1;
     int p_w  = p_0 - ny;

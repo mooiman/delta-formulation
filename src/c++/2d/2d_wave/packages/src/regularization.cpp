@@ -278,7 +278,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
     // first internal west boundary column
     for (size_t row = ny; row < 2 * ny; row += 1) 
     {
-        if (std::fmod(row , ny) == 0) {
+        if (row % ny == 0) {
             // south boundary
             col = outer[row    ];
             p_0 = col/(9);  // p_s
@@ -295,7 +295,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
             rhs[row    ] = 0.0;
             continue;
         }
-        if (std::fmod(row + 1, ny) == 0) {
+        if ((row + 1) % ny == 0) {
             // north boundary
             col = outer[row    ];
             p_0 = col/(9);  // p_n
@@ -330,7 +330,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
     // interior with south and north boundary
     for (size_t row = 2 * ny; row < (nx - 2) * ny; row += 1) 
     {
-        if (std::fmod(row , ny) == 0) {
+        if (row % ny == 0) {
             // south boundary
             col = outer[row    ];
             p_0 = col/(9);  // p_s
@@ -347,7 +347,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
             rhs[row    ] = 0.0;
             continue;
         }
-        if (std::fmod(row - 1, ny) == 0) {
+        if ((row - 1) %  ny == 0) {
             // south boundary
             col = outer[row    ];
             p_0 = col/(9);  // p_s
@@ -365,7 +365,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
             continue;
         }
 
-        if (std::fmod(row + 1, ny) == 0) {
+        if ((row + 1) % ny == 0) {
             // north boundary
             col = outer[row    ];
             p_0 = col/(9);  // p_n
@@ -382,7 +382,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
             rhs[row    ] = 0.0;
             continue;
         }
-        if (std::fmod(row + 2, ny) == 0) {
+        if ((row + 2) % ny == 0) {
             // north boundary
             col = outer[row    ];
             p_0 = col/(9);  // p_n
@@ -456,7 +456,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
     // first internal east boundary column
     for (size_t row = (nx - 2) * ny; row < (nx - 1) * ny; row += 1) 
     {
-        if (std::fmod(row , ny) == 0) {
+        if (row % ny == 0) {
             // south boundary
             col = outer[row    ];
             p_0 = col/(9);  // p_s
@@ -473,7 +473,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
             rhs[row    ] = 0.0;
             continue;
         }
-        if (std::fmod(row + 1, ny) == 0) {
+        if ((row + 1) % ny == 0) {
             // north boundary
             col = outer[row    ];
             p_0 = col/(9);  // p_n
@@ -564,16 +564,16 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
             for (size_t j = 0; j < nxny; ++j)
             {
                 log_file << std::showpos << std::setprecision(3) << std::scientific << B.coeff(i, j) << " ";
-                if (std::fmod(j+1,ny) == 0) { log_file << "| "; }
+                if ((j+1) % ny == 0) { log_file << "| "; }
             }
             log_file << std::endl;
-            if (std::fmod(i+1,ny) == 0) { log_file << std::endl; }
+            if ((i+1) % ny == 0) { log_file << std::endl; }
         }
         log_file << "=== RHS eq7 ===========================================" << std::endl;
         for (size_t i = 0; i < nxny; ++i)
         {
             log_file << std::setprecision(8) << std::scientific << rhs[i] << std::endl;
-            if (std::fmod(i+1,ny) == 0) { log_file << std::endl; }
+            if ((i+1) % ny == 0) { log_file << std::endl; }
         }
         log_file << "=======================================================" << std::endl;
     }
@@ -626,7 +626,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
                 }
             }
             log_file << std::endl;
-            if (std::fmod(i+1,ny) == 0) { log_file << std::endl; }
+            if ((i+1) % ny == 0) { log_file << std::endl; }
         }
     }
 
@@ -703,7 +703,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
         col = outer[row    ];
         p0 = col/(9);  // p_0
 
-        if (std::fmod(row , ny) == 0) {
+        if (row % ny == 0) {
             // south boundary
             col = outer[row    ];
             p0 = col/(9);  // p_s
@@ -720,7 +720,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
             rhs[row    ] = 0.0;
             continue;
         }
-        if (std::fmod(row + 1, ny) == 0) {
+        if ((row + 1) % ny == 0) {
             // north boundary
             col = outer[row    ];
             p0 = col/(9);  // p_n
@@ -846,16 +846,16 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
             for (size_t j = 0; j < nxny; ++j)
             {
                 log_file << std::showpos << std::setprecision(3) << std::scientific << A.coeff(i, j) << " ";
-                if (std::fmod(j+1,ny) == 0) { log_file << "| "; }
+                if ((j+1) % ny == 0) { log_file << "| "; }
             }
             log_file << std::endl;
-            if (std::fmod(i+1,ny) == 0) { log_file << std::endl; }
+            if ((i+1) % ny == 0) { log_file << std::endl; }
         }
         log_file << "=== RHS eq8 ===========================================" << std::endl;
         for (size_t i = 0; i < nxny; ++i)
         {
             log_file << std::setprecision(8) << std::scientific << rhs[i] << std::endl;
-            if (std::fmod(i+1,ny) == 0) { log_file << std::endl; }
+            if ((i+1) % ny == 0) { log_file << std::endl; }
         }
         log_file << "=======================================================" << std::endl;
     }
