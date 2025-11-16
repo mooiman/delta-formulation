@@ -164,10 +164,10 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     //scv_area_3 = 0.25 * (dx_dxi_3 * dy_deta_3 - dy_dxi_3 * dx_deta_3);
 
     double cv_area = scv_area_0 + scv_area_1 + scv_area_2 + scv_area_3;
-    double scv_area_frac_0 = scv_area_0/cv_area;
-    double scv_area_frac_1 = scv_area_1/cv_area;
-    double scv_area_frac_2 = scv_area_2/cv_area;
-    double scv_area_frac_3 = scv_area_3/cv_area;
+    double scv_area_frac_0 = 0.25;  // scv_area_0/cv_area;
+    double scv_area_frac_1 = 0.25;  // scv_area_1/cv_area;
+    double scv_area_frac_2 = 0.25;  // scv_area_2/cv_area;
+    double scv_area_frac_3 = 0.25;  // scv_area_3/cv_area;
 
     int col_sw = c_eq;
     int col_w  = c_eq + 3;
@@ -284,8 +284,8 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     // scv_2 face_4
     dy_dxi  = dcdx_scvf_n(y[p_e], y[p_0], y[p_ne], y[p_n]);
     dx_dxi  = dcdx_scvf_n(x[p_e], x[p_0], x[p_ne], x[p_n]);
-    dy_deta = dcdx_scvf_t(y[p_n], y[p_0], y[p_ne], y[p_e]);
-    dx_deta = dcdx_scvf_t(x[p_n], x[p_0], x[p_ne], x[p_e]);
+    dy_deta = dcdy_scvf_t(y[p_n], y[p_0], y[p_ne], y[p_e]);
+    dx_deta = dcdy_scvf_t(x[p_n], x[p_0], x[p_ne], x[p_e]);
 
     n_xi =  1.0;
     n_eta = 0.0;
@@ -389,9 +389,9 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     // No contribution to r-momentum equation
                             
     // sub control volume 2 ============================================
-    // scv_1 face_4
+    // scv_2 face_4
     // No contribution to Delta q and rhs
-    // scv_1 face_5
+    // scv_2 face_5
     dy_dxi  = dcdx_scvf_t(y[p_e], y[p_0], y[p_ne], y[p_n]);
     dx_dxi  = dcdx_scvf_t(x[p_e], x[p_0], x[p_ne], x[p_n]);
     dy_deta = dcdy_scvf_n(y[p_n], y[p_0], y[p_ne], y[p_e]);
@@ -417,9 +417,9 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     // sub control volume 3 ============================================
     dy_dxi  = dcdx_scvf_t(y[p_0], y[p_w], y[p_n], y[p_nw]);
     dx_dxi  = dcdx_scvf_t(x[p_0], x[p_w], x[p_n], x[p_nw]);
-    dy_deta = dcdy_scvf_t(y[p_n], y[p_0], y[p_nw], y[p_w]);
-    dx_deta = dcdy_scvf_t(x[p_n], x[p_0], x[p_nw], x[p_w]);
-    // scv_1 face_6
+    dy_deta = dcdy_scvf_n(y[p_n], y[p_0], y[p_nw], y[p_w]);
+    dx_deta = dcdy_scvf_n(x[p_n], x[p_0], x[p_nw], x[p_w]);
+    // scv_3 face_6
     n_xi =  0.0;
     n_eta = 1.0;
 
@@ -436,7 +436,7 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     // rhs
     fluxy_6 = - dy_dxi * (scvf_eta(qtheta_n, qtheta_0, qtheta_nw, qtheta_w)) * 0.5 * n_eta 
               + dx_dxi * (scvf_eta(rtheta_n, rtheta_0, rtheta_nw, rtheta_w)) * 0.5 * n_eta;
-    // scv_1 face_7
+    // scv_3 face_7
     // No contribution to Delta q and rhs
 
     double flux = (fluxx_0 + fluxy_1 + fluxy_2 + fluxx_3 + fluxx_4 + fluxy_5 + fluxy_6 + fluxx_7);
