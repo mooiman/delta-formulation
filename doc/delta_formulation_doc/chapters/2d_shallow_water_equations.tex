@@ -49,7 +49,18 @@ with
     \end{center}
     \caption{Definition sketch of water level ($\zeta$), bed level ($z_b$) and total water depth ($h$)}\label{fig:definition_variables_2d}
 \end{figure}
-
+The 'linear' shallow water equations in curvilinear coordinates read:
+\begin{align}
+    &J \pdiff{h}{t} +\pdiff{}{\xi} \left( y_{\eta}\, q - x_{\eta}\, r \right) + \pdiff{}{\eta} \left( -y_{\xi}\, q + x_{\xi}\, r \right) = 0,
+    \label{eq:continuity_curvi}
+    \\*
+    &J \pdiff{q}{t} + g h \left( y_{\eta}\, \pdiff{\zeta}{\xi} - y_{\xi}\, \pdiff{\zeta}{\eta} \right) = 0, & \textit{q-momentum eq.}
+    \label{eq:q_momentum_curvi}
+    \\*
+    &J \pdiff{r}{t} + g h \left( -x_{\eta}\, \pdiff{\zeta}{\xi} + x_{\xi}\, \pdiff{\zeta}{\eta} \right) = 0, & \textit{r-momentum eq.}
+    \label{eq:r_momentum_curvi}
+\end{align}
+%--------------------------------------------------------------------------------
 \subsection*{Finite Volume approach}
 Integrating the equations over a finite volume $\Omega$ yields:
 %\begin{subequations}
@@ -87,16 +98,16 @@ Integrating the equations over a finite volume $\Omega$ yields:
 \label{eq:pressure_dependent_on_zeta}
 \end{subequations}
 
-The 'linear' shallow water equations in curvilinear coordinates read:
+Integrating the curvilinear equations over a finite volume $\Omega_{\xi\eta}$ yields:
 \begin{align}
-&J \pdiff{h}{t} +\pdiff{}{\xi} \left( y_{\eta}\, q - x_{\eta}\, r \right) + \pdiff{}{\eta} \left( -y_{\xi}\, q + x_{\xi}\, r \right) = 0,
-\label{eq:continuity_curvi}
-\\*
-&J \pdiff{q}{t} + g h \left( y_{\eta}\, \pdiff{\zeta}{\xi} - y_{\xi}\, \pdiff{\zeta}{\eta} \right) = 0, & \textit{q-momentum eq.}
- \label{eq:q_momentum_curvi}
-\\*
-&J \pdiff{r}{t} + g h \left( -x_{\eta}\, \pdiff{\zeta}{\xi} + x_{\xi}\, \pdiff{\zeta}{\eta} \right) = 0, & \textit{r-momentum eq.}
- \label{eq:r_momentum_curvi}
+    &\int_{\Omega_{\xi\eta}}\bigg[ J \pdiff{h}{t} +\pdiff{}{\xi} \left( y_{\eta}\, q - x_{\eta}\, r \right) + \pdiff{}{\eta} \left( -y_{\xi}\, q + x_{\xi}\, r \right)\bigg] \, d\xi d\eta = 0,
+    \label{eq:continuity_curvi}
+    \\*
+    &\int_{\Omega_{\xi\eta}}\bigg[ J \pdiff{q}{t} + g h \left( y_{\eta}\, \pdiff{\zeta}{\xi} - y_{\xi}\, \pdiff{\zeta}{\eta} \right) \bigg] \, d\xi d\eta = 0, & \textit{q-momentum eq.}
+    \label{eq:q_momentum_curvi}
+    \\*
+    &\int_{\Omega_{\xi\eta}}\bigg[ J \pdiff{r}{t} + g h \left( -x_{\eta}\, \pdiff{\zeta}{\xi} + x_{\xi}\, \pdiff{\zeta}{\eta} \right) \bigg] \, d\xi d\eta = 0, & \textit{r-momentum eq.}
+    \label{eq:r_momentum_curvi}
 \end{align}
 
 %-------------------------------------------------------------------------------
@@ -124,12 +135,13 @@ See for the locations \autoref{fig:2d_structured_grid}.
 \subsection{Discretizations continuity equation}
 The discretization of continuity \autoref{eq:continuity_curvi} will be presented term by term.
 %-------------------------------------------------------------------------------
-\subsubsection{Time derivative}
+\subsubsection{Time derivative}\label{sec:time_derivative_curvilinear}
 The discretization of the time derivative term of the continuity equation reads:
 \begin{align}
-    J \int_{\Omega} \pdiff{h}{t}\, d\omega
+    \int_{\Omega_{\xi\eta}} J \pdiff{h}{t}\, d\xi d\eta
 \end{align}
 which will be approximated by the sum of the integral over the sub-control volumes.
+The Jacobian $J$ is constant in time.
 On a structured grid one control volume ($cv$) around a node consist of four sub-control volumes ($scv_i$, $i\in\{0,1,2,3\}$).
 \begin{align}
     J_{cv}\int_{cv} \pdiff{h}{t}\, d\omega &=
@@ -168,15 +180,18 @@ Written in \deltaformulation  it reads:
     \nonumber \\*
     &=J_{scv_2}\Dtinv \left[ \frac{1}{16}\left( 9 \Delta h^{n+1,p+1}_{i, j} + 3 \Delta q^{n+1,p+1}_{i+1,j+1}  + 3 \Delta q^{n+1,p+1}_{i, j+1} + \Delta h^{n+1,p+1}_{i+1, j+1}\right) \right] +
     \nonumber \\*
-    & + J_{scv_2}\Dtinv \left[ \frac{1}{16}\left( 9 h^{n+1,p}_{i, j} + 3 h^{n+1,p}_{i+1,j}  + 3 h^{n+1,p}_{i, j+1} + h^{n+1,p+1}_{i+1, j+1}\right) \right. +
-    \nonumber \\*
-    &\quad - \left. \frac{1}{16}\left( 9h^{n}_{i, j} +  3 h^{n}_{i+1,j}  + 3  h^{n}_{i, j+1} + h^{n}_{i+1, j+1}\right)\right]
+    & + J_{scv_2}\Dtinv \Bigg[ \frac{1}{16}\bigg(
+     9 \left( h^{n+1,p}_{i, j} - h^{n}_{i, j}\right) +
+     3 \left( h^{n+1,p}_{i+1,j} - h^{n}_{i+1,j}\right)  +
+     \\*
+     & \qquad \qquad \qquad 3 \left(h^{n+1,p}_{i, j+1} - h^{n}_{i, j+1}\right) +
+     \left(h^{n+1,p+1}_{i+1, j+1} - h^{n}_{i+1, j+1}\right) \Bigg) \Bigg]
 \end{align}
 with
 \begin{align}
     J_{scv_2} &= x_\xi y_\eta - y_\xi x_\eta
 \end{align}
-where $x_\xi$, $y_\eta$, $y_\xi$ and $x_\eta$ at the quadrature point $qp$ are
+where $x_\xi$, $y_\eta$, $y_\xi$ and $x_\eta$ at the quadrature point $qp$ at the centre of the sub-control volume are
 \begin{align}
     x_{\xi_{qp}}  & = \quart ( 3 (x_{i+1,j} - x_{i,j}) + 1 (x_{i+1,j+1} - x_{i,j+1}) )
     \label{eq:scv2_dx_dxi}
@@ -199,12 +214,12 @@ The discretization of the mass flux term of the continuity equation
 will be given is this section (\autoref{eq:transformed_mass_flux}, multiplied by $J$).
 Where $\vec{n} = (n_\xi, n_\eta)^T$ is the outward normal vector.
 
-The linearization in time reads:
+The linearization around an iteration step yields:
 \begin{align}
     \oint_{\partial\Omega_{\xi\eta}} \Big[&\left( y_\eta\left(q^{n+\theta, p} + \theta \Delta q\right) - x_\eta \left( r^{n+\theta, p} + \theta \Delta r  \right)
     \right) n_{\xi}
     \nonumber\\*
-    &\qquad  + \left(-y_\xi\left(r^{n+\theta, p} + \theta \Delta r\right) +
+    &\qquad  + \left(-y_\xi\left(q^{n+\theta, p} + \theta \Delta q\right) +
       x_\xi\left( r^{n+\theta, p} + \theta \Delta r  \right) \right) n_\eta
       \Big]\, dl
 \end{align}
@@ -239,57 +254,12 @@ and for terms related to $q$ we get (similar for $r$):
 The discretization of momentum \autoref{eq:pressure_dependent_on_zeta_b} will be presented term by term.
 %--------------------------------------------------------------------------------
 \subsubsection{Time derivative}
-The discretization of the time derivative term of the momentum equation is only shown for the $q$-momentum equation, the time derivative for the $r$-momentum equation is similar. The time derivative for the $q$-momentum equation reads:
+The discretization of the time derivative term of the momentum equation is similar as  the continuity equation, see \autoref{sec:time_derivative_curvilinear}.
+The time derivative for the $q$-momentum equation reads:
 \begin{align}
     J \int_{\Omega} \pdiff{q}{t}\, d\omega
 \end{align}
-which will be approximated by the sum of the integral over the sub-control volumes.
-On a structured grid one control volume ($cv$) around a node consist of four sub-control volumes ($scv_i$, $i\in\{0,1,2,3\}$).
-For a curvilinear grid we get:
-\begin{align}
-    \int_{cv} \pdiff{q}{t}\, d\omega \approx &
-    J_{scv_0} \Dtinv \left( q^{n+1}_{i-\quart, j-\quart} -  q^{n}_{i-\quart, j-\quart} \right) +
-    \nonumber \\*
-    &J_{scv_1} \Dtinv \left( q^{n+1}_{i+\quart, j-\quart} -  q^{n}_{i+\quart, j-\quart} \right) +
-    \nonumber \\*
-    &J_{scv_3} \Dtinv \left( q^{n+1}_{i+\quart, j+\quart} -  q^{n}_{i+\quart, j+\quart} \right) +
-    \nonumber \\*
-    &J_{scv_3} \Dtinv \left( q^{n+1}_{i-\quart, j+\quart} -  q^{n}_{i-\quart, j+\quart} \right)
-\end{align}
-with $J_{scv_i}$ the area of the sub control volume $i$, for cartesian coordinates we have $J_{scv_i} = \quart \Dx\Dy$.
-
-Just looking to the quadrature point of $scv_2$ as part of the control volume for node $(i,j)$ the discretization reads:
-\begin{align}
-    &J_{scv_2}\Dtinv \left( q^{n+1}_{i+\quart, j+\quart} -  q^{n+1,n}_{i+\quart, j+\quart} \right) =
-    \\*
-    &= J_{scv_2}\Dtinv \left[ \frac{1}{16}\left( 9q^{n+1}_{i, j} + 3 q^{n+1}_{i+1,j}  + 3  q^{n+1}_{i, j+1} + q^{n+1}_{i+1, j+1}\right) \right. +
-    \\*
-    &\quad - \left. \frac{1}{16}\left( 9 q^{n}_{i, j} +  3 q^{n}_{i+1,j}  + 3  q^{n}_{i, j+1} + q^{n}_{i+1, j+1}\right)\right]
-\end{align}
-Written in \deltaformulation  it reads:
-\begin{align}
-    &J_{scv_2}\Dtinv \left( q^{n+1}_{i+\quart, j+\quart} -  q^{n}_{i+\quart, j+\quart} \right) =
-    \nonumber \\*
-    &=J_{scv_2}\Dtinv \left[ \frac{1}{16}\left( 9 \Delta q^{n+1,p+1}_{i, j} + 3 \Delta q^{n+1,p+1}_{i+1,j+1}  + 3 \Delta q^{n+1,p+1}_{i, j+1} + \Delta q^{n+1,p+1}_{i+1, j+1}\right) \right] +
-    \nonumber \\*
-    & + J_{scv_2}\Dtinv \left[ \frac{1}{16}\left( 9 q^{n+1,p}_{i, j} + 3 q^{n+1,p}_{i+1,j}  + 3 q^{n+1,p}_{i, j+1} + q^{n+1,p+1}_{i+1, j+1}\right) \right. +
-    \nonumber \\*
-    &\quad - \left. \frac{1}{16}\left( 9q^{n}_{i, j} +  3 q^{n}_{i+1,j}  + 3  q^{n}_{i, j+1} + q^{n}_{i+1, j+1}\right)\right]
-\end{align}
-with
-\begin{align}
-    J_{scv_2} &= x_\xi y_\eta - y_\xi x_\eta
-\end{align}
-where $x_\xi$, $y_\eta$, $y_\xi$ and $x_\eta$ at the quadrature point $qp$ are
-\begin{align}
-    x_{\xi_{qp}}  & = \quart ( 3 (x_{i+1,j} - x_{i,j}) + 1 (x_{i+1,j+1} - x_{i,j+1}) )
-    \\
-    y_{\eta_{qp}} & = \quart ( 3 (y_{i,j+1} - y_{i,j}) + 1 (y_{i+1,j+1} - y_{i+1,j}) )
-    \\
-    y_{\xi_{qp}}  & = \quart ( 3 (y_{i+1,j} - y_{i,j}) + 1 (y_{i+1,j+1} - y_{i,j+1}) )
-    \\
-    x_{\eta_{qp}} & = \quart ( 3 (x_{i,j+1} - x_{i,j}) + 1 (x_{i+1,j+1} - x_{i+1,j})  )
-\end{align}
+and is discretized in the same manner as the continuity equation.
 
 %--------------------------------------------------------------------------------
 \subsubsection{Pressure term} \label{sec:linearized_pressure_zeta}
@@ -305,12 +275,22 @@ The integral over a control volume will be the sum of integrals over the sub con
 On a structured grid one control volume ($cv$) around a node consist of four sub-control volumes ($scv_i$, $i\in\{0,1,2,3\}$).
 Thus
 \begin{align}
-    gh \nabla \zeta\big|_{sc} =
-    gh \nabla \zeta\big|_{scv_0} +
-    gh \nabla \zeta\big|_{scv_1} +
-    gh \nabla \zeta\big|_{scv_2} +
-    gh \nabla \zeta\big|_{scv_3}
+    gh \mat{T} \nabla \zeta\big|_{sc} =
+    gh \mat{T} \nabla \zeta\big|_{scv_0} +
+    gh \mat{T} \nabla \zeta\big|_{scv_1} +
+    gh \mat{T} \nabla \zeta\big|_{scv_2} +
+    gh \mat{T} \nabla \zeta\big|_{scv_3}
 \end{align}
+with the tensor $\mat{T}$ defined as:
+\begin{align}
+\mat{T} =
+\begin{pmatrix}
+y_\eta & -y_\xi \\
+-x_\eta & x_\xi
+\end{pmatrix}
+= J \mat{\eqref{eq:inverse_transformation}}
+\end{align}
+
 %
 %--------------------------------------------------------------------------------
 \paragraph*{$q$-momentum}
