@@ -59,7 +59,7 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
     std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_NORTH, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
-    memset(&values[c_eq], 0, 3 * 27 * sizeof(double));  // set all coefficients for one row of c-, q- and r-equation to zero
+    std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
 
     size_t p_5 = c_eq/(3*27);  // node number of boundary point, ie north point of molecule
     size_t p_4 = p_5 - 1;
@@ -86,9 +86,9 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
     double dy_deta_w = y[p_2] - y[p_1];
     double dy_deta_b = y[p_5] - y[p_4];
     double dy_deta_e = y[p_8] - y[p_7];
-    double dyinv_w = 1./dy_deta_w;
-    double dyinv_b = 1./dy_deta_b;
-    double dyinv_e = 1./dy_deta_e;
+    double dyinv_w = 1.;  // 1./dy_deta_w;
+    double dyinv_b = 1.;  // 1./dy_deta_b;
+    double dyinv_e = 1.;  // 1./dy_deta_e;
 
     if (bc_type[BC_NORTH] == "no_slip" || bc_type[BC_NORTH] == "free_slip")
     {
@@ -773,7 +773,7 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_EAST, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
-    memset(&values[c_eq], 0, 3 * 27 * sizeof(double));  // set all coefficients for one row of c-, q- and r-equation to zero
+    std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
 
     int p_7 = c_eq/(3*27);  // node number of boundary point, ie east point of molecule
     int p_8 = p_7 + 1;
@@ -800,9 +800,9 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     double dx_dxi_s = x[p_6] - x[p_3];
     double dy_deta_0 = 0.5 * (y[p_5] - y[p_4]) + 0.5 * (y[p_8] - y[p_7]);
     double dy_deta_1 = 0.5 * (y[p_4] - y[p_3]) + 0.5 * (y[p_7] - y[p_6]);
-    double dxinv_n = 1./dx_dxi_n;
-    double dxinv_b = 1./dx_dxi_b;
-    double dxinv_s = 1./dx_dxi_s;
+    double dxinv_n = 1.;  // 1./dx_dxi_n;
+    double dxinv_b = 1.;  // 1./dx_dxi_b;
+    double dxinv_s = 1.;  // 1./dx_dxi_s;
 
     if (bc_type[BC_EAST] == "no_slip" || bc_type[BC_EAST] == "free_slip")
     {
@@ -1488,7 +1488,7 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
     std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_SOUTH, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
-    memset(&values[c_eq], 0, 3 * 27 * sizeof(double));  // set all coefficients for one row of c-, q- and r-equation to zero
+    std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
 
     int p_3 = c_eq/(3*27);  // node number of boundary point, ie south point of molecule
     int p_4 = p_3 + 1;
@@ -1514,9 +1514,9 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
     double dy_deta_e = y[p_7] - y[p_6];
     double dy_deta_b = y[p_4] - y[p_3];
     double dy_deta_w = y[p_1] - y[p_0];
-    double dyinv_e = 1./dy_deta_e;
-    double dyinv_b = 1./dy_deta_b;
-    double dyinv_w = 1./dy_deta_w;
+    double dyinv_e = 1.;  // 1./dy_deta_e;
+    double dyinv_b = 1.;  // 1./dy_deta_b;
+    double dyinv_w = 1.;  // 1./dy_deta_w;
 
     if (bc_type[BC_SOUTH] == "no_slip" || bc_type[BC_SOUTH] == "free_slip")
     {
@@ -2200,7 +2200,7 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_WEST, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
-    memset(&values[c_eq], 0, 3 * 27 * sizeof(double));  // set all coefficients for one row of c-, q- and r-equation to zero
+    std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
 
     size_t p_1 = c_eq/(3*27);  // node number of boundary point, ie west point of molucule
     size_t p_0 = p_1 - 1;
@@ -2226,9 +2226,9 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     double dx_dxi_n = x[p_5] - x[p_2];
     double dy_deta_0 = 0.5 * (y[p_4] - y[p_3]) + 0.5 * (y[p_1] - y[p_0]);
     double dy_deta_1 = 0.5 * (y[p_5] - y[p_4]) + 0.5 * (y[p_2] - y[p_1]);
-    double dxinv_s = 1./dx_dxi_s;
-    double dxinv_b = 1./dx_dxi_b;
-    double dxinv_n = 1./dx_dxi_n;
+    double dxinv_s = 1.;  // 1./dx_dxi_s;
+    double dxinv_b = 1.;  // 1./dx_dxi_b;
+    double dxinv_n = 1.;  // 1./dx_dxi_n;
 
     if (bc_type[BC_WEST] == "no_slip" || bc_type[BC_WEST] == "free_slip")
     {

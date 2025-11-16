@@ -43,6 +43,6 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
     std::vector<double>& zb, std::vector<double>& mass);
 
-inline void add_value(double * values, int col, double data);
+inline void add_value(double * values, size_t col, double data);
 
 #endif  // __MATRIX_ASSEMBLY_INTERIOR_H__

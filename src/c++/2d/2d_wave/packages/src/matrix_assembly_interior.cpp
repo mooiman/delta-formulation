@@ -70,7 +70,7 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     if (p_0 % ny == 0) { return 1; }  // south boundary
     if ((p_0 + 1) % ny == 0) { return 2; }  // north boundary
 
-    memset(&values[c_eq], 0, 3 * 27 * sizeof(double));  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
+    std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
 
     size_t p_sw = p_0 - ny - 1;
     size_t p_w  = p_0 - ny;
@@ -698,6 +698,6 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     return 0;
 }
         
-inline void add_value(double * values, int col, double data){ 
+inline void add_value(double * values, size_t col, double data){ 
     values[col] += data; 
 }
