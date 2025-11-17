@@ -86,9 +86,6 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
     double dy_deta_w = y[p_2] - y[p_1];
     double dy_deta_b = y[p_5] - y[p_4];
     double dy_deta_e = y[p_8] - y[p_7];
-    double dyinv_w = 1./dy_deta_w;
-    double dyinv_b = 1./dy_deta_b;
-    double dyinv_e = 1./dy_deta_e;
 
     if (bc_type[BC_NORTH] == "no_slip" || bc_type[BC_NORTH] == "free_slip")
     {
@@ -374,8 +371,8 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
                 double zb_e = w_ess[0] * zb[p_8] + w_ess[1] * zb[p_7] + w_ess[2] * zb[p_6];
                 double zb_0 = 0.25 * ( 3.0 * zb_b + 1.0 * zb_w);
                 double zb_1 = 0.25 * ( 3.0 * zb_b + 1.0 * zb_e);
-                corr_term = - ( 0.5 * dx_dxi_0 * (dhdt_0 + ( eps_bc_corr * ((bc[BC_NORTH] - zb_0) - htheta_0)) ) 
-                              + 0.5 * dx_dxi_1 * (dhdt_1 + ( eps_bc_corr * ((bc[BC_NORTH] - zb_1) - htheta_1)) ) 
+                corr_term = - ( 0.5 * dx_dxi_0 * ( dhdt_0 + ( eps_bc_corr * ((bc[BC_NORTH] - zb_0) - htheta_0)) ) 
+                              + 0.5 * dx_dxi_1 * ( dhdt_1 + ( eps_bc_corr * ((bc[BC_NORTH] - zb_1) - htheta_1)) ) 
                               );
                 rhs[row] += corr_term;
                 sign = 1.0;
@@ -422,9 +419,9 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         double hn_b = w_nat[0] * hn[p_5] + w_nat[1] * hn[p_4] + w_nat[2] * hn[p_3];
         double hn_e = w_nat[0] * hn[p_8] + w_nat[1] * hn[p_7] + w_nat[2] * hn[p_6];
 
-        double drdy_w = dyinv_w * (rtheta[p_2] - rtheta[p_1]);
-        double drdy_b = dyinv_b * (rtheta[p_5] - rtheta[p_4]);
-        double drdy_e = dyinv_e * (rtheta[p_8] - rtheta[p_7]);
+        double drdy_w = rtheta[p_2] - rtheta[p_1];
+        double drdy_b = rtheta[p_5] - rtheta[p_4];
+        double drdy_e = rtheta[p_8] - rtheta[p_7];
 
         double rp_w = w_nat[0] * rp[p_2] + w_nat[1] * rp[p_1] + w_nat[2] * rp[p_0];
         double rp_b = w_nat[0] * rp[p_5] + w_nat[1] * rp[p_4] + w_nat[2] * rp[p_3];
@@ -446,9 +443,9 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         double rtheta_b = w_nat[0] * rtheta[p_5] + w_nat[1] * rtheta[p_4] + w_nat[2] * rtheta[p_3];
         double rtheta_e = w_nat[0] * rtheta[p_8] + w_nat[1] * rtheta[p_7] + w_nat[2] * rtheta[p_6];  // east of boundary location
 
-        double dzetady_w = dyinv_w * (htheta[p_2] + zb[p_2] - htheta[p_1] - zb[p_1]);
-        double dzetady_b = dyinv_b * (htheta[p_5] + zb[p_5] - htheta[p_4] - zb[p_4]);
-        double dzetady_e = dyinv_e * (htheta[p_8] + zb[p_8] - htheta[p_7] - zb[p_7]);
+        double dzetady_w = htheta[p_2] + zb[p_2] - htheta[p_1] - zb[p_1];
+        double dzetady_b = htheta[p_5] + zb[p_5] - htheta[p_4] - zb[p_4];
+        double dzetady_e = htheta[p_8] + zb[p_8] - htheta[p_7] - zb[p_7];
         // ---------------------------------------------------------------------
         if (do_convection) { con_fac = c_wave - rp_b / hp_b; }
         // ---------------------------------------------------------------------
@@ -495,21 +492,21 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         //
         // Contribution Delta h
         // face 0
-        double face_fac = 0.5 * dx_dxi_0 * 0.25;
-        add_value(values, col_wb , face_fac * 1.0 * w_nat[0] * theta * g * dzetady_e +  face_fac * 1.0 * dyinv_w * theta * g * htheta_e);
-        add_value(values, col_ws , face_fac * 1.0 * w_nat[1] * theta * g * dzetady_e -  face_fac * 1.0 * dyinv_w * theta * g * htheta_e);
+        double face_fac = 0.5 * 0.25;
+        add_value(values, col_wb , face_fac * 1.0 * w_nat[0] * theta * g * dzetady_e +  face_fac * 1.0 * theta * g * htheta_e);
+        add_value(values, col_ws , face_fac * 1.0 * w_nat[1] * theta * g * dzetady_e -  face_fac * 1.0 * theta * g * htheta_e);
         add_value(values, col_wss, face_fac * 1.0 * w_nat[2] * theta * g * dzetady_e);
-        add_value(values, col_b  , face_fac * 3.0 * w_nat[0] * theta * g * dzetady_b +  face_fac * 3.0 * dyinv_b * theta * g * htheta_b);
-        add_value(values, col_s  , face_fac * 3.0 * w_nat[1] * theta * g * dzetady_b -  face_fac * 3.0 * dyinv_b * theta * g * htheta_b);
+        add_value(values, col_b  , face_fac * 3.0 * w_nat[0] * theta * g * dzetady_b +  face_fac * 3.0 * theta * g * htheta_b);
+        add_value(values, col_s  , face_fac * 3.0 * w_nat[1] * theta * g * dzetady_b -  face_fac * 3.0 * theta * g * htheta_b);
         add_value(values, col_ss , face_fac * 3.0 * w_nat[2] * theta * g * dzetady_b);
         
         //face 1
-        face_fac = 0.5 * dx_dxi_1 * 0.25;
-        add_value(values, col_b  , face_fac * 3.0 * w_nat[0] * theta * g * dzetady_b +  face_fac * 3.0 * dyinv_b * theta * g * htheta_b);
-        add_value(values, col_s  , face_fac * 3.0 * w_nat[1] * theta * g * dzetady_b -  face_fac * 3.0 * dyinv_b * theta * g * htheta_b);
+        face_fac = 0.5 * 0.25;
+        add_value(values, col_b  , face_fac * 3.0 * w_nat[0] * theta * g * dzetady_b +  face_fac * 3.0 * theta * g * htheta_b);
+        add_value(values, col_s  , face_fac * 3.0 * w_nat[1] * theta * g * dzetady_b -  face_fac * 3.0 * theta * g * htheta_b);
         add_value(values, col_ss , face_fac * 3.0 * w_nat[2] * theta * g * dzetady_b);
-        add_value(values, col_eb , face_fac * 1.0 * w_nat[0] * theta * g * dzetady_w +  face_fac * 1.0 * dyinv_e * theta * g * htheta_w);
-        add_value(values, col_es , face_fac * 1.0 * w_nat[1] * theta * g * dzetady_w -  face_fac * 1.0 * dyinv_e * theta * g * htheta_w);
+        add_value(values, col_eb , face_fac * 1.0 * w_nat[0] * theta * g * dzetady_w +  face_fac * 1.0 * theta * g * htheta_w);
+        add_value(values, col_es , face_fac * 1.0 * w_nat[1] * theta * g * dzetady_w -  face_fac * 1.0 * theta * g * htheta_w);
         add_value(values, col_ess, face_fac * 1.0 * w_nat[2] * theta * g * dzetady_w);
 
         // Contribution Delta q
@@ -550,20 +547,20 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         double drdt_0 = 0.25 * ( 3.0 * drdt_b + 1.0 * drdt_w);
         double drdt_1 = 0.25 * ( 3.0 * drdt_b + 1.0 * drdt_e);
 
-        rhs[row + 2] = - ( 0.5 * dx_dxi_0 * ( drdt_0 + g * htheta_0 * dzetady_0 ) 
-                         + 0.5 * dx_dxi_1 * ( drdt_1 + g * htheta_1 * dzetady_1 ) );
+        rhs[row + 2] = - ( 0.5 * ( dx_dxi_0 * drdt_0 + g * htheta_0 * dzetady_0 ) 
+                         + 0.5 * ( dx_dxi_1 * drdt_1 + g * htheta_1 * dzetady_1 ) );
         //
         if (do_convection)
         {
             // North boundary convection
             
-            double aa_w = - dyinv_w * 2. * rtheta_w / (htheta_w * htheta_w) * (rtheta[p_2] - rtheta[p_1]) + dyinv_w * 2. * (rtheta_w * rtheta_w) / (htheta_w * htheta_w * htheta_w) * (htheta[p_2] - htheta[p_1]);
-            double aa_b = - dyinv_b * 2. * rtheta_b / (htheta_b * htheta_b) * (rtheta[p_5] - rtheta[p_4]) + dyinv_b * 2. * (rtheta_b * rtheta_b) / (htheta_b * htheta_b * htheta_b) * (htheta[p_5] - htheta[p_4]);
-            double aa_e = - dyinv_e * 2. * rtheta_e / (htheta_e * htheta_e) * (rtheta[p_8] - rtheta[p_7]) + dyinv_e * 2. * (rtheta_e * rtheta_e) / (htheta_e * htheta_e * htheta_e) * (htheta[p_8] - htheta[p_7]);
+            double aa_w = - 2. * rtheta_w / (htheta_w * htheta_w) * (rtheta[p_2] - rtheta[p_1]) + 2. * (rtheta_w * rtheta_w) / (htheta_w * htheta_w * htheta_w) * (htheta[p_2] - htheta[p_1]);
+            double aa_b = - 2. * rtheta_b / (htheta_b * htheta_b) * (rtheta[p_5] - rtheta[p_4]) + 2. * (rtheta_b * rtheta_b) / (htheta_b * htheta_b * htheta_b) * (htheta[p_5] - htheta[p_4]);
+            double aa_e = - 2. * rtheta_e / (htheta_e * htheta_e) * (rtheta[p_8] - rtheta[p_7]) + 2. * (rtheta_e * rtheta_e) / (htheta_e * htheta_e * htheta_e) * (htheta[p_8] - htheta[p_7]);
             
-            double bb_w = dyinv_w * 2. / htheta_w * (rtheta[p_2] - rtheta[p_1]) - dyinv_w * 2. * rtheta_w / (htheta_w * htheta_w) * (htheta[p_2] - htheta[p_1]);
-            double bb_b = dyinv_b * 2. / htheta_b * (rtheta[p_5] - rtheta[p_4]) - dyinv_b * 2. * rtheta_b / (htheta_b * htheta_b) * (htheta[p_5] - htheta[p_4]);
-            double bb_e = dyinv_e * 2. / htheta_e * (rtheta[p_8] - rtheta[p_7]) - dyinv_e * 2. * rtheta_e / (htheta_e * htheta_e) * (htheta[p_8] - htheta[p_7]);
+            double bb_w = 2. / htheta_w * (rtheta[p_2] - rtheta[p_1]) - 2. * rtheta_w / (htheta_w * htheta_w) * (htheta[p_2] - htheta[p_1]);
+            double bb_b = 2. / htheta_b * (rtheta[p_5] - rtheta[p_4]) - 2. * rtheta_b / (htheta_b * htheta_b) * (htheta[p_5] - htheta[p_4]);
+            double bb_e = 2. / htheta_e * (rtheta[p_8] - rtheta[p_7]) - 2. * rtheta_e / (htheta_e * htheta_e) * (htheta[p_8] - htheta[p_7]);
             
             double cc_w = -(rtheta_w * rtheta_w) / (htheta_w * htheta_w);
             double cc_b = -(rtheta_b * rtheta_b) / (htheta_b * htheta_b);
@@ -576,20 +573,20 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             // Contribution Delta h
             // face 0
             double face_fac = 0.5 * dx_dxi_0 * 0.25;
-            add_value(values, col_wb , face_fac * 1.0 * (theta * aa_w * w_nat[0] + dyinv_w * theta * cc_w));
-            add_value(values, col_ws , face_fac * 1.0 * (theta * aa_w * w_nat[1] - dyinv_w * theta * cc_w));
+            add_value(values, col_wb , face_fac * 1.0 * (theta * aa_w * w_nat[0] + theta * cc_w));
+            add_value(values, col_ws , face_fac * 1.0 * (theta * aa_w * w_nat[1] - theta * cc_w));
             add_value(values, col_wss, face_fac * 1.0 * (theta * aa_w * w_nat[2]));
-            add_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] + dyinv_b * theta * cc_b));
-            add_value(values, col_s  , face_fac * 3.0 * (theta * aa_b * w_nat[1] - dyinv_b * theta * cc_b));
+            add_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] + theta * cc_b));
+            add_value(values, col_s  , face_fac * 3.0 * (theta * aa_b * w_nat[1] - theta * cc_b));
             add_value(values, col_ss , face_fac * 3.0 * (theta * aa_b * w_nat[2]));
 
             //face 1
             face_fac = 0.5 * dx_dxi_1 * 0.25;
-            add_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] + dyinv_b * theta * cc_b));
-            add_value(values, col_s  , face_fac * 3.0 * (theta * aa_b * w_nat[1] - dyinv_b * theta * cc_b));
+            add_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] + theta * cc_b));
+            add_value(values, col_s  , face_fac * 3.0 * (theta * aa_b * w_nat[1] - theta * cc_b));
             add_value(values, col_ss , face_fac * 3.0 * (theta * aa_b * w_nat[2]));
-            add_value(values, col_eb , face_fac * 1.0 * (theta * aa_e * w_nat[0] + dyinv_e * theta * cc_e));
-            add_value(values, col_es , face_fac * 1.0 * (theta * aa_e * w_nat[1] - dyinv_e * theta * cc_e));
+            add_value(values, col_eb , face_fac * 1.0 * (theta * aa_e * w_nat[0] + theta * cc_e));
+            add_value(values, col_es , face_fac * 1.0 * (theta * aa_e * w_nat[1] - theta * cc_e));
             add_value(values, col_ess, face_fac * 1.0 * (theta * aa_e * w_nat[2]));
             
             // Contribution Delta q
@@ -600,20 +597,20 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             // Contribution Delta r
             // face 0
             face_fac = 0.5 * dx_dxi_0 * 0.25;
-            add_value(values, col_wb  + 2, face_fac * 1.0 * (theta * bb_w * w_nat[0] + dyinv_w * theta * dd_w));
-            add_value(values, col_ws  + 2, face_fac * 1.0 * (theta * bb_w * w_nat[1] - dyinv_w * theta * dd_w));
+            add_value(values, col_wb  + 2, face_fac * 1.0 * (theta * bb_w * w_nat[0] + theta * dd_w));
+            add_value(values, col_ws  + 2, face_fac * 1.0 * (theta * bb_w * w_nat[1] - theta * dd_w));
             add_value(values, col_wss + 2, face_fac * 1.0 * (theta * bb_w * w_nat[2]));
-            add_value(values, col_b   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[0] + dyinv_b * theta * dd_b));
-            add_value(values, col_s   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[1] - dyinv_b * theta * dd_b));
+            add_value(values, col_b   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[0] + theta * dd_b));
+            add_value(values, col_s   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[1] - theta * dd_b));
             add_value(values, col_ss  + 2, face_fac * 3.0 * (theta * bb_b * w_nat[2]));
 
             // face 1
             face_fac = 0.5 * dx_dxi_1 * 0.25;
-            add_value(values, col_b   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[0] + dyinv_b * theta * dd_b));
-            add_value(values, col_s   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[1] - dyinv_b * theta * dd_b));
+            add_value(values, col_b   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[0] + theta * dd_b));
+            add_value(values, col_s   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[1] - theta * dd_b));
             add_value(values, col_ss  + 2, face_fac * 3.0 * (theta * bb_b * w_nat[2]));
-            add_value(values, col_eb  + 2, face_fac * 1.0 * (theta * bb_e * w_nat[0] + dyinv_e * theta * dd_e));
-            add_value(values, col_es  + 2, face_fac * 1.0 * (theta * bb_e * w_nat[1] - dyinv_e * theta * dd_e));
+            add_value(values, col_eb  + 2, face_fac * 1.0 * (theta * bb_e * w_nat[0] + theta * dd_e));
+            add_value(values, col_es  + 2, face_fac * 1.0 * (theta * bb_e * w_nat[1] - theta * dd_e));
             add_value(values, col_ess + 2, face_fac * 1.0 * (theta * bb_e * w_nat[2]));
                         
             double cc_0 = 0.25 * (3.0 * cc_b +  1.0 * cc_w);
@@ -621,10 +618,10 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             double dd_0 = 0.25 * (3.0 * dd_b +  1.0 * dd_w);
             double dd_1 = 0.25 * (3.0 * dd_b +  1.0 * dd_e);
                         
-            double dhtheta_0 = 0.25 * (3.0 * dyinv_b * (htheta[p_5] - htheta[p_4]) +  1.0 * dyinv_w * (htheta[p_2] - htheta[p_1]));
-            double drtheta_0 = 0.25 * (3.0 * dyinv_b * (rtheta[p_5] - rtheta[p_4]) +  1.0 * dyinv_w * (rtheta[p_2] - rtheta[p_1]));
-            double dhtheta_1 = 0.25 * (3.0 * dyinv_b * (htheta[p_5] - htheta[p_4]) +  1.0 * dyinv_e * (htheta[p_8] - htheta[p_7]));
-            double drtheta_1 = 0.25 * (3.0 * dyinv_b * (rtheta[p_5] - rtheta[p_4]) +  1.0 * dyinv_e * (rtheta[p_8] - rtheta[p_7]));
+            double dhtheta_0 = 0.25 * (3.0 * (htheta[p_5] - htheta[p_4]) +  1.0 * (htheta[p_2] - htheta[p_1]));
+            double drtheta_0 = 0.25 * (3.0 * (rtheta[p_5] - rtheta[p_4]) +  1.0 * (rtheta[p_2] - rtheta[p_1]));
+            double dhtheta_1 = 0.25 * (3.0 * (htheta[p_5] - htheta[p_4]) +  1.0 * (htheta[p_8] - htheta[p_7]));
+            double drtheta_1 = 0.25 * (3.0 * (rtheta[p_5] - rtheta[p_4]) +  1.0 * (rtheta[p_8] - rtheta[p_7]));
             
             rhs[row + 2] += - (
                     0.5 * dx_dxi_0 * dd_0 * drtheta_0 + 0.5 * dx_dxi_0 * cc_0 * dhtheta_0
@@ -729,21 +726,21 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
 
         // Contribution Delta r
         // face 0
-        face_fac = 0.5 * dx_dxi_0 * 0.25;
-        add_value(values, col_wb  + 2, face_fac * 1.0 * con_fac *  dyinv_w * theta);
-        add_value(values, col_ws  + 2, face_fac * 1.0 * con_fac * -dyinv_w * theta);
+        face_fac = 0.5 * 0.25;
+        add_value(values, col_wb  + 2, face_fac * 1.0 * con_fac *  theta);
+        add_value(values, col_ws  + 2, face_fac * 1.0 * con_fac * -theta);
         add_value(values, col_wss + 2, face_fac * 1.0 * 0.0);
-        add_value(values, col_b   + 2, face_fac * 3.0 * con_fac *  dyinv_b * theta);
-        add_value(values, col_s   + 2, face_fac * 3.0 * con_fac * -dyinv_b * theta);
+        add_value(values, col_b   + 2, face_fac * 3.0 * con_fac *  theta);
+        add_value(values, col_s   + 2, face_fac * 3.0 * con_fac * -theta);
         add_value(values, col_ss  + 2, face_fac * 3.0 * 0.0);
 
         // face 1
-        face_fac = 0.5 * dx_dxi_1 * 0.25;
-        add_value(values, col_b   + 2, face_fac * 3.0 * con_fac *  dyinv_b * theta);
-        add_value(values, col_s   + 2, face_fac * 3.0 * con_fac * -dyinv_b * theta);
+        face_fac = 0.5 * 0.25;
+        add_value(values, col_b   + 2, face_fac * 3.0 * con_fac *  theta);
+        add_value(values, col_s   + 2, face_fac * 3.0 * con_fac * -theta);
         add_value(values, col_ss  + 2, face_fac * 3.0 * 0.0);
-        add_value(values, col_eb  + 2, face_fac * 1.0 * con_fac *  dyinv_e * theta);
-        add_value(values, col_es  + 2, face_fac * 1.0 * con_fac * -dyinv_e * theta);
+        add_value(values, col_eb  + 2, face_fac * 1.0 * con_fac *  theta);
+        add_value(values, col_es  + 2, face_fac * 1.0 * con_fac * -theta);
         add_value(values, col_ess + 2, face_fac * 1.0 * 0.0);
 
         //
@@ -755,8 +752,8 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         double drdy_0 = 0.25 * (3.0 * drdy_b + 1.0 * drdy_w);
         double drdy_1 = 0.25 * (3.0 * drdy_b + 1.0 * drdy_e);
 
-        rhs[row + 2] += - ( 0.5 * dx_dxi_0 * con_fac * (dhdt_0 + drdy_0) 
-                          + 0.5 * dx_dxi_1 * con_fac * (dhdt_1 + drdy_1) );
+        rhs[row + 2] += - ( 0.5 * con_fac * (dx_dxi_0 * dhdt_0 + drdy_0) 
+                          + 0.5 * con_fac * (dx_dxi_1 * dhdt_1 + drdy_1) );
     }
     return 0;
 }
@@ -800,9 +797,6 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     double dx_dxi_s = x[p_6] - x[p_3];
     double dy_deta_0 = 0.5 * (y[p_5] - y[p_4]) + 0.5 * (y[p_8] - y[p_7]);
     double dy_deta_1 = 0.5 * (y[p_4] - y[p_3]) + 0.5 * (y[p_7] - y[p_6]);
-    double dxinv_n = 1./dx_dxi_n;
-    double dxinv_b = 1./dx_dxi_b;
-    double dxinv_s = 1./dx_dxi_s;
 
     if (bc_type[BC_EAST] == "no_slip" || bc_type[BC_EAST] == "free_slip")
     {
@@ -1088,8 +1082,8 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
                 double zb_0 = 0.25 * ( 3.0 * zb_b + 1.0 * zb_n);
                 double zb_1 = 0.25 * ( 3.0 * zb_b + 1.0 * zb_s);
 
-                corr_term = -( 0.5 * dy_deta_0 * (dhdt_0 + ( eps_bc_corr * ( (bc[BC_EAST] - zb_0) - htheta_0)) ) 
-                             + 0.5 * dy_deta_1 * (dhdt_1 + ( eps_bc_corr * ( (bc[BC_EAST] - zb_1) - htheta_1)) ) 
+                corr_term = -( 0.5 * dy_deta_0 * ( dhdt_0 + ( eps_bc_corr * ( (bc[BC_EAST] - zb_0) - htheta_0)) ) 
+                             + 0.5 * dy_deta_1 * ( dhdt_1 + ( eps_bc_corr * ( (bc[BC_EAST] - zb_1) - htheta_1)) ) 
                              );
                 rhs[row] += corr_term;
                 sign = 1.0;
@@ -1118,7 +1112,7 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
                 double qtheta_0 = 0.25 * (3.0 * qtheta_b + 1.0 * qtheta_n);
                 double qtheta_1 = 0.25 * (3.0 * qtheta_b + 1.0 * qtheta_s);
                 corr_term = ( 0.5 * dy_deta_0 * (- dqdt_0 + sign * eps_bc_corr * (bc[BC_EAST] - qtheta_0)) + 
-                              0.5 * dy_deta_1 *(- dqdt_1 + sign * eps_bc_corr * (bc[BC_EAST] - qtheta_1)) 
+                              0.5 * dy_deta_1 * (- dqdt_1 + sign * eps_bc_corr * (bc[BC_EAST] - qtheta_1)) 
                             );
                 rhs[row] += corr_term;
                 sign = 1.0;
@@ -1135,9 +1129,9 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
         double hn_b = w_nat[0] * hn[p_7] + w_nat[1] * hn[p_4] + w_nat[2] * hn[p_1];
         double hn_s = w_nat[0] * hn[p_6] + w_nat[1] * hn[p_3] + w_nat[2] * hn[p_0];
 
-        double dqdx_n = dxinv_n * (qtheta[p_8] - qtheta[p_5]);
-        double dqdx_b = dxinv_b * (qtheta[p_7] - qtheta[p_4]);
-        double dqdx_s = dxinv_s * (qtheta[p_6] - qtheta[p_3]);
+        double dqdx_n = qtheta[p_8] - qtheta[p_5];
+        double dqdx_b = qtheta[p_7] - qtheta[p_4];
+        double dqdx_s = qtheta[p_6] - qtheta[p_3];
 
         double qp_n = w_nat[0] * qp[p_8] + w_nat[1] * qp[p_5] + w_nat[2] * qp[p_2];
         double qp_b = w_nat[0] * qp[p_7] + w_nat[1] * qp[p_4] + w_nat[2] * qp[p_1];
@@ -1159,9 +1153,9 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
         double rtheta_b = w_nat[0] * rtheta[p_7] + w_nat[1] * rtheta[p_4] + w_nat[2] * rtheta[p_1];
         double rtheta_s = w_nat[0] * rtheta[p_6] + w_nat[1] * rtheta[p_3] + w_nat[2] * rtheta[p_0];  // south of boundary location
 
-        double dzetadx_n = dxinv_n * (htheta[p_8] + zb[p_8] - htheta[p_5] - zb[p_5]);
-        double dzetadx_b = dxinv_b * (htheta[p_7] + zb[p_7] - htheta[p_4] - zb[p_4]);
-        double dzetadx_s = dxinv_s * (htheta[p_6] + zb[p_6] - htheta[p_3] - zb[p_3]);
+        double dzetadx_n = htheta[p_8] + zb[p_8] - htheta[p_5] - zb[p_5];
+        double dzetadx_b = htheta[p_7] + zb[p_7] - htheta[p_4] - zb[p_4];
+        double dzetadx_s = htheta[p_6] + zb[p_6] - htheta[p_3] - zb[p_3];
         // ---------------------------------------------------------------------
         if (do_convection) { con_fac = c_wave - qp_b / hp_b; }
         // ---------------------------------------------------------------------
@@ -1180,21 +1174,21 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
         //
         // Contribution Delta h
         // face 0
-        double face_fac = 0.5 * dy_deta_0 * 0.25;
-        add_value(values, col_nb , face_fac * 1.0 * w_nat[0] * theta * g * dzetadx_n + face_fac * 1.0 * dxinv_n * theta * g * htheta_n);
-        add_value(values, col_nw , face_fac * 1.0 * w_nat[1] * theta * g * dzetadx_n - face_fac * 1.0 * dxinv_n * theta * g * htheta_n);
+        double face_fac = 0.5 * 0.25;
+        add_value(values, col_nb , face_fac * 1.0 * w_nat[0] * theta * g * dzetadx_n + face_fac * 1.0 * theta * g * htheta_n);
+        add_value(values, col_nw , face_fac * 1.0 * w_nat[1] * theta * g * dzetadx_n - face_fac * 1.0 * theta * g * htheta_n);
         add_value(values, col_nww, face_fac * 1.0 * w_nat[2] * theta * g * dzetadx_n);
-        add_value(values, col_b  , face_fac * 3.0 * w_nat[0] * theta * g * dzetadx_b + face_fac * 3.0 * dxinv_b * theta * g * htheta_b);
-        add_value(values, col_w  , face_fac * 3.0 * w_nat[1] * theta * g * dzetadx_b - face_fac * 3.0 * dxinv_b * theta * g * htheta_b);
+        add_value(values, col_b  , face_fac * 3.0 * w_nat[0] * theta * g * dzetadx_b + face_fac * 3.0 * theta * g * htheta_b);
+        add_value(values, col_w  , face_fac * 3.0 * w_nat[1] * theta * g * dzetadx_b - face_fac * 3.0 * theta * g * htheta_b);
         add_value(values, col_ww , face_fac * 3.0 * w_nat[2] * theta * g * dzetadx_b);
 
         //face 1
-        face_fac = 0.5 * dy_deta_1 * 0.25;
-        add_value(values, col_b  , face_fac * 3.0 * w_nat[0] * theta * g * dzetadx_b + face_fac * 3.0 * dxinv_b * theta * g * htheta_b);
-        add_value(values, col_w  , face_fac * 3.0 * w_nat[1] * theta * g * dzetadx_b - face_fac * 3.0 * dxinv_b * theta * g * htheta_b);
+        face_fac = 0.5 * 0.25;
+        add_value(values, col_b  , face_fac * 3.0 * w_nat[0] * theta * g * dzetadx_b + face_fac * 3.0 * theta * g * htheta_b);
+        add_value(values, col_w  , face_fac * 3.0 * w_nat[1] * theta * g * dzetadx_b - face_fac * 3.0 * theta * g * htheta_b);
         add_value(values, col_ww , face_fac * 3.0 * w_nat[2] * theta * g * dzetadx_b);
-        add_value(values, col_sb , face_fac * 1.0 * w_nat[0] * theta * g * dzetadx_s + face_fac * 1.0 * dxinv_s * theta * g * htheta_s);
-        add_value(values, col_sw , face_fac * 1.0 * w_nat[1] * theta * g * dzetadx_s - face_fac * 1.0 * dxinv_s * theta * g * htheta_s);
+        add_value(values, col_sb , face_fac * 1.0 * w_nat[0] * theta * g * dzetadx_s + face_fac * 1.0 * theta * g * htheta_s);
+        add_value(values, col_sw , face_fac * 1.0 * w_nat[1] * theta * g * dzetadx_s - face_fac * 1.0 * theta * g * htheta_s);
         add_value(values, col_sww, face_fac * 1.0 * w_nat[2] * theta * g * dzetadx_s);
 
         // Contribution Delta q
@@ -1203,7 +1197,6 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
         add_value(values, col_nb  + 1, face_fac * 1.0 * dtinv * w_nat[0]);
         add_value(values, col_nw  + 1, face_fac * 1.0 * dtinv * w_nat[1]);
         add_value(values, col_nww + 1, face_fac * 1.0 * dtinv * w_nat[2]);
-
         add_value(values, col_b   + 1, face_fac * 3.0 * dtinv * w_nat[0]);
         add_value(values, col_w   + 1, face_fac * 3.0 * dtinv * w_nat[1]);
         add_value(values, col_ww  + 1, face_fac * 3.0 * dtinv * w_nat[2]);
@@ -1213,7 +1206,6 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
         add_value(values, col_b   + 1, face_fac * 3.0 * dtinv * w_nat[0]);
         add_value(values, col_w   + 1, face_fac * 3.0 * dtinv * w_nat[1]);
         add_value(values, col_ww  + 1, face_fac * 3.0 * dtinv * w_nat[2]);
-
         add_value(values, col_sb  + 1, face_fac * 1.0 * dtinv * w_nat[0]);
         add_value(values, col_sw  + 1, face_fac * 1.0 * dtinv * w_nat[1]);
         add_value(values, col_sww + 1, face_fac * 1.0 * dtinv * w_nat[2]); 
@@ -1235,20 +1227,20 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
         double dqdt_0 = 0.25 * ( 3.0 * dqdt_b + 1.0 * dqdt_n);
         double dqdt_1 = 0.25 * ( 3.0 * dqdt_b + 1.0 * dqdt_s);
 
-        rhs[row + 1] = - ( 0.5 * dy_deta_0 * ( dqdt_0 + g * htheta_0 * dzetadx_0 ) 
-                         + 0.5 * dy_deta_0 * ( dqdt_1 + g * htheta_1 * dzetadx_1 ) );
+        rhs[row + 1] = - ( 0.5 * ( dy_deta_0 * dqdt_0 + g * htheta_0 * dzetadx_0 ) 
+                         + 0.5 * ( dy_deta_0 * dqdt_1 + g * htheta_1 * dzetadx_1 ) );
         //
         if (do_convection)
         {
             // East boundary convection
 
-            double aa_n = - dxinv_n * 2. * qtheta_n / (htheta_n * htheta_n) * (qtheta[p_8] - qtheta[p_5]) + dxinv_n * 2. * (qtheta_n * qtheta_n) / (htheta_n * htheta_n * htheta_n) * (htheta[p_8] - htheta[p_5]);
-            double aa_b = - dxinv_b * 2. * qtheta_b / (htheta_b * htheta_b) * (qtheta[p_7] - qtheta[p_4]) + dxinv_b * 2. * (qtheta_b * qtheta_b) / (htheta_b * htheta_b * htheta_b) * (htheta[p_7] - htheta[p_4]);
-            double aa_s = - dxinv_s * 2. * qtheta_s / (htheta_s * htheta_s) * (qtheta[p_6] - qtheta[p_3]) + dxinv_s * 2. * (qtheta_s * qtheta_s) / (htheta_s * htheta_s * htheta_s) * (htheta[p_6] - htheta[p_3]);
+            double aa_n = - 2. * qtheta_n / (htheta_n * htheta_n) * (qtheta[p_8] - qtheta[p_5]) + 2. * (qtheta_n * qtheta_n) / (htheta_n * htheta_n * htheta_n) * (htheta[p_8] - htheta[p_5]);
+            double aa_b = - 2. * qtheta_b / (htheta_b * htheta_b) * (qtheta[p_7] - qtheta[p_4]) + 2. * (qtheta_b * qtheta_b) / (htheta_b * htheta_b * htheta_b) * (htheta[p_7] - htheta[p_4]);
+            double aa_s = - 2. * qtheta_s / (htheta_s * htheta_s) * (qtheta[p_6] - qtheta[p_3]) + 2. * (qtheta_s * qtheta_s) / (htheta_s * htheta_s * htheta_s) * (htheta[p_6] - htheta[p_3]);
 
-            double bb_n = dxinv_n * 2. / htheta_n * (qtheta[p_8] - qtheta[p_5]) - dxinv_n * 2. * qtheta_n / (htheta_n * htheta_n) * (htheta[p_8] - htheta[p_5]);
-            double bb_b = dxinv_b * 2. / htheta_b * (qtheta[p_7] - qtheta[p_4]) - dxinv_b * 2. * qtheta_b / (htheta_b * htheta_b) * (htheta[p_7] - htheta[p_4]);
-            double bb_s = dxinv_s * 2. / htheta_s * (qtheta[p_6] - qtheta[p_3]) - dxinv_s * 2. * qtheta_s / (htheta_s * htheta_s) * (htheta[p_6] - htheta[p_3]);
+            double bb_n = 2. / htheta_n * (qtheta[p_8] - qtheta[p_5]) - 2. * qtheta_n / (htheta_n * htheta_n) * (htheta[p_8] - htheta[p_5]);
+            double bb_b = 2. / htheta_b * (qtheta[p_7] - qtheta[p_4]) - 2. * qtheta_b / (htheta_b * htheta_b) * (htheta[p_7] - htheta[p_4]);
+            double bb_s = 2. / htheta_s * (qtheta[p_6] - qtheta[p_3]) - 2. * qtheta_s / (htheta_s * htheta_s) * (htheta[p_6] - htheta[p_3]);
 
             double cc_n = -(qtheta_n * qtheta_n) / (htheta_n * htheta_n);
             double cc_b = -(qtheta_b * qtheta_b) / (htheta_b * htheta_b);
@@ -1261,39 +1253,39 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             // Contribution Delta h
             // face 0
             double face_fac = 0.5 * dy_deta_0 * 0.25;
-            add_value(values, col_nb , face_fac * 1.0 * (theta * aa_n * w_nat[0] + dxinv_n * theta * cc_n));
-            add_value(values, col_nw , face_fac * 1.0 * (theta * aa_n * w_nat[1] - dxinv_n * theta * cc_n));
+            add_value(values, col_nb , face_fac * 1.0 * (theta * aa_n * w_nat[0] + theta * cc_n));
+            add_value(values, col_nw , face_fac * 1.0 * (theta * aa_n * w_nat[1] - theta * cc_n));
             add_value(values, col_nww, face_fac * 1.0 * (theta * aa_n * w_nat[2]));
-            add_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] + dxinv_b * theta * cc_b));
-            add_value(values, col_w  , face_fac * 3.0 * (theta * aa_b * w_nat[1] - dxinv_b * theta * cc_b));
+            add_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] + theta * cc_b));
+            add_value(values, col_w  , face_fac * 3.0 * (theta * aa_b * w_nat[1] - theta * cc_b));
             add_value(values, col_ww , face_fac * 3.0 * (theta * aa_b * w_nat[2]));
 
             //face 1
             face_fac = 0.5 * dy_deta_1 * 0.25;
-            add_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] + dxinv_b * theta * cc_b));
-            add_value(values, col_w  , face_fac * 3.0 * (theta * aa_b * w_nat[1] - dxinv_b * theta * cc_b));
+            add_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] + theta * cc_b));
+            add_value(values, col_w  , face_fac * 3.0 * (theta * aa_b * w_nat[1] - theta * cc_b));
             add_value(values, col_ww , face_fac * 3.0 * (theta * aa_b * w_nat[2]));
-            add_value(values, col_sb , face_fac * 1.0 * (theta * aa_s * w_nat[0] + dxinv_s * theta * cc_s));
-            add_value(values, col_sw , face_fac * 1.0 * (theta * aa_s * w_nat[1] - dxinv_s * theta * cc_s));
+            add_value(values, col_sb , face_fac * 1.0 * (theta * aa_s * w_nat[0] + theta * cc_s));
+            add_value(values, col_sw , face_fac * 1.0 * (theta * aa_s * w_nat[1] - theta * cc_s));
             add_value(values, col_sww, face_fac * 1.0 * (theta * aa_s * w_nat[2]));
 
             // Contribution Delta q
             // face 0
             face_fac = 0.5 * dy_deta_0 * 0.25;
-            add_value(values, col_nb  + 1, face_fac * 1.0 * (theta * bb_n * w_nat[0] + dxinv_n * theta * dd_n));
-            add_value(values, col_nw  + 1, face_fac * 1.0 * (theta * bb_n * w_nat[1] - dxinv_n * theta * dd_n));
+            add_value(values, col_nb  + 1, face_fac * 1.0 * (theta * bb_n * w_nat[0] + theta * dd_n));
+            add_value(values, col_nw  + 1, face_fac * 1.0 * (theta * bb_n * w_nat[1] - theta * dd_n));
             add_value(values, col_nww + 1, face_fac * 1.0 * (theta * bb_n * w_nat[2]));
-            add_value(values, col_b   + 1, face_fac * 3.0 * (theta * bb_b * w_nat[0] + dxinv_b * theta * dd_b));
-            add_value(values, col_w   + 1, face_fac * 3.0 * (theta * bb_b * w_nat[1] - dxinv_b * theta * dd_b));
+            add_value(values, col_b   + 1, face_fac * 3.0 * (theta * bb_b * w_nat[0] + theta * dd_b));
+            add_value(values, col_w   + 1, face_fac * 3.0 * (theta * bb_b * w_nat[1] - theta * dd_b));
             add_value(values, col_ww  + 1, face_fac * 3.0 * (theta * bb_b * w_nat[2]));
 
             // face 1
             face_fac = 0.5 * dy_deta_1 * 0.25;
-            add_value(values, col_b   + 1, face_fac * 3.0 * (theta * bb_b * w_nat[0] + dxinv_b * theta * dd_b));
-            add_value(values, col_w   + 1, face_fac * 3.0 * (theta * bb_b * w_nat[1] - dxinv_b * theta * dd_b));
+            add_value(values, col_b   + 1, face_fac * 3.0 * (theta * bb_b * w_nat[0] + theta * dd_b));
+            add_value(values, col_w   + 1, face_fac * 3.0 * (theta * bb_b * w_nat[1] - theta * dd_b));
             add_value(values, col_ww  + 1, face_fac * 3.0 * (theta * bb_b * w_nat[2]));
-            add_value(values, col_sb  + 1, face_fac * 1.0 * (theta * bb_s * w_nat[0] + dxinv_s * theta * dd_s));
-            add_value(values, col_sw  + 1, face_fac * 1.0 * (theta * bb_s * w_nat[1] - dxinv_s * theta * dd_s));
+            add_value(values, col_sb  + 1, face_fac * 1.0 * (theta * bb_s * w_nat[0] + theta * dd_s));
+            add_value(values, col_sw  + 1, face_fac * 1.0 * (theta * bb_s * w_nat[1] - theta * dd_s));
             add_value(values, col_sww + 1, face_fac * 1.0 * (theta * bb_s * w_nat[2]));
 
             // Contribution Delta r
@@ -1306,10 +1298,10 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             double dd_0 = 0.25 * (3.0 * dd_b +  1.0 * dd_n);
             double dd_1 = 0.25 * (3.0 * dd_b +  1.0 * dd_s);
 
-            double dhtheta_0 = 0.25 * (3.0 * dxinv_b * (htheta[p_7] - htheta[p_4]) +  1.0 * dxinv_n * (htheta[p_8] - htheta[p_5]));
-            double dhtheta_1 = 0.25 * (3.0 * dxinv_b * (htheta[p_7] - htheta[p_4]) +  1.0 * dxinv_n * (htheta[p_6] - htheta[p_3]));
-            double dqtheta_0 = 0.25 * (3.0 * dxinv_b * (qtheta[p_7] - qtheta[p_4]) +  1.0 * dxinv_s * (qtheta[p_8] - qtheta[p_5]));
-            double dqtheta_1 = 0.25 * (3.0 * dxinv_b * (qtheta[p_7] - qtheta[p_4]) +  1.0 * dxinv_s * (qtheta[p_6] - qtheta[p_3]));
+            double dhtheta_0 = 0.25 * (3.0 * (htheta[p_7] - htheta[p_4]) +  1.0 * (htheta[p_8] - htheta[p_5]));
+            double dhtheta_1 = 0.25 * (3.0 * (htheta[p_7] - htheta[p_4]) +  1.0 * (htheta[p_6] - htheta[p_3]));
+            double dqtheta_0 = 0.25 * (3.0 * (qtheta[p_7] - qtheta[p_4]) +  1.0 * (qtheta[p_8] - qtheta[p_5]));
+            double dqtheta_1 = 0.25 * (3.0 * (qtheta[p_7] - qtheta[p_4]) +  1.0 * (qtheta[p_6] - qtheta[p_3]));
 
             rhs[row + 1] += - (
                     0.5 * dy_deta_0 * dd_0 * dqtheta_0 + 0.5 * cc_0 * dhtheta_0
@@ -1410,21 +1402,21 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
 
         // Contribution Delta q
         // face 0
-        face_fac = 0.5 * dy_deta_0 * 0.25;
-        add_value(values, col_nb  + 1, face_fac * 1.0 * con_fac *  dxinv_n * theta);
-        add_value(values, col_nw  + 1, face_fac * 1.0 * con_fac * -dxinv_n * theta);
+        face_fac = 0.5 * 0.25;
+        add_value(values, col_nb  + 1, face_fac * 1.0 * con_fac *  theta);
+        add_value(values, col_nw  + 1, face_fac * 1.0 * con_fac * -theta);
         add_value(values, col_nww + 1, face_fac * 1.0 * 0.0);
-        add_value(values, col_b   + 1, face_fac * 3.0 * con_fac *  dxinv_b * theta);
-        add_value(values, col_w   + 1, face_fac * 3.0 * con_fac * -dxinv_b * theta);
+        add_value(values, col_b   + 1, face_fac * 3.0 * con_fac *  theta);
+        add_value(values, col_w   + 1, face_fac * 3.0 * con_fac * -theta);
         add_value(values, col_ww  + 1, face_fac * 3.0 * 0.0);
 
         // face 1
-        face_fac = 0.5 * dy_deta_1 * 0.25;
-        add_value(values, col_b   + 1, face_fac * 3.0 * con_fac *  dxinv_b * theta);
-        add_value(values, col_w   + 1, face_fac * 3.0 * con_fac * -dxinv_b * theta);
+        face_fac = 0.5 * 0.25;
+        add_value(values, col_b   + 1, face_fac * 3.0 * con_fac *  theta);
+        add_value(values, col_w   + 1, face_fac * 3.0 * con_fac * -theta);
         add_value(values, col_ww  + 1, face_fac * 3.0 * 0.0);
-        add_value(values, col_sb  + 1, face_fac * 1.0 * con_fac *  dxinv_s * theta);
-        add_value(values, col_sw  + 1, face_fac * 1.0 * con_fac * -dxinv_s * theta);
+        add_value(values, col_sb  + 1, face_fac * 1.0 * con_fac *  theta);
+        add_value(values, col_sw  + 1, face_fac * 1.0 * con_fac * -theta);
         add_value(values, col_sww + 1, face_fac * 1.0 * 0.0);
 
         // Contribution Delta r
@@ -1441,8 +1433,8 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
         double dqdx_0 = 0.25 * (3.0 * dqdx_b + 1.0 * dqdx_n);
         double dqdx_1 = 0.25 * (3.0 * dqdx_b + 1.0 * dqdx_s);
 
-        rhs[row + 1] += - ( 0.5 * dy_deta_0 * con_fac * (dhdt_0 + dqdx_0) 
-                          + 0.5 * dy_deta_1 * con_fac * (dhdt_1 + dqdx_1) );
+        rhs[row + 1] += - ( 0.5 * con_fac * (dy_deta_0 * dhdt_0 + dqdx_0) 
+                          + 0.5 * con_fac * (dy_deta_1 * dhdt_1 + dqdx_1) );
         //
         // -----------------------------------------------------------------
         // third row
@@ -1514,9 +1506,6 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
     double dy_deta_e = y[p_7] - y[p_6];
     double dy_deta_b = y[p_4] - y[p_3];
     double dy_deta_w = y[p_1] - y[p_0];
-    double dyinv_e = 1./dy_deta_e;
-    double dyinv_b = 1./dy_deta_b;
-    double dyinv_w = 1./dy_deta_w;
 
     if (bc_type[BC_SOUTH] == "no_slip" || bc_type[BC_SOUTH] == "free_slip")
     {
@@ -1601,17 +1590,15 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             add_value(values, col_eb , face_fac * 1.0 * theta * w_ess[0] * c_wave);
             add_value(values, col_en , face_fac * 1.0 * theta * w_ess[1] * c_wave);
             add_value(values, col_enn, face_fac * 1.0 * theta * w_ess[2] * c_wave);
-
-            add_value(values, col_b , face_fac * 3.0 * theta * w_ess[0] * c_wave);
-            add_value(values, col_n , face_fac * 3.0 * theta * w_ess[1] * c_wave);
-            add_value(values, col_nn, face_fac * 3.0 * theta * w_ess[2] * c_wave);
+            add_value(values, col_b  , face_fac * 3.0 * theta * w_ess[0] * c_wave);
+            add_value(values, col_n  , face_fac * 3.0 * theta * w_ess[1] * c_wave);
+            add_value(values, col_nn , face_fac * 3.0 * theta * w_ess[2] * c_wave);
 
             // face 1
             face_fac = 0.5 * dx_dxi_1 * 0.25;
-            add_value(values, col_b , face_fac * 3.0 * theta * w_ess[0] * c_wave);
-            add_value(values, col_n , face_fac * 3.0 * theta * w_ess[1] * c_wave);
-            add_value(values, col_nn, face_fac * 3.0 * theta * w_ess[2] * c_wave);
-
+            add_value(values, col_b  , face_fac * 3.0 * theta * w_ess[0] * c_wave);
+            add_value(values, col_n  , face_fac * 3.0 * theta * w_ess[1] * c_wave);
+            add_value(values, col_nn , face_fac * 3.0 * theta * w_ess[2] * c_wave);
             add_value(values, col_wb , face_fac * 1.0 * theta * w_ess[0] * c_wave);
             add_value(values, col_wn , face_fac * 1.0 * theta * w_ess[1] * c_wave);
             add_value(values, col_wnn, face_fac * 1.0 * theta * w_ess[2] * c_wave);
@@ -1627,10 +1614,9 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             add_value(values, col_eb  + 2, face_fac * 1.0 * theta * w_ess[0]);
             add_value(values, col_en  + 2, face_fac * 1.0 * theta * w_ess[1]);
             add_value(values, col_enn + 2, face_fac * 1.0 * theta * w_ess[2]);
-
-            add_value(values, col_b  + 2, face_fac * 3.0 * theta * w_ess[0]);
-            add_value(values, col_n  + 2, face_fac * 3.0 * theta * w_ess[1]);
-            add_value(values, col_nn + 2, face_fac * 3.0 * theta * w_ess[2]);
+            add_value(values, col_b   + 2, face_fac * 3.0 * theta * w_ess[0]);
+            add_value(values, col_n   + 2, face_fac * 3.0 * theta * w_ess[1]);
+            add_value(values, col_nn  + 2, face_fac * 3.0 * theta * w_ess[2]);
 
             // face 1
             face_fac = 0.5 * dx_dxi_1 * 0.25;
@@ -1801,8 +1787,8 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
                 double zb_w = w_ess[0] * zb[p_0] + w_ess[1] * zb[p_1] + w_ess[2] * zb[p_2];
                 double zb_0 = 0.25 * ( 3.0 * zb_b + 1.0 * zb_e);
                 double zb_1 = 0.25 * ( 3.0 * zb_b + 1.0 * zb_w);
-                corr_term = ( 0.5 * dx_dxi_0 * (dhdt_0 + ( eps_bc_corr * ((bc[BC_SOUTH] - zb_0) - htheta_0)) )
-                            + 0.5 * dx_dxi_1 * (dhdt_1 + ( eps_bc_corr * ((bc[BC_SOUTH] - zb_1) - htheta_1)) )
+                corr_term = ( 0.5 * dx_dxi_0 * ( dhdt_0 + ( eps_bc_corr * ((bc[BC_SOUTH] - zb_0) - htheta_0)) )
+                            + 0.5 * dx_dxi_1 * ( dhdt_1 + ( eps_bc_corr * ((bc[BC_SOUTH] - zb_1) - htheta_1)) )
                             );
                 rhs[row] += corr_term;
             }
@@ -1845,9 +1831,9 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         double hn_b = w_nat[0] * hn[p_3] + w_nat[1] * hn[p_4] + w_nat[2] * hn[p_5];
         double hn_w = w_nat[0] * hn[p_0] + w_nat[1] * hn[p_1] + w_nat[2] * hn[p_2];
         //
-        double drdy_e = dyinv_e * (rtheta[p_7] - rtheta[p_6]);
-        double drdy_b = dyinv_b * (rtheta[p_4] - rtheta[p_3]);
-        double drdy_w = dyinv_w * (rtheta[p_1] - rtheta[p_0]);
+        double drdy_e = rtheta[p_7] - rtheta[p_6];
+        double drdy_b = rtheta[p_4] - rtheta[p_3];
+        double drdy_w = rtheta[p_1] - rtheta[p_0];
         //
         double rp_e = w_nat[0] * rp[p_6] + w_nat[1] * rp[p_7] + w_nat[2] * rp[p_8];
         double rp_b = w_nat[0] * rp[p_3] + w_nat[1] * rp[p_4] + w_nat[2] * rp[p_5];
@@ -1869,9 +1855,9 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         double rtheta_b = w_nat[0] * rtheta[p_3] + w_nat[1] * rtheta[p_4] + w_nat[2] * rtheta[p_5];
         double rtheta_w = w_nat[0] * rtheta[p_0] + w_nat[1] * rtheta[p_1] + w_nat[2] * rtheta[p_2];  // west of boundary location
         //
-        double dzetady_e = dyinv_e * (htheta[p_7] + zb[p_7] - htheta[p_6] - zb[p_6]);
-        double dzetady_b = dyinv_b * (htheta[p_4] + zb[p_4] - htheta[p_3] - zb[p_3]);
-        double dzetady_w = dyinv_w * (htheta[p_1] + zb[p_1] - htheta[p_0] - zb[p_0]);
+        double dzetady_e = htheta[p_7] + zb[p_7] - htheta[p_6] - zb[p_6];
+        double dzetady_b = htheta[p_4] + zb[p_4] - htheta[p_3] - zb[p_3];
+        double dzetady_w = htheta[p_1] + zb[p_1] - htheta[p_0] - zb[p_0];
         // ---------------------------------------------------------------------
         if (do_convection) { con_fac = c_wave + rp_b / hp_b; }
         // ---------------------------------------------------------------------
@@ -1918,23 +1904,21 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         //
         // Contribution Delta h
         // face 0
-        double face_fac = 0.5 * dx_dxi_0 * 0.25;
-        add_value(values, col_eb , face_fac * 1.0 * w_nat[0] * theta * g * dzetady_e - face_fac * 1.0 * dyinv_e * theta * g * htheta_e);
-        add_value(values, col_en , face_fac * 1.0 * w_nat[1] * theta * g * dzetady_e + face_fac * 1.0 * dyinv_e * theta * g * htheta_e);
+        double face_fac = 0.5 * 0.25;
+        add_value(values, col_eb , face_fac * 1.0 * w_nat[0] * theta * g * dzetady_e - face_fac * 1.0 * theta * g * htheta_e);
+        add_value(values, col_en , face_fac * 1.0 * w_nat[1] * theta * g * dzetady_e + face_fac * 1.0 * theta * g * htheta_e);
         add_value(values, col_enn, face_fac * 1.0 * w_nat[2] * theta * g * dzetady_e);
-
-        add_value(values, col_b , face_fac * 3.0 * w_nat[0] * theta * g * dzetady_b - face_fac * 3.0 * dyinv_b * theta * g * htheta_b);
-        add_value(values, col_n , face_fac * 3.0 * w_nat[1] * theta * g * dzetady_b + face_fac * 3.0 * dyinv_b * theta * g * htheta_b);
-        add_value(values, col_nn, face_fac * 3.0 * w_nat[2] * theta * g * dzetady_b);
+        add_value(values, col_b  , face_fac * 3.0 * w_nat[0] * theta * g * dzetady_b - face_fac * 3.0 * theta * g * htheta_b);
+        add_value(values, col_n  , face_fac * 3.0 * w_nat[1] * theta * g * dzetady_b + face_fac * 3.0 * theta * g * htheta_b);
+        add_value(values, col_nn , face_fac * 3.0 * w_nat[2] * theta * g * dzetady_b);
         
         //face 1
-        face_fac = 0.5 * dx_dxi_1 * 0.25;
-        add_value(values, col_b , face_fac * 3.0 * w_nat[0] * theta * g * dzetady_b - face_fac * 3.0 * dyinv_b * theta * g * htheta_b);
-        add_value(values, col_n , face_fac * 3.0 * w_nat[1] * theta * g * dzetady_b + face_fac * 3.0 * dyinv_b * theta * g * htheta_b);
-        add_value(values, col_nn, face_fac * 3.0 * w_nat[2] * theta * g * dzetady_b);
-
-        add_value(values, col_wb , face_fac * 1.0 * w_nat[0] * theta * g * dzetady_w - face_fac * 1.0 * dyinv_w * theta * g * htheta_w);
-        add_value(values, col_wn , face_fac * 1.0 * w_nat[1] * theta * g * dzetady_w + face_fac * 1.0 * dyinv_w * theta * g * htheta_w);
+        face_fac = 0.5 * 0.25;
+        add_value(values, col_b  , face_fac * 3.0 * w_nat[0] * theta * g * dzetady_b - face_fac * 3.0 * theta * g * htheta_b);
+        add_value(values, col_n  , face_fac * 3.0 * w_nat[1] * theta * g * dzetady_b + face_fac * 3.0 * theta * g * htheta_b);
+        add_value(values, col_nn , face_fac * 3.0 * w_nat[2] * theta * g * dzetady_b);
+        add_value(values, col_wb , face_fac * 1.0 * w_nat[0] * theta * g * dzetady_w - face_fac * 1.0 * theta * g * htheta_w);
+        add_value(values, col_wn , face_fac * 1.0 * w_nat[1] * theta * g * dzetady_w + face_fac * 1.0 * theta * g * htheta_w);
         add_value(values, col_wnn, face_fac * 1.0 * w_nat[2] * theta * g * dzetady_w);
 
         // Contribution Delta q
@@ -1949,17 +1933,15 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         add_value(values, col_eb  + 2, face_fac * 1.0 * dtinv * w_nat[0]);
         add_value(values, col_en  + 2, face_fac * 1.0 * dtinv * w_nat[1]);
         add_value(values, col_enn + 2, face_fac * 1.0 * dtinv * w_nat[2]);
-
-        add_value(values, col_b  + 2, face_fac * 3.0 * dtinv * w_nat[0]);
-        add_value(values, col_n  + 2, face_fac * 3.0 * dtinv * w_nat[1]);
-        add_value(values, col_nn + 2, face_fac * 3.0 * dtinv * w_nat[2]);
+        add_value(values, col_b   + 2, face_fac * 3.0 * dtinv * w_nat[0]);
+        add_value(values, col_n   + 2, face_fac * 3.0 * dtinv * w_nat[1]);
+        add_value(values, col_nn  + 2, face_fac * 3.0 * dtinv * w_nat[2]);
         
         //face 1
         face_fac = 0.5 * dx_dxi_1 * 0.25;
-        add_value(values, col_b  + 2, face_fac * 3.0 * dtinv * w_nat[0]);
-        add_value(values, col_n  + 2, face_fac * 3.0 * dtinv * w_nat[1]);
-        add_value(values, col_nn + 2, face_fac * 3.0 * dtinv * w_nat[2]);
-
+        add_value(values, col_b   + 2, face_fac * 3.0 * dtinv * w_nat[0]);
+        add_value(values, col_n   + 2, face_fac * 3.0 * dtinv * w_nat[1]);
+        add_value(values, col_nn  + 2, face_fac * 3.0 * dtinv * w_nat[2]);
         add_value(values, col_wb  + 2, face_fac * 1.0 * dtinv * w_nat[0]);
         add_value(values, col_wn  + 2, face_fac * 1.0 * dtinv * w_nat[1]);
         add_value(values, col_wnn + 2, face_fac * 1.0 * dtinv * w_nat[2]);
@@ -1976,20 +1958,20 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         double drdt_0 = 0.25 * ( 3.0 * drdt_b + 1.0 * drdt_e);
         double drdt_1 = 0.25 * ( 3.0 * drdt_b + 1.0 * drdt_w);
 
-        rhs[row + 2] = - ( 0.5 * dx_dxi_0 * ( drdt_0 + g * htheta_0 * dzetady_0 ) 
-                         + 0.5 * dx_dxi_1 * ( drdt_1 + g * htheta_1 * dzetady_1 ) );
+        rhs[row + 2] = - ( 0.5 * ( dx_dxi_0 * drdt_0 + g * htheta_0 * dzetady_0 ) 
+                         + 0.5 * ( dx_dxi_1 * drdt_1 + g * htheta_1 * dzetady_1 ) );
         //
         if (do_convection)
         {
             // South boundary convection
             
-            double aa_e = - dyinv_e * 2. * rtheta_e / (htheta_e * htheta_e) * (rtheta[p_7] - rtheta[p_6]) + dyinv_e * 2. * (rtheta_e * rtheta_e) / (htheta_e * htheta_e * htheta_e) * (htheta[p_7] - htheta[p_6]);
-            double aa_b = - dyinv_b * 2. * rtheta_b / (htheta_b * htheta_b) * (rtheta[p_4] - rtheta[p_3]) + dyinv_b * 2. * (rtheta_b * rtheta_b) / (htheta_b * htheta_b * htheta_b) * (htheta[p_4] - htheta[p_3]);
-            double aa_w = - dyinv_w * 2. * rtheta_w / (htheta_w * htheta_w) * (rtheta[p_1] - rtheta[p_0]) + dyinv_w * 2. * (rtheta_w * rtheta_w) / (htheta_w * htheta_w * htheta_w) * (htheta[p_1] - htheta[p_0]);
+            double aa_e = - 2. * rtheta_e / (htheta_e * htheta_e) * (rtheta[p_7] - rtheta[p_6]) + 2. * (rtheta_e * rtheta_e) / (htheta_e * htheta_e * htheta_e) * (htheta[p_7] - htheta[p_6]);
+            double aa_b = - 2. * rtheta_b / (htheta_b * htheta_b) * (rtheta[p_4] - rtheta[p_3]) + 2. * (rtheta_b * rtheta_b) / (htheta_b * htheta_b * htheta_b) * (htheta[p_4] - htheta[p_3]);
+            double aa_w = - 2. * rtheta_w / (htheta_w * htheta_w) * (rtheta[p_1] - rtheta[p_0]) + 2. * (rtheta_w * rtheta_w) / (htheta_w * htheta_w * htheta_w) * (htheta[p_1] - htheta[p_0]);
             
-            double bb_e = dyinv_e * 2. / htheta_e * (rtheta[p_7] - rtheta[p_6]) - dyinv_e * 2. * rtheta_e / (htheta_e * htheta_e) * (htheta[p_7] - htheta[p_6]);
-            double bb_b = dyinv_b * 2. / htheta_b * (rtheta[p_4] - rtheta[p_3]) - dyinv_b * 2. * rtheta_b / (htheta_b * htheta_b) * (htheta[p_4] - htheta[p_3]);
-            double bb_w = dyinv_w * 2. / htheta_w * (rtheta[p_1] - rtheta[p_0]) - dyinv_w * 2. * rtheta_w / (htheta_w * htheta_w) * (htheta[p_1] - htheta[p_0]);
+            double bb_e = 2. / htheta_e * (rtheta[p_7] - rtheta[p_6]) - 2. * rtheta_e / (htheta_e * htheta_e) * (htheta[p_7] - htheta[p_6]);
+            double bb_b = 2. / htheta_b * (rtheta[p_4] - rtheta[p_3]) - 2. * rtheta_b / (htheta_b * htheta_b) * (htheta[p_4] - htheta[p_3]);
+            double bb_w = 2. / htheta_w * (rtheta[p_1] - rtheta[p_0]) - 2. * rtheta_w / (htheta_w * htheta_w) * (htheta[p_1] - htheta[p_0]);
             
             double cc_e = -(rtheta_e * rtheta_e) / (htheta_e * htheta_e);
             double cc_b = -(rtheta_b * rtheta_b) / (htheta_b * htheta_b);
@@ -2002,20 +1984,20 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             // Contribution Delta h
             // face 0
             double face_fac = 0.5 * dx_dxi_0 * 0.25;
-            add_value(values, col_eb , face_fac * 1.0 * (theta * aa_e * w_nat[0] - dyinv_e * theta * cc_e));
-            add_value(values, col_en , face_fac * 1.0 * (theta * aa_e * w_nat[1] + dyinv_e * theta * cc_e));
+            add_value(values, col_eb , face_fac * 1.0 * (theta * aa_e * w_nat[0] - theta * cc_e));
+            add_value(values, col_en , face_fac * 1.0 * (theta * aa_e * w_nat[1] + theta * cc_e));
             add_value(values, col_enn, face_fac * 1.0 * (theta * aa_e * w_nat[2]));
-            add_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] - dyinv_b * theta * cc_b));
-            add_value(values, col_n  , face_fac * 3.0 * (theta * aa_b * w_nat[1] + dyinv_b * theta * cc_b));
+            add_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] - theta * cc_b));
+            add_value(values, col_n  , face_fac * 3.0 * (theta * aa_b * w_nat[1] + theta * cc_b));
             add_value(values, col_nn , face_fac * 3.0 * (theta * aa_b * w_nat[2]));
 
             //face 1
             face_fac = 0.5 * dx_dxi_1 * 0.25;
-            add_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] - dyinv_b * theta * cc_b));
-            add_value(values, col_n  , face_fac * 3.0 * (theta * aa_b * w_nat[1] + dyinv_b * theta * cc_b));
+            add_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] - theta * cc_b));
+            add_value(values, col_n  , face_fac * 3.0 * (theta * aa_b * w_nat[1] + theta * cc_b));
             add_value(values, col_nn , face_fac * 3.0 * (theta * aa_b * w_nat[2]));
-            add_value(values, col_wb , face_fac * 1.0 * (theta * aa_w * w_nat[0] - dyinv_w * theta * cc_w));
-            add_value(values, col_wn , face_fac * 1.0 * (theta * aa_w * w_nat[1] + dyinv_w * theta * cc_w));
+            add_value(values, col_wb , face_fac * 1.0 * (theta * aa_w * w_nat[0] - theta * cc_w));
+            add_value(values, col_wn , face_fac * 1.0 * (theta * aa_w * w_nat[1] + theta * cc_w));
             add_value(values, col_wnn, face_fac * 1.0 * (theta * aa_w * w_nat[2]));
             
             // Contribution Delta q
@@ -2026,20 +2008,20 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             // Contribution Delta q
             // face 0
             face_fac = 0.5 * dx_dxi_0 * 0.25;
-            add_value(values, col_eb  + 2, face_fac * 1.0 * (theta * bb_e * w_nat[0] - dyinv_e * theta * dd_e));
-            add_value(values, col_en  + 2, face_fac * 1.0 * (theta * bb_e * w_nat[1] + dyinv_e * theta * dd_e));
+            add_value(values, col_eb  + 2, face_fac * 1.0 * (theta * bb_e * w_nat[0] - theta * dd_e));
+            add_value(values, col_en  + 2, face_fac * 1.0 * (theta * bb_e * w_nat[1] + theta * dd_e));
             add_value(values, col_enn + 2, face_fac * 1.0 * (theta * bb_e * w_nat[2]));
-            add_value(values, col_b   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[0] - dyinv_b * theta * dd_b));
-            add_value(values, col_n   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[1] + dyinv_b * theta * dd_b));
+            add_value(values, col_b   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[0] - theta * dd_b));
+            add_value(values, col_n   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[1] + theta * dd_b));
             add_value(values, col_nn  + 2, face_fac * 3.0 * (theta * bb_b * w_nat[2]));
 
             // face 1
             face_fac = 0.5 * dx_dxi_1 * 0.25;
-            add_value(values, col_b   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[0] - dyinv_b * theta * dd_b));
-            add_value(values, col_n   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[1] + dyinv_b * theta * dd_b));
+            add_value(values, col_b   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[0] - theta * dd_b));
+            add_value(values, col_n   + 2, face_fac * 3.0 * (theta * bb_b * w_nat[1] + theta * dd_b));
             add_value(values, col_nn  + 2, face_fac * 3.0 * (theta * bb_b * w_nat[2]));
-            add_value(values, col_wb  + 2, face_fac * 1.0 * (theta * bb_w * w_nat[0] - dyinv_w * theta * dd_w));
-            add_value(values, col_wn  + 2, face_fac * 1.0 * (theta * bb_w * w_nat[1] + dyinv_w * theta * dd_w));
+            add_value(values, col_wb  + 2, face_fac * 1.0 * (theta * bb_w * w_nat[0] - theta * dd_w));
+            add_value(values, col_wn  + 2, face_fac * 1.0 * (theta * bb_w * w_nat[1] + theta * dd_w));
             add_value(values, col_wnn + 2, face_fac * 1.0 * (theta * bb_w * w_nat[2]));
                         
             double cc_0 = 0.25 * (3.0 * cc_b +  1.0 * cc_e);
@@ -2047,10 +2029,10 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             double dd_0 = 0.25 * (3.0 * dd_b +  1.0 * dd_e);
             double dd_1 = 0.25 * (3.0 * dd_b +  1.0 * dd_w);
                         
-            double dhtheta_0 = 0.25 * (3.0 * dyinv_b * (htheta[p_4] - htheta[p_3]) +  1.0 * dyinv_e * (htheta[p_7] - htheta[p_6]));
-            double drtheta_0 = 0.25 * (3.0 * dyinv_b * (rtheta[p_4] - rtheta[p_3]) +  1.0 * dyinv_e * (rtheta[p_7] - rtheta[p_6]));
-            double dhtheta_1 = 0.25 * (3.0 * dyinv_b * (htheta[p_4] - htheta[p_3]) +  1.0 * dyinv_w * (htheta[p_1] - htheta[p_0]));
-            double drtheta_1 = 0.25 * (3.0 * dyinv_b * (rtheta[p_4] - rtheta[p_3]) +  1.0 * dyinv_w * (rtheta[p_1] - rtheta[p_0]));
+            double dhtheta_0 = 0.25 * (3.0 * (htheta[p_4] - htheta[p_3]) +  1.0 * (htheta[p_7] - htheta[p_6]));
+            double drtheta_0 = 0.25 * (3.0 * (rtheta[p_4] - rtheta[p_3]) +  1.0 * (rtheta[p_7] - rtheta[p_6]));
+            double dhtheta_1 = 0.25 * (3.0 * (htheta[p_4] - htheta[p_3]) +  1.0 * (htheta[p_1] - htheta[p_0]));
+            double drtheta_1 = 0.25 * (3.0 * (rtheta[p_4] - rtheta[p_3]) +  1.0 * (rtheta[p_1] - rtheta[p_0]));
             
             rhs[row + 2] += - (
                                 0.5 * dd_0 * drtheta_0 + 0.5 * cc_0 * dhtheta_0
@@ -2134,7 +2116,6 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         add_value(values, col_eb , face_fac * 1.0 * -con_fac * dtinv * w_nat[0]);
         add_value(values, col_en , face_fac * 1.0 * -con_fac * dtinv * w_nat[1]);
         add_value(values, col_enn, face_fac * 1.0 * -con_fac * dtinv * w_nat[2]);
-
         add_value(values, col_b  , face_fac * 3.0 * -con_fac * dtinv * w_nat[0]);
         add_value(values, col_n  , face_fac * 3.0 * -con_fac * dtinv * w_nat[1]);
         add_value(values, col_nn , face_fac * 3.0 * -con_fac * dtinv * w_nat[2]);
@@ -2144,7 +2125,6 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         add_value(values, col_b  , face_fac * 3.0 * -con_fac * dtinv * w_nat[0]);
         add_value(values, col_n  , face_fac * 3.0 * -con_fac * dtinv * w_nat[1]);
         add_value(values, col_nn , face_fac * 3.0 * -con_fac * dtinv * w_nat[2]);
-
         add_value(values, col_wb , face_fac * 1.0 * -con_fac * dtinv * w_nat[0]);
         add_value(values, col_wn , face_fac * 1.0 * -con_fac * dtinv * w_nat[1]);
         add_value(values, col_wnn, face_fac * 1.0 * -con_fac * dtinv * w_nat[2]);
@@ -2157,21 +2137,21 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
 
         // Contribution Delta r
         // face 0
-        face_fac = 0.5 * dx_dxi_0 * 0.25;
-        add_value(values, col_eb  + 2, face_fac * 1.0 * -con_fac * -dyinv_e * theta);
-        add_value(values, col_en  + 2, face_fac * 1.0 * -con_fac *  dyinv_e * theta);
+        face_fac = 0.5 * 0.25;
+        add_value(values, col_eb  + 2, face_fac * 1.0 * -con_fac * -theta);
+        add_value(values, col_en  + 2, face_fac * 1.0 * -con_fac *  theta);
         add_value(values, col_enn + 2, face_fac * 1.0 * 0.0);
-        add_value(values, col_b   + 2, face_fac * 3.0 * -con_fac * -dyinv_b * theta);
-        add_value(values, col_n   + 2, face_fac * 3.0 * -con_fac *  dyinv_b * theta);
+        add_value(values, col_b   + 2, face_fac * 3.0 * -con_fac * -theta);
+        add_value(values, col_n   + 2, face_fac * 3.0 * -con_fac *  theta);
         add_value(values, col_nn  + 2, face_fac * 3.0 * 0.0);
 
         // face 1
-        face_fac = 0.5 * dx_dxi_1 * 0.25;
-        add_value(values, col_b   + 2, face_fac * 3.0 * -con_fac * -dyinv_b * theta);
-        add_value(values, col_n   + 2, face_fac * 3.0 * -con_fac *  dyinv_b * theta);
+        face_fac = 0.5 * 0.25;
+        add_value(values, col_b   + 2, face_fac * 3.0 * -con_fac * -theta);
+        add_value(values, col_n   + 2, face_fac * 3.0 * -con_fac *  theta);
         add_value(values, col_nn  + 2, face_fac * 3.0 * 0.0);
-        add_value(values, col_wb  + 2, face_fac * 1.0 * -con_fac * -dyinv_w * theta);
-        add_value(values, col_wn  + 2, face_fac * 1.0 * -con_fac *  dyinv_w * theta);
+        add_value(values, col_wb  + 2, face_fac * 1.0 * -con_fac * -theta);
+        add_value(values, col_wn  + 2, face_fac * 1.0 * -con_fac *  theta);
         add_value(values, col_wnn + 2, face_fac * 1.0 * 0.0);
 
         //
@@ -2183,8 +2163,8 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         double drdy_0 = 0.25 * (3.0 * drdy_b + 1.0 * drdy_e);
         double drdy_1 = 0.25 * (3.0 * drdy_b + 1.0 * drdy_w);
 
-        rhs[row + 2] += - ( - 0.5 * dx_dxi_0 * con_fac * (dhdt_0 + drdy_0)
-                            - 0.5 * dx_dxi_1 * con_fac * (dhdt_1 + drdy_1) );
+        rhs[row + 2] += - ( - 0.5 * con_fac * (dx_dxi_0 * dhdt_0 + drdy_0)
+                            - 0.5 * con_fac * (dx_dxi_1 * dhdt_1 + drdy_1) );
     }
     return 0;
 }
@@ -2226,9 +2206,6 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     double dx_dxi_n = x[p_5] - x[p_2];
     double dy_deta_0 = 0.5 * (y[p_4] - y[p_3]) + 0.5 * (y[p_1] - y[p_0]);
     double dy_deta_1 = 0.5 * (y[p_5] - y[p_4]) + 0.5 * (y[p_2] - y[p_1]);
-    double dxinv_s = 1./dx_dxi_s;
-    double dxinv_b = 1./dx_dxi_b;
-    double dxinv_n = 1./dx_dxi_n;
 
     if (bc_type[BC_WEST] == "no_slip" || bc_type[BC_WEST] == "free_slip")
     {
@@ -2312,17 +2289,15 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             add_value(values, col_sb , face_fac * 1.0 * theta * w_ess[0] * c_wave);
             add_value(values, col_se , face_fac * 1.0 * theta * w_ess[1] * c_wave);
             add_value(values, col_see, face_fac * 1.0 * theta * w_ess[2] * c_wave);
-            
-            add_value(values, col_b , face_fac * 3.0 * theta * w_ess[0] * c_wave);
-            add_value(values, col_e , face_fac * 3.0 * theta * w_ess[1] * c_wave);
-            add_value(values, col_ee, face_fac * 3.0 * theta * w_ess[2] * c_wave);
+            add_value(values, col_b  , face_fac * 3.0 * theta * w_ess[0] * c_wave);
+            add_value(values, col_e  , face_fac * 3.0 * theta * w_ess[1] * c_wave);
+            add_value(values, col_ee , face_fac * 3.0 * theta * w_ess[2] * c_wave);
             
             //face 1
             face_fac = 0.5 * dy_deta_1 * 0.25;
-            add_value(values, col_b , face_fac * 3.0 * theta * w_ess[0] * c_wave);
-            add_value(values, col_e , face_fac * 3.0 * theta * w_ess[1] * c_wave);
-            add_value(values, col_ee, face_fac * 3.0 * theta * w_ess[2] * c_wave);
-            
+            add_value(values, col_b  , face_fac * 3.0 * theta * w_ess[0] * c_wave);
+            add_value(values, col_e  , face_fac * 3.0 * theta * w_ess[1] * c_wave);
+            add_value(values, col_ee , face_fac * 3.0 * theta * w_ess[2] * c_wave);
             add_value(values, col_nb , face_fac * 1.0 * theta * w_ess[0] * c_wave);
             add_value(values, col_ne , face_fac * 1.0 * theta * w_ess[1] * c_wave);
             add_value(values, col_nee, face_fac * 1.0 * theta * w_ess[2] * c_wave);
@@ -2333,17 +2308,15 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             add_value(values, col_sb  + 1, face_fac * 1.0 * theta * w_ess[0]);
             add_value(values, col_se  + 1, face_fac * 1.0 * theta * w_ess[1]);
             add_value(values, col_see + 1, face_fac * 1.0 * theta * w_ess[2]);
-
-            add_value(values, col_b  + 1, face_fac * 3.0 * theta * w_ess[0]);
-            add_value(values, col_e  + 1, face_fac * 3.0 * theta * w_ess[1]);
-            add_value(values, col_ee + 1, face_fac * 3.0 * theta * w_ess[2]);
+            add_value(values, col_b   + 1, face_fac * 3.0 * theta * w_ess[0]);
+            add_value(values, col_e   + 1, face_fac * 3.0 * theta * w_ess[1]);
+            add_value(values, col_ee  + 1, face_fac * 3.0 * theta * w_ess[2]);
 
             // face 1
             face_fac = 0.5 * dy_deta_1 * 0.25;
-            add_value(values, col_b  + 1, face_fac * 3.0 * theta * w_ess[0]);
-            add_value(values, col_e  + 1, face_fac * 3.0 * theta * w_ess[1]);
-            add_value(values, col_ee + 1, face_fac * 3.0 * theta * w_ess[2]);
-
+            add_value(values, col_b   + 1, face_fac * 3.0 * theta * w_ess[0]);
+            add_value(values, col_e   + 1, face_fac * 3.0 * theta * w_ess[1]);
+            add_value(values, col_ee  + 1, face_fac * 3.0 * theta * w_ess[2]);
             add_value(values, col_nb  + 1, face_fac * 1.0 * theta * w_ess[0]);
             add_value(values, col_ne  + 1, face_fac * 1.0 * theta * w_ess[1]);
             add_value(values, col_nee + 1, face_fac * 1.0 * theta * w_ess[2]);
@@ -2515,8 +2488,8 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
                 double zb_0 = 0.25 * ( 3.0 * zb_b + 1.0 * zb_s);
                 double zb_1 = 0.25 * ( 3.0 * zb_b + 1.0 * zb_n);
 
-                corr_term = ( 0.5 * dy_deta_0 * (dhdt_0 + ( eps_bc_corr * ((bc[BC_WEST] - zb_0) - htheta_0) ))
-                            + 0.5 * dy_deta_1 * (dhdt_1 + ( eps_bc_corr * ((bc[BC_WEST] - zb_1) - htheta_1) )) 
+                corr_term = ( 0.5 * dy_deta_0 * ( dhdt_0 + ( eps_bc_corr * ((bc[BC_WEST] - zb_0) - htheta_0) ))
+                            + 0.5 * dy_deta_1 * ( dhdt_1 + ( eps_bc_corr * ((bc[BC_WEST] - zb_1) - htheta_1) )) 
                             );
                 rhs[row] += corr_term;
             }
@@ -2559,9 +2532,9 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
         double hn_b = w_nat[0] * hn[p_1] + w_nat[1] * hn[p_4] + w_nat[2] * hn[p_7];
         double hn_n = w_nat[0] * hn[p_2] + w_nat[1] * hn[p_5] + w_nat[2] * hn[p_8];
 
-        double dqdx_s = dxinv_s * (qtheta[p_3] - qtheta[p_0]);
-        double dqdx_b = dxinv_b * (qtheta[p_4] - qtheta[p_1]);
-        double dqdx_n = dxinv_n * (qtheta[p_5] - qtheta[p_2]);
+        double dqdx_s = qtheta[p_3] - qtheta[p_0];
+        double dqdx_b = qtheta[p_4] - qtheta[p_1];
+        double dqdx_n = qtheta[p_5] - qtheta[p_2];
 
         double qp_s = w_nat[0] * qp[p_0] + w_nat[1] * qp[p_3] + w_nat[2] * qp[p_6];
         double qp_b = w_nat[0] * qp[p_1] + w_nat[1] * qp[p_4] + w_nat[2] * qp[p_7];
@@ -2583,9 +2556,9 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
         double rtheta_b = 0.0;
         double rtheta_n = 0.0;
 
-        double dzetadx_s = dxinv_s * (htheta[p_3] + zb[p_3] - htheta[p_0] - zb[p_0]);
-        double dzetadx_b = dxinv_b * (htheta[p_4] + zb[p_4] - htheta[p_1] - zb[p_1]);
-        double dzetadx_n = dxinv_n * (htheta[p_5] + zb[p_5] - htheta[p_2] - zb[p_2]);
+        double dzetadx_s = htheta[p_3] + zb[p_3] - htheta[p_0] - zb[p_0];
+        double dzetadx_b = htheta[p_4] + zb[p_4] - htheta[p_1] - zb[p_1];
+        double dzetadx_n = htheta[p_5] + zb[p_5] - htheta[p_2] - zb[p_2];
         // ---------------------------------------------------------------------
         if (do_convection) { con_fac = c_wave + qp_b / hp_b; }
         // ---------------------------------------------------------------------
@@ -2604,21 +2577,21 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
         //
         // Contribution Delta h
         // face 0
-        double face_fac = 0.5 * dy_deta_0 * 0.25;
-        add_value(values, col_sb , face_fac * 1.0 * w_nat[0] * theta * g * dzetadx_s - face_fac * 1.0 * dxinv_s * theta * g * htheta_s);
-        add_value(values, col_se , face_fac * 1.0 * w_nat[1] * theta * g * dzetadx_s + face_fac * 1.0 * dxinv_s * theta * g * htheta_s);
+        double face_fac = 0.5 * 0.25;
+        add_value(values, col_sb , face_fac * 1.0 * w_nat[0] * theta * g * dzetadx_s - face_fac * 1.0 * theta * g * htheta_s);
+        add_value(values, col_se , face_fac * 1.0 * w_nat[1] * theta * g * dzetadx_s + face_fac * 1.0 * theta * g * htheta_s);
         add_value(values, col_see, face_fac * 1.0 * w_nat[2] * theta * g * dzetadx_s);
-        add_value(values, col_b  , face_fac * 3.0 * w_nat[0] * theta * g * dzetadx_b - face_fac * 3.0 * dxinv_b * theta * g * htheta_b);
-        add_value(values, col_e  , face_fac * 3.0 * w_nat[1] * theta * g * dzetadx_b + face_fac * 3.0 * dxinv_b * theta * g * htheta_b);
+        add_value(values, col_b  , face_fac * 3.0 * w_nat[0] * theta * g * dzetadx_b - face_fac * 3.0 * theta * g * htheta_b);
+        add_value(values, col_e  , face_fac * 3.0 * w_nat[1] * theta * g * dzetadx_b + face_fac * 3.0 * theta * g * htheta_b);
         add_value(values, col_ee , face_fac * 3.0 * w_nat[2] * theta * g * dzetadx_b);
 
         //face 1
-        face_fac = 0.5 * dy_deta_1 * 0.25;
-        add_value(values, col_b  , face_fac * 3.0 * w_nat[0] * theta * g * dzetadx_b - face_fac * 3.0 * dxinv_b * theta * g * htheta_b);
-        add_value(values, col_e  , face_fac * 3.0 * w_nat[1] * theta * g * dzetadx_b + face_fac * 3.0 * dxinv_b * theta * g * htheta_b);
+        face_fac = 0.5 * 0.25;
+        add_value(values, col_b  , face_fac * 3.0 * w_nat[0] * theta * g * dzetadx_b - face_fac * 3.0 * theta * g * htheta_b);
+        add_value(values, col_e  , face_fac * 3.0 * w_nat[1] * theta * g * dzetadx_b + face_fac * 3.0 * theta * g * htheta_b);
         add_value(values, col_ee , face_fac * 3.0 * w_nat[2] * theta * g * dzetadx_b);
-        add_value(values, col_nb , face_fac * 1.0 * w_nat[0] * theta * g * dzetadx_n - face_fac * 1.0 * dxinv_n * theta * g * htheta_n);
-        add_value(values, col_ne , face_fac * 1.0 * w_nat[1] * theta * g * dzetadx_n + face_fac * 1.0 * dxinv_n * theta * g * htheta_n);
+        add_value(values, col_nb , face_fac * 1.0 * w_nat[0] * theta * g * dzetadx_n - face_fac * 1.0 * theta * g * htheta_n);
+        add_value(values, col_ne , face_fac * 1.0 * w_nat[1] * theta * g * dzetadx_n + face_fac * 1.0 * theta * g * htheta_n);
         add_value(values, col_nee, face_fac * 1.0 * w_nat[2] * theta * g * dzetadx_n);
 
         // Contribution Delta q
@@ -2627,7 +2600,6 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
         add_value(values, col_sb  + 1, face_fac * 1.0 * dtinv * w_nat[0]);
         add_value(values, col_se  + 1, face_fac * 1.0 * dtinv * w_nat[1]);
         add_value(values, col_see + 1, face_fac * 1.0 * dtinv * w_nat[2]);
-
         add_value(values, col_b   + 1, face_fac * 3.0 * dtinv * w_nat[0]);
         add_value(values, col_e   + 1, face_fac * 3.0 * dtinv * w_nat[1]);
         add_value(values, col_ee  + 1, face_fac * 3.0 * dtinv * w_nat[2]);
@@ -2637,7 +2609,6 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
         add_value(values, col_b   + 1, face_fac * 3.0 * dtinv * w_nat[0]);
         add_value(values, col_e   + 1, face_fac * 3.0 * dtinv * w_nat[1]);
         add_value(values, col_ee  + 1, face_fac * 3.0 * dtinv * w_nat[2]);
-
         add_value(values, col_nb  + 1, face_fac * 1.0 * dtinv * w_nat[0]);
         add_value(values, col_ne  + 1, face_fac * 1.0 * dtinv * w_nat[1]);
         add_value(values, col_nee + 1, face_fac * 1.0 * dtinv * w_nat[2]); 
@@ -2660,20 +2631,20 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
         double dqdt_0 = 0.25 * ( 3.0 * dqdt_b + 1.0 * dqdt_s);
         double dqdt_1 = 0.25 * ( 3.0 * dqdt_b + 1.0 * dqdt_n);
 
-        rhs[row + 1] = - ( 0.5 * dy_deta_0 * ( dqdt_0 + g * htheta_0 * dzetadx_0 ) 
-                         + 0.5 * dy_deta_1 * ( dqdt_1 + g * htheta_1 * dzetadx_1 ) );
+        rhs[row + 1] = - ( 0.5 * ( dy_deta_0 * dqdt_0 + g * htheta_0 * dzetadx_0 ) 
+                         + 0.5 * ( dy_deta_1 * dqdt_1 + g * htheta_1 * dzetadx_1 ) );
         //
         if (do_convection)
         {
             // West boundary convection
             
-            double aa_s = - dxinv_s * 2. * qtheta_s / (htheta_s * htheta_s) * (qtheta[p_3] - qtheta[p_0]) + dxinv_s * 2. * (qtheta_s * qtheta_s) / (htheta_s * htheta_s * htheta_s) * (htheta[p_3] - htheta[p_0]);
-            double aa_b = - dxinv_b * 2. * qtheta_b / (htheta_b * htheta_b) * (qtheta[p_4] - qtheta[p_1]) + dxinv_b * 2. * (qtheta_b * qtheta_b) / (htheta_b * htheta_b * htheta_b) * (htheta[p_4] - htheta[p_1]);
-            double aa_n = - dxinv_n * 2. * qtheta_n / (htheta_n * htheta_n) * (qtheta[p_5] - qtheta[p_2]) + dxinv_n * 2. * (qtheta_n * qtheta_n) / (htheta_n * htheta_n * htheta_n) * (htheta[p_5] - htheta[p_2]);
+            double aa_s = - 2. * qtheta_s / (htheta_s * htheta_s) * (qtheta[p_3] - qtheta[p_0]) + 2. * (qtheta_s * qtheta_s) / (htheta_s * htheta_s * htheta_s) * (htheta[p_3] - htheta[p_0]);
+            double aa_b = - 2. * qtheta_b / (htheta_b * htheta_b) * (qtheta[p_4] - qtheta[p_1]) + 2. * (qtheta_b * qtheta_b) / (htheta_b * htheta_b * htheta_b) * (htheta[p_4] - htheta[p_1]);
+            double aa_n = - 2. * qtheta_n / (htheta_n * htheta_n) * (qtheta[p_5] - qtheta[p_2]) + 2. * (qtheta_n * qtheta_n) / (htheta_n * htheta_n * htheta_n) * (htheta[p_5] - htheta[p_2]);
 
-            double bb_s = dxinv_s * 2. / htheta_s * (qtheta[p_3] - qtheta[p_0]) - dxinv_s * 2. * qtheta_s / (htheta_s * htheta_s) * (htheta[p_3] - htheta[p_0]);
-            double bb_b = dxinv_b * 2. / htheta_b * (qtheta[p_4] - qtheta[p_1]) - dxinv_b * 2. * qtheta_b / (htheta_b * htheta_b) * (htheta[p_4] - htheta[p_1]);
-            double bb_n = dxinv_n * 2. / htheta_n * (qtheta[p_5] - qtheta[p_2]) - dxinv_n * 2. * qtheta_n / (htheta_n * htheta_n) * (htheta[p_5] - htheta[p_2]);
+            double bb_s = 2. / htheta_s * (qtheta[p_3] - qtheta[p_0]) - 2. * qtheta_s / (htheta_s * htheta_s) * (htheta[p_3] - htheta[p_0]);
+            double bb_b = 2. / htheta_b * (qtheta[p_4] - qtheta[p_1]) - 2. * qtheta_b / (htheta_b * htheta_b) * (htheta[p_4] - htheta[p_1]);
+            double bb_n = 2. / htheta_n * (qtheta[p_5] - qtheta[p_2]) - 2. * qtheta_n / (htheta_n * htheta_n) * (htheta[p_5] - htheta[p_2]);
 
             double cc_s = -(qtheta_s * qtheta_s) / (htheta_s * htheta_s);
             double cc_b = -(qtheta_b * qtheta_b) / (htheta_b * htheta_b);
@@ -2686,39 +2657,39 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             // Contribution Delta h
             // face 0
             double face_fac = 0.5 * dy_deta_0 * 0.25;
-            add_value(values, col_sb , face_fac * 1.0 * (theta * aa_s * w_nat[0] + dxinv_s * theta * cc_s));
-            add_value(values, col_se , face_fac * 1.0 * (theta * aa_s * w_nat[1] - dxinv_s * theta * cc_s));
+            add_value(values, col_sb , face_fac * 1.0 * (theta * aa_s * w_nat[0] + theta * cc_s));
+            add_value(values, col_se , face_fac * 1.0 * (theta * aa_s * w_nat[1] - theta * cc_s));
             add_value(values, col_see, face_fac * 1.0 * (theta * aa_s * w_nat[2]));
-            add_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] + dxinv_b * theta * cc_b));
-            add_value(values, col_e  , face_fac * 3.0 * (theta * aa_b * w_nat[1] - dxinv_b * theta * cc_b));
+            add_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] + theta * cc_b));
+            add_value(values, col_e  , face_fac * 3.0 * (theta * aa_b * w_nat[1] - theta * cc_b));
             add_value(values, col_ee , face_fac * 3.0 * (theta * aa_b * w_nat[2]));
 
             //face 1
             face_fac = 0.5 * dy_deta_1 * 0.25;
-            add_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] + dxinv_b * theta * cc_b));
-            add_value(values, col_e  , face_fac * 3.0 * (theta * aa_b * w_nat[1] - dxinv_b * theta * cc_b));
+            add_value(values, col_b  , face_fac * 3.0 * (theta * aa_b * w_nat[0] + theta * cc_b));
+            add_value(values, col_e  , face_fac * 3.0 * (theta * aa_b * w_nat[1] - theta * cc_b));
             add_value(values, col_ee , face_fac * 3.0 * (theta * aa_b * w_nat[2]));
-            add_value(values, col_nb , face_fac * 1.0 * (theta * aa_n * w_nat[0] + dxinv_n * theta * cc_n));
-            add_value(values, col_ne , face_fac * 1.0 * (theta * aa_n * w_nat[1] - dxinv_n * theta * cc_n));
+            add_value(values, col_nb , face_fac * 1.0 * (theta * aa_n * w_nat[0] + theta * cc_n));
+            add_value(values, col_ne , face_fac * 1.0 * (theta * aa_n * w_nat[1] - theta * cc_n));
             add_value(values, col_nee, face_fac * 1.0 * (theta * aa_n * w_nat[2]));
 
             // Contribution Delta q
             // face 0
             face_fac = 0.5 * dy_deta_0 * 0.25;
-            add_value(values, col_sb  + 1, face_fac * 1.0 * (theta * bb_s * w_nat[0] - dxinv_s * theta * dd_s));
-            add_value(values, col_se  + 1, face_fac * 1.0 * (theta * bb_s * w_nat[1] + dxinv_s * theta * dd_s));
+            add_value(values, col_sb  + 1, face_fac * 1.0 * (theta * bb_s * w_nat[0] - theta * dd_s));
+            add_value(values, col_se  + 1, face_fac * 1.0 * (theta * bb_s * w_nat[1] + theta * dd_s));
             add_value(values, col_see + 1, face_fac * 1.0 * (theta * bb_s * w_nat[2]));
-            add_value(values, col_b   + 1, face_fac * 3.0 * (theta * bb_b * w_nat[0] - dxinv_b * theta * dd_b));
-            add_value(values, col_e   + 1, face_fac * 3.0 * (theta * bb_b * w_nat[1] + dxinv_b * theta * dd_b));
+            add_value(values, col_b   + 1, face_fac * 3.0 * (theta * bb_b * w_nat[0] - theta * dd_b));
+            add_value(values, col_e   + 1, face_fac * 3.0 * (theta * bb_b * w_nat[1] + theta * dd_b));
             add_value(values, col_ee  + 1, face_fac * 3.0 * (theta * bb_b * w_nat[2]));
 
             // face 1
             face_fac = 0.5 * dy_deta_1 * 0.25;
-            add_value(values, col_b   + 1, face_fac * 3.0 * (theta * bb_b * w_nat[0] - dxinv_b * theta * dd_b));
-            add_value(values, col_e   + 1, face_fac * 3.0 * (theta * bb_b * w_nat[1] + dxinv_b * theta * dd_b));
+            add_value(values, col_b   + 1, face_fac * 3.0 * (theta * bb_b * w_nat[0] - theta * dd_b));
+            add_value(values, col_e   + 1, face_fac * 3.0 * (theta * bb_b * w_nat[1] + theta * dd_b));
             add_value(values, col_ee  + 1, face_fac * 3.0 * (theta * bb_b * w_nat[2]));
-            add_value(values, col_nb  + 1, face_fac * 1.0 * (theta * bb_n * w_nat[0] - dxinv_n * theta * dd_n));
-            add_value(values, col_ne  + 1, face_fac * 1.0 * (theta * bb_n * w_nat[1] + dxinv_n * theta * dd_n));
+            add_value(values, col_nb  + 1, face_fac * 1.0 * (theta * bb_n * w_nat[0] - theta * dd_n));
+            add_value(values, col_ne  + 1, face_fac * 1.0 * (theta * bb_n * w_nat[1] + theta * dd_n));
             add_value(values, col_nee + 1, face_fac * 1.0 * (theta * bb_n * w_nat[2]));
 
             // Contribution Delta r
@@ -2731,10 +2702,10 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             double dd_0 = 0.25 * (3.0 * dd_b +  1.0 * dd_s);
             double dd_1 = 0.25 * (3.0 * dd_b +  1.0 * dd_n);
 
-            double dhtheta_0 = 0.25 * (3.0 * dxinv_b * (htheta[p_4] - htheta[p_1]) +  1.0 * dxinv_s * (htheta[p_3] - htheta[p_0]));
-            double dqtheta_0 = 0.25 * (3.0 * dxinv_b * (qtheta[p_4] - qtheta[p_1]) +  1.0 * dxinv_s * (qtheta[p_3] - qtheta[p_0]));
-            double dhtheta_1 = 0.25 * (3.0 * dxinv_b * (htheta[p_4] - htheta[p_1]) +  1.0 * dxinv_n * (htheta[p_5] - htheta[p_2]));
-            double dqtheta_1 = 0.25 * (3.0 * dxinv_b * (qtheta[p_4] - qtheta[p_1]) +  1.0 * dxinv_n * (qtheta[p_5] - qtheta[p_2]));
+            double dhtheta_0 = 0.25 * (3.0 * (htheta[p_4] - htheta[p_1]) +  1.0 * (htheta[p_3] - htheta[p_0]));
+            double dqtheta_0 = 0.25 * (3.0 * (qtheta[p_4] - qtheta[p_1]) +  1.0 * (qtheta[p_3] - qtheta[p_0]));
+            double dhtheta_1 = 0.25 * (3.0 * (htheta[p_4] - htheta[p_1]) +  1.0 * (htheta[p_5] - htheta[p_2]));
+            double dqtheta_1 = 0.25 * (3.0 * (qtheta[p_4] - qtheta[p_1]) +  1.0 * (qtheta[p_5] - qtheta[p_2]));
 
             rhs[row + 1] += - (
                               0.5 * dy_deta_0 * dd_0 * dqtheta_0 + 0.5 * dy_deta_0 * cc_0 * dhtheta_0
@@ -2834,21 +2805,21 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
 
         // Contribution Delta q
         // face 0
-        face_fac = 0.5 * dy_deta_0 * 0.25;
-        add_value(values, col_sb  + 1, face_fac * 1.0 * -con_fac * -dxinv_s * theta);
-        add_value(values, col_se  + 1, face_fac * 1.0 * -con_fac *  dxinv_s * theta);
+        face_fac = 0.5 * 0.25;
+        add_value(values, col_sb  + 1, face_fac * 1.0 * -con_fac * -theta);
+        add_value(values, col_se  + 1, face_fac * 1.0 * -con_fac *  theta);
         add_value(values, col_see + 1, face_fac * 1.0 * 0.0);
-        add_value(values, col_b   + 1, face_fac * 3.0 * -con_fac * -dxinv_b * theta);
-        add_value(values, col_e   + 1, face_fac * 3.0 * -con_fac *  dxinv_b * theta);
+        add_value(values, col_b   + 1, face_fac * 3.0 * -con_fac * -theta);
+        add_value(values, col_e   + 1, face_fac * 3.0 * -con_fac *  theta);
         add_value(values, col_ee  + 1, face_fac * 3.0 * 0.0);
 
         // face 1
-        face_fac = 0.5 * dy_deta_1 * 0.25;
-        add_value(values, col_b   + 1, face_fac * 3.0 * -con_fac * -dxinv_b * theta);
-        add_value(values, col_e   + 1, face_fac * 3.0 * -con_fac *  dxinv_b * theta);
+        face_fac = 0.5 * 0.25;
+        add_value(values, col_b   + 1, face_fac * 3.0 * -con_fac * -theta);
+        add_value(values, col_e   + 1, face_fac * 3.0 * -con_fac *  theta);
         add_value(values, col_ee  + 1, face_fac * 3.0 * 0.0);
-        add_value(values, col_nb  + 1, face_fac * 1.0 * -con_fac * -dxinv_n * theta);
-        add_value(values, col_ne  + 1, face_fac * 1.0 * -con_fac *  dxinv_n * theta);
+        add_value(values, col_nb  + 1, face_fac * 1.0 * -con_fac * -theta);
+        add_value(values, col_ne  + 1, face_fac * 1.0 * -con_fac *  theta);
         add_value(values, col_nee + 1, face_fac * 1.0 * 0.0);
 
         // Contribution Delta r
@@ -2864,8 +2835,8 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
         double dqdx_0 = 0.25 * (3.0 * dqdx_b + 1.0 * dqdx_s);
         double dqdx_1 = 0.25 * (3.0 * dqdx_b + 1.0 * dqdx_n);
 
-        rhs[row + 1] += - ( - 0.5 * dy_deta_0 * con_fac * (dhdt_0 + dqdx_0) 
-                            - 0.5 * dy_deta_1 * con_fac * (dhdt_1 + dqdx_1) );
+        rhs[row + 1] += - ( - 0.5 * con_fac * (dy_deta_0 * dhdt_0 + dqdx_0) 
+                            - 0.5 * con_fac * (dy_deta_1 * dhdt_1 + dqdx_1) );
         //------------------------------------------------------------------
         // third row 
         //------------------------------------------------------------------
