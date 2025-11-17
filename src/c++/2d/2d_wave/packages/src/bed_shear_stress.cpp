@@ -26,8 +26,9 @@
 
 //------------------------------------------------------------------------------
 int bed_shear_stress_matrix_and_rhs(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs,
+    std::vector<double>& x, std::vector<double>& y, 
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    double cf, double theta, double dx, double dy, int nx, int ny)
+    double cf, double theta, int nx, int ny)
 {
     //   nw - - - - - - - n - - - - - - - ne        nw - - - - - - - n - - - - - - - ne
     //    |       |       |       |       |          |       |       |       |       |
@@ -68,12 +69,27 @@ int bed_shear_stress_matrix_and_rhs(double* values, int row, int c_eq, int q_eq,
     int p_e  = p_0 + ny;
     int p_ne = p_0 + ny + 1;
 
+    std::vector<double> x_pol = scv_nodes(0, x[p_0], x[p_w], x[p_sw], x[p_s]);
+    std::vector<double> y_pol = scv_nodes(0, y[p_0], y[p_w], y[p_sw], y[p_s]);
+    double scv_area_0 = polygon_area(x_pol, y_pol);
+
+    x_pol = scv_nodes(1, x[p_0], x[p_s], x[p_se], x[p_e]);
+    y_pol = scv_nodes(1, y[p_0], y[p_s], y[p_se], y[p_e]);
+    double scv_area_1 = polygon_area(x_pol, y_pol);
+
+    x_pol = scv_nodes(2, x[p_0], x[p_e], x[p_ne], x[p_n]);
+    y_pol = scv_nodes(2, y[p_0], y[p_e], y[p_ne], y[p_n]);
+    double scv_area_2 = polygon_area(x_pol, y_pol);
+
+    x_pol = scv_nodes(3, x[p_0], x[p_n], x[p_nw], x[p_w]);
+    y_pol = scv_nodes(3, y[p_0], y[p_n], y[p_nw], y[p_w]);
+    double scv_area_3 = polygon_area(x_pol, y_pol);
+
     //--------------------------------------------------------------------------
     // c-equation
     // 
     // No contribution to the continuity equation
     //
-
     //--------------------------------------------------------------------------
     // q-momentum equation
     // 
@@ -91,7 +107,7 @@ int bed_shear_stress_matrix_and_rhs(double* values, int row, int c_eq, int q_eq,
     h = c_scv(htheta[p_0], htheta[p_w], htheta[p_s], htheta[p_sw]);
     q = c_scv(qtheta[p_0], qtheta[p_w], qtheta[p_s], qtheta[p_sw]);
     r = c_scv(rtheta[p_0], rtheta[p_w], rtheta[p_s], rtheta[p_sw]);
-    scv_fac = theta * 0.25 * dx * dy * 0.0625;
+    scv_fac = theta * scv_area_0 * 0.0625;
     add_value(values, col_0 , scv_fac * 9.* bed_shear_stress_J_11(h, q, r, cf));
     add_value(values, col_w , scv_fac * 3.* bed_shear_stress_J_11(h, q, r, cf));
     add_value(values, col_sw, scv_fac * 1.* bed_shear_stress_J_11(h, q, r, cf));
@@ -107,14 +123,13 @@ int bed_shear_stress_matrix_and_rhs(double* values, int row, int c_eq, int q_eq,
     add_value(values, col_sw + 2 , scv_fac * 1.* bed_shear_stress_J_13(h, q, r, cf));
     add_value(values, col_s  + 2 , scv_fac * 3.* bed_shear_stress_J_13(h, q, r, cf));
 
-    scv_fac = 0.25 * dx * dy;
-    rhs[row + 1] += -scv_fac * bed_shear_stress_J_10(h, q, r, cf);
+    rhs[row + 1] += -scv_area_0 * bed_shear_stress_J_10(h, q, r, cf);
     //
     //scv_1
     h = c_scv(htheta[p_0], htheta[p_s], htheta[p_e], htheta[p_se]);
     q = c_scv(qtheta[p_0], qtheta[p_s], qtheta[p_e], qtheta[p_se]);
     r = c_scv(rtheta[p_0], rtheta[p_s], rtheta[p_e], rtheta[p_se]);
-    scv_fac = theta * 0.25 * dx * dy * 0.0625;
+    scv_fac = theta * scv_area_1 * 0.0625;
     add_value(values, col_0 , scv_fac * 9.* bed_shear_stress_J_11(h, q, r, cf));
     add_value(values, col_s , scv_fac * 3.* bed_shear_stress_J_11(h, q, r, cf));
     add_value(values, col_se, scv_fac * 1.* bed_shear_stress_J_11(h, q, r, cf));
@@ -130,14 +145,13 @@ int bed_shear_stress_matrix_and_rhs(double* values, int row, int c_eq, int q_eq,
     add_value(values, col_se + 2, scv_fac * 1.* bed_shear_stress_J_13(h, q, r, cf));
     add_value(values, col_e  + 2, scv_fac * 3.* bed_shear_stress_J_13(h, q, r, cf));
 
-    scv_fac = 0.25 * dx * dy;
-    rhs[row + 1] += -scv_fac * bed_shear_stress_J_10(h, q, r, cf);
+    rhs[row + 1] += -scv_area_1 * bed_shear_stress_J_10(h, q, r, cf);
     //
     //scv_2
     h = c_scv(htheta[p_0], htheta[p_e], htheta[p_n], htheta[p_ne]);
     q = c_scv(qtheta[p_0], qtheta[p_e], qtheta[p_n], qtheta[p_ne]);
     r = c_scv(rtheta[p_0], rtheta[p_e], rtheta[p_n], rtheta[p_ne]);
-    scv_fac = theta * 0.25 * dx * dy * 0.0625;
+    scv_fac = theta * scv_area_2 * 0.0625;
     add_value(values, col_0 , scv_fac * 9.* bed_shear_stress_J_11(h, q, r, cf));
     add_value(values, col_e , scv_fac * 3.* bed_shear_stress_J_11(h, q, r, cf));
     add_value(values, col_ne, scv_fac * 1.* bed_shear_stress_J_11(h, q, r, cf));
@@ -153,14 +167,13 @@ int bed_shear_stress_matrix_and_rhs(double* values, int row, int c_eq, int q_eq,
     add_value(values, col_ne + 2, scv_fac * 1.* bed_shear_stress_J_13(h, q, r, cf));
     add_value(values, col_n  + 2, scv_fac * 3.* bed_shear_stress_J_13(h, q, r, cf));
 
-    scv_fac = 0.25 * dx * dy ;
-    rhs[row + 1] += -scv_fac * bed_shear_stress_J_10(h, q, r, cf);
+    rhs[row + 1] += -scv_area_2 * bed_shear_stress_J_10(h, q, r, cf);
     //
     //scv_3
     h = c_scv(htheta[p_0], htheta[p_n], htheta[p_w], htheta[p_nw]);
     q = c_scv(qtheta[p_0], qtheta[p_n], qtheta[p_w], qtheta[p_nw]);
     r = c_scv(rtheta[p_0], rtheta[p_n], rtheta[p_w], rtheta[p_nw]);
-    scv_fac = theta * 0.25 * dx * dy * 0.0625;
+    scv_fac = theta * scv_area_3 * 0.0625;
     add_value(values, col_0 , scv_fac * 9.* bed_shear_stress_J_11(h, q, r, cf));
     add_value(values, col_n , scv_fac * 3.* bed_shear_stress_J_11(h, q, r, cf));
     add_value(values, col_nw, scv_fac * 1.* bed_shear_stress_J_11(h, q, r, cf));
@@ -176,8 +189,8 @@ int bed_shear_stress_matrix_and_rhs(double* values, int row, int c_eq, int q_eq,
     add_value(values, col_nw + 2, scv_fac * 1.* bed_shear_stress_J_13(h, q, r, cf));
     add_value(values, col_w  + 2, scv_fac * 3.* bed_shear_stress_J_13(h, q, r, cf));
 
-    scv_fac = 0.25 * dx * dy;
-    rhs[row + 1] += -scv_fac * bed_shear_stress_J_10(h, q, r, cf);
+    scv_fac = 0.25;
+    rhs[row + 1] += -scv_area_3 * bed_shear_stress_J_10(h, q, r, cf);
     //--------------------------------------------------------------------------
     // r-momentum equation
     // 
@@ -195,7 +208,7 @@ int bed_shear_stress_matrix_and_rhs(double* values, int row, int c_eq, int q_eq,
     h = c_scv(htheta[p_0], htheta[p_w], htheta[p_s], htheta[p_sw]);
     q = c_scv(qtheta[p_0], qtheta[p_w], qtheta[p_s], qtheta[p_sw]);
     r = c_scv(rtheta[p_0], rtheta[p_w], rtheta[p_s], rtheta[p_sw]);
-    scv_fac = theta * 0.25 * dx * dy * 0.0625;
+    scv_fac = theta * scv_area_0 * 0.0625;
     add_value(values, col_0 , scv_fac * 9.* bed_shear_stress_J_21(h, q, r, cf));
     add_value(values, col_w , scv_fac * 3.* bed_shear_stress_J_21(h, q, r, cf));
     add_value(values, col_sw, scv_fac * 1.* bed_shear_stress_J_21(h, q, r, cf));
@@ -211,14 +224,13 @@ int bed_shear_stress_matrix_and_rhs(double* values, int row, int c_eq, int q_eq,
     add_value(values, col_sw + 2 , scv_fac * 1.* bed_shear_stress_J_23(h, q, r, cf));
     add_value(values, col_s  + 2 , scv_fac * 3.* bed_shear_stress_J_23(h, q, r, cf));
 
-    scv_fac = 0.25 * dx * dy;
-    rhs[row + 2] += -scv_fac * bed_shear_stress_J_20(h, q, r, cf);
+    rhs[row + 2] += -scv_area_0 * bed_shear_stress_J_20(h, q, r, cf);
     //
     //scv_1
     h = c_scv(htheta[p_0], htheta[p_s], htheta[p_e], htheta[p_se]);
     q = c_scv(qtheta[p_0], qtheta[p_s], qtheta[p_e], qtheta[p_se]);
     r = c_scv(rtheta[p_0], rtheta[p_s], rtheta[p_e], rtheta[p_se]);
-    scv_fac = theta * 0.25 * dx * dy * 0.0625;
+    scv_fac = theta * scv_area_1 * 0.0625;
     add_value(values, col_0 , scv_fac * 9.* bed_shear_stress_J_21(h, q, r, cf));
     add_value(values, col_s , scv_fac * 3.* bed_shear_stress_J_21(h, q, r, cf));
     add_value(values, col_se, scv_fac * 1.* bed_shear_stress_J_21(h, q, r, cf));
@@ -234,14 +246,13 @@ int bed_shear_stress_matrix_and_rhs(double* values, int row, int c_eq, int q_eq,
     add_value(values, col_se + 2, scv_fac * 1.* bed_shear_stress_J_23(h, q, r, cf));
     add_value(values, col_e  + 2, scv_fac * 3.* bed_shear_stress_J_23(h, q, r, cf));
 
-    scv_fac = 0.25 * dx * dy;
-    rhs[row + 2] += -scv_fac * bed_shear_stress_J_20(h, q, r, cf);
+    rhs[row + 2] += -scv_area_1 * bed_shear_stress_J_20(h, q, r, cf);
     //
     //scv_2
     h = c_scv(htheta[p_0], htheta[p_e], htheta[p_n], htheta[p_ne]);
     q = c_scv(qtheta[p_0], qtheta[p_e], qtheta[p_n], qtheta[p_ne]);
     r = c_scv(rtheta[p_0], rtheta[p_e], rtheta[p_n], rtheta[p_ne]);
-    scv_fac = theta * 0.25 * dx * dy * 0.0625;
+    scv_fac = theta * scv_area_2 * 0.0625;
     add_value(values, col_0 , scv_fac * 9.* bed_shear_stress_J_21(h, q, r, cf));
     add_value(values, col_e , scv_fac * 3.* bed_shear_stress_J_21(h, q, r, cf));
     add_value(values, col_ne, scv_fac * 1.* bed_shear_stress_J_21(h, q, r, cf));
@@ -257,14 +268,13 @@ int bed_shear_stress_matrix_and_rhs(double* values, int row, int c_eq, int q_eq,
     add_value(values, col_ne + 2, scv_fac * 1.* bed_shear_stress_J_23(h, q, r, cf));
     add_value(values, col_n  + 2, scv_fac * 3.* bed_shear_stress_J_23(h, q, r, cf));
 
-    scv_fac = 0.25 * dx * dy ;
-    rhs[row + 2] += -scv_fac * bed_shear_stress_J_20(h, q, r, cf);
+    rhs[row + 2] += -scv_area_2 * bed_shear_stress_J_20(h, q, r, cf);
     //
     //scv_3
     h = c_scv(htheta[p_0], htheta[p_n], htheta[p_w], htheta[p_nw]);
     q = c_scv(qtheta[p_0], qtheta[p_n], qtheta[p_w], qtheta[p_nw]);
     r = c_scv(rtheta[p_0], rtheta[p_n], rtheta[p_w], rtheta[p_nw]);
-    scv_fac = theta * 0.25 * dx * dy * 0.0625;
+    scv_fac = theta * scv_area_3 * 0.0625;
     add_value(values, col_0 , scv_fac * 9.* bed_shear_stress_J_21(h, q, r, cf));
     add_value(values, col_n , scv_fac * 3.* bed_shear_stress_J_21(h, q, r, cf));
     add_value(values, col_nw, scv_fac * 1.* bed_shear_stress_J_21(h, q, r, cf));
@@ -280,8 +290,7 @@ int bed_shear_stress_matrix_and_rhs(double* values, int row, int c_eq, int q_eq,
     add_value(values, col_nw + 2, scv_fac * 1.* bed_shear_stress_J_23(h, q, r, cf));
     add_value(values, col_w  + 2, scv_fac * 3.* bed_shear_stress_J_23(h, q, r, cf));
 
-    scv_fac = 0.25 * dx * dy;
-    rhs[row + 2] += -scv_fac * bed_shear_stress_J_20(h, q, r, cf);
+    rhs[row + 2] += -scv_area_3 * bed_shear_stress_J_20(h, q, r, cf);
 
     return 0;
 }
@@ -294,8 +303,8 @@ void bed_shear_stress_post_rhs(std::vector<double>& rhs_q, std::vector<double>& 
     double q;
     double r;
 
-    memset(rhs_q.data(), 0, rhs_q.size() * sizeof(double));
-    memset(rhs_r.data(), 0, rhs_r.size() * sizeof(double));
+    std::fill_n(rhs_q.data(), rhs_q.size(), 0.0);
+    std::fill_n(rhs_r.data(), rhs_r.size(), 0.0);
 
     for (int i = 1; i < nx - 1; ++i)
     {

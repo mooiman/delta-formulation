@@ -1066,7 +1066,7 @@ int main(int argc, char *argv[])
                     int r_eq = outer[row + 2];
 
                     status = bed_shear_stress_matrix_and_rhs(values, row, c_eq, q_eq, r_eq, rhs,
-                                htheta, qtheta, rtheta, cf, theta, dx, dy, nx, ny);
+                                x, y, htheta, qtheta, rtheta, cf, theta, nx, ny);
                     // boundary_south
                     // boundary_north
                 }
