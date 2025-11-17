@@ -460,13 +460,13 @@ Eight faces on a cartesian/curvilinear grid.
 \subsubsection{Bed shear stress}
 The bed shear stress  term in vector notation reads:
 \begin{align}
-    \int_\Omega c_f \left( \frac{\vec{q}\abs{\vec{q}}}{h^2} \right)\, d\omega.
+    J\int_{\Omega_{\xi\eta}} c_f \left( \frac{\vec{q}\abs{\vec{q}}}{h^2} \right)\, d\omega.
 \end{align}
 The components for the two momentum equations read:
 \begin{align}
-    F_q = \int_\Omega c_f \left( \frac{q\abs{\vec{q}}}{h^2} \right)\, d\omega, \qquad \textit{q-momentum eq.}
+    F_q = J\int_{\Omega_{\xi\eta}} c_f \left( \frac{q\abs{\vec{q}}}{h^2} \right)\, d\omega, \qquad \textit{q-momentum eq.}
     \\
-    F_r = \int_\Omega c_f \left( \frac{r\abs{\vec{q}}}{h^2} \right)\, d\omega, \qquad \textit{r-momentum eq.}
+    F_r = J\int_{\Omega_{\xi\eta}} \left( \frac{r\abs{\vec{q}}}{h^2} \right)\, d\omega, \qquad \textit{r-momentum eq.}
 \end{align}
 and $\abs{\vec{q}} = \sqrt{q^2 + r^2}$.
 To avoid the discontinuity in the first derivative around zero, the absolute function will be approximated by (the Newton iteration process needs $C^1$--continue functions)
@@ -475,9 +475,9 @@ To avoid the discontinuity in the first derivative around zero, the absolute fun
 \end{align}
 The bed shear stress then reads:
 \begin{align}
-    F_q \approx \Dx\Dy\, c_f \left( \frac{q\abs{\widetilde{\vec{q}}}}{h^2} \right), \qquad \textit{q-momentum eq.}
+    F_q &\approx J\, c_f \left( \frac{q\abs{\widetilde{\vec{q}}}}{h^2} \right), \qquad \textit{q-momentum eq.}
     \\
-    F_r \approx \Dx\Dy\, c_f \left( \frac{r\abs{\widetilde{\vec{q}}}}{h^2} \right), \qquad \textit{r-momentum eq.}
+    F_r &\approx J\, c_f \left( \frac{r\abs{\widetilde{\vec{q}}}}{h^2} \right), \qquad \textit{r-momentum eq.}
 \end{align}
 The Jacobian for the bed shear stress $F(h,q,r)$ reads:
 \begin{align}
@@ -512,28 +512,28 @@ The same applies also for the right hand side and evaluated at time level $(n+\t
 
 The linearization in time for the $q$-momentum equation reads (see \autoref{eq:2d_convection_q_equation}):
 \begin{align}
-        &c_f \left( \frac{q^{n+\theta,p}_{qp}\abs{\widetilde{\vec{q}^{n+\theta,p}}}}{(h^{n+\theta,p}_{qp})^2} \right)
-        - \left( 2 c_f \frac{ q^{n+\theta,p}_{qp} \abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}} }{(h^{n+\theta,p}_{qp})^3} \right) \theta \Delta h_{qp} +
+        &J\, c_f \left( \frac{q^{n+\theta,p}_{qp}\abs{\widetilde{\vec{q}^{n+\theta,p}}}}{(h^{n+\theta,p}_{qp})^2} \right)
+        - J\, \left( 2 c_f \frac{ q^{n+\theta,p}_{qp} \abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}} }{(h^{n+\theta,p}_{qp})^3} \right) \theta \Delta h_{qp} +
         \\*
         & \quad +
-        \left( c_f \frac{\abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}}}{(h^{n+\theta,p}_{qp})^2}
+        J\, \left( c_f \frac{\abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}}}{(h^{n+\theta,p}_{qp})^2}
         + c_f \frac{q^{n+\theta,p}_{qp}}{(h^{n+\theta,p}_{qp})^2} \frac{q^{n+\theta,p}_{qp}\left( (q^{n+\theta,p}_{qp})^2 + (r^{n+\theta,p}_{qp})^2 \right) }{\abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}}^3} \right) \theta \Delta q_{qp} +
         \\*
-        & \quad + \left( c_f \frac{q^{n+\theta,p}_{qp}}{(h^{n+\theta,p}_{qp})^2}
+        & \quad + J\, \left( c_f \frac{q^{n+\theta,p}_{qp}}{(h^{n+\theta,p}_{qp})^2}
         \frac{ r^{n+\theta,p}_{qp} \left( (q^{n+\theta,p}_{qp})^2 + (r^{n+\theta,p}_{qp})^2  \right)}
         {\abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}}^3 } \right) \theta \Delta r_{qp}
  \end{align}
 and for the $r$-momentum equation:
 \begin{align}
-        &c_f \left( \frac{r^{n+\theta,p}_{qp}\abs{\widetilde{\vec{q}^{n+\theta,p}}}}{(h^{n+\theta,p}_{qp})^2} \right)
-        - \left( 2 c_f \frac{ r^{n+\theta,p}_{qp} \abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}}} {(h^{n+\theta,p}_{qp})^3} \right) \theta \Delta h_{qp} +
+        &J\, c_f \left( \frac{r^{n+\theta,p}_{qp}\abs{\widetilde{\vec{q}^{n+\theta,p}}}}{(h^{n+\theta,p}_{qp})^2} \right)
+        - J\, \left( 2 c_f \frac{ r^{n+\theta,p}_{qp} \abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}}} {(h^{n+\theta,p}_{qp})^3} \right) \theta \Delta h_{qp} +
         \\*
         & \quad + \left(
-         c_f \frac{r^{n+\theta,p}_{qp}}{(h^{n+\theta,p}_{qp})^2}\frac{q^{n+\theta,p}_{qp}\left( (q^{n+\theta,p}_{qp})^2 + (r^{n+\theta,p}_{qp})^2 \right)}
+         J\, c_f \frac{r^{n+\theta,p}_{qp}}{(h^{n+\theta,p}_{qp})^2}\frac{q^{n+\theta,p}_{qp}\left( (q^{n+\theta,p}_{qp})^2 + (r^{n+\theta,p}_{qp})^2 \right)}
         {\abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}}^3 }
         \right) \theta \Delta q_{qp} +
         \\*
-        &\quad + \left( c_f \frac{\abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}}}{(h^{n+\theta,p}_{qp})^2}
+        &\quad + J\, \left( c_f \frac{\abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}}}{(h^{n+\theta,p}_{qp})^2}
         + c_f \frac{r^{n+\theta,p}_{qp}}{(h^{n+\theta,p}_{qp})^2} \frac{r^{n+\theta,p}_{qp}\left( (q^{n+\theta,p}_{qp})^2 + (r^{n+\theta,p}_{qp})^2 \right) }{\abs{\widetilde{\vec{q}^{n+\theta,p}_{qp}}}^3}  \right) \theta \Delta r_{qp}
 \end{align}
 with
