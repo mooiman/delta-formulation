@@ -61,6 +61,10 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
 {
     std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
 
+    do_convection =false;
+    do_bed_shear_stress = false;
+    do_viscosity = false;
+
     size_t p_5 = c_eq/(3*27);  // node number of boundary point, ie north point of molecule
     size_t p_4 = p_5 - 1;
     size_t p_3 = p_5 - 2;
@@ -766,6 +770,10 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
     std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
+
+    do_convection =false;
+    do_bed_shear_stress = false;
+    do_viscosity = false;
 
     int p_7 = c_eq/(3*27);  // node number of boundary point, ie east point of molecule
     int p_8 = p_7 + 1;
@@ -1476,6 +1484,10 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
 {
     std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
 
+    do_convection =false;
+    do_bed_shear_stress = false;
+    do_viscosity = false;
+
     int p_3 = c_eq/(3*27);  // node number of boundary point, ie south point of molecule
     int p_4 = p_3 + 1;
     int p_5 = p_3 + 2;
@@ -2177,6 +2189,10 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
     std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
+
+    do_convection =false;
+    do_bed_shear_stress = false;
+    do_viscosity = false;
 
     size_t p_1 = c_eq/(3*27);  // node number of boundary point, ie west point of molucule
     size_t p_0 = p_1 - 1;
