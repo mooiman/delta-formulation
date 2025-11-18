@@ -410,6 +410,7 @@ int main(int argc, char *argv[])
     std::vector<double> s(nxny, 0.);                      // water level, needed for post-processing
     std::vector<double> u(nxny, 0.);                      // u-velocity, needed for post-processing
     std::vector<double> v(nxny, 0.);                      // v-velocity, needed for post-processing
+    std::vector<double> u_speed(nxny, 0.);                // speed of water, needed for post-processing
     std::vector<double> visc_given(nxny, visc_const);     // Initialize viscosity array with given value
     std::vector<double> visc_reg(nxny, visc_const);       // Initialize given viscosity array with regularized value
     std::vector<double> visc(nxny, visc_const);           // Viscosity array used for computation, adjusted for cell peclet number
@@ -584,6 +585,7 @@ int main(int argc, char *argv[])
     std::string map_s_name("s_2d");
     std::string map_u_name("u_2d");
     std::string map_v_name("v_2d");
+    std::string map_umag_name("umag_2d");
     std::string map_zb_name("zb_2d");
     std::string map_psi_11_name("psi_11");
     std::string map_psi_22_name("psi_22");
@@ -604,6 +606,7 @@ int main(int argc, char *argv[])
     status = map_file->add_variable(map_s_name, dim_names, "sea_surface_height_above_geoid", "WaterLevel", "m", "mesh2D", "node");
     status = map_file->add_variable(map_u_name, dim_names, "sea_water_x_velocity", "Velocity (x)", "m s-1", "mesh2D", "node");
     status = map_file->add_variable(map_v_name, dim_names, "sea_water_y_velocity", "Velocity (y)", "m s-1", "mesh2D", "node");
+    status = map_file->add_variable(map_umag_name, dim_names, "sea_water_speed", "Velocity magnitude", "m s-1", "mesh2D", "node");
     status = map_file->add_variable(map_zb_name, dim_names, "", "BedLevel", "m", "mesh2D", "node");
     if (regularization_init)
     {
@@ -641,6 +644,14 @@ int main(int argc, char *argv[])
     map_file->put_time_variable(map_s_name, nst_map, s);
     map_file->put_time_variable(map_u_name, nst_map, u);
     map_file->put_time_variable(map_v_name, nst_map, v);
+
+    for (size_t i = 0; i < u.size(); ++i)
+    {
+        u_speed[i] = (std::sqrt(u[i] * u[i] + v[i] * v[i]));
+    }
+    map_file->put_time_variable(map_umag_name, nst_map, u_speed);
+
+
     map_file->put_time_variable(map_zb_name, nst_map, zb_giv);
     if (regularization_init)
     {
@@ -709,13 +720,15 @@ int main(int argc, char *argv[])
     std::string his_s_name("water_level");
     std::string his_u_name("u_velocity");
     std::string his_v_name("v_velocity");
+    std::string his_umag_name("u_mag");
 
     his_file->add_variable(his_h_name, "sea_floor_depth_below_sea_surface", "Water depth", "m");
     his_file->add_variable(his_q_name, "", "Water flux (x)", "m2 s-1");
     his_file->add_variable(his_r_name, "", "Water flux (y)", "m2 s-1");
     his_file->add_variable(his_s_name, "sea_surface_height", "Water level", "m");
-    his_file->add_variable(his_u_name, "sea_water_x_velocity", "Velocity xdir", "m s-1");
-    his_file->add_variable(his_v_name, "sea_water_y_velocity", "Velocity ydir", "m s-1");
+    his_file->add_variable(his_u_name, "sea_water_x_velocity", "Velocity (x)", "m s-1");
+    his_file->add_variable(his_v_name, "sea_water_y_velocity", "Velocity (y)", "m s-1");
+    his_file->add_variable(his_umag_name, "sea_water_speed", "Velocity magnitude", "m s-1");
 
     // Put data on time history file
     START_TIMER(Writing his-file);
@@ -749,6 +762,7 @@ int main(int argc, char *argv[])
     }
     his_file->put_variable(his_s_name, nst_his, his_values);
 
+
     his_values.clear();
     for (size_t i = 0; i < input_data.obs_points.size(); ++i)
     {
@@ -762,6 +776,15 @@ int main(int argc, char *argv[])
         his_values.push_back(v[input_data.obs_points[i].idx]);
     }
     his_file->put_variable(his_v_name, nst_his, his_values);
+
+    his_values.clear();
+    for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+    {
+        int k = input_data.obs_points[i].idx;
+        double speed = (std::sqrt(u[k] * u[k] + v[k] * v[k]));
+        his_values.push_back(speed);
+    }
+    his_file->put_variable(his_umag_name, nst_his, his_values);
 
     std::string his_newton_iter_name("his_newton_iterations");
     his_file->add_variable_without_location(his_newton_iter_name, "iterations", "Newton iteration", "-");
@@ -1043,7 +1066,7 @@ int main(int argc, char *argv[])
                     int r_eq = outer[row + 2];
 
                     status = bed_shear_stress_matrix_and_rhs(values, row, c_eq, q_eq, r_eq, rhs,
-                                htheta, qtheta, rtheta, cf, theta, dx, dy, nx, ny);
+                                x, y, htheta, qtheta, rtheta, cf, theta, nx, ny);
                     // boundary_south
                     // boundary_north
                 }
@@ -1385,6 +1408,12 @@ int main(int argc, char *argv[])
             map_file->put_time_variable(map_s_name, nst_map, s);
             map_file->put_time_variable(map_u_name, nst_map, u);
             map_file->put_time_variable(map_v_name, nst_map, v);
+            for (size_t i = 0; i < u.size(); ++i)
+            {
+                u_speed[i] = (std::sqrt(u[i] * u[i] + v[i] * v[i]));
+            }
+            map_file->put_time_variable(map_umag_name, nst_map, u_speed);
+
             map_file->put_time_variable(map_zb_name, nst_map, zb);
             if (regularization_init)
             {
@@ -1469,6 +1498,16 @@ int main(int argc, char *argv[])
                 his_values.push_back(v[input_data.obs_points[i].idx]);
             }
             his_file->put_variable(his_v_name, nst_his, his_values);
+
+            his_values.clear();
+            for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+            {
+                int k = input_data.obs_points[i].idx;
+                double speed = (std::sqrt(u[k] * u[k] + v[k] * v[k]));
+                his_values.push_back(speed);
+            }
+            his_file->put_variable(his_umag_name, nst_his, his_values);
+
 
             his_values = { double(used_newton_iter) };
             his_file->put_variable(his_newton_iter_name, nst_his, his_values);
