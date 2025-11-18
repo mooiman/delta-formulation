@@ -343,7 +343,6 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             double corr_term = 0.0;
             if (bc_vars[BC_NORTH] == "zeta")
             {
-                if (stationary) { sign = -1.0; }
                 // face 0
                 face_fac = 0.5 * dx_dxi_0;
                 add_value(values, col_wb , face_fac * 1./4. * (dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0]));
@@ -367,15 +366,14 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
                 double zb_e = w_ess[0] * zb[p_8] + w_ess[1] * zb[p_7] + w_ess[2] * zb[p_6];
                 double zb_0 = 0.25 * ( 3.0 * zb_b + 1.0 * zb_w);
                 double zb_1 = 0.25 * ( 3.0 * zb_b + 1.0 * zb_e);
+
                 corr_term = - ( 0.5 * dx_dxi_0 * ( dhdt_0 + ( eps_bc_corr * ((bc[BC_NORTH] - zb_0) - htheta_0)) ) 
                               + 0.5 * dx_dxi_1 * ( dhdt_1 + ( eps_bc_corr * ((bc[BC_NORTH] - zb_1) - htheta_1)) ) 
                               );
                 rhs[row] += corr_term;
-                sign = 1.0;
             }
             if (bc_vars[BC_NORTH] == "q")
             {
-                if (stationary) { sign = -1.0; }
                 // face 0
                 face_fac = 0.5 * dx_dxi_0;
                 add_value(values, col_wb  + 2, face_fac * 1./4. * (dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0]));
@@ -401,7 +399,6 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
                             + 0.5 * dx_dxi_1 * (- drdt_1 + sign * eps_bc_corr * (bc[BC_NORTH]- rtheta_1))
                             );
                 rhs[row] += corr_term;
-                sign = 1.0;
             }
         }
         //----------------------------------------------------------------------
@@ -1038,6 +1035,7 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             double dqdt_s = dtinv * (qp_s - qn_s);
             double dqdt_0 = 0.25 * ( 3.0 * dqdt_b + 1.0 * dqdt_n);
             double dqdt_1 = 0.25 * ( 3.0 * dqdt_b + 1.0 * dqdt_s);
+
             rhs[row] = - ( 0.5 * dy_deta_0 * (dqdt_0 - con_fac * dhdt_0) 
                          + 0.5 * dy_deta_1 * (dqdt_1 - con_fac * dhdt_1) 
                          );
@@ -1045,7 +1043,6 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             double corr_term = 0.0;
             if (bc_vars[BC_EAST] == "zeta")
             {
-                if (stationary) { sign = -1.0; }
                 // face 0
                 face_fac = 0.5 * dy_deta_0;
                 add_value(values, col_nb , face_fac * 1./4. * (dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0]));
@@ -1070,15 +1067,13 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
                 double zb_0 = 0.25 * ( 3.0 * zb_b + 1.0 * zb_n);
                 double zb_1 = 0.25 * ( 3.0 * zb_b + 1.0 * zb_s);
 
-                corr_term = -( 0.5 * dy_deta_0 * ( dhdt_0 + ( eps_bc_corr * ( (bc[BC_EAST] - zb_0) - htheta_0)) ) 
-                             + 0.5 * dy_deta_1 * ( dhdt_1 + ( eps_bc_corr * ( (bc[BC_EAST] - zb_1) - htheta_1)) ) 
-                             );
+                corr_term = - ( 0.5 * dy_deta_0 * ( dhdt_0 + ( eps_bc_corr * ( (bc[BC_EAST] - zb_0) - htheta_0)) ) 
+                              + 0.5 * dy_deta_1 * ( dhdt_1 + ( eps_bc_corr * ( (bc[BC_EAST] - zb_1) - htheta_1)) ) 
+                              );
                 rhs[row] += corr_term;
-                sign = 1.0;
             }
             if (bc_vars[BC_EAST] == "q")
             {
-                if (stationary) { sign = -1.0; }
                 // face 0
                 face_fac = 0.5 * dy_deta_0;
                 add_value(values, col_nb  + 1, face_fac * 1./4. * (dtinv * w_ess[0] - eps_bc_corr * theta * w_ess[0]));
@@ -1099,11 +1094,11 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
 
                 double qtheta_0 = 0.25 * (3.0 * qtheta_b + 1.0 * qtheta_n);
                 double qtheta_1 = 0.25 * (3.0 * qtheta_b + 1.0 * qtheta_s);
-                corr_term = ( 0.5 * dy_deta_0 * (- dqdt_0 + sign * eps_bc_corr * (bc[BC_EAST] - qtheta_0)) + 
-                              0.5 * dy_deta_1 * (- dqdt_1 + sign * eps_bc_corr * (bc[BC_EAST] - qtheta_1)) 
+
+                corr_term = ( 0.5 * dy_deta_0 * (- dqdt_0 + sign * eps_bc_corr * (bc[BC_EAST] - qtheta_0))
+                            + 0.5 * dy_deta_1 * (- dqdt_1 + sign * eps_bc_corr * (bc[BC_EAST] - qtheta_1))
                             );
                 rhs[row] += corr_term;
-                sign = 1.0;
             }
         }
         //----------------------------------------------------------------------
