@@ -293,11 +293,11 @@ The convection term in the $x$-momentum equation can be transformed as:
 %
 Taking the finite volume approach and applying Green's theorem, yields
 \begin{align}
-    \frac{1}{J}\oint_{\partial\Omega} \left( \left( y_{\eta}\frac{q^2}{h} - x_{\eta} \frac{qr}{h} \right) n_\xi + \left(-y_{\xi} \frac{q^2}{h} + x_{\xi} \frac{qr}{h} \right) n_\eta \right)\, dl.
+    \frac{1}{J}\oint_{\partial\Omega_{\xi\eta}} \left( \left( y_{\eta}\frac{q^2}{h} - x_{\eta} \frac{qr}{h} \right) n_\xi + \left(-y_{\xi} \frac{q^2}{h} + x_{\xi} \frac{qr}{h} \right) n_\eta \right)\, dl.
 \end{align}
 which is equal to (and look to the similarity with \autoref{eq:transformed_mass_flux})
 \begin{align}
-    \frac{1}{J}\oint_{\partial\Omega} \left[  \left( y_{\eta}q - x_{\eta} r \right) \frac{q}{h}  n_\xi + \left( -y_{\xi}q  + x_{\xi}r\right) \frac{q}{h} n_\eta \right] \, dl.\label{eq:transformed_convection_x}
+    \frac{1}{J}\oint_{\partial\Omega_{\xi\eta}} \left[  \left( y_{\eta}q - x_{\eta} r \right) \frac{q}{h}  n_\xi + \left( -y_{\xi}q  + x_{\xi}r\right) \frac{q}{h} n_\eta \right] \, dl.\label{eq:transformed_convection_x}
 \end{align}
 
 A similar transformation is valid for the convection term in the $y$-momentum equation, which reads
@@ -317,7 +317,7 @@ A similar transformation is valid for the convection term in the $y$-momentum eq
 \end{align}
 Taking the finite volume approach and applying Green's theorem, yields
 \begin{align}
-    \frac{1}{J}\oint_{\partial\Omega} \left(
+    \frac{1}{J}\oint_{\partial\Omega_{\xi\eta}} \left(
     \left(y_{\eta} \frac{rq}{h} - x_{\eta} \frac{r^2}{h} \right) n_\xi
     + \left(-y_{\xi} \frac{rq}{h} + x_{\xi} \frac{r^2}{h} \right) n_\eta
      \right)
@@ -325,7 +325,7 @@ Taking the finite volume approach and applying Green's theorem, yields
 \end{align}
 which is equal to (and look to the similarity with \autoref{eq:transformed_mass_flux})
 \begin{align}
-    \frac{1}{J}\oint_{\partial\Omega} \left[
+    \frac{1}{J}\oint_{\partial\Omega_{\xi\eta}} \left[
     \left(y_{\eta} q - x_{\eta} r \right)\frac{r}{h} n_\xi
     + \left(-y_{\xi} q + x_{\xi} r \right)\frac{r}{h} n_\eta
     \right]
@@ -334,7 +334,6 @@ which is equal to (and look to the similarity with \autoref{eq:transformed_mass_
 %\newpage
 %--------------------------------------------------------------------------------
 \subsection{Viscosity term}
-
 The $x$ and $y$-momentum equation diffusion terms are treated here as well due to their complexity.
 They can be transformed as:
 	\begin{align}
@@ -765,7 +764,7 @@ Note that the expression for the bed shear stress matches that presented before 
 	\end{pmatrix},
 \end{align}
 %-------------------------------------------------------------------------------
-\section{Transformed Jacobians}
+\section{Jacobians of the flux and source terms}
 We will derive the Jacobians in the numerical grid from the above definitions of the flux and source terms.
 %-------------------------------------------------------------------------------
 \subsection{Continuity Flux Jacobians}
@@ -778,7 +777,7 @@ In $\xi$, the continuity flux and its Jacobian read:
 		0\\
 		0
 	\end{pmatrix}, \quad
-	\mathbf{J}^{CT,\xi}=
+	\mathbf{J}_{\texttt{cont},\xi}=
 	\begin{pmatrix}
 		0 & y_{\eta} & -x_{\eta}\\
 		%
@@ -801,7 +800,7 @@ The continuity flux in $\eta$ and its Jacobian read:
 		0 \\
 		0
 	\end{pmatrix}, \quad
-	\mathbf{J}^{CT,\eta}=
+	\mathbf{J}_{\texttt{cont},\eta}=
 	\begin{pmatrix}
 		0 & -y_{\xi} &  x_{\xi}\\
 		%
@@ -819,13 +818,14 @@ The continuity flux in $\eta$ and its Jacobian read:
 In $\xi$, the convective flux and its Jacobian read:
 %
 \begin{align}
-	\mathbf{F}_{\texttt{conv},\xi}=
+	\mathbf{F}_{\texttt{conv},\xi}&=
 	\begin{pmatrix}
 		0\\
 		y_{\eta}\, \frac{q^2}{h} - x_{\eta}\, \frac{q r}{h}\\
 		y_{\eta}\, \frac{q r}{h} - x_{\eta}\, \frac{r^2}{h}
-	\end{pmatrix}, \quad
-	\mathbf{J}^{CF,\xi}=
+	\end{pmatrix},
+    \\
+	\mathbf{J}_{\texttt{conv},\xi}&=
 	\begin{pmatrix}
 		0 & 0 & 0\\
 		%
@@ -842,25 +842,78 @@ In $\xi$, the convective flux and its Jacobian read:
 The convective flux in $\eta$ and its Jacobian read:
 %
 \begin{align}
-	\mathbf{F}_{\texttt{conv},\eta}=
+	\mathbf{F}_{\texttt{conv},\eta}&=
 	\begin{pmatrix}
 		0\\
-		y_{\eta}\, \frac{q^2}{h} - x_{\eta}\, \frac{q r}{h}\\
-		y_{\eta}\, \frac{q r}{h} - x_{\eta}\, \frac{r^2}{h}
-	\end{pmatrix}, \quad
-	\mathbf{J}^{CF,\eta}=
+		-y_{\xi}\, \frac{q^2}{h} + x_{\xi}\, \frac{q r}{h}\\
+		-y_{\xi}\, \frac{q r}{h} + x_{\xi}\, \frac{r^2}{h}
+	\end{pmatrix},
+    \\
+	\mathbf{J}_{\texttt{conv},\eta}&=
 	\begin{pmatrix}
 		0 & 0 & 0\\
 		%
-		-y_{\eta}\, \frac{q^2}{h^2} + x_{\eta}\, \frac{q r}{h^2}
-		&y_{\eta}\, \frac{2q}{h} - x_{\eta}\, \frac{r}{h}
-		& - x_{\eta}\, \frac{q}{h}\\
+		+y_{\xi}\, \frac{q^2}{h^2} - x_{\xi}\, \frac{q r}{h^2}
+		&-y_{\xi}\, \frac{2q}{h} + x_{\xi}\, \frac{r}{h}
+		& - x_{\xi}\, \frac{q}{h}\\
 		%
-		-y_{\eta}\, \frac{q r}{h^2} + x_{\eta}\, \frac{r^2}{h^2}
-		& y_{\eta}\, \frac{r}{h}
-		& y_{\eta}\, \frac{q}{h} - x_{\eta}\, \frac{2r}{h}
+		+y_{\xi}\, \frac{q r}{h^2} - x_{\xi}\, \frac{r^2}{h^2}
+		& y_{\xi}\, \frac{r}{h}
+		& y_{\xi}\, \frac{q}{h} - x_{\xi}\, \frac{2r}{h}
 	\end{pmatrix}.
 \end{align}
+
+\subparagraph*{Transformed discharges}
+Or when taken into account the transformed discharges $y_\eta q - x_\eta r$ and $-y_\xi q + x_\xi r$
+%
+\begin{align}
+    \mathbf{F}_{\texttt{conv},\xi}&=
+    \begin{pmatrix}
+        0\\
+        \left\{ y_{\eta} q- x_{\eta} r\right\} \frac{q}{h}\\
+        \left\{ y_{\eta}q - x_{\eta} r \right\} \frac{r}{h}
+    \end{pmatrix},
+    \\
+    \mathbf{J}_{\texttt{conv},\xi}&=
+    \begin{pmatrix}
+        0 & 0 & 0
+        \\
+        %
+        -\left\{y_{\eta}q - x_{\eta} r \right\}\frac{q}{h^2}
+        & \left\{y_{\eta}q - x_{\eta} r \right\}\frac{1}{h} + y_{\eta}\frac{q}{h}
+        & - x_{\eta} \frac{q}{h}
+        \\
+        %
+        -\left\{ y_{\eta}\, q + x_{\eta}r\right\} \frac{r}{h^2}
+        & y_{\eta} \frac{q}{h}
+        & \left\{ y_{\eta}q - x_{\eta} r  \right\}\frac{1}{h} - x_{\eta} \frac{r}{h}
+    \end{pmatrix}.
+\end{align}
+%
+The convective flux in $\eta$ and its Jacobian read:
+%
+\begin{align}
+    \mathbf{F}_{\texttt{conv},\eta}&=
+    \begin{pmatrix}
+        0\\
+        \left\{-y_{\xi}q + x_{\xi} r \right\} \frac{q}{h}\\
+        \left\{-y_{\xi}q + x_{\xi} r \right\} \frac{r}{h}
+    \end{pmatrix}
+    \\
+    \mathbf{J}_{\texttt{conv},\eta}&=
+    \begin{pmatrix}
+        0 & 0 & 0\\
+        %
+        -\left\{ -y_{\xi} q + x_\xi r\right\} \frac{q}{h^2}
+        &\left\{-y_{\xi}q + x_{\xi}r\right\} \frac{1}{h} - y_\xi \frac{q}{h}
+        &  x_{\xi}\, \frac{q}{h}\\
+        %
+        -\left\{ -y_{\xi} q + x_{\xi} r \right\} \frac{r}{h^2}
+        & -y_{\xi}\, \frac{r}{h}
+        & \left\{ -y_{\xi} q  + x_{\xi} r \right\} \frac{1}{h}  + x_{\xi}\, \frac{r}{h}
+    \end{pmatrix}.
+\end{align}
+
 %-------------------------------------------------------------------------------
 \subsection{Viscous Flux Jacobians}
 The viscous flux terms are not repeated here for brevity.

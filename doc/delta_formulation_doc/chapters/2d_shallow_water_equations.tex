@@ -421,6 +421,22 @@ x_\xi r^{n+\theta, p} \right) \frac{q^{n+\theta, p}}{h^{n+\theta, p}} n_\eta +
  \left( \frac{   x_\xi  q^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta
 \Bigg]
 \end{align}
+with $\vec{n} = (n_\xi, n_\eta)^T = (\pm 1, 0)^T, dl = \half$, it yields:
+\begin{align}
+& \half \left( y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p} \right)
+\frac{q^{n+\theta, p}}{h^{n+\theta, p}} n_{\xi}
++
+\\
+& + \half \theta \Delta h
+\left( \frac{- y_\eta (q^{n+\theta, p})^2 + x_\eta {q^{n+\theta, p} r^{n+\theta, p}}}{(h^{n+\theta, p})^2} \right) n_\xi
++
+\\
+& + \half \theta \Delta q
+\left( \frac{   2y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\xi +
+\\
+& + \half \theta \Delta r
+\left( \frac{ - x_\eta q^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\xi
+\end{align}
 and for the $r$-momentum equation:
 %
 \begin{align}
@@ -452,9 +468,81 @@ x_\xi r^{n+\theta, p} \right) \frac{r^{n+\theta, p}}{h^{n+\theta, p}} n_\eta +
 \left( \frac{- y_\xi  q^{n+\theta, p} + 2 x_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta
 \Bigg] +
 \end{align}
-
+with $\vec{n} = (n_\xi, n_\eta)^T = (0, \pm 1)^T, dl = \half$, it yields:
+\begin{align}
+& \half \left(-y_\xi q^{n+\theta, p} +
+x_\xi r^{n+\theta, p} \right) \frac{r^{n+\theta, p}}{h^{n+\theta, p}} n_\eta +
+\\
+& + \half \theta \Delta h
+\left( \frac{y_\xi q^{n+\theta, p}r^{n+\theta, p} - x_\xi  (r^{n+\theta, p})^2}{(h^{n+\theta, p})^2}
+\right) n_\eta +
+\\
+& + \half \theta \Delta q
+\left( \frac{ - y_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta +
+\\
+& + \half \theta \Delta r
+\left( \frac{- y_\xi  q^{n+\theta, p} + 2 x_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta
+\end{align}
 These terms need to be computed for each of the control volume faces, taken into account the outward normal.
 Eight faces on a cartesian/curvilinear grid.
+
+\subsubsection*{Convection expressed in transformed discharges}
+
+The linearization in time for the $q$-momentum equation reads (see \autoref{eq:2d_convection_q_equation}), $\vec{n} = (n_\xi, n_\eta)^T = (\pm 1, 0)^T, dl = \half$:
+%
+\begin{align}
+& \half \left\{ y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p} \right\}
+\frac{q^{n+\theta, p}}{h^{n+\theta, p}} n_{\xi}
+%+ \half \left(-y_\xi q^{n+\theta, p} +
+%x_\xi r^{n+\theta, p} \right) \frac{q^{n+\theta, p}}{h^{n+\theta, p}} n_\eta
++
+\\
+& + \half \theta \Delta h \Bigg[
+-\left\{  y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p} \right\} \frac{q^{n+\theta, p}}{(h^{n+\theta, p})^2} n_\xi
+% + \left( \frac{- x_\xi q^{n+\theta, p}r^{n+\theta, p} + y_\xi (r^{n+\theta, p})^2}{(h^{n+\theta, p})^2} \right) n_\eta
+\Bigg]+
+\\
+& + \half \theta \Delta q \Bigg[
+\left\{y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p}\right\}\frac{1}{h^{n+\theta, p}} +  \frac{y_\eta q^{n+\theta, p}}{h^{n+\theta, p}} n_\xi
+%+ \left( \frac{ - 2y_\xi  q^{n+\theta, p} + x_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta
+\Bigg] +
+\\
+& + \half \theta \Delta r \Bigg[
+ \left( \frac{ - x_\eta q^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\xi
+% + \left( \frac{   x_\xi  q^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta
+\Bigg]
+\end{align}
+
+The linearization in time for the $r$-momentum equation reads (see \autoref{eq:2d_convection_r_equation}), $\vec{n} = (n_\xi, n_\eta)^T = (0, \pm 1)^T, dl = \half$:
+\begin{align}
+&
+%\half \left( \left\{ y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p} \right\}
+% \frac{r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_{\xi}
+% +
+\half \left(  \left\{ -y_\xi q^{n+\theta, p} +
+x_\xi r^{n+\theta, p} \right\} \frac{r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta +
+\\
+%
+& + \half \theta \Delta h \Bigg[
+%\left( -\frac{ y_\eta q^{n+\theta, p} r^{n+\theta, p} - x_\eta (r^{n+\theta, p})^2}{(h^{n+\theta, p})^2}
+%\right) n_\xi
+- \left\{ -y_\xi q^{n+\theta, p} + x_\xi  r^{n+\theta, p} \right\}
+\frac{r^{n+\theta, p}}{(h^{n+\theta, p})^2}
+ n_\eta
+\Bigg] +
+\\
+%
+& + \half \theta \Delta q \Bigg[
+%\left( \frac{   y_\eta r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\xi +
+\left( \frac{ - y_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta
+\Bigg] +
+\\
+& + \half \theta \Delta r \Bigg[
+%\left( \frac{  y_\eta q^{n+\theta, p} - 2 x_\eta r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\xi+
+\left\{- y_\xi  q^{n+\theta, p} + x_\xi  r^{n+\theta, p} \right\} \frac{1}{h^{n+\theta, p}} + \frac{x_\xi r^{n+\theta, p}}{h^{n+\theta, p}} n_\eta
+\Bigg]
+\end{align}
+
 
 %--------------------------------------------------------------------------------
 \subsubsection{Bed shear stress}
