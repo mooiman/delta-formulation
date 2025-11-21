@@ -26,14 +26,16 @@
 #include <vector>
 #include <Eigen/Sparse>
 
-int convection_matrix_and_rhs(double* values, int row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs,
+int convection_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs,
+    std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    double theta, double dx, double dy, int nx, int ny);
+    double theta, size_t nx, size_t ny);
 int convection_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r, 
+    std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
-    double dx, double dy, int nx, int ny );                // RHS vector [h, q, r]^{n}
+    size_t nx, size_t ny );                // RHS vector [h, q, r]^{n}
 
-inline int convection_idx(int i, int j, int nx);
-inline void add_value(double * values, int col, double data);
+inline size_t convection_idx(size_t i, size_t j, size_t nx);
+inline void add_value(double * values, size_t col, double data);
 
 #endif  // __CONVECTION_H__

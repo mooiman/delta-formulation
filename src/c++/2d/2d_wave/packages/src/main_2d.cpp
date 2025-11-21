@@ -667,7 +667,7 @@ int main(int argc, char *argv[])
     }
     if (do_convection)
     {
-        convection_post_rhs(post_q, post_r, hn, qn, rn, dx, dy, nx, ny);
+        convection_post_rhs(post_q, post_r, x, y, hn, qn, rn, nx, ny);
         map_file->put_time_variable(map_conv_q_name, nst_map, post_q);
         map_file->put_time_variable(map_conv_r_name, nst_map, post_r);
     }
@@ -1059,7 +1059,7 @@ int main(int argc, char *argv[])
                 // corner_north_west
 
                 // interior with south and north boundary
-                for (int row = 3 * ny; row < 3 * (nx - 1) * ny; row += 3) 
+                for (size_t row = 3 * ny; row < 3 * (nx - 1) * ny; row += 3) 
                 {
                     int c_eq = outer[row    ];
                     int q_eq = outer[row + 1];
@@ -1087,14 +1087,14 @@ int main(int argc, char *argv[])
                 // corner_north_west
 
                 // interior with south and north boundary
-                for (int row = 3 * ny; row < 3 * (nx - 1) * ny; row += 3) 
+                for (size_t row = 3 * ny; row < 3 * (nx - 1) * ny; row += 3) 
                 {
                     int c_eq = outer[row    ];
                     int q_eq = outer[row + 1];
                     int r_eq = outer[row + 2];
 
                     status = convection_matrix_and_rhs(values, row, c_eq, q_eq, r_eq, rhs,
-                                htheta, qtheta, rtheta, theta, dx, dy, nx, ny);
+                                x, y, htheta, qtheta, rtheta, theta, nx, ny);
                     // boundary_south
                     // boundary_north
                 }
@@ -1226,7 +1226,7 @@ int main(int argc, char *argv[])
                 }
                 else if (nst > 1)
                 {
-                    START_TIMER(MULTIGRID);
+                    START_TIMER(MULTIGRID_timer);
                 }
                
                 Solver solve(A, prm);
@@ -1238,7 +1238,7 @@ int main(int argc, char *argv[])
                 }
                 else if (nst > 1)
                 {
-                    STOP_TIMER(MULTIGRID);
+                    STOP_TIMER(MULTIGRID_timer);
                 }
                solver_iterations = iters;
                 if (logging == "iterations" || logging == "matrix")
@@ -1340,7 +1340,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            if (std::fmod(time, 60.) == 0)
+            if (std::fmod(time, input_data.output.dt_screen) == 0)
             {
                 std::cout << std::fixed << std::setprecision(2) << tstart + time << ";   " << tstart + tstop << std::endl;
             }
@@ -1423,7 +1423,7 @@ int main(int argc, char *argv[])
             }
             if (do_convection)
             {
-                convection_post_rhs(post_q, post_r, hn, qn, rn, dx, dy, nx, ny);
+                convection_post_rhs(post_q, post_r, x, y, hn, qn, rn, nx, ny);
                 map_file->put_time_variable(map_conv_q_name, nst_map, post_q);
                 map_file->put_time_variable(map_conv_r_name, nst_map, post_r);
             }
