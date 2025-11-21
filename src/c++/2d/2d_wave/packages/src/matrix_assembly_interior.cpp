@@ -399,11 +399,12 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
               + dx_dxi * (scvf_eta(rtheta_n, rtheta_0, rtheta_ne, rtheta_e)) * 0.5 * n_eta;
                            
     // sub control volume 3 ============================================
+    // scv_3 face_6
     dy_dxi  = dcdx_scvf_t(y[p_0], y[p_w], y[p_n], y[p_nw]);
     dx_dxi  = dcdx_scvf_t(x[p_0], x[p_w], x[p_n], x[p_nw]);
     dy_deta = dcdy_scvf_n(y[p_n], y[p_0], y[p_nw], y[p_w]);
     dx_deta = dcdy_scvf_n(x[p_n], x[p_0], x[p_nw], x[p_w]);
-    // scv_3 face_6
+
     n_xi =  0.0;
     n_eta = 1.0;
 
