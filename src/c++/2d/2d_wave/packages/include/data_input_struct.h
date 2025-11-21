@@ -92,6 +92,7 @@ struct _time {
 struct _output {
     double dt_his;
     double dt_map;
+    double dt_screen;
 };
 
 struct _data_input{
