@@ -61,10 +61,6 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
 {
     std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
 
-    do_convection =false;
-    do_bed_shear_stress = false;
-    do_viscosity = false;
-
     size_t p_5 = c_eq/(3*27);  // node number of boundary point, ie north point of molecule
     size_t p_4 = p_5 - 1;
     size_t p_3 = p_5 - 2;
@@ -545,6 +541,7 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         rhs[row + 2] = - ( 0.5 * ( dx_dxi_0 * drdt_0 + g * htheta_0 * dzetady_0 ) 
                          + 0.5 * ( dx_dxi_1 * drdt_1 + g * htheta_1 * dzetady_1 ) );
         //
+        do_convection = false;  // north boundary
         if (do_convection)
         {
             // North boundary convection
@@ -557,9 +554,9 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             double bb_b = 2. / htheta_b * (rtheta[p_5] - rtheta[p_4]) - 2. * rtheta_b / (htheta_b * htheta_b) * (htheta[p_5] - htheta[p_4]);
             double bb_e = 2. / htheta_e * (rtheta[p_8] - rtheta[p_7]) - 2. * rtheta_e / (htheta_e * htheta_e) * (htheta[p_8] - htheta[p_7]);
             
-            double cc_w = -(rtheta_w * rtheta_w) / (htheta_w * htheta_w);
-            double cc_b = -(rtheta_b * rtheta_b) / (htheta_b * htheta_b);
-            double cc_e = -(rtheta_e * rtheta_e) / (htheta_e * htheta_e);
+            double cc_w = (rtheta_w * rtheta_w) / (htheta_w * htheta_w);
+            double cc_b = (rtheta_b * rtheta_b) / (htheta_b * htheta_b);
+            double cc_e = (rtheta_e * rtheta_e) / (htheta_e * htheta_e);
             
             double dd_w = 2. * rtheta_w / htheta_w;
             double dd_b = 2. * rtheta_b / htheta_b;
@@ -613,16 +610,27 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             double dd_0 = 0.25 * (3.0 * dd_b +  1.0 * dd_w);
             double dd_1 = 0.25 * (3.0 * dd_b +  1.0 * dd_e);
                         
-            double dhtheta_0 = 0.25 * (3.0 * (htheta[p_5] - htheta[p_4]) +  1.0 * (htheta[p_2] - htheta[p_1]));
-            double drtheta_0 = 0.25 * (3.0 * (rtheta[p_5] - rtheta[p_4]) +  1.0 * (rtheta[p_2] - rtheta[p_1]));
-            double dhtheta_1 = 0.25 * (3.0 * (htheta[p_5] - htheta[p_4]) +  1.0 * (htheta[p_8] - htheta[p_7]));
-            double drtheta_1 = 0.25 * (3.0 * (rtheta[p_5] - rtheta[p_4]) +  1.0 * (rtheta[p_8] - rtheta[p_7]));
+            double dh_deta_0 = 0.25 * (3.0 * (htheta[p_5] - htheta[p_4]) + 1.0 * (htheta[p_2] - htheta[p_1]));
+            double dr_deta_0 = 0.25 * (3.0 * (rtheta[p_5] - rtheta[p_4]) + 1.0 * (rtheta[p_2] - rtheta[p_1]));
+            double dh_deta_1 = 0.25 * (3.0 * (htheta[p_5] - htheta[p_4]) + 1.0 * (htheta[p_8] - htheta[p_7]));
+            double dr_deta_1 = 0.25 * (3.0 * (rtheta[p_5] - rtheta[p_4]) + 1.0 * (rtheta[p_8] - rtheta[p_7]));
             
+            double dh_dxi_0 = 0.5 * ((htheta[p_4] - htheta[p_1]) + (htheta[p_5] - htheta[p_2]));
+            double dr_dxi_0 = 0.5 * ((rtheta[p_4] - rtheta[p_1]) + (rtheta[p_5] - rtheta[p_2]));
+            double dh_dxi_1 = 0.5 * ((htheta[p_4] - htheta[p_1]) + (htheta[p_6] - htheta[p_3]));
+            double dr_dxi_1 = 0.5 * ((rtheta[p_4] - rtheta[p_1]) + (rtheta[p_6] - rtheta[p_3]));
+
+            double dx_deta_0 = dcdy_scvf_n(y[p_5], y[p_4], y[p_2], y[p_1]);
+            double dx_deta_1 = dcdy_scvf_n(y[p_5], y[p_4], y[p_8], y[p_7]);
+
             rhs[row + 2] += - (
-                    0.5 * dx_dxi_0 * dd_0 * drtheta_0 + 0.5 * dx_dxi_0 * cc_0 * dhtheta_0
-                  + 0.5 * dx_dxi_1 * dd_1 * drtheta_1 + 0.5 * dx_dxi_1 * cc_1 * dhtheta_1
+                0.5 * dd_0 * (-dx_deta_0 * dr_dxi_0 + dx_dxi_0 * dr_deta_0)
+              - 0.5 * cc_0 * (-dx_deta_0 * dh_dxi_0 + dx_dxi_0 * dh_deta_0)
+              + 0.5 * dd_1 * (-dx_deta_1 * dr_dxi_1 + dx_dxi_0 * dr_deta_1)
+              - 0.5 * cc_1 * (-dx_deta_1 * dh_dxi_1 + dx_dxi_0 * dh_deta_1)
                 );
         }
+        do_bed_shear_stress = false;  // north boundary
         if (do_bed_shear_stress)
         {
             // North boundary bed shear stress
@@ -687,8 +695,10 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
                 + 0.5 * dx_dxi_1 * cf_1 * qtheta_1 * abs_qtheta_1 / (htheta_1 * htheta_1)
             );
         }
+        do_viscosity = false;  // north boundary
         if (do_viscosity)
         {
+            // North boundary viscosity
         }
         //
         // continuity part +c_wave * (dhdt + dq/dx + dr/dy)
@@ -764,10 +774,6 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
     std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
-
-    do_convection =false;
-    do_bed_shear_stress = false;
-    do_viscosity = false;
 
     int p_7 = c_eq/(3*27);  // node number of boundary point, ie east point of molecule
     int p_8 = p_7 + 1;
@@ -1225,80 +1231,82 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
         {
             // East boundary convection
 
-            double aa_n = - 2. * qtheta_n / (htheta_n * htheta_n) * (qtheta[p_8] - qtheta[p_5]) + 2. * (qtheta_n * qtheta_n) / (htheta_n * htheta_n * htheta_n) * (htheta[p_8] - htheta[p_5]);
-            double aa_b = - 2. * qtheta_b / (htheta_b * htheta_b) * (qtheta[p_7] - qtheta[p_4]) + 2. * (qtheta_b * qtheta_b) / (htheta_b * htheta_b * htheta_b) * (htheta[p_7] - htheta[p_4]);
-            double aa_s = - 2. * qtheta_s / (htheta_s * htheta_s) * (qtheta[p_6] - qtheta[p_3]) + 2. * (qtheta_s * qtheta_s) / (htheta_s * htheta_s * htheta_s) * (htheta[p_6] - htheta[p_3]);
+            double dh_dxi_0 = 0.25 * (3.0 * (htheta[p_7] - htheta[p_4]) +  1.0 * (htheta[p_8] - htheta[p_5]));
+            double dh_dxi_1 = 0.25 * (3.0 * (htheta[p_7] - htheta[p_4]) +  1.0 * (htheta[p_6] - htheta[p_3]));
+            double dq_dxi_0 = 0.25 * (3.0 * (qtheta[p_7] - qtheta[p_4]) +  1.0 * (qtheta[p_8] - qtheta[p_5]));
+            double dq_dxi_1 = 0.25 * (3.0 * (qtheta[p_7] - qtheta[p_4]) +  1.0 * (qtheta[p_6] - qtheta[p_3]));
 
-            double bb_n = 2. / htheta_n * (qtheta[p_8] - qtheta[p_5]) - 2. * qtheta_n / (htheta_n * htheta_n) * (htheta[p_8] - htheta[p_5]);
-            double bb_b = 2. / htheta_b * (qtheta[p_7] - qtheta[p_4]) - 2. * qtheta_b / (htheta_b * htheta_b) * (htheta[p_7] - htheta[p_4]);
-            double bb_s = 2. / htheta_s * (qtheta[p_6] - qtheta[p_3]) - 2. * qtheta_s / (htheta_s * htheta_s) * (htheta[p_6] - htheta[p_3]);
+            double dh_deta_0 = 0.5 * ((htheta[p_5] - htheta[p_4]) + (htheta[p_8] - htheta[p_7]));
+            double dh_deta_1 = 0.5 * ((htheta[p_4] - htheta[p_3]) + (htheta[p_7] - htheta[p_6]));
+            double dq_deta_0 = 0.5 * ((qtheta[p_5] - qtheta[p_4]) + (qtheta[p_8] - qtheta[p_7]));
+            double dq_deta_1 = 0.5 * ((qtheta[p_4] - qtheta[p_3]) + (qtheta[p_7] - qtheta[p_6]));
 
-            double cc_n = -(qtheta_n * qtheta_n) / (htheta_n * htheta_n);
-            double cc_b = -(qtheta_b * qtheta_b) / (htheta_b * htheta_b);
-            double cc_s = -(qtheta_s * qtheta_s) / (htheta_s * htheta_s);
+            double dy_dxi_0 = dcdx_scvf_n(y[p_7], y[p_4], y[p_8], y[p_5]);
+            double dy_dxi_1 = dcdx_scvf_n(y[p_7], y[p_4], y[p_6], y[p_3]);
 
-            double dd_n = 2. * qtheta_n / htheta_n;
-            double dd_b = 2. * qtheta_b / htheta_b;
-            double dd_s = 2. * qtheta_s / htheta_s;
+            double aa_0 = - 2. * qtheta_0 / (htheta_0 * htheta_0) * (dy_deta_0 * dq_dxi_0 - dy_dxi_0 * dq_deta_0) + 2. * (qtheta_0 * qtheta_0) / (htheta_0 * htheta_0 * htheta_0) * (dy_deta_0 * dh_dxi_0 - dy_dxi_0 * dh_deta_0);
+            double aa_1 = - 2. * qtheta_1 / (htheta_1 * htheta_1) * (dy_deta_1 * dq_dxi_1 - dy_dxi_1 * dq_deta_1) + 2. * (qtheta_1 * qtheta_1) / (htheta_1 * htheta_1 * htheta_1) * (dy_deta_1 * dh_dxi_1 - dy_dxi_1 * dh_deta_1);
+
+            double bb_0 = 2. / htheta_0 * (dy_deta_0 * dq_dxi_0 - dy_dxi_0 * dq_deta_0) - 2. * qtheta_0 / (htheta_0 * htheta_0) * (dy_deta_0 * dh_dxi_0 - dy_dxi_0 * dh_deta_0);
+            double bb_1 = 2. / htheta_1 * (dy_deta_1 * dq_dxi_1 - dy_dxi_1 * dq_deta_1) - 2. * qtheta_1 / (htheta_1 * htheta_1) * (dy_deta_1 * dh_dxi_1 - dy_dxi_1 * dh_deta_1);
+
+            double cc_0 = - qtheta_0 * qtheta_0 / (htheta_0 * htheta_0);
+            double cc_1 = - qtheta_1 * qtheta_1 / (htheta_1 * htheta_1);
+
+            double dd_0 = 2. * qtheta_0 / htheta_0;
+            double dd_1 = 2. * qtheta_1 / htheta_1;
 
             // Contribution Delta h
             // face 0
-            double face_fac = 0.5 * dy_deta_0;
-            add_value(values, col_nb , face_fac * 1./4. * (theta * aa_n * w_nat[0] + theta * cc_n));
-            add_value(values, col_nw , face_fac * 1./4. * (theta * aa_n * w_nat[1] - theta * cc_n));
-            add_value(values, col_nww, face_fac * 1./4. * (theta * aa_n * w_nat[2]));
-            add_value(values, col_b  , face_fac * 3./4. * (theta * aa_b * w_nat[0] + theta * cc_b));
-            add_value(values, col_w  , face_fac * 3./4. * (theta * aa_b * w_nat[1] - theta * cc_b));
-            add_value(values, col_ww , face_fac * 3./4. * (theta * aa_b * w_nat[2]));
+            double face_fac = 0.5 * theta / dy_deta_0;
+            add_value(values, col_nb , face_fac * 1./4. * (aa_0 * w_nat[0] + dy_deta_0 * cc_0));
+            add_value(values, col_nw , face_fac * 1./4. * (aa_0 * w_nat[1] - dy_deta_0 * cc_0));
+            add_value(values, col_nww, face_fac * 1./4. * (aa_0 * w_nat[2]));
+            add_value(values, col_b  , face_fac * 3./4. * (aa_0 * w_nat[0] + dy_deta_0 * cc_0));
+            add_value(values, col_w  , face_fac * 3./4. * (aa_0 * w_nat[1] - dy_deta_0 * cc_0));
+            add_value(values, col_ww , face_fac * 3./4. * (aa_0 * w_nat[2]));
 
             //face 1
-            face_fac = 0.5 * dy_deta_1;
-            add_value(values, col_b  , face_fac * 3./4. * (theta * aa_b * w_nat[0] + theta * cc_b));
-            add_value(values, col_w  , face_fac * 3./4. * (theta * aa_b * w_nat[1] - theta * cc_b));
-            add_value(values, col_ww , face_fac * 3./4. * (theta * aa_b * w_nat[2]));
-            add_value(values, col_sb , face_fac * 1./4. * (theta * aa_s * w_nat[0] + theta * cc_s));
-            add_value(values, col_sw , face_fac * 1./4. * (theta * aa_s * w_nat[1] - theta * cc_s));
-            add_value(values, col_sww, face_fac * 1./4. * (theta * aa_s * w_nat[2]));
+            face_fac = 0.5 * theta / dy_deta_1;
+            add_value(values, col_b  , face_fac * 3./4. * (aa_1 * w_nat[0] + dy_deta_1 * cc_1));
+            add_value(values, col_w  , face_fac * 3./4. * (aa_1 * w_nat[1] - dy_deta_1 * cc_1));
+            add_value(values, col_ww , face_fac * 3./4. * (aa_1 * w_nat[2]));
+            add_value(values, col_sb , face_fac * 1./4. * (aa_1 * w_nat[0] + dy_deta_1 * cc_1));
+            add_value(values, col_sw , face_fac * 1./4. * (aa_1 * w_nat[1] - dy_deta_1 * cc_1));
+            add_value(values, col_sww, face_fac * 1./4. * (aa_1 * w_nat[2]));
 
             // Contribution Delta q
             // face 0
-            face_fac = 0.5 * dy_deta_0;
-            add_value(values, col_nb  + 1, face_fac * 1./4. * (theta * bb_n * w_nat[0] + theta * dd_n));
-            add_value(values, col_nw  + 1, face_fac * 1./4. * (theta * bb_n * w_nat[1] - theta * dd_n));
-            add_value(values, col_nww + 1, face_fac * 1./4. * (theta * bb_n * w_nat[2]));
-            add_value(values, col_b   + 1, face_fac * 3./4. * (theta * bb_b * w_nat[0] + theta * dd_b));
-            add_value(values, col_w   + 1, face_fac * 3./4. * (theta * bb_b * w_nat[1] - theta * dd_b));
-            add_value(values, col_ww  + 1, face_fac * 3./4. * (theta * bb_b * w_nat[2]));
+            face_fac = 0.5 * theta / dy_deta_0;
+            add_value(values, col_nb  + 1, face_fac * 1./4. * (bb_0 * w_nat[0] + dy_deta_0 * dd_0));
+            add_value(values, col_nw  + 1, face_fac * 1./4. * (bb_0 * w_nat[1] - dy_deta_0 * dd_0));
+            add_value(values, col_nww + 1, face_fac * 1./4. * (bb_0 * w_nat[2]));
+            add_value(values, col_b   + 1, face_fac * 3./4. * (bb_0 * w_nat[0] + dy_deta_0 * dd_0));
+            add_value(values, col_w   + 1, face_fac * 3./4. * (bb_0 * w_nat[1] - dy_deta_0 * dd_0));
+            add_value(values, col_ww  + 1, face_fac * 3./4. * (bb_0 * w_nat[2]));
 
             // face 1
-            face_fac = 0.5 * dy_deta_1;
-            add_value(values, col_b   + 1, face_fac * 3./4. * (theta * bb_b * w_nat[0] + theta * dd_b));
-            add_value(values, col_w   + 1, face_fac * 3./4. * (theta * bb_b * w_nat[1] - theta * dd_b));
-            add_value(values, col_ww  + 1, face_fac * 3./4. * (theta * bb_b * w_nat[2]));
-            add_value(values, col_sb  + 1, face_fac * 1./4. * (theta * bb_s * w_nat[0] + theta * dd_s));
-            add_value(values, col_sw  + 1, face_fac * 1./4. * (theta * bb_s * w_nat[1] - theta * dd_s));
-            add_value(values, col_sww + 1, face_fac * 1./4. * (theta * bb_s * w_nat[2]));
+            face_fac = 0.5 * theta / dy_deta_1;
+            add_value(values, col_b   + 1, face_fac * 3./4. * (bb_1 * w_nat[0] + dy_deta_1 * dd_1));
+            add_value(values, col_w   + 1, face_fac * 3./4. * (bb_1 * w_nat[1] - dy_deta_1 * dd_1));
+            add_value(values, col_ww  + 1, face_fac * 3./4. * (bb_1 * w_nat[2]));
+            add_value(values, col_sb  + 1, face_fac * 1./4. * (bb_1 * w_nat[0] + dy_deta_1 * dd_1));
+            add_value(values, col_sw  + 1, face_fac * 1./4. * (bb_1 * w_nat[1] - dy_deta_1 * dd_1));
+            add_value(values, col_sww + 1, face_fac * 1./4. * (bb_1 * w_nat[2]));
 
             // Contribution Delta r
             add_value(values, col_b  + 2, 0.0);
             add_value(values, col_w  + 2, 0.0);
             add_value(values, col_ww + 2, 0.0);
 
-            double cc_0 = 0.25 * (3.0 * cc_b +  1.0 * cc_n);
-            double cc_1 = 0.25 * (3.0 * cc_b +  1.0 * cc_s);
-            double dd_0 = 0.25 * (3.0 * dd_b +  1.0 * dd_n);
-            double dd_1 = 0.25 * (3.0 * dd_b +  1.0 * dd_s);
-
-            double dhtheta_0 = 0.25 * (3.0 * (htheta[p_7] - htheta[p_4]) +  1.0 * (htheta[p_8] - htheta[p_5]));
-            double dhtheta_1 = 0.25 * (3.0 * (htheta[p_7] - htheta[p_4]) +  1.0 * (htheta[p_6] - htheta[p_3]));
-            double dqtheta_0 = 0.25 * (3.0 * (qtheta[p_7] - qtheta[p_4]) +  1.0 * (qtheta[p_8] - qtheta[p_5]));
-            double dqtheta_1 = 0.25 * (3.0 * (qtheta[p_7] - qtheta[p_4]) +  1.0 * (qtheta[p_6] - qtheta[p_3]));
-
             rhs[row + 1] += - (
-                    0.5 * dy_deta_0 * dd_0 * dqtheta_0 + 0.5 * cc_0 * dhtheta_0
-                  + 0.5 * dy_deta_1 * dd_1 * dqtheta_1 + 0.5 * cc_1 * dhtheta_1
+                0.5 * dd_0 * (dy_deta_0 * dq_dxi_0 - dy_dxi_0 * dq_deta_0) / dy_deta_0
+              + 0.5 * cc_0 * (dy_deta_0 * dh_dxi_0 - dy_dxi_0 * dh_deta_0) / dy_deta_0
+              + 0.5 * dd_1 * (dy_deta_1 * dq_dxi_1 - dy_dxi_1 * dq_deta_1) / dy_deta_1
+              + 0.5 * cc_1 * (dy_deta_1 * dh_dxi_1 - dy_dxi_1 * dh_deta_1) / dy_deta_1
                 );
         }
+        do_bed_shear_stress = false;  // east boundary
         if (do_bed_shear_stress)
         {
             // East boundary bed shear stress
@@ -1364,8 +1372,10 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
 
             );
         }  
+        do_viscosity = false;  // east boundary
         if (do_viscosity)
         {
+            // East boundary viscosity
         }
         //
         // continuity part +c_wave * (dhdt + dq/dx + dr/dy)
@@ -1470,10 +1480,6 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
     std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
-
-    do_convection =false;
-    do_bed_shear_stress = false;
-    do_viscosity = false;
 
     int p_3 = c_eq/(3*27);  // node number of boundary point, ie south point of molecule
     int p_4 = p_3 + 1;
@@ -1953,6 +1959,7 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         rhs[row + 2] = - ( 0.5 * ( dx_dxi_0 * drdt_0 + g * htheta_0 * dzetady_0 ) 
                          + 0.5 * ( dx_dxi_1 * drdt_1 + g * htheta_1 * dzetady_1 ) );
         //
+        do_convection = false;  // south boundary
         if (do_convection)
         {
             // South boundary convection
@@ -1965,9 +1972,9 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             double bb_b = 2. / htheta_b * (rtheta[p_4] - rtheta[p_3]) - 2. * rtheta_b / (htheta_b * htheta_b) * (htheta[p_4] - htheta[p_3]);
             double bb_w = 2. / htheta_w * (rtheta[p_1] - rtheta[p_0]) - 2. * rtheta_w / (htheta_w * htheta_w) * (htheta[p_1] - htheta[p_0]);
             
-            double cc_e = -(rtheta_e * rtheta_e) / (htheta_e * htheta_e);
-            double cc_b = -(rtheta_b * rtheta_b) / (htheta_b * htheta_b);
-            double cc_w = -(rtheta_w * rtheta_w) / (htheta_w * htheta_w);
+            double cc_e = rtheta_e * rtheta_e / (htheta_e * htheta_e);
+            double cc_b = rtheta_b * rtheta_b / (htheta_b * htheta_b);
+            double cc_w = rtheta_w * rtheta_w / (htheta_w * htheta_w);
             
             double dd_e = 2. * rtheta_e / htheta_e;
             double dd_b = 2. * rtheta_b / htheta_b;
@@ -2021,16 +2028,27 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             double dd_0 = 0.25 * (3.0 * dd_b +  1.0 * dd_e);
             double dd_1 = 0.25 * (3.0 * dd_b +  1.0 * dd_w);
                         
-            double dhtheta_0 = 0.25 * (3.0 * (htheta[p_4] - htheta[p_3]) +  1.0 * (htheta[p_7] - htheta[p_6]));
-            double drtheta_0 = 0.25 * (3.0 * (rtheta[p_4] - rtheta[p_3]) +  1.0 * (rtheta[p_7] - rtheta[p_6]));
-            double dhtheta_1 = 0.25 * (3.0 * (htheta[p_4] - htheta[p_3]) +  1.0 * (htheta[p_1] - htheta[p_0]));
-            double drtheta_1 = 0.25 * (3.0 * (rtheta[p_4] - rtheta[p_3]) +  1.0 * (rtheta[p_1] - rtheta[p_0]));
-            
-            rhs[row + 2] += - (
-                                0.5 * dd_0 * drtheta_0 + 0.5 * cc_0 * dhtheta_0
-                              + 0.5 * dd_1 * drtheta_1 + 0.5 * cc_1 * dhtheta_1
-                              );
+            double dh_deta_0 = 0.25 * (3.0 * (htheta[p_4] - htheta[p_3]) +  1.0 * (htheta[p_7] - htheta[p_6]));
+            double dr_deta_0 = 0.25 * (3.0 * (rtheta[p_4] - rtheta[p_3]) +  1.0 * (rtheta[p_7] - rtheta[p_6]));
+            double dh_deta_1 = 0.25 * (3.0 * (htheta[p_4] - htheta[p_3]) +  1.0 * (htheta[p_1] - htheta[p_0]));
+            double dr_deta_1 = 0.25 * (3.0 * (rtheta[p_4] - rtheta[p_3]) +  1.0 * (rtheta[p_1] - rtheta[p_0]));
+
+            double dh_dxi_0 = 0.5 * ((htheta[p_7] - htheta[p_4]) + (htheta[p_6] - htheta[p_3]));
+            double dr_dxi_0 = 0.5 * ((rtheta[p_7] - rtheta[p_4]) + (rtheta[p_6] - rtheta[p_3]));
+            double dh_dxi_1 = 0.5 * ((htheta[p_4] - htheta[p_1]) + (htheta[p_3] - htheta[p_0]));
+            double dr_dxi_1 = 0.5 * ((rtheta[p_4] - rtheta[p_1]) + (rtheta[p_3] - rtheta[p_0]));
+
+            double dx_deta_0 = dcdy_scvf_n(y[p_4], y[p_3], y[p_7], y[p_6]);
+            double dx_deta_1 = dcdy_scvf_n(y[p_4], y[p_3], y[p_1], y[p_0]);
+
+           rhs[row + 2] += - (
+                0.5 * dd_0 * (-dx_deta_0 * dr_dxi_0 + dx_dxi_0 * dr_deta_0)
+              - 0.5 * cc_0 * (-dx_deta_0 * dh_dxi_0 + dx_dxi_0 * dh_deta_0)
+              + 0.5 * dd_1 * (-dx_deta_1 * dr_dxi_1 + dx_dxi_0 * dr_deta_1)
+              - 0.5 * cc_1 * (-dx_deta_1 * dh_dxi_1 + dx_dxi_0 * dh_deta_1)
+                );
         }
+        do_bed_shear_stress = false;  // south boundary
         if (do_bed_shear_stress)
         {
             // South boundary bed shear stress
@@ -2096,8 +2114,10 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
 
             );
         }
+        do_viscosity = false;  // south boundary
         if (do_viscosity)
         {
+            // South boundary viscosity
         }
         //
         // continuity part -c_wave * (dhdt + dq/dx + dr/dy)
@@ -2173,10 +2193,6 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
     std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
-
-    do_convection =false;
-    do_bed_shear_stress = false;
-    do_viscosity = false;
 
     size_t p_1 = c_eq/(3*27);  // node number of boundary point, ie west point of molucule
     size_t p_0 = p_1 - 1;
@@ -2634,80 +2650,82 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
         {
             // West boundary convection
             
-            double aa_s = - 2. * qtheta_s / (htheta_s * htheta_s) * (qtheta[p_3] - qtheta[p_0]) + 2. * (qtheta_s * qtheta_s) / (htheta_s * htheta_s * htheta_s) * (htheta[p_3] - htheta[p_0]);
-            double aa_b = - 2. * qtheta_b / (htheta_b * htheta_b) * (qtheta[p_4] - qtheta[p_1]) + 2. * (qtheta_b * qtheta_b) / (htheta_b * htheta_b * htheta_b) * (htheta[p_4] - htheta[p_1]);
-            double aa_n = - 2. * qtheta_n / (htheta_n * htheta_n) * (qtheta[p_5] - qtheta[p_2]) + 2. * (qtheta_n * qtheta_n) / (htheta_n * htheta_n * htheta_n) * (htheta[p_5] - htheta[p_2]);
+            double dh_dxi_0 = 0.25 * (3.0 * (htheta[p_4] - htheta[p_1]) +  1.0 * (htheta[p_3] - htheta[p_0]));
+            double dq_dxi_0 = 0.25 * (3.0 * (qtheta[p_4] - qtheta[p_1]) +  1.0 * (qtheta[p_3] - qtheta[p_0]));
+            double dh_dxi_1 = 0.25 * (3.0 * (htheta[p_4] - htheta[p_1]) +  1.0 * (htheta[p_5] - htheta[p_2]));
+            double dq_dxi_1 = 0.25 * (3.0 * (qtheta[p_4] - qtheta[p_1]) +  1.0 * (qtheta[p_5] - qtheta[p_2]));
 
-            double bb_s = 2. / htheta_s * (qtheta[p_3] - qtheta[p_0]) - 2. * qtheta_s / (htheta_s * htheta_s) * (htheta[p_3] - htheta[p_0]);
-            double bb_b = 2. / htheta_b * (qtheta[p_4] - qtheta[p_1]) - 2. * qtheta_b / (htheta_b * htheta_b) * (htheta[p_4] - htheta[p_1]);
-            double bb_n = 2. / htheta_n * (qtheta[p_5] - qtheta[p_2]) - 2. * qtheta_n / (htheta_n * htheta_n) * (htheta[p_5] - htheta[p_2]);
+            double dh_deta_0 = 0.5 * ((htheta[p_4] - htheta[p_3]) + (htheta[p_1] - htheta[p_0]));
+            double dq_deta_0 = 0.5 * ((qtheta[p_4] - qtheta[p_3]) + (qtheta[p_1] - qtheta[p_0]));
+            double dh_deta_1 = 0.5 * ((htheta[p_5] - htheta[p_4]) + (htheta[p_2] - htheta[p_1]));
+            double dq_deta_1 = 0.5 * ((qtheta[p_5] - qtheta[p_4]) + (qtheta[p_2] - qtheta[p_1]));
 
-            double cc_s = -(qtheta_s * qtheta_s) / (htheta_s * htheta_s);
-            double cc_b = -(qtheta_b * qtheta_b) / (htheta_b * htheta_b);
-            double cc_n = -(qtheta_n * qtheta_n) / (htheta_n * htheta_n);
+            double dy_dxi_0 = dcdx_scvf_n(y[p_4], y[p_1], y[p_3], y[p_0]);
+            double dy_dxi_1 = dcdx_scvf_n(y[p_4], y[p_1], y[p_5], y[p_2]);
 
-            double dd_s = 2. * qtheta_s / htheta_s;
-            double dd_b = 2. * qtheta_b / htheta_b;
-            double dd_n = 2. * qtheta_n / htheta_n;
+            double aa_0 = - 2. * qtheta_0 / (htheta_0 * htheta_0) * (dy_deta_0 * dq_dxi_0 - dy_dxi_0 * dq_deta_0) + 2. * (qtheta_0 * qtheta_0) / (htheta_0 * htheta_0 * htheta_0) * (dy_deta_0 * dh_dxi_0 - dy_dxi_0 * dh_deta_0);
+            double aa_1 = - 2. * qtheta_1 / (htheta_1 * htheta_1) * (dy_deta_1 * dq_dxi_1 - dy_dxi_1 * dq_deta_1) + 2. * (qtheta_1 * qtheta_1) / (htheta_1 * htheta_1 * htheta_1) * (dy_deta_1 * dh_dxi_1 - dy_dxi_1 * dh_deta_1);
+
+            double bb_0 = 2. / htheta_0 * (dy_deta_0 * dq_dxi_0 - dy_dxi_0 * dq_deta_0) - 2. * qtheta_0 / (htheta_0 * htheta_0) * (dy_deta_0 * dh_dxi_0 - dy_dxi_0 * dh_deta_0);
+            double bb_1 = 2. / htheta_1 * (dy_deta_1 * dq_dxi_1 - dy_dxi_1 * dq_deta_1) - 2. * qtheta_1 / (htheta_1 * htheta_1) * (dy_deta_1 * dh_dxi_1 - dy_dxi_1 * dh_deta_1);
+
+            double cc_0 = - qtheta_0 * qtheta_0 / (htheta_0 * htheta_0);
+            double cc_1 = - qtheta_1 * qtheta_1 / (htheta_1 * htheta_1);
+
+            double dd_0 = 2. * qtheta_0 / htheta_0;
+            double dd_1 = 2. * qtheta_1 / htheta_1;
 
             // Contribution Delta h
             // face 0
-            double face_fac = 0.5 * dy_deta_0;
-            add_value(values, col_sb , face_fac * 1./4. * (theta * aa_s * w_nat[0] + theta * cc_s));
-            add_value(values, col_se , face_fac * 1./4. * (theta * aa_s * w_nat[1] - theta * cc_s));
-            add_value(values, col_see, face_fac * 1./4. * (theta * aa_s * w_nat[2]));
-            add_value(values, col_b  , face_fac * 3./4. * (theta * aa_b * w_nat[0] + theta * cc_b));
-            add_value(values, col_e  , face_fac * 3./4. * (theta * aa_b * w_nat[1] - theta * cc_b));
-            add_value(values, col_ee , face_fac * 3./4. * (theta * aa_b * w_nat[2]));
+            double face_fac = 0.5 * theta / dy_deta_0;
+            add_value(values, col_sb , face_fac * 1./4. * (aa_0 * w_nat[0] - dy_deta_0 * cc_0));
+            add_value(values, col_se , face_fac * 1./4. * (aa_0 * w_nat[1] + dy_deta_0 * cc_0));
+            add_value(values, col_see, face_fac * 1./4. * (aa_0 * w_nat[2]));
+            add_value(values, col_b  , face_fac * 3./4. * (aa_0 * w_nat[0] - dy_deta_0 * cc_0));
+            add_value(values, col_e  , face_fac * 3./4. * (aa_0 * w_nat[1] + dy_deta_0 * cc_0));
+            add_value(values, col_ee , face_fac * 3./4. * (aa_0 * w_nat[2]));
 
             //face 1
-            face_fac = 0.5 * dy_deta_1;
-            add_value(values, col_b  , face_fac * 3./4. * (theta * aa_b * w_nat[0] + theta * cc_b));
-            add_value(values, col_e  , face_fac * 3./4. * (theta * aa_b * w_nat[1] - theta * cc_b));
-            add_value(values, col_ee , face_fac * 3./4. * (theta * aa_b * w_nat[2]));
-            add_value(values, col_nb , face_fac * 1./4. * (theta * aa_n * w_nat[0] + theta * cc_n));
-            add_value(values, col_ne , face_fac * 1./4. * (theta * aa_n * w_nat[1] - theta * cc_n));
-            add_value(values, col_nee, face_fac * 1./4. * (theta * aa_n * w_nat[2]));
+            face_fac = 0.5 * theta / dy_deta_1;
+            add_value(values, col_b  , face_fac * 3./4. * (aa_1 * w_nat[0] - dy_deta_1 * cc_1));
+            add_value(values, col_e  , face_fac * 3./4. * (aa_1 * w_nat[1] + dy_deta_1 * cc_1));
+            add_value(values, col_ee , face_fac * 3./4. * (aa_1 * w_nat[2]));
+            add_value(values, col_nb , face_fac * 1./4. * (aa_1 * w_nat[0] - dy_deta_1 * cc_1));
+            add_value(values, col_ne , face_fac * 1./4. * (aa_1 * w_nat[1] + dy_deta_1 * cc_1));
+            add_value(values, col_nee, face_fac * 1./4. * (aa_1 * w_nat[2]));
 
             // Contribution Delta q
             // face 0
-            face_fac = 0.5 * dy_deta_0;
-            add_value(values, col_sb  + 1, face_fac * 1./4. * (theta * bb_s * w_nat[0] - theta * dd_s));
-            add_value(values, col_se  + 1, face_fac * 1./4. * (theta * bb_s * w_nat[1] + theta * dd_s));
-            add_value(values, col_see + 1, face_fac * 1./4. * (theta * bb_s * w_nat[2]));
-            add_value(values, col_b   + 1, face_fac * 3./4. * (theta * bb_b * w_nat[0] - theta * dd_b));
-            add_value(values, col_e   + 1, face_fac * 3./4. * (theta * bb_b * w_nat[1] + theta * dd_b));
-            add_value(values, col_ee  + 1, face_fac * 3./4. * (theta * bb_b * w_nat[2]));
+            face_fac = 0.5 * theta / dy_deta_0;
+            add_value(values, col_sb  + 1, face_fac * 1./4. * (bb_0 * w_nat[0] - dy_deta_0 * dd_0));
+            add_value(values, col_se  + 1, face_fac * 1./4. * (bb_0 * w_nat[1] + dy_deta_0 * dd_0));
+            add_value(values, col_see + 1, face_fac * 1./4. * (bb_0 * w_nat[2]));
+            add_value(values, col_b   + 1, face_fac * 3./4. * (bb_0 * w_nat[0] - dy_deta_0 * dd_0));
+            add_value(values, col_e   + 1, face_fac * 3./4. * (bb_0 * w_nat[1] + dy_deta_0 * dd_0));
+            add_value(values, col_ee  + 1, face_fac * 3./4. * (bb_0 * w_nat[2]));
 
             // face 1
-            face_fac = 0.5 * dy_deta_1;
-            add_value(values, col_b   + 1, face_fac * 3./4. * (theta * bb_b * w_nat[0] - theta * dd_b));
-            add_value(values, col_e   + 1, face_fac * 3./4. * (theta * bb_b * w_nat[1] + theta * dd_b));
-            add_value(values, col_ee  + 1, face_fac * 3./4. * (theta * bb_b * w_nat[2]));
-            add_value(values, col_nb  + 1, face_fac * 1./4. * (theta * bb_n * w_nat[0] - theta * dd_n));
-            add_value(values, col_ne  + 1, face_fac * 1./4. * (theta * bb_n * w_nat[1] + theta * dd_n));
-            add_value(values, col_nee + 1, face_fac * 1./4. * (theta * bb_n * w_nat[2]));
+            face_fac = 0.5 * theta / dy_deta_1;
+            add_value(values, col_b   + 1, face_fac * 3./4. * (bb_1 * w_nat[0] - dy_deta_1 * dd_1));
+            add_value(values, col_e   + 1, face_fac * 3./4. * (bb_1 * w_nat[1] + dy_deta_1 * dd_1));
+            add_value(values, col_ee  + 1, face_fac * 3./4. * (bb_1 * w_nat[2]));
+            add_value(values, col_nb  + 1, face_fac * 1./4. * (bb_1 * w_nat[0] - dy_deta_1 * dd_1));
+            add_value(values, col_ne  + 1, face_fac * 1./4. * (bb_1 * w_nat[1] + dy_deta_1 * dd_1));
+            add_value(values, col_nee + 1, face_fac * 1./4. * (bb_1 * w_nat[2]));
 
             // Contribution Delta r
             add_value(values, col_b  + 2, 0.0);
             add_value(values, col_e  + 2, 0.0);
             add_value(values, col_ee + 2, 0.0);
 
-            double cc_0 = 0.25 * (3.0 * cc_b +  1.0 * cc_s);
-            double cc_1 = 0.25 * (3.0 * cc_b +  1.0 * cc_n);
-            double dd_0 = 0.25 * (3.0 * dd_b +  1.0 * dd_s);
-            double dd_1 = 0.25 * (3.0 * dd_b +  1.0 * dd_n);
-
-            double dhtheta_0 = 0.25 * (3.0 * (htheta[p_4] - htheta[p_1]) +  1.0 * (htheta[p_3] - htheta[p_0]));
-            double dqtheta_0 = 0.25 * (3.0 * (qtheta[p_4] - qtheta[p_1]) +  1.0 * (qtheta[p_3] - qtheta[p_0]));
-            double dhtheta_1 = 0.25 * (3.0 * (htheta[p_4] - htheta[p_1]) +  1.0 * (htheta[p_5] - htheta[p_2]));
-            double dqtheta_1 = 0.25 * (3.0 * (qtheta[p_4] - qtheta[p_1]) +  1.0 * (qtheta[p_5] - qtheta[p_2]));
-
             rhs[row + 1] += - (
-                              0.5 * dy_deta_0 * dd_0 * dqtheta_0 + 0.5 * dy_deta_0 * cc_0 * dhtheta_0
-                            + 0.5 * dy_deta_1 * dd_1 * dqtheta_1 + 0.5 * dy_deta_1 * cc_1 * dhtheta_1
-                              );
+                0.5 * dd_0 * (dy_deta_0 * dq_dxi_0 - dy_dxi_0 * dq_deta_0) / dy_deta_0
+              + 0.5 * cc_0 * (dy_deta_0 * dh_dxi_0 - dy_dxi_0 * dh_deta_0) / dy_deta_0
+              + 0.5 * dd_1 * (dy_deta_1 * dq_dxi_1 - dy_dxi_0 * dq_deta_1) / dy_deta_1
+              + 0.5 * cc_1 * (dy_deta_1 * dh_dxi_1 - dy_dxi_0 * dh_deta_1) / dy_deta_1
+                );
         }
+        do_bed_shear_stress = false;  // west boundary
         if (do_bed_shear_stress)
         {
             // West boundary bed shear stress 
@@ -2772,8 +2790,10 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
                             + 0.5 * dy_deta_1 * cf_1 * qtheta_1 * abs_qtheta_1 / (htheta_1 * htheta_1)
                               );
         }
+        do_viscosity = false;  // west boundary
         if (do_viscosity)
         {
+            // West boundary viscosity
         }
         //
         // continuity part -c_wave * (dhdt + dq/dx + dr/dy)

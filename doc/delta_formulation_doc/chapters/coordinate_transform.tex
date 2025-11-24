@@ -263,12 +263,12 @@ Taking the finite volume approach, yields
 \end{pmatrix}
 \dotp
 \begin{pmatrix}
-    n_\xi \\ n_\eta
+    \nxi \\ \neta
 \end{pmatrix}
 \, dl =
 \\
 &
-\frac{1}{J}\oint_{\partial\Omega_{\xi\eta}} \left( \left( y_{\eta} q - x_{\eta} r \right)n_\xi + \left( -y_{\xi} q + x_{\xi} r \right) n_\eta \right)\, dl
+\frac{1}{J}\oint_{\partial\Omega_{\xi\eta}} \left( \left( y_{\eta} q - x_{\eta} r \right)\nxi + \left( -y_{\xi} q + x_{\xi} r \right) \neta \right)\, dl
 \label{eq:transformed_mass_flux}
 \end{align}
 %
@@ -293,11 +293,11 @@ The convection term in the $x$-momentum equation can be transformed as:
 %
 Taking the finite volume approach and applying Green's theorem, yields
 \begin{align}
-    \frac{1}{J}\oint_{\partial\Omega_{\xi\eta}} \left( \left( y_{\eta}\frac{q^2}{h} - x_{\eta} \frac{qr}{h} \right) n_\xi + \left(-y_{\xi} \frac{q^2}{h} + x_{\xi} \frac{qr}{h} \right) n_\eta \right)\, dl.
+    \frac{1}{J}\oint_{\partial\Omega_{\xi\eta}} \left( \left( y_{\eta}\frac{q^2}{h} - x_{\eta} \frac{qr}{h} \right) \nxi + \left(-y_{\xi} \frac{q^2}{h} + x_{\xi} \frac{qr}{h} \right) \neta \right)\, dl.
 \end{align}
 which is equal to (and look to the similarity with \autoref{eq:transformed_mass_flux})
 \begin{align}
-    \frac{1}{J}\oint_{\partial\Omega_{\xi\eta}} \left[  \left( y_{\eta}q - x_{\eta} r \right) \frac{q}{h}  n_\xi + \left( -y_{\xi}q  + x_{\xi}r\right) \frac{q}{h} n_\eta \right] \, dl.\label{eq:transformed_convection_x}
+    \frac{1}{J}\oint_{\partial\Omega_{\xi\eta}} \left[  \left( y_{\eta}q - x_{\eta} r \right) \frac{q}{h}  \nxi + \left( -y_{\xi}q  + x_{\xi}r\right) \frac{q}{h} \neta \right] \, dl.\label{eq:transformed_convection_x}
 \end{align}
 
 A similar transformation is valid for the convection term in the $y$-momentum equation, which reads
@@ -318,16 +318,16 @@ A similar transformation is valid for the convection term in the $y$-momentum eq
 Taking the finite volume approach and applying Green's theorem, yields
 \begin{align}
     \frac{1}{J}\oint_{\partial\Omega_{\xi\eta}} \left(
-    \left(y_{\eta} \frac{rq}{h} - x_{\eta} \frac{r^2}{h} \right) n_\xi
-    + \left(-y_{\xi} \frac{rq}{h} + x_{\xi} \frac{r^2}{h} \right) n_\eta
+    \left(y_{\eta} \frac{rq}{h} - x_{\eta} \frac{r^2}{h} \right) \nxi
+    + \left(-y_{\xi} \frac{rq}{h} + x_{\xi} \frac{r^2}{h} \right) \neta
      \right)
     \, dl
 \end{align}
 which is equal to (and look to the similarity with \autoref{eq:transformed_mass_flux})
 \begin{align}
     \frac{1}{J}\oint_{\partial\Omega_{\xi\eta}} \left[
-    \left(y_{\eta} q - x_{\eta} r \right)\frac{r}{h} n_\xi
-    + \left(-y_{\xi} q + x_{\xi} r \right)\frac{r}{h} n_\eta
+    \left(y_{\eta} q - x_{\eta} r \right)\frac{r}{h} \nxi
+    + \left(-y_{\xi} q + x_{\xi} r \right)\frac{r}{h} \neta
     \right]
     \, dl
 \end{align}

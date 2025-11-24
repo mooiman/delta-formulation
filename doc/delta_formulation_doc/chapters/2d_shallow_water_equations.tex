@@ -209,29 +209,29 @@ where $x_\xi$, $y_\eta$, $y_\xi$ and $x_\eta$ at the quadrature point $qp$ at th
 \subsubsection{Mass flux}
 The discretization of the mass flux term of the continuity equation
 \begin{align}
-    \oint_{\partial\Omega_{\xi\eta}} \left( \left( y_{\eta} q - x_{\eta} r \right)n_\xi + \left( -y_{\xi} q + x_{\xi} r \right) n_\eta \right)\, dl
+    \oint_{\partial\Omega_{\xi\eta}} \left( \left( y_{\eta} q - x_{\eta} r \right)\nxi + \left( -y_{\xi} q + x_{\xi} r \right) \neta \right)\, dl
 \end{align}
 will be given is this section (\autoref{eq:transformed_mass_flux}, multiplied by $J$).
-Where $\vec{n} = (n_\xi, n_\eta)^T$ is the outward normal vector.
+Where $\vecn = (\nxi, \neta)^T$ is the outward normal vector.
 
 The linearization around an iteration step yields:
 \begin{align}
     \oint_{\partial\Omega_{\xi\eta}} \Big[&\left( y_\eta\left(q^{n+\theta, p} + \theta \Delta q\right) - x_\eta \left( r^{n+\theta, p} + \theta \Delta r  \right)
-    \right) n_{\xi}
+    \right) \nxi
     \nonumber\\*
     &\qquad  + \left(-y_\xi\left(q^{n+\theta, p} + \theta \Delta q\right) +
-      x_\xi\left( r^{n+\theta, p} + \theta \Delta r  \right) \right) n_\eta
+      x_\xi\left( r^{n+\theta, p} + \theta \Delta r  \right) \right) \neta
       \Big]\, dl
 \end{align}
 This terms need to be computed for each of the control volume faces, taken into account the outward normal.
 Eight faces on a structured grid.
-For the quadrature point $(i+\half, j+\quart)$ where $\vec{n} = (1,0)^T$ and $\norm{dl} = \half$, reads:
+For the quadrature point $(i+\half, j+\quart)$ where $\vecn = (\nxi, \neta)^T = (1,0)^T$ and $\norm{dl} = \half$, reads:
 \begin{align}
 &\left( y_\eta\left(q^{n+\theta, p} + \theta \Delta q\right) - x_\eta \left( r^{n+\theta, p} + \theta \Delta r  \right)
-    \right) n_{\xi}  \norm{dl} \approx
+    \right) \nxi  \norm{dl} \approx
     \\
   &\approx \left[ \half y_\eta\left( q^{n+\theta, p} + \theta \Delta q \right)  -
-  \half x_\eta \left( r^{n+\theta, p} + \theta \Delta r  \right) \right] n_\xi
+  \half x_\eta \left( r^{n+\theta, p} + \theta \Delta r  \right) \right] \nxi
 \end{align}
 with
 \begin{align}
@@ -380,22 +380,22 @@ The discretization for each of the 4 sub-control volumes reads:
 \subsubsection{Convection}
 The discretization of the convection term
 \begin{align}
-    &\oint_{\partial\Omega_{\xi\eta}} \left[  \left( y_{\eta}q - x_{\eta} r \right) \frac{q}{h}  n_\xi + \left( -y_{\xi}q  + x_{\xi}r\right) \frac{q}{h} n_\eta \right] \, dl,\qquad \textit{$q$-momentum eq.}
+    &\oint_{\partial\Omega_{\xi\eta}} \left[  \left( y_{\eta}q - x_{\eta} r \right) \frac{q}{h}  \nxi + \left( -y_{\xi}q  + x_{\xi}r\right) \frac{q}{h} \neta \right] \, dl,\qquad \textit{$q$-momentum eq.}
     \\
-    &\oint_{\partial\Omega_{\xi\eta}} \left[  \left( y_{\eta}q - x_{\eta} r \right) \frac{r}{h}  n_\xi + \left( -y_{\xi}q  + x_{\xi}r\right) \frac{r}{h} n_\eta \right] \, dl,\qquad \textit{$r$-momentum eq.}
+    &\oint_{\partial\Omega_{\xi\eta}} \left[  \left( y_{\eta}q - x_{\eta} r \right) \frac{r}{h}  \nxi + \left( -y_{\xi}q  + x_{\xi}r\right) \frac{r}{h} \neta \right] \, dl,\qquad \textit{$r$-momentum eq.}
 \end{align}
 will be given in this section (\autoref{eq:transformed_convection_x}, multiplied with $J$).
-Where $\vec{n} = (n_\xi, n_\eta)^T$ is the outward normal vector.
+Where $\vecn = (\nxi, \neta)^T$ is the outward normal vector.
 
 Considering one sub-control volume and only for the $x$-direction (similar for the
 $y$-direction) then the time discretization reads:
 %
 \begin{align}
     \oint_{\partial\Omega_{\xi\eta}} & \Bigg[\left( y_\eta\left(q^{n+\theta, p} + \theta \Delta q\right) - x_\eta \left( r^{n+\theta, p} + \theta \Delta r  \right) \right)
-    \frac{q^{n+\theta, p} + \theta \Delta q}{h^{n+\theta, p} + \theta \Delta h} n_{\xi} +
+    \frac{q^{n+\theta, p} + \theta \Delta q}{h^{n+\theta, p} + \theta \Delta h} \nxi +
     \nonumber\\*
     &\quad  + \left(-y_\xi\left(q^{n+\theta, p} + \theta \Delta q\right) +
-    x_\xi\left( r^{n+\theta, p} + \theta \Delta r \right) \right) \frac{q^{n+\theta, p} + \theta \Delta q}{h^{n+\theta, p} + \theta \Delta h} n_\eta
+    x_\xi\left( r^{n+\theta, p} + \theta \Delta r \right) \right) \frac{q^{n+\theta, p} + \theta \Delta q}{h^{n+\theta, p} + \theta \Delta h} \neta
     \Bigg]\, dl
 \end{align}
 These terms need to be computed for each of the control volume faces, taken
@@ -405,142 +405,142 @@ The linearization in time for the $q$-momentum equation reads (see \autoref{eq:2
 %
 \begin{align}
 & \half \Bigg[ \left( y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p} \right)
-\frac{q^{n+\theta, p}}{h^{n+\theta, p}} n_{\xi}
+\frac{q^{n+\theta, p}}{h^{n+\theta, p}} \nxi
 + \left(-y_\xi q^{n+\theta, p} +
-x_\xi r^{n+\theta, p} \right) \frac{q^{n+\theta, p}}{h^{n+\theta, p}} n_\eta \Bigg] +
+x_\xi r^{n+\theta, p} \right) \frac{q^{n+\theta, p}}{h^{n+\theta, p}} \neta \Bigg] +
 \\
 & + \half \theta \Delta h \Bigg[
-\left( \frac{- y_\eta (q^{n+\theta, p})^2 + x_\eta {q^{n+\theta, p} r^{n+\theta, p}}}{(h^{n+\theta, p})^2} \right) n_\xi+
-\left( \frac{y_\xi (q^{n+\theta, p})^2 - x_\xi q^{n+\theta, p}r^{n+\theta, p} }{(h^{n+\theta, p})^2} \right) n_\eta
+\left( \frac{- y_\eta (q^{n+\theta, p})^2 + x_\eta {q^{n+\theta, p} r^{n+\theta, p}}}{(h^{n+\theta, p})^2} \right) \nxi+
+\left( \frac{y_\xi (q^{n+\theta, p})^2 - x_\xi q^{n+\theta, p}r^{n+\theta, p} }{(h^{n+\theta, p})^2} \right) \neta
 \Bigg]+
 \\
 & + \half \theta \Delta q \Bigg[
-\left( \frac{   2y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\xi +
-\left( \frac{ - 2y_\xi  q^{n+\theta, p} + x_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta
+\left( \frac{   2y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p}}{h^{n+\theta, p}} \right) \nxi +
+\left( \frac{ - 2y_\xi  q^{n+\theta, p} + x_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) \neta
 \Bigg] +
 \\
 & + \half \theta \Delta r \Bigg[
- \left( \frac{ - x_\eta q^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\xi +
- \left( \frac{   x_\xi  q^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta
+ \left( \frac{ - x_\eta q^{n+\theta, p}}{h^{n+\theta, p}} \right) \nxi +
+ \left( \frac{   x_\xi  q^{n+\theta, p}}{h^{n+\theta, p}} \right) \neta
 \Bigg]
 \end{align}
-%with $\vec{n} = (n_\xi, n_\eta)^T = (\pm 1, 0)^T, dl = \half$, it yields:
+%with $\vecn = (\nxi, \neta)^T = (\pm 1, 0)^T, dl = \half$, it yields:
 %\begin{align}
 %& \half \left( y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p} \right)
-%\frac{q^{n+\theta, p}}{h^{n+\theta, p}} n_{\xi}
+%\frac{q^{n+\theta, p}}{h^{n+\theta, p}} \nxi
 %+
 %\\
 %& + \half \theta \Delta h
-%\left( \frac{- y_\eta (q^{n+\theta, p})^2 + x_\eta {q^{n+\theta, p} r^{n+\theta, p}}}{(h^{n+\theta, p})^2} \right) n_\xi
+%\left( \frac{- y_\eta (q^{n+\theta, p})^2 + x_\eta {q^{n+\theta, p} r^{n+\theta, p}}}{(h^{n+\theta, p})^2} \right) \nxi
 %+
 %\\
 %& + \half \theta \Delta q
-%\left( \frac{   2y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\xi +
+%\left( \frac{   2y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p}}{h^{n+\theta, p}} \right) \nxi +
 %\\
 %& + \half \theta \Delta r
-%\left( \frac{ - x_\eta q^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\xi
+%\left( \frac{ - x_\eta q^{n+\theta, p}}{h^{n+\theta, p}} \right) \nxi
 %\end{align}
 and the time discretization for the $r$-momentum equation reads:
 %
 \begin{align}
-    \oint_{\partial\Omega_{\xi\eta}} & \Bigg[ \left( y_{\eta}\left(q^{n+\theta, p} + \theta \Delta q\right) - x_{\eta} \left(r^{n+\theta, p} + \theta \Delta r\right) \right) \frac{r^{n+\theta, p} + \theta \Delta r}{h^{n+\theta, p} + \theta \Delta h}  n_\xi +
+    \oint_{\partial\Omega_{\xi\eta}} & \Bigg[ \left( y_{\eta}\left(q^{n+\theta, p} + \theta \Delta q\right) - x_{\eta} \left(r^{n+\theta, p} + \theta \Delta r\right) \right) \frac{r^{n+\theta, p} + \theta \Delta r}{h^{n+\theta, p} + \theta \Delta h}  \nxi +
     \nonumber \\*
-    &\quad + \left( -y_{\xi}\left(q^{n+\theta, p} + \theta \Delta q\right)  + x_{\xi}\left(r^{n+\theta, p} + \theta \Delta r\right)\right) \frac{r^{n+\theta, p} + \theta \Delta r}{h^{n+\theta, p} + \theta \Delta h} n_\eta \Bigg] \, dl
+    &\quad + \left( -y_{\xi}\left(q^{n+\theta, p} + \theta \Delta q\right)  + x_{\xi}\left(r^{n+\theta, p} + \theta \Delta r\right)\right) \frac{r^{n+\theta, p} + \theta \Delta r}{h^{n+\theta, p} + \theta \Delta h} \neta \Bigg] \, dl
 \end{align}
 The linearization in time for the $r$-momentum equation reads (see \autoref{eq:2d_convection_r_equation}):
 \begin{align}
 & \half \Bigg[ \left( y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p} \right)
-\frac{r^{n+\theta, p}}{h^{n+\theta, p}} n_{\xi}
+\frac{r^{n+\theta, p}}{h^{n+\theta, p}} \nxi
 + \left(-y_\xi q^{n+\theta, p} +
-x_\xi r^{n+\theta, p} \right) \frac{r^{n+\theta, p}}{h^{n+\theta, p}} n_\eta \Bigg]+
+x_\xi r^{n+\theta, p} \right) \frac{r^{n+\theta, p}}{h^{n+\theta, p}} \neta \Bigg]+
 \\
 & + \half \theta \Delta h \Bigg[
 \left( \frac{- y_\eta q^{n+\theta, p} r^{n+\theta, p} + x_\eta (r^{n+\theta, p})^2}{(h^{n+\theta, p})^2}
-\right) n_\xi +
+\right) \nxi +
 \left( \frac{y_\xi q^{n+\theta, p}r^{n+\theta, p} - x_\xi  (r^{n+\theta, p})^2}{(h^{n+\theta, p})^2}
-\right) n_\eta
+\right) \neta
 \Bigg] +
 \\
 & + \half \theta \Delta q \Bigg[
-\left( \frac{   y_\eta r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\xi +
-\left( \frac{ - y_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta
+\left( \frac{   y_\eta r^{n+\theta, p}}{h^{n+\theta, p}} \right) \nxi +
+\left( \frac{ - y_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) \neta
 \Bigg]
 \\
 & + \half \theta \Delta r \Bigg[
-\left( \frac{  y_\eta q^{n+\theta, p} - 2 x_\eta r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\xi+
-\left( \frac{- y_\xi  q^{n+\theta, p} + 2 x_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta
+\left( \frac{  y_\eta q^{n+\theta, p} - 2 x_\eta r^{n+\theta, p}}{h^{n+\theta, p}} \right) \nxi+
+\left( \frac{- y_\xi  q^{n+\theta, p} + 2 x_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) \neta
 \Bigg] +
 \end{align}
-%with $\vec{n} = (n_\xi, n_\eta)^T = (0, \pm 1)^T, dl = \half$, it yields:
+%with $\vecn = (\nxi, \neta)^T = (0, \pm 1)^T, dl = \half$, it yields:
 %\begin{align}
 %& \half \left(-y_\xi q^{n+\theta, p} +
-%x_\xi r^{n+\theta, p} \right) \frac{r^{n+\theta, p}}{h^{n+\theta, p}} n_\eta +
+%x_\xi r^{n+\theta, p} \right) \frac{r^{n+\theta, p}}{h^{n+\theta, p}} \neta +
 %\\
 %& + \half \theta \Delta h
 %\left( \frac{y_\xi q^{n+\theta, p}r^{n+\theta, p} - x_\xi  (r^{n+\theta, p})^2}{(h^{n+\theta, p})^2}
-%\right) n_\eta +
+%\right) \neta +
 %\\
 %& + \half \theta \Delta q
-%\left( \frac{ - y_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta +
+%\left( \frac{ - y_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) \neta +
 %\\
 %& + \half \theta \Delta r
-%\left( \frac{- y_\xi  q^{n+\theta, p} + 2 x_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta
+%\left( \frac{- y_\xi  q^{n+\theta, p} + 2 x_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) \neta
 %\end{align}
 
 %\subsubsection*{Convection expressed in transformed discharges}
 %
-%The linearization in time for the $q$-momentum equation reads (see \autoref{eq:2d_convection_q_equation}), $\vec{n} = (n_\xi, n_\eta)^T = (\pm 1, 0)^T, dl = \half$:
+%The linearization in time for the $q$-momentum equation reads (see \autoref{eq:2d_convection_q_equation}), $\vecn = (\nxi, \neta)^T = (\pm 1, 0)^T, dl = \half$:
 %%
 %\begin{align}
 %& \half \left\{ y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p} \right\}
-%\frac{q^{n+\theta, p}}{h^{n+\theta, p}} n_{\xi}
+%\frac{q^{n+\theta, p}}{h^{n+\theta, p}} \nxi
 %%+ \half \left(-y_\xi q^{n+\theta, p} +
-%%x_\xi r^{n+\theta, p} \right) \frac{q^{n+\theta, p}}{h^{n+\theta, p}} n_\eta
+%%x_\xi r^{n+\theta, p} \right) \frac{q^{n+\theta, p}}{h^{n+\theta, p}} \neta
 %+
 %\\
 %& + \half \theta \Delta h \Bigg[
-%-\left\{  y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p} \right\} \frac{q^{n+\theta, p}}{(h^{n+\theta, p})^2} n_\xi
-%% + \left( \frac{- x_\xi q^{n+\theta, p}r^{n+\theta, p} + y_\xi (r^{n+\theta, p})^2}{(h^{n+\theta, p})^2} \right) n_\eta
+%-\left\{  y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p} \right\} \frac{q^{n+\theta, p}}{(h^{n+\theta, p})^2} \nxi
+%% + \left( \frac{- x_\xi q^{n+\theta, p}r^{n+\theta, p} + y_\xi (r^{n+\theta, p})^2}{(h^{n+\theta, p})^2} \right) \neta
 %\Bigg]+
 %\\
 %& + \half \theta \Delta q \Bigg[
-%\left\{y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p}\right\}\frac{1}{h^{n+\theta, p}} +  \frac{y_\eta q^{n+\theta, p}}{h^{n+\theta, p}} n_\xi
-%%+ \left( \frac{ - 2y_\xi  q^{n+\theta, p} + x_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta
+%\left\{y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p}\right\}\frac{1}{h^{n+\theta, p}} +  \frac{y_\eta q^{n+\theta, p}}{h^{n+\theta, p}} \nxi
+%%+ \left( \frac{ - 2y_\xi  q^{n+\theta, p} + x_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) \neta
 %\Bigg] +
 %\\
 %& + \half \theta \Delta r \Bigg[
-% \left( \frac{ - x_\eta q^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\xi
-%% + \left( \frac{   x_\xi  q^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta
+% \left( \frac{ - x_\eta q^{n+\theta, p}}{h^{n+\theta, p}} \right) \nxi
+%% + \left( \frac{   x_\xi  q^{n+\theta, p}}{h^{n+\theta, p}} \right) \neta
 %\Bigg]
 %\end{align}
 %
-%The linearization in time for the $r$-momentum equation reads (see \autoref{eq:2d_convection_r_equation}), $\vec{n} = (n_\xi, n_\eta)^T = (0, \pm 1)^T, dl = \half$:
+%The linearization in time for the $r$-momentum equation reads (see \autoref{eq:2d_convection_r_equation}), $\vecn = (\nxi, \neta)^T = (0, \pm 1)^T, dl = \half$:
 %\begin{align}
 %&
 %%\half \left( \left\{ y_\eta q^{n+\theta, p} - x_\eta r^{n+\theta, p} \right\}
-%% \frac{r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_{\xi}
+%% \frac{r^{n+\theta, p}}{h^{n+\theta, p}} \right) \nxi
 %% +
 %\half \left(  \left\{ -y_\xi q^{n+\theta, p} +
-%x_\xi r^{n+\theta, p} \right\} \frac{r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta +
+%x_\xi r^{n+\theta, p} \right\} \frac{r^{n+\theta, p}}{h^{n+\theta, p}} \right) \neta +
 %\\
 %%
 %& + \half \theta \Delta h \Bigg[
 %%\left( -\frac{ y_\eta q^{n+\theta, p} r^{n+\theta, p} - x_\eta (r^{n+\theta, p})^2}{(h^{n+\theta, p})^2}
-%%\right) n_\xi
+%%\right) \nxi
 %- \left\{ -y_\xi q^{n+\theta, p} + x_\xi  r^{n+\theta, p} \right\}
 %\frac{r^{n+\theta, p}}{(h^{n+\theta, p})^2}
-% n_\eta
+% \neta
 %\Bigg] +
 %\\
 %%
 %& + \half \theta \Delta q \Bigg[
-%%\left( \frac{   y_\eta r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\xi +
-%\left( \frac{ - y_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\eta
+%%\left( \frac{   y_\eta r^{n+\theta, p}}{h^{n+\theta, p}} \right) \nxi +
+%\left( \frac{ - y_\xi  r^{n+\theta, p}}{h^{n+\theta, p}} \right) \neta
 %\Bigg] +
 %\\
 %& + \half \theta \Delta r \Bigg[
-%%\left( \frac{  y_\eta q^{n+\theta, p} - 2 x_\eta r^{n+\theta, p}}{h^{n+\theta, p}} \right) n_\xi+
-%\left\{- y_\xi  q^{n+\theta, p} + x_\xi  r^{n+\theta, p} \right\} \frac{1}{h^{n+\theta, p}} + \frac{x_\xi r^{n+\theta, p}}{h^{n+\theta, p}} n_\eta
+%%\left( \frac{  y_\eta q^{n+\theta, p} - 2 x_\eta r^{n+\theta, p}}{h^{n+\theta, p}} \right) \nxi+
+%\left\{- y_\xi  q^{n+\theta, p} + x_\xi  r^{n+\theta, p} \right\} \frac{1}{h^{n+\theta, p}} + \frac{x_\xi r^{n+\theta, p}}{h^{n+\theta, p}} \neta
 %\Bigg]
 %\end{align}
 
@@ -634,12 +634,12 @@ These terms need to be computed for each quadrature points ($qp$) of the sub-con
 The viscosity term in vector notation reads:
 \begin{align}
     \int_\Omega \nabla \dotp \left( \nu h \left(  \nabla (\vec{q}/h) + \nabla (\vec{q}^T/h) \right) \right)\, d\omega =
-    \oint_{\Omega}  \left( \nu h \left( \nabla (\vec{q}/h) + \nabla (\vec{q}^T/h) \right) \right) \dotp \vec{n}\, dl
+    \oint_{\Omega}  \left( \nu h \left( \nabla (\vec{q}/h) + \nabla (\vec{q}^T/h) \right) \right) \dotp \vecn\, dl
 \end{align}
-with $\vec{n} = (n_x, n_y)^T$ the outward normal vector.
+with $\vecn = (\nx, \ny)^T$ the outward normal vector.
 Written in components ($\vec{q} = (q, r)^T$):
 \begin{align}
-    &\oint_{\Omega}  \left( \nu h \left( \nabla (\vec{q}/h) + \nabla (\vec{q}^T/h) \right) \right) \dotp \vec{n}\, dl =
+    &\oint_{\Omega}  \left( \nu h \left( \nabla (\vec{q}/h) + \nabla (\vec{q}^T/h) \right) \right) \dotp \vecn\, dl =
     \\
     & =
     \oint_{\Omega} \nu h
@@ -656,23 +656,23 @@ Written in components ($\vec{q} = (q, r)^T$):
     \pdiff{(q/h)}{y} & \pdiff{(r/h)}{y}
    \end{pmatrix}
    \right)
-    \dotp \vec{n}\, dl
+    \dotp \vecn\, dl
 \end{align}
 The components for the two momentum equations read:
 \begin{align}
     F_q
     & = \oint_{\Omega} \nu h
-    \left[ 2\pdiff{(q/h)}{x} n_x
-    + \left(\pdiff{(q/h)}{y} + \pdiff{(r/h)}{x}\right)n_y \right] \, dl
+    \left[ 2\pdiff{(q/h)}{x} \nx
+    + \left(\pdiff{(q/h)}{y} + \pdiff{(r/h)}{x}\right)\ny \right] \, dl
     \qquad \textit{q-momentum eq.}
     \\
     F_r
     & = \oint_{\Omega}  \nu h
-    \left[ \left(\pdiff{(r/h)}{x} + \pdiff{(q/h)}{y}\right)n_x
-    + 2\pdiff{(r/h)}{y} n_y \right] \, dl
+    \left[ \left(\pdiff{(r/h)}{x} + \pdiff{(q/h)}{y}\right)\nx
+    + 2\pdiff{(r/h)}{y} \ny \right] \, dl
     \qquad \textit{r-momentum eq.}
 \end{align}
-Written in linear terms for the derivative which read:
+Written in linear terms for the derivative yields:
 \begin{align}
     & \nu h \pdiff{(q/h)}{x} = \nu \left( \pdiff{q}{x} - \frac{q}{h}\pdiff{h}{x} \right),
 %    \\
@@ -686,15 +686,15 @@ then the equations for the momentum equations read:
 \begin{align}
     F_q
     & = \oint_{\Omega}
-    \left[ 2 \nu \left( \pdiff{q}{x} - \frac{q}{h}\pdiff{h}{x}\right)  n_x
+    \left[ 2 \nu \left( \pdiff{q}{x} - \frac{q}{h}\pdiff{h}{x}\right)  \nx
     + \left(\nu \left( \pdiff{q}{y} - \frac{q}{h}\pdiff{h}{y} \right) +
-    \nu \left( \pdiff{r}{x} - \frac{r}{h}\pdiff{h}{x} \right) \right)n_y \right] \, dl
+    \nu \left( \pdiff{r}{x} - \frac{r}{h}\pdiff{h}{x} \right) \right)\ny \right] \, dl
     \\
     F_r
     & = \oint_{\Omega}
     \left[ \left(\nu \left( \pdiff{r}{x} - \frac{r}{h}\pdiff{h}{x} \right)
-    + \nu \left( \pdiff{q}{y} - \frac{q}{h}\pdiff{h}{y} \right) \right)n_x
-    + 2 \nu \left( \pdiff{r}{y} - \frac{r}{h}\pdiff{h}{y} \right) n_y \right] \, dl
+    + \nu \left( \pdiff{q}{y} - \frac{q}{h}\pdiff{h}{y} \right) \right)\nx
+    + 2 \nu \left( \pdiff{r}{y} - \frac{r}{h}\pdiff{h}{y} \right) \ny \right] \, dl
 \end{align}
 
 These equations need to be  discretized on the quadrature points $qp$ at the control volume faces.
@@ -1023,12 +1023,12 @@ After rearranging the equation to the \deltaformulation, the implicit and the ex
     \nonumber \\*
     & \qquad + \left. \frac{\alpha_{\it bnd}}{2}\left( \Delta h^{n+1,p+1}_{i-1, j-\quart} - 2 \Delta h^{n+1,p+1}_{i, j-\quart} + \Delta h^{n+1,p+1}_{i+1, j-\quart} \right) \right) +
     \nonumber \\
-    & \qquad + \half \frac{y_eta}{\Dt} \left\{ \half \left( h^{n+1, p}_{i-1, j-\quart} + h^{n+1, p}_{i, j-\quart} \right)
-    + \frac{\alpha_{\it bnd}}{2}\left(  h^{n+1,p}_{i-1, j-\quart} - 2 h^{n+1,p}_{i, j-\quart}  + h^{n+1,p}_{i+1, j-\quart} \right) + \right.
+    & \qquad + \half \frac{y_\eta}{\Dt} \Bigg[ \half \left( h^{n+1, p}_{i-1, j-\quart} + h^{n+1, p}_{i, j-\quart} \right)
+    + \frac{\alpha_{\it bnd}}{2}\left(  h^{n+1,p}_{i-1, j-\quart} - 2 h^{n+1,p}_{i, j-\quart}  + h^{n+1,p}_{i+1, j-\quart} \right) +
     \nonumber \\*
     &
-    \qquad \left. - \left( \frac{1}{2} \left( h^{n}_{i-1, j-\quart} + h^{n}_{i, j-\quart} \right)
-    + \frac{\alpha_{\it bnd}}{2}  \left( h^{n}_{i-1, j-\quart} - 2 h^{n}_{i, j-\quart} + h^{n}_{i+1, j-\quart}  \right) \right) \right\}
+    \qquad - \left( \frac{1}{2} \left( h^{n}_{i-1, j-\quart} + h^{n}_{i, j-\quart} \right)
+    + \frac{\alpha_{\it bnd}}{2}  \left( h^{n}_{i-1, j-\quart} - 2 h^{n}_{i, j-\quart} + h^{n}_{i+1, j-\quart}  \right) \right) \Bigg]
 \end{align}
 %------------------------------------------------------------------------------
 \paragraph*{Mass flux, continuity equation}
@@ -1046,7 +1046,7 @@ which will be approximated by ($\Delta \xi = \Delta \eta = 1$):
     \Leftrightarrow &
     \\
     &\half  y_\eta \theta \left( \Delta q^{n+1, p+1}_{i, j-\quart} - \Delta q^{n+1, p+1}_{i-1, j-\quart}\right) +
-    y_\eta \left\{ q^{n+\theta, p}_{i, j-\quart} - q^{n+\theta, p+1}_{i-1, j-\quart} \right\}
+    \half y_\eta \left[ q^{n+\theta, p}_{i, j-\quart} - q^{n+\theta, p+1}_{i-1, j-\quart} \right]
 \end{align}
 %------------------------------------------------------------------------------
 \paragraph*{Time derivative, momentum equation}
@@ -1071,10 +1071,10 @@ After rearranging the equation to the \deltaformulation, the implicit and the ex
     \nonumber \\*
     & \qquad \qquad + \left. \frac{\alpha_{\it bnd}}{2}\left( \Delta q^{n+1,p+1}_{i-1, j-\quart} - 2 \Delta q^{n+1,p+1}_{i, j-\quart} + \Delta q^{n+1,p+1}_{i+1, j-\quart} \right) \right) +
     \nonumber \\
-    & \quad +  \half\frac{y_\eta}{\Dt} \left\{ \half \left( q^{n+1, p}_{i-1, j-\quart} + q^{n+1, p}_{i, j-\quart} \right) + \frac{\alpha_{\it bnd}}{2}\left( q^{n+1,p}_{i-1, j-\quart} - 2 q^{n+1,p}_{i, j-\quart}  + q^{n+1,p}_{i+1, j-\quart} \right) + \right.
+    & \quad +  \half\frac{y_\eta}{\Dt} \left[ \half \left( q^{n+1, p}_{i-1, j-\quart} + q^{n+1, p}_{i, j-\quart} \right) + \frac{\alpha_{\it bnd}}{2}\left( q^{n+1,p}_{i-1, j-\quart} - 2 q^{n+1,p}_{i, j-\quart}  + q^{n+1,p}_{i+1, j-\quart} \right) + \right.
     \nonumber \\*
     & \qquad \qquad
-    \left.  - \frac{1}{2} \left( q^{n}_{i-1, j-\quart} + q^{n}_{i, j-\quart} \right) - \frac{\alpha_{\it bnd}}{2} \left( q^{n}_{i-1, j-\quart} - 2 q^{n}_{i, j-\quart} + q^{n}_{i+1, j-\quart}  \right) \right\}
+    \left.  - \frac{1}{2} \left( q^{n}_{i-1, j-\quart} + q^{n}_{i, j-\quart} \right) - \frac{\alpha_{\it bnd}}{2} \left( q^{n}_{i-1, j-\quart} - 2 q^{n}_{i, j-\quart} + q^{n}_{i+1, j-\quart}  \right) \right]
 \end{align}
 %------------------------------------------------------------------------------
 \paragraph*{Pressure term, momentum equation}
@@ -1102,8 +1102,8 @@ After rearranging the equation into an implicit and an explicit part it reads:
     \half y_\eta g h^{n+\theta, p}_{i-\half, j-\quart}
     \theta \left( \Delta \zeta^{n+1,p+1}_{i, j-\quart}  - \Delta \zeta^{n+1,p+1}_{i-1, j-\quart}\right) +
     \nonumber \\*
-    & \qquad + \left\{
-    \half y_\eta g h^{n+\theta,p}_{i-\half, j-\quart} \left( \zeta^{n+\theta,p}_{i, j-\quart} - \zeta^{n+\theta,p}_{i-1, j-\quart}  \right)  \right\}
+    & \qquad + \left[
+    \half y_\eta g h^{n+\theta,p}_{i-\half, j-\quart} \left( \zeta^{n+\theta,p}_{i, j-\quart} - \zeta^{n+\theta,p}_{i-1, j-\quart}  \right)  \right]
 \end{align}
 %------------------------------------------------------------------------------
 \paragraph*{Convection, momentum equation}
@@ -1139,13 +1139,13 @@ The finite volume flux through the boundary line element $ds$ yields
         \pdiff{qq/h}{x} + \pdiff{rq/h}{y} \\
         \pdiff{qr/h}{x} + \pdiff{rr/h}{y}
     \end{pmatrix}
-    \dotp \vec{n}\, ds
+    \dotp \vecn\, ds
     = \\
     & =
-    \left[ \left( \pdiff{qq/h}{x} + \pdiff{rq/h}{y} \right) n_x +
-    \left( \pdiff{qr/h}{x} + \pdiff{rr/h}{y} \right) n_y \right] \norm{ds}
+    \left[ \left( \pdiff{qq/h}{x} + \pdiff{rq/h}{y} \right) \nx +
+    \left( \pdiff{qr/h}{x} + \pdiff{rr/h}{y} \right) \ny \right] \norm{ds}
 \end{align}
-with $\vec{n} = (\texttt{n}_x, n_y)^T$ the outward normal vector.
+with $\vecn = (\nx, \ny)^T$ the outward normal vector.
 
 Written in linear terms for the derivative they read:
 \begin{align}
@@ -1179,33 +1179,33 @@ which read in transformed coordinates
 - \frac{rq}{h^2} \left( -x_\eta \pdiff{h}{\xi} + x_\xi \pdiff{h}{\eta}  \right) \Bigg]\, ds
 \end{align}
 %
-In case we have normal flow at the boundary ($r=0$ and $x_\eta \lpdiff{r}{\xi}=0$) this boundary term reduces to:
+In case we have normal flow at the boundary ($r=0 \Rightarrow \lpdiff{r}{\eta}=0$ and $x_\eta \lpdiff{r}{\xi}=0$) this boundary term reduces to:
 \begin{align}
     &\int_{\Gamma_{\xi\eta}} \Bigg[
     \frac{2q}{h}   \left( y_\eta \pdiff{q}{\xi} - y_\xi \pdiff{q}{\eta} \right)
     - \frac{q^2}{h^2}\left( y_\eta \pdiff{h}{\xi} - y_\xi \pdiff{h}{\eta} \right)
 \Bigg]\, ds
 \end{align}
-which will be approximated at the quadrature point $qp$ and at time level ${n+\theta, p}$ by
+which will be approximated at each quadrature point $qp$ and at time level ${n+\theta, p}$ by
 \begin{align}
     & \underbrace{\half \Bigg[
         \frac{2q}{h}
         \left( y_\eta \pdiff{q}{\xi} - y_\xi \pdiff{q}{\eta}  \right)
-        - \frac{q^2}{h^2}
+        + \left(- \frac{q^2}{h^2}\right)
         \left(  y_\eta \pdiff{h}{\xi} - y_\xi \pdiff{h}{\eta}  \right)
     \Bigg]}_{\textit{ to right hand side}} +
     \\
     & + \half \theta \Dh  \underbrace{\Bigg[
     -\frac{2q}{h^2} \left( y_\eta \pdiff{q}{\xi} - y_\xi \pdiff{q}{\eta} \right)
-    + \frac{q^2}{h^3} \left( y_\eta \pdiff{h}{\xi} - y_\xi \pdiff{h}{\eta} \right)
+    + \frac{2q^2}{h^3} \left( y_\eta \pdiff{h}{\xi} - y_\xi \pdiff{h}{\eta} \right)
     \Bigg]}_{\cal A} +
     \\*
     & + \half \theta \Dq \underbrace{\Bigg[
     \frac{2}{h} \left( y_\eta \pdiff{q}{\xi} - y_\xi \pdiff{q}{\eta} \right)
-    - \frac{2q}{h} \left( y_\eta \pdiff{h}{\xi} - y_\xi \pdiff{h}{\eta} \right)
-    \Bigg]}_{\cal B}
+    - \frac{2q}{h^2} \left( y_\eta \pdiff{h}{\xi} - y_\xi \pdiff{h}{\eta} \right)
+    \Bigg]}_{\cal B} +
     \nonumber \\*
-    & -\half \theta \underbrace{\frac{q^2}{h^2}}_{\cal C} \left(  y_\eta \pdiff{\Dh}{\xi} - y_\xi \pdiff{\Dh}{\eta} \right)
+    & + \half \theta \underbrace{\left(-\frac{q^2}{h^2}\right)}_{\cal C} \left(  y_\eta \pdiff{\Dh}{\xi} - y_\xi \pdiff{\Dh}{\eta} \right)
     +
  \half \theta \underbrace{\frac{2q}{h}}_{\cal D} \left( y_\eta \pdiff{\Dq}{\xi} - y_\xi \pdiff{\Dq}{\eta} \right)
 \end{align}
@@ -1224,56 +1224,33 @@ For the convection term of the $r$-momentum equation it reads:
 \Bigg]\, ds
 \end{align}
 %
-And in case we have normal flow at the boundary ($q=0$ and $x_\eta \lpdiff{q}{\eta}=0$) the boundary term reduces to:
+And in case we have normal flow at the boundary ($q=0 \Rightarrow \lpdiff{q}{\xi}=0$ and $x_\eta \lpdiff{q}{\eta}=0$) the boundary term reduces to:
 \begin{align}
 &\int_{\Gamma_{\xi\eta}} \Bigg[
 \frac{2r}{h} \left( -x_\eta \pdiff{r}{\xi} + x_\xi \pdiff{r}{\eta} \right)
 - \frac{r^2}{h^2}\left( -x_\eta \pdiff{h}{\xi} + x_\xi \pdiff{h}{\eta} \right)
 \Bigg]\, ds
 \end{align}
-which will be approximated at the quadrature point $qp$ and at time level ${n+\theta, p}$ by
+which will be approximated at each quadrature point $qp$ and at time level ${n+\theta, p}$ by
 \begin{align}
     &\underbrace{\half \Bigg[
   \frac{2r}{h}   \left( -x_\eta \pdiff{r}{\xi} + x_\xi \pdiff{r}{\eta} \right)
-- \frac{r^2}{h^2}\left( -x_\eta \pdiff{h}{\xi} + x_\xi \pdiff{h}{\eta} \right) \Bigg] }_{\textit{to right hand side}}
++ \left(- \frac{r^2}{h^2}\right) \left( -x_\eta \pdiff{h}{\xi} + x_\xi \pdiff{h}{\eta} \right) \Bigg] }_{\textit{to right hand side}} +
     \\
-&\half \theta \Dh \underbrace{\Bigg[
+&+ \half \theta \Dh \underbrace{\Bigg[
 - \frac{2r}{h^2}  \left( -x_\eta \pdiff{r}{\xi} + x_\xi \pdiff{r}{\eta} \right)
-+ \frac{r^2}{h^3} \left( -x_\eta \pdiff{h}{\xi} + x_\xi \pdiff{h}{\eta} \right)
- \Bigg]}_{\cal A}
++ \frac{2r^2}{h^3} \left( -x_\eta \pdiff{h}{\xi} + x_\xi \pdiff{h}{\eta} \right)
+ \Bigg]}_{\cal A} +
 \\
-& \half \theta \Dr \underbrace{\Bigg[
+&+ \half \theta \Dr \underbrace{\Bigg[
   \frac{2}{h}  \left( -x_\eta \pdiff{r}{\xi} + x_\xi \pdiff{r}{\eta} \right)
-- \frac{2r}{h} \left( -x_\eta \pdiff{h}{\xi} + x_\xi \pdiff{h}{\eta} \right)   \Bigg]}_{\cal B}
+- \frac{2r}{h^2} \left( -x_\eta \pdiff{h}{\xi} + x_\xi \pdiff{h}{\eta} \right)   \Bigg]}_{\cal B} +
 \\
-& \half \theta  \underbrace{\frac{r^2}{h^2}}_{\cal C} \left( -x_\eta \pdiff{\Dh}{\xi} + x_\xi \pdiff{\Dh}{\eta} \right)
+&+ \half \theta  \underbrace{\left(-\frac{r^2}{h^2}\right)}_{\cal C} \left( -x_\eta \pdiff{\Dh}{\xi} + x_\xi \pdiff{\Dh}{\eta} \right)
   + \half \theta \underbrace{\frac{2r}{h}}_{\cal D} \left( -x_\eta \pdiff{\Dr}{\xi} + x_\xi \pdiff{\Dr}{\eta} \right)
 \end{align}
 where $\cal{A}$, $\cal{B}$, $\cal{C}$ and $\cal{D}$ multiplied by $\half\theta$ and \emph{the geometrical factors} are the coefficients in the matrix of the \deltaformulation.
-{{
-\color{gray}
 
-\begin{align}
-    & \left( \frac{2q}{h}\pdiff{q}{x} - \frac{q^2}{h^2}\pdiff{h}{x}\right)
-    =
-\\
-    & \qquad \approx \underbrace{\frac{2q^{n+\theta, p}_{qp}}{ h^{n+\theta, p}_{qp}} \pdiff{}{x}\left( q^{n+\theta, p}_{qp} \right)
-        - \frac{(q^{n+\theta, p}_{qp})^2}{(h^{n+\theta, p}_{qp})^2} \pdiff{}{x} \left( h^{n+\theta, p}_{qp} \right)}_{\textit{ to right hand side}} +
-    \nonumber \\
-    & \qquad + \underbrace{\left( -\frac{2q^{n+\theta, p}_{qp}}{ (h^{n+\theta, p}_{qp})^2}  \pdiff{}{x} \left( q^{n+\theta,p}_{qp}  \right)
-        + \frac{2(q^{n+\theta, p}_{qp})^2}{(h^{n+\theta, p}_{qp})^3} \pdiff{}{x} \left( h^{n+\theta,p} _{qp} \right)
-        \right)}_{\cal A} \theta \Delta h^{n+1, p+1}_{qp} +
-    \nonumber \\
-    & \qquad + \underbrace{\left( \frac{2}{ h^{n+\theta, p}_{qp}} \pdiff{}{x} \left( q^{n+\theta, p}_{qp} \right)
-        -  \frac{2q^{n+\theta, p}_{qp}}{(h^{n+\theta, p}_{qp})^2} \pdiff{}{x} \left( h^{n+\theta, p}_{qp} \right)
-        \right)}_{\cal B} \theta \Delta q^{n+1, p+1}_{qp} +
-    \nonumber \\
-    &
-    \qquad + \underbrace{\left(- \frac{(q^{n+\theta, p}_{qp})^2}{(h^{n+\theta, p}_{qp})^2} \right)}_{\cal C} \theta \pdiff{}{x} \left( \Delta h^{n+1, p+1}_{qp} \right)
-    + \underbrace{\frac{2q^{n+\theta, p}_{qp}}{ h^{n+\theta, p}_{qp}}}_{\cal D} \theta \pdiff{}{x} \left(  \Delta q^{n+1, p+1}_{qp} \right)
-\end{align}
-
-}}
 %------------------------------------------------------------------------------
 \paragraph*{Bed shear stress, momentum equation}
 The bed shear stress  term at the boundary  reads:
