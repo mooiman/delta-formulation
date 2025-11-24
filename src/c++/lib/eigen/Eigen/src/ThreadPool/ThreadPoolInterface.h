@@ -10,7 +10,6 @@
 #ifndef EIGEN_CXX11_THREADPOOL_THREAD_POOL_INTERFACE_H
 #define EIGEN_CXX11_THREADPOOL_THREAD_POOL_INTERFACE_H
 
-// IWYU pragma: private
 #include "./InternalHeaderCheck.h"
 
 namespace Eigen {
@@ -24,7 +23,8 @@ class ThreadPoolInterface {
 
   // Submits a closure to be run by threads in the range [start, end) in the
   // pool.
-  virtual void ScheduleWithHint(std::function<void()> fn, int /*start*/, int /*end*/) {
+  virtual void ScheduleWithHint(std::function<void()> fn, int /*start*/,
+                                int /*end*/) {
     // Just defer to Schedule in case sub-classes aren't interested in
     // overriding this functionality.
     Schedule(fn);

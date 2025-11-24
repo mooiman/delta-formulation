@@ -2,6 +2,14 @@
 project(EigenBlas CXX)
 
 if(EIGEN_BUILD_BLAS)
+include(CheckLanguage)
+check_language(Fortran)
+if(CMAKE_Fortran_COMPILER)
+  enable_language(Fortran)
+  set(EIGEN_Fortran_COMPILER_WORKS ON)
+else()
+  set(EIGEN_Fortran_COMPILER_WORKS OFF)
+endif()
 
 add_custom_target(blas)
 
@@ -10,12 +18,18 @@ set(EigenBlas_SRCS  single.cpp double.cpp complex_single.cpp complex_double.cpp 
                     f2c/lsame.c   f2c/dspmv.c   f2c/ssbmv.c f2c/chbmv.c
                     f2c/sspmv.c   f2c/zhbmv.c   f2c/chpmv.c f2c/dsbmv.c
                     f2c/zhpmv.c   f2c/dtbmv.c   f2c/stbmv.c f2c/ctbmv.c
-                    f2c/ztbmv.c   f2c/complexdots.c
+                    f2c/ztbmv.c   f2c/d_cnjg.c  f2c/r_cnjg.c
    )
+
+if (EIGEN_Fortran_COMPILER_WORKS)
+  set(EigenBlas_SRCS ${EigenBlas_SRCS} fortran/complexdots.f)
+else()
+  set(EigenBlas_SRCS ${EigenBlas_SRCS} f2c/complexdots.c)
+endif()
 
 set(EIGEN_BLAS_TARGETS "")
 
-add_library(eigen_blas_static STATIC ${EigenBlas_SRCS})
+add_library(eigen_blas_static ${EigenBlas_SRCS})
 list(APPEND EIGEN_BLAS_TARGETS eigen_blas_static)
 
 if (EIGEN_BUILD_SHARED_LIBS)
@@ -35,6 +49,8 @@ foreach(target IN LISTS EIGEN_BLAS_TARGETS)
           ARCHIVE DESTINATION lib)
 endforeach()
 
+if(EIGEN_Fortran_COMPILER_WORKS)
+
 if(EIGEN_BUILD_TESTING)
   if(EIGEN_LEAVE_TEST_IN_ALL_TARGET)
     add_subdirectory(testing) # can't do EXCLUDE_FROM_ALL here, breaks CTest
@@ -43,4 +59,5 @@ if(EIGEN_BUILD_TESTING)
   endif()
 endif()
 
+endif()
 endif()

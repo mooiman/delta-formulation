@@ -10,7 +10,6 @@
 #ifndef EIGEN_SPARSEINVERSE_H
 #define EIGEN_SPARSEINVERSE_H
 
-// IWYU pragma: private
 #include "./InternalHeaderCheck.h"
 
 #include "../../../../Eigen/Sparse"
@@ -33,7 +32,7 @@ namespace Eigen {
  */
 template <typename Scalar>
 class KahanSum {
-  // Straightforward Kahan summation for accurate accumulation of a sum of numbers
+  // Straighforward Kahan summation for accurate accumulation of a sum of numbers
   Scalar _sum{};
   Scalar _correction{};
 
