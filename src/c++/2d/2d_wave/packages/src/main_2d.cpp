@@ -177,7 +177,20 @@ int main(int argc, char *argv[])
     std::stringstream ss;
 
     struct _data_input input_data;
-    input_data = read_toml_file(input_dir, toml_file_name);
+    try
+    {
+        input_data = read_toml_file(input_dir, toml_file_name);
+    }
+    catch (const toml::parse_error& err) 
+    {
+        std::cout << "\n+++++++++++++++++++++\nTOML parse error\n"
+                  << err 
+                  << "\n+++++++++++++++++++++\n\n";
+        std::chrono::duration<int, std::milli> timespan(3000);
+        std::this_thread::sleep_for(timespan);
+        exit(1);
+    }
+
     if (input_data.numerics.dt == 0.0) { stationary = true;  }
     if (stationary) { 
         input_data.boundary.treg = 0.0; 
