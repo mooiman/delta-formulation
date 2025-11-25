@@ -1,4 +1,4 @@
-# Logging = "matrix"  # "iterations", "matrix"
+Logging = "none"  # "iterations", "matrix", "pattern", "none"
 
 [Domain]
     mesh_file = "geometry/62x62_6x6km_net.nc"
@@ -6,19 +6,18 @@
 
 [Time]
     tstart = 0.0                                  # Start time [s]
-    tstop = 1800.0                                # End time [s]
+    tstop = 10.0                                # End time [s]
         
 [Initial]
-    ini_vars = [ "zeta", "zeta_gauss_hump" ]
-    gauss_amp = 1 # amplitude of the gaussian hump
+    ini_vars = ["zeta_gauss_hump"]
+    gauss_amp = 1.0 # amplitude of the gaussian hump
     gauss_mu = 0.0    # location of the top of the gaussian hump
-    gauss_sigma = 350.0    # width of the gaussian hump
+    gauss_sigma = 700.0    # width of the gaussian hump
 
 [Boundary] # north, east, south, west
-    bc_type = [ "borsboom", "borsboom", "borsboom", "borsboom" ] # Type "borsboom", "free-slip", "mooiman" 
+    bc_type = [ "borsboom", "borsboom", "borsboom", "borsboom" ] # Type "borsboom", "free_slip", "mooiman" 
     bc_vars = [ "zeta", "zeta", "zeta", "zeta" ]
     bc_vals = [ 0.0, 0.0, 0.0, 0.0 ]
-    bc_absorbing = [ true, true, true, true ]
     treg = 150.0                                  # Regularization time boundary signal
     eps_bc_corr = 1.0e-02
 
@@ -27,7 +26,7 @@
     do_continuity = true            # continuity equation
     do_q_equation = true            # q momentum equation
     do_r_equation = true            # r momentum equation
-    do_convection = false           # Include momentum convection term
+    do_convection = true            # Include momentum convection term
     do_viscosity = false            # Include momentum viscosity term
     do_bed_shear_stress = false     # Include momentum bed shear stress term
     viscosity = 0.01
@@ -67,128 +66,3 @@
     x = 0.0
     y = 2500.0
     name = "D"    
-
-[[ObservationPoint]]
-    x = 0.0
-    y = 3000.0
-    name = "n00"
-[[ObservationPoint]]
-    x = 100.0
-    y = 3000.0
-    name = "n01"
-[[ObservationPoint]]
-    x = 200.0
-    y = 3000.0
-    name = "n02"
-[[ObservationPoint]]
-    x = 300.0
-    y = 3000.0
-    name = "n03"
-[[ObservationPoint]]
-    x = 400.0
-    y = 3000.0
-    name = "n04"
-[[ObservationPoint]]
-    x = 500.0
-    y = 3000.0
-    name = "n05"
-[[ObservationPoint]]
-    x = 600.0
-    y = 3000.0
-    name = "n06"
-[[ObservationPoint]]
-    x = 700.0
-    y = 3000.0
-    name = "n07"
-[[ObservationPoint]]
-    x = 800.0
-    y = 3000.0
-    name = "n08"
-[[ObservationPoint]]
-    x = 900.0
-    y = 3000.0
-    name = "n09"
-[[ObservationPoint]]
-    x = 1000.0
-    y = 3000.0
-    name = "n10"
-[[ObservationPoint]]
-    x = 1100.0
-    y = 3000.0
-    name = "n11"
-[[ObservationPoint]]
-    x = 1200.0
-    y = 3000.0
-    name = "n12"
-[[ObservationPoint]]
-    x = 1300.0
-    y = 3000.0
-    name = "n13"
-[[ObservationPoint]]
-    x = 1400.0
-    y = 3000.0
-    name = "n14"
-[[ObservationPoint]]
-    x = 1500.0
-    y = 3000.0
-    name = "n15"
-[[ObservationPoint]]
-    x = 1600.0
-    y = 3000.0
-    name = "n16"
-[[ObservationPoint]]
-    x = 1700.0
-    y = 3000.0
-    name = "n17"
-[[ObservationPoint]]
-    x = 1800.0
-    y = 3000.0
-    name = "n18"
-[[ObservationPoint]]
-    x = 1900.0
-    y = 3000.0
-    name = "n19"
-[[ObservationPoint]]
-    x = 2000.0
-    y = 3000.0
-    name = "n20"
-[[ObservationPoint]]
-    x = 2100.0
-    y = 3000.0
-    name = "n21"
-[[ObservationPoint]]
-    x = 2200.0
-    y = 3000.0
-    name = "n22"
-[[ObservationPoint]]
-    x = 2300.0
-    y = 3000.0
-    name = "n23"
-[[ObservationPoint]]
-    x = 2400.0
-    y = 3000.0
-    name = "n24"
-[[ObservationPoint]]
-    x = 2500.0
-    y = 3000.0
-    name = "n25"
-[[ObservationPoint]]
-    x = 2600.0
-    y = 3000.0
-    name = "n26"
-[[ObservationPoint]]
-    x = 2700.0
-    y = 3000.0
-    name = "n27"
-[[ObservationPoint]]
-    x = 2800.0
-    y = 3000.0
-    name = "n28"
-[[ObservationPoint]]
-    x = 2900.0
-    y = 3000.0
-    name = "n29"
-[[ObservationPoint]]
-    x = 3000.0
-    y = 3000.0
-    name = "n30"

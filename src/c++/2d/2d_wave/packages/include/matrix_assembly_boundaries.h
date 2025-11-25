@@ -84,7 +84,7 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
 
 void molecule(std::vector<size_t>& p, size_t p_sw, size_t ny);
 
-inline void set_value(double * values, size_t col, double data);
+inline void add_value(double * values, size_t col, double data);
 inline size_t ma_index(size_t i, size_t j, size_t ny_in);
 
 #endif  // __MATRIX_ASSEMBLY_BOUNDARIES_H__

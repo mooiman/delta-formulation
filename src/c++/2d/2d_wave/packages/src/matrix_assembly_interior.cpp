@@ -148,7 +148,7 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
         dtinv * dxdy * mass[1] * mass[2] * (hp[p_n ] - hn[p_n ]) +
         dtinv * dxdy * mass[2] * mass[2] * (hp[p_ne] - hn[p_ne])
         );
-    //
+
     // sub control volume 0 ============================================
     // scv_0 face_0
     set_value(values, col_0  + 1, theta * 0.5 * (-dy) * 0.125 * 3.);
@@ -279,11 +279,11 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     double depth_2 = c_scv(htheta_0, htheta_e, htheta_n, htheta_ne);
     double depth_3 = c_scv(htheta_0, htheta_n, htheta_w, htheta_nw);
 
-    double scv_area = 0.25;
-    double dzetadx_0 = dcdx_scv(htheta_0 + zb[p_0], htheta_w + zb[p_w], htheta_s  + zb[p_s ], htheta_sw + zb[p_sw]);
-    double dzetadx_1 = dcdx_scv(htheta_e + zb[p_e], htheta_0 + zb[p_0], htheta_se + zb[p_se], htheta_s  + zb[p_s ]);
-    double dzetadx_2 = dcdx_scv(htheta_e + zb[p_e], htheta_0 + zb[p_0], htheta_ne + zb[p_ne], htheta_n  + zb[p_n ]);
-    double dzetadx_3 = dcdx_scv(htheta_0 + zb[p_0], htheta_w + zb[p_w], htheta_n  + zb[p_n ], htheta_nw + zb[p_nw]);
+    double scv_area = 0.25 * dxdy;
+    double dzetadx_0 = 1.0 / dx * dcdx_scv(htheta_0 + zb[p_0], htheta_w + zb[p_w], htheta_s  + zb[p_s ], htheta_sw + zb[p_sw]);
+    double dzetadx_1 = 1.0 / dx * dcdx_scv(htheta_e + zb[p_e], htheta_0 + zb[p_0], htheta_se + zb[p_se], htheta_s  + zb[p_s ]);
+    double dzetadx_2 = 1.0 / dx * dcdx_scv(htheta_e + zb[p_e], htheta_0 + zb[p_0], htheta_ne + zb[p_ne], htheta_n  + zb[p_n ]);
+    double dzetadx_3 = 1.0 / dx * dcdx_scv(htheta_0 + zb[p_0], htheta_w + zb[p_w], htheta_n  + zb[p_n ], htheta_nw + zb[p_nw]);
     //
     // theta * g * dzeta/dx * Delta h
     //
@@ -316,7 +316,7 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     //
     // theta * g * h * d(Delta zeta)/dx 
     //
-    fac = theta * scv_area * g * dy * 0.25;
+    fac = theta * scv_area * g * 0.25 / dx;
     // sub control volume 0 ============================================
     // scv_0
     set_value(values, col_0 , fac * (+3. * depth_0));
@@ -344,7 +344,7 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     //
     // RHS q-momentum equation
     //
-    rhs[row + 1] += -scv_area * g * dy * (depth_0 * dzetadx_0 + depth_1 * dzetadx_1 + depth_2 * dzetadx_2 + depth_3 * dzetadx_3);;
+    rhs[row + 1] += -scv_area * g * (depth_0 * dzetadx_0 + depth_1 * dzetadx_1 + depth_2 * dzetadx_2 + depth_3 * dzetadx_3);;
     //
     //--------------------------------------------------------------------------
     // r-equation
@@ -394,11 +394,11 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     depth_2 = c_scv(htheta_0, htheta_e, htheta_n, htheta_ne);
     depth_3 = c_scv(htheta_0, htheta_n, htheta_w, htheta_nw);
 
-    scv_area = 0.25;
-    double dzetady_0 = dcdy_scv(htheta_0 + zb[p_0], htheta_s + zb[p_s], htheta_w  + zb[p_w ], htheta_sw + zb[p_sw]);
-    double dzetady_1 = dcdy_scv(htheta_0 + zb[p_0], htheta_s + zb[p_s], htheta_e  + zb[p_e ], htheta_se + zb[p_se]);
-    double dzetady_2 = dcdy_scv(htheta_n + zb[p_n], htheta_0 + zb[p_0], htheta_ne + zb[p_ne], htheta_e  + zb[p_e ]);
-    double dzetady_3 = dcdy_scv(htheta_n + zb[p_n], htheta_0 + zb[p_0], htheta_nw + zb[p_nw], htheta_w  + zb[p_w ]);
+    scv_area = 0.25 * dxdy;
+    double dzetady_0 = 1.0 / dy * dcdy_scv(htheta_0 + zb[p_0], htheta_s + zb[p_s], htheta_w  + zb[p_w ], htheta_sw + zb[p_sw]);
+    double dzetady_1 = 1.0 / dy * dcdy_scv(htheta_0 + zb[p_0], htheta_s + zb[p_s], htheta_e  + zb[p_e ], htheta_se + zb[p_se]);
+    double dzetady_2 = 1.0 / dy * dcdy_scv(htheta_n + zb[p_n], htheta_0 + zb[p_0], htheta_ne + zb[p_ne], htheta_e  + zb[p_e ]);
+    double dzetady_3 = 1.0 / dy * dcdy_scv(htheta_n + zb[p_n], htheta_0 + zb[p_0], htheta_nw + zb[p_nw], htheta_w  + zb[p_w ]);
 
     // theta * dzeta/dy * Delta h
     // sub control volume 0 ============================================
@@ -430,7 +430,7 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     //
     // theta * g * h * d(Delta zeta)/dy
     //
-    fac = theta * scv_area * g * dx * 0.25;
+    fac = theta * scv_area * g * 0.25 / dy;
     // sub control volume 0 ============================================
     // scv_0
     set_value(values, col_0 , fac * (+ 3. * depth_0));
@@ -458,7 +458,7 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     // 
     // RHS r-momentum equation
     //
-    rhs[row + 2] += -scv_area * g * dx * (depth_0 * dzetady_0 + depth_1 * dzetady_1 + depth_2 * dzetady_2 + depth_3 * dzetady_3);
+    rhs[row + 2] += -scv_area * g * (depth_0 * dzetady_0 + depth_1 * dzetady_1 + depth_2 * dzetady_2 + depth_3 * dzetady_3);
 
     return 0;
 }
