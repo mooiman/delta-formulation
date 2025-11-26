@@ -920,16 +920,16 @@ The viscous flux terms are not repeated here for brevity.
 The jacobians of $\mathbf{F}_{\texttt{conv},\xi}$ and $\mathbf{F}_{\texttt{conv},\eta}$ are extensive and split up in their respective columns, for example:
 %
 \begin{align}
-	\mathbf{J}^{\texttt{F},\xi} = \Big(
-	\pdiff{\mathbf{J}^{\texttt{F},\xi}}{h} \quad
-	\pdiff{\mathbf{J}^{\texttt{F},\xi}}{q} \quad
-	\pdiff{\mathbf{J}^{\texttt{F},\xi}}{r}\Big)
+	\mathbf{J}_{\texttt{F},\xi} = \Bigg(
+	\pdiff{\mathbf{J}_{\texttt{F},\xi}}{h} \quad
+	\pdiff{\mathbf{J}_{\texttt{F},\xi}}{q} \quad
+	\pdiff{\mathbf{J}_{\texttt{F},\xi}}{r}\Bigg)
 \end{align}
 %
 where the column vectors are:
 %
 \begin{align}
-	\pdiff{\mathbf{J}^{\texttt{VF},\xi}}{h}=
+	\pdiff{\mathbf{J}_{\texttt{VF},\xi}}{h}=
 		\begin{pmatrix}
 	0 \\
 	\\
@@ -938,28 +938,28 @@ where the column vectors are:
 		-\frac{x_{\eta} q}{h^2}\pdiff{(x_{\eta}\ h)}{\xi}
 		+ \frac{x_{\eta}}{h} \pdiff{(x_{\eta}\ q)}{\xi}
 		- \frac{x_{\eta}r}{h^2} \pdiff{(y_{\eta}\ h)}{\xi}
-		+ \frac{x_{\eta}}{h} \pdiff{(y_{\eta}\ r)}{\xi}\\
+		+ \frac{x_{\eta}}{h} \pdiff{(y_{\eta}\ r)}{\xi} + \\
 		- \frac{x_{\eta} }{h} \pdiff{(x_{\xi}\ q)}{\eta}
 		+ \frac{x_{\eta} q}{h^2} \pdiff{ (x_{\xi}\ h)}{\eta}
 		- \frac{x_{\eta} }{h} \pdiff{(y_{\xi}\ r)}{\eta}
-		+ \frac{x_{\eta} r}{h^2} \pdiff{ (y_{\xi}\ h)}{\eta}\\
+		+ \frac{x_{\eta} r}{h^2} \pdiff{ (y_{\xi}\ h)}{\eta} + \\
 		- \frac{2 y_{\eta}}{h}  \pdiff{ (y_{\eta}\ q)}{\xi}
 		+ \frac{2 y_{\eta} q }{h^2}  \pdiff{ (y_{\eta}\ h)}{\xi}
 		+ \frac{2 y_{\eta}}{h}  \pdiff{(y_{\xi}\ q)}{\eta}
-		- \frac{2 y_{\eta} q}{h^2} \pdiff{(y_{\xi}\ h)}{\eta}\Bigg]\\
+		- \frac{2 y_{\eta} q}{h^2} \pdiff{(y_{\xi}\ h)}{\eta}\Bigg]  + \\
 	+\frac{\nu h}{J} \bigg[
 		\frac{x_{\eta} q}{2h^3}\pdiff{(x_{\eta}\ h)}{\xi}
 		-\frac{x_{\eta} q}{h^2}\pdiff{(x_{\eta}\ \cdot)}{\xi}
 		- \frac{x_{\eta}}{h^2} \pdiff{(x_{\eta}\ q)}{\xi}
-		+ \frac{x_{\eta}r}{2h^3} \pdiff{(y_{\eta}\ h)}{\xi} \\
+		+ \frac{x_{\eta}r}{2h^3} \pdiff{(y_{\eta}\ h)}{\xi} + \\
 		- \frac{x_{\eta}r}{h^2} \pdiff{(y_{\eta}\ \cdot)}{\xi}
 		- \frac{x_{\eta}}{h^2} \pdiff{(y_{\eta}\ r)}{\xi}
 		+ \frac{x_{\eta} }{h^2} \pdiff{(x_{\xi}\ q)}{\eta}
-		- \frac{x_{\eta} q}{2h^3} \pdiff{ (x_{\xi}\ h)}{\eta}\\
+		- \frac{x_{\eta} q}{2h^3} \pdiff{ (x_{\xi}\ h)}{\eta} + \\
 		+ \frac{x_{\eta} q}{h^2} \pdiff{ (x_{\xi}\ \cdot)}{\eta}
 		+ \frac{x_{\eta} }{h^2} \pdiff{(y_{\xi}\ r)}{\eta}
 		- \frac{x_{\eta} r}{2h^3} \pdiff{ (y_{\xi}\ h)}{\eta}
-		+ \frac{2 y_{\eta}}{h^2}  \pdiff{ (y_{\eta}\ q)}{\xi} \\
+		+ \frac{2 y_{\eta}}{h^2}  \pdiff{ (y_{\eta}\ q)}{\xi} + \\
 		- \frac{2 y_{\eta} q }{2h^3}  \pdiff{ (y_{\eta}\ h)}{\xi}
 		+ \frac{2 y_{\eta} q }{h^2}  \pdiff{ (y_{\eta}\ \cdot)}{\xi}
 		- \frac{2 y_{\eta}}{h^2}  \pdiff{(y_{\xi}\ q)}{\eta}
@@ -972,39 +972,39 @@ where the column vectors are:
 		- \frac{y_{\eta}}{h} \pdiff{(x_{\eta}\ q)}{\xi}
 		+ \frac{y_{\eta}\ q }{h^2} \pdiff{(x_{\eta}\ h)}{\xi}
 		- \frac{y_{\eta}}{h} \pdiff{(y_{\eta}\ r)}{\xi}
-		+ \frac{y_{\eta}\ r }{h^2} \pdiff{(y_{\eta}\ h)}{\xi}\\
+		+ \frac{y_{\eta}\ r }{h^2} \pdiff{(y_{\eta}\ h)}{\xi} + \\
 		+ \frac{y_{\eta}}{h}   \pdiff{(x_{\xi}\ q)}{\eta}
 		- \frac{y_{\eta}q}{h^2}   \pdiff{(x_{\xi}\ h)}{\eta}
 		+ \frac{y_{\eta}}{h} \pdiff{(y_{\xi}\ r)}{\eta}
-		- \frac{y_{\eta}r}{h^2} \pdiff{(y_{\xi}\ h)}{\eta}\\
+		- \frac{y_{\eta}r}{h^2} \pdiff{(y_{\xi}\ h)}{\eta} + \\
 		- \frac{2 x_{\eta}}{h} \pdiff{(x_{\eta}\ r)}{\xi}
 		+ \frac{2 x_{\eta}r}{h^2} \pdiff{(x_{\eta}\  h)}{\xi}
 		+ \frac{2 x_{\eta}}{h}  \pdiff{(x_{\xi}\ r)}{\eta}
-		- \frac{2 x_{\eta}r}{h^2}  \pdiff{(x_{\xi}\ h)}{\eta}\bigg]\\
+		- \frac{2 x_{\eta}r}{h^2}  \pdiff{(x_{\xi}\ h)}{\eta}\bigg] + \\
 		+ \frac{\nu h}{J} \bigg[
 		\frac{y_{\eta}}{h^2} \pdiff{(x_{\eta}\ q)}{\xi}
 		- \frac{y_{\eta}\ q }{2h^3} \pdiff{(x_{\eta}\ h)}{\xi}
 		+ \frac{y_{\eta}\ q }{h^2} \pdiff{(x_{\eta}\ \cdot)}{\xi}
-		+ \frac{y_{\eta}}{h^2} \pdiff{(y_{\eta}\ r)}{\xi}\\
+		+ \frac{y_{\eta}}{h^2} \pdiff{(y_{\eta}\ r)}{\xi} + \\
 		- \frac{y_{\eta}\ r }{2h^3} \pdiff{(y_{\eta}\ h)}{\xi}
 		+ \frac{y_{\eta}\ r }{h^2} \pdiff{(y_{\eta}\ \cdot)}{\xi}
 		- \frac{y_{\eta}}{h^2}   \pdiff{(x_{\xi}\ q)}{\eta}
-		+ \frac{y_{\eta}q}{2h^3}   \pdiff{(x_{\xi}\ h)}{\eta}\\
+		+ \frac{y_{\eta}q}{2h^3}   \pdiff{(x_{\xi}\ h)}{\eta} + \\
 		- \frac{y_{\eta}q}{h^2}   \pdiff{(x_{\xi}\ \cdot)}{\eta}
 		- \frac{y_{\eta}}{h^2} \pdiff{(y_{\xi}\ r)}{\eta}
 		+ \frac{y_{\eta}r}{2h^3} \pdiff{(y_{\xi}\ h)}{\eta}
-		- \frac{y_{\eta}r}{h^2} \pdiff{(y_{\xi}\ \cdot)}{\eta}\\
+		- \frac{y_{\eta}r}{h^2} \pdiff{(y_{\xi}\ \cdot)}{\eta} + \\
 		+ \frac{2 x_{\eta}}{h^2} \pdiff{(x_{\eta}\ r)}{\xi}
 		- \frac{2 x_{\eta}r}{2h^3} \pdiff{(x_{\eta}\  h)}{\xi}
 		+ \frac{2 x_{\eta}r}{h^2} \pdiff{(x_{\eta}\  \cdot)}{\xi}
-		- \frac{2 x_{\eta}}{h^2}  \pdiff{(x_{\xi}\ r)}{\eta}\\
+		- \frac{2 x_{\eta}}{h^2}  \pdiff{(x_{\xi}\ r)}{\eta} + \\
 		+ \frac{2 x_{\eta}r}{2h^3}  \pdiff{(x_{\xi}\ h)}{\eta}
 		- \frac{2 x_{\eta}r}{h^2}  \pdiff{(x_{\xi}\ \cdot)}{\eta}\bigg]
 \end{pmatrix}
 \end{align}
 %
 \begin{align}
-	\pdiff{\mathbf{J}^{\texttt{VF},\xi}}{q}=
+	\pdiff{\mathbf{J}_{\texttt{VF},\xi}}{q}=
 		\begin{pmatrix}
 	0 \\
 	\\
@@ -1012,11 +1012,13 @@ where the column vectors are:
 	-\frac{x_{\eta}}{h^2}\pdiff{(x_{\eta}\ h)}{\xi}
 	+ \frac{x_{\eta}}{h} \pdiff{(x_{\eta}\ \cdot)}{\xi}
 	- \frac{x_{\eta} }{h} \pdiff{(x_{\xi}\ \cdot)}{\eta}
-	+ \frac{x_{\eta} }{h^2} \pdiff{ (x_{\xi}\ h)}{\eta}\\
+	+ \frac{x_{\eta} }{h^2} \pdiff{ (x_{\xi}\ h)}{\eta} + \\
 	- \frac{2 y_{\eta}}{h}  \pdiff{ (y_{\eta}\ \cdot)}{\xi}
 	+ \frac{2 y_{\eta} }{h^2}  \pdiff{ (y_{\eta}\ h)}{\xi}
 	+ \frac{2 y_{\eta}}{h}  \pdiff{(y_{\xi}\ )}{\eta}
-	- \frac{2 y_{\eta} }{h^2} \pdiff{(y_{\xi}\ h)}{\eta}\bigg]\\
+	- \frac{2 y_{\eta} }{h^2} \pdiff{(y_{\xi}\ h)}{\eta}\bigg]
+    \\
+    \\
 	\frac{\nu h}{J} \bigg[
 	- \frac{y_{\eta}}{h} \pdiff{(x_{\eta}\ \cdot)}{\xi}
 	+ \frac{y_{\eta}\ }{h^2} \pdiff{(x_{\eta}\ h)}{\xi}
@@ -1028,20 +1030,23 @@ where the column vectors are:
 and
 %
 \begin{align}
-	\pdiff{\mathbf{J}^{\texttt{VF},\xi}}{r}=
+	\pdiff{\mathbf{J}_{\texttt{VF},\xi}}{r}=
 		\begin{pmatrix}
 	0 \\
 	\\
 	\frac{\nu h}{J} \bigg[
 	- \frac{x_{\eta}}{h^2} \pdiff{(y_{\eta}\ h)}{\xi}
-	+ \frac{x_{\eta}}{h} \pdiff{(y_{\eta}\ \cdot)}{\xi}\\
+	+ \frac{x_{\eta}}{h} \pdiff{(y_{\eta}\ \cdot)}{\xi} + \\
 	- \frac{x_{\eta} }{h} \pdiff{(y_{\xi}\ \cdot)}{\eta}
-	+ \frac{x_{\eta}}{h^2} \pdiff{ (y_{\xi}\ h)}{\eta}\bigg]\\
+	+ \frac{x_{\eta}}{h^2} \pdiff{ (y_{\xi}\ h)}{\eta}\bigg]
+    \\
+    \\
 	\frac{\nu h}{J} \bigg[
 	- \frac{y_{\eta}}{h} \pdiff{(y_{\eta}\ \cdot)}{\xi}
-	+ \frac{y_{\eta}\ }{h^2} \pdiff{(y_{\eta}\ h)}{\xi}\\
+	+ \frac{y_{\eta}\ }{h^2} \pdiff{(y_{\eta}\ h)}{\xi}
+     + \\
 	+ \frac{y_{\eta}}{h} \pdiff{(y_{\xi} )}{\eta}
-	- \frac{y_{\eta}}{h^2} \pdiff{(y_{\xi}\ h)}{\eta}\\
+	- \frac{y_{\eta}}{h^2} \pdiff{(y_{\xi}\ h)}{\eta} + \\
 	- \frac{2 x_{\eta}}{h} \pdiff{(x_{\eta}\ \cdot)}{\xi}
 	+ \frac{2 x_{\eta}}{h^2} \pdiff{(x_{\eta}\  h)}{\xi}
 	+ \frac{2 x_{\eta}}{h}  \pdiff{(x_{\xi}\ \cdot)}{\eta}
@@ -1052,7 +1057,7 @@ and
 and in the $\eta$-direction:
 %
 \begin{align}
-	\pdiff{\mathbf{J}^{\texttt{VF},\eta}}{h}=
+	\pdiff{\mathbf{J}_{\texttt{VF},\eta}}{h}=
 		\begin{pmatrix}
 		0 \\
 		\\
@@ -1060,68 +1065,69 @@ and in the $\eta$-direction:
 		- \frac{x_{\xi} }{h}\pdiff{(x_{\eta}\ q)}{\xi}
 		+ \frac{x_{\xi}\ q}{h^2}\pdiff{(x_{\eta}\ h)}{\xi}
 		- \frac{x_{\xi}}{h} \pdiff{(y_{\eta}\ r)}{\xi}
-		+ \frac{x_{\xi}\ r}{h^2}\pdiff{(y_{\eta}\ h)}{\xi}\\
+		+ \frac{x_{\xi}\ r}{h^2}\pdiff{(y_{\eta}\ h)}{\xi} + \\
 		+ \frac{x_{\xi}}{h} \pdiff{(x_{\xi}\ q)}{\eta}
 		- \frac{x_{\xi}\ q}{h^2}\pdiff{(x_{\xi}\ h)}{\eta}
 		+ \frac{y_{\xi}}{h} \pdiff{(x_{\xi}\ r)}{\eta}
-		- \frac{y_{\xi}\ r}{h^2} \pdiff{(x_{\xi}\ h)}{\eta}\\
+		- \frac{y_{\xi}\ r}{h^2} \pdiff{(x_{\xi}\ h)}{\eta} + \\
 		+ \frac{2 y_{\xi}}{h} \pdiff{(y_{\eta}\ q)}{\xi}
 		- \frac{2 y_{\xi}\ q}{h^2} \pdiff{(y_{\eta}\ h)}{\xi}
 		- \frac{2 y_{\xi}}{h} \pdiff{(y_{\xi}\ q)}{\eta}
 		+ \frac{2 y_{\xi}\ q}{h^2} \pdiff{(y_{\xi}\ h)}{\eta}
-		\bigg]\\
+		\bigg] + \\
 		+ \frac{\nu h}{J} \bigg[
 		+ \frac{x_{\xi} }{h^2}\pdiff{(x_{\eta}\ q)}{\xi}
 		- \frac{x_{\xi}\ q}{2h^3}\pdiff{(x_{\eta}\ h)}{\xi}
 		+ \frac{x_{\xi}\ q}{h^2}\pdiff{(x_{\eta}\ \cdot)}{\xi}
-		+ \frac{x_{\xi}}{h^2} \pdiff{(y_{\eta}\ r)}{\xi}\\
+		+ \frac{x_{\xi}}{h^2} \pdiff{(y_{\eta}\ r)}{\xi} + \\
 		- \frac{x_{\xi}\ r}{2h^3}\pdiff{(y_{\eta}\ h)}{\xi}
 		+ \frac{x_{\xi}\ r}{h^2}\pdiff{(y_{\eta}\ \cdot)}{\xi}
 		- \frac{x_{\xi}}{h^2} \pdiff{(x_{\xi}\ q)}{\eta}
-		+ \frac{x_{\xi}\ q}{2h^3}\pdiff{(x_{\xi}\ h)}{\eta}\\
+		+ \frac{x_{\xi}\ q}{2h^3}\pdiff{(x_{\xi}\ h)}{\eta} + \\
 		- \frac{x_{\xi}\ q}{h^2}\pdiff{(x_{\xi}\ \cdot)}{\eta}
 		- \frac{y_{\xi}}{h^2} \pdiff{(x_{\xi}\ r)}{\eta}
 		+ \frac{y_{\xi}\ r}{2h^3} \pdiff{(x_{\xi}\ h)}{\eta}
-		- \frac{y_{\xi}\ r}{h^2} \pdiff{(x_{\xi}\ \cdot)}{\eta}\\
+		- \frac{y_{\xi}\ r}{h^2} \pdiff{(x_{\xi}\ \cdot)}{\eta} + \\
 		- \frac{2 y_{\xi}}{h^2} \pdiff{(y_{\eta}\ q)}{\xi}
 		+ \frac{2 y_{\xi}\ q}{2h^3} \pdiff{(y_{\eta}\ h)}{\xi}
 		- \frac{2 y_{\xi}\ q}{h^2} \pdiff{(y_{\eta}\ \cdot)}{\xi}
-		+ \frac{2 y_{\xi}}{h^2} \pdiff{(y_{\xi}\ q)}{\eta} \\
+		+ \frac{2 y_{\xi}}{h^2} \pdiff{(y_{\xi}\ q)}{\eta}  + \\
 		- \frac{2 y_{\xi}\ q}{2h^3} \pdiff{(y_{\xi}\ h)}{\eta}
 		+ \frac{2 y_{\xi}\ q}{h^2} \pdiff{(y_{\xi}\ \cdot)}{\eta}
-		\bigg]\\
+		\bigg]
+        \\
 		\\
 		\frac{\nu}{J} \bigg[
 		\frac{y_{\xi} }{h} \pdiff{(x_{\eta}\ q)}{\xi}
 		- \frac{y_{\xi}\ q}{h^2} \pdiff{(x_{\eta}\ h)}{\xi}
 		+ \frac{y_{\xi} }{h} \pdiff{(y_{\eta}\ r)}{\xi}
-		+ \frac{y_{\xi}\ r}{h^2} \pdiff{(y_{\eta}\ h)}{\xi} \\
+		+ \frac{y_{\xi}\ r}{h^2} \pdiff{(y_{\eta}\ h)}{\xi}  + \\
 		- \frac{y_{\xi}}{h} \pdiff{(x_{\xi}\ q)}{\eta}
 		+ \frac{y_{\xi}q}{h^2} \pdiff{(x_{\xi}\ h)}{\eta}
 		- \frac{y_{\xi}}{h} \pdiff{(y_{\xi}\ r)}{\eta}
-		- \frac{y_{\xi}\ r}{h^2} \pdiff{(y_{\xi}\ h)}{\eta} \\
+		- \frac{y_{\xi}\ r}{h^2} \pdiff{(y_{\xi}\ h)}{\eta}  + \\
 		+ \frac{2 x_{\xi}}{h} \pdiff{(x_{\eta}\ r)}{\xi}
 		- \frac{2 x_{\xi}\ r}{h^2} \pdiff{(x_{\eta}\ h)}{\xi}
 		- \frac{2 x_{\xi}}{h} \pdiff{(x_{\xi}\ r)}{\eta}
 		+ \frac{2 x_{\xi}\ r}{h^2} \pdiff{(x_{\xi}\ h)}{\eta}
-		\bigg]\\
+		\bigg] + \\
 		+		\frac{\nu h}{J} \bigg[
 		-\frac{y_{\xi} }{h^2} \pdiff{(x_{\eta}\ q)}{\xi}
 		+ \frac{y_{\xi}\ q}{2h^3} \pdiff{(x_{\eta}\ h)}{\xi}
 		- \frac{y_{\xi}\ q}{h^2} \pdiff{(x_{\eta}\ \cdot)}{\xi}
-		- \frac{y_{\xi} }{h^2} \pdiff{(y_{\eta}\ r)}{\xi} \\
+		- \frac{y_{\xi} }{h^2} \pdiff{(y_{\eta}\ r)}{\xi}  + \\
 		- \frac{y_{\xi}\ r}{2h^3} \pdiff{(y_{\eta}\ h)}{\xi}
 		+ \frac{y_{\xi}\ r}{h^2} \pdiff{(y_{\eta}\ \cdot)}{\xi}
 		+ \frac{y_{\xi}}{h^2} \pdiff{(x_{\xi}\ q)}{\eta}
-		- \frac{y_{\xi}q}{2h^3} \pdiff{(x_{\xi}\ h)}{\eta} \\
+		- \frac{y_{\xi}q}{2h^3} \pdiff{(x_{\xi}\ h)}{\eta}  + \\
 		+ \frac{y_{\xi}q}{h^2} \pdiff{(x_{\xi}\ \cdot)}{\eta}
 		+ \frac{y_{\xi}}{h^2} \pdiff{(y_{\xi}\ r)}{\eta}
 		+ \frac{y_{\xi}\ r}{2h^3} \pdiff{(y_{\xi}\ h)}{\eta}
-		- \frac{y_{\xi}\ r}{h^2} \pdiff{(y_{\xi}\ \cdot)}{\eta}\\
+		- \frac{y_{\xi}\ r}{h^2} \pdiff{(y_{\xi}\ \cdot)}{\eta} + \\
 		- \frac{2 x_{\xi}}{h^2} \pdiff{(x_{\eta}\ r)}{\xi}
 		+ \frac{2 x_{\xi}\ r}{2h^3} \pdiff{(x_{\eta}\ h)}{\xi}
 		- \frac{2 x_{\xi}\ r}{h^2} \pdiff{(x_{\eta}\ \cdot)}{\xi}
-		+ \frac{2 x_{\xi}}{h^2} \pdiff{(x_{\xi}\ r)}{\eta} \\
+		+ \frac{2 x_{\xi}}{h^2} \pdiff{(x_{\xi}\ r)}{\eta}  + \\
 		- \frac{2 x_{\xi}\ r}{2h^3} \pdiff{(x_{\xi}\ h)}{\eta}
 		+ \frac{2 x_{\xi}\ r}{h^2} \pdiff{(x_{\xi}\ \cdot)}{\eta}
 		\bigg]
@@ -1129,7 +1135,7 @@ and in the $\eta$-direction:
 \end{align}
 
 \begin{align}
-	\pdiff{\mathbf{J}^{\texttt{VF},\eta}}{q}=
+	\pdiff{\mathbf{J}_{\texttt{VF},\eta}}{q}=
 		\begin{pmatrix}
 	0 \\
 	\\
@@ -1137,13 +1143,15 @@ and in the $\eta$-direction:
 	- \frac{x_{\xi} }{h}\pdiff{(x_{\eta}\ \cdot)}{\xi}
 	+ \frac{x_{\xi}\ }{h^2}\pdiff{(x_{\eta}\ h)}{\xi}
 	+ \frac{x_{\xi}}{h} \pdiff{(x_{\xi}\ \cdot)}{\eta}
-	- \frac{x_{\xi}}{h^2}\pdiff{(x_{\xi}\ h)}{\eta}\\
+	- \frac{x_{\xi}}{h^2}\pdiff{(x_{\xi}\ h)}{\eta} + \\
 	+ \frac{2 y_{\xi}}{h} \pdiff{(y_{\eta}\ \cdot)}{\xi}
 	- \frac{2 y_{\xi}}{h^2} \pdiff{(y_{\eta}\ h)}{\xi}
 	- \frac{2 y_{\xi}}{h} \pdiff{(y_{\xi}\ \cdot)}{\eta}
 	+ \frac{2 y_{\xi}\ }{h^2} \pdiff{(y_{\xi}\ h)}{\eta}
-	\bigg]\\
-	+\frac{\nu h}{J} \bigg[
+	\bigg]
+    \\
+    \\
+	\frac{\nu h}{J} \bigg[
 	\frac{y_{\xi} }{h} \pdiff{(x_{\eta}\ \cdot)}{\xi}
 	- \frac{y_{\xi}\ }{h^2} \pdiff{(x_{\eta}\ h)}{\xi}
 	- \frac{y_{\xi}}{h} \pdiff{(x_{\xi}\ \cdot)}{\eta}
@@ -1155,7 +1163,7 @@ and in the $\eta$-direction:
 and
 %
 \begin{align}
-	\pdiff{\mathbf{J}^{\texttt{VF},\eta}}{r}=
+	\pdiff{\mathbf{J}_{\texttt{VF},\eta}}{r}=
 		\begin{pmatrix}
 	0 \\
 	\\
@@ -1164,12 +1172,14 @@ and
 	+ \frac{x_{\xi}\ }{h^2}\pdiff{(y_{\eta}\ h)}{\xi}
 	+ \frac{y_{\xi}}{h} \pdiff{(x_{\xi}\ \cdot)}{\eta}
 	- \frac{y_{\xi}\ }{h^2} \pdiff{(x_{\xi}\ h)}{\eta}
-	\bigg]\\
+	\bigg]
+    \\
+    \\
 	\frac{\nu h}{J} \bigg[
 	+ \frac{y_{\xi} }{h} \pdiff{(y_{\eta}\ \cdot)}{\xi}
 	+ \frac{y_{\xi}\ }{h^2} \pdiff{(y_{\eta}\ h)}{\xi}
 	- \frac{y_{\xi}}{h} \pdiff{(y_{\xi}\ \cdot)}{\eta}
-	- \frac{y_{\xi}\ }{h^2} \pdiff{(y_{\xi}\ h)}{\eta} \\
+	- \frac{y_{\xi}\ }{h^2} \pdiff{(y_{\xi}\ h)}{\eta}  + \\
 	+ \frac{2 x_{\xi}}{h} \pdiff{(x_{\eta}\ \cdot)}{\xi}
 	- \frac{2 x_{\xi}\ }{h^2} \pdiff{(x_{\eta}\ h)}{\xi}
 	- \frac{2 x_{\xi}}{h} \pdiff{(x_{\xi}\ \cdot)}{\eta}
