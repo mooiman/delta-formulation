@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
     status = bed->read(nx, ny);
     std::vector<double> zb_giv = bed->get_bed_level();
 
-    //  Create kdtree, needed to locate the obsservation points
+    //  Create kdtree, needed to locate the observation points
     std::vector<std::vector<double>> xy_points;
     for (size_t i = 0; i < x.size(); ++i)
     {
