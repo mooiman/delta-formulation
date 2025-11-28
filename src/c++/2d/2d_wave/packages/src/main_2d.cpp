@@ -1374,7 +1374,7 @@ int main(int argc, char *argv[])
                 log_file << "    ----    maximum number of iterations reached, probably not converged, at time: " <<  time << " [sec]" << std::endl;
             }
         }
-        for (int k = 0; k < nxny; ++k)
+        for (size_t k = 0; k < nxny; ++k)
         {
             hn[k] = hp[k];  // h, continuity-eq
             qn[k] = qp[k];  // q, momentum-eq
