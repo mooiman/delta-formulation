@@ -387,7 +387,7 @@ int main(int argc, char *argv[])
     double eps_bicgstab = input_data.numerics.eps_bicgstab;
     double eps_newton = input_data.numerics.eps_newton;
     double theta = input_data.numerics.theta;
-    double iter_max = input_data.numerics.iter_max;
+    int iter_max = input_data.numerics.iter_max;
     std::string linear_solver = input_data.numerics.linear_solver;
     bool regularization_iter = input_data.numerics.regularization_iter;
     bool regularization_init = input_data.numerics.regularization_init;
@@ -402,7 +402,6 @@ int main(int argc, char *argv[])
 
     double tstart = input_data.time.tstart;
     double tstop = input_data.time.tstop;
-
 
     // Declare arrays
     std::vector<double> mass(3, 0.);  // weighting coefficients of the mass-matrix in x-direction
