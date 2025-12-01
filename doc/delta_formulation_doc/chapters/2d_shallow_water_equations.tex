@@ -1197,18 +1197,18 @@ which will be approximated at the quadrature point $qp$ and at time level ${n+\t
         - \frac{q^2}{h^2}
         \left(  y_\eta \pdiff{h}{\xi} - y_\xi \pdiff{h}{\eta}  \right)
     \Bigg]}_{\textit{ to right hand side}} +
-    \\
+    \\*
     & + \half \theta \Dh  \underbrace{\Bigg[
     -\frac{2q}{h^2} \left( y_\eta \pdiff{q}{\xi} - y_\xi \pdiff{q}{\eta} \right)
-    + \frac{q^2}{h^3} \left( y_\eta \pdiff{h}{\xi} - y_\xi \pdiff{h}{\eta} \right)
+    + \frac{2q^2}{h^3} \left( y_\eta \pdiff{h}{\xi} - y_\xi \pdiff{h}{\eta} \right)
     \Bigg]}_{\cal A} +
     \\*
     & + \half \theta \Dq \underbrace{\Bigg[
     \frac{2}{h} \left( y_\eta \pdiff{q}{\xi} - y_\xi \pdiff{q}{\eta} \right)
-    - \frac{2q}{h} \left( y_\eta \pdiff{h}{\xi} - y_\xi \pdiff{h}{\eta} \right)
-    \Bigg]}_{\cal B}
-    \nonumber \\*
-    & -\half \theta \underbrace{\frac{q^2}{h^2}}_{\cal C} \left(  y_\eta \pdiff{\Dh}{\xi} - y_\xi \pdiff{\Dh}{\eta} \right)
+    - \frac{2q}{h^2} \left( y_\eta \pdiff{h}{\xi} - y_\xi \pdiff{h}{\eta} \right)
+    \Bigg]}_{\cal B} +
+    \\*
+    & +\half \theta \underbrace{\left(-\frac{q^2}{h^2}\right)}_{\cal C} \left(  y_\eta \pdiff{\Dh}{\xi} - y_\xi \pdiff{\Dh}{\eta} \right)
     +
  \half \theta \underbrace{\frac{2q}{h}}_{\cal D} \left( y_\eta \pdiff{\Dq}{\xi} - y_\xi \pdiff{\Dq}{\eta} \right)
 \end{align}
@@ -1238,18 +1238,18 @@ which will be approximated at the quadrature point $qp$ and at time level ${n+\t
 \begin{align}
     &\underbrace{\half \Bigg[
   \frac{2r}{h}   \left( -x_\eta \pdiff{r}{\xi} + x_\xi \pdiff{r}{\eta} \right)
-- \frac{r^2}{h^2}\left( -x_\eta \pdiff{h}{\xi} + x_\xi \pdiff{h}{\eta} \right) \Bigg] }_{\textit{to right hand side}}
-    \\
-&\half \theta \Dh \underbrace{\Bigg[
+- \frac{r^2}{h^2}\left( -x_\eta \pdiff{h}{\xi} + x_\xi \pdiff{h}{\eta} \right) \Bigg] }_{\textit{to right hand side}} +
+    \\*
+& + \half \theta \Dh \underbrace{\Bigg[
 - \frac{2r}{h^2}  \left( -x_\eta \pdiff{r}{\xi} + x_\xi \pdiff{r}{\eta} \right)
-+ \frac{r^2}{h^3} \left( -x_\eta \pdiff{h}{\xi} + x_\xi \pdiff{h}{\eta} \right)
- \Bigg]}_{\cal A}
-\\
-& \half \theta \Dr \underbrace{\Bigg[
++ \frac{2r^2}{h^3} \left( -x_\eta \pdiff{h}{\xi} + x_\xi \pdiff{h}{\eta} \right)
+ \Bigg]}_{\cal A} +
+\\*
+& + \half \theta \Dr \underbrace{\Bigg[
   \frac{2}{h}  \left( -x_\eta \pdiff{r}{\xi} + x_\xi \pdiff{r}{\eta} \right)
-- \frac{2r}{h} \left( -x_\eta \pdiff{h}{\xi} + x_\xi \pdiff{h}{\eta} \right)   \Bigg]}_{\cal B}
-\\
-& \half \theta  \underbrace{\frac{r^2}{h^2}}_{\cal C} \left( -x_\eta \pdiff{\Dh}{\xi} + x_\xi \pdiff{\Dh}{\eta} \right)
+- \frac{2r}{h^2} \left( -x_\eta \pdiff{h}{\xi} + x_\xi \pdiff{h}{\eta} \right)   \Bigg]}_{\cal B} +
+\\*
+& + \half \theta  \underbrace{\left( -\frac{r^2}{h^2}\right)}_{\cal C} \left( -x_\eta \pdiff{\Dh}{\xi} + x_\xi \pdiff{\Dh}{\eta} \right)
   + \half \theta \underbrace{\frac{2r}{h}}_{\cal D} \left( -x_\eta \pdiff{\Dr}{\xi} + x_\xi \pdiff{\Dr}{\eta} \right)
 \end{align}
 where $\cal{A}$, $\cal{B}$, $\cal{C}$ and $\cal{D}$ multiplied by $\half\theta$ and \emph{the geometrical factors} are the coefficients in the matrix of the \deltaformulation.
