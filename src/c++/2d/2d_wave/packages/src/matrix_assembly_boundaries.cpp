@@ -683,7 +683,7 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             double cf_0 = 0.25 * (3.0 * cf_b + 1.0 * cf_w);
             double cf_1 = 0.25 * (3.0 * cf_b + 1.0 * cf_e);
 
-            rhs[row + 1] += -(
+            rhs[row + 2] += -(
                   0.5 * dy_deta_0 * cf_0 * rtheta_0 * abs_qtheta_0 / (htheta_0 * htheta_0)
                 + 0.5 * dy_deta_1 * cf_1 * rtheta_1 * abs_qtheta_1 / (htheta_1 * htheta_1)
             );
@@ -2097,7 +2097,7 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             double cf_0 = 0.25 * (3.0 * cf_b + 1.0 * cf_e);
             double cf_1 = 0.25 * (3.0 * cf_b + 1.0 * cf_w);
 
-            rhs[row + 1] += - (
+            rhs[row + 2] += - (
                   0.5 * dy_deta_0 * cf_0 * rtheta_0 * abs_qtheta_0 / (htheta_0 * htheta_0)
                 + 0.5 * dy_deta_1 * cf_1 * rtheta_1 * abs_qtheta_1 / (htheta_1 * htheta_1)
 
