@@ -10,14 +10,14 @@ Logging = "none"  # "iterations", "matrix", "pattern", "none"
         
 [Initial]
     ini_vars = ["zeta_gauss_hump"]
-    gauss_amp = 1.0 # amplitude of the gaussian hump
+    gauss_amp = 0.01 # amplitude of the gaussian hump
     gauss_mu = 0.0    # location of the top of the gaussian hump
-    gauss_sigma = 700.0    # width of the gaussian hump
+    gauss_sigma = 350.0    # width of the gaussian hump
 
 [Boundary] # north, east, south, west
-    bc_type = [ "borsboom", "borsboom", "borsboom", "borsboom" ] # Type "borsboom", "free_slip", "mooiman" 
-    bc_vars = [ "zeta", "zeta", "zeta", "zeta" ]
-    bc_vals = [ 0.0, 0.0, 0.0, 0.0 ]
+    bc_type = ["borsboom", "borsboom", "borsboom", "borsboom"] # Type "borsboom", "free_slip", "mooiman" 
+    bc_vars = ["zeta", "zeta", "zeta", "zeta"]
+    bc_vals = [0.0, 0.0, 0.0, 0.0]
     treg = 150.0                                  # Regularization time boundary signal
     eps_bc_corr = 1.0e-02
 
@@ -33,10 +33,10 @@ Logging = "none"  # "iterations", "matrix", "pattern", "none"
     chezy_coefficient = 50.0        # Chezy coefficient
 
 [Numerics]
-    dt = 5.0                        # Time step size [s], if dt == 0: then stationary problem
+    dt = 15.0                       # Time step size [s], if dt == 0: then stationary problem
     iter_max = 25                   # Maximum number of nonlinear iterations
     theta = 0.501                   # Implicitness factor (0.5 <= theta <= 1.0)
-    regularization_init = false
+    regularization_init = true
     regularization_iter = false
     regularization_time = false
     eps_newton = 1.0e-12
