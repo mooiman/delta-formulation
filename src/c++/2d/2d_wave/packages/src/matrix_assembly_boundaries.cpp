@@ -61,8 +61,6 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
 {
     std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
 
-    do_convection = false;
-
     size_t p_5 = c_eq/(3*27);  // node number of boundary point, ie north point of molecule
     size_t p_4 = p_5 - 1;
     size_t p_3 = p_5 - 2;
@@ -576,7 +574,7 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             
             // Contribution Delta h
             // face 0
-            double face_fac = 0.5 * theta / dx_dxi_0;
+            double face_fac = 0.5 * theta / dy_deta_0;
             add_value(values, col_wb , face_fac * 1./4. * (aa_0 * w_nat[0] + dx_dxi_0 * cc_0));  // not yet implemeted term with dx_deta
             add_value(values, col_ws , face_fac * 1./4. * (aa_0 * w_nat[1] - dx_dxi_0 * cc_0));  // not yet implemeted term with dx_deta
             add_value(values, col_wss, face_fac * 1./4. * (aa_0 * w_nat[2]));
@@ -585,7 +583,7 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             add_value(values, col_ss , face_fac * 3./4. * (aa_0 * w_nat[2]));
 
             //face 1
-            face_fac = 0.5 * theta / dx_dxi_1;
+            face_fac = 0.5 * theta / dy_deta_1;
             add_value(values, col_b  , face_fac * 3./4. * (aa_1 * w_nat[0] + dx_dxi_1 * cc_0));  // not yet implemeted term with dx_deta
             add_value(values, col_s  , face_fac * 3./4. * (aa_1 * w_nat[1] - dx_dxi_1 * cc_0));  // not yet implemeted term with dx_deta
             add_value(values, col_ss , face_fac * 3./4. * (aa_1 * w_nat[2]));
@@ -600,7 +598,7 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
 
             // Contribution Delta r
             // face 0
-            face_fac = 0.5 * theta / dx_dxi_0;
+            face_fac = 0.5 * theta / dy_deta_0;
             add_value(values, col_wb  + 2, face_fac * 1./4. * (bb_0 * w_nat[0] + dx_dxi_0 * dd_0));  // not yet implemeted term with dx_deta
             add_value(values, col_ws  + 2, face_fac * 1./4. * (bb_0 * w_nat[1] - dx_dxi_0 * dd_0));  // not yet implemeted term with dx_deta
             add_value(values, col_wss + 2, face_fac * 1./4. * (bb_0 * w_nat[2]));
@@ -609,7 +607,7 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             add_value(values, col_ss  + 2, face_fac * 3./4. * (bb_0 * w_nat[2]));
 
             // face 1
-            face_fac = 0.5 * theta / dx_dxi_1;
+            face_fac = 0.5 * theta / dy_deta_1;
             add_value(values, col_b   + 2, face_fac * 3./4. * (bb_1 * w_nat[0] + dx_dxi_1 * dd_1));  // not yet implemeted term with dx_deta
             add_value(values, col_s   + 2, face_fac * 3./4. * (bb_1 * w_nat[1] - dx_dxi_1 * dd_1));  // not yet implemeted term with dx_deta
             add_value(values, col_ss  + 2, face_fac * 3./4. * (bb_1 * w_nat[2]));
@@ -618,10 +616,10 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             add_value(values, col_ess + 2, face_fac * 1./4. * (bb_1 * w_nat[2]));
 
             rhs[row + 2] += - (
-                0.5 * dd_0 * (-dx_deta_0 * dr_dxi_0 + dx_dxi_0 * dr_deta_0) / dx_dxi_0
-              + 0.5 * cc_0 * (-dx_deta_0 * dh_dxi_0 + dx_dxi_0 * dh_deta_0) / dx_dxi_0
-              + 0.5 * dd_1 * (-dx_deta_1 * dr_dxi_1 + dx_dxi_1 * dr_deta_1) / dx_dxi_1
-              + 0.5 * cc_1 * (-dx_deta_1 * dh_dxi_1 + dx_dxi_1 * dh_deta_1) / dx_dxi_1
+                0.5 * dd_0 * (-dx_deta_0 * dr_dxi_0 + dx_dxi_0 * dr_deta_0) / dy_deta_0
+              + 0.5 * cc_0 * (-dx_deta_0 * dh_dxi_0 + dx_dxi_0 * dh_deta_0) / dy_deta_0
+              + 0.5 * dd_1 * (-dx_deta_1 * dr_dxi_1 + dx_dxi_1 * dr_deta_1) / dy_deta_1
+              + 0.5 * cc_1 * (-dx_deta_1 * dh_dxi_1 + dx_dxi_1 * dh_deta_1) / dy_deta_1
                 );
         }
         if (do_bed_shear_stress)
@@ -767,8 +765,6 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
     std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
-
-    do_convection = false;
 
     int p_7 = c_eq/(3*27);  // node number of boundary point, ie east point of molecule
     int p_8 = p_7 + 1;
@@ -1255,7 +1251,7 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
 
             // Contribution Delta h
             // face 0
-            double face_fac = 0.5 * theta / 1.0;
+            double face_fac = 0.5 * theta / dx_dxi_0;
             add_value(values, col_nb , face_fac * 1./4. * (aa_0 * w_nat[0] + dy_deta_0 * cc_0));  // not yet implemeted term with dy_dxi
             add_value(values, col_nw , face_fac * 1./4. * (aa_0 * w_nat[1] - dy_deta_0 * cc_0));  // not yet implemeted term with dy_dxi
             add_value(values, col_nww, face_fac * 1./4. * (aa_0 * w_nat[2]));
@@ -1264,7 +1260,7 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             add_value(values, col_ww , face_fac * 3./4. * (aa_0 * w_nat[2]));
 
             //face 1
-            face_fac = 0.5 * theta / 1.0;
+            face_fac = 0.5 * theta / dx_dxi_1;
             add_value(values, col_b  , face_fac * 3./4. * (aa_1 * w_nat[0] + dy_deta_1 * cc_1));  // not yet implemeted term with dy_dxi
             add_value(values, col_w  , face_fac * 3./4. * (aa_1 * w_nat[1] - dy_deta_1 * cc_1));  // not yet implemeted term with dy_dxi
             add_value(values, col_ww , face_fac * 3./4. * (aa_1 * w_nat[2]));
@@ -1274,7 +1270,7 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
 
             // Contribution Delta q
             // face 0
-            face_fac = 0.5 * theta / 1.0;
+            face_fac = 0.5 * theta / dx_dxi_0;
             add_value(values, col_nb  + 1, face_fac * 1./4. * (bb_0 * w_nat[0] + dy_deta_0 * dd_0));  // not yet implemeted term with dy_dxi
             add_value(values, col_nw  + 1, face_fac * 1./4. * (bb_0 * w_nat[1] - dy_deta_0 * dd_0));  // not yet implemeted term with dy_dxi
             add_value(values, col_nww + 1, face_fac * 1./4. * (bb_0 * w_nat[2]));
@@ -1283,7 +1279,7 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             add_value(values, col_ww  + 1, face_fac * 3./4. * (bb_0 * w_nat[2]));
 
             // face 1
-            face_fac = 0.5 * theta / 1.0;
+            face_fac = 0.5 * theta / dx_dxi_1;
             add_value(values, col_b   + 1, face_fac * 3./4. * (bb_1 * w_nat[0] + dy_deta_1 * dd_1));  // not yet implemeted term with dy_dxi
             add_value(values, col_w   + 1, face_fac * 3./4. * (bb_1 * w_nat[1] - dy_deta_1 * dd_1));  // not yet implemeted term with dy_dxi
             add_value(values, col_ww  + 1, face_fac * 3./4. * (bb_1 * w_nat[2]));
@@ -1297,10 +1293,10 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             add_value(values, col_ww + 2, 0.0);
 
             rhs[row + 1] += - (
-                0.5 * dd_0 * (dy_deta_0 * dq_dxi_0 - dy_dxi_0 * dq_deta_0) / 1.0
-              + 0.5 * cc_0 * (dy_deta_0 * dh_dxi_0 - dy_dxi_0 * dh_deta_0) / 1.0
-              + 0.5 * dd_1 * (dy_deta_1 * dq_dxi_1 - dy_dxi_1 * dq_deta_1) / 1.0
-              + 0.5 * cc_1 * (dy_deta_1 * dh_dxi_1 - dy_dxi_1 * dh_deta_1) / 1.0
+                0.5 * dd_0 * (dy_deta_0 * dq_dxi_0 - dy_dxi_0 * dq_deta_0) / dx_dxi_0
+              + 0.5 * cc_0 * (dy_deta_0 * dh_dxi_0 - dy_dxi_0 * dh_deta_0) / dx_dxi_0
+              + 0.5 * dd_1 * (dy_deta_1 * dq_dxi_1 - dy_dxi_1 * dq_deta_1) / dx_dxi_1
+              + 0.5 * cc_1 * (dy_deta_1 * dh_dxi_1 - dy_dxi_1 * dh_deta_1) / dx_dxi_1
                 );
         }
         if (do_bed_shear_stress)
@@ -1475,8 +1471,6 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
     std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
-
-    do_convection = false;
 
     int p_3 = c_eq/(3*27);  // node number of boundary point, ie south point of molecule
     int p_4 = p_3 + 1;
@@ -1990,7 +1984,7 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             
             // Contribution Delta h
             // face 0
-            double face_fac = 0.5 * theta / dx_dxi_0;
+            double face_fac = 0.5 * theta / dy_deta_0;
             add_value(values, col_eb , face_fac * 1./4. * (aa_0 * w_nat[0] - dx_dxi_0 * cc_0));  // not yet implemeted term with dx_deta
             add_value(values, col_en , face_fac * 1./4. * (aa_0 * w_nat[1] + dx_dxi_0 * cc_0));  // not yet implemeted term with dx_deta
             add_value(values, col_enn, face_fac * 1./4. * (aa_0 * w_nat[2]));
@@ -1999,7 +1993,7 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             add_value(values, col_nn , face_fac * 3./4. * (aa_0 * w_nat[2]));
 
             //face 1
-            face_fac = 0.5 * theta / dx_dxi_1;
+            face_fac = 0.5 * theta / dy_deta_1;
             add_value(values, col_b  , face_fac * 3./4. * (aa_1 * w_nat[0] - dx_dxi_1 * cc_1));  // not yet implemeted term with dx_deta
             add_value(values, col_n  , face_fac * 3./4. * (aa_1 * w_nat[1] + dx_dxi_1 * cc_1));  // not yet implemeted term with dx_deta
             add_value(values, col_nn , face_fac * 3./4. * (aa_1 * w_nat[2]));
@@ -2014,7 +2008,7 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
 
             // Contribution Delta r
             // face 0
-            face_fac = 0.5 * theta / dx_dxi_0;
+            face_fac = 0.5 * theta / dy_deta_0;
             add_value(values, col_eb  + 2, face_fac * 1./4. * (bb_0 * w_nat[0] - dx_dxi_0 * dd_0));  // not yet implemeted term with dx_deta
             add_value(values, col_en  + 2, face_fac * 1./4. * (bb_0 * w_nat[1] + dx_dxi_0 * dd_0));  // not yet implemeted term with dx_deta
             add_value(values, col_enn + 2, face_fac * 1./4. * (bb_0 * w_nat[2]));
@@ -2023,7 +2017,7 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             add_value(values, col_nn  + 2, face_fac * 3./4. * (bb_0 * w_nat[2]));
 
             // face 1
-            face_fac = 0.5 * theta / dx_dxi_1;
+            face_fac = 0.5 * theta / dy_deta_1;
             add_value(values, col_b   + 2, face_fac * 3./4. * (bb_1 * w_nat[0] - dx_dxi_1 * dd_1));  // not yet implemeted term with dx_deta
             add_value(values, col_n   + 2, face_fac * 3./4. * (bb_1 * w_nat[1] + dx_dxi_1 * dd_1));  // not yet implemeted term with dx_deta
             add_value(values, col_nn  + 2, face_fac * 3./4. * (bb_1 * w_nat[2]));
@@ -2032,10 +2026,10 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
             add_value(values, col_wnn + 2, face_fac * 1./4. * (bb_1 * w_nat[2]));
                                                 
            rhs[row + 2] += - (
-                0.5 * dd_0 * (-dx_deta_0 * dr_dxi_0 + dx_dxi_0 * dr_deta_0) / dx_dxi_0
-              + 0.5 * cc_0 * (-dx_deta_0 * dh_dxi_0 + dx_dxi_0 * dh_deta_0) / dx_dxi_0
-              + 0.5 * dd_1 * (-dx_deta_1 * dr_dxi_1 + dx_dxi_1 * dr_deta_1) / dx_dxi_1
-              + 0.5 * cc_1 * (-dx_deta_1 * dh_dxi_1 + dx_dxi_1 * dh_deta_1) / dx_dxi_1
+                0.5 * dd_0 * (-dx_deta_0 * dr_dxi_0 + dx_dxi_0 * dr_deta_0) / dy_deta_0
+              + 0.5 * cc_0 * (-dx_deta_0 * dh_dxi_0 + dx_dxi_0 * dh_deta_0) / dy_deta_0
+              + 0.5 * dd_1 * (-dx_deta_1 * dr_dxi_1 + dx_dxi_1 * dr_deta_1) / dy_deta_1
+              + 0.5 * cc_1 * (-dx_deta_1 * dh_dxi_1 + dx_dxi_1 * dh_deta_1) / dy_deta_1
                 );
         }
         if (do_bed_shear_stress)
@@ -2182,8 +2176,6 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
     std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
-
-    do_convection = false;
 
     size_t p_1 = c_eq/(3*27);  // node number of boundary point, ie west point of molucule
     size_t p_0 = p_1 - 1;
@@ -2671,7 +2663,7 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
 
             // Contribution Delta h
             // face 0
-            double face_fac = 0.5 * theta / 1.0;
+            double face_fac = 0.5 * theta / dx_dxi_0;
             add_value(values, col_sb , face_fac * 1./4. * (aa_0 * w_nat[0] - dy_deta_0 * cc_0));  // not yet implemeted term with dy_dxi
             add_value(values, col_se , face_fac * 1./4. * (aa_0 * w_nat[1] + dy_deta_0 * cc_0));  // not yet implemeted term with dy_dxi
             add_value(values, col_see, face_fac * 1./4. * (aa_0 * w_nat[2]));
@@ -2680,7 +2672,7 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             add_value(values, col_ee , face_fac * 3./4. * (aa_0 * w_nat[2]));
 
             //face 1
-            face_fac = 0.5 * theta / 1.0;
+            face_fac = 0.5 * theta / dx_dxi_1;
             add_value(values, col_b  , face_fac * 3./4. * (aa_1 * w_nat[0] - dy_deta_1 * cc_1));  // not yet implemeted term with dy_dxi
             add_value(values, col_e  , face_fac * 3./4. * (aa_1 * w_nat[1] + dy_deta_1 * cc_1));  // not yet implemeted term with dy_dxi
             add_value(values, col_ee , face_fac * 3./4. * (aa_1 * w_nat[2]));
@@ -2690,7 +2682,7 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
 
             // Contribution Delta q
             // face 0
-            face_fac = 0.5 * theta / 1.0;
+            face_fac = 0.5 * theta / dx_dxi_0;
             add_value(values, col_sb  + 1, face_fac * 1./4. * (bb_0 * w_nat[0] - dy_deta_0 * dd_0));  // not yet implemeted term with dy_dxi
             add_value(values, col_se  + 1, face_fac * 1./4. * (bb_0 * w_nat[1] + dy_deta_0 * dd_0));  // not yet implemeted term with dy_dxi
             add_value(values, col_see + 1, face_fac * 1./4. * (bb_0 * w_nat[2]));
@@ -2699,7 +2691,7 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             add_value(values, col_ee  + 1, face_fac * 3./4. * (bb_0 * w_nat[2]));
 
             // face 1
-            face_fac = 0.5 * theta / 1.0;
+            face_fac = 0.5 * theta / dx_dxi_1;
             add_value(values, col_b   + 1, face_fac * 3./4. * (bb_1 * w_nat[0] - dy_deta_1 * dd_1));  // not yet implemeted term with dy_dxi
             add_value(values, col_e   + 1, face_fac * 3./4. * (bb_1 * w_nat[1] + dy_deta_1 * dd_1));  // not yet implemeted term with dy_dxi
             add_value(values, col_ee  + 1, face_fac * 3./4. * (bb_1 * w_nat[2]));
@@ -2713,10 +2705,10 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
             add_value(values, col_ee + 2, 0.0);
 
             rhs[row + 1] += - (
-                0.5 * dd_0 * (dy_deta_0 * dq_dxi_0 - dy_dxi_0 * dq_deta_0) / 1.0
-              + 0.5 * cc_0 * (dy_deta_0 * dh_dxi_0 - dy_dxi_0 * dh_deta_0) / 1.0
-              + 0.5 * dd_1 * (dy_deta_1 * dq_dxi_1 - dy_dxi_0 * dq_deta_1) / 1.0
-              + 0.5 * cc_1 * (dy_deta_1 * dh_dxi_1 - dy_dxi_0 * dh_deta_1) / 1.0
+                0.5 * dd_0 * (dy_deta_0 * dq_dxi_0 - dy_dxi_0 * dq_deta_0) / dx_dxi_0
+              + 0.5 * cc_0 * (dy_deta_0 * dh_dxi_0 - dy_dxi_0 * dh_deta_0) / dx_dxi_0
+              + 0.5 * dd_1 * (dy_deta_1 * dq_dxi_1 - dy_dxi_0 * dq_deta_1) / dx_dxi_1
+              + 0.5 * cc_1 * (dy_deta_1 * dh_dxi_1 - dy_dxi_0 * dh_deta_1) / dx_dxi_1
                 );
         }
         if (do_bed_shear_stress)
