@@ -21,6 +21,7 @@ extern "C" {
     extern char * getprogramstring_2d_wave(void);
     extern char * getversionstring_2d_wave(void);
     extern char * getsourceurlstring_2d_wave(void);
+    extern char * getbuildstring_2d_wave(void);
 }
 
 #endif 

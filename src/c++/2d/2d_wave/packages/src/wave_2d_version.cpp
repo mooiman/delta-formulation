@@ -39,6 +39,7 @@ static char wave_2d_version_id[] = {"@(#)Mooiman, "wave_2d_program" Version "wav
 static char wave_2d_version[] = { wave_2d_major "." wave_2d_minor "." wave_2d_revision "." wave_2d_build " (Win64)" };
 static char wave_2d_version_id[] = {"@(#)Mooiman, " wave_2d_program " Version " wave_2d_major "." wave_2d_minor "." wave_2d_revision "." wave_2d_build " (Win64), " __DATE__ ", " __TIME__ "" };
 #elif defined(WIN32) || defined(WIN64)
+static char wave_2d_build_string[] = { wave_2d_build };
 static char wave_2d_version[] = { wave_2d_major "." wave_2d_minor "." wave_2d_revision "." wave_2d_build " (Win64)" };
 static char wave_2d_version_id[] = {"@(#)Mooiman, " wave_2d_program " Version " wave_2d_major "." wave_2d_minor "." wave_2d_revision "." wave_2d_build " (Win64), " __DATE__ ", " __TIME__ ""};
 #else
@@ -67,4 +68,8 @@ char * getprogramstring_2d_wave(void)
 char * getsourceurlstring_2d_wave(void)
 {
     return strdup(wave_2d_source_url);
+};
+char * getbuildstring_2d_wave(void)
+{
+    return strdup(wave_2d_build_string);
 };

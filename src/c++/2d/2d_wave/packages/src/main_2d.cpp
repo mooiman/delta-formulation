@@ -79,6 +79,7 @@ AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 #include "regularization.h"
 #include "ugrid2d.h"
 #include "viscosity.h"
+#include "wave_2d_version.h"
 
 void GetArguments(long argc, char** argv, std::filesystem::path & file_name);
 
@@ -148,7 +149,8 @@ int main(int argc, char *argv[])
     else
     {
         std::cout << "======================================================" << std::endl;
-        std::cout << "Executable compiled: " << compileDateTime() << std::endl;
+        std::cout << "Git commit hash/time: " << getbuildstring_2d_wave() << std::endl;
+        std::cout << "Executable compiled : " << compileDateTime() << std::endl;
         std::cout << std::endl;
         std::cout << "usage: 2d_wave.exe --toml <input_file>" << std::endl;
         std::cout << "======================================================" << std::endl;
@@ -161,6 +163,7 @@ int main(int argc, char *argv[])
     auto start_date_time = std::format("{:%F %H:%M:%OS %Oz}", now);
     std::cout << std::endl;
     std::cout << "======================================================" << std::endl;
+    std::cout << "Git commit hash/time: " << getbuildstring_2d_wave() << std::endl;
     std::cout << "Executable compiled : " << compileDateTime() << std::endl;
     std::cout << "Start time          : " << start_date_time << std::endl;
     std::cout << "======================================================" << std::endl;
