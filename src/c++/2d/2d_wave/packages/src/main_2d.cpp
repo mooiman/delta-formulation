@@ -226,8 +226,8 @@ int main(int argc, char *argv[])
 
     log_file << "======================================================" << std::endl;
     log_file << "Git commit hash/time: " << getbuildstring_2d_wave() << std::endl;
-    log_file << "Executable compiled: " << compileDateTime() << std::endl;
-    log_file << "Start time         : " << start_date_time << std::endl;
+    log_file << "Executable compiled : " << compileDateTime() << std::endl;
+    log_file << "Start time          : " << start_date_time << std::endl;
     log_file << "=== Input file =======================================" << std::endl;
     log_file << toml_file_name << std::endl;
 
