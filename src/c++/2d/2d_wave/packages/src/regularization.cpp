@@ -43,18 +43,19 @@ REGULARIZATION::REGULARIZATION()
     m_mass.push_back(m_alpha);
     m_mass.push_back(1.0 - 2. * m_alpha);
     m_mass.push_back(m_alpha);
-    eps_smooth = 1e-12;
+    m_eps_smooth = 1e-12;
     m_u0_is_smooth = 1.e-10;
 }
-REGULARIZATION::REGULARIZATION(int iter_max, double g) :
+REGULARIZATION::REGULARIZATION(int iter_max, double g, std::string logging) :
     m_iter_max(iter_max),
-    m_g(g)
-{
+    m_g(g),
+    m_logging(logging)
+{   
     m_alpha = 1./8.;
     m_mass.push_back(m_alpha);
     m_mass.push_back(1.0 - 2. * m_alpha);
     m_mass.push_back(m_alpha);
-    eps_smooth = 1e-12;
+    m_eps_smooth = 1e-12;
     m_u0_is_smooth = 1.e-10;
 }
 
@@ -165,7 +166,7 @@ void REGULARIZATION::given_function(
         {
             diff_max1 = std::max(diff_max1, std::abs(u0[i] - u_giv[i]));
         }
-        if (std::abs(diff_max1 - diff_max0) > eps_smooth)
+        if (std::abs(diff_max1 - diff_max0) > m_eps_smooth)
         {
             diff_max0 = diff_max1;
         }
@@ -424,21 +425,21 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
         values[col +  8] = dx * dy * m_mass[2] * m_mass[2];
 
         // psi should be computed on the 8 interfaces of the control volume
-        double psi_n = 0.5 * (psi_22[p_n] + psi_22[p_0]);
-        double psi_e = 0.5 * (psi_11[p_e] + psi_11[p_0]);
-        double psi_s = 0.5 * (psi_22[p_s] + psi_22[p_0]);
-        double psi_w = 0.5 * (psi_11[p_w] + psi_11[p_0]);
+        double psi_n = psi_22[p_0];  // 0.5 * (psi_22[p_n] + psi_22[p_0]);
+        double psi_e = psi_11[p_0];  // 0.5 * (psi_11[p_e] + psi_11[p_0]);
+        double psi_s = psi_22[p_0];  // 0.5 * (psi_22[p_s] + psi_22[p_0]);
+        double psi_w = psi_11[p_0];  // 0.5 * (psi_11[p_w] + psi_11[p_0]);
         //psi_im12 = 2. * psi[i] * psi[i - 1] / (psi[i] + psi[i - 1]);
         //psi_ip12 = 2. * psi[i + 1] * psi[i] / (psi[i + 1] + psi[i]);
 
         values[col    ] += 0.0;
-        values[col + 1] += -psi_s * dx / dy;
+        values[col + 1] += -psi_w * dy / dx;
         values[col + 2] += 0.0;
-        values[col + 3] += -psi_w * dy / dx;
+        values[col + 3] += -psi_s * dx / dy; 
         values[col + 4] +=  psi_s * dx / dy + psi_w * dy / dx + psi_n * dy / dx + psi_e * dx / dy;
-        values[col + 5] += -psi_e * dy / dx;
+        values[col + 5] += -psi_n * dx / dy;
         values[col + 6] += 0.0;
-        values[col + 7] += -psi_n * dx / dy;
+        values[col + 7] += -psi_e * dy / dx;
         values[col + 8] += 0.0;
             
         rhs[row]  = dx * dy * m_mass[0] * m_mass[0] * u_giv[p_sw];
@@ -556,7 +557,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
         rhs[row    ] = u_giv[p_0];
     }
 
-    if (false)
+    if (m_logging == "matrix")
     {
         log_file << "=== Matrix eq7 ========================================" << std::endl;
         for (size_t i = 0; i < nxny; ++i)
@@ -609,7 +610,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
     A.setFromTriplets(triplets.begin(), triplets.end());
     A.makeCompressed(); // Very important for valuePtr() access
 
-    if (false) 
+    if (m_logging == "pattern")
     {
         log_file << "=== Matrix build matrix pattern =======================" << std::endl;
         for (size_t i = 0; i < nxny; ++i)
@@ -639,6 +640,8 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
     }
     if (u0_xixi_max == 0.0) { u0_xixi_max = 1.0; }
     if (u0_etaeta_max == 0.0) { u0_etaeta_max = 1.0; }
+    { u0_xixi_max = 1.0; }
+    { u0_etaeta_max = 1.0; }
 
     double* values = A.valuePtr();         // pointer to all non-zero values
     const int* outer = A.outerIndexPtr();   // row start pointers
@@ -768,17 +771,17 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
         values[col +  7] = m_mass[2] * m_mass[1] - c_error;
         values[col +  8] = m_mass[2] * m_mass[2];
 
-        rhs[row]  = (u0_xixi[p_sw] + u0_etaeta[p_sw]);
-        rhs[row] += (u0_xixi[p_w ] + u0_etaeta[p_w ]);
-        rhs[row] += (u0_xixi[p_nw] + u0_etaeta[p_nw]);
+        rhs[row]  = (u0_xixi[p_sw] + u0_etaeta[p_sw])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] += (u0_xixi[p_w ] + u0_etaeta[p_w ])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] += (u0_xixi[p_nw] + u0_etaeta[p_nw])/(u0_xixi_max + u0_etaeta_max);
         
-        rhs[row] += (u0_xixi[p_s ] + u0_etaeta[p_s ]);
-        rhs[row] += (u0_xixi[p_0 ] + u0_etaeta[p_0 ]);
-        rhs[row] += (u0_xixi[p_n ] + u0_etaeta[p_n ]);
+        rhs[row] += (u0_xixi[p_s ] + u0_etaeta[p_s ])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] += (u0_xixi[p_0 ] + u0_etaeta[p_0 ])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] += (u0_xixi[p_n ] + u0_etaeta[p_n ])/(u0_xixi_max + u0_etaeta_max);
         
-        rhs[row] += (u0_xixi[p_se] + u0_etaeta[p_se]);
-        rhs[row] += (u0_xixi[p_e ] + u0_etaeta[p_e ]);
-        rhs[row] += (u0_xixi[p_ne] + u0_etaeta[p_ne]);
+        rhs[row] += (u0_xixi[p_se] + u0_etaeta[p_se])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] += (u0_xixi[p_e ] + u0_etaeta[p_e ])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] += (u0_xixi[p_ne] + u0_etaeta[p_ne])/(u0_xixi_max + u0_etaeta_max);
         rhs[row] = std::abs(rhs[p_0]);
     }
     // south-east corner
@@ -838,7 +841,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
         solution[i] = u0[i];
     }
 
-    if (false)
+    if (m_logging == "matrix")
     {
         log_file << "=== Matrix eq8 ========================================" << std::endl;
         for (size_t i = 0; i < nxny; ++i)
@@ -872,7 +875,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
     }
     return eq8;
 }
-size_t REGULARIZATION::p_index(size_t i, size_t j, size_t ny)
+size_t REGULARIZATION::p_index(size_t i, size_t j, size_t ny_in)
 {
-    return i * ny + j;
+    return i * ny_in + j;
 }

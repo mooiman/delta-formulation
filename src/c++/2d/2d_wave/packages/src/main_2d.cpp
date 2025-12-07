@@ -362,7 +362,7 @@ int main(int argc, char *argv[])
     }
     model_title += ", " + solver_name;
 
-    REGULARIZATION* regularization = new REGULARIZATION(input_data.numerics.iter_max, input_data.physics.g);
+    REGULARIZATION* regularization = new REGULARIZATION(input_data.numerics.iter_max, input_data.physics.g, input_data.log.logging);
 
     log_file << "=== Used input variables ==============================" << std::endl;
     status = write_used_input(input_data, log_file);
@@ -523,11 +523,11 @@ int main(int argc, char *argv[])
     {
         START_TIMER(Regularization_init);
         regularization->given_function(zb, psi_11, psi_22, eq8, zb_giv, nx, ny, dx, dy, c_psi, log_file);
-        regularization->given_function(visc_reg, psi_11, psi_22, eq8, visc_given, nx, ny, dx, dy, c_psi, log_file);
-        for (size_t i = 0; i < visc_reg.size(); ++i)
-        {
-            visc[i] = visc_reg[i] + std::sqrt(psi_11[i] * psi_11[i] + psi_22[i] * psi_22[i]);
-        }
+        //regularization->given_function(visc_reg, psi_11, psi_22, eq8, visc_given, nx, ny, dx, dy, c_psi, log_file);
+        //for (size_t i = 0; i < visc_reg.size(); ++i)
+        //{
+        //    visc[i] = visc_reg[i] + std::sqrt(psi_11[i] * psi_11[i] + psi_22[i] * psi_22[i]);
+        //}
 
         STOP_TIMER(Regularization_init);
     }

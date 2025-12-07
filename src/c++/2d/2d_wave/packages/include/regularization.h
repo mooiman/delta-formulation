@@ -38,7 +38,7 @@ class REGULARIZATION
 {
 public:
     REGULARIZATION();
-    REGULARIZATION(int iter_max, double g);
+    REGULARIZATION(int iter_max, double g, std::string logging);
 
     void given_function(
         std::vector<double>& u_out, std::vector<double>& psi_11, std::vector<double>& psi_22, std::vector<double>& eq8,
@@ -55,10 +55,11 @@ private:
 
     int m_iter_max;
     double m_g;
+    std::string m_logging;
 
     double m_alpha;
     std::vector<double> m_mass;
-    double eps_smooth;  // epsilon of regularization process
+    double m_eps_smooth;  // epsilon of regularization process
     double m_u0_is_smooth;  // is function u0 is smooth enough, 
     size_t p_index(size_t i, size_t j, size_t ny);
 };
