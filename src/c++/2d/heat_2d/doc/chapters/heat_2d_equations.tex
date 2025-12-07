@@ -1,5 +1,5 @@
 %-------------------------------------------------------------------------------
-\chapter{Heat 2D equation}
+\chapter{2D Heat equation}
 %-------------------------------------------------------------------------------
 Consider the non-linear heat equation
 \begin{subequations}
@@ -21,16 +21,24 @@ $\bPsi$ the thermal diffusivity is defined as:
         \Psi_{21} & \Psi_{22}
     \end{pmatrix}
 \end{align}
-
+The 2D-heat equation in curvilinear coordinates read:
+\begin{align}
+    &J \pdiff{u}{t} - \nabla \dotp \left( \bPsi \nabla u \right) = 0,
+    \label{eq:heat_2d_curvi}
+\end{align}
 \subsection*{Finite Volume approach}
 Integrating the equations over a finite volume $\Omega$ yields:
 \begin{align}
-    \int_\Omega \pdiff{h}{t}\, d\omega &
+    \int_\Omega \pdiff{u}{t}\, d\omega &
     - \int_\Omega \nabla \dotp \left( \bPsi \nabla u \right) \, d\omega = 0
     \label{eq:heat_2d_equation}
 \end{align}
-with
-
+%
+The 2D-heat equation in curvilinear coordinates read:
+\begin{align}
+    &\int_{\Omega_{\xi\eta}} J \pdiff{u}{t}\, d\xi d\eta - \int_{\Omega_{\xi\eta}} \nabla \dotp \left( \bPsi \nabla u \right)\, d\xi d\eta = 0,
+    \label{eq:heat_2d_curvi}
+\end{align}
 
 
 %-------------------------------------------------------------------------------
@@ -59,59 +67,167 @@ See for the locations \autoref{fig:2d_structured_grid}.
 The discretization of heat \autoref{eq:heat_2d_equation} will be presented term by term.
 %-------------------------------------------------------------------------------
 \subsubsection{Time derivative}
-The discretization of the time derivative term of the continuity equation reads:
+The time derivative term of the heat equation reads:
 \begin{align}
-    \int_{\Omega} \pdiff{u}{t}\, d\omega
+    \int_{\Omega_{\xi\eta}} J \pdiff{u}{t}\, d\xi d\eta
 \end{align}
-which will be approximated by the sum of the integral over the sub-control volumes.
+which will be approximated by the sum of the integral over the sub-control volumes,
+with taking into account that the Jacobian $J$ is constant in time.
 On a structured grid one control volume ($cv$) around a node consist of four sub-control volumes ($scv_i$, $i\in\{0,1,2,3\}$).
 \begin{align}
-    \int_{cv} \pdiff{u}{t}\, d\omega =
-    \int_{scv_0} \pdiff{u}{t}\, d\omega +
-    \int_{scv_1} \pdiff{u}{t}\, d\omega +
-    \int_{scv_2} \pdiff{u}{t}\, d\omega +
-    \int_{scv_3} \pdiff{u}{t}\, d\omega
+    J_{cv}\int_{cv} \pdiff{u}{t}\, d\omega &=
+    J_{scv_0}\int_{scv_0} \pdiff{u}{t}\, d\omega +
+    J_{scv_1}\int_{scv_1} \pdiff{u}{t}\, d\omega +
+    \nonumber \\*
+    &\quad
+    +J_{scv_2}\int_{scv_2} \pdiff{u}{t}\, d\omega +
+    J_{scv_3}\int_{scv_3} \pdiff{u}{t}\, d\omega
 \end{align}
-For a cartesian grid we get:
+Fore the discretization on a curvilinear grid we get:
 \begin{align}
-    \int_{cv} \pdiff{h}{t}\, d\omega \approx &
-    \quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i-\quart, j-\quart} -  h^{n+1,n}_{i-\quart, j-\quart} \right) +
+    J_{cv}\int_{cv} \pdiff{u}{t}\, d\omega \approx &
+    J_{scv_0}\Dtinv \left( u^{n+1,p+1}_{i-\quart, j-\quart} -  u^{n+1,n}_{i-\quart, j-\quart} \right) +
     \nonumber \\*
-    &\quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i+\quart, j-\quart} -  h^{n+1,n}_{i+\quart, j-\quart} \right) +
+    &J_{scv_1}\Dtinv \left( u^{n+1,p+1}_{i+\quart, j-\quart} -  u^{n+1,n}_{i+\quart, j-\quart} \right) +
     \nonumber \\*
-    &\quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i+\quart, j+\quart} -  h^{n+1,n}_{i+\quart, j+\quart} \right) +
+    &J_{scv_2}\Dtinv \left( u^{n+1,p+1}_{i+\quart, j+\quart} -  u^{n+1,n}_{i+\quart, j+\quart} \right) +
     \nonumber \\*
-    &\quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i-\quart, j+\quart} -  h^{n+1,n}_{i-\quart, j+\quart} \right)
+    &J_{scv_3}\Dtinv \left( u^{n+1,p+1}_{i-\quart, j+\quart} -  u^{n+1,n}_{i-\quart, j+\quart} \right)
 \end{align}
-Just looking to the quadrature point of $scv_0$ as part of the control volume for node $(i,j)$ the discretization reads:
+with $J_{scv_i}$ the area of the sub control volume $i$.
+For cartesian grids we have $J_{scv_i} = \quart \Dx\Dy$.
+
+Just looking to the quadrature point of $scv_2$ as part of the control volume for node $(i,j)$ the discretization reads:
 \begin{align}
-    &\quart\Dx\Dy\Dtinv \left( h^{n+1}_{i-\quart, j-\quart} -  h^{n+1,n}_{i-\quart, j-\quart} \right) =
+    &J_{scv_2}\Dtinv \left( u^{n+1}_{i+\quart, j+\quart} -  u^{n+1,n}_{i+\quart, j+\quart} \right) =
     \\*
-    &= \quart\Dx\Dy\Dtinv \left[ \frac{1}{16}\left( 9h^{n+1}_{i, j} + 3 h^{n+1}_{i-1,j}  + 3  h^{n+1}_{i, j-1} + h^{n+1}_{i-1, j-1}\right) \right. +
+    &= J_{scv_2}\Dtinv \left[ \frac{1}{16}\left( 9u^{n+1}_{i, j} + 3 u^{n+1}_{i+1,j}  + 3  u^{n+1}_{i, j+1} + u^{n+1}_{i+1, j+1}\right) \right. +
     \\*
-    &\quad - \left. \frac{1}{16}\left( 9 h^{n}_{i, j} +  3 h^{n}_{i-1,j}  + 3  h^{n}_{i, j-1} + h^{n}_{i-1, j-1}\right)\right]
+    &\quad - \left. \frac{1}{16}\left( 9 u^{n}_{i, j} +  3 u^{n}_{i+1,j}  + 3  u^{n}_{i, j+1} + u^{n}_{i+1, j+1}\right)\right]
 \end{align}
-Written in \deltaformulation  it reads:
+Written in \deltaformulation it yields (using $\Delta u^{n+1,p+1} = \Delta u$):
 \begin{align}
-    &\quart\Dx\Dy\Dtinv \left( h^{n+1}_{i-\quart, j-\quart} -  h^{n}_{i-\quart, j-\quart} \right) =
+    &J_{scv_2}\Dtinv \left( u^{n+1}_{i+\quart, j+\quart} -  u^{n}_{i+\quart, j+\quart} \right) =
+    \\*
+    &=J_{scv_2}\Dtinv \left[ \frac{1}{16}\left( 9 \Delta u_{i, j} + 3 \Delta u_{i+1,j+1}  + 3 \Delta u_{i, j+1} + \Delta u_{i+1, j+1}\right) \right] +
     \nonumber \\*
-    &=\quart\Dx\Dy\Dtinv \left[ \frac{1}{16}\left( 9 \Delta h^{n+1,p+1}_{i, j} + 3 \Delta q^{n+1,p+1}_{i-1,j}  + 3 \Delta q^{n+1,p+1}_{i, j-1} + \Delta h^{n+1,p+1}_{i-1, j-1}\right) \right] +
+    & + J_{scv_2}\Dtinv \Bigg[ \frac{1}{16}\bigg(
+    9 \left( u^{n+1,p}_{i, j} - u^{n}_{i, j}\right) +
+    3 \left( u^{n+1,p}_{i+1,j} - u^{n}_{i+1,j}\right)  +
     \nonumber \\*
-    & + \quart\Dx\Dy\Dtinv \left[ \frac{1}{16}\left( 9 h^{n+1,p}_{i, j} + 3 h^{n+1,p}_{i-1,j}  + 3 h^{n+1,p}_{i, j-1} + h^{n+1,p+1}_{i-1, j-1}\right) \right. +
-    \nonumber \\*
-    &\quad - \left. \frac{1}{16}\left( 9h^{n}_{i, j} +  3 h^{n}_{i-1,j}  + 3  h^{n}_{i, j-1} + h^{n}_{i-1, j-1}\right)\right]
+    & \qquad \qquad \qquad 3 \left(u^{n+1,p}_{i, j+1} - u^{n}_{i, j+1}\right) +
+    \left(u^{n+1,p+1}_{i+1, j+1} - u^{n}_{i+1, j+1}\right) \Bigg) \Bigg]
 \end{align}
+with
+\begin{align}
+    J_{scv_2} &= x_\xi y_\eta - y_\xi x_\eta
+\end{align}
+with  $J_{scv_2}$ representing the area of $scv_2$, this area is computed
+by
+\begin{align}
+    J = \half \sum_{i=0}^{3} (x_{i} y_{i+1}  - x_{i+1} y_{i}),
+    \quad \text{with } x_4 = x_0 \text{ and } y_4 = y_0
+\end{align}
+
 
 %--------------------------------------------------------------------------------
 \subsubsection{Viscosity}
 The viscosity term in vector notation reads:
 \begin{align}
-    &\int_\Omega \nabla \dotp \left( \mat{\Psi} \nabla u \right) \, d\omega  =
-    \oint_{\Omega}  \left(  \mat{\Psi} \nabla u \right) \dotp \vec{n}\, dl \approx
+    \int_\Omega & \nabla \dotp \left( \mat{\Psi} \nabla u \right) \, d\omega  =
+    \oint_{\Omega}  \left(  \mat{\Psi} \nabla u \right) \dotp \vec{n}\, dl =
     \\
-    & \oint_{\Omega}  \left( \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y}  \right) n_x + \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}  \right) n_y \right) \norm{dl}
+    = & \oint_{\Omega}  \left( \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y}  \right) n_x + \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}  \right) n_y \right) \norm{dl}
 \end{align}
-with $\vec{n} = (n_x, n_y)^T$ the outward normal vector.
+with $\vecn = (\nx, \ny)^T$ the outward normal vector.
+
+For the heat-equation the diffusity term can be transformed as:
+\begin{align}
+    \pdiff{}{x} \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y}  \right) +
+    \pdiff{}{y} \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}  \right)
+\end{align}
+\textit{step 1}
+\begin{align}
+&\frac{1}{J} \Bigg[
+y_n \pdiff{}{\xi} \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right) - y_\xi \pdiff{}{\eta} \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
+\Bigg] +
+\\*
++
+&\frac{1}{J} \Bigg[
+-x_\eta \pdiff{}{\xi} \left(  \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}  \right) + x_\xi \pdiff{}{\eta} \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}   \right)
+\Bigg]
+\end{align}
+\textit{step 2}
+\newpage
+\begin{align}
+    &\frac{1}{J} \Bigg[
+      y_\eta \pdiff{}{\xi} \left(  \Psi_{11} \left( y_\eta \pdiff{u}{\xi}
+    - y_\xi  \pdiff{u}{\eta}\right) + \Psi_{12} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right) \right) +
+    \\
+    &\qquad - y_\xi \pdiff{}{\eta} \left(  \Psi_{11} \left(y_\eta \pdiff{u}{\xi}  - y_\xi \pdiff{u}{\eta} \right) + \Psi_{12} \left( -x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right) \right) \Bigg] +
+    \\*
+    +
+    &\frac{1}{J} \Bigg[
+    -x_\eta \pdiff{}{\xi} \left(  \Psi_{21} \left( y_\eta \pdiff{u}{\xi} - y_\xi \pdiff{u}{\eta} \right) + \Psi_{22} \left( -x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)  \right) +
+    \\
+    &\qquad + x_\xi \pdiff{}{\eta} \left( \Psi_{21} \left( y_\eta \pdiff{u}{\xi}  - y_\xi \pdiff{u}{\eta} \right) + \Psi_{22} \left( -x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)   \right)
+    \Bigg]
+\end{align}
+\begin{align}
+    &\frac{1}{J} \Bigg[
+    y_\eta y_{\xi\eta} \Psi_{11} \pdiff{u}{\xi}
+  + y_\eta y_{\eta}    \pdiff{}{\xi} \left(  \Psi_{11} \pdiff{u}{\xi} \right)
+  - y_\eta y_{\xi\xi}  \Psi_{11} \pdiff{u}{\eta}
+  - y_\eta y_{\xi}     \pdiff{}{\xi}\left(\Psi_{11} \pdiff{u}{\eta}\right) +
+  \\*
+  &
+  - y_\eta x_{\xi\eta} \Psi_{12}\pdiff{u}{\xi}
+  - y_\eta x_{\eta}    \pdiff{}{\xi} \left( \Psi_{12} \pdiff{u}{\xi}\right)
+  + y_\eta x_{\xi\xi}  \Psi_{12} \pdiff{u}{\eta}
+  + y_\eta x_{\xi}     \pdiff{}{\xi} \left( \Psi_{12} \pdiff{u}{\eta} \right) +
+    \\
+  &
+- y_\xi y_{\eta\eta} \Psi_{11}\pdiff{u}{\xi}
+- y_\xi y_{\eta}     \pdiff{}{\eta} \left( \Psi_{11} \pdiff{u}{\xi}\right)
++ y_\xi y_{\eta\xi}  \Psi_{11} \pdiff{u}{\eta}
++ y_\xi y_{\xi}     \pdiff{}{\eta} \left( \Psi_{11} \pdiff{u}{\eta} \right) +
+\\
+  &
++ y_\xi x_{\eta\eta} \Psi_{12}\pdiff{u}{\xi}
++ y_\xi x_{\eta}     \pdiff{}{\eta} \left( \Psi_{12} \pdiff{u}{\xi}\right)
+- y_\xi x_{\eta\xi}  \Psi_{12} \pdiff{u}{\eta}
+- y_\xi x_{\xi}      \pdiff{}{\eta} \left( \Psi_{12} \pdiff{u}{\eta} \right)
+\Bigg]
++
+\\
+%
+%
+%
+&\frac{1}{J} \Bigg[
+- x_\eta y_{\xi\eta} \Psi_{21} \pdiff{u}{\xi}
+- x_\eta y_{\eta}    \pdiff{}{\xi} \left(  \Psi_{21} \pdiff{u}{\xi} \right)
++ x_\eta y_{\xi\xi}  \Psi_{21} \pdiff{u}{\eta}
++ x_\eta y_{\xi}     \pdiff{}{\xi}\left(\Psi_{21} \pdiff{u}{\eta}\right) +
+\\*
+&
++ x_\eta x_{\xi\eta} \Psi_{2}\pdiff{u}{\xi}
++ x_\eta x_{\eta}    \pdiff{}{\xi} \left( \Psi_{22} \pdiff{u}{\xi}\right)
+- x_\eta x_{\xi\xi}  \Psi_{22} \pdiff{u}{\eta}
+- x_\eta x_{\xi}     \pdiff{}{\eta} \left( \Psi_{22} \pdiff{u}{\eta} \right) +
+\\
+&
++ x_\xi y_{\eta\eta} \Psi_{21}\pdiff{u}{\xi}
++ x_\xi y_{\eta}     \pdiff{}{\eta} \left( \Psi_{21} \pdiff{u}{\xi}\right)
+- x_\xi y_{\eta\xi}  \Psi_{21} \pdiff{u}{\eta}
+- x_\xi y_{\xi}     \pdiff{}{\eta} \left( \Psi_{21} \pdiff{u}{\eta} \right) +
+\\
+  &
+- x_\xi x_{\eta\eta} \Psi_{22}\pdiff{u}{\xi}
+- x_\xi x_{\eta}     \pdiff{}{\eta} \left( \Psi_{22} \pdiff{u}{\xi}\right)
++ x_\xi x_{\eta\xi}  \Psi_{22} \pdiff{u}{\eta}
++ x_\xi x_{\xi}      \pdiff{}{\eta} \left( \Psi_{22} \pdiff{u}{\eta} \right)
+\Bigg]
+\end{align}
 
 Integration of the term for the eight quadrature points $qp$, for each face of the control volume $scv$  we get:
 %
@@ -151,3 +267,69 @@ In case the viscosity is isotropic it reads:
 \end{align}
 (isotropic, $\Psi_{11} = \Psi_{22} = \Psi$ and $\Psi_{12} = \Psi_{21} = 0$).
 and then the discretization is straight forward.
+
+%================================================================================
+\newpage
+\appendix
+\chapter{Curvilinear coordinate transformation}\label{app:CoordinateTransform}
+
+\subsection{Viscosity term}
+The $x$ and $y$-momentum equation diffusion terms are treated here as well due to their complexity.
+They can be transformed as:
+\begin{align}
+    \pdiff{}{x}\left(2\nu h \pdiff{(q/h)}{x}\right) =
+\end{align}
+\begin{align}
+    =\frac{1}{J} \left[
+    y_{\eta}\pdiff{}{\xi}\left( \frac{2\nu h}{J} \left(
+    y_{\eta}\pdiff{(q/h)}{\xi}
+    - y_{\xi}\pdiff{(q/h)}{\eta}\right) \right)
+    - y_{\xi}\pdiff{}{\eta}\left(\frac{2\nu h}{J} \left(
+    y_{\eta}\pdiff{(q/h)}{\xi}
+    -y_{\xi}\pdiff{(q/h)}{\eta} \right) \right) \right] =
+\end{align}
+\begin{align}
+    \begin{aligned}
+        &=\frac{1}{J} \Bigg[
+        y_{\eta} \left( \pdiff{}{\xi}\left( \frac{2\nu h}{J}\right) \left(
+        y_{\eta}\pdiff{(q/h)}{\xi}
+        - y_{\xi}\pdiff{(q/h)}{\eta}\right)
+        + \frac{2\nu h}{J} \pdiff{}{\xi} \left(
+        y_{\eta}\pdiff{(q/h)}{\xi}
+        - y_{\xi}\pdiff{(q/h)}{\eta}\right)\right) +
+        \\
+        &- y_{\xi}\left(\pdiff{}{\eta} \left(\frac{2\nu h}{J}\right) \left(
+        y_{\eta}\pdiff{(q/h)}{\xi}
+        -y_{\xi}\pdiff{(q/h)}{\eta} \right)
+        +\frac{2\nu h}{J} \pdiff{}{\eta}\left(
+        y_{\eta}\pdiff{(q/h)}{\xi}
+        -y_{\xi}\pdiff{(q/h)}{\eta} \right)
+        \right) \Bigg] =
+    \end{aligned}
+\end{align}
+\begin{align}
+    \begin{aligned}
+        &=\frac{2}{J} \Bigg[
+        y_{\eta} \left( \pdiff{}{\xi}\left( \frac{\nu h}{J}\right) \left(
+        y_{\eta}\pdiff{(q/h)}{\xi}
+        - y_{\xi}\pdiff{(q/h)}{\eta}\right)
+        + \frac{\nu h}{J} \pdiff{}{\xi} \left(
+        y_{\eta}\pdiff{(q/h)}{\xi}
+        - y_{\xi}\pdiff{(q/h)}{\eta}\right) \right) +
+        \\
+        &- y_{\xi}\left(\pdiff{}{\eta} \left(\frac{\nu h}{J}\right) \left(
+        y_{\eta}\pdiff{(q/h)}{\xi}
+        -y_{\xi}\pdiff{(q/h)}{\eta} \right)
+        +\frac{\nu h}{J} \pdiff{}{\eta}\left(
+        y_{\eta}\pdiff{(q/h)}{\xi}
+        -y_{\xi}\pdiff{(q/h)}{\eta} \right)
+        \right) \Bigg]
+    \end{aligned}
+\end{align}
+%
+	\begin{align}
+    \begin{aligned}
+        - \pdiff{}{x}\left(2\nu h\pdiff{(q/h)}{x} \right)
+        - \pdiff{}{y}\left(\nu h\pdiff{(r/h)}{x} + \nu h \pdiff{(q/h)}{y} \right) =
+    \end{aligned}
+\end{align}
