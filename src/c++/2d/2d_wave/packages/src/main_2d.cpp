@@ -79,7 +79,7 @@ AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 #include "regularization.h"
 #include "ugrid2d.h"
 #include "viscosity.h"
-#include "wave_2d_version.h"
+#include "main_version.h"
 
 void GetArguments(long argc, char** argv, std::filesystem::path & file_name);
 
@@ -143,13 +143,13 @@ int main(int argc, char *argv[])
         input_dir = std::filesystem::absolute(toml_file_name);
         input_dir.remove_filename();
         output_dir = input_dir;
-        output_dir += "/output/";
+        output_dir += "output\\";
         std::filesystem::create_directory(output_dir);
     }
     else
     {
         std::cout << "======================================================" << std::endl;
-        std::cout << "Git commit hash/time: " << getbuildstring_2d_wave() << std::endl;
+        std::cout << "Git commit time/hash: " << getbuildstring_main() << std::endl;
         std::cout << "Executable compiled : " << compileDateTime() << std::endl;
         std::cout << std::endl;
         std::cout << "usage: 2d_wave.exe --toml <input_file>" << std::endl;
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
     auto start_date_time = std::format("{:%F %H:%M:%OS %Oz}", now);
     std::cout << std::endl;
     std::cout << "======================================================" << std::endl;
-    std::cout << "Git commit hash/time: " << getbuildstring_2d_wave() << std::endl;
+    std::cout << "Git commit time/hash: " << getbuildstring_main() << std::endl;
     std::cout << "Executable compiled : " << compileDateTime() << std::endl;
     std::cout << "Start time          : " << start_date_time << std::endl;
     std::cout << "======================================================" << std::endl;
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
     std::cout << "======================================================" << std::endl;
 
     log_file << "======================================================" << std::endl;
-    log_file << "Git commit hash/time: " << getbuildstring_2d_wave() << std::endl;
+    log_file << "Git commit time/hash: " << getbuildstring_main() << std::endl;
     log_file << "Executable compiled : " << compileDateTime() << std::endl;
     log_file << "Start time          : " << start_date_time << std::endl;
     log_file << "=== Input file =======================================" << std::endl;
@@ -279,8 +279,8 @@ int main(int argc, char *argv[])
     double Lx = dx * mesh2d->face[0]->dims[0];
     double Ly = dy * mesh2d->face[0]->dims[1];
 
-    size_t nxny = nx * ny;                                   // total number of nodes
-    double dxdy = dx * dy ;                               // area of control volume
+    size_t nxny = nx * ny;  // total number of nodes
+    double dxdy = dx * dy;  // area of control volume
     //if (viscosity == 0.0)
     //{
     //    viscosity = 0.2 * std::sqrt(dx*dx + dy*dy);

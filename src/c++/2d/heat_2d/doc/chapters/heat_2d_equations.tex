@@ -150,10 +150,9 @@ For the heat-equation the diffusity term can be transformed as:
 \begin{align}
 &\frac{1}{J} \Bigg[
 y_n \pdiff{}{\xi} \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right) - y_\xi \pdiff{}{\eta} \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
-\Bigg] +
-\\*
 +
-&\frac{1}{J} \Bigg[
+\\*
+& \qquad
 -x_\eta \pdiff{}{\xi} \left(  \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}  \right) + x_\xi \pdiff{}{\eta} \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}   \right)
 \Bigg]
 \end{align}
@@ -163,137 +162,87 @@ Assume $x_{\xi\eta} = x_{\eta\xi}$ and $y_{\xi\eta} = y_{\eta\xi}$
     &\frac{1}{J} \Bigg[
     \pdiff{}{\xi} \left( y_\eta \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right) \right)
     - \pdiff{}{\eta} \left( y_\xi \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right) \right)
-    \Bigg] +
-    \\*
     +
-    &\frac{1}{J} \Bigg[
+    \\*
+    & \qquad
     -\pdiff{}{\xi} \left( x_\eta  \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right)
     + \pdiff{}{\eta} \left( x_\xi \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right)
     \Bigg]
 \end{align}
-\textit{step 2}
+$\Leftrightarrow$
 \begin{align}
     &\frac{1}{J} \Bigg[
-      \pdiff{}{\xi} \left( y_\eta  \Psi_{11} \left( y_\eta \pdiff{u}{\xi}
-    - y_\xi  \pdiff{u}{\eta}\right)
-    + y_\eta \Psi_{12} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right) \right) +
-    \\*
-    &\qquad
-    - \pdiff{}{\eta} \left( y_\xi  \Psi_{11} \left(y_\eta \pdiff{u}{\xi}  - y_\xi \pdiff{u}{\eta} \right)
-    + y_\xi \Psi_{12} \left( -x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right) \right)
-    \Bigg] +
-    \\
+    \pdiff{}{\xi} \left( y_\eta \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
+    - x_\eta  \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right)
     +
-    &\frac{1}{J} \Bigg[
-    -\pdiff{}{\xi} \left( x_\eta  \Psi_{21} \left( y_\eta \pdiff{u}{\xi} - y_\xi \pdiff{u}{\eta} \right)
-    + x_\eta \Psi_{22} \left( -x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)  \right) +
-    \\*
-    &\qquad
-    + \pdiff{}{\eta} \left( x_\xi \Psi_{21} \left( y_\eta \pdiff{u}{\xi}  - y_\xi \pdiff{u}{\eta} \right)
-    + x_\xi \Psi_{22} \left( -x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)   \right)
-    \Bigg]
-\end{align}
-{{
-\color{gray}
-\begin{align}
-    &\frac{1}{J} \Bigg[
-    y_\eta y_{\xi\eta} \Psi_{11} \pdiff{u}{\xi}
-  + y_\eta y_{\eta}    \pdiff{}{\xi} \left(  \Psi_{11} \pdiff{u}{\xi} \right)
-  - y_\eta y_{\xi\xi}  \Psi_{11} \pdiff{u}{\eta}
-  - y_\eta y_{\xi}     \pdiff{}{\xi}\left(\Psi_{11} \pdiff{u}{\eta}\right) +
-  \\*
-  &
-  - y_\eta x_{\xi\eta} \Psi_{12}\pdiff{u}{\xi}
-  - y_\eta x_{\eta}    \pdiff{}{\xi} \left( \Psi_{12} \pdiff{u}{\xi}\right)
-  + y_\eta x_{\xi\xi}  \Psi_{12} \pdiff{u}{\eta}
-  + y_\eta x_{\xi}     \pdiff{}{\xi} \left( \Psi_{12} \pdiff{u}{\eta} \right) +
-    \\
-  &
-- y_\xi y_{\eta\eta} \Psi_{11}\pdiff{u}{\xi}
-- y_\xi y_{\eta}     \pdiff{}{\eta} \left( \Psi_{11} \pdiff{u}{\xi}\right)
-+ y_\xi y_{\eta\xi}  \Psi_{11} \pdiff{u}{\eta}
-+ y_\xi y_{\xi}     \pdiff{}{\eta} \left( \Psi_{11} \pdiff{u}{\eta} \right) +
-\\
-  &
-+ y_\xi x_{\eta\eta} \Psi_{12}\pdiff{u}{\xi}
-+ y_\xi x_{\eta}     \pdiff{}{\eta} \left( \Psi_{12} \pdiff{u}{\xi}\right)
-- y_\xi x_{\eta\xi}  \Psi_{12} \pdiff{u}{\eta}
-- y_\xi x_{\xi}      \pdiff{}{\eta} \left( \Psi_{12} \pdiff{u}{\eta} \right)
-\Bigg]
-+
-\\
-%
-%
-%
-&\frac{1}{J} \Bigg[
-- x_\eta y_{\xi\eta} \Psi_{21} \pdiff{u}{\xi}
-- x_\eta y_{\eta}    \pdiff{}{\xi} \left(  \Psi_{21} \pdiff{u}{\xi} \right)
-+ x_\eta y_{\xi\xi}  \Psi_{21} \pdiff{u}{\eta}
-+ x_\eta y_{\xi}     \pdiff{}{\xi}\left(\Psi_{21} \pdiff{u}{\eta}\right) +
-\\*
-&
-+ x_\eta x_{\xi\eta} \Psi_{2}\pdiff{u}{\xi}
-+ x_\eta x_{\eta}    \pdiff{}{\xi} \left( \Psi_{22} \pdiff{u}{\xi}\right)
-- x_\eta x_{\xi\xi}  \Psi_{22} \pdiff{u}{\eta}
-- x_\eta x_{\xi}     \pdiff{}{\eta} \left( \Psi_{22} \pdiff{u}{\eta} \right) +
-\\
-&
-+ x_\xi y_{\eta\eta} \Psi_{21}\pdiff{u}{\xi}
-+ x_\xi y_{\eta}     \pdiff{}{\eta} \left( \Psi_{21} \pdiff{u}{\xi}\right)
-- x_\xi y_{\eta\xi}  \Psi_{21} \pdiff{u}{\eta}
-- x_\xi y_{\xi}     \pdiff{}{\eta} \left( \Psi_{21} \pdiff{u}{\eta} \right) +
-\\*
-  &
-- x_\xi x_{\eta\eta} \Psi_{22}\pdiff{u}{\xi}
-- x_\xi x_{\eta}     \pdiff{}{\eta} \left( \Psi_{22} \pdiff{u}{\xi}\right)
-+ x_\xi x_{\eta\xi}  \Psi_{22} \pdiff{u}{\eta}
-+ x_\xi x_{\xi}      \pdiff{}{\eta} \left( \Psi_{22} \pdiff{u}{\eta} \right)
-\Bigg]
-\end{align}
-}}
-%--------------------------------------------------------------------------------
-\subsection*{Isotropic and on a cartesian grid}
-When the heat conductivity coefficient is isotropic ($\Psi_{11} = \Psi_{22} = \Psi(\xi, \eta)$ and $\Psi_{12} = \Psi_{21} = 0$), on a cartesian grid ($y_\xi = x_\eta = \textit{constant}$) and multiplied with $J$ this term reduces to
-reduce to:
-\begin{align}
-    &\frac{1}{J} \Bigg[
-      y_\eta y_{\eta}    \pdiff{}{\xi} \left( \Psi \pdiff{u}{\xi}  \right)
-    - y_\eta y_{\xi}     \pdiff{}{\xi} \left( \Psi \pdiff{u}{\eta} \right) +
     \\*
     & \qquad
-    - y_\xi y_{\eta}     \pdiff{}{\eta} \left( \Psi \pdiff{u}{\xi}\right)
-    + y_\xi y_{\xi}     \pdiff{}{\eta} \left( \Psi \pdiff{u}{\eta} \right)
-    \Bigg]
-    +
-    \\
-    %
-    %
-    %
-    + &\frac{1}{J} \Bigg[
-    x_\eta x_{\eta}    \pdiff{}{\xi} \left( \Psi \pdiff{u}{\xi}\right)
-    - x_\eta x_{\xi}     \pdiff{}{\eta} \left( \Psi \pdiff{u}{\eta} \right) +
-    \\
-    & \qquad
-    - x_\xi x_{\eta}     \pdiff{}{\eta} \left( \Psi \pdiff{u}{\xi}\right)
-    + x_\xi x_{\xi}      \pdiff{}{\eta} \left( \Psi \pdiff{u}{\eta} \right)
+    + \pdiff{}{\eta} \left( -y_\xi \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
+    +   x_\xi \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right)
     \Bigg]
 \end{align}
-\notyet
-Integration of the term for the eight quadrature points $qp$, for each face of the control volume $scv$  we get:
-%
-\begin{align}
-&
-\left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right) n_x \norm{dl} +
-\left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) n_y \norm{dl}
-\end{align}
-If the  viscosity is isotropic ($\Psi_{12} = \Psi_{21} = 0$) these equations reduce to:
+\textit{step 2a}: Applying Green's theorem, and multiplying with $J$
 \begin{align}
     &
-    \left( \Psi_{11} \pdiff{{u}}{x} \right) n_x \norm{dl} +
-    \left( \Psi_{22} \pdiff{{u}}{y} \right) n_y \norm{dl}
+    \left( y_\eta \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
+    - x_\eta  \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right) \nxi
+    +
+    \\*
+    & \qquad
+    + \left( -y_\xi \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
+    +   x_\xi \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right) \neta
+\end{align}
+with $\vecn = (\nxi, \neta)^T$ the outward normal vector.
+
+\textit{step 2b}:
+\begin{align}
+    &
+    \Bigg[ y_\eta \left(
+      \Psi_{11} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+    + \Psi_{12} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right) \right) +
+    \\*
+    & \quad - x_\eta \left(
+      \Psi_{21} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+    + \Psi_{22} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)
+    \right)
+    \Bigg] \nxi
+    +
+    \\
+    &\Bigg[
+    -y_\xi \left(
+       \Psi_{11} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+     + \Psi_{12} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)  \right) +
+    \\*
+    &\quad +   x_\xi \left(
+       \Psi_{21} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+     + \Psi_{22} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)  \right)
+     \Bigg] \neta
 \end{align}
 
-Define the components of $\bPsi$ at different locations with $(\mu, \nu) \in \{ 1, 2\}$ as
+%--------------------------------------------------------------------------------
+\subsection*{Isotropic and on a cartesian grid}
+When the heat conductivity coefficient is isotropic ($\Psi_{11} = \Psi_{22} = \Psi(\xi, \eta)$ and $\Psi_{12} = \Psi_{21} = 0$), on a cartesian grid ($y_\xi = x_\eta = \textit{constant}$) and multiplied with $J$ this term reduces to:
+\begin{align}
+    &
+    \Bigg[ y_\eta
+    \Psi \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+     - x_\eta
+    \Psi \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)
+    \Bigg] \nxi
+    +
+    \\
+    &\Bigg[
+    -y_\xi
+    \Psi \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+    +   x_\xi
+     \Psi \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)
+    \Bigg] \neta
+\end{align}
+
+\notyet
+
+
+Define the components of $\bPsi$ at different locations of the volume faces where $(\mu, \nu) \in \{ 1, 2\}$ as
 %
 \begin{align}
     \left. \overline\Psi_{\mu\nu} \right|_{i+\half,j+\quart} = \frac{1}{8} \left(\left. 3\Psi_{\mu\nu} \right|_{i,j}
@@ -307,79 +256,7 @@ and define the partial differentials as
     \left. \pdiff{u}{y} \right|_{i+\half,j+\quart} =  \half \left(\frac{u_{i,j+1} - u_{i,j}}{\Dy_{i,j+\half}} + \frac{u_{i+1,j+1} - u_{i+1,j}}{\Dy_{i+1,j+\half}}\right)
 \end{align}
 
-In case the viscosity is isotropic it reads:
-\begin{align}
-    \bPsi =
-    \begin{pmatrix}
-        \Psi & 0 \\
-        0 & \Psi
-    \end{pmatrix}
-\end{align}
-(isotropic, $\Psi_{11} = \Psi_{22} = \Psi$ and $\Psi_{12} = \Psi_{21} = 0$).
-and then the discretization is straight forward.
-
 %================================================================================
-\newpage
 \appendix
 \chapter{Curvilinear coordinate transformation}\label{app:CoordinateTransform}
-
-\subsection{Viscosity term}
-The $x$ and $y$-momentum equation diffusion terms are treated here as well due to their complexity.
-They can be transformed as:
-\begin{align}
-    \pdiff{}{x}\left(2\nu h \pdiff{(q/h)}{x}\right) =
-\end{align}
-\begin{align}
-    =\frac{1}{J} \left[
-    y_{\eta}\pdiff{}{\xi}\left( \frac{2\nu h}{J} \left(
-    y_{\eta}\pdiff{(q/h)}{\xi}
-    - y_{\xi}\pdiff{(q/h)}{\eta}\right) \right)
-    - y_{\xi}\pdiff{}{\eta}\left(\frac{2\nu h}{J} \left(
-    y_{\eta}\pdiff{(q/h)}{\xi}
-    -y_{\xi}\pdiff{(q/h)}{\eta} \right) \right) \right] =
-\end{align}
-\begin{align}
-    \begin{aligned}
-        &=\frac{1}{J} \Bigg[
-        y_{\eta} \left( \pdiff{}{\xi}\left( \frac{2\nu h}{J}\right) \left(
-        y_{\eta}\pdiff{(q/h)}{\xi}
-        - y_{\xi}\pdiff{(q/h)}{\eta}\right)
-        + \frac{2\nu h}{J} \pdiff{}{\xi} \left(
-        y_{\eta}\pdiff{(q/h)}{\xi}
-        - y_{\xi}\pdiff{(q/h)}{\eta}\right)\right) +
-        \\
-        &- y_{\xi}\left(\pdiff{}{\eta} \left(\frac{2\nu h}{J}\right) \left(
-        y_{\eta}\pdiff{(q/h)}{\xi}
-        -y_{\xi}\pdiff{(q/h)}{\eta} \right)
-        +\frac{2\nu h}{J} \pdiff{}{\eta}\left(
-        y_{\eta}\pdiff{(q/h)}{\xi}
-        -y_{\xi}\pdiff{(q/h)}{\eta} \right)
-        \right) \Bigg] =
-    \end{aligned}
-\end{align}
-\begin{align}
-    \begin{aligned}
-        &=\frac{2}{J} \Bigg[
-        y_{\eta} \left( \pdiff{}{\xi}\left( \frac{\nu h}{J}\right) \left(
-        y_{\eta}\pdiff{(q/h)}{\xi}
-        - y_{\xi}\pdiff{(q/h)}{\eta}\right)
-        + \frac{\nu h}{J} \pdiff{}{\xi} \left(
-        y_{\eta}\pdiff{(q/h)}{\xi}
-        - y_{\xi}\pdiff{(q/h)}{\eta}\right) \right) +
-        \\
-        &- y_{\xi}\left(\pdiff{}{\eta} \left(\frac{\nu h}{J}\right) \left(
-        y_{\eta}\pdiff{(q/h)}{\xi}
-        -y_{\xi}\pdiff{(q/h)}{\eta} \right)
-        +\frac{\nu h}{J} \pdiff{}{\eta}\left(
-        y_{\eta}\pdiff{(q/h)}{\xi}
-        -y_{\xi}\pdiff{(q/h)}{\eta} \right)
-        \right) \Bigg]
-    \end{aligned}
-\end{align}
-%
-	\begin{align}
-    \begin{aligned}
-        - \pdiff{}{x}\left(2\nu h\pdiff{(q/h)}{x} \right)
-        - \pdiff{}{y}\left(\nu h\pdiff{(r/h)}{x} + \nu h \pdiff{(q/h)}{y} \right) =
-    \end{aligned}
-\end{align}
+\notyet

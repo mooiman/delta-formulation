@@ -34,9 +34,6 @@
     <ClCompile Include="src\boundary_condition.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\wave_2d_version.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\build_matrix_pattern.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -68,6 +65,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\observation_stations.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main_version.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

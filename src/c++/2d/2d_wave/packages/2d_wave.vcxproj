@@ -128,7 +128,7 @@
       <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;QT_NO_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <PreBuildEvent>
-      <Command>call ..\scripts\git_insert_hash.cmd .\include wave_2d_version.h</Command>
+      <Command>call ..\scripts\git_insert_hash.cmd .\include main_version.h</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>
@@ -179,7 +179,7 @@
       <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <PreBuildEvent>
-      <Command>call ..\scripts\git_insert_hash.cmd .\include wave_2d_version.h</Command>
+      <Command>call ..\scripts\git_insert_hash.cmd .\include main_version.h</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>
@@ -199,6 +199,7 @@
     <ClCompile Include="src\interpolations.cpp" />
     <ClCompile Include="src\jacobians.cpp" />
     <ClCompile Include="src\main_2d.cpp" />
+    <ClCompile Include="src\main_version.cpp" />
     <ClCompile Include="src\matrix_assembly_boundaries.cpp" />
     <ClCompile Include="src\matrix_assembly_corners.cpp" />
     <ClCompile Include="src\matrix_assembly_interior.cpp" />
@@ -208,7 +209,6 @@
     <ClCompile Include="src\regularization.cpp" />
     <ClCompile Include="src\ugrid2d.cpp" />
     <ClCompile Include="src\viscosity.cpp" />
-    <ClCompile Include="src\wave_2d_version.cpp" />
     <ClCompile Include="src\write_input_toml_to_logfile.cpp" />
   </ItemGroup>
   <ItemGroup>

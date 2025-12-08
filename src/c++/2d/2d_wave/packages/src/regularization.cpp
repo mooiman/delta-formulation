@@ -64,6 +64,9 @@ void REGULARIZATION::given_function(
     std::vector<double>& u_giv_in,
     size_t nx, size_t ny, double dx, double dy, double c_psi, std::ofstream& log_file)
 {
+    dx = 1.0;
+    dy = 1.0;
+
     double diff_max0 = 0.0;
     double diff_max1 = 0.0;
     size_t nxny = nx * ny;
