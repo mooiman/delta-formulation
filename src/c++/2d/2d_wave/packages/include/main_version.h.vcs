@@ -1,0 +1,27 @@
+#ifndef __main_VERSION_H__
+#define __main_VERSION_H__
+
+#include <string>
+
+#define main_major "VN_MAJOR"
+#define main_minor "VN_MINOR"
+#define main_revision "VN_REVISION"
+#define main_build "VCS_BUILD_HASH"
+
+#define main_company "Mooiman"
+#define main_company_url "https://www.github.com/mooiman"
+#define main_source_url "VCS_SOURCE_URL"
+#define main_program "Wave-2D"
+
+/*=================================================== DO NOT MAKE CHANGES BELOW THIS LINE ===================================================================== */
+
+extern "C" {
+    extern char * getcompanystring_main(void);
+    extern char * getfullversionstring_main(void);
+    extern char * getprogramstring_main(void);
+    extern char * getversionstring_main(void);
+    extern char * getsourceurlstring_main(void);
+    extern char * getbuildstring_main(void);
+}
+
+#endif // __main_VERSION_H__

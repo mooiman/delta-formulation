@@ -76,6 +76,7 @@ AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 #include "viscosity.h"
 
 void GetArguments(long argc, char** argv, std::filesystem::path & file_name);
+inline size_t idx(size_t i, size_t j, size_t ny_in);
 
 double dcdx_scv(double, double, double, double);
 double dcdy_scv(double, double, double, double);
@@ -482,8 +483,8 @@ int main(int argc, char *argv[])
     status = map_file->def_dimensions(nr_nodes, nr_edges, nr_faces, mesh2d_nmax_face_nodes);
     status = map_file->add_edge_nodes(nx, ny);
     status = map_file->add_face_nodes(x, y, mesh2d->node[0]->fill_value, nx, ny);
-    status = map_file->add_nodes_coord(x, y, mesh2d->node[0]->fill_value);
-    status = map_file->add_edges_coord(x, y, mesh2d->node[0]->fill_value);
+    status = map_file->add_node_coords(x, y, mesh2d->node[0]->fill_value);
+    status = map_file->add_edge_coords(x, y, mesh2d->node[0]->fill_value);
     status = map_file->add_face_mass_centres(x, y, mesh2d->node[0]->fill_value, nx, ny);
     status = map_file->add_face_area(x, y, mesh2d->node[0]->fill_value, nx, ny);
 
@@ -1166,3 +1167,8 @@ void GetArguments(long argc,   /* I Number of command line arguments */
     }
     return;
 }
+inline size_t idx(size_t i, size_t j, size_t ny_in)
+{
+    return i * ny_in + j;
+}
+

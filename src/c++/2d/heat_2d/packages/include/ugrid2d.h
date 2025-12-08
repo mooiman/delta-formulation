@@ -2,7 +2,7 @@
 // Programmer: Jan Mooiman
 // Email     : jan.mooiman@outlook.com
 //
-//    Solving the HEAT-equation in 2 dimensions, fully implicit with delta-formuation and Modified Newton iteration 
+//    Solving the 2D shallow water equations, fully implicit with delta-formuation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -51,8 +51,8 @@ public:
     int add_node_count(std::string var_name, std::vector<std::string> dim_names, std::string long_name);
     int add_edge_nodes(size_t nx, size_t ny);
     int add_face_nodes(std::vector<double> & x, std::vector<double> & y, double fill_value, size_t nx, size_t ny);
-    int add_nodes_coord(std::vector<double> & x, std::vector<double> & y,  double fill_value);
-    int add_edges_coord(std::vector<double> & x, std::vector<double> & y,  double fill_value);
+    int add_node_coords(std::vector<double> & x, std::vector<double> & y,  double fill_value);
+    int add_edge_coords(std::vector<double> & x, std::vector<double> & y,  double fill_value);
     int add_face_mass_centres(std::vector<double> & x, std::vector<double> & y, double fill_value, size_t nx, size_t ny);
     int add_face_area(std::vector<double> & x, std::vector<double> & y,  double fill_value, size_t nx, size_t ny);
     int add_time_series(void);

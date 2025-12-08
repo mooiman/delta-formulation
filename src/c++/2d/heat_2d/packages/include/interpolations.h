@@ -2,7 +2,7 @@
 // programmer: Jan Mooiman
 // Email     : jan.mooiman@outlook.com
 //
-//    Solving the HEAT-equation in 2 dimensions, fully implicit with delta-formuation and Modified Newton iteration 
+//    Solving the 2D shallow water equations, fully implicit with delta-formuation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -19,13 +19,18 @@
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
 //------------------------------------------------------------------------------
+#include <vector>
 
+double c_scv(double c0, double c1, double c2, double c3);
 double scvf_xi(double c0, double c1, double c2, double c3);
 double scvf_eta(double c0, double c1, double c2, double c3);
-double c_scv(double c0, double c1, double c2, double c3);
 double dcdx_scv(double c0, double c1, double c2, double c3);
 double dcdy_scv(double c0, double c1, double c2, double c3);
 double dcdx_scvf_n(double c0, double c1, double c2, double c3);
 double dcdx_scvf_t(double c0, double c1, double c2, double c3);
 double dcdy_scvf_n(double c0, double c1, double c2, double c3);
 double dcdy_scvf_t(double c0, double c1, double c2, double c3);
+
+double polygon_area(std::vector<double>& x, std::vector<double>& y);
+std::vector<double> cv_nodes(double x0, double x1, double x2, double x3);
+std::vector<double> scv_nodes(int scv_i, double x0, double x1, double x2, double x3);

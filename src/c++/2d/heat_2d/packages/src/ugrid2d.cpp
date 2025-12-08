@@ -22,7 +22,8 @@
 
 #include "ugrid2d.h"
 #include "compile_date_and_time.h"
-#include "heat_2d_version.h"
+#include "interpolations.h"
+#include "main_version.h"
 #include "include/netcdf.h"
 
 UGRID2D::UGRID2D()
@@ -59,7 +60,8 @@ int UGRID2D::open(std::string ncfile, std::string model_title)
     status = set_global_attribute("Title", model_title);
     status = set_global_attribute("Model", "Delta-formulation 2D, C++");
     status = set_global_attribute("Program created", compileDateTime() );
-    status = set_global_attribute("Program version", getversionstring_heat_2d() );
+    status = set_global_attribute("Program version", getversionstring_main() );
+    status = set_global_attribute("Program build", getbuildstring_main() );
     status = set_global_attribute("Conventions", "CF-1.8 UGRID-1.0");
     status = set_global_attribute("file_created", date_time);
     status = set_global_attribute("reference", "https://www.github.com/mooiman");
@@ -223,7 +225,7 @@ int UGRID2D::add_face_nodes(std::vector<double> & x, std::vector<double> & y, do
 
     return status;
 }
-int UGRID2D::add_nodes_coord(std::vector<double> & x, std::vector<double> & y, double fill_value)
+int UGRID2D::add_node_coords(std::vector<double> & x, std::vector<double> & y, double fill_value)
 {
     int status = 1;
     std::vector<std::string> dim_names;
@@ -238,7 +240,7 @@ int UGRID2D::add_nodes_coord(std::vector<double> & x, std::vector<double> & y, d
 
     return status;
 }
-int UGRID2D::add_edges_coord(std::vector<double> & x, std::vector<double> & y, double fill_value)
+int UGRID2D::add_edge_coords(std::vector<double> & x, std::vector<double> & y, double fill_value)
 {
     int status = 1;
 
@@ -312,6 +314,9 @@ int UGRID2D::add_face_area(std::vector<double> & x, std::vector<double> & y, dou
     size_t p2;
     size_t p3;
     std::vector<double> cell_area;
+    std::vector<double> x_pol(4);
+    std::vector<double> y_pol(4);
+
     for (size_t i = 0; i < nx - 1; ++i)
     {
         for (size_t j = 0; j < ny - 1; ++j)
@@ -320,7 +325,18 @@ int UGRID2D::add_face_area(std::vector<double> & x, std::vector<double> & y, dou
             p1 = idx(i + 1, j    , ny);
             p2 = idx(i + 1, j + 1, ny);
             p3 = idx(i    , j + 1, ny);
-            double area = std::abs(0.5 * ((x[p0] * y[p1] + x[p1] * y[p2] + x[p2] * y[p3] + x[p3] * y[p0]) - (y[p0] * x[p1] + y[p1] * x[p2] + y[p2] * x[p3] + y[p3] * x[p0])));
+            //
+            // Area: $J = x_\xi y_\eta - y_\xi x_\eta$
+            //
+            x_pol[0] = x[p0];
+            x_pol[1] = x[p1];
+            x_pol[2] = x[p2];
+            x_pol[3] = x[p3];
+            y_pol[0] = y[p0];
+            y_pol[1] = y[p1];
+            y_pol[2] = y[p2];
+            y_pol[3] = y[p3];
+            double area = polygon_area(x_pol, y_pol);
             cell_area.push_back(area);
         }
     }

@@ -128,7 +128,7 @@
       <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;QT_NO_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <PreBuildEvent>
-      <Command>call ..\scripts\git_insert_hash.cmd .\include heat_2d_version.h</Command>
+      <Command>call ..\scripts\git_insert_hash.cmd .\include main_version.h</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>
@@ -179,7 +179,7 @@
       <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <PreBuildEvent>
-      <Command>call ..\scripts\git_insert_hash.cmd .\include heat_2d_version.h</Command>
+      <Command>call ..\scripts\git_insert_hash.cmd .\include main_version.h</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>
@@ -193,9 +193,9 @@
     <ClCompile Include="src\build_matrix_pattern_regularization.cpp" />
     <ClCompile Include="src\cfts.cpp" />
     <ClCompile Include="src\grid.cpp" />
-    <ClCompile Include="src\heat_2d_version.cpp" />
     <ClCompile Include="src\initial_conditions.cpp" />
     <ClCompile Include="src\interpolations.cpp" />
+    <ClCompile Include="src\main_version.cpp" />
     <ClCompile Include="src\matrix_assembly_boundaries.cpp" />
     <ClCompile Include="src\matrix_assembly_corners.cpp" />
     <ClCompile Include="src\matrix_assembly_interior.cpp" />
@@ -216,7 +216,7 @@
     <ClInclude Include="include\data_input_struct.h" />
     <ClInclude Include="include\data_struct.h" />
     <ClInclude Include="include\grid.h" />
-    <ClInclude Include="include\heat_2d_version.h" />
+    <ClInclude Include="include\main_version.h" />
     <ClInclude Include="include\initial_conditions.h" />
     <ClInclude Include="include\interpolations.h" />
     <ClInclude Include="include\matrix_assembly_boundaries.h" />
@@ -231,7 +231,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="include\version_number.ini" />
-    <None Include="include\heat_2d_version.h.vcs" />
+    <None Include="include\main_version.h.vcs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />
