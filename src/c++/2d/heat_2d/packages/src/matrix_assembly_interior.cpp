@@ -55,12 +55,14 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
+#include "interpolations.h"
+#include "matrix_assembly_interior.h"
+
 int interior_time(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs, 
-    double & dtinv, double theta, 
+    double & dtinv, 
     size_t nx, size_t ny,
-    std::vector<double>& Tn,
-    std::vector<double>& Tp, 
-    double dx, double dy, double dxdy, std::vector<double>& mass)
+    std::vector<double>& x, std::vector<double>& y,
+    std::vector<double>& Tn, std::vector<double>& Tp)
 {
     int p_0 = c_eq/(9);  // node number;  // centre of discretization molecule
     // if node number is south or north boundary point, exit the function
@@ -88,38 +90,56 @@ int interior_time(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs,
     size_t col_e  = c_eq + 7;
     size_t col_ne = c_eq + 8;
 
+    std::vector<double> x_pol = scv_nodes(0, x[p_0], x[p_w], x[p_sw], x[p_s]);
+    std::vector<double> y_pol = scv_nodes(0, y[p_0], y[p_w], y[p_sw], y[p_s]);
+    double scv_area_0 = polygon_area(x_pol, y_pol);
+
+    x_pol = scv_nodes(1, x[p_0], x[p_s], x[p_se], x[p_e]);
+    y_pol = scv_nodes(1, y[p_0], y[p_s], y[p_se], y[p_e]);
+    double scv_area_1 = polygon_area(x_pol, y_pol);
+
+    x_pol = scv_nodes(2, x[p_0], x[p_e], x[p_ne], x[p_n]);
+    y_pol = scv_nodes(2, y[p_0], y[p_e], y[p_ne], y[p_n]);
+    double scv_area_2 = polygon_area(x_pol, y_pol);
+
+    x_pol = scv_nodes(3, x[p_0], x[p_n], x[p_nw], x[p_w]);
+    y_pol = scv_nodes(3, y[p_0], y[p_n], y[p_nw], y[p_w]);
+    double scv_area_3 = polygon_area(x_pol, y_pol);
     //------------------------------------------------------------------------
     // heat-equation
     // 
-    set_value(values, col_sw, dtinv * dxdy * mass[0] * mass[0]);
-    set_value(values, col_w , dtinv * dxdy * mass[1] * mass[0]);
-    set_value(values, col_nw, dtinv * dxdy * mass[2] * mass[0]);
-
-    set_value(values, col_s  ,dtinv * dxdy * mass[0] * mass[1]);
-    set_value(values, col_0  ,dtinv * dxdy * mass[1] * mass[1]);
-    set_value(values, col_n  ,dtinv * dxdy * mass[2] * mass[1]);
-
-    set_value(values, col_se, dtinv * dxdy * mass[0] * mass[2]);
-    set_value(values, col_e , dtinv * dxdy * mass[1] * mass[2]);
-    set_value(values, col_ne, dtinv * dxdy * mass[2] * mass[2]);
-
-    rhs[row] = -(
-        dtinv * dxdy * mass[0] * mass[0] * (Tp[p_sw] - Tn[p_sw]) +
-        dtinv * dxdy * mass[1] * mass[0] * (Tp[p_s ] - Tn[p_s ]) +
-        dtinv * dxdy * mass[2] * mass[0] * (Tp[p_se] - Tn[p_se]) +
-        //
-        dtinv * dxdy * mass[0] * mass[1] * (Tp[p_w ] - Tn[p_w]) +
-        dtinv * dxdy * mass[1] * mass[1] * (Tp[p_0 ] - Tn[p_0]) +
-        dtinv * dxdy * mass[2] * mass[1] * (Tp[p_e]  - Tn[p_e]) +
-        //
-        dtinv * dxdy * mass[0] * mass[2] * (Tp[p_nw] - Tn[p_nw]) +
-        dtinv * dxdy * mass[1] * mass[2] * (Tp[p_n ] - Tn[p_n ]) +
-        dtinv * dxdy * mass[2] * mass[2] * (Tp[p_ne] - Tn[p_ne])
-        );
+    rhs[row] = 0.0;
+    // scv_0
+    add_value(values, col_0 , dtinv * scv_area_0 * 9./16.);
+    add_value(values, col_w , dtinv * scv_area_0 * 3./16.);
+    add_value(values, col_s , dtinv * scv_area_0 * 3./16.);
+    add_value(values, col_sw, dtinv * scv_area_0 * 1./16.);
+    rhs[row] += -dtinv * scv_area_0 * c_scv(Tp[p_0] - Tn[p_0], Tp[p_w] - Tn[p_w], Tp[p_s] - Tn[p_s], Tp[p_sw] - Tn[p_sw]);
+    //
+    // scv 1
+    add_value(values, col_0 , dtinv * scv_area_1 * 9./16.);
+    add_value(values, col_s , dtinv * scv_area_1 * 3./16.);
+    add_value(values, col_e , dtinv * scv_area_1 * 3./16.);
+    add_value(values, col_se, dtinv * scv_area_1 * 1./16.);
+    rhs[row] += -dtinv * scv_area_1 * c_scv(Tp[p_0] - Tn[p_0], Tp[p_s] - Tn[p_s], Tp[p_e] - Tn[p_e], Tp[p_se] - Tn[p_se]);
+    //
+    // scv 2
+    add_value(values, col_0 , dtinv * scv_area_2 * 9./16.);
+    add_value(values, col_e , dtinv * scv_area_2 * 3./16.);
+    add_value(values, col_n , dtinv * scv_area_2 * 3./16.);
+    add_value(values, col_ne, dtinv * scv_area_2 * 1./16.);
+    rhs[row] += -dtinv * scv_area_2 * c_scv(Tp[p_0] - Tn[p_0], Tp[p_e] - Tn[p_e], Tp[p_n] - Tn[p_n], Tp[p_ne] - Tn[p_ne]);
+    //
+    //scv 3
+    add_value(values, col_0 , dtinv * scv_area_3 * 9./16.);
+    add_value(values, col_n , dtinv * scv_area_3 * 3./16.);
+    add_value(values, col_w , dtinv * scv_area_3 * 3./16.);
+    add_value(values, col_nw, dtinv * scv_area_3 * 1./16.);
+    rhs[row] += -dtinv * scv_area_3 * c_scv(Tp[p_0] - Tn[p_0], Tp[p_n] - Tn[p_n], Tp[p_w] - Tn[p_w], Tp[p_nw] - Tn[p_nw]);
 
     return 0;
 }
         
-inline void set_value(double * values, size_t col, double data){ 
+inline void add_value(double * values, size_t col, double data){ 
     values[col] += data; 
 }
