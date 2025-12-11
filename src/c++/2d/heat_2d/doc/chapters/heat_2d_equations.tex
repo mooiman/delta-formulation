@@ -11,9 +11,9 @@ Consider the non-linear heat equation
 with
 \begin{symbollist}
     \item[$u$] Temperature, \bunit{\celsius}.
-    \item[$\bPsi$] 2-dimensional thermal diffusivity, \bunit{\square\metre\per\second}.
+    \item[$\bPsi$] 2-dimensional thermal conductivity coefficient, \bunit{\square\metre\per\second}.
 \end{symbollist}
-$\bPsi$ the thermal diffusivity is defined as:
+$\bPsi$ the thermal conductivity coefficient is defined as:
 \begin{align}
     \bPsi =
     \begin{pmatrix}
@@ -21,7 +21,7 @@ $\bPsi$ the thermal diffusivity is defined as:
         \Psi_{21} & \Psi_{22}
     \end{pmatrix}
 \end{align}
-The 2D-heat equation in curvilinear coordinates read:
+The 2D-heat equation in curvilinear ($\xi,\eta$)-coordinates reads:
 \begin{align}
     &J \pdiff{u}{t} - \nabla \dotp \left( \bPsi \nabla u \right) = 0,
     \label{eq:heat_2d_curvi}
@@ -34,7 +34,7 @@ Integrating the equations over a finite volume $\Omega$ yields:
     \label{eq:heat_2d_equation}
 \end{align}
 %
-The 2D-heat equation in curvilinear coordinates read:
+The 2D-heat equation in curvilinear coordinates reads:
 \begin{align}
     &\int_{\Omega_{\xi\eta}} J \pdiff{u}{t}\, d\xi d\eta - \int_{\Omega_{\xi\eta}} \nabla \dotp \left( \bPsi \nabla u \right)\, d\xi d\eta = 0,
     \label{eq:heat_2d_curvi}
@@ -131,21 +131,25 @@ by
 
 
 %--------------------------------------------------------------------------------
-\subsubsection{Viscosity}
-The viscosity term in vector notation reads:
+\subsubsection{Thermal conductivity}
+The thermal conductivity term in vector notation reads:
 \begin{align}
     \int_\Omega & \nabla \dotp \left( \mat{\Psi} \nabla u \right) \, d\omega  =
     \oint_{\Omega}  \left(  \mat{\Psi} \nabla u \right) \dotp \vec{n}\, dl =
     \\
-    = & \oint_{\Omega}  \left( \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y}  \right) n_x + \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}  \right) n_y \right) \norm{dl}
+    = & \oint_{\Omega} \left(
+      \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y}  \right) \nx
+    + \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}  \right) \ny
+    \right) \norm{dl}
 \end{align}
 with $\vecn = (\nx, \ny)^T$ the outward normal vector.
 
-For the heat-equation the diffusity term can be transformed as:
+For the heat-equation the thermal conductivity term:
 \begin{align}
     \pdiff{}{x} \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y}  \right) +
     \pdiff{}{y} \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}  \right)
 \end{align}
+can be transformed as\newline
 \textit{step 1a}
 \begin{align}
 &\frac{1}{J} \Bigg[
@@ -169,7 +173,7 @@ Assume $x_{\xi\eta} = x_{\eta\xi}$ and $y_{\xi\eta} = y_{\eta\xi}$
     + \pdiff{}{\eta} \left( x_\xi \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right)
     \Bigg]
 \end{align}
-$\Leftrightarrow$
+Rearrange this equation to a divergence type in $\xi$- and $\eta$-direction to prepare to use Green's theorem, yields:
 \begin{align}
     &\frac{1}{J} \Bigg[
     \pdiff{}{\xi} \left( y_\eta \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
@@ -181,7 +185,8 @@ $\Leftrightarrow$
     +   x_\xi \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right)
     \Bigg]
 \end{align}
-\textit{step 2a}: Applying Green's theorem, and multiplying with $J$
+ Applying Green's theorem, and multiplying with $J$ (because the whole heat equation is multiplied by $J$)\newline
+ \textit{step 2a}:
 \begin{align}
     &
     \left( y_\eta \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
@@ -197,7 +202,7 @@ with $\vecn = (\nxi, \neta)^T$ the outward normal vector.
 \textit{step 2b}:
 \begin{align}
     &
-    \Bigg[ y_\eta \left(
+    \frac{1}{J} \Bigg[ y_\eta \left(
       \Psi_{11} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
     + \Psi_{12} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right) \right) +
     \\*
@@ -208,7 +213,7 @@ with $\vecn = (\nxi, \neta)^T$ the outward normal vector.
     \Bigg] \nxi
     +
     \\
-    &\Bigg[
+    &\frac{1}{J} \Bigg[
     -y_\xi \left(
        \Psi_{11} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
      + \Psi_{12} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)  \right) +
@@ -220,22 +225,35 @@ with $\vecn = (\nxi, \neta)^T$ the outward normal vector.
 \end{align}
 
 %--------------------------------------------------------------------------------
-\subsection*{Isotropic and on a cartesian grid}
-When the heat conductivity coefficient is isotropic ($\Psi_{11} = \Psi_{22} = \Psi(\xi, \eta)$ and $\Psi_{12} = \Psi_{21} = 0$), on a cartesian grid ($y_\xi = x_\eta = \textit{constant}$) and multiplied with $J$ this term reduces to:
+\subsection*{Orthotropic conductivity}
+When the thermal conductivity coefficient is orthotropic  ($\Psi_{12} = \Psi_{21} = 0$) reduces to:
+%($\Psi_{11} = \Psi_{22} = \Psi(\xi, \eta)$ and $\Psi_{12} = \Psi_{21} = 0$)
 \begin{align}
     &
-    \Bigg[ y_\eta
-    \Psi \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+    \frac{1}{J} \Bigg[ y_\eta
+    \Psi_{11} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
      - x_\eta
-    \Psi \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)
+    \Psi_{22} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)
     \Bigg] \nxi
     +
     \\
-    &\Bigg[
+    & + \frac{1}{J} \Bigg[
     -y_\xi
-    \Psi \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+    \Psi_{11} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
     +   x_\xi
-     \Psi \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)
+     \Psi_{22} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)
+    \Bigg] \neta
+\end{align}
+
+In case it is also orthogonal (i.e.\ $y_\xi = x_\eta =0$) it reads:
+\begin{align}
+    &
+    \frac{1}{J} \Bigg[ y_\eta
+    \Psi_{11} \left( y_\eta \pdiff{u}{\xi} \right)
+    \Bigg] \nxi
+    + \frac{1}{J} \Bigg[
+    x_\xi
+    \Psi_{22} \left( x_\xi \pdiff{u}{\eta} \right)
     \Bigg] \neta
 \end{align}
 
@@ -255,6 +273,22 @@ and define the partial differentials as
     \\
     \left. \pdiff{u}{y} \right|_{i+\half,j+\quart} =  \half \left(\frac{u_{i,j+1} - u_{i,j}}{\Dy_{i,j+\half}} + \frac{u_{i+1,j+1} - u_{i+1,j}}{\Dy_{i+1,j+\half}}\right)
 \end{align}
+
+%================================================================================
+\chapter{Numerical experiment}
+\section{Initial Dirac-delta function}
+Th analytic solution for a 2D heat equation is
+\begin{align}
+T(t)= \frac{1}{4D\pi t} \exp\left(\frac{-x^2 - y^2}{4Dt}\right)
+\end{align}
+where
+\begin{symbollist}
+    \item[$T$] Temperature, \bunit{\celsius}.
+    \item[$D$] Heat conductivity, \bunit{\watt\per\metre\per\kelvin}.
+    \item[$t$] Time, \bunit{\second}.
+    \item[$x$] Coordinate in $x$-direction, \bunit{\metre}.
+    \item[$y$] Coordinate in $y$-direction, \bunit{\metre}.
+\end{symbollist}
 
 %================================================================================
 \appendix

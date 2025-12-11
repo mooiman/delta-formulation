@@ -4,7 +4,7 @@
 #define main_major "0"     
 #define main_minor "00"     
 #define main_revision "000"     
-#define main_build "2025-12-07 19:14:00, M-6c0dfe8"     
+#define main_build "2025-12-11 20:36:59, M-8a9c820"     
 #define main_company "Mooiman"     
 #define main_company_url "https://www.github.com/mooiman"     
 #define main_source_url "https://github.com/mooiman/delta-formulation.git"     

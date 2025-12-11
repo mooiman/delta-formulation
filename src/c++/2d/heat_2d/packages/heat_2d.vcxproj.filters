@@ -58,6 +58,9 @@
     <ClCompile Include="src\main_version.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\analytic_solution.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\boundary_condition.h">
@@ -118,6 +121,9 @@
       <Filter>Include Files</Filter>
     </ClInclude>
     <ClInclude Include="include\observation_stations.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\analytic_solution.h">
       <Filter>Include Files</Filter>
     </ClInclude>
   </ItemGroup>

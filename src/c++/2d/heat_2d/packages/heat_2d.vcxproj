@@ -187,6 +187,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\analytic_solution.cpp" />
     <ClCompile Include="src\heat_2d.cpp" />
     <ClCompile Include="src\boundary_condition.cpp" />
     <ClCompile Include="src\build_matrix_pattern.cpp" />
@@ -208,6 +209,7 @@
     <ClCompile Include="src\write_input_toml_to_logfile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\analytic_solution.h" />
     <ClInclude Include="include\boundary_condition.h" />
     <ClInclude Include="include\build_matrix_pattern.h" />
     <ClInclude Include="include\build_matrix_pattern_regularization.h" />

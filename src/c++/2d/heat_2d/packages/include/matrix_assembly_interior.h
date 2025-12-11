@@ -35,12 +35,11 @@
 #include <Eigen/Sparse>
 
 int interior_time(double* values, size_t row, int c_eq, Eigen::VectorXd& rhs, 
-    double & dtinv, double theta,
+    double & dtinv,
     size_t nx, size_t ny,
-    std::vector<double>& Tn, 
-    std::vector<double>& Tp,
-    double dx, double dy, double dxdy, std::vector<double>& mass);
+    std::vector<double>& x, std::vector<double>& y, 
+    std::vector<double>& Tn, std::vector<double>& Tp);
 
-inline void set_value(double * values, size_t col, double data);
+inline void add_value(double * values, size_t col, double data);
 
 #endif  // __MATRIX_ASSEMBLY_INTERIOR_H__
