@@ -4,7 +4,7 @@
 #define heat_2d_major "0"     
 #define heat_2d_minor "00"     
 #define heat_2d_revision "000"     
-#define heat_2d_build "M-274212c"     
+#define heat_2d_build "M-85f2bbc"     
 #define heat_2d_company "Mooiman"     
 #define heat_2d_company_url "https://www.github.com/mooiman"     
 #define heat_2d_source_url "https://github.com/mooiman/delta-formulation.git"     

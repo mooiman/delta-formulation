@@ -44,9 +44,9 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     for (int i = 0; i < data.boundary.bc_vars.size() - 1; ++i) { log_file << data.boundary.bc_vars[i] << "\", \""; }
     log_file << data.boundary.bc_vars[data.boundary.bc_vars.size() - 1] << "\"]" << std::endl;
 
-    log_file << "    "<< "bc_absorbing = [";
-    for (int i = 0; i < data.boundary.bc_absorbing.size() - 1; ++i) { log_file << bool_value_as_string(data.boundary.bc_absorbing[i]) << ", "; }
-    log_file << bool_value_as_string(data.boundary.bc_absorbing[data.boundary.bc_absorbing.size() - 1]) << "]" << std::endl; 
+    //log_file << "    "<< "bc_absorbing = [";
+    //for (int i = 0; i < data.boundary.bc_absorbing.size() - 1; ++i) { log_file << bool_value_as_string(data.boundary.bc_absorbing[i]) << ", "; }
+    //log_file << bool_value_as_string(data.boundary.bc_absorbing[data.boundary.bc_absorbing.size() - 1]) << "]" << std::endl; 
 
     log_file << "    " << "bc_vals = [";
     for (int i = 0; i < data.boundary.bc_vals.size() - 1; ++i) { log_file << format_as_double(data.boundary.bc_vals[i]) << ", "; }

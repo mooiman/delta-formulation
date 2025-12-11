@@ -76,6 +76,7 @@ AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 #include "viscosity.h"
 
 void GetArguments(long argc, char** argv, std::filesystem::path & file_name);
+inline size_t idx(size_t i, size_t j, size_t ny_in);
 
 double dcdx_scv(double, double, double, double);
 double dcdy_scv(double, double, double, double);
@@ -433,6 +434,8 @@ int main(int argc, char *argv[])
     (void) initial_conditions(x, y, nx, ny,
         hn, 
         ini_vars, gauss_amp, gauss_mu_x, gauss_mu_y, gauss_sigma_x, gauss_sigma_y);
+
+    hn[idx(nx / 2, ny / 2, ny)] = 1.0;
 
     if (regularization_init)
     {
@@ -856,6 +859,7 @@ int main(int argc, char *argv[])
                     log_file << "=== Matrix ============================================" << std::endl;
                     for (int i = 0; i < nxny; ++i)
                     {
+                        log_file << std::noshowpos << std::setprecision(3) << i << "   ";
                         for (int j = 0; j < nxny; ++j)
                         {
                             log_file << std::showpos << std::setprecision(3) << std::scientific << A.coeff(i, j) << " ";
@@ -879,6 +883,7 @@ int main(int argc, char *argv[])
                     log_file << "=== RHS ===============================================" << std::endl;
                     for (int i = 0; i < nxny; ++i)
                     {
+                        log_file << std::noshowpos << std::setprecision(3) << i << "   ";
                         log_file << std::setprecision(8) << std::scientific << rhs[i] << std::endl;
                     }
                 }
@@ -1165,4 +1170,8 @@ void GetArguments(long argc,   /* I Number of command line arguments */
         i = i + 1;
     }
     return;
+}
+inline size_t idx(size_t i, size_t j, size_t ny_in)
+{
+    return i * ny_in + j;
 }

@@ -125,6 +125,8 @@ std::vector<_ObservationPoint> read_observation_points(toml::table tbl)
 {
     auto obs_points = tbl["ObservationPoint"].as_array();
     std::vector<_ObservationPoint> points;
+    if (obs_points == nullptr) { return points; }
+
     for (const auto& item : *obs_points) 
     {
         _ObservationPoint pt;
