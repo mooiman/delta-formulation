@@ -334,66 +334,23 @@ which is equal to (and look to the similarity with \autoref{eq:transformed_mass_
 %\newpage
 %--------------------------------------------------------------------------------
 \subsection{Viscosity term}
-The $x$ and $y$-momentum equation diffusion terms are treated here as well due to their complexity.
-They can be transformed as:
-	\begin{align}
-		\pdiff{}{x}\left(2\nu h \pdiff{(q/h)}{x}\right) =
-	\end{align}
-	\begin{align}
-		=\frac{1}{J} \left[
-		y_{\eta}\pdiff{}{\xi}\left( \frac{2\nu h}{J} \left(
-		y_{\eta}\pdiff{(q/h)}{\xi}
-		- y_{\xi}\pdiff{(q/h)}{\eta}\right) \right)
-		- y_{\xi}\pdiff{}{\eta}\left(\frac{2\nu h}{J} \left(
-		y_{\eta}\pdiff{(q/h)}{\xi}
-		-y_{\xi}\pdiff{(q/h)}{\eta} \right) \right) \right] =
-	\end{align}
-	\begin{align}
-		\begin{aligned}
-			&=\frac{1}{J} \Bigg[
-			y_{\eta} \left( \pdiff{}{\xi}\left( \frac{2\nu h}{J}\right) \left(
-			y_{\eta}\pdiff{(q/h)}{\xi}
-			- y_{\xi}\pdiff{(q/h)}{\eta}\right)
-			+ \frac{2\nu h}{J} \pdiff{}{\xi} \left(
-			y_{\eta}\pdiff{(q/h)}{\xi}
-			- y_{\xi}\pdiff{(q/h)}{\eta}\right)\right) +
-            \\
-			&- y_{\xi}\left(\pdiff{}{\eta} \left(\frac{2\nu h}{J}\right) \left(
-			y_{\eta}\pdiff{(q/h)}{\xi}
-			-y_{\xi}\pdiff{(q/h)}{\eta} \right)
-			+\frac{2\nu h}{J} \pdiff{}{\eta}\left(
-			y_{\eta}\pdiff{(q/h)}{\xi}
-			-y_{\xi}\pdiff{(q/h)}{\eta} \right)
-			\right) \Bigg] =
-		\end{aligned}
-	\end{align}
-	\begin{align}
-		\begin{aligned}
-			&=\frac{2}{J} \Bigg[
-			y_{\eta} \left( \pdiff{}{\xi}\left( \frac{\nu h}{J}\right) \left(
-			y_{\eta}\pdiff{(q/h)}{\xi}
-			- y_{\xi}\pdiff{(q/h)}{\eta}\right)
-			+ \frac{\nu h}{J} \pdiff{}{\xi} \left(
-			y_{\eta}\pdiff{(q/h)}{\xi}
-			- y_{\xi}\pdiff{(q/h)}{\eta}\right) \right) +
-            \\
-			&- y_{\xi}\left(\pdiff{}{\eta} \left(\frac{\nu h}{J}\right) \left(
-			y_{\eta}\pdiff{(q/h)}{\xi}
-			-y_{\xi}\pdiff{(q/h)}{\eta} \right)
-			+\frac{\nu h}{J} \pdiff{}{\eta}\left(
-			y_{\eta}\pdiff{(q/h)}{\xi}
-			-y_{\xi}\pdiff{(q/h)}{\eta} \right)
-			\right) \Bigg]
-		\end{aligned}
-	\end{align}
-%
-for the $x$-momentum equation the viscous terms can be transformed as:
+The viscosity term in vector notation reads:
+\begin{align}
+    &-\int_\Omega \nabla \dotp \left( \nu h \left(  \nabla (\vec{q}/h) + \nabla (\vec{q}^T/h) \right) \right)\, d\omega
+    %    =
+    %    \\
+    %    & \qquad \qquad =
+    %    - \oint_{\partial\Omega}  \left( \nu h \left( \nabla (\vec{q}/h) + \nabla (\vec{q}^T/h) \right) \right) \dotp \vecn\, dl
+\end{align}
+For the $x$-momentum equation the viscous terms
 	\begin{align}
 		\begin{aligned}
 			- \pdiff{}{x}\left(2\nu h\pdiff{(q/h)}{x} \right)
 			- \pdiff{}{y}\left(\nu h\pdiff{(r/h)}{x} + \nu h \pdiff{(q/h)}{y} \right) =
 		\end{aligned}
 	\end{align}
+can be transformed as follows:
+\newline
     \textit{step 1}
 	\begin{align}
 		\begin{aligned}
@@ -442,26 +399,73 @@ for the $x$-momentum equation the viscous terms can be transformed as:
 			+ x_{\xi}y_{\xi} \pdiff{(r/h)}{\eta} +
             \\
 			& \qquad \qquad - x_{\xi} x_{\eta} \pdiff{(q/h)}{\xi}
-			+ x_{\xi}x_{\xi} \pdiff{(q/h)}{\eta} \bigg) \Bigg]\\
+			+ x_{\xi}x_{\xi} \pdiff{(q/h)}{\eta} \bigg) \Bigg]
 		\end{aligned}
+        \label{eq:xi_viscous_term}
 	\end{align}
-assume $x_{\xi\eta} - x_{\eta\xi} = 0$ and $y_{\xi\eta} - y_{\eta\xi} = 0$
-	\begin{align}
-		\begin{aligned}
-			=&- \frac{1}{J} \pdiff{}{\xi}\Bigg[ \frac{\nu h}{J} \bigg(
-			- x_{\eta} \pdiff{}{\xi}\left( x_{\eta}\frac{q}{h} + y_{\eta}\frac{r}{h}  \right)
-			+ x_{\eta} \pdiff{}{\eta}\left( x_{\xi} \frac{q}{h} + y_{\xi} \frac{r}{h}  \right) +
-            \\
-			& \qquad \qquad + 2 y_{\eta}  \pdiff{(y_{\eta}\ q/h)}{\xi}
-			- 2 y_{\eta}  \pdiff{(y_{\xi}\ q/h)}{\eta} \Bigg]\\
-			&+ \frac{1}{J} \pdiff{}{\eta}\Bigg[ \frac{\nu h}{J} \bigg(
-			- x_{\xi} \pdiff{}{\xi}\left( x_{\eta}\frac{q}{h} + y_{\eta}\frac{r}{h}  \right)
-			+ x_{\xi} \pdiff{}{\eta}\left( x_{\xi} \frac{q}{h} + y_{\xi} \frac{r}{h}  \right) +
-            \\
-			& \qquad \qquad + 2 y_{\xi} \pdiff{(y_{\eta}\ q/h)}{\xi}
-			- 2 y_{\xi} \pdiff{(y_{\xi}\ q/h)}{\eta} \Bigg]\\
-		\end{aligned}\label{eq:xi_viscous_term}
-	\end{align}
+%assume $x_{\xi\eta} - x_{\eta\xi} = 0$ and $y_{\xi\eta} - y_{\eta\xi} = 0$
+%	\begin{align}
+%		\begin{aligned}
+%			=&- \frac{1}{J} \pdiff{}{\xi}\Bigg[ \frac{\nu h}{J} \bigg(
+%			- x_{\eta} \pdiff{}{\xi}\left( x_{\eta}\frac{q}{h} + y_{\eta}\frac{r}{h}  \right)
+%			+ x_{\eta} \pdiff{}{\eta}\left( x_{\xi} \frac{q}{h} + y_{\xi} \frac{r}{h}  \right) +
+%            \\
+%			& \qquad \qquad + 2 y_{\eta}  \pdiff{(y_{\eta}\ q/h)}{\xi}
+%			- 2 y_{\eta}  \pdiff{(y_{\xi}\ q/h)}{\eta} \bigg) \Bigg]\\
+%			&+ \frac{1}{J} \pdiff{}{\eta}\Bigg[ \frac{\nu h}{J} \bigg(
+%			- x_{\xi} \pdiff{}{\xi}\left( x_{\eta}\frac{q}{h} + y_{\eta}\frac{r}{h}  \right)
+%			+ x_{\xi} \pdiff{}{\eta}\left( x_{\xi} \frac{q}{h} + y_{\xi} \frac{r}{h}  \right) +
+%            \\
+%			& \qquad \qquad + 2 y_{\xi} \pdiff{(y_{\eta}\ q/h)}{\xi}
+%			- 2 y_{\xi} \pdiff{(y_{\xi}\ q/h)}{\eta} \bigg) \Bigg]
+%		\end{aligned}
+%	\end{align}
+After applying Green’s theorem with
+$\vecn = (\nxi, \neta)^T$ the outward normal vector, and multiplied with $J$  the viscosity term of then $x$-momentum equation reads:
+\begin{align}
+    &- \Bigg[ \frac{\nu h}{J} \bigg(
+    2 y_{\eta}  y_{\eta} \pdiff{(q/h)}{\xi}
+    - 2 y_{\eta} y_{\xi} \pdiff{(q/h)}{\eta}
+    - x_{\eta}y_{\eta} \pdiff{(r/h)}{\xi} + x_{\eta}y_{\xi} \pdiff{(r/h)}{\eta} +
+    \\
+    & \qquad \qquad
+    - x_{\eta}x_{\eta}\pdiff{(q/h)}{\xi}
+    + x_{\eta}x_{\xi}\pdiff{(q/h)}{\eta} \bigg) \Bigg] \nxi +
+    \\
+    &+\Bigg[ \frac{\nu h}{J} \bigg(
+    2 y_{\xi}y_{\eta} \pdiff{(q/h)}{\xi}
+    - 2 y_{\xi}y_{\xi} \pdiff{(q/h)}{\eta}
+    - x_{\xi}y_{\eta} \pdiff{(r/h)}{\xi}
+    + x_{\xi}y_{\xi} \pdiff{(r/h)}{\eta} +
+    \\
+    & \qquad \qquad - x_{\xi} x_{\eta} \pdiff{(q/h)}{\xi}
+    + x_{\xi}x_{\xi} \pdiff{(q/h)}{\eta} \bigg) \Bigg] \neta
+\end{align}
+Written as linear combination of the first derivative yields:
+\begin{align}
+    - \Bigg[& \frac{\nu}{J} \bigg(
+    2 y_{\eta}  y_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
+    - 2 y_{\eta} y_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right)
+    +
+    \\
+    &- x_{\eta}y_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
+    + x_{\eta}y_{\xi}\left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) +
+    \\
+    &
+    - x_{\eta}x_{\eta}\left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
+    + x_{\eta}x_{\xi}\left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \nxi +
+    \\
+    +\Bigg[& \frac{\nu}{J} \bigg(
+    2 y_{\xi}y_{\eta}  \left(\pdiff{q}{\xi}  - \frac{q}{h}\pdiff{h}{\xi} \right)
+    - 2 y_{\xi}y_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right)
+    \\
+    &
+    - x_{\xi}y_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
+    + x_{\xi}y_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) +
+    \\
+    & - x_{\xi} x_{\eta} \left(\pdiff{q}{\xi}  - \frac{q}{h}\pdiff{h}{\xi} \right)
+    + x_{\xi}x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \neta
+\end{align}
 %
 for the $y$-momentum equation the viscous terms can be transformed as:
 	\begin{align}
@@ -489,18 +493,19 @@ assume $x_{\xi\eta} - x_{\eta\xi} = 0$ and $y_{\xi\eta} - y_{\eta\xi} = 0$
 		\end{aligned}
 	\end{align}
 \textit{step 2}
-	\begin{align}
-		\begin{aligned}
-			=& - \frac{1}{J} \pdiff{}{\xi} \Bigg[\frac{\nu h}{J} \bigg( y_{\eta}y_{\eta}  \pdiff{(r/h)}{\xi} - y_{\eta} y_{\xi} \pdiff{(r/h)}{\eta} + y_{\eta} x_{\eta} \pdiff{(q/h)}{\xi} - y_{\eta} x_{\xi} \pdiff{(q/h)}{\eta} +
-            \\
-			& \qquad \qquad + 2 x_{\eta}x_{\eta} \pdiff{(r/h)}{\xi} - 2 x_{\xi} x_{\eta} \pdiff{(r/h)}{\eta} \bigg) \Bigg]
-            +
-            \\
-			&+ \frac{1}{J} \pdiff{}{\eta} \Bigg[\frac{\nu h}{J} \bigg( y_{\xi} y_{\eta} \pdiff{(r/h)}{\xi} - y_{\xi} y_{\xi} \pdiff{(r/h)}{\eta} + y_{\xi} x_{\eta} \pdiff{(q/h)}{\xi} -  y_{\xi} x_{\xi} \pdiff{(q/h)}{\eta} +
-            \\
-			& \qquad \qquad + 2 x_{\eta}x_{\xi} \pdiff{(r/h)}{\xi} - 2 x_{\xi}x_{\xi} \pdiff{(r/h)}{\eta} \bigg) \Bigg] =
-		\end{aligned}
-	\end{align}
+\begin{align}
+	\begin{aligned}
+		=& - \frac{1}{J} \pdiff{}{\xi} \Bigg[\frac{\nu h}{J} \bigg( y_{\eta}y_{\eta}  \pdiff{(r/h)}{\xi} - y_{\eta} y_{\xi} \pdiff{(r/h)}{\eta} + y_{\eta} x_{\eta} \pdiff{(q/h)}{\xi} - y_{\eta} x_{\xi} \pdiff{(q/h)}{\eta} +
+        \\
+		& \qquad \qquad + 2 x_{\eta}x_{\eta} \pdiff{(r/h)}{\xi} - 2 x_{\xi} x_{\eta} \pdiff{(r/h)}{\eta} \bigg) \Bigg]
+        +
+        \\
+		&+ \frac{1}{J} \pdiff{}{\eta} \Bigg[\frac{\nu h}{J} \bigg( y_{\xi} y_{\eta} \pdiff{(r/h)}{\xi} - y_{\xi} y_{\xi} \pdiff{(r/h)}{\eta} + y_{\xi} x_{\eta} \pdiff{(q/h)}{\xi} -  y_{\xi} x_{\xi} \pdiff{(q/h)}{\eta} +
+        \\
+		& \qquad \qquad + 2 x_{\eta}x_{\xi} \pdiff{(r/h)}{\xi} - 2 x_{\xi}x_{\xi} \pdiff{(r/h)}{\eta} \bigg) \Bigg] =
+	\end{aligned}
+    \label{eq:eta_viscous_term}
+\end{align}
 %
 %	\begin{align}
 %		\begin{aligned}
@@ -514,74 +519,70 @@ assume $x_{\xi\eta} - x_{\eta\xi} = 0$ and $y_{\xi\eta} - y_{\eta\xi} = 0$
 %		\end{aligned}
 %	\end{align}
 %
-	\begin{align}
-		\begin{aligned}
-			=& - \frac{1}{J} \pdiff{}{\xi} \Bigg[\frac{\nu h}{J} \bigg(
-			y_{\eta} \pdiff{}{\xi} \left(y_{\eta} \frac{r}{h}
-			+ x_{\eta} \frac{q}{h}\right)
-			- y_{\eta} \pdiff{}{\eta} \left( y_{\xi} \frac{r}{h}
-			+ x_{\xi} \frac{q}{h}  \right) +
-            \\
-			& \qquad \qquad + 2 x_{\eta} \pdiff{(x_{\eta}\ r/h)}{\xi}
-			- 2 x_{\eta}  \pdiff{(x_{\xi}\ r/h)}{\eta} \bigg) \Bigg]\\
-			& + \frac{1}{J} \pdiff{}{\eta} \Bigg[\frac{\nu h}{J} \bigg(
-			y_{\xi} \pdiff{}{\xi} \left(y_{\eta} \frac{r}{h}
-			+ x_{\eta} \frac{q}{h}\right) +
-            \\
-			&\qquad \qquad - y_{\xi} \pdiff{}{\eta} \left( y_{\xi} \frac{r}{h}
-			+ x_{\xi} \frac{q}{h} \right)
-			+ 2 x_{\xi} \pdiff{(x_{\eta}\ r/h)}{\xi}
-			- 2 x_{\xi} \pdiff{(x_{\xi}\ r/h)}{\eta} \bigg) \Bigg].
-		\end{aligned}
-        \label{eq:eta_viscous_term}
-	\end{align}
+%	\begin{align}
+%		\begin{aligned}
+%			=& - \frac{1}{J} \pdiff{}{\xi} \Bigg[\frac{\nu h}{J} \bigg(
+%			y_{\eta} \pdiff{}{\xi} \left(y_{\eta} \frac{r}{h}
+%			+ x_{\eta} \frac{q}{h}\right)
+%			- y_{\eta} \pdiff{}{\eta} \left( y_{\xi} \frac{r}{h}
+%			+ x_{\xi} \frac{q}{h}  \right) +
+%            \\
+%			& \qquad \qquad + 2 x_{\eta} \pdiff{(x_{\eta}\ r/h)}{\xi}
+%			- 2 x_{\eta}  \pdiff{(x_{\xi}\ r/h)}{\eta} \bigg) \Bigg]\\
+%			& + \frac{1}{J} \pdiff{}{\eta} \Bigg[\frac{\nu h}{J} \bigg(
+%			y_{\xi} \pdiff{}{\xi} \left(y_{\eta} \frac{r}{h}
+%			+ x_{\eta} \frac{q}{h}\right) +
+%            \\
+%			&\qquad \qquad - y_{\xi} \pdiff{}{\eta} \left( y_{\xi} \frac{r}{h}
+%			+ x_{\xi} \frac{q}{h} \right)
+%			+ 2 x_{\xi} \pdiff{(x_{\eta}\ r/h)}{\xi}
+%			- 2 x_{\xi} \pdiff{(x_{\xi}\ r/h)}{\eta} \bigg) \Bigg].
+%		\end{aligned}
+%        \label{eq:eta_viscous_term}
+%	\end{align}
+Written as linear combination of the first derivative yields:
+\begin{align}
+     - \Bigg[&\frac{\nu h}{J} \bigg(
+        y_{\eta} y_{\eta}  \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
+      - y_{\eta} y_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) +
+     \\
+     & +  y_{\eta} x_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
+       - y_{\eta} x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) +
+    \\
+    & + 2 x_{\eta}x_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
+     - 2 x_{\xi} x_{\eta} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \nxi
+    +
+    \\
+    + \Bigg[ & \frac{\nu h}{J} \bigg( y_{\xi} y_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
+     - y_{\xi} y_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) +
+    \\
+    & + y_{\xi} x_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
+    -  y_{\xi} x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) +
+    \\
+    &  + 2 x_{\eta}x_{\xi} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right) - 2 x_{\xi}x_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \neta
+\end{align}
 
- \subsubsection{For a cartesian grid}
-On a cartesian grid ($ y_\xi = x_\eta = 0$) and multiplied with $J$ these viscous terms reduce for the $x$-momentum equation to:
-	\begin{align}
-    \begin{aligned}
-        &- \pdiff{}{\xi}\Bigg[ \frac{\nu h}{J} \bigg(
-        2 y_{\eta}  \pdiff{}{\xi} \left(y_{\eta} \frac{q}{h} \right)
-        \bigg) \Bigg] + \\
-        &+ \pdiff{}{\eta}\Bigg[ \frac{\nu h}{J} \bigg(
-        - x_{\xi} \pdiff{}{\xi}\left( y_{\eta}\frac{r}{h}  \right)
-        + x_{\xi} \pdiff{}{\eta}\left( x_{\xi} \frac{q}{h} \right) \bigg) \Bigg]\\
-    \end{aligned}\label{eq:cart_xi_viscous_term}
-\end{align}
-and for the $y$-momentum to:
-	\begin{align}
-    \begin{aligned}
-        & - \pdiff{}{\xi} \Bigg[\frac{\nu h}{J} \bigg(
-        y_{\eta} \pdiff{}{\xi} \left(y_{\eta} \frac{r}{h}
-        \right)
-        - y_{\eta} \pdiff{}{\eta} \left(  x_{\xi} \frac{q}{h}  \right)  \bigg) \Bigg] + \\
-        & + \pdiff{}{\eta} \Bigg[\frac{\nu h}{J} \bigg(
-          - 2 x_{\xi} \pdiff{}{\eta} \left(x_{\xi} \frac{r}{h} \right) \bigg) \Bigg].
-    \end{aligned}
-        \label{eq:cart_eta_viscous_term}
-\end{align}
-Applying Green's theorem yields
-	\begin{align}
-    \begin{aligned}
-        &- \Bigg[ \frac{\nu h}{J} \bigg(
-        2 y_{\eta}  \pdiff{}{\xi} \left(y_{\eta}\frac{q}{h} \right)
-        \bigg) \Bigg] \nxi + \\
-        &+ \Bigg[ \frac{\nu h}{J} \bigg(
-        - x_{\xi} \pdiff{}{\xi}\left( y_{\eta} \frac{r}{h}  \right)
-        + x_{\xi} \pdiff{}{\eta}\left( x_{\xi} \frac{q}{h} \right) \bigg) \Bigg] \neta \\
-    \end{aligned}\label{eq:cart_xi_viscous_term}
+ \subsubsection*{Cartesian grid}
+On a cartesian grid ($ y_\xi = x_\eta = 0$) these viscous terms reduce for the $x$-momentum equation to:
+\begin{align}
+    - \Bigg[& \frac{\nu}{J} \bigg(
+    2 y_{\eta}  y_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
+     \bigg) \Bigg] \nxi +
+    \\
+    +\Bigg[& \frac{\nu}{J} \bigg(
+    - x_{\xi}y_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
+    + x_{\xi}x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \neta
+    \label{eq:cart_xi_viscous_term}
 \end{align}
 and for the $y$-momentum to:
 \begin{align}
-    \begin{aligned}
-        & - \Bigg[\frac{\nu h}{J} \bigg(
-        y_{\eta} \pdiff{}{\xi} \left(y_{\eta} \frac{r}{h}
-        \right)
-        - y_{\eta} \pdiff{}{\eta} \left(  x_{\xi} \frac{q}{h}  \right)  \bigg) \Bigg]
-        \nxi + \\
-        & + \Bigg[\frac{\nu h}{J} \bigg(
-        - 2 x_{\xi} \pdiff{}{\eta} \left(x_{\xi} \frac{r}{h} \right) \bigg) \Bigg] \neta.
-    \end{aligned}
+    - \Bigg[&\frac{\nu}{J} \bigg(
+    y_{\eta} y_{\eta}  \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
+    - y_{\eta} x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right)     \bigg) \Bigg] \nxi
+    +
+    \\
+    + \Bigg[ & \frac{\nu}{J} \bigg(
+ - 2 x_{\xi}x_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \neta
     \label{eq:cart_eta_viscous_term}
 \end{align}
 with $\vecn = (\nxi, \neta)^T$ the outward normal vector.
