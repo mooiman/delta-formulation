@@ -71,6 +71,7 @@ AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 #include "initial_conditions.h"
 #include "interpolations.h"
 #include "perf_timer.h"
+#include "main_version.h"
 #include "matrix_assembly_boundaries.h"
 #include "matrix_assembly_corners.h"
 #include "matrix_assembly_interior.h"
@@ -79,7 +80,6 @@ AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 #include "regularization.h"
 #include "ugrid2d.h"
 #include "viscosity.h"
-#include "main_version.h"
 
 void GetArguments(long argc, char** argv, std::filesystem::path & file_name);
 
@@ -142,8 +142,7 @@ int main(int argc, char *argv[])
         }
         input_dir = std::filesystem::absolute(toml_file_name);
         input_dir.remove_filename();
-        output_dir = input_dir;
-        output_dir += "output\\";
+        output_dir = input_dir / "output" / "";
         std::filesystem::create_directory(output_dir);
     }
     else
@@ -837,7 +836,7 @@ int main(int argc, char *argv[])
         log_file << "=== Matrix build matrix pattern =======================" << std::endl;
         for (size_t i = 0; i < 3 * nxny; ++i)
         {
-            for (int j = 0; j < 3*nxny; ++j)
+            for (size_t j = 0; j < 3*nxny; ++j)
             {
                 if (A.coeff(i, j) != 0.0)
                 {
@@ -1171,7 +1170,7 @@ int main(int argc, char *argv[])
                     for (size_t i = 0; i < 3 * nxny; ++i)
                     {
                         log_file << std::showpos << std::setprecision(3) << i << "   ";
-                        for (int j = 0; j < 3*nxny; ++j)
+                        for (size_t j = 0; j < 3*nxny; ++j)
                         {
                             log_file << std::showpos << std::setprecision(3) << std::scientific << A.coeff(i, j) << " ";
                             if (std::fmod(j+1,3) == 0) { log_file << "| "; }
@@ -1551,10 +1550,7 @@ int main(int argc, char *argv[])
     std::this_thread::sleep_for(timespan);
     return 0;
 }
-inline size_t main_idx(size_t i, size_t j, size_t ny)
-{
-    return i * ny + j;
-}
+
 //------------------------------------------------------------------------------
 /* @@ GetArguments
 *
@@ -1581,4 +1577,8 @@ void GetArguments(long argc,   /* I Number of command line arguments */
         i = i + 1;
     }
     return;
+}
+inline size_t main_idx(size_t i, size_t j, size_t ny)
+{
+    return i * ny + j;
 }
