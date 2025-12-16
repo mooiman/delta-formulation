@@ -521,8 +521,8 @@ int main(int argc, char *argv[])
     if (regularization_init)
     {
         START_TIMER(Regularization_init);
-        regularization->given_function(zb, psi_11, psi_22, eq8, zb_giv, nx, ny, dx, dy, c_psi, log_file);
-        //regularization->given_function(visc_reg, psi_11, psi_22, eq8, visc_given, nx, ny, dx, dy, c_psi, log_file);
+        regularization->given_function(zb, psi_11, psi_22, eq8, x, y, zb_giv, nx, ny, c_psi, log_file);  
+        //regularization->given_function(visc_reg, psi_11, psi_22, eq8, x, y, visc_given, nx, ny, c_psi, log_file);
         //for (size_t i = 0; i < visc_reg.size(); ++i)
         //{
         //    visc[i] = visc_reg[i] + std::sqrt(psi_11[i] * psi_11[i] + psi_22[i] * psi_22[i]);

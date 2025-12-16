@@ -2,7 +2,7 @@
 // Programmer: Jan Mooiman
 // Email     : jan.mooiman@outlook.com
 //
-//    Solving the 2D shallow water equations, fully implicit with delta-formuation and Modified Newton iteration 
+//    Solving the HEAT-equation in 2 dimensions, fully implicit with delta-formuation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -20,30 +20,23 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __BED_LEVEL_H__
-#define __BED_LEVEL_H__
+#ifndef __MATRIX_ASSEMBLY_UTILDE_INTERIOR_H__
+#define __MATRIX_ASSEMBLY_UTILDE_INTERIOR_H__
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <string>
 #include <vector>
 
+// for BiCGstab  solver
+#include <Eigen/Dense>
+#include <Eigen/IterativeLinearSolvers>
+#include <Eigen/Sparse>
 
-class BED_LEVEL
-{
-public:
-    BED_LEVEL();
-    ~BED_LEVEL();
-    long open(std::string filename);
-    long read(size_t nx, size_t ny);
-    std::vector<double> get_bed_level();
+int reg_interior_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
+    std::vector<double>& u_giv, std::vector<double>& x, std::vector<double>& y, size_t nx, size_t ny);
 
-private:
-    void transpose(std::vector<double>& x, size_t nx, size_t ny);
+inline void add_value(double * values, size_t col, double data);
 
-    std::ifstream m_fname;
-    std::vector<double> m_bed_given;
-};
-
-#endif  // __BED_LEVEL_H__
+#endif
