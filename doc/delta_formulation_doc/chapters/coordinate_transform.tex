@@ -342,7 +342,33 @@ The viscosity term in vector notation reads:
     %    & \qquad \qquad =
     %    - \oint_{\partial\Omega}  \left( \nu h \left( \nabla (\vec{q}/h) + \nabla (\vec{q}^T/h) \right) \right) \dotp \vecn\, dl
 \end{align}
-For the $x$-momentum equation the viscous terms
+Written in components ($\vec{q} = (q, r)^T$):
+\begin{align}
+    &
+    -\int_{\Omega}
+    \begin{pmatrix}
+        \pdiff{}{x} \\
+        \pdiff{}{y}
+    \end{pmatrix}
+    \dotp
+    \Bigg[
+    \nu h
+    \left(
+    \begin{pmatrix}
+        \pdiff{(q/h)}{x} & \pdiff{(q/h)}{y}
+        \\
+        \pdiff{(r/h)}{x} & \pdiff{(r/h)}{y}
+    \end{pmatrix}
+    +
+    \begin{pmatrix}
+        \pdiff{(q/h)}{x} & \pdiff{(r/h)}{x}
+        \\
+        \pdiff{(q/h)}{y} & \pdiff{(r/h)}{y}
+    \end{pmatrix}
+    \right) \Bigg]
+    \, d\omega
+\end{align}
+For the $x$-momentum equation the viscous terms (just looking to the term within the integral) read:
 	\begin{align}
 		\begin{aligned}
 			- \pdiff{}{x}\left(2\nu h\pdiff{(q/h)}{x} \right)
@@ -441,8 +467,7 @@ $\vecn = (\nxi, \neta)^T$ the outward normal vector, and multiplied with $J$  th
     & \qquad \qquad - x_{\xi} x_{\eta} \pdiff{(q/h)}{\xi}
     + x_{\xi}x_{\xi} \pdiff{(q/h)}{\eta} \bigg) \Bigg] \neta
 \end{align}
-Written as linear combination of the first derivative yields:
-\begin{align}
+Written with linear functions in the first derivatives and applying Green's theorem yields:\begin{align}
     - \Bigg[& \frac{\nu}{J} \bigg(
     2 y_{\eta}  y_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
     - 2 y_{\eta} y_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right)
@@ -464,8 +489,9 @@ Written as linear combination of the first derivative yields:
     + x_{\xi}y_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) +
     \\
     & - x_{\xi} x_{\eta} \left(\pdiff{q}{\xi}  - \frac{q}{h}\pdiff{h}{\xi} \right)
-    + x_{\xi}x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \neta
+    + x_{\xi}x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \neta \label{eq:xi_greens_viscous_term}
 \end{align}
+%--------------------------------------------------------------------------------
 %
 for the $y$-momentum equation the viscous terms can be transformed as:
 	\begin{align}
@@ -540,9 +566,9 @@ assume $x_{\xi\eta} - x_{\eta\xi} = 0$ and $y_{\xi\eta} - y_{\eta\xi} = 0$
 %		\end{aligned}
 %        \label{eq:eta_viscous_term}
 %	\end{align}
-Written as linear combination of the first derivative yields:
+Written with linear functions in the first derivatives and applying Green's theorem yields:
 \begin{align}
-     - \Bigg[&\frac{\nu h}{J} \bigg(
+     - \Bigg[&\frac{\nu}{J} \bigg(
         y_{\eta} y_{\eta}  \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
       - y_{\eta} y_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) +
      \\
@@ -553,17 +579,17 @@ Written as linear combination of the first derivative yields:
      - 2 x_{\xi} x_{\eta} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \nxi
     +
     \\
-    + \Bigg[ & \frac{\nu h}{J} \bigg( y_{\xi} y_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
+    + \Bigg[ & \frac{\nu}{J} \bigg( y_{\xi} y_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
      - y_{\xi} y_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) +
     \\
     & + y_{\xi} x_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
     -  y_{\xi} x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) +
     \\
-    &  + 2 x_{\eta}x_{\xi} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right) - 2 x_{\xi}x_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \neta
+    &  + 2 x_{\eta}x_{\xi} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right) - 2 x_{\xi}x_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \neta \label{eq:eta_greens_viscous_term}
 \end{align}
 
  \subsubsection*{Cartesian grid}
-On a cartesian grid ($ y_\xi = x_\eta = 0$) these viscous terms reduce for the $x$-momentum equation to:
+On a cartesian grid ($ y_\xi = x_\eta = 0$) these viscous terms (\autoref{eq:xi_greens_viscous_term} and \eqref{eq:eta_greens_viscous_term}) reduce for the $x$-momentum equation to:
 \begin{align}
     - \Bigg[& \frac{\nu}{J} \bigg(
     2 y_{\eta}  y_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
@@ -586,6 +612,41 @@ and for the $y$-momentum to:
     \label{eq:cart_eta_viscous_term}
 \end{align}
 with $\vecn = (\nxi, \neta)^T$ the outward normal vector.
+%--------------------------------------------------------------------------------
+\subsubsection{Discretization in time}
+\vspace{1\baselineskip}
+\begin{enumerate}
+    \item
+\begin{align}
+    &\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \approx
+    \\
+    & \approx
+    \underbrace{ \left( \pdiff{q^{n+\theta,p}}{\xi} + \left(- \frac{q^{n+\theta,p}}{h^{n+\theta,p}}\right)   \pdiff{h^{n+\theta,p}}{\xi} \right)}_{\textit {to right hand side}} +
+    %
+    \\*
+    & + \underbrace{ \frac{q^{n+\theta,p}}{(h^{n+\theta,p})^2} \pdiff{h^{n+\theta,p}}{\xi}}_{{\cal{A}}_1} \theta \Delta h
+    + \underbrace{\left(-\frac{1}{h^{n+\theta,p}}  \pdiff{h^{n+\theta,p}}{\xi}\right)}_{{\cal{B}}_1} \theta \Delta q
+    \\*
+    & +
+    \underbrace{1}_{{\cal{C}}_1} \pdiff{}{\xi}(\theta \Delta q) +
+    \underbrace{\left(-\frac{q^{n+\theta,p}}{h^{n+\theta,p}}\right)}_{{\cal{D}}_1}
+    \pdiff{}{\xi}(\theta \Delta h)
+\end{align}
+
+    \item
+    \begin{align}
+        &\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta}
+    \end{align}
+    \item
+    \begin{align}
+        &\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi}
+        \\
+    \end{align}
+    \item
+    \begin{align}
+        &\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta}
+    \end{align}
+\end{enumerate}
 %-------------------------------------------------------------------------------
 \section{Transformed 2D Shallow Water Equations}
 Given the above, the 2D Shallow water equations can be transformed to generalized coordinates, resulting in:
