@@ -23,7 +23,7 @@ def cm2inch(cm):
     return cm / 2.54
 
 
-def main(bath_in = 7, Lx_in=6000., dx_in=100., c_psi_in= 4.0, left_in = 0.00):  # c_psi paragraph after eq. 10 of article
+def main(bath_in = 5, Lx_in=1000., dx_in=10., c_psi_in= 4.0, left_in = 0.2):  # c_psi paragraph after eq. 10 of article
     bathymetry = int(bath_in)
     Lx = float(Lx_in)
     dx = float(dx_in)
