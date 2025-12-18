@@ -225,7 +225,7 @@ from which we can find the following relations:
 \end{align}
 
 %-------------------------------------------------------------------------------
-\section{Transforming the terms}
+\section{Transforming the terms}\label{sec:transforming_the_terms}
 For completeness, we show the transformation of various terms here since some particular choices will be made to ease the implementation.
 For example, transforming the spatial derivatives in the continuity equation in a conservative form
 %
@@ -591,8 +591,8 @@ Written with linear functions in the first derivatives and applying Green's theo
  \subsubsection*{Cartesian grid}
 On a cartesian grid ($ y_\xi = x_\eta = 0$) these viscous terms (\autoref{eq:xi_greens_viscous_term} and \eqref{eq:eta_greens_viscous_term}) reduce for the $x$-momentum equation to:
 \begin{align}
-    - \Bigg[& \frac{\nu}{J} \bigg(
-    2 y_{\eta}  y_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
+     \Bigg[& \frac{\nu}{J} \bigg(
+    - 2 y_{\eta}  y_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
      \bigg) \Bigg] \nxi +
     \\
     +\Bigg[& \frac{\nu}{J} \bigg(
@@ -602,9 +602,9 @@ On a cartesian grid ($ y_\xi = x_\eta = 0$) these viscous terms (\autoref{eq:xi_
 \end{align}
 and for the $y$-momentum to:
 \begin{align}
-    - \Bigg[&\frac{\nu}{J} \bigg(
-    y_{\eta} y_{\eta}  \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
-    - y_{\eta} x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right)     \bigg) \Bigg] \nxi
+    \Bigg[&\frac{\nu}{J} \bigg(
+    - y_{\eta} y_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
+    + y_{\eta} x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right)     \bigg) \Bigg] \nxi
     +
     \\
     + \Bigg[ & \frac{\nu}{J} \bigg(
@@ -614,42 +614,78 @@ and for the $y$-momentum to:
 with $\vecn = (\nxi, \neta)^T$ the outward normal vector.
 %--------------------------------------------------------------------------------
 \subsubsection{Discretization in time}
-\vspace{1\baselineskip}
-\begin{enumerate}
-    \item
+The discretization in time for the main terms inis given and need to performed for each quadrature point at the eight faces of the control volume:
+%
 \begin{align}
     &\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \approx
-    \\
+    \\*
     & \approx
     \underbrace{ \left( \pdiff{q^{n+\theta,p}}{\xi} + \left(- \frac{q^{n+\theta,p}}{h^{n+\theta,p}}\right)   \pdiff{h^{n+\theta,p}}{\xi} \right)}_{\textit {to right hand side}} +
     %
     \\*
-    & + \underbrace{ \frac{q^{n+\theta,p}}{(h^{n+\theta,p})^2} \pdiff{h^{n+\theta,p}}{\xi}}_{{\cal{A}}_1} \theta \Delta h
-    + \underbrace{\left(-\frac{1}{h^{n+\theta,p}}  \pdiff{h^{n+\theta,p}}{\xi}\right)}_{{\cal{B}}_1} \theta \Delta q
+    & + \underbrace{ \frac{q^{n+\theta,p}}{(h^{n+\theta,p})^2} \pdiff{h^{n+\theta,p}}{\xi} }_{{\cal{A}}_q}  \theta \Delta h
+    + \underbrace{\left(-\frac{1}{h^{n+\theta,p}} \pdiff{h^{n+\theta,p}}{\xi} \right)}_{{\cal{B}}_q}  \theta \Delta q
     \\*
     & +
-    \underbrace{1}_{{\cal{C}}_1} \pdiff{}{\xi}(\theta \Delta q) +
-    \underbrace{\left(-\frac{q^{n+\theta,p}}{h^{n+\theta,p}}\right)}_{{\cal{D}}_1}
+    \underbrace{1}_{{\cal{C}}_q} \pdiff{}{\xi}(\theta \Delta q) +
+    \underbrace{\left(-\frac{q^{n+\theta,p}}{h^{n+\theta,p}}\right)}_{{\cal{D}}_q}
     \pdiff{}{\xi}(\theta \Delta h)
 \end{align}
+%
+\begin{align}
+    &\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta}
+    \\
+& \approx
+\underbrace{ \left( \pdiff{q^{n+\theta,p}}{\eta} + \left(- \frac{q^{n+\theta,p}}{h^{n+\theta,p}}\right)  \pdiff{h^{n+\theta,p}}{\eta} \right)}_{\textit {to right hand side}} +
+%
+\\*
+& + \underbrace{ \frac{q^{n+\theta,p}}{(h^{n+\theta,p})^2} \pdiff{h^{n+\theta,p}}{\eta} }_{{\cal{A}}_q} \theta \Delta h
++ \underbrace{\left(-\frac{1}{h^{n+\theta,p}} \pdiff{h^{n+\theta,p}}{\eta}  \right)}_{{\cal{B}}_q} \theta \Delta q
+\\*
+& +
+\underbrace{1}_{{\cal{C}}_q} \pdiff{}{\eta}(\theta \Delta q) +
+\underbrace{\left(-\frac{q^{n+\theta,p}}{h^{n+\theta,p}}\right)}_{{\cal{D}}_q}
+\pdiff{}{\eta}(\theta \Delta h)
+\end{align}
+%
+\begin{align}
+        &\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \approx
+    \\*
+& \approx
+\underbrace{ \left( \pdiff{r^{n+\theta,p}}{\xi} + \left(- \frac{r^{n+\theta,p}}{h^{n+\theta,p}}\right)   \pdiff{h^{n+\theta,p}}{\xi} \right)}_{\textit {to right hand side}} +
+%
+\\*
+& + \underbrace{ \frac{r^{n+\theta,p}}{(h^{n+\theta,p})^2} \pdiff{h^{n+\theta,p}}{\xi} }_{{\cal{A}}_r} \theta \Delta h
++ \underbrace{\left(-\frac{1}{h^{n+\theta,p}} \right) \pdiff{h^{n+\theta,p}}{\xi} }_{{\cal{B}}_r} \theta \Delta r
+\\*
+& +
+\underbrace{1}_{{\cal{C}}_r} \pdiff{}{\xi}(\theta \Delta r) +
+\underbrace{\left(-\frac{r^{n+\theta,p}}{h^{n+\theta,p}}\right)}_{{\cal{D}}_r}
+\pdiff{}{\xi}(\theta \Delta h)
+\end{align}
+%
+\begin{align}
+    &\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta}\approx
+    \\*
+    & \approx
+    \underbrace{ \left( \pdiff{r^{n+\theta,p}}{\eta} + \left(- \frac{r^{n+\theta,p}}{h^{n+\theta,p}}\right) \pdiff{h^{n+\theta,p}}{\eta} \right)}_{\textit {to right hand side}} +
+    %
+    \\*
+    & + \underbrace{ \frac{r^{n+\theta,p}}{(h^{n+\theta,p})^2} \pdiff{h^{n+\theta,p}}{\eta} }_{{\cal{A}}_r}  \theta \Delta h
+    + \underbrace{\left(-\frac{1}{h^{n+\theta,p}} \pdiff{h^{n+\theta,p}}{\eta} \right)}_{{\cal{B}}_r} \theta \Delta r
+    \\*
+    & +
+    \underbrace{1}_{{\cal{C}}_r} \pdiff{}{\eta}(\theta \Delta r) +
+    \underbrace{\left(-\frac{r^{n+\theta,p}}{h^{n+\theta,p}}\right)}_{{\cal{D}}_r}
+    \pdiff{}{\eta}(\theta \Delta h)
+\end{align}
 
-    \item
-    \begin{align}
-        &\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta}
-    \end{align}
-    \item
-    \begin{align}
-        &\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi}
-        \\
-    \end{align}
-    \item
-    \begin{align}
-        &\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta}
-    \end{align}
-\end{enumerate}
 %-------------------------------------------------------------------------------
+{{
+\color{gray}
 \section{Transformed 2D Shallow Water Equations}
-Given the above, the 2D Shallow water equations can be transformed to generalized coordinates, resulting in:
+
+Given the transformation in \autoref{sec:transforming_the_terms} the 2D Shallow water equations can be transformed to generalized coordinates, resulting in:
 %
 	\begin{align}\label{CurviContinuity_Expanded}
 		J \pdiff{h}{t} +\pdiff{}{\xi} \left( y_{\eta}\, q - x_{\eta}\, r \right) + \pdiff{}{\eta} \left( -y_{\xi}\, q + x_{\xi}\, r \right) = 0,
@@ -1314,3 +1350,5 @@ and
 	\bigg]
 \end{pmatrix},
 \end{align}
+
+}}
