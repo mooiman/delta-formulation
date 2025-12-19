@@ -688,7 +688,7 @@ int main(int argc, char *argv[])
     }
     if (do_viscosity)
     {
-        viscosity_post_rhs(post_q, post_r, hn, qn, rn, visc, dx, dy, nx, ny);
+        viscosity_post_rhs(post_q, post_r, x, y, hn, qn, rn, visc, nx, ny);
         map_file->put_time_variable(map_visc_q_name, nst_map, post_q);
         map_file->put_time_variable(map_visc_r_name, nst_map, post_r);
     }
@@ -1140,7 +1140,7 @@ int main(int argc, char *argv[])
                     int r_eq = outer[row + 2];
 
                     status = viscosity_matrix_and_rhs(values, row, c_eq, q_eq, r_eq, rhs,
-                                htheta, qtheta, rtheta, visc, theta, dx, dy, nx, ny);
+                                x, y, htheta, qtheta, rtheta, visc, theta, nx, ny);
                     // boundary_south
                     // boundary_north
                 }
@@ -1450,7 +1450,7 @@ int main(int argc, char *argv[])
             }
             if (do_viscosity)
             {
-                viscosity_post_rhs(post_q, post_r, hn, qn, rn, visc, dx, dy, nx, ny);
+                viscosity_post_rhs(post_q, post_r, x, y, hn, qn, rn, visc, nx, ny);
                 map_file->put_time_variable(map_visc_q_name, nst_map, post_q);
                 map_file->put_time_variable(map_visc_r_name, nst_map, post_r);
             }
