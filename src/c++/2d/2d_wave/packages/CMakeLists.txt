@@ -17,7 +17,6 @@ set(headers_files
     include/initial_conditions.h
     include/interpolations.h
     include/jacobians.h
-    include/janm
     include/main_version.h
     include/main_version.h.vcs
     include/matrix_assembly_boundaries.h
