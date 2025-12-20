@@ -472,22 +472,22 @@ Written with linear functions in the first derivatives and applying Green's theo
     2 y_{\eta}  y_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
     - 2 y_{\eta} y_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right)
     +
-    \\
+    \nonumber \\*
     &- x_{\eta}y_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
     + x_{\eta}y_{\xi}\left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) +
-    \\
+    \nonumber \\*
     &
     - x_{\eta}x_{\eta}\left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
     + x_{\eta}x_{\xi}\left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \nxi +
-    \\
+    \nonumber \\
     +\Bigg[& \frac{\nu}{J} \bigg(
     2 y_{\xi}y_{\eta}  \left(\pdiff{q}{\xi}  - \frac{q}{h}\pdiff{h}{\xi} \right)
     - 2 y_{\xi}y_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right)
-    \\
+    \nonumber \\*
     &
     - x_{\xi}y_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
     + x_{\xi}y_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) +
-    \\
+    \nonumber \\*
     & - x_{\xi} x_{\eta} \left(\pdiff{q}{\xi}  - \frac{q}{h}\pdiff{h}{\xi} \right)
     + x_{\xi}x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \neta \label{eq:xi_greens_viscous_term}
 \end{align}
@@ -571,25 +571,25 @@ Written with linear functions in the first derivatives and applying Green's theo
      - \Bigg[&\frac{\nu}{J} \bigg(
         y_{\eta} y_{\eta}  \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
       - y_{\eta} y_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) +
-     \\
+     \nonumber \\*
      & +  y_{\eta} x_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
        - y_{\eta} x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) +
-    \\
+    \nonumber \\*
     & + 2 x_{\eta}x_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
      - 2 x_{\xi} x_{\eta} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \nxi
     +
-    \\
+    \nonumber \\
     + \Bigg[ & \frac{\nu}{J} \bigg( y_{\xi} y_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
      - y_{\xi} y_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) +
-    \\
+    \nonumber \\*
     & + y_{\xi} x_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
     -  y_{\xi} x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) +
-    \\
+    \nonumber \\*
     &  + 2 x_{\eta}x_{\xi} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right) - 2 x_{\xi}x_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \neta \label{eq:eta_greens_viscous_term}
 \end{align}
 
  \subsubsection*{Cartesian grid}
-On a cartesian grid ($ y_\xi = x_\eta = 0$) these viscous terms (\autoref{eq:xi_greens_viscous_term} and \eqref{eq:eta_greens_viscous_term}) reduce for the $x$-momentum equation to:
+On a cartesian grid ($ y_\xi = x_\eta = 0$) these viscous terms  reduce for the $x$-momentum (\autoref{eq:xi_greens_viscous_term}) equation to:
 \begin{align}
      \Bigg[& \frac{\nu}{J} \bigg(
     - 2 y_{\eta}  y_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
@@ -600,7 +600,7 @@ On a cartesian grid ($ y_\xi = x_\eta = 0$) these viscous terms (\autoref{eq:xi_
     + x_{\xi}x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \neta
     \label{eq:cart_xi_viscous_term}
 \end{align}
-and for the $y$-momentum to:
+and for the $y$-momentum (\autoref{eq:eta_greens_viscous_term}) to:
 \begin{align}
     \Bigg[&\frac{\nu}{J} \bigg(
     - y_{\eta} y_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
