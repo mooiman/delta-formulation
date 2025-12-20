@@ -97,15 +97,15 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     //==========================================================================
     // q-momentum equation
     //==========================================================================
-    int col_sw = q_eq;
-    int col_w  = q_eq + 3;
-    int col_nw = q_eq + 6;
-    int col_s  = q_eq + 9;
-    int col_0  = q_eq + 12;
-    int col_n  = q_eq + 15;
-    int col_se = q_eq + 18;
-    int col_e  = q_eq + 21;
-    int col_ne = q_eq + 24;
+    size_t col_sw = q_eq;
+    size_t col_w  = q_eq + 3;
+    size_t col_nw = q_eq + 6;
+    size_t col_s  = q_eq + 9;
+    size_t col_0  = q_eq + 12;
+    size_t col_n  = q_eq + 15;
+    size_t col_se = q_eq + 18;
+    size_t col_e  = q_eq + 21;
+    size_t col_ne = q_eq + 24;
 
     //
     // sub control volume 0 ============================================
@@ -208,7 +208,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     rhs[row + 1] += - (
         0.5 * (
             - dx_dxi_0 * dy_deta_0 * ( cc_r * drdxi_0  + dd_r * dhdxi_0)
-            + dx_dxi_0 * dx_dxi_0  * ( cc_r * dqdeta_0 + dd_r * dhdeta_0)
+            + dx_dxi_0 * dx_dxi_0  * ( cc_q * dqdeta_0 + dd_q * dhdeta_0)
         ) * n_eta
         );
 
@@ -269,7 +269,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     rhs[row + 1] += - (
         0.5 * (
             - dx_dxi_0 * dy_deta_0 * ( cc_r * drdxi_0  + dd_r * dhdxi_0)
-            + dx_dxi_0 * dx_dxi_0  * ( cc_r * dqdeta_0 + dd_r * dhdeta_0)
+            + dx_dxi_0 * dx_dxi_0  * ( cc_q * dqdeta_0 + dd_q * dhdeta_0)
         ) * n_eta
         );
 
@@ -418,7 +418,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     rhs[row + 1] += - (
         0.5 * (
             - dx_dxi_0 * dy_deta_0 * ( cc_r * drdxi_0  + dd_r * dhdxi_0)
-            + dx_dxi_0 * dx_dxi_0  * ( cc_r * dqdeta_0 + dd_r * dhdeta_0)
+            + dx_dxi_0 * dx_dxi_0  * ( cc_q * dqdeta_0 + dd_q * dhdeta_0)
         ) * n_eta
         );
 
@@ -479,7 +479,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     rhs[row + 1] += - (
         0.5 * (
             - dx_dxi_0 * dy_deta_0 * ( cc_r * drdxi_0  + dd_r * dhdxi_0)
-            + dx_dxi_0 * dx_dxi_0  * ( cc_r * dqdeta_0 + dd_r * dhdeta_0)
+            + dx_dxi_0 * dx_dxi_0  * ( cc_q * dqdeta_0 + dd_q * dhdeta_0)
         ) * n_eta
         );
 
@@ -526,7 +526,6 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
           -2. * dy_deta_0 * dy_deta_0 * ( cc_q * dqdxi_0  + dd_q * dhdxi_0 )
         ) * n_xi
         );
-
     //==========================================================================
     // r-momentum equation
     //==========================================================================
@@ -558,8 +557,8 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     dqdeta_0 = dcdy_scvf_t(qtheta[p_0], qtheta[p_s], qtheta[p_w], qtheta[p_sw]);
     drdeta_0 = dcdy_scvf_t(rtheta[p_0], rtheta[p_s], rtheta[p_w], rtheta[p_sw]);
 
-    dx_dxi_0  = dcdx_scvf_n(x[p_0], x[p_w], x[p_w], x[p_sw]);
-    dy_dxi_0  = dcdx_scvf_n(y[p_0], y[p_w], y[p_w], y[p_sw]);
+    dx_dxi_0  = dcdx_scvf_n(x[p_0], x[p_w], x[p_s], x[p_sw]);
+    dy_dxi_0  = dcdx_scvf_n(y[p_0], y[p_w], y[p_s], y[p_sw]);
     dx_deta_0 = dcdy_scvf_t(x[p_0], x[p_s], x[p_w], x[p_sw]);
     dy_deta_0 = dcdy_scvf_t(y[p_0], y[p_s], y[p_w], y[p_sw]);
 
@@ -595,10 +594,10 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     add_value(values, col_w  + 1, theta * scvf_fac * (bb_q * 1./2.  + cc_q * 1./2.) );
     add_value(values, col_sw + 1, theta * scvf_fac * (bb_q * 1./2.  - cc_q * 1./2.) );
 
-    rhs[row + 1] += - (
+    rhs[row + 2] += - (
         0.5 * (
             - dy_deta_0 * dy_deta_0 * ( cc_r * drdxi_0  + dd_r * dhdxi_0)
-            + dy_deta_0 * dx_dxi_0  * ( cc_r * dqdeta_0 + dd_r * dhdeta_0)
+            + dy_deta_0 * dx_dxi_0  * ( cc_q * dqdeta_0 + dd_q * dhdeta_0)
         ) * n_xi
         );
 
@@ -640,7 +639,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     add_value(values, col_w  + 2, theta * scvf_fac * (bb_r * 1./8.  + cc_r * 1./4.) );
     add_value(values, col_sw + 2, theta * scvf_fac * (bb_r * 1./8.  - cc_r * 1./4.) );
 
-    rhs[row + 1] += - (
+    rhs[row + 2] += - (
         0.5 * (
           -2. * dx_dxi_0 * dx_dxi_0 * ( cc_r * drdeta_0  + dd_r * dhdeta_0 )
         ) * n_eta
@@ -684,7 +683,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     add_value(values, col_w  + 2, theta * scvf_fac * (bb_r * 1./8.  + cc_r * 1./4.) );
     add_value(values, col_sw + 2, theta * scvf_fac * (bb_r * 1./8.  - cc_r * 1./4.) );
 
-    rhs[row + 1] += - (
+    rhs[row + 2] += - (
         0.5 * (
           -2. * dx_dxi_0 * dx_dxi_0 * ( cc_r * drdeta_0  + dd_r * dhdeta_0 )
         ) * n_eta
@@ -696,10 +695,10 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     n_xi =  1.0;
     n_eta =  0.0;
 
-    visc_0 = scvf_xi(visc[p_0], visc[p_s], visc[p_se], visc[p_e]);
-    htheta_0 = scvf_xi(htheta[p_0], htheta[p_s], htheta[p_se], htheta[p_e]);
-    qtheta_0 = scvf_xi(qtheta[p_0], qtheta[p_s], qtheta[p_se], qtheta[p_e]);
-    rtheta_0 = scvf_xi(rtheta[p_0], rtheta[p_s], rtheta[p_se], rtheta[p_e]);
+    visc_0   = scvf_xi(visc[p_e], visc[p_0], visc[p_se], visc[p_s]);
+    htheta_0 = scvf_xi(htheta[p_e], htheta[p_0], htheta[p_se], htheta[p_s]);
+    qtheta_0 = scvf_xi(qtheta[p_e], qtheta[p_0], qtheta[p_se], qtheta[p_s]);
+    rtheta_0 = scvf_xi(rtheta[p_e], rtheta[p_0], rtheta[p_se], rtheta[p_s]);
     dhdxi_0  = dcdx_scvf_n(htheta[p_e], htheta[p_0], htheta[p_se], htheta[p_s]);
     dqdxi_0  = dcdx_scvf_n(qtheta[p_e], qtheta[p_0], qtheta[p_se], qtheta[p_s]);
     drdxi_0  = dcdx_scvf_n(rtheta[p_e], rtheta[p_0], rtheta[p_se], rtheta[p_s]);
@@ -744,10 +743,10 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     add_value(values, col_e  + 1, theta * scvf_fac * (bb_q * 1./2.  + cc_q * 1./2.) );
     add_value(values, col_se + 1, theta * scvf_fac * (bb_q * 1./2.  - cc_q * 1./2.) );
 
-    rhs[row + 1] += - (
+    rhs[row + 2] += - (
         0.5 * (
             - dy_deta_0 * dy_deta_0 * ( cc_r * drdxi_0  + dd_r * dhdxi_0)
-            + dy_deta_0 * dx_dxi_0  * ( cc_r * dqdeta_0 + dd_r * dhdeta_0)
+            + dy_deta_0 * dx_dxi_0  * ( cc_q * dqdeta_0 + dd_q * dhdeta_0)
         ) * n_xi
         );
     
@@ -757,10 +756,10 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     n_xi =  1.0;
     n_eta =  0.0;
 
-    visc_0 = scvf_xi(visc[p_0], visc[p_e], visc[p_ne], visc[p_n]);
-    htheta_0 = scvf_xi(htheta[p_0], htheta[p_e], htheta[p_ne], htheta[p_n]);
-    qtheta_0 = scvf_xi(qtheta[p_0], qtheta[p_e], qtheta[p_ne], qtheta[p_n]);
-    rtheta_0 = scvf_xi(rtheta[p_0], rtheta[p_e], rtheta[p_ne], rtheta[p_n]);
+    visc_0   = scvf_xi(visc[p_e], visc[p_0], visc[p_ne], visc[p_n]);
+    htheta_0 = scvf_xi(htheta[p_e], htheta[p_0], htheta[p_ne], htheta[p_n]);
+    qtheta_0 = scvf_xi(qtheta[p_e], qtheta[p_0], qtheta[p_ne], qtheta[p_n]);
+    rtheta_0 = scvf_xi(rtheta[p_e], rtheta[p_0], rtheta[p_ne], rtheta[p_n]);
     dhdxi_0  = dcdx_scvf_n(htheta[p_e], htheta[p_0], htheta[p_ne], htheta[p_n]);
     dqdxi_0  = dcdx_scvf_n(qtheta[p_e], qtheta[p_0], qtheta[p_ne], qtheta[p_n]);
     drdxi_0  = dcdx_scvf_n(rtheta[p_e], rtheta[p_0], rtheta[p_ne], rtheta[p_n]);
@@ -805,10 +804,10 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     add_value(values, col_ne + 1, theta * scvf_fac * (bb_q * 1./2.  + cc_q * 1./2.) );
     add_value(values, col_e  + 1, theta * scvf_fac * (bb_q * 1./2.  - cc_q * 1./2.) );
 
-    rhs[row + 1] += - (
+    rhs[row + 2] += - (
         0.5 * (
             - dy_deta_0 * dy_deta_0 * ( cc_r * drdxi_0  + dd_r * dhdxi_0)
-            + dy_deta_0 * dx_dxi_0  * ( cc_r * dqdeta_0 + dd_r * dhdeta_0)
+            + dy_deta_0 * dx_dxi_0  * ( cc_q * dqdeta_0 + dd_q * dhdeta_0)
         ) * n_xi
         );
 
@@ -850,7 +849,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     add_value(values, col_ne + 2, theta * scvf_fac * (bb_r * 1./8.  + cc_r * 1./4.) );
     add_value(values, col_e  + 2, theta * scvf_fac * (bb_r * 1./8.  - cc_r * 1./4.) );
 
-    rhs[row + 1] += - (
+    rhs[row + 2] += - (
         0.5 * (
           -2. * dx_dxi_0 * dx_dxi_0 * ( cc_r * drdeta_0  + dd_r * dhdeta_0 )
         ) * n_eta
@@ -894,7 +893,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     add_value(values, col_nw + 2, theta * scvf_fac * (bb_r * 1./8.  + cc_r * 1./4.) );
     add_value(values, col_w  + 2, theta * scvf_fac * (bb_r * 1./8.  - cc_r * 1./4.) );
 
-    rhs[row + 1] += - (
+    rhs[row + 2] += - (
         0.5 * (
           -2. * dx_dxi_0 * dx_dxi_0 * ( cc_r * drdeta_0  + dd_r * dhdeta_0 )
         ) * n_eta
@@ -954,10 +953,10 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     add_value(values, col_nw + 1, theta * scvf_fac * (bb_q * 1./2.  + cc_q * 1./2.) );
     add_value(values, col_w  + 1, theta * scvf_fac * (bb_q * 1./2.  - cc_q * 1./2.) );
 
-    rhs[row + 1] += - (
+    rhs[row + 2] += - (
         0.5 * (
             - dy_deta_0 * dy_deta_0 * ( cc_r * drdxi_0  + dd_r * dhdxi_0)
-            + dy_deta_0 * dx_dxi_0  * ( cc_r * dqdeta_0 + dd_r * dhdeta_0)
+            + dy_deta_0 * dx_dxi_0  * ( cc_q * dqdeta_0 + dd_q * dhdeta_0)
         ) * n_xi
         );
 //------------------------------------------------------------------------------
@@ -1005,7 +1004,7 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             double scv_area_3 = polygon_area(x_pol, y_pol);
 
             //==================================================================
-            // q-equation
+            // q-momentum equation
             //==================================================================
             // scv_0 face_0
             double n_xi = -1.0;
@@ -1270,11 +1269,9 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
                 0.5 * (
                 -2. * dy_deta_0 * dy_deta_0 * ( cc_q * dqdxi_0  + dd_q * dhdxi_0 )
                 ) * n_xi;
-
             //==================================================================
-            // r-equation
+            // r-momentum equation
             //==================================================================
-
             // scv_0 face_0
             n_xi = -1.0;
             n_eta = 0.0;
@@ -1538,7 +1535,6 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
                     - dy_deta_0 * dy_deta_0 * ( cc_r * drdxi_0  + dd_r * dhdxi_0)
                     + dy_deta_0 * dx_dxi_0  * ( cc_r * dqdeta_0 + dd_r * dhdeta_0)
                 ) * n_xi;
-
         }
     }
     return 0;

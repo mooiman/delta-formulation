@@ -1178,22 +1178,22 @@ int main(int argc, char *argv[])
                         log_file << std::endl;
                         if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
                     }
-                    log_file << "=== Diagonal dominant == diag, off_diag, -, + =========" << std::endl;
-                    for (size_t i = 0; i < 3 * nxny; ++i)
-                    {
-                        double off_diag = 0.0;
-                        double diag = 0.0;
-                        log_file << std::showpos << std::setprecision(3) << i << "   ";
-                        for (int j = 0; j < 3*nxny; ++j)
-                        {
-                            if (i != j ) { off_diag += std::abs(A.coeff(i,j)); }
-                            else { diag = std::abs(A.coeff(i,j)); }
-                        }
-                        log_file << std::showpos << std::setprecision(5) << std::scientific << diag << " " << off_diag << " " 
-                            <<  diag - off_diag << " " <<  diag + off_diag << " ";
-                        log_file << std::endl;
-                        if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
-                    }
+                    //log_file << "=== Diagonal dominant == diag, off_diag, -, + =========" << std::endl;
+                    //for (size_t i = 0; i < 3 * nxny; ++i)
+                    //{
+                    //    double off_diag = 0.0;
+                    //    double diag = 0.0;
+                    //    log_file << std::showpos << std::setprecision(3) << i << "   ";
+                    //    for (int j = 0; j < 3*nxny; ++j)
+                    //    {
+                    //        if (i != j ) { off_diag += std::abs(A.coeff(i,j)); }
+                    //        else { diag = std::abs(A.coeff(i,j)); }
+                    //    }
+                    //    log_file << std::showpos << std::setprecision(5) << std::scientific << diag << " " << off_diag << " " 
+                    //        <<  diag - off_diag << " " <<  diag + off_diag << " ";
+                    //    log_file << std::endl;
+                    //    if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
+                    //}
                     log_file << "=== RHS ===============================================" << std::endl;
                     for (size_t i = 0; i < 3 * nxny; ++i)
                     {
