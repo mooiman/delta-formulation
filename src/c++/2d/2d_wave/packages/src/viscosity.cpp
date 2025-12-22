@@ -89,14 +89,14 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     //double cv_area_2 = scv_area_0 + scv_area_1 + scv_area_2 + scv_area_3;
     //double cv_area_3 = scv_area_0 + scv_area_1 + scv_area_2 + scv_area_3;
 
-    //==========================================================================
-    // c-equation
-    // 
-    // No contribution to the continuity equation
-    //
-    //==========================================================================
-    // q-momentum equation
-    //==========================================================================
+//==============================================================================
+// c-equation
+// 
+// No contribution to the continuity equation
+//
+//==============================================================================
+// q-momentum equation
+//==============================================================================
     bool q_mom = true;
     bool r_mom = true;
     if (q_mom)
@@ -237,8 +237,8 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     dqdeta_0 = dcdx_scvf_n(qtheta[p_0], qtheta[p_s], qtheta[p_e], qtheta[p_se]);
     drdeta_0 = dcdx_scvf_n(rtheta[p_0], rtheta[p_s], rtheta[p_e], rtheta[p_se]);
 
-    dx_dxi_0  = dcdx_scvf_t(x[p_e], x[p_0], x[p_se], x[p_e]);
-    dy_dxi_0  = dcdx_scvf_t(y[p_e], y[p_0], y[p_se], y[p_e]);
+    dx_dxi_0  = dcdx_scvf_t(x[p_e], x[p_0], x[p_se], x[p_s]);
+    dy_dxi_0  = dcdx_scvf_t(y[p_e], y[p_0], y[p_se], y[p_s]);
     dx_deta_0 = dcdy_scvf_n(x[p_0], x[p_s], x[p_e], x[p_se]);
     dy_deta_0 = dcdy_scvf_n(y[p_0], y[p_s], y[p_e], y[p_se]);
 
@@ -547,9 +547,9 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
         ) * n_xi
         );
     }
-    //==========================================================================
-    // r-momentum equation
-    //==========================================================================
+//==============================================================================
+// r-momentum equation
+//==============================================================================
     // 
     if (r_mom)
     {
@@ -1043,9 +1043,9 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             y_pol = scv_nodes(3, y[p_0], y[p_n], y[p_nw], y[p_w]);
             double scv_area_3 = polygon_area(x_pol, y_pol);
 
-            //==================================================================
-            // q-momentum equation
-            //==================================================================
+//==============================================================================
+// q-momentum equation
+//==============================================================================
             // scv_0 face_0
             double n_xi = -1.0;
             double n_eta = 0.0;
@@ -1109,7 +1109,7 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             rhs_q[p_0] += 
                 0.5 * (
                     - dx_dxi_0 * dy_deta_0 * ( cc_r * drdxi_0  + dd_r * dhdxi_0)
-                    + dx_dxi_0 * dx_dxi_0  * ( cc_r * dqdeta_0 + dd_r * dhdeta_0)
+                    + dx_dxi_0 * dx_dxi_0  * ( cc_q * dqdeta_0 + dd_q * dhdeta_0)
                 ) * n_eta;
 
             // scv_1 face_2
@@ -1127,8 +1127,8 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             dqdeta_0 = dcdx_scvf_n(qtheta[p_0], qtheta[p_s], qtheta[p_e], qtheta[p_se]);
             drdeta_0 = dcdx_scvf_n(rtheta[p_0], rtheta[p_s], rtheta[p_e], rtheta[p_se]);
 
-            dx_dxi_0  = dcdx_scvf_t(x[p_e], x[p_0], x[p_se], x[p_e]);
-            dy_dxi_0  = dcdx_scvf_t(y[p_e], y[p_0], y[p_se], y[p_e]);
+            dx_dxi_0  = dcdx_scvf_t(x[p_e], x[p_0], x[p_se], x[p_s]);
+            dy_dxi_0  = dcdx_scvf_t(y[p_e], y[p_0], y[p_se], y[p_s]);
             dx_deta_0 = dcdy_scvf_n(x[p_0], x[p_s], x[p_e], x[p_se]);
             dy_deta_0 = dcdy_scvf_n(y[p_0], y[p_s], y[p_e], y[p_se]);
 
@@ -1145,7 +1145,7 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             rhs_q[p_0] += 
             0.5 * (
                 - dx_dxi_0 * dy_deta_0 * ( cc_r * drdxi_0  + dd_r * dhdxi_0)
-                + dx_dxi_0 * dx_dxi_0  * ( cc_r * dqdeta_0 + dd_r * dhdeta_0)
+                + dx_dxi_0 * dx_dxi_0  * ( cc_q * dqdeta_0 + dd_q * dhdeta_0)
             ) * n_eta;
 
             // scv_1 face_3
@@ -1165,8 +1165,8 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
 
             dx_dxi_0  = dcdx_scvf_n(x[p_e], x[p_0], x[p_se], x[p_s]);
             dy_dxi_0  = dcdx_scvf_n(y[p_e], y[p_0], y[p_se], y[p_s]);
-            dx_deta_0 = dcdy_scvf_t(x[p_0], x[p_s], x[p_w], x[p_sw]);
-            dy_deta_0 = dcdy_scvf_t(y[p_0], y[p_s], y[p_w], y[p_sw]);
+            dx_deta_0 = dcdy_scvf_t(x[p_0], x[p_s], x[p_e], x[p_se]);
+            dy_deta_0 = dcdy_scvf_t(y[p_0], y[p_s], y[p_e], y[p_se]);
 
             aa_q = visc_0 / scv_area_1 * qtheta_0 /(htheta_0 * htheta_0) * dhdxi_0;
             bb_q = visc_0 / scv_area_1 * -1./ htheta_0 * dhdxi_0;
@@ -1277,7 +1277,7 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             rhs_q[p_0] += 
                 0.5 * (
                     - dx_dxi_0 * dy_deta_0 * ( cc_r * drdxi_0  + dd_r * dhdxi_0)
-                    + dx_dxi_0 * dx_dxi_0  * ( cc_r * dqdeta_0 + dd_r * dhdeta_0)
+                    + dx_dxi_0 * dx_dxi_0  * ( cc_q * dqdeta_0 + dd_q * dhdeta_0)
                 ) * n_eta;
 
             // scv_3 face_7
@@ -1309,9 +1309,9 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
                 0.5 * (
                 -2. * dy_deta_0 * dy_deta_0 * ( cc_q * dqdxi_0  + dd_q * dhdxi_0 )
                 ) * n_xi;
-            //==================================================================
-            // r-momentum equation
-            //==================================================================
+//==============================================================================
+// r-momentum equation
+//==============================================================================
             // scv_0 face_0
             n_xi = -1.0;
             n_eta = 0.0;
@@ -1327,8 +1327,8 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             dqdeta_0 = dcdy_scvf_t(qtheta[p_0], qtheta[p_s], qtheta[p_w], qtheta[p_sw]);
             drdeta_0 = dcdy_scvf_t(rtheta[p_0], rtheta[p_s], rtheta[p_w], rtheta[p_sw]);
 
-            dx_dxi_0  = dcdx_scvf_n(x[p_0], x[p_w], x[p_w], x[p_sw]);
-            dy_dxi_0  = dcdx_scvf_n(y[p_0], y[p_w], y[p_w], y[p_sw]);
+            dx_dxi_0  = dcdx_scvf_n(x[p_0], x[p_w], x[p_s], x[p_sw]);
+            dy_dxi_0  = dcdx_scvf_n(y[p_0], y[p_w], y[p_s], y[p_sw]);
             dx_deta_0 = dcdy_scvf_t(x[p_0], x[p_s], x[p_w], x[p_sw]);
             dy_deta_0 = dcdy_scvf_t(y[p_0], y[p_s], y[p_w], y[p_sw]);
 
@@ -1345,7 +1345,7 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             rhs_r[p_0] += 
                 0.5 * (
                     - dy_deta_0 * dy_deta_0 * ( cc_r * drdxi_0  + dd_r * dhdxi_0)
-                    + dy_deta_0 * dx_dxi_0  * ( cc_r * dqdeta_0 + dd_r * dhdeta_0)
+                    + dy_deta_0 * dx_dxi_0  * ( cc_q * dqdeta_0 + dd_q * dhdeta_0)
                 ) * n_xi;
 
             // scv_0 face_1
@@ -1393,8 +1393,8 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             dqdeta_0 = dcdx_scvf_n(qtheta[p_0], qtheta[p_s], qtheta[p_e], qtheta[p_se]);
             drdeta_0 = dcdx_scvf_n(rtheta[p_0], rtheta[p_s], rtheta[p_e], rtheta[p_se]);
 
-            dx_dxi_0  = dcdx_scvf_t(x[p_e], x[p_0], x[p_se], x[p_e]);
-            dy_dxi_0  = dcdx_scvf_t(y[p_e], y[p_0], y[p_se], y[p_e]);
+            dx_dxi_0  = dcdx_scvf_t(x[p_e], x[p_0], x[p_se], x[p_s]);
+            dy_dxi_0  = dcdx_scvf_t(y[p_e], y[p_0], y[p_se], y[p_s]);
             dx_deta_0 = dcdy_scvf_n(x[p_0], x[p_s], x[p_e], x[p_se]);
             dy_deta_0 = dcdy_scvf_n(y[p_0], y[p_s], y[p_e], y[p_se]);
 
@@ -1441,7 +1441,7 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             rhs_r[p_0] += 
                 0.5 * (
                     - dy_deta_0 * dy_deta_0 * ( cc_r * drdxi_0  + dd_r * dhdxi_0)
-                    + dy_deta_0 * dx_dxi_0  * ( cc_r * dqdeta_0 + dd_r * dhdeta_0)
+                    + dy_deta_0 * dx_dxi_0  * ( cc_q * dqdeta_0 + dd_q * dhdeta_0)
                 ) * n_xi;
 
             // scv_2 face_4
@@ -1477,7 +1477,7 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             rhs_r[p_0] += 
                 0.5 * (
                     - dy_deta_0 * dy_deta_0 * ( cc_r * drdxi_0  + dd_r * dhdxi_0)
-                    + dy_deta_0 * dx_dxi_0  * ( cc_r * dqdeta_0 + dd_r * dhdeta_0)
+                    + dy_deta_0 * dx_dxi_0  * ( cc_q * dqdeta_0 + dd_q * dhdeta_0)
                 ) * n_xi;
 
             // scv_2 face_5
@@ -1573,7 +1573,7 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             rhs_r[p_0] += 
                 0.5 * (
                     - dy_deta_0 * dy_deta_0 * ( cc_r * drdxi_0  + dd_r * dhdxi_0)
-                    + dy_deta_0 * dx_dxi_0  * ( cc_r * dqdeta_0 + dd_r * dhdeta_0)
+                    + dy_deta_0 * dx_dxi_0  * ( cc_q * dqdeta_0 + dd_q * dhdeta_0)
                 ) * n_xi;
         }
     }
