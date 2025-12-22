@@ -390,9 +390,9 @@ can be transformed as follows:
     assume $x_{\xi\eta} - x_{\eta\xi} = 0$ and $y_{\xi\eta} - y_{\eta\xi} = 0$
 	\begin{align}
 		\begin{aligned}
-			=&- \frac{1}{J} \pdiff{}{\xi}\left[ 2\nu y_{\eta} h\pdiff{(q/h)}{x} - \nu h x_{\eta}\pdiff{(r/h)}{x} + \nu h x_{\eta} \pdiff{(q/h)}{y}\right] +
+			=&- \frac{1}{J} \pdiff{}{\xi}\left[ 2\nu y_{\eta} h\pdiff{(q/h)}{x} - \nu h x_{\eta}\pdiff{(r/h)}{x} - \nu h x_{\eta} \pdiff{(q/h)}{y}\right] +
             \\
-			& + \frac{1}{J} \pdiff{}{\eta}\left[ 2\nu y_{\xi} h\pdiff{(q/h)}{x} - \nu h x_{\xi} \pdiff{(r/h)}{x} + \nu h x_{\xi} \pdiff{(q/h)}{y}  \right]
+			& + \frac{1}{J} \pdiff{}{\eta}\left[ 2\nu y_{\xi} h\pdiff{(q/h)}{x} - \nu h x_{\xi} \pdiff{(r/h)}{x} - \nu h x_{\xi} \pdiff{(q/h)}{y}  \right]
 		\end{aligned}
 	\end{align}
     \textit{step 2}
@@ -413,19 +413,21 @@ can be transformed as follows:
 			=&- \frac{1}{J} \pdiff{}{\xi}\Bigg[ \frac{\nu h}{J} \bigg(
 			2 y_{\eta}  y_{\eta} \pdiff{(q/h)}{\xi}
 			- 2 y_{\eta} y_{\xi} \pdiff{(q/h)}{\eta}
-			- x_{\eta}y_{\eta} \pdiff{(r/h)}{\xi} + x_{\eta}y_{\xi} \pdiff{(r/h)}{\eta} +
+			- x_{\eta}y_{\eta} \pdiff{(r/h)}{\xi}
+            + x_{\eta}y_{\xi} \pdiff{(r/h)}{\eta} +
             \\
 			& \qquad \qquad
-			- x_{\eta}x_{\eta}\pdiff{(q/h)}{\xi}
-			+ x_{\eta}x_{\xi}\pdiff{(q/h)}{\eta} \bigg) \Bigg] + \\
+			+ x_{\eta}x_{\eta}\pdiff{(q/h)}{\xi}
+			- x_{\eta}x_{\xi}\pdiff{(q/h)}{\eta} \bigg) \Bigg] + \\
 			&+ \frac{1}{J} \pdiff{}{\eta}\Bigg[ \frac{\nu h}{J} \bigg(
 			2 y_{\xi}y_{\eta} \pdiff{(q/h)}{\xi}
 			- 2 y_{\xi}y_{\xi} \pdiff{(q/h)}{\eta}
 			- x_{\xi}y_{\eta} \pdiff{(r/h)}{\xi}
 			+ x_{\xi}y_{\xi} \pdiff{(r/h)}{\eta} +
             \\
-			& \qquad \qquad - x_{\xi} x_{\eta} \pdiff{(q/h)}{\xi}
-			+ x_{\xi}x_{\xi} \pdiff{(q/h)}{\eta} \bigg) \Bigg]
+			& \qquad \qquad
+            + x_{\xi} x_{\eta} \pdiff{(q/h)}{\xi}
+			- x_{\xi}x_{\xi} \pdiff{(q/h)}{\eta} \bigg) \Bigg]
 		\end{aligned}
         \label{eq:xi_viscous_term}
 	\end{align}
@@ -455,8 +457,8 @@ $\vecn = (\nxi, \neta)^T$ the outward normal vector, and multiplied with $J$  th
     - x_{\eta}y_{\eta} \pdiff{(r/h)}{\xi} + x_{\eta}y_{\xi} \pdiff{(r/h)}{\eta} +
     \\
     & \qquad \qquad
-    - x_{\eta}x_{\eta}\pdiff{(q/h)}{\xi}
-    + x_{\eta}x_{\xi}\pdiff{(q/h)}{\eta} \bigg) \Bigg] \nxi +
+    + x_{\eta}x_{\eta}\pdiff{(q/h)}{\xi}
+    - x_{\eta}x_{\xi}\pdiff{(q/h)}{\eta} \bigg) \Bigg] \nxi +
     \\
     &+\Bigg[ \frac{\nu h}{J} \bigg(
     2 y_{\xi}y_{\eta} \pdiff{(q/h)}{\xi}
@@ -464,17 +466,19 @@ $\vecn = (\nxi, \neta)^T$ the outward normal vector, and multiplied with $J$  th
     - x_{\xi}y_{\eta} \pdiff{(r/h)}{\xi}
     + x_{\xi}y_{\xi} \pdiff{(r/h)}{\eta} +
     \\
-    & \qquad \qquad - x_{\xi} x_{\eta} \pdiff{(q/h)}{\xi}
-    + x_{\xi}x_{\xi} \pdiff{(q/h)}{\eta} \bigg) \Bigg] \neta
+    & \qquad \qquad
+    + x_{\xi} x_{\eta} \pdiff{(q/h)}{\xi}
+    - x_{\xi}x_{\xi} \pdiff{(q/h)}{\eta} \bigg) \Bigg] \neta
 \end{align}
 Written with linear functions in the first derivatives and applying Green's theorem yields:\begin{align}
-    - \Bigg[& \frac{\nu}{J} \bigg(
-    2 y_{\eta}  y_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
-    - 2 y_{\eta} y_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right)
+    \Bigg[& \frac{\nu}{J} \bigg(
+    -2 y_{\eta}  y_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
+    + 2 y_{\eta} y_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right)
     +
     \nonumber \\*
-    &- x_{\eta}y_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
-    + x_{\eta}y_{\xi}\left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) +
+    &
+    + x_{\eta}y_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
+    - x_{\eta}y_{\xi}\left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) +
     \nonumber \\*
     &
     - x_{\eta}x_{\eta}\left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
@@ -488,8 +492,9 @@ Written with linear functions in the first derivatives and applying Green's theo
     - x_{\xi}y_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
     + x_{\xi}y_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) +
     \nonumber \\*
-    & - x_{\xi} x_{\eta} \left(\pdiff{q}{\xi}  - \frac{q}{h}\pdiff{h}{\xi} \right)
-    + x_{\xi}x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \neta \label{eq:xi_greens_viscous_term}
+    &
+    + x_{\xi} x_{\eta} \left(\pdiff{q}{\xi}  - \frac{q}{h}\pdiff{h}{\xi} \right)
+    - x_{\xi}x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \neta \label{eq:xi_greens_viscous_term}
 \end{align}
 %--------------------------------------------------------------------------------
 %
@@ -523,10 +528,16 @@ assume $x_{\xi\eta} - x_{\eta\xi} = 0$ and $y_{\xi\eta} - y_{\eta\xi} = 0$
 	\begin{aligned}
 		=& - \frac{1}{J} \pdiff{}{\xi} \Bigg[\frac{\nu h}{J} \bigg( y_{\eta}y_{\eta}  \pdiff{(r/h)}{\xi} - y_{\eta} y_{\xi} \pdiff{(r/h)}{\eta} + y_{\eta} x_{\eta} \pdiff{(q/h)}{\xi} - y_{\eta} x_{\xi} \pdiff{(q/h)}{\eta} +
         \\
-		& \qquad \qquad + 2 x_{\eta}x_{\eta} \pdiff{(r/h)}{\xi} - 2 x_{\xi} x_{\eta} \pdiff{(r/h)}{\eta} \bigg) \Bigg]
+		& \qquad \qquad
+         + 2 x_{\eta}x_{\eta} \pdiff{(r/h)}{\xi} - 2 x_{\xi} x_{\eta} \pdiff{(r/h)}{\eta} \bigg) \Bigg]
         +
         \\
-		&+ \frac{1}{J} \pdiff{}{\eta} \Bigg[\frac{\nu h}{J} \bigg( y_{\xi} y_{\eta} \pdiff{(r/h)}{\xi} - y_{\xi} y_{\xi} \pdiff{(r/h)}{\eta} + y_{\xi} x_{\eta} \pdiff{(q/h)}{\xi} -  y_{\xi} x_{\xi} \pdiff{(q/h)}{\eta} +
+		&+ \frac{1}{J} \pdiff{}{\eta} \Bigg[\frac{\nu h}{J} \bigg(
+        y_{\xi} y_{\eta} \pdiff{(r/h)}{\xi}
+        - y_{\xi} y_{\xi} \pdiff{(r/h)}{\eta}
+        - y_{\xi} x_{\eta} \pdiff{(q/h)}{\xi}
+        + y_{\xi} x_{\xi} \pdiff{(q/h)}{\eta}
+        +
         \\
 		& \qquad \qquad + 2 x_{\eta}x_{\xi} \pdiff{(r/h)}{\xi} - 2 x_{\xi}x_{\xi} \pdiff{(r/h)}{\eta} \bigg) \Bigg] =
 	\end{aligned}
@@ -568,28 +579,30 @@ assume $x_{\xi\eta} - x_{\eta\xi} = 0$ and $y_{\xi\eta} - y_{\eta\xi} = 0$
 %	\end{align}
 Written with linear functions in the first derivatives and applying Green's theorem yields:
 \begin{align}
-     - \Bigg[&\frac{\nu}{J} \bigg(
-        y_{\eta} y_{\eta}  \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
-      - y_{\eta} y_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) +
+    \Bigg[&\frac{\nu}{J} \bigg(
+      - y_{\eta} y_{\eta}  \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
+      + y_{\eta} y_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) +
      \nonumber \\*
-     & +  y_{\eta} x_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
-       - y_{\eta} x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) +
+     & -  y_{\eta} x_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
+       + y_{\eta} x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) +
     \nonumber \\*
-    & + 2 x_{\eta}x_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
-     - 2 x_{\xi} x_{\eta} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \nxi
+    & - 2 x_{\eta}x_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
+     + 2 x_{\xi} x_{\eta} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \nxi
     +
     \nonumber \\
-    + \Bigg[ & \frac{\nu}{J} \bigg( y_{\xi} y_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
+    + \Bigg[ & \frac{\nu}{J} \bigg(
+       y_{\xi} y_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
      - y_{\xi} y_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) +
     \nonumber \\*
-    & + y_{\xi} x_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
-    -  y_{\xi} x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) +
+    &
+    - y_{\xi} x_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
+    + y_{\xi} x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) +
     \nonumber \\*
     &  + 2 x_{\eta}x_{\xi} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right) - 2 x_{\xi}x_{\xi} \left(\pdiff{r}{\eta} - \frac{r}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \neta \label{eq:eta_greens_viscous_term}
 \end{align}
 
  \subsubsection*{Cartesian grid}
-On a cartesian grid ($ y_\xi = x_\eta = 0$) these viscous terms  reduce for the $x$-momentum (\autoref{eq:xi_greens_viscous_term}) equation to:
+On a cartesian grid ($ y_\xi = x_\eta = 0$) these viscous terms  reduce for the $x$-momentum equation (\autoref{eq:xi_greens_viscous_term}) to:
 \begin{align}
      \Bigg[& \frac{\nu}{J} \bigg(
     - 2 y_{\eta}  y_{\eta} \left(\pdiff{q}{\xi} - \frac{q}{h}\pdiff{h}{\xi} \right)
@@ -600,7 +613,7 @@ On a cartesian grid ($ y_\xi = x_\eta = 0$) these viscous terms  reduce for the 
     + x_{\xi}x_{\xi} \left(\pdiff{q}{\eta} - \frac{q}{h}\pdiff{h}{\eta} \right) \bigg) \Bigg] \neta
     \label{eq:cart_xi_viscous_term}
 \end{align}
-and for the $y$-momentum (\autoref{eq:eta_greens_viscous_term}) to:
+and for the $y$-momentum equation (\autoref{eq:eta_greens_viscous_term}) to:
 \begin{align}
     \Bigg[&\frac{\nu}{J} \bigg(
     - y_{\eta} y_{\eta} \left(\pdiff{r}{\xi} - \frac{r}{h}\pdiff{h}{\xi} \right)
