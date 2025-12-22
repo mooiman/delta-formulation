@@ -566,7 +566,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     //
     // sub control volume 0 ============================================
     // scv_0 face_0
-    double n_xi = 0.0;  -1.0;
+    double n_xi = -1.0;
     double n_eta = 0.0;
 
     double visc_0   = scvf_xi(visc[p_0], visc[p_w], visc[p_sw], visc[p_s]);
@@ -719,7 +719,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     //
     // sub control volume 1 ============================================
     // scv_1 face_3
-    n_xi = 0.0;  1.0;
+    n_xi = 1.0;
     n_eta = 0.0;
 
     visc_0   = scvf_xi(visc[p_e], visc[p_0], visc[p_se], visc[p_s]);
@@ -784,7 +784,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     //
     // sub control volume 2 ============================================
     // scv_2 face_4
-    n_xi = 0.0;  1.0;
+    n_xi = 1.0;
     n_eta = 0.0;
 
     visc_0   = scvf_xi(visc[p_e], visc[p_0], visc[p_ne], visc[p_n]);
@@ -937,7 +937,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     //
     // sub control volume 3 ============================================
     // scv_3 face_7
-    n_xi = 0.0;  -1.0;
+    n_xi = -1.0;
     n_eta = 0.0;
 
     visc_0 = scvf_xi(visc[p_0], visc[p_w], visc[p_nw], visc[p_n]);
