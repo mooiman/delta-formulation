@@ -187,7 +187,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     double cc_r = visc_0 / scv_area_0 * 1.0;
     double dd_r = visc_0 / scv_area_0 * - rtheta_0 / htheta_0;
 
-    scvf_fac = -0.5 * dx_dxi_0 * dy_deta_0 * n_eta;
+    scvf_fac = 0.5 * dx_dxi_0 * dy_deta_0 * n_eta;
     add_value(values, col_0     , theta * scvf_fac * (aa_r * 1./2. + dd_r * 1./2.) );
     add_value(values, col_s     , theta * scvf_fac * (aa_r * 1./2. - dd_r * 1./2.) );   
     add_value(values, col_w     , theta * scvf_fac * (aa_r * 1./2. + dd_r * 1./2.) );
@@ -198,7 +198,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     add_value(values, col_w  + 2, theta * scvf_fac * (bb_r * 1./2.  + cc_r * 1./2.) );
     add_value(values, col_sw + 2, theta * scvf_fac * (bb_r * 1./2.  - cc_r * 1./2.) );
 
-    scvf_fac = 0.5 * dx_dxi_0 * dx_dxi_0 * n_eta;
+    scvf_fac = -0.5 * dx_dxi_0 * dx_dxi_0 * n_eta;
     add_value(values, col_0     , theta * scvf_fac * (aa_q * 3./8. + dd_q * 3./4.) );
     add_value(values, col_s     , theta * scvf_fac * (aa_q * 3./8. - dd_q * 3./4.) );   
     add_value(values, col_w     , theta * scvf_fac * (aa_q * 1./8. + dd_q * 1./4.) );
@@ -248,7 +248,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     cc_r = visc_0 / scv_area_1 * 1.0;
     dd_r = visc_0 / scv_area_1 * - rtheta_0 / htheta_0;
 
-    scvf_fac = -0.5 * dx_dxi_0 * dy_deta_0 * n_eta;
+    scvf_fac = 0.5 * dx_dxi_0 * dy_deta_0 * n_eta;
     add_value(values, col_0     , theta * scvf_fac * (aa_r * 1./2. + dd_r * 1./2.) );
     add_value(values, col_s     , theta * scvf_fac * (aa_r * 1./2. - dd_r * 1./2.) );   
     add_value(values, col_e     , theta * scvf_fac * (aa_r * 1./2. + dd_r * 1./2.) );
@@ -259,7 +259,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     add_value(values, col_e  + 2, theta * scvf_fac * (bb_r * 1./2.  + cc_r * 1./2.) );
     add_value(values, col_se + 2, theta * scvf_fac * (bb_r * 1./2.  - cc_r * 1./2.) );
 
-    scvf_fac = 0.5 * dx_dxi_0 * dx_dxi_0 * n_eta;
+    scvf_fac = -0.5 * dx_dxi_0 * dx_dxi_0 * n_eta;
     add_value(values, col_0     , theta * scvf_fac * (aa_q * 3./8. + dd_q * 3./4.) );
     add_value(values, col_s     , theta * scvf_fac * (aa_q * 3./8. - dd_q * 3./4.) );   
     add_value(values, col_e     , theta * scvf_fac * (aa_q * 1./8. + dd_q * 1./4.) );
@@ -397,7 +397,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     cc_r = visc_0 / scv_area_2 * 1.0;
     dd_r = visc_0 / scv_area_2 * - rtheta_0 / htheta_0;
 
-    scvf_fac = -0.5 * dx_dxi_0 * dy_deta_0 * n_eta;
+    scvf_fac = 0.5 * dx_dxi_0 * dy_deta_0 * n_eta;
     add_value(values, col_n     , theta * scvf_fac * (aa_r * 1./2. + dd_r * 1./2.) );
     add_value(values, col_0     , theta * scvf_fac * (aa_r * 1./2. - dd_r * 1./2.) );   
     add_value(values, col_ne    , theta * scvf_fac * (aa_r * 1./2. + dd_r * 1./2.) );
@@ -408,7 +408,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     add_value(values, col_ne + 2, theta * scvf_fac * (bb_r * 1./2.  + cc_r * 1./2.) );
     add_value(values, col_e  + 2, theta * scvf_fac * (bb_r * 1./2.  - cc_r * 1./2.) );
 
-    scvf_fac = 0.5 * dx_dxi_0 * dx_dxi_0 * n_eta;
+    scvf_fac = -0.5 * dx_dxi_0 * dx_dxi_0 * n_eta;
     add_value(values, col_n     , theta * scvf_fac * (aa_q * 3./8. + dd_q * 3./4.) );
     add_value(values, col_0     , theta * scvf_fac * (aa_q * 3./8. - dd_q * 3./4.) );   
     add_value(values, col_ne    , theta * scvf_fac * (aa_q * 1./8. + dd_q * 1./4.) );
@@ -458,7 +458,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     cc_r = visc_0 / scv_area_3 * 1.0;
     dd_r = visc_0 / scv_area_3 * - rtheta_0 / htheta_0;
 
-    scvf_fac = -0.5 * dx_dxi_0 * dy_deta_0 * n_eta;
+    scvf_fac = 0.5 * dx_dxi_0 * dy_deta_0 * n_eta;
     add_value(values, col_0     , theta * scvf_fac * (aa_r * 1./2. + dd_r * 1./2.) );
     add_value(values, col_w     , theta * scvf_fac * (aa_r * 1./2. - dd_r * 1./2.) );   
     add_value(values, col_n     , theta * scvf_fac * (aa_r * 1./2. + dd_r * 1./2.) );
@@ -469,7 +469,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     add_value(values, col_n  + 2, theta * scvf_fac * (bb_r * 1./2.  + cc_r * 1./2.) );
     add_value(values, col_nw + 2, theta * scvf_fac * (bb_r * 1./2.  - cc_r * 1./2.) );
 
-    scvf_fac = 0.5 * dx_dxi_0 * dx_dxi_0 * n_eta;
+    scvf_fac = -0.5 * dx_dxi_0 * dx_dxi_0 * n_eta;
     add_value(values, col_n     , theta * scvf_fac * (aa_q * 3./8. + dd_q * 3./4.) );
     add_value(values, col_0     , theta * scvf_fac * (aa_q * 3./8. - dd_q * 3./4.) );   
     add_value(values, col_nw    , theta * scvf_fac * (aa_q * 1./8. + dd_q * 1./4.) );
