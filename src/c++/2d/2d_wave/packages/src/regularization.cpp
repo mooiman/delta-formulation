@@ -159,8 +159,8 @@ void REGULARIZATION::given_function(
 //------------------------------------------------------------------------------
         for (size_t i = 0; i < nxny; ++i)
         {
-            psi_11[i] = -c_psi * (dxi * dxi + deta * deta) * eq8[i]/2.0;  // divide by 2: then is equal to 1D if dx=dy
-            psi_22[i] = -c_psi * (dxi * dxi + deta * deta) * eq8[i]/2.0;  // divide by 2: then is equal to 1D if dx=dy
+            psi_11[i] = c_psi * (dxi * dxi + deta * deta) * eq8[i]/2.0;  // divide by 2: then is equal to 1D if dx=dy
+            psi_22[i] = c_psi * (dxi * dxi + deta * deta) * eq8[i]/2.0;  // divide by 2: then is equal to 1D if dx=dy
         }
 //------------------------------------------------------------------------------
         u0 = *(this->solve_eq7(nx, ny, x, y, psi_11, psi_22, u_giv, log_file));
@@ -257,8 +257,8 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
         size_t c_eq = (size_t) outer[row    ];
         size_t p_0 = c_eq/(9);
 
-        double psi_1 = psi_11[p_0];
-        double psi_2 = psi_22[p_0];
+        double psi_1 = -psi_11[p_0];
+        double psi_2 = -psi_22[p_0];
         status = reg_boundary_west(values, row, c_eq, rhs,
             x, y, u_giv, psi_1, psi_2, 
             (double) 1.0, nx, ny);
@@ -277,8 +277,8 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
         size_t c_eq = outer[row    ];
         size_t p_0 = c_eq/(9);
 
-        double psi_1 = psi_11[p_0];
-        double psi_2 = psi_22[p_0];
+        double psi_1 = -psi_11[p_0];
+        double psi_2 = -psi_22[p_0];
 
         if (row % ny == 0) {
             // south boundary, over write coefficients
@@ -312,8 +312,8 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
         int c_eq = (size_t) outer[row    ];
         size_t p_0 = c_eq/(9);
 
-        double psi_1 = psi_11[p_0];
-        double psi_2 = psi_22[p_0];
+        double psi_1 = -psi_11[p_0];
+        double psi_2 = -psi_22[p_0];
 
         status = reg_boundary_east(values, row, c_eq, rhs, 
             x, y, u_giv, psi_1, psi_2, 

@@ -43,7 +43,8 @@ public:
 
     int def_dimensions(int, int, int, int);
     int add_variable(std::string var_name, std::vector<std::string> dim_names, std::string std_name, std::string long_name, std::string unit);
-    int add_variable(std::string var_name, std::vector<std::string> dim_names, std::string std_name, std::string long_name, std::string unit, std::string mesh, std::string location);
+    int add_variable(std::string var_name, std::vector<std::string> dim_names, std::string std_name, std::string long_name, std::string unit, 
+        std::string mesh, std::string location, std::string comment);
     int add_attribute(std::string var_name, std::string att_name, std::string att_value);
     int add_attribute(std::string var_name, std::string att_name, double);
     int add_ntw_edge_nodes(std::string var_name, std::vector<std::string> dim_names, std::string cf_role, std::string long_name);

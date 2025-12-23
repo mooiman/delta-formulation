@@ -343,7 +343,7 @@ int UGRID2D::add_face_area(std::vector<double> & x, std::vector<double> & y, dou
 
     std::vector<std::string> dim_names;
     dim_names.push_back("mesh2d_nFaces");
-    status = this->add_variable("cell_area", dim_names, "cell_area", "-", "m2", "mesh2D", "face");
+    status = this->add_variable("cell_area", dim_names, "cell_area", "-", "m2", "mesh2D", "face", "Area of an element bounded by the vertices");
     status = this->add_attribute("cell_area", "coordinates", "mesh2d_face_x, mesh2d_face_y");
     status = this->put_variable("cell_area", cell_area);
 
@@ -369,7 +369,8 @@ int UGRID2D::add_variable(std::string var_name, std::vector<std::string> dim_nam
     status = set_attribute(var_name, std::string("units"), unit);
     return status;
 }
-int UGRID2D::add_variable(std::string var_name, std::vector<std::string> dim_names, std::string std_name, std::string long_name, std::string unit, std::string mesh, std::string location)
+int UGRID2D::add_variable(std::string var_name, std::vector<std::string> dim_names, std::string std_name, std::string long_name, 
+    std::string unit, std::string mesh, std::string location, std::string comment)
 {
     int dim_id;
     int i_var;
@@ -393,6 +394,8 @@ int UGRID2D::add_variable(std::string var_name, std::vector<std::string> dim_nam
     status = set_attribute(var_name, std::string("standard_name"), std_name);
     status = set_attribute(var_name, std::string("long_name"), long_name);
     status = set_attribute(var_name, std::string("units"), unit);
+    if (comment.size() != 0) { status = set_attribute(var_name, std::string("comment"), comment); }
+
     return status;
 }
 int UGRID2D::add_attribute(std::string var_name, std::string att_name, std::string att_value)

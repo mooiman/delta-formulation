@@ -612,38 +612,38 @@ int main(int argc, char *argv[])
     std::string map_visc_q_name("viscosity_q");
     std::string map_visc_r_name("viscosity_r");
 
-    status = map_file->add_variable(map_h_name, dim_names, "sea_floor_depth_below_sea_surface", "Water depth", "m", "mesh2D", "node");
-    status = map_file->add_variable(map_q_name, dim_names, "", "Water flux (x)", "m2 s-1", "mesh2D", "node");
-    status = map_file->add_variable(map_r_name, dim_names, "", "Water flux (y)", "m2 s-1", "mesh2D", "node");
-    status = map_file->add_variable(map_dh_name, dim_names, "", "Delta h^{n+1,p+1}", "m", "mesh2D", "node");
-    status = map_file->add_variable(map_dq_name, dim_names, "", "Delta q^{n+1,p+1}", "m2 s-1", "mesh2D", "node");
-    status = map_file->add_variable(map_dr_name, dim_names, "", "Delta r^{n+1,p+1}", "m2 s-1", "mesh2D", "node");
-    status = map_file->add_variable(map_s_name, dim_names, "sea_surface_height_above_geoid", "WaterLevel", "m", "mesh2D", "node");
-    status = map_file->add_variable(map_u_name, dim_names, "sea_water_x_velocity", "Velocity (x)", "m s-1", "mesh2D", "node");
-    status = map_file->add_variable(map_v_name, dim_names, "sea_water_y_velocity", "Velocity (y)", "m s-1", "mesh2D", "node");
-    status = map_file->add_variable(map_umag_name, dim_names, "sea_water_speed", "Velocity magnitude", "m s-1", "mesh2D", "node");
-    status = map_file->add_variable(map_zb_name, dim_names, "", "BedLevel", "m", "mesh2D", "node");
+    status = map_file->add_variable(map_h_name, dim_names, "sea_floor_depth_below_sea_surface", "Water depth", "m", "mesh2D", "node", "");
+    status = map_file->add_variable(map_q_name, dim_names, "", "Water flux (x)", "m2 s-1", "mesh2D", "node", "");
+    status = map_file->add_variable(map_r_name, dim_names, "", "Water flux (y)", "m2 s-1", "mesh2D", "node", "");
+    status = map_file->add_variable(map_dh_name, dim_names, "", "Delta h^{n+1,p+1}", "m", "mesh2D", "node", "");
+    status = map_file->add_variable(map_dq_name, dim_names, "", "Delta q^{n+1,p+1}", "m2 s-1", "mesh2D", "node", "");
+    status = map_file->add_variable(map_dr_name, dim_names, "", "Delta r^{n+1,p+1}", "m2 s-1", "mesh2D", "node", "");
+    status = map_file->add_variable(map_s_name, dim_names, "sea_surface_height_above_geoid", "WaterLevel", "m", "mesh2D", "node", "");
+    status = map_file->add_variable(map_u_name, dim_names, "sea_water_x_velocity", "Velocity (x)", "m s-1", "mesh2D", "node", "");
+    status = map_file->add_variable(map_v_name, dim_names, "sea_water_y_velocity", "Velocity (y)", "m s-1", "mesh2D", "node", "");
+    status = map_file->add_variable(map_umag_name, dim_names, "sea_water_speed", "Velocity magnitude", "m s-1", "mesh2D", "node", "");
+    status = map_file->add_variable(map_zb_name, dim_names, "", "BedLevel", "m", "mesh2D", "node", "");
     if (regularization_init)
     {
-        status = map_file->add_variable(map_psi_11_name, dim_names, "", "Psi_11", "m2 s-1", "mesh2D", "node");
-        status = map_file->add_variable(map_psi_22_name, dim_names, "", "Psi_22", "m2 s-1", "mesh2D", "node");
-        status = map_file->add_variable(map_eq8_name, dim_names, "", "Eq8", "-", "mesh2D", "node");
+        status = map_file->add_variable(map_psi_11_name, dim_names, "", "Psi_11", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (x)");
+        status = map_file->add_variable(map_psi_22_name, dim_names, "", "Psi_22", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (y)");
+        status = map_file->add_variable(map_eq8_name, dim_names, "", "Eq8", "-", "mesh2D", "node", "Result of equation 8, see Borsboom 1998");
     }
 
     if (do_bed_shear_stress)
     {
-        status = map_file->add_variable(map_beds_q_name, dim_names, "", "Bed shear stress (x)", "m2 s-2", "mesh2D", "node");
-        status = map_file->add_variable(map_beds_r_name, dim_names, "", "Bed shear stress (y)", "m2 s-2", "mesh2D", "node");
+        status = map_file->add_variable(map_beds_q_name, dim_names, "", "Bed shear stress term (x)", "m2 s-2", "mesh2D", "node", "");
+        status = map_file->add_variable(map_beds_r_name, dim_names, "", "Bed shear stress term (y)", "m2 s-2", "mesh2D", "node", "");
     }
     if (do_convection)
     {
-        status = map_file->add_variable(map_conv_q_name, dim_names, "", "Convection (x)", "m2 s-2", "mesh2D", "node");
-        status = map_file->add_variable(map_conv_r_name, dim_names, "", "Convection (y)", "m2 s-2", "mesh2D", "node");
+        status = map_file->add_variable(map_conv_q_name, dim_names, "", "Convection term (x)", "m2 s-2", "mesh2D", "node", "");
+        status = map_file->add_variable(map_conv_r_name, dim_names, "", "Convection term (y)", "m2 s-2", "mesh2D", "node", "");
     }
     if (do_viscosity)
     {
-        status = map_file->add_variable(map_visc_q_name, dim_names, "", "Viscosity (x)", "m2 s-1", "mesh2D", "node");
-        status = map_file->add_variable(map_visc_r_name, dim_names, "", "Viscosity (y)", "m2 s-1", "mesh2D", "node");
+        status = map_file->add_variable(map_visc_q_name, dim_names, "", "Viscosity term (x)", "m2 s-2", "mesh2D", "node", "");
+        status = map_file->add_variable(map_visc_r_name, dim_names, "", "Viscosity term (y)", "m2 s-2", "mesh2D", "node", "");
     }
 
     // Put data on map file
