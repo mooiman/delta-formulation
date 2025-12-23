@@ -1409,8 +1409,8 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
                 ) * n_eta;
 
             // scv_1 face_3
-            n_xi = 0.0;
-            n_eta = -1.0;
+            n_xi = 1.0;
+            n_eta = 0.0;
 
             visc_0 = scvf_xi(visc[p_0], visc[p_s], visc[p_se], visc[p_e]);
             htheta_0 = scvf_xi(htheta[p_0], htheta[p_s], htheta[p_se], htheta[p_e]);
