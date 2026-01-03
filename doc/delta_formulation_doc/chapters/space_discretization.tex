@@ -242,7 +242,7 @@ First the discretization of \autoref{eq:regularization} is discussed and second 
 
 The finite volume approach of \autoref{eq:regularization} reads:
 \begin{align}
-\int_\Omega \widetilde u\, d\Omega  - \int_\Omega \pdiff{}{x}  \Psi \pdiff{\widetilde u}{x}\, d\Omega  = \int_\Omega  u_{\it{giv}}\, d\Omega \label{eq:1d_regularization}
+\int_\Omega \widetilde u\, d\Omega  - \int_\Omega \pdiff{}{x}  \Psi \pdiff{\widetilde u}{x}\, d\Omega  = \int_\Omega  u_{\mathit{giv}}\, d\Omega \label{eq:1d_regularization}
 \end{align}
 %--------------------------------------------------------------------------------
 \paragraph*{Integration of the first term}
@@ -257,9 +257,12 @@ Integration of the first term yields: %, see \autoref{sec:integration_1d_control
 Integration of the second term, with $\Psi_{i+\half} = \half(\Psi_{i} + \Psi_{i+1})$:
 \begin{align}
 \int_{x_{i-\half}}^{x_{i+\half}} &\, \pdiff{}{x} \Psi \pdiff{\widetilde u}{x} dx  =
-\left. \Psi \pdiff{\widetilde u}{x} \right|_{i+\half} -  \left. \Psi \pdiff{\widetilde u}{x} \right|_{i-\half} \approx \\
-& \approx \Psi_{i+\half} \frac{ u_{i+1} -  u_{i}}{\Dx_{i+\half}} - \Psi_{i-\half} \frac{ u_{i} -  u_{i-1}}{\Dx_{i-\half}} = \\
-%        & = - \frac{\nu^h_{i-\half}}{\Dx_{i-\half}}  u_{i-1} +  \frac{\nu^h_{i-\half}}{{\Dx_{i-\half}}}  u_{i} +  \frac{\nu^h_{i+\half}}{{\Dx_{i+\half}}}  u_{i} - \frac{\nu^h_{i+\half}}{{\Dx_{i+\half}}}  u_{i+1} \\
+\left. \Psi \pdiff{\widetilde u}{x} \right|_{i+\half} -  \left. \Psi \pdiff{\widetilde u}{x} \right|_{i-\half} \approx
+\\
+& \approx \Psi_{i+\half} \frac{ u_{i+1} -  u_{i}}{\Dx_{i+\half}} - \Psi_{i-\half} \frac{ u_{i} -  u_{i-1}}{\Dx_{i-\half}} =
+\\
+%        & = - \frac{\nu^h_{i-\half}}{\Dx_{i-\half}}  u_{i-1} +  \frac{\nu^h_{i-\half}}{{\Dx_{i-\half}}}  u_{i} +  \frac{\nu^h_{i+\half}}{{\Dx_{i+\half}}}  u_{i} - \frac{\nu^h_{i+\half}}{{\Dx_{i+\half}}}  u_{i+1}
+\\
 &=  \frac{\Psi_{i-\half}}{\Dx_{i-\half}}   u_{i-1}
 -  \left( \frac{\Psi_{i-\half}}{{\Dx_{i-\half}}}
 +  \frac{\Psi_{i+\half}}{{\Dx_{i+\half}}} \right)  u_{i}

@@ -40,7 +40,7 @@ We assume that the artificial viscosity $\Psi$ is proportional to the numerical 
 \paragraph*{Based on potential energy}
 Looking to square root of the potential energy
 \begin{align}
-    {\it Err}\left(\sqrt{g\hhat}\right) & = \sqrt{g\hhat} - \sqrt{g\hbar} \approx
+    {\mathit Err}\left(\sqrt{g\hhat}\right) & = \sqrt{g\hhat} - \sqrt{g\hbar} \approx
     \\
     & \approx \sqrt{g\left(\hbar + \frac{1}{8}\Dx^2\pdiff[2]{\hbar}{x}\right)} - \sqrt{g\hbar} =
     \\
@@ -52,7 +52,7 @@ Looking to square root of the potential energy
 \end{align}
 Because $\lpdiff[2]{z_b}{x}$ is negligible, due to the regularization of the bedlevel, we get:
 \begin{align}
-    {\it Err}\left(\sqrt{g\hhat}\right)  & = \frac{1}{16} \Dx^2 \sqrt{\frac{g}{\hbar}}\ \pdiff[2]{\zeta}{x}
+    {\mathit Err}\left(\sqrt{g\hhat}\right)  & = \frac{1}{16} \Dx^2 \sqrt{\frac{g}{\hbar}}\ \pdiff[2]{\zeta}{x}
     \\
     & \Rightarrow \frac{1}{16} \Dxi^2 \sqrt{\frac{g}{\hbar}}\pdiff[2]{\zeta}{\xi}, \quad \bunit{\metre\per\second}.
 \end{align}
@@ -62,7 +62,7 @@ Because $\lpdiff[2]{z_b}{x}$ is negligible, due to the regularization of the bed
 \paragraph*{Based on kinetic energy }
 Looking to square root of the kinetic energy: $\sqrt{u^2/2} = \half\sqrt{2} \abs{u} = \half\sqrt{2} \abs{q/h}$:
 \begin{align}
-    {\it Err}\left( \half\sqrt{2}\frac{\qhat}{\hhat} \right) & =  \half\sqrt{2}\left(\frac{\qhat}{\hhat} - \frac{\qbar}{\hbar} \right) \approx
+    {\mathit Err}\left( \half\sqrt{2}\frac{\qhat}{\hhat} \right) & =  \half\sqrt{2}\left(\frac{\qhat}{\hhat} - \frac{\qbar}{\hbar} \right) \approx
     \half\sqrt{2} \left( \frac{\qbar + \frac{1}{8}\Dx^2\pdiff[2]{\qbar}{x}}{\hbar + \frac{1}{8}\Dx^2\pdiff[2]{\hbar}{x}} - \frac{\qbar}{\hbar} \right) =
     \\
     & = \half\sqrt{2} \left( \frac{\qbar}{\hbar}\frac{1 + \frac{1}{8}\Dx^2\frac{1}{\qbar}\pdiff[2]{\qbar}{x}}{1+\frac{1}{8}\Dx^2\frac{1}{\hbar}\pdiff[2]{\hbar}{x}} - \frac{\qbar}{\hbar} \right) \approx
@@ -78,9 +78,9 @@ Looking to square root of the kinetic energy: $\sqrt{u^2/2} = \half\sqrt{2} \abs
     & \Rightarrow \frac{1}{16}\sqrt{2} \Dxi^2 \left( \frac{1}{\hbar} \pdiff[2]{\qbar}{\xi} -
     \frac{\qbar}{\hbar^2}\pdiff[2]{\hbar}{\xi} \right), \quad \bunit{\metre\per\second}.
 \end{align}
-The error function for artificial viscosity  ${\it Err}_\Psi$ reads (comparable with \citet[eq.\ 42]{Borsboom2001}, differs by a factor of $1/8$):
+The error function for artificial viscosity  ${\mathit Err}_\Psi$ reads (comparable with \citet[eq.\ 42]{Borsboom2001}, differs by a factor of $1/8$):
 \begin{align}
-    {\it Err}_\Psi = \Dxi \overline{x}_\xi  \left( \frac{1}{16} \sqrt{\frac{g}{\hbar}}\abs{D_\xi(\overline\zeta)} +
+    {\mathit Err}_\Psi = \Dxi \overline{x}_\xi  \left( \frac{1}{16} \sqrt{\frac{g}{\hbar}}\abs{D_\xi(\overline\zeta)} +
     \frac{\sqrt{2}}{16} \abs{\frac{1}{\hbar} D_\xi(\qbar) -
         \frac{\qbar}{\hbar^2}D_\xi(\hbar)} \right), \quad \bunit{\square\metre\per\second}
 \end{align}
@@ -114,7 +114,7 @@ The suitable combination is:
     + \frac{r}{h} \left( \textit{$r$-momentum eq.} \right)
     = 0
 \end{align}
-the energy equation reads (\label{sec:obtaining_2denergy_equation}):
+the energy equation reads (\autoref{sec:obtaining_2denergy_equation}):
 \begin{align}
     &  \half \pdiff{}{t} \left[ h \left( \left( \frac{q^2}{h^2} + \frac{r^2}{h^2} \right) + g\zeta -\half gh \right)
     \right] +
@@ -141,7 +141,7 @@ When a steady state solution is assumed ($\lpdiff{}{t}=0$, $q=\textit{Constant}$
 \paragraph*{Based on potential energy}
 Looking to square root of the potential energy
 \begin{align}
-    {\it Err} & \left( \sqrt{g \widehat{h}} \right) = \sqrt{g \widehat{h}}
+    {\mathit Err} & \left( \sqrt{g \widehat{h}} \right) = \sqrt{g \widehat{h}}
     - \sqrt{g \overline{h}}
     \\*
     & \approx \sqrt{g
@@ -209,14 +209,14 @@ The second derivatives written in curvilinear coordinates read:
 Because $\lpdiff[2]{z_b}{x}$ is negligible, due to the regularization of the bedlevel, and written in curvilinear coordinates we get:
 %
 \begin{align}
-    {\it Err}&\left(\sqrt{g\hhat}\right)  = \sqrt{\frac{g}{\hbar}} \left(  \frac{1}{16} F_1(\hbar) +  \frac{1}{8} F_2(\hbar) + \frac{1}{16} F_3(\hbar) \right)
+    {\mathit Err}&\left(\sqrt{g\hhat}\right)  = \sqrt{\frac{g}{\hbar}} \left(  \frac{1}{16} F_1(\hbar) +  \frac{1}{8} F_2(\hbar) + \frac{1}{16} F_3(\hbar) \right)
 \end{align}
 
 %--------------------------------------------------------------------------------
 \paragraph*{Based on kinetic energy}
 Looking to square root of the kinetic energy ($\sqrt{\norm{\vec{u}}/2} = \sqrt{\half(q^2/h^2 + r^2/h^2)}$):
 \begin{align}
-    {\it Err}&\left( \sqrt{\half \left( \frac{\widehat{q}^2}{\widehat{h}^2} + \frac{\widehat{r}^2}{\widehat{h}^2} \right)} \right) =
+    {\mathit Err}&\left( \sqrt{\half \left( \frac{\widehat{q}^2}{\widehat{h}^2} + \frac{\widehat{r}^2}{\widehat{h}^2} \right)} \right) =
     \\*
     & =
     \half \sqrt{2} \sqrt{ \left( \frac{\widehat{q}^2}{\widehat{h}^2} + \frac{\widehat{r}^2}{\widehat{h}^2} \right)}
@@ -239,22 +239,22 @@ Looking to square root of the kinetic energy ($\sqrt{\norm{\vec{u}}/2} = \sqrt{\
     \half \sqrt{2} \left( \frac{\widehat{r}}{\widehat{h}}
     - \frac{\overline{r}}{\overline{h}} \right) =
     \\*
-    = &{\it Err} \left( \sqrt{\half \frac{\widehat{q}^2}{\widehat{h}^2}} \right)
+    = &{\mathit Err} \left( \sqrt{\half \frac{\widehat{q}^2}{\widehat{h}^2}} \right)
     +
-    {\it Err}\left( \sqrt{\half \frac{\widehat{r}^2}{\widehat{h}^2}} \right)
+    {\mathit Err}\left( \sqrt{\half \frac{\widehat{r}^2}{\widehat{h}^2}} \right)
 \end{align}
 thus
 \begin{align}
-    {\it Err}&\left( \sqrt{\half \left( \frac{\widehat{q}^2}{\widehat{h}^2} + \frac{\widehat{r}^2}{\widehat{h}^2} \right)} \right)
+    {\mathit Err}&\left( \sqrt{\half \left( \frac{\widehat{q}^2}{\widehat{h}^2} + \frac{\widehat{r}^2}{\widehat{h}^2} \right)} \right)
     \leq
-    {\it Err} \left( \sqrt{\half \frac{\widehat{q}^2}{\widehat{h}^2}} \right)
+    {\mathit Err} \left( \sqrt{\half \frac{\widehat{q}^2}{\widehat{h}^2}} \right)
     +
-    {\it Err}\left( \sqrt{\half \frac{\widehat{r}^2}{\widehat{h}^2}} \right)
+    {\mathit Err}\left( \sqrt{\half \frac{\widehat{r}^2}{\widehat{h}^2}} \right)
 \end{align}
 %
 Looking first to the dependencies of $q/h$ in two dimensions, for $r/h$ it is similar:
 \begin{align}
-    {\it Err}& \left( \sqrt{\half \frac{\widehat{q}^2}{\widehat{h}^2}} \right) =
+    {\mathit Err}& \left( \sqrt{\half \frac{\widehat{q}^2}{\widehat{h}^2}} \right) =
     \half \sqrt{2} \left( \frac{\widehat{q}}{\widehat{h}}
     - \frac{\overline{q}}{\overline{h}} \right)
     \approx
@@ -313,7 +313,7 @@ Looking first to the dependencies of $q/h$ in two dimensions, for $r/h$ it is si
 Because $\lpdiff[2]{z_b}{x}$ is negligible, due to the regularization of the bedlevel, written in curvilinear coordinates when using \autoref{eq:d2hdx2}, \eqref{eq:d2hdxdy} and \eqref{eq:d2hdy2}, we get:
 %
 \begin{align}
-    {\it Err}&\left( \sqrt{\half \frac{\widehat{q}^2}{\widehat{h}^2}} \right) =
+    {\mathit Err}&\left( \sqrt{\half \frac{\widehat{q}^2}{\widehat{h}^2}} \right) =
     \half \sqrt{2} \left( \frac{\widehat{q}}{\widehat{h}}
     - \frac{\overline{q}}{\overline{h}} \right) \approx
     \\*
@@ -326,7 +326,7 @@ Because $\lpdiff[2]{z_b}{x}$ is negligible, due to the regularization of the bed
 \end{align}
 Similar for
 \begin{align}
-    {\it Err}&\left( \sqrt{\half \frac{\widehat{r}^2}{\widehat{h}^2}} \right) =
+    {\mathit Err}&\left( \sqrt{\half \frac{\widehat{r}^2}{\widehat{h}^2}} \right) =
     \half \sqrt{2} \left( \frac{\widehat{r}}{\widehat{h}}
     - \frac{\overline{r}}{\overline{h}} \right) \approx
     \\*

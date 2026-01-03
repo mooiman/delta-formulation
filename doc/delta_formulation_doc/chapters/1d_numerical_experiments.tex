@@ -168,7 +168,7 @@ and with a prescribed boundary condition at the left side of the domain
 The prescribed boundary condition for the constituent reads
 % reg_factor = 0.5 * (std::cos(M_PI * (treg - double(nst) * dt) / treg) + 1.0);
 \begin{align}
-    c(0,t) = c_{\it given}
+    c(0,t) = c_{\mathit given}
     \begin{cases}
         \half \left(\cos\left(\pi \frac{t_{reg} - t}{t_{reg}} \right) + 1\right) &\quad \text{if } t < t_{reg},
         \\
@@ -191,7 +191,7 @@ The numerical experiment is performed with the following parameters:
     \item End time, $t_{stop} = \bqty{3600}{\second}$
     \item Timestep, $\Dt = \bqty{5}{\second}$
     \item Regularization time for time-series, $t_{reg} = \bqty{600}{\second}$
-    \item Prescribed constant velocity, $u_{\it given}(x,t) = \bqty{10}{\metre\per\second}$
+    \item Prescribed constant velocity, $u_{\mathit given}(x,t) = \bqty{10}{\metre\per\second}$
     \item Prescribed initial value of the constituent, $c(x,0)= \bqty{0}{-}$.
     \item Prescribed constituent on boundary at $x=0$ is given by \autoref{eq:1d_adv_boundary_condition}.
     \item No boundary is prescribed at $x=\bqty{12000}{\metre}$.
@@ -220,11 +220,11 @@ Results for several observation stations along the channel are shown in \autoref
 The prescribed boundary condition for the constituent reads
 % reg_factor = 0.5 * (std::cos(M_PI * (treg - double(nst) * dt) / treg) + 1.0);
 \begin{align}
-    c(0,t) = c_{\it given}
+    c(0,t) = c_{\mathit given}
     \begin{cases}
         \half \left(\cos\left(\pi \frac{t_{reg} - t}{t_{reg}}\right) + 1  \right) &\quad \text{if } t < t_{reg},
         \\
-        -\cos\left(\pi \frac{t}{t_{\it reg}} \right) &\quad \text{if } t \geq t_{reg},
+        -\cos\left(\pi \frac{t}{t_{\mathit reg}} \right) &\quad \text{if } t \geq t_{reg},
     \end{cases}
     \label{eq:1d_adv_sine_boundary_condition}
 \end{align}
@@ -243,7 +243,7 @@ The numerical experiment is performed with the following parameters:
     \item End time, $t_{stop} = \bqty{3600}{\second}$
     \item Timestep, $\Dt = \bqty{10}{\second}$
     \item Regularization time for time-series, $t_{reg} = \bqty{600}{\second}$
-    \item Prescribed constant velocity, $u_{\it given}(x,t) = \bqty{10}{\metre\per\second}$
+    \item Prescribed constant velocity, $u_{\mathit given}(x,t) = \bqty{10}{\metre\per\second}$
     \item Prescribed initial value of the constituent, $c(x,0)= \bqty{0}{-}$.
     \item Prescribed constituent on boundary at $x=0$ is given by \autoref{eq:1d_adv_boundary_condition}.
     \item No boundary is prescribed at $x=\bqty{12000}{\metre}$.
@@ -273,8 +273,8 @@ The initial condition is defined by:
     u_{it given} =
     \begin{cases}
         0, & 0 < 1250, \bunit{\metre} \\
-        \left(\half + \half \cos( 5k_{\it env}(x - x_{\it cent})) \right) \times \\
-        \qquad\left(\half + \half \cos( k_{\it env} (x - x_{\it cent})) \right)
+        \left(\half + \half \cos( 5k_{\mathit env}(x - x_{\mathit cent})) \right) \times \\
+        \qquad\left(\half + \half \cos( k_{\mathit env} (x - x_{\mathit cent})) \right)
         & 1250 < 3750,  \bunit{\metre}
         \\
         0,  & 3750 < 10000,  \bunit{\metre}
@@ -282,9 +282,9 @@ The initial condition is defined by:
 \end{align}
 with
 \begin{symbollist}
-    \item[$x_{\it cent}$] Location of the centre of the envelope.
-    \item[$L_{\it env}$] Length of the envelope.
-    \item[$k_{\it env}$] $k_{\it env} = 2\pi / L_{\it env}$.
+    \item[$x_{\mathit cent}$] Location of the centre of the envelope.
+    \item[$L_{\mathit env}$] Length of the envelope.
+    \item[$k_{\mathit env}$] $k_{\mathit env} = 2\pi / L_{\mathit env}$.
 \end{symbollist}
 
 %--------------------------------------------------------------------------------
@@ -337,13 +337,13 @@ The considered advection-diffusion equation than reads:
     + \int_\Omega\pdiff{\left(u{e^\phi}\right)}{x} \, d\omega
     - \int_\Omega\pdiff{}{x}\left(\eps \pdiff{{e^\phi}}{x}\right)\, d\omega = 0,\label{eq:1d_advec_phi_num}
 \end{align}
-With initial condition for the velocity $u_{\it given} = \bqty{10}{\metre\per\second}$, which coincide with the wave celerity in the next numerical experiments.
+With initial condition for the velocity $u_{\mathit given} = \bqty{10}{\metre\per\second}$, which coincide with the wave celerity in the next numerical experiments.
 \begin{align}
-    u(x,0) = u_{\it given}
+    u(x,0) = u_{\mathit given}
 \end{align}
 and with a prescribed boundary condition for the constituent $c$ at the left side of the domain
 \begin{align}
-    c(0,t) = c_{\it given}
+    c(0,t) = c_{\mathit given}
     \begin{cases}
         \half \cos\left(\pi \left(\frac{t_{reg} - t}{t_{reg}}\right)+ 1\right) &\quad \text{if } t < t_{reg},
         \\
@@ -369,9 +369,9 @@ The numerical experiment is performed with the following parameters:
     \item End time, $t_{stop} = \bqty{3600}{\second}$
     \item Timestep, $\Dt = \bqty{5}{\second}$
     \item Regularization time for time-series, $t_{reg} = \bqty{300}{\second}$
-    \item Prescribed constant velocity, $u_{\it given}(x,t) = \bqty{10}{\metre\per\second}$
+    \item Prescribed constant velocity, $u_{\mathit given}(x,t) = \bqty{10}{\metre\per\second}$
     \item Prescribed initial value of the constituent, $c(x,0)= \num{1.4e-11}$, \newline so $\phi = \bqty{-25}{-}$.
-    \item Prescribed constant constituent on boundary $c_{\it given}(0,t) = 1$, \newline so $\phi = \ln(c_{\it given}(0,t)) = \ln(1) = \bqty{0}{-}$
+    \item Prescribed constant constituent on boundary $c_{\mathit given}(0,t) = 1$, \newline so $\phi = \ln(c_{\mathit given}(0,t)) = \ln(1) = \bqty{0}{-}$
 \end{itemize}
 %--------------------------------------------------------------------------------
 \paragraph*{Results of the numerical experiments}

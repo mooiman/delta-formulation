@@ -4,10 +4,10 @@ In this section a Fourier mode analysis for constant $\Dx$ and $\Psi$ of \autore
 For convenience the equation is repeated here:
 %
 \begin{align}
-    \widetilde u - \pdiff{}{x}  \Psi \pdiff{\widetilde u}{x} = u_{\it{giv}}
+    \widetilde u - \pdiff{}{x}  \Psi \pdiff{\widetilde u}{x} = u_{\mathit{giv}}
 \end{align}
 
-The Fourier-mode transform of \autoref{eq:1d_regularization} reads, when $\Dx = \it{constant}$ and $\Psi = c_{\Psi} \Dx^2 = \it{constant}$:
+The Fourier-mode transform of \autoref{eq:1d_regularization} reads, when $\Dx = \mathit{constant}$ and $\Psi = c_{\Psi} \Dx^2 = \mathit{constant}$:
 \begin{align}
 \widetilde u \exp(\ii k x) \left( 1 + \Psi k^2 \right) = \mathcal{F}(u_{giv})
 \end{align}
@@ -83,7 +83,7 @@ $\Leftrightarrow$
 \end{figure}
 %--------------------------------------------------------------------------------
 \section{Numerical error}
-Discretization error values are determined when  $\Dx = {\it constant} $ and $\Psi = 0$, \autoref{eq:disc_regularization} reduces to:
+Discretization error values are determined when  $\Dx = {\mathit constant} $ and $\Psi = 0$, \autoref{eq:disc_regularization} reduces to:
 \begin{align}
 \frac{1}{8}      u_{i-1}
 + \frac{6}{8}   u_i
@@ -158,10 +158,10 @@ c_{\Psi} = \frac{1}{(k\Dx)^2} \quad \Rightarrow \quad c_{\Psi} = \frac{N^2 }{(2\
 %
 
 %--------------------------------------------------------------------------------
-\section{$L^1$-norm for the functions $\widetilde{u}$, $\overline{u}$ and $u_{\it given}$}
+\section{$L^1$-norm for the functions $\widetilde{u}$, $\overline{u}$ and $u_{\mathit given}$}
 The next figures show the $L^1$-norm for the functions
-$\abs{|\widetilde{u} - u_{\it giv}|}_{1}$,
-$\abs{|\overline{u}  - u_{\it giv}|}_{1}$ and
+$\abs{|\widetilde{u} - u_{\mathit giv}|}_{1}$,
+$\abs{|\overline{u}  - u_{\mathit giv}|}_{1}$ and
 $\abs{|\overline{u}  - \widetilde{u}|}_{1}$
 \begin{figure}[H]
 \begin{subfigure}{0.49\textwidth}
@@ -185,7 +185,7 @@ $\abs{|\overline{u}  - \widetilde{u}|}_{1}$
 As seen from these figures.
 When choosing  $c_{\Psi} > 4$ then the $L^1$-norm of $\abs{|\overline{u} - \widetilde{u}|}_{1}$ is for all locations of the step smaller then $\num{2e-2}$ (red dotted lines in the plots).
 Also the blue and blue dotted line are close together for $c_{\Psi}>4$.
-That is the region in which we want to have the discetisation because there is the difference between the piecewise linear numerical solution $\overline{u}$ and the regularized solution $\widetilde{u}$ is independent of the location of the step, given by the function $u_{\it{giv}}$.
+That is the region in which we want to have the discetisation because there is the difference between the piecewise linear numerical solution $\overline{u}$ and the regularized solution $\widetilde{u}$ is independent of the location of the step, given by the function $u_{\mathit{giv}}$.
 
 We also see that the dotted blue line is completely above the blue line if the step is located at the cell centre and with an offset of $0.3\Dx$ (see \autoref{fig:L1_norm_dx_offset_0.0dx} and \autoref{fig:L1_norm_dx_offset_0.3dx})
 and it is partly below the blue line if the offset of the step is located at $0.5\Dx$ (\autoref{fig:L1_norm_dx_offset_0.5dx}).

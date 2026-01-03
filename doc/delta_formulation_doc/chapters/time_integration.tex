@@ -31,7 +31,7 @@ The system of Equations \eqref{eq:pde} can be written as, including the $\theta$
     &\Dt_{inv} \mat{M} \left( \vec{u}^{n+1} - \vec{u}^{n} \right)  +
     \vec{f} \left( \vec{u}^{n+\theta} \right) = 0 \label{eq:discretized}
 \end{align}
-with $\Dt_{\it inv} = 1/\Dt$, $\mat{M}$ a mass-matrix and $0 \leq \theta \leq 1$.
+with $\Dt_{\mathit{inv}} = 1/\Dt$, $\mat{M}$ a mass-matrix and $0 \leq \theta \leq 1$.
 The mass-matrix for three adjacent grid nodes as used in this document reads:
 \begin{align}
     \mat{M} = \begin{pmatrix} \frac{1}{8} \quad \frac{6}{8} \quad \frac{1}{8} \end{pmatrix}
