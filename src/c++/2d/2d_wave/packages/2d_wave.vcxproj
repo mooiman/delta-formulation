@@ -243,11 +243,9 @@
     <ClInclude Include="include\regularization.h" />
     <ClInclude Include="include\ugrid2d.h" />
     <ClInclude Include="include\viscosity.h" />
-    <ClInclude Include="include\wave_2d_version.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="include\version_number.ini" />
-    <None Include="include\wave_2d_version.h.vcs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />

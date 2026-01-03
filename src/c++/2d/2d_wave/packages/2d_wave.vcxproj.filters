@@ -117,9 +117,6 @@
     <ClInclude Include="include\boundary_condition.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\wave_2d_version.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\compile_date_and_time.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -179,9 +176,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="include\version_number.ini">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="include\wave_2d_version.h.vcs">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>
