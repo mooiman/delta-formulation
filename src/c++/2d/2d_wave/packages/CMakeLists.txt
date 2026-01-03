@@ -117,3 +117,14 @@ add_custom_command(
                 ${netcdf_dlls} 
                 ${EXECUTABLE_OUTPUT_PATH}
 )
+add_custom_target(git_version_header
+    COMMAND powershell
+            -NoProfile
+            -ExecutionPolicy Bypass
+            -File "${CMAKE_SOURCE_DIR}/scripts/git_insert_hash.ps1"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            "main_version.h"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_dependencies(${exe_name} git_version_header)
