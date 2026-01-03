@@ -1,0 +1,681 @@
+<FlowDocument xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" FontFamily="Segoe UI" FontSize="12">
+  <FlowDocument.Tag><![CDATA[{
+  "timestamp": "2025-05-29 17:46:14",
+  "files": {
+    "C:\\Users\\janmo\\checkouts\\git\\delta-formulation\\src\\c++\\0d\\0d_brusselator\\packages\\brusselator.vcxproj": {
+      "before": "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",
+      "after": "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"
+    },
+    "C:\\Users\\janmo\\checkouts\\git\\delta-formulation\\src\\c++\\0d\\0d_brusselator\\packages\\brusselator.vcxproj.user": {
+      "before": "7ZNNa8JAEIY99FTofwipED2Y9QtpJYkUbUuhB7VSL4LEZBO33d0J+5Eq+OO7iXjwA3rooZfCsrAz77wzuw97e1WpeIMNo1aOhSTAfbvlNm0L8whiwlPf1ipp3NmD4ObaGwv4wJGyZgBUvh/0Qy0E5sq2jAuXvr1WKusjJKM1ZqF0GYkESEiUGwFDMc4xhQwLxORKExqjdrPZsY27ZRX+JqO2zwJ0ZqFLwSHwmKhyTqdaM6eEpFqERaS+q9bGNFQJCFZ3fN8Z4ZVOd5te19n7mw6T2ehlGgz7i4kyq+d23c5ivzOZR+1m637Z63poLytmMjWvEIW09EqxeOQ5EcCZuXA5nsmjnwSH2ica5iCCOeExfMmjKg+diC71HgJjIY8fRKqL/jJoNBQYcu6C8EyrZZRlbhE4meis7JL3HMSnwT0iwgAGsQ2qtTegunhXE6ufWJ6pS3zoiN9v6U0xxaHE//z+jp9XEC1+fPAN",
+      "after": "7VNNSwMxFCx4E/wPYSlse+imfiAiu1ukVS8eioq9CLLdzW6jSd7ykqwt9D/5F02qPfTDU68eM29m3vCGfB21WvFgLgVpGGoOKglOo35AmMqh4KpKAmvK3lUwSE+O4zHCO8sNeQYQ+mXNH1pEpkxAnIvSSTAzpr6mVOczJjMdSZ4jaChNlIOkBWuYgJohlXpquSjoWb9/Hjh3Qry/m5jFPYKtCd0HDkEV3Kxyhu2Oe5W8sph5pLtsd8YiMyWg7IZJEo7Y1FbL+eVF+OPvNjxAnokVXjG8VQ1HUNKFT2P658hHc9K16k5kDWA64aqAT72hiukW6Ve6QRqClJkqbrCyfrNOez0D7v7RK1e1NW95XUce2Eq0I9vnPQH8cKWNOLqaABdpu/MEwvrrOKy7ZbnDXpVAN1o4tINHJlim2X8Lh7YQ+17870u/AQ=="
+    }
+  }
+}]]></FlowDocument.Tag>
+  <Section Margin="0,24" TextAlignment="Center">
+    <Paragraph FontSize="24" FontWeight="Bold" Margin="12,0">
+      <LineBreak />
+      <Span Foreground="Gray">Qt Visual Studio Tools</Span>
+    </Paragraph>
+    <Paragraph FontSize="42" Margin="12,0" FontWeight="Bold">
+      <Span TextDecorations="Underline">Project Format Conversion</Span>
+    </Paragraph>
+    <Paragraph Margin="12,8" FontSize="18">
+      <Span>Report generated on 2025-05-29 17:46:14</Span>
+    </Paragraph>
+  </Section>
+  <Section>
+    <Paragraph FontSize="32" FontWeight="Bold" Margin="12,0">
+      <Span>Files</Span>
+    </Paragraph>
+    <Paragraph Margin="24,12,0,0">
+      <Span FontFamily="Consolas" FontSize="14" Background="WhiteSmoke"><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj]]></Span>
+      <LineBreak />
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj?before">[Before]</Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj?after">[After]</Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj?diff&amp;before&amp;after">
+                        [Diff before/after]
+                    </Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj?diff&amp;before&amp;current">
+                        [Diff before/current]
+                    </Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj?diff&amp;after&amp;current">
+                        [Diff after/current]
+                    </Hyperlink>
+      <LineBreak />
+    </Paragraph>
+    <Paragraph Margin="24,12,0,0">
+      <Span FontFamily="Consolas" FontSize="14" Background="WhiteSmoke"><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj.user]]></Span>
+      <LineBreak />
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj.user?before">[Before]</Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj.user?after">[After]</Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj.user?diff&amp;before&amp;after">
+                        [Diff before/after]
+                    </Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj.user?diff&amp;before&amp;current">
+                        [Diff before/current]
+                    </Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj.user?diff&amp;after&amp;current">
+                        [Diff after/current]
+                    </Hyperlink>
+      <LineBreak />
+    </Paragraph>
+  </Section>
+  <Section>
+    <Paragraph FontSize="32" FontWeight="Bold" Margin="12,0">
+      <Span>Changes</Span>
+    </Paragraph>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Converting custom build steps to Qt/MSBuild items]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      ]]></Span><Span Background="LightCoral"><![CDATA[<AdditionalIncludeDirectories>.;.]]></Span><Span><![CDATA[\include;%NETCDF_DIR%;..\..\..\lib\eigen;..\..\..\lib\toml++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      ]]></Span><Span Background="LightGreen"><![CDATA[<AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;.]]></Span><Span><![CDATA[\include;%NETCDF_DIR%;..\..\..\lib\eigen;..\..\..\lib\toml++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      ]]></Span><Span Background="LightCoral"><![CDATA[<AdditionalIncludeDirectories>.;.]]></Span><Span><![CDATA[\include;%NETCDF_DIR%;..\..\..\lib\eigen;..\..\..\lib\toml++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      ]]></Span><Span Background="LightGreen"><![CDATA[<AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;.]]></Span><Span><![CDATA[\include;%NETCDF_DIR%;..\..\..\lib\eigen;..\..\..\lib\toml++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Enabling multi-processor compilation]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[      <MultiProcessorCompilation>true</MultiProcessorCompilation>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[      <MultiProcessorCompilation>true</MultiProcessorCompilation>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Project format version]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[    ]]></Span><Span Background="LightCoral"><![CDATA[<Keyword>Qt4VSv1.0</Keyword>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[    ]]></Span><Span Background="LightGreen"><![CDATA[<Keyword>QtVS_v304</Keyword>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Fallback for QTMSBUILD environment variable]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Default Qt properties]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <Import Project="$(QtMsBuild)\qt_defaults.props" Condition="Exists('$(QtMsBuild)\qt_defaults.props')" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Qt build settings]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Warn if Qt/MSBuild is not found]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') OR !Exists('$(QtMsBuild)\Qt.props')">]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  </Target>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Qt property sheet]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <Import Project="$(QtMsBuild)\Qt.props" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <Import Project="$(QtMsBuild)\Qt.props" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Qt targets]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Copying Qt build reference to QtInstall project property]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)]]></Span><Span Background="LightCoral"><![CDATA['=='Release|x64'" />]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)]]></Span><Span Background="LightGreen"><![CDATA['=='Release|x64'">]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[  ]]></Span><Span Background="LightCoral"><![CDATA[<PropertyGroup Label="QtSettings" Condition="'$]]></Span><Span><![CDATA[(]]></Span><Span Background="LightCoral"><![CDATA[Configuration)|$(Platform]]></Span><Span><![CDATA[)]]></Span><Span Background="LightCoral"><![CDATA['=='Debug|x64'" />]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[    ]]></Span><Span Background="LightGreen"><![CDATA[<QtInstall>$]]></Span><Span><![CDATA[(]]></Span><Span Background="LightGreen"><![CDATA[DefaultQtVersion]]></Span><Span><![CDATA[)]]></Span><Span Background="LightGreen"><![CDATA[</QtInstall>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  </PropertyGroup>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <QtInstall>$(DefaultQtVersion)</QtInstall>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  </PropertyGroup>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Removing Qt module macros from resource compiler properties]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;QT_NO_DEBUG;]]></Span><Span Background="LightCoral"><![CDATA[QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;]]></Span><Span><![CDATA[%(PreprocessorDefinitions)</PreprocessorDefinitions>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;QT_NO_DEBUG;]]></Span><Span><![CDATA[%(PreprocessorDefinitions)</PreprocessorDefinitions>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;]]></Span><Span Background="LightCoral"><![CDATA[QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;]]></Span><Span><![CDATA[_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;]]></Span><Span><![CDATA[_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Adding Qt module names to QtModules project property]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <QtModules>core;gui;widgets;printsupport</QtModules>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <QtModules>core;gui;widgets;printsupport</QtModules>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Removing project user properties (format version 2)]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      <UserProperties ]]></Span><Span Background="LightCoral"><![CDATA[Qt5Version_x0020_x64="$(DefaultQtVersion)" ]]></Span><Span><![CDATA[/>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      <UserProperties ]]></Span><Span><![CDATA[/>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Removing old properties from .user file]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\0d\0d_brusselator\packages\brusselator.vcxproj.user]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightCoral"><![CDATA[    <QTDIR>C:\Qt\Qt6.4.3\6.4.3\msvc2019_64</QTDIR>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightCoral"><![CDATA[    <QTDIR>C:\Qt\Qt6.4.3\6.4.3\msvc2019_64</QTDIR>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+  </Section>
+  <Section>
+    <Paragraph />
+  </Section>
+</FlowDocument>
+<!--O/s1vA88gEjukCn7juHsVTM+tWbgMO6s05dWCMGLFYw=-->

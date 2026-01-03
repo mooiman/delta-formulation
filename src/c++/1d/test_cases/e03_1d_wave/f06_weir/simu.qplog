@@ -1,0 +1,116 @@
+openfile '.\c05_weir_dx20d0_dt4d0\output\bed_level_weir_dx20_dt4_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editmn '1:1:28'
+colour [ 0 1 0 ]
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\c04_weir_dx10d0_dt2d0\output\bed_level_weir_dx10_dt2_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editmn '1:1:53'
+colour [ 0 0 1 ]
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c03_weir_dx05d0_dt1d0\output\bed_level_weir_dx5_dt1_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editmn '1:1:103'
+colour [ 1 0 0 ]
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c02_weir_dx02d5_dt0d5\output\bed_level_weir_dx2.5_dt0.5_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editmn '1:1:203'
+colour [ 1 0 1 ]
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c01_weir_dx01d25_dt0d25\output\bed_level_weir_dx1.25_dt0.25_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editmn '1:1:403'
+colour [ 0 0 0 ]
+plotcoordinate 'x coordinate'
+addtoplot
+
+#-------------------------------------------------------------------------------
+
+selectfield 'WaterLevel'
+hselectiontype '(M,N) point/path'
+editmn '1:1:403'
+colour [ 0 0 0 ]
+plotcoordinate 'x coordinate'
+quickview
+
+selectfield 'BadLevel'
+hselectiontype '(M,N) point/path'
+editmn '1:1:403'
+colour [ 0 0 0 ]
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c05_weir_dx20d0_dt4d0\output\bed_level_weir_dx20_dt4_map.nc'
+selectfield 'WaterLevel'
+hselectiontype '(M,N) point/path'
+editmn '1:1:28'
+colour [ 0 1 0 ]
+plotcoordinate 'x coordinate'
+addtoplot
+
+selectfield 'BadLevel'
+hselectiontype '(M,N) point/path'
+editmn '1:1:28'
+colour [ 0 1 0 ]
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c04_weir_dx10d0_dt2d0\output\bed_level_weir_dx10_dt2_map.nc'
+selectfield 'WaterLevel'
+hselectiontype '(M,N) point/path'
+editmn '1:1:53'
+colour [ 0 0 1 ]
+plotcoordinate 'x coordinate'
+addtoplot
+
+selectfield 'BadLevel'
+hselectiontype '(M,N) point/path'
+editmn '1:1:53'
+colour [ 0 0 1 ]
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c03_weir_dx05d0_dt1d0\output\bed_level_weir_dx5_dt1_map.nc'
+selectfield 'WaterLevel'
+hselectiontype '(M,N) point/path'
+editmn '1:1:103'
+colour [ 1 0 0 ]
+plotcoordinate 'x coordinate'
+addtoplot
+
+selectfield 'BadLevel'
+hselectiontype '(M,N) point/path'
+editmn '1:1:103'
+colour [ 1 0 0 ]
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c02_weir_dx02d5_dt0d5\output\bed_level_weir_dx2.5_dt0.5_map.nc'
+selectfield 'WaterLevel'
+hselectiontype '(M,N) point/path'
+editmn '1:1:203'
+colour [ 1 0 1 ]
+plotcoordinate 'x coordinate'
+addtoplot
+
+selectfield 'BadLevel'
+hselectiontype '(M,N) point/path'
+editmn '1:1:203'
+colour [ 1 0 1 ]
+plotcoordinate 'x coordinate'
+addtoplot
+

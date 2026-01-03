@@ -22,6 +22,7 @@
 
 #include "ugrid2d.h"
 #include "compile_date_and_time.h"
+#include "interpolations.h"
 #include "wave_2d_version.h"
 #include "include/netcdf.h"
 
@@ -312,6 +313,9 @@ int UGRID2D::add_face_area(std::vector<double> & x, std::vector<double> & y, dou
     size_t p2;
     size_t p3;
     std::vector<double> cell_area;
+    std::vector<double> x_pol(4);
+    std::vector<double> y_pol(4);
+
     for (size_t i = 0; i < nx - 1; ++i)
     {
         for (size_t j = 0; j < ny - 1; ++j)
@@ -320,7 +324,18 @@ int UGRID2D::add_face_area(std::vector<double> & x, std::vector<double> & y, dou
             p1 = idx(i + 1, j    , ny);
             p2 = idx(i + 1, j + 1, ny);
             p3 = idx(i    , j + 1, ny);
-            double area = std::abs(0.5 * ((x[p0] * y[p1] + x[p1] * y[p2] + x[p2] * y[p3] + x[p3] * y[p0]) - (y[p0] * x[p1] + y[p1] * x[p2] + y[p2] * x[p3] + y[p3] * x[p0])));
+            //
+            // Area: $J = x_\xi y_\eta - y_\xi x_\eta$
+            //
+            x_pol[0] = x[p0];
+            x_pol[1] = x[p1];
+            x_pol[2] = x[p2];
+            x_pol[3] = x[p3];
+            y_pol[0] = y[p0];
+            y_pol[1] = y[p1];
+            y_pol[2] = y[p2];
+            y_pol[3] = y[p3];
+            double area = polygon_area(x_pol, y_pol);
             cell_area.push_back(area);
         }
     }

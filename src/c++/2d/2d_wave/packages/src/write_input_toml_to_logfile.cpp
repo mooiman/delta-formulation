@@ -100,6 +100,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     log_file << std::endl << "[Output]" << std::endl;
     log_file << "    " << "dt_his = " << format_as_double(data.output.dt_his) << std::endl;
     log_file << "    " << "dt_map = " << format_as_double(data.output.dt_map) << std::endl;
+    log_file << "    " << "dt_screen = " << format_as_double(data.output.dt_screen) << std::endl;
 
     // Time
     log_file << std::endl << "[Time]" << std::endl;

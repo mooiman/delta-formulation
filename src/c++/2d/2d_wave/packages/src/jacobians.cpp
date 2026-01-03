@@ -69,46 +69,60 @@ double abs_vecq(double& q_qp, double& r_qp, double a)
 // convection
 //==============================================================================
 
-double convection_J_10(double& h, double& q, double& r, double nxi, double neta)
+double convection_J_10(double& h, double& q, double& r, double dx_dxi, double dx_deta, double dy_dxi, double dy_deta, double nxi, double neta)
 {
-    return q * q / h * nxi + q * r / h * neta;
+    // only xi-direction
+    return ( dy_deta * q * q / h - dx_deta * q * r / h) * nxi +
+           (-dy_dxi  * q * q / h + dx_dxi  * r * q / h) * neta;
 }
-double convection_J_11(double& h, double& q, double& r, double nxi, double neta)
+double convection_J_11(double& h, double& q, double& r, double dx_dxi, double dx_deta, double dy_dxi, double dy_deta, double nxi, double neta)
 {
     // Contribution Delta h
-    return -q * q / (h * h) * nxi - q * r / (h * h) * neta; 
+    // only xi-direction
+    return (-dy_deta * q * q / (h * h) + dx_deta * q * r / (h * h)) * nxi +
+           ( dy_dxi  * q * q / (h * h) - dx_dxi  * q * r / (h * h)) * neta; 
 }
-double convection_J_12(double& h, double& q, double& r, double nxi, double neta)
+double convection_J_12(double& h, double& q, double& r, double dx_dxi, double dx_deta, double dy_dxi, double dy_deta, double nxi, double neta)
 {
     // Contribution Delta q
-    return 2. * q / h * nxi + r / h * neta;
+    // only xi-direction
+    return ( 2. * dy_deta * q / h - dx_deta * r / h) * nxi +
+           (-2. * dy_dxi  * q / h + dx_dxi  * r / h) * neta;
 }
-double convection_J_13(double& h, double& q, double& r, double nxi, double neta)
+double convection_J_13(double& h, double& q, double& r, double dx_dxi, double dx_deta, double dy_dxi, double dy_deta, double nxi, double neta)
 {
     // Contribution Delta r
+    // only xi-direction
     UNUSED(r);
-    UNUSED(nxi);
-    return q / h * neta;
+    return (-dx_deta * q / h) * nxi +
+           ( dx_dxi  * q / h) * neta;
 }
-double convection_J_20(double& h, double& q, double& r, double nxi, double neta)
+double convection_J_20(double& h, double& q, double& r, double dx_dxi, double dx_deta, double dy_dxi, double dy_deta, double nxi, double neta)
 {
-    return r * q / h * nxi + r * r / h * neta;
+    // only eta-direction
+    return (  dy_deta * q * r / h + - dx_deta * r * r / h) * nxi +
+           (- dy_dxi  * r * q / h +   dx_dxi  * r * r / h) * neta;
 }
-double convection_J_21(double& h, double& q, double& r, double nxi, double neta)
+double convection_J_21(double& h, double& q, double& r, double dx_dxi, double dx_deta, double dy_dxi, double dy_deta, double nxi, double neta)
 {
     // Contribution Delta h
-    return -r * q / (h * h) * nxi - r * r / (h * h) * neta; 
+    // only eta-direction
+    return (-dy_deta * q * r / (h * h) + dx_deta * r * r / (h * h)) * nxi +
+           ( dy_dxi  * r * q / (h * h) - dx_dxi  * r * r / (h * h)) * neta; 
 }
-double convection_J_22(double& h, double& q, double& r, double nxi, double neta)
+double convection_J_22(double& h, double& q, double& r, double dx_dxi, double dx_deta, double dy_dxi, double dy_deta, double nxi, double neta)
 {
     // Contribution Delta q
+    // only eta-direction
     UNUSED(q);
-    UNUSED(neta);
-    return r / h * nxi;
+    return ( dy_deta * r / h) * nxi +
+           (-dy_dxi  * r / h) * neta;
 }
-double convection_J_23(double& h, double& q, double& r, double nxi, double neta)
+double convection_J_23(double& h, double& q, double& r, double dx_dxi, double dx_deta, double dy_dxi, double dy_deta, double nxi, double neta)
 {
     // Contribution Delta r
-    return q / h * nxi + 2. * r / h * neta;
+    // only eta-direction
+    return ( dy_deta * q / h - 2. * dx_deta * r / h) * nxi +
+           (-dy_dxi  * q / h + 2. * dx_dxi  * r / h ) * neta;
 }
 

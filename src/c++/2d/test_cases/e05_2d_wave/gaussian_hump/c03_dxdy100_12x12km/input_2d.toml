@@ -12,7 +12,7 @@
     ini_vars = [ "zeta", "zeta_gauss_hump" ]
     gauss_amp = 1 # amplitude of the gaussian hump
     gauss_mu = 0.0    # location of the top of the gaussian hump
-    gauss_sigma = 350.0    # width of the gaussian hump
+    gauss_sigma = 700.0    # width of the gaussian hump
 
 [Boundary] # north, east, south, west
     bc_type = [ "borsboom", "borsboom", "borsboom", "borsboom" ] # Type "borsboom", "free_slip", "mooiman" 
@@ -34,7 +34,7 @@
     chezy_coefficient = 50.0        # Chezy coefficient
 
 [Numerics]
-    dt = 10.0                       # Time step size [s], if dt == 0: then stationary problem
+    dt = 5.0                       # Time step size [s], if dt == 0: then stationary problem
     iter_max = 25                   # Maximum number of nonlinear iterations
     theta = 0.501                   # Implicitness factor (0.5 <= theta <= 1.0)
     regularization_init = false

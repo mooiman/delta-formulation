@@ -110,6 +110,7 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
     tbl_chp = *tbl["Output"].as_table();
     data.output.dt_his = tbl_chp["dt_his"].value_or(double(1.0));  // write interval to his-file
     data.output.dt_map = tbl_chp["dt_map"].value_or(double(0.0));  // write interval to his-file
+    data.output.dt_screen = tbl_chp["dt_screen"].value_or(double(60.0));  // time interval counter on screen 
 
     // Time
     tbl_chp = *tbl["Time"].as_table();

@@ -7,6 +7,7 @@
 
 \usepackage{empheq}
 \usepackage{cancel}
+\usepackage{dutchcal}
 
 \usepackage{bm}
 \renewcommand{\vec}[1]{\mbox{\boldmath ${#1}$} }
@@ -26,6 +27,11 @@
 \newcommand{\Deta}{\Delta \eta}
 \newcommand{\Dt}{\Delta t}
 \newcommand{\Dtinv}{\Delta t_{\it{inv}}}
+\newcommand{\vecn}{\mathbcal{n}}  % normal component in eta-direction
+\newcommand{\nx}{\mathcal{n}_x}  % normal component in xi-direction
+\newcommand{\ny}{\mathcal{n}_y}  % normal component in eta-direction
+\newcommand{\nxi}{\mathcal{n}_\xi}  % normal component in xi-direction
+\newcommand{\neta}{\mathcal{n}_\eta}  % normal component in eta-direction
 
 \newcommand{\mat}[1]{\mbox{\boldmath ${\rm #1}$} }
 \newcommand{\half}{\frac{1}{2}}
@@ -108,19 +114,19 @@ Thea Vuik\newline
 
 
 %------------------------------------------------------------------------------
-\part{Introduction}
-\input{chapters/introduction.tex}
-\input{chapters/error_minimizing.tex}
-\input{chapters/time_integration}
-\input{chapters/space_discretization}
+%\part{Introduction}
+%\input{chapters/introduction.tex}
+%\input{chapters/error_minimizing.tex}
+%\input{chapters/time_integration}
+%\input{chapters/space_discretization}
 %------------------------------------------------------------------------------
-\part{1D Wave}
-\input{chapters/1d_shallow_water_equations.tex}
-\input{chapters/1d_numerical_experiments.tex}
+%\part{1D Wave}
+%\input{chapters/1d_shallow_water_equations.tex}
+%\input{chapters/1d_numerical_experiments.tex}
 %------------------------------------------------------------------------------
-\part{2D Wave}
+%\part{2D Wave}
 \input{chapters/2d_shallow_water_equations.tex}
-\input{chapters/2d_numerical_experiments.tex}
+%{chapters/2d_numerical_experiments.tex}
 %--------------------------------------------------------------------------------
 %\chapter{1D Wave equation}\label{sec:1d_non_linear_wave_equation}
 %\section{Riemann invariants}
@@ -128,14 +134,15 @@ Thea Vuik\newline
 %\subsection{1D Wave equation boundary treatment, essential}
 %\subsection{1D Wave equation boundary treatment, natural}
 %--------------------------------------------------------------------------------
-\part{References}
+%\part{References}
 \printallbibliography
 %--------------------------------------------------------------------------------
-\part{Appendices}
+%\part{Appendices}
 \appendix
-\input{chapters/1d_error_estimation.tex}
-\input{chapters/1d_diagonalise_swe}
-\input{chapters/error_function_artificial_viscosity.tex}
-\input{chapters/linearization_in_time.tex}
-\input{chapters/2d_regularization.tex}
+\input{chapters/coordinate_transform.tex}
+%\input{chapters/1d_error_estimation.tex}
+%\input{chapters/1d_diagonalise_swe}
+%\input{chapters/error_function_artificial_viscosity.tex}
+%\input{chapters/linearization_in_time.tex}
+%\input{chapters/2d_regularization.tex}
 \end{document}

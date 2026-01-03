@@ -1,4 +1,4 @@
-﻿//
+//
 // Programmer: Jan Mooiman
 // Email     : jan.mooiman@outlook.com
 //
@@ -45,6 +45,7 @@
 #include <Eigen/Sparse>
 #include <Eigen/Core>
 
+#if defined(MULTIGRID)
 // for Algebraic Multigrid solver
 #include <amgcl/adapter/eigen.hpp>
 #include <amgcl/backend/builtin.hpp>
@@ -56,6 +57,7 @@
 #include <amgcl/profiler.hpp>
 
 AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
+#endif
 
 #include "bed_level.h"
 #include "bed_shear_stress.h"
@@ -179,7 +181,8 @@ int main(int argc, char *argv[])
     {
         input_data = read_toml_file(input_dir, toml_file_name);
     }
-    catch (const toml::parse_error& err) {
+    catch (const toml::parse_error& err) 
+    {
         std::cout << "\n+++++++++++++++++++++\nTOML parse error\n"
                   << err 
                   << "\n+++++++++++++++++++++\n\n";
@@ -187,6 +190,7 @@ int main(int argc, char *argv[])
         std::this_thread::sleep_for(timespan);
         exit(1);
     }
+
     if (input_data.numerics.dt == 0.0) { stationary = true;  }
     if (stationary) { 
         input_data.boundary.treg = 0.0; 
@@ -271,8 +275,6 @@ int main(int argc, char *argv[])
     double Lx = dx * mesh2d->face[0]->dims[0];
     double Ly = dy * mesh2d->face[0]->dims[1];
 
-    double dxinv = 1./dx;                               // invers grid size [m]
-    double dyinv = 1./dy;                               // invers grid size [m]
     size_t nxny = nx * ny;                                   // total number of nodes
     double dxdy = dx * dy ;                               // area of control volume
     //if (viscosity == 0.0)
@@ -314,6 +316,15 @@ int main(int argc, char *argv[])
     std::string solver_name("--- undefined ---");
     if (input_data.numerics.linear_solver == "bicgstab") { solver_name = "BiCGstab"; }
     if (input_data.numerics.linear_solver == "multigrid") { solver_name = "MultiGrid"; }
+    if (solver_name == "MultiGrid")
+    { 
+        std::cout << "Multigrid option not supported by this execuable. Adjust code and recompile it" << std::endl;
+        log_file << "Multigrid option not supported by this execuable. Adjust code and recompile it" << std::endl;
+        std::chrono::duration<int, std::milli> timespan(3000);
+        std::this_thread::sleep_for(timespan);
+        //std::cin.ignore();
+        exit(1);
+    }
 
     std::string model_title("Linear wave equation");
 
@@ -412,6 +423,7 @@ int main(int argc, char *argv[])
     std::vector<double> s(nxny, 0.);                      // water level, needed for post-processing
     std::vector<double> u(nxny, 0.);                      // u-velocity, needed for post-processing
     std::vector<double> v(nxny, 0.);                      // v-velocity, needed for post-processing
+    std::vector<double> u_speed(nxny, 0.);                // speed of water, needed for post-processing
     std::vector<double> visc_given(nxny, visc_const);     // Initialize viscosity array with given value
     std::vector<double> visc_reg(nxny, visc_const);       // Initialize given viscosity array with regularized value
     std::vector<double> visc(nxny, visc_const);           // Viscosity array used for computation, adjusted for cell peclet number
@@ -586,6 +598,7 @@ int main(int argc, char *argv[])
     std::string map_s_name("s_2d");
     std::string map_u_name("u_2d");
     std::string map_v_name("v_2d");
+    std::string map_umag_name("umag_2d");
     std::string map_zb_name("zb_2d");
     std::string map_psi_11_name("psi_11");
     std::string map_psi_22_name("psi_22");
@@ -606,6 +619,7 @@ int main(int argc, char *argv[])
     status = map_file->add_variable(map_s_name, dim_names, "sea_surface_height_above_geoid", "WaterLevel", "m", "mesh2D", "node");
     status = map_file->add_variable(map_u_name, dim_names, "sea_water_x_velocity", "Velocity (x)", "m s-1", "mesh2D", "node");
     status = map_file->add_variable(map_v_name, dim_names, "sea_water_y_velocity", "Velocity (y)", "m s-1", "mesh2D", "node");
+    status = map_file->add_variable(map_umag_name, dim_names, "sea_water_speed", "Velocity magnitude", "m s-1", "mesh2D", "node");
     status = map_file->add_variable(map_zb_name, dim_names, "", "BedLevel", "m", "mesh2D", "node");
     if (regularization_init)
     {
@@ -643,6 +657,14 @@ int main(int argc, char *argv[])
     map_file->put_time_variable(map_s_name, nst_map, s);
     map_file->put_time_variable(map_u_name, nst_map, u);
     map_file->put_time_variable(map_v_name, nst_map, v);
+
+    for (size_t i = 0; i < u.size(); ++i)
+    {
+        u_speed[i] = (std::sqrt(u[i] * u[i] + v[i] * v[i]));
+    }
+    map_file->put_time_variable(map_umag_name, nst_map, u_speed);
+
+
     map_file->put_time_variable(map_zb_name, nst_map, zb_giv);
     if (regularization_init)
     {
@@ -658,7 +680,7 @@ int main(int argc, char *argv[])
     }
     if (do_convection)
     {
-        convection_post_rhs(post_q, post_r, hn, qn, rn, dx, dy, nx, ny);
+        convection_post_rhs(post_q, post_r, x, y, hn, qn, rn, nx, ny);
         map_file->put_time_variable(map_conv_q_name, nst_map, post_q);
         map_file->put_time_variable(map_conv_r_name, nst_map, post_r);
     }
@@ -678,16 +700,16 @@ int main(int argc, char *argv[])
     CFTS* his_file = new CFTS();
     status = his_file->open(nc_hisfile, model_title);
 
-    if (int(2500. / dx) * dx != 2500. || int(2500. / dy) * dy != 2500.)
-    {
-        std::cout << "----------------------------" << std::endl;
-        std::cout << "dx=" << dx << " or dy=" << dy << " is not a divider of 2500 [m]" << std::endl;
-        std::cout << "Press Enter to finish";
-        std::chrono::duration<int, std::milli> timespan(3000);
-        std::this_thread::sleep_for(timespan);
-        //std::cin.ignore();
-        exit(1);
-    }
+    //if (int(2500. / dx) * dx != 2500. || int(2500. / dy) * dy != 2500.)
+    //{
+    //    std::cout << "----------------------------" << std::endl;
+    //    std::cout << "dx=" << dx << " or dy=" << dy << " is not a divider of 2500 [m]" << std::endl;
+    //    std::cout << "Press Enter to finish";
+    //    std::chrono::duration<int, std::milli> timespan(3000);
+    //    std::this_thread::sleep_for(timespan);
+    //    //std::cin.ignore();
+    //    exit(1);
+    //}
 
     std::vector<std::string> obs_station_names;
     status = def_observation_stations(obs_station_names, input_data.obs_points, xy_tree, x, y, Lx, Ly, dx, dy, nx, ny);
@@ -711,13 +733,15 @@ int main(int argc, char *argv[])
     std::string his_s_name("water_level");
     std::string his_u_name("u_velocity");
     std::string his_v_name("v_velocity");
+    std::string his_umag_name("u_mag");
 
     his_file->add_variable(his_h_name, "sea_floor_depth_below_sea_surface", "Water depth", "m");
     his_file->add_variable(his_q_name, "", "Water flux (x)", "m2 s-1");
     his_file->add_variable(his_r_name, "", "Water flux (y)", "m2 s-1");
     his_file->add_variable(his_s_name, "sea_surface_height", "Water level", "m");
-    his_file->add_variable(his_u_name, "sea_water_x_velocity", "Velocity xdir", "m s-1");
-    his_file->add_variable(his_v_name, "sea_water_y_velocity", "Velocity ydir", "m s-1");
+    his_file->add_variable(his_u_name, "sea_water_x_velocity", "Velocity (x)", "m s-1");
+    his_file->add_variable(his_v_name, "sea_water_y_velocity", "Velocity (y)", "m s-1");
+    his_file->add_variable(his_umag_name, "sea_water_speed", "Velocity magnitude", "m s-1");
 
     // Put data on time history file
     START_TIMER(Writing his-file);
@@ -751,6 +775,7 @@ int main(int argc, char *argv[])
     }
     his_file->put_variable(his_s_name, nst_his, his_values);
 
+
     his_values.clear();
     for (size_t i = 0; i < input_data.obs_points.size(); ++i)
     {
@@ -764,6 +789,15 @@ int main(int argc, char *argv[])
         his_values.push_back(v[input_data.obs_points[i].idx]);
     }
     his_file->put_variable(his_v_name, nst_his, his_values);
+
+    his_values.clear();
+    for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+    {
+        int k = input_data.obs_points[i].idx;
+        double speed = (std::sqrt(u[k] * u[k] + v[k] * v[k]));
+        his_values.push_back(speed);
+    }
+    his_file->put_variable(his_umag_name, nst_his, his_values);
 
     std::string his_newton_iter_name("his_newton_iterations");
     his_file->add_variable_without_location(his_newton_iter_name, "iterations", "Newton iteration", "-");
@@ -839,6 +873,7 @@ int main(int argc, char *argv[])
     //Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
     //Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::DiagonalPreconditioner<double> > solver;
     // 
+#if defined(MULTIGRID)
     // AMGCL setup
     using T = double;
     using Backend = amgcl::backend::builtin<T>;
@@ -851,7 +886,7 @@ int main(int argc, char *argv[])
     Solver::params prm;
     prm.solver.tol = eps_bicgstab;
     prm.solver.maxiter = 1000;
-               
+#endif               
 
     for (int nst = 1; nst < total_time_steps; ++nst)
     {
@@ -922,9 +957,10 @@ int main(int argc, char *argv[])
                 int r_eq = outer[row + 2];
 
                 status =  boundary_west(values, row, c_eq, q_eq, r_eq, rhs, 
-                                        dtinv, dxinv, theta, g, eps_bc_corr, 
+                                        dtinv, theta, g, eps_bc_corr, 
                                         stationary, do_convection, do_bed_shear_stress, do_viscosity,
-                                        dx, dy, nx, ny,
+                                        nx, ny,
+                                        x, y, 
                                         hn, qn, rn,
                                         hp, qp, rp,
                                         htheta, qtheta, rtheta,
@@ -949,18 +985,20 @@ int main(int argc, char *argv[])
                 int r_eq = outer[row + 2];
 
                 status =  interior(values, row, c_eq, q_eq, r_eq, rhs, 
-                                    dtinv, dxinv, theta, g, do_convection, nx, ny,
+                                    dtinv, theta, g, do_convection, nx, ny,
+                                    x, y,
                                     hn, qn, rn,
                                     hp, qp, rp,
                                     htheta, qtheta, rtheta,
-                                    zb, dx, dy, dxdy, mass);
+                                    zb, mass);
 
                 if (std::fmod(row , 3 * ny) == 0) {
                     // south boundary, over write coefficients
                     status = boundary_south(values, row, c_eq, q_eq, r_eq, rhs, 
-                                            dtinv, dxinv, theta, g, eps_bc_corr, 
+                                            dtinv, theta, g, eps_bc_corr, 
                                             stationary, do_convection, do_bed_shear_stress, do_viscosity,
-                                            dx, dy, nx, ny,
+                                            nx, ny,
+                                            x, y,
                                             hn, qn, rn,
                                             hp, qp, rp,
                                             htheta, qtheta, rtheta,
@@ -971,9 +1009,10 @@ int main(int argc, char *argv[])
                 if (std::fmod(row + 3, 3 * ny) == 0) {
                     // north boundary, over write coefficients
                     status = boundary_north(values, row, c_eq, q_eq, r_eq, rhs, 
-                                            dtinv, dxinv, theta, g, eps_bc_corr, 
+                                            dtinv, theta, g, eps_bc_corr, 
                                             stationary, do_convection, do_bed_shear_stress, do_viscosity,
-                                            dx, dy, nx, ny,
+                                            nx, ny,
+                                            x, y,
                                             hn, qn, rn,
                                             hp, qp, rp,
                                             htheta, qtheta, rtheta,
@@ -999,9 +1038,10 @@ int main(int argc, char *argv[])
                 int r_eq = outer[row + 2];
 
                 status = boundary_east(values, row, c_eq, q_eq, r_eq, rhs, 
-                                       dtinv, dxinv, theta, g, eps_bc_corr, 
+                                       dtinv, theta, g, eps_bc_corr, 
                                        stationary, do_convection, do_bed_shear_stress, do_viscosity,
-                                       dx, dy, nx, ny,
+                                       nx, ny,
+                                       x, y,
                                        hn, qn, rn,
                                        hp, qp, rp,
                                        htheta, qtheta, rtheta,
@@ -1032,14 +1072,14 @@ int main(int argc, char *argv[])
                 // corner_north_west
 
                 // interior with south and north boundary
-                for (int row = 3 * ny; row < 3 * (nx - 1) * ny; row += 3) 
+                for (size_t row = 3 * ny; row < 3 * (nx - 1) * ny; row += 3) 
                 {
                     int c_eq = outer[row    ];
                     int q_eq = outer[row + 1];
                     int r_eq = outer[row + 2];
 
                     status = bed_shear_stress_matrix_and_rhs(values, row, c_eq, q_eq, r_eq, rhs,
-                                htheta, qtheta, rtheta, cf, theta, dx, dy, nx, ny);
+                                x, y, htheta, qtheta, rtheta, cf, theta, nx, ny);
                     // boundary_south
                     // boundary_north
                 }
@@ -1060,14 +1100,14 @@ int main(int argc, char *argv[])
                 // corner_north_west
 
                 // interior with south and north boundary
-                for (int row = 3 * ny; row < 3 * (nx - 1) * ny; row += 3) 
+                for (size_t row = 3 * ny; row < 3 * (nx - 1) * ny; row += 3) 
                 {
                     int c_eq = outer[row    ];
                     int q_eq = outer[row + 1];
                     int r_eq = outer[row + 2];
 
                     status = convection_matrix_and_rhs(values, row, c_eq, q_eq, r_eq, rhs,
-                                htheta, qtheta, rtheta, theta, dx, dy, nx, ny);
+                                x, y, htheta, qtheta, rtheta, theta, nx, ny);
                     // boundary_south
                     // boundary_north
                 }
@@ -1190,6 +1230,7 @@ int main(int argc, char *argv[])
                 }
             }
             ////////////////////////////////////////////////////////////////////
+#if defined(MULTIGRID)
             else if (linear_solver == "multigrid")
             {
                 if (nst == 1 && iter == 0)
@@ -1198,7 +1239,7 @@ int main(int argc, char *argv[])
                 }
                 else if (nst > 1)
                 {
-                    START_TIMER(MULTIGRID);
+                    START_TIMER(MULTIGRID_timer);
                 }
                
                 Solver solve(A, prm);
@@ -1210,7 +1251,7 @@ int main(int argc, char *argv[])
                 }
                 else if (nst > 1)
                 {
-                    STOP_TIMER(MULTIGRID);
+                    STOP_TIMER(MULTIGRID_timer);
                 }
                solver_iterations = iters;
                 if (logging == "iterations" || logging == "matrix")
@@ -1222,6 +1263,7 @@ int main(int argc, char *argv[])
                         << std::endl;
                 }
             }
+#endif
             ////////////////////////////////////////////////////////////////////
 
             // 
@@ -1311,7 +1353,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            if (std::fmod(time, 60.) == 0)
+            if (std::fmod(time, input_data.output.dt_screen) == 0)
             {
                 std::cout << std::fixed << std::setprecision(2) << tstart + time << ";   " << tstart + tstop << std::endl;
             }
@@ -1379,6 +1421,12 @@ int main(int argc, char *argv[])
             map_file->put_time_variable(map_s_name, nst_map, s);
             map_file->put_time_variable(map_u_name, nst_map, u);
             map_file->put_time_variable(map_v_name, nst_map, v);
+            for (size_t i = 0; i < u.size(); ++i)
+            {
+                u_speed[i] = (std::sqrt(u[i] * u[i] + v[i] * v[i]));
+            }
+            map_file->put_time_variable(map_umag_name, nst_map, u_speed);
+
             map_file->put_time_variable(map_zb_name, nst_map, zb);
             if (regularization_init)
             {
@@ -1388,7 +1436,7 @@ int main(int argc, char *argv[])
             }
             if (do_convection)
             {
-                convection_post_rhs(post_q, post_r, hn, qn, rn, dx, dy, nx, ny);
+                convection_post_rhs(post_q, post_r, x, y, hn, qn, rn, nx, ny);
                 map_file->put_time_variable(map_conv_q_name, nst_map, post_q);
                 map_file->put_time_variable(map_conv_r_name, nst_map, post_r);
             }
@@ -1463,6 +1511,16 @@ int main(int argc, char *argv[])
                 his_values.push_back(v[input_data.obs_points[i].idx]);
             }
             his_file->put_variable(his_v_name, nst_his, his_values);
+
+            his_values.clear();
+            for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+            {
+                int k = input_data.obs_points[i].idx;
+                double speed = (std::sqrt(u[k] * u[k] + v[k] * v[k]));
+                his_values.push_back(speed);
+            }
+            his_file->put_variable(his_umag_name, nst_his, his_values);
+
 
             his_values = { double(used_newton_iter) };
             his_file->put_variable(his_newton_iter_name, nst_his, his_values);

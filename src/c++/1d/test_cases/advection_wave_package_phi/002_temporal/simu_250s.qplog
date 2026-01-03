@@ -1,0 +1,9 @@
+openfile '.\output\advection_map.nc'
+selectfield 'Concentration'
+hselectiontype '(M,N) point/path'
+editt '251'
+editmn '378:1:620'
+colour [ 0 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview

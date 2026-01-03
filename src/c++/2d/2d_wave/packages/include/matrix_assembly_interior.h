@@ -35,13 +35,14 @@
 #include <Eigen/Sparse>
 
 int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
-    double & dtinv, double & dxinv, double & theta, double & g, bool do_convection, 
+    double & dtinv, double & theta, double & g, bool do_convection, 
     size_t nx, size_t ny,
+    std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    std::vector<double>& zb, double dx, double dy, double dxdy, std::vector<double>& mass);
+    std::vector<double>& zb, std::vector<double>& mass);
 
-inline void set_value(double * values, int col, double data);
+inline void add_value(double * values, size_t col, double data);
 
 #endif  // __MATRIX_ASSEMBLY_INTERIOR_H__

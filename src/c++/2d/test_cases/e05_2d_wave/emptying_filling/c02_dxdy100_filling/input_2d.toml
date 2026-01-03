@@ -9,14 +9,14 @@
     tstop = 3600.0                                # End time [s]
         
 [Initial]
-    ini_vars = ["zeta", "zeta_constant"]
+    ini_vars = ["zeta_constant"]
     gauss_amp = -0.01 # amplitude of the gaussian hump
     gauss_mu = 0.0    # location of the top of the gaussian hump
     gauss_sigma = 350.0    # width of the gaussian hump
 
 [Boundary] # north, east, south, west
     bc_type = ["borsboom", "borsboom", "borsboom", "borsboom"] # Type "borsboom", "free_slip", "mooiman" 
-    bc_vars = ["zeta", "zeta", "zeta", "zeta"]
+    bc_vars = ["zeta", "zeta", "zeta"]
     bc_vals = [0.01, 0.01, 0.01, 0.01]
     bc_absorbing = [true, true, true, true]
     treg = 300.0                                  # Regularization time boundary signal
@@ -36,7 +36,7 @@
 [Numerics]
     dt = 20.0                                     # Time step size [s], if dt == 0: then stationary problem
     iter_max = 25                                 # Maximum number of nonlinear iterations
-    theta = 0.501                                 # Implicitness factor (0.5 <= theta <= 1.0)
+    theta = 1.00                                 # Implicitness factor (0.5 <= theta <= 1.0)
     regularization_init = true
     regularization_iter = false
     regularization_time = false
@@ -46,43 +46,3 @@
 [Output]
     dt_his = 0.01   # [s]
     dt_map = 30.0   # [s] 
-    
-[[ObservationPoint]]
-    x = 2500.0
-    y = 0.0
-    name = "A"    
-  
-[[ObservationPoint]]
-    x = 2000.0
-    y = 1500.0
-    name = "B"    
-
-[[ObservationPoint]]
-    x = 1500.0
-    y = 2000.0
-    name = "C"    
-
-[[ObservationPoint]]
-    x = 0.0
-    y = 2500.0
-    name = "D"    
-
-[[ObservationPoint]]
-    x = 0.0
-    y = 3000.0
-    name = "Halfway North"    
-
-[[ObservationPoint]]
-    x = 3000.0
-    y = 0.0
-    name = "Halfway East"  
-    
-[[ObservationPoint]]
-    x = 0.0
-    y = -3000.0
-    name = "Halfway South"    
-
-[[ObservationPoint]]
-    x = -3000.0
-    y = 0.0
-    name = "Halfway West"    

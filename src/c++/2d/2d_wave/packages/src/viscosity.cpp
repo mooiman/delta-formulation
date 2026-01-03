@@ -57,8 +57,8 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     // 
     int p_0 = c_eq/(3*27);  // node number;  // centre of discretization molecule
     // if node number is south or north boundary point, exit the function
-    if (std::fmod(p_0, ny) == 0) { return 1; }  // south boundary
-    if (std::fmod(p_0 + 1, ny) == 0) { return 2; }  // north boundary
+    if (p_0 % ny == 0) { return 1; }  // south boundary
+    if ((p_0 + 1) % ny == 0) { return 2; }  // north boundary
 
     int p_sw = p_0 - ny - 1;
     int p_w  = p_0 - ny;
@@ -669,8 +669,8 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
     double dxinv = 1./dx;
     double dyinv = 1./dy;
 
-    memset(rhs_q.data(), 0, rhs_q.size() * sizeof(double));
-    memset(rhs_r.data(), 0, rhs_r.size() * sizeof(double));
+    std::fill_n(rhs_q.data(), rhs_q.size(), 0.0);
+    std::fill_n(rhs_r.data(), rhs_r.size(), 0.0);
 
     for (size_t i = 1; i < nx - 1; ++i)
     {

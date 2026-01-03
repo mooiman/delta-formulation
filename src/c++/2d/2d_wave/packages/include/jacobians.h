@@ -41,13 +41,13 @@ double bed_shear_stress_J_22(double& h, double& q, double& r, double& cf);
 double bed_shear_stress_J_23(double& h, double& q, double& r, double& cf);
 double abs_vecq(double& qp, double& rp, double a);
 
-double convection_J_10(double& h, double& q, double& r, double nxi, double neta);
-double convection_J_20(double& h, double& q, double& r, double nxi, double neta);
-double convection_J_11(double& h, double& q, double& r, double nxi, double neta);
-double convection_J_21(double& h, double& q, double& r, double nxi, double neta);
-double convection_J_12(double& h, double& q, double& r, double nxi, double neta);
-double convection_J_22(double& h, double& q, double& r, double nxi, double neta);
-double convection_J_13(double& h, double& q, double& r, double nxi, double neta);
-double convection_J_23(double& h, double& q, double& r, double nxi, double neta);
+double convection_J_10(double& h, double& q, double& r, double dx_dxi, double dx_deta, double dy_dxi, double dy_deta, double nxi, double neta);
+double convection_J_20(double& h, double& q, double& r, double dx_dxi, double dx_deta, double dy_dxi, double dy_deta, double nxi, double neta);
+double convection_J_11(double& h, double& q, double& r, double dx_dxi, double dx_deta, double dy_dxi, double dy_deta, double nxi, double neta);
+double convection_J_21(double& h, double& q, double& r, double dx_dxi, double dx_deta, double dy_dxi, double dy_deta, double nxi, double neta);
+double convection_J_12(double& h, double& q, double& r, double dx_dxi, double dx_deta, double dy_dxi, double dy_deta, double nxi, double neta);
+double convection_J_22(double& h, double& q, double& r, double dx_dxi, double dx_deta, double dy_dxi, double dy_deta, double nxi, double neta);
+double convection_J_13(double& h, double& q, double& r, double dx_dxi, double dx_deta, double dy_dxi, double dy_deta, double nxi, double neta);
+double convection_J_23(double& h, double& q, double& r, double dx_dxi, double dx_deta, double dy_dxi, double dy_deta, double nxi, double neta);
 
 #endif  // __JACOBIANS_H__
