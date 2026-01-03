@@ -17,7 +17,7 @@
 
 \allowdisplaybreaks[1]
 
-\newcommand{\ii}{{\rm i}}
+\newcommand{\ii}{{\mathtt{i}}}
 \newcommand{\Dx}{\Delta x}
 \newcommand{\Dy}{\Delta y}
 \newcommand{\Dh}{\Delta h}
@@ -26,18 +26,19 @@
 \newcommand{\Dxi}{\Delta \xi}
 \newcommand{\Deta}{\Delta \eta}
 \newcommand{\Dt}{\Delta t}
-\newcommand{\Dtinv}{\Delta t_{\it{inv}}}
+\newcommand{\Dtinv}{\Delta t_{\mathit{inv}}}
+\newcommand{\Du}{\Delta u}
 \newcommand{\vecn}{\mathbcal{n}}  % normal component in eta-direction
-\newcommand{\nx}{\mathcal{n}_x}  % normal component in xi-direction
-\newcommand{\ny}{\mathcal{n}_y}  % normal component in eta-direction
+\newcommand{\nx}{\mathcal{n}_x}  % normal component in x-direction
+\newcommand{\ny}{\mathcal{n}_y}  % normal component in y-direction
 \newcommand{\nxi}{\mathcal{n}_\xi}  % normal component in xi-direction
 \newcommand{\neta}{\mathcal{n}_\eta}  % normal component in eta-direction
 
-\newcommand{\mat}[1]{\mbox{\boldmath ${\rm #1}$} }
+\newcommand{\mat}[1]{\mbox{\boldmath ${\mathrm{#1}}$} }
 \newcommand{\half}{\frac{1}{2}}
 \newcommand{\quart}{\frac{1}{4}}
 \newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
-\newcommand{\Fabs}[1]{F_{\it abs}(#1)\xspace}  % Continue function for the absolute value
+\newcommand{\Fabs}[1]{F_{\mathit abs}(#1)\xspace}  % Continue function for the absolute value
 \newcommand{\eps}{\varepsilon}
 \newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
 \newcommand{\bunit}[1]{\text{\normalfont [}\textit{\unit{#1}}\text{\normalfont ]}}
@@ -54,6 +55,9 @@
 \newcommand{\qtilde}{\widetilde{q}}
 \newcommand{\qbar}{\overline{q}}
 \newcommand{\qhat }{\widehat{q}}
+\newcommand{\rtilde}{\widetilde{r}}
+\newcommand{\rbar}{\overline{r}}
+\newcommand{\rhat }{\widehat{r}}
 
 \newcommand{\maplesoft}{\textbf{Maplesoft}}
 \newcommand{\deltaformulation}{$\Delta$-formulation\xspace}
@@ -62,7 +66,8 @@
 \begin{document}
 
 \title{Two step FVE method}
-\subtitle{A numerical modeling technique designed for error insight}
+\subtitle{A numerical modeling technique designed for error insight\newline
+1D \& 2D Shallow water equations}
 \contact{J.\ Mooiman}
 \author{Jan Mooiman}
 \partner{Members of the team (dd.\ 22 May 2024) \newline
@@ -114,19 +119,19 @@ Thea Vuik\newline
 
 
 %------------------------------------------------------------------------------
-%\part{Introduction}
-%\input{chapters/introduction.tex}
-%\input{chapters/error_minimizing.tex}
-%\input{chapters/time_integration}
-%\input{chapters/space_discretization}
+\part{Introduction}
+\input{chapters/introduction.tex}
+\input{chapters/error_minimizing.tex}
+\input{chapters/time_integration}
+\input{chapters/space_discretization}
 %------------------------------------------------------------------------------
-%\part{1D Wave}
-%\input{chapters/1d_shallow_water_equations.tex}
-%\input{chapters/1d_numerical_experiments.tex}
+\part{1D Wave}
+\input{chapters/1d_shallow_water_equations.tex}
+\input{chapters/1d_numerical_experiments.tex}
 %------------------------------------------------------------------------------
-%\part{2D Wave}
+\part{2D Wave}
 \input{chapters/2d_shallow_water_equations.tex}
-%{chapters/2d_numerical_experiments.tex}
+\input{chapters/2d_numerical_experiments.tex}
 %--------------------------------------------------------------------------------
 %\chapter{1D Wave equation}\label{sec:1d_non_linear_wave_equation}
 %\section{Riemann invariants}
@@ -137,12 +142,12 @@ Thea Vuik\newline
 %\part{References}
 \printallbibliography
 %--------------------------------------------------------------------------------
-%\part{Appendices}
+\part{Appendices}
 \appendix
 \input{chapters/coordinate_transform.tex}
-%\input{chapters/1d_error_estimation.tex}
-%\input{chapters/1d_diagonalise_swe}
-%\input{chapters/error_function_artificial_viscosity.tex}
-%\input{chapters/linearization_in_time.tex}
-%\input{chapters/2d_regularization.tex}
+\input{chapters/1d_error_estimation.tex}
+\input{chapters/1d_diagonalise_swe}
+\input{chapters/error_function_artificial_viscosity.tex}
+\input{chapters/linearization_in_time.tex}
+\input{chapters/2d_regularization.tex}
 \end{document}

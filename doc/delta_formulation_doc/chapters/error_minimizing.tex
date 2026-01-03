@@ -11,7 +11,7 @@ Smoothness is required to ensure fast converging series and dominant lowest-orde
 Artificial smoothing is added to satisfy this requirement, if necessary.
 To enable the physical interpretation of numerical errors afterwards, smoothing can only involve the artificial enhancement of physical dissipation.
 Taylor-series expansions can be used to determine the leading terms of the residual.
-The residual, however, is not a suitable error measure since it indicates the local discretization error in the equations, not in the solution. 
+The residual, however, is not a suitable error measure since it indicates the local discretization error in the equations, not in the solution.
 In order
 to be useful, the residual needs to be reformulated in terms of local solution
 errors.
@@ -23,13 +23,11 @@ The proposed numerical modeling technique solves the conceptual model problem in
 Showing the two-step method in general
 %
 \begin{figure}[H]
-    \begin{center}
         \def\svgwidth{1.0\textwidth} % scaling text
-        \resizebox{0.9\textwidth}{!}{
+        \resizebox{1.0\textwidth}{!}{
             \input{figures/two_step_approach.pdf_tex}
         }
         %    \includegraphics[width=0.9\textwidth]{figures/figure_1.png}
-    \end{center}
     \caption{Graphical presentation of the error-minimizing two step method}\label{fig:two_step_method}
 \end{figure}
 %
