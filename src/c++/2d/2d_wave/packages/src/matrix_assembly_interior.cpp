@@ -226,10 +226,10 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     add_value(values, col_sw + 1, theta * 0.5 * n_xi * dy_deta * 1./8.);
     add_value(values, col_s  + 1, theta * 0.5 * n_xi * dy_deta * 1./8.);
 
-    add_value(values, col_0  + 2, -theta * 0.5 * n_xi * dx_deta * 3./8.);
-    add_value(values, col_w  + 2, -theta * 0.5 * n_xi * dx_deta * 3./8.);
-    add_value(values, col_sw + 2, -theta * 0.5 * n_xi * dx_deta * 1./8.);
-    add_value(values, col_s  + 2, -theta * 0.5 * n_xi * dx_deta * 1./8.);
+    add_value(values, col_0  + 2, theta * 0.5 * n_xi * -dx_deta * 3./8.);
+    add_value(values, col_w  + 2, theta * 0.5 * n_xi * -dx_deta * 3./8.);
+    add_value(values, col_sw + 2, theta * 0.5 * n_xi * -dx_deta * 1./8.);
+    add_value(values, col_s  + 2, theta * 0.5 * n_xi * -dx_deta * 1./8.);
 
     // rhs
     fluxx_0 = dy_deta * (scvf_xi(qtheta_0, qtheta_w, qtheta_s, qtheta_sw)) * 0.5 * n_xi 
@@ -255,10 +255,10 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     add_value(values, col_se + 1, theta * 0.5 * n_xi * dy_deta * 1./8.);
     add_value(values, col_s  + 1, theta * 0.5 * n_xi * dy_deta * 1./8.);
 
-    add_value(values, col_0  + 2, -theta * 0.5 * n_xi * dx_deta * 3./8.);
-    add_value(values, col_s  + 2, -theta * 0.5 * n_xi * dx_deta * 3./8.);
-    add_value(values, col_se + 2, -theta * 0.5 * n_xi * dx_deta * 1./8.);
-    add_value(values, col_e  + 2, -theta * 0.5 * n_xi * dx_deta * 1./8.);
+    add_value(values, col_0  + 2, theta * 0.5 * n_xi * -dx_deta * 3./8.);
+    add_value(values, col_s  + 2, theta * 0.5 * n_xi * -dx_deta * 3./8.);
+    add_value(values, col_se + 2, theta * 0.5 * n_xi * -dx_deta * 1./8.);
+    add_value(values, col_e  + 2, theta * 0.5 * n_xi * -dx_deta * 1./8.);
 
     // rhs
     fluxx_3 = dy_deta * (scvf_xi(qtheta_e, qtheta_0, qtheta_se, qtheta_s)) * 0.5 * n_xi 
@@ -279,10 +279,10 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     add_value(values, col_ne + 1, theta * 0.5 * n_xi * dy_deta * 1./8.);
     add_value(values, col_n  + 1, theta * 0.5 * n_xi * dy_deta * 1./8.);
 
-    add_value(values, col_0  + 2, -theta * 0.5 * n_xi * dx_deta * 3./8.);
-    add_value(values, col_e  + 2, -theta * 0.5 * n_xi * dx_deta * 3./8.);
-    add_value(values, col_ne + 2, -theta * 0.5 * n_xi * dx_deta * 1./8.);
-    add_value(values, col_n  + 2, -theta * 0.5 * n_xi * dx_deta * 1./8.);
+    add_value(values, col_0  + 2, theta * 0.5 * n_xi * -dx_deta * 3./8.);
+    add_value(values, col_e  + 2, theta * 0.5 * n_xi * -dx_deta * 3./8.);
+    add_value(values, col_ne + 2, theta * 0.5 * n_xi * -dx_deta * 1./8.);
+    add_value(values, col_n  + 2, theta * 0.5 * n_xi * -dx_deta * 1./8.);
 
     fluxx_4 = dy_deta * (scvf_xi(qtheta_e, qtheta_0, qtheta_ne, qtheta_n)) * 0.5 * n_xi 
             - dx_deta * (scvf_xi(rtheta_e, rtheta_0, rtheta_ne, rtheta_n)) * 0.5 * n_xi;
@@ -307,10 +307,10 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     add_value(values, col_n  + 1, theta * 0.5 * n_xi * dy_deta * 1./8.);
     add_value(values, col_nw + 1, theta * 0.5 * n_xi * dy_deta * 1./8.);
 
-    add_value(values, col_0  + 2, -theta * 0.5 * n_xi * dx_deta * 3./8.);
-    add_value(values, col_w  + 2, -theta * 0.5 * n_xi * dx_deta * 3./8.);
-    add_value(values, col_n  + 2, -theta * 0.5 * n_xi * dx_deta * 1./8.);
-    add_value(values, col_nw + 2, -theta * 0.5 * n_xi * dx_deta * 1./8.);
+    add_value(values, col_0  + 2, theta * 0.5 * n_xi * -dx_deta * 3./8.);
+    add_value(values, col_w  + 2, theta * 0.5 * n_xi * -dx_deta * 3./8.);
+    add_value(values, col_n  + 2, theta * 0.5 * n_xi * -dx_deta * 1./8.);
+    add_value(values, col_nw + 2, theta * 0.5 * n_xi * -dx_deta * 1./8.);
 
     fluxx_7 = dy_deta * (scvf_xi(qtheta_0, qtheta_w, qtheta_n, qtheta_nw)) * 0.5 * n_xi 
             - dx_deta * (scvf_xi(rtheta_0, rtheta_w, rtheta_n, rtheta_nw)) * 0.5 * n_xi;
@@ -332,10 +332,10 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     n_xi = 0.0;
     n_eta = -1.0;
 
-    add_value(values, col_0  + 1, -theta * 0.5 * n_eta * dy_dxi * 3./8.);
-    add_value(values, col_s  + 1, -theta * 0.5 * n_eta * dy_dxi * 3./8.);
-    add_value(values, col_w  + 1, -theta * 0.5 * n_eta * dy_dxi * 1./8.);
-    add_value(values, col_sw + 1, -theta * 0.5 * n_eta * dy_dxi * 1./8.);
+    add_value(values, col_0  + 1, theta * 0.5 * n_eta * -dy_dxi * 3./8.);
+    add_value(values, col_s  + 1, theta * 0.5 * n_eta * -dy_dxi * 3./8.);
+    add_value(values, col_w  + 1, theta * 0.5 * n_eta * -dy_dxi * 1./8.);
+    add_value(values, col_sw + 1, theta * 0.5 * n_eta * -dy_dxi * 1./8.);
 
     add_value(values, col_0  + 2, theta * 0.5 * n_eta * dx_dxi * 3./8.);
     add_value(values, col_s  + 2, theta * 0.5 * n_eta * dx_dxi * 3./8.);
@@ -356,10 +356,10 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     n_xi = 0.0;
     n_eta = -1.0;
 
-    add_value(values, col_0  + 1, -theta * 0.5 * n_eta * dy_dxi * 3./8.);
-    add_value(values, col_s  + 1, -theta * 0.5 * n_eta * dy_dxi * 3./8.);
-    add_value(values, col_se + 1, -theta * 0.5 * n_eta * dy_dxi * 1./8.);
-    add_value(values, col_e  + 1, -theta * 0.5 * n_eta * dy_dxi * 1./8.);
+    add_value(values, col_0  + 1, theta * 0.5 * n_eta * -dy_dxi * 3./8.);
+    add_value(values, col_s  + 1, theta * 0.5 * n_eta * -dy_dxi * 3./8.);
+    add_value(values, col_se + 1, theta * 0.5 * n_eta * -dy_dxi * 1./8.);
+    add_value(values, col_e  + 1, theta * 0.5 * n_eta * -dy_dxi * 1./8.);
 
     add_value(values, col_0  + 2, theta * 0.5 * n_eta * dx_dxi * 3./8.);
     add_value(values, col_s  + 2, theta * 0.5 * n_eta * dx_dxi * 3./8.);
@@ -384,10 +384,10 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     n_xi =  0.0;
     n_eta = 1.0;
 
-    add_value(values, col_0  + 1, -theta * 0.5 * n_eta * dy_dxi * 3./8.);
-    add_value(values, col_n  + 1, -theta * 0.5 * n_eta * dy_dxi * 3./8.);
-    add_value(values, col_e  + 1, -theta * 0.5 * n_eta * dy_dxi * 1./8.);
-    add_value(values, col_ne + 1, -theta * 0.5 * n_eta * dy_dxi * 1./8.);
+    add_value(values, col_0  + 1, theta * 0.5 * n_eta * -dy_dxi * 3./8.);
+    add_value(values, col_n  + 1, theta * 0.5 * n_eta * -dy_dxi * 3./8.);
+    add_value(values, col_e  + 1, theta * 0.5 * n_eta * -dy_dxi * 1./8.);
+    add_value(values, col_ne + 1, theta * 0.5 * n_eta * -dy_dxi * 1./8.);
 
     add_value(values, col_0  + 2, theta * 0.5 * n_eta * dx_dxi * 3./8.);
     add_value(values, col_n  + 2, theta * 0.5 * n_eta * dx_dxi * 3./8.);
@@ -408,10 +408,10 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     n_xi =  0.0;
     n_eta = 1.0;
 
-    add_value(values, col_0  + 1, -theta * 0.5 * n_eta * dy_dxi * 3./8.);
-    add_value(values, col_n  + 1, -theta * 0.5 * n_eta * dy_dxi * 3./8.);
-    add_value(values, col_nw + 1, -theta * 0.5 * n_eta * dy_dxi * 1./8.);
-    add_value(values, col_w  + 1, -theta * 0.5 * n_eta * dy_dxi * 1./8.);
+    add_value(values, col_0  + 1, theta * 0.5 * n_eta * -dy_dxi * 3./8.);
+    add_value(values, col_n  + 1, theta * 0.5 * n_eta * -dy_dxi * 3./8.);
+    add_value(values, col_nw + 1, theta * 0.5 * n_eta * -dy_dxi * 1./8.);
+    add_value(values, col_w  + 1, theta * 0.5 * n_eta * -dy_dxi * 1./8.);
 
     add_value(values, col_0  + 2, theta * 0.5 * n_eta * dx_dxi * 3./8.);
     add_value(values, col_n  + 2, theta * 0.5 * n_eta * dx_dxi * 3./8.);

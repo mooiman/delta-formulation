@@ -36,11 +36,11 @@ public:
     BED_LEVEL();
     ~BED_LEVEL();
     long open(std::string filename);
-    long read(int nx, int ny);
+    long read(size_t nx, size_t ny);
     std::vector<double> get_bed_level();
 
 private:
-    void transpose(std::vector<double>& x, int nx, int ny);
+    void transpose(std::vector<double>& x, size_t nx, size_t ny);
 
     std::ifstream m_fname;
     std::vector<double> m_bed_given;

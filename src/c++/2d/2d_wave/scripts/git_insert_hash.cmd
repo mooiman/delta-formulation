@@ -26,8 +26,20 @@ set GIT_MODIFIED=
 FOR /f %%i in ('git diff --stat origin/curvilinear') do set GIT_MODIFIED=M-
 
 REM GET THE GIT SHORT HASH
-FOR /f %%i in ('git rev-parse --short HEAD') do set GIT_HASH=%%i
-set GIT_HASH=%GIT_MODIFIED%%GIT_HASH%
+rem FOR /f %%i in ('git rev-parse --short HEAD') do set GIT_HASH=%%i
+for /f %%i in ('git rev-parse --short HEAD') do set GIT_HASH=%%i
+for /f "usebackq delims=" %%i in (`git show -s --format^=%%cd --date^=format:"%%Y-%%m-%%d %%H:%%M:%%S" HEAD`) do (
+    set GIT_HASH_DATETIME=%%i
+)
+rem for /f %%i in ('git show -s --format^=%%ci HEAD') do set HASH_DATETIME=%%i
+
+
+echo Hash: %GIT_HASH%
+echo Hash: %GIT_HASH_DATETIME%
+rem echo Date/Time: %DATETIME%
+
+set "GIT_HASH=%GIT_HASH_DATETIME%, %GIT_MODIFIED%%GIT_HASH%"
+REM git show -s --format="%ci" HEAD
 
 echo Pre build: get GIT HASH code, %GIT_HASH%
 

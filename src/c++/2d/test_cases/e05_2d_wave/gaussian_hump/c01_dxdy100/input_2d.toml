@@ -6,18 +6,18 @@ Logging = "none"  # "iterations", "matrix", "pattern", "none"
 
 [Time]
     tstart = 0.0                                  # Start time [s]
-    tstop = 10.0                                # End time [s]
+    tstop = 1800.0                                # End time [s]
         
 [Initial]
     ini_vars = ["zeta_gauss_hump"]
-    gauss_amp = 1.0 # amplitude of the gaussian hump
+    gauss_amp = 0.01 # amplitude of the gaussian hump
     gauss_mu = 0.0    # location of the top of the gaussian hump
-    gauss_sigma = 700.0    # width of the gaussian hump
+    gauss_sigma = 350.0    # width of the gaussian hump
 
 [Boundary] # north, east, south, west
-    bc_type = [ "borsboom", "borsboom", "borsboom", "borsboom" ] # Type "borsboom", "free_slip", "mooiman" 
-    bc_vars = [ "zeta", "zeta", "zeta", "zeta" ]
-    bc_vals = [ 0.0, 0.0, 0.0, 0.0 ]
+    bc_type = ["borsboom", "borsboom", "borsboom", "borsboom"] # Type "borsboom", "free_slip", "mooiman" 
+    bc_vars = ["zeta", "zeta", "zeta", "zeta"]
+    bc_vals = [0.0, 0.0, 0.0, 0.0]
     treg = 150.0                                  # Regularization time boundary signal
     eps_bc_corr = 1.0e-02
 
@@ -26,17 +26,17 @@ Logging = "none"  # "iterations", "matrix", "pattern", "none"
     do_continuity = true            # continuity equation
     do_q_equation = true            # q momentum equation
     do_r_equation = true            # r momentum equation
-    do_convection = true            # Include momentum convection term
+    do_convection = false           # Include momentum convection term
     do_viscosity = false            # Include momentum viscosity term
     do_bed_shear_stress = false     # Include momentum bed shear stress term
     viscosity = 0.01
     chezy_coefficient = 50.0        # Chezy coefficient
 
 [Numerics]
-    dt = 5.0                        # Time step size [s], if dt == 0: then stationary problem
+    dt = 15.0                       # Time step size [s], if dt == 0: then stationary problem
     iter_max = 25                   # Maximum number of nonlinear iterations
     theta = 0.501                   # Implicitness factor (0.5 <= theta <= 1.0)
-    regularization_init = false
+    regularization_init = true
     regularization_iter = false
     regularization_time = false
     eps_newton = 1.0e-12

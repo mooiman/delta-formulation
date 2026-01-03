@@ -31,8 +31,9 @@
 //       Borsboom_developerrorminadaptgridmethod_ApplNumerMath1998.pdf
 //
 
-#include "regularization.h"
 #include "build_matrix_pattern_regularization.h"
+#include "perf_timer.h"
+#include "regularization.h"
 
 REGULARIZATION::REGULARIZATION()
 {
@@ -43,25 +44,27 @@ REGULARIZATION::REGULARIZATION()
     m_mass.push_back(m_alpha);
     m_mass.push_back(1.0 - 2. * m_alpha);
     m_mass.push_back(m_alpha);
-    eps_smooth = 1e-12;
+    m_eps_smooth = 1e-12;
     m_u0_is_smooth = 1.e-10;
 }
-REGULARIZATION::REGULARIZATION(int iter_max, double g) :
+REGULARIZATION::REGULARIZATION(int iter_max, double g, std::string logging) :
     m_iter_max(iter_max),
-    m_g(g)
-{
+    m_g(g),
+    m_logging(logging)
+{   
     m_alpha = 1./8.;
     m_mass.push_back(m_alpha);
     m_mass.push_back(1.0 - 2. * m_alpha);
     m_mass.push_back(m_alpha);
-    eps_smooth = 1e-12;
+    m_eps_smooth = 1e-12;
     m_u0_is_smooth = 1.e-10;
 }
 
 void REGULARIZATION::given_function( 
     std::vector<double>& u_out, std::vector<double>& psi_11, std::vector<double>& psi_22, std::vector<double>& eq8, 
+    std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& u_giv_in,
-    size_t nx, size_t ny, double dx, double dy, double c_psi, std::ofstream& log_file)
+    size_t nx, size_t ny, double c_psi, std::ofstream& log_file)
 {
     double diff_max0 = 0.0;
     double diff_max1 = 0.0;
@@ -113,6 +116,7 @@ void REGULARIZATION::given_function(
                 //u_out[i] = u_giv_in[i];
             }
             //return;
+            smooth = smooth + 1.e-12;
         }
 
         for (size_t i = 0; i < nx; ++i)  // horizontal direction
@@ -148,16 +152,18 @@ void REGULARIZATION::given_function(
             u0_xixi[p_w] = u0_xixi[p_ww];
         }
 
+        double dxi = 1.0;
+        double deta = 1.0;
 //------------------------------------------------------------------------------
-        eq8 = *(this->solve_eq8(nx, ny, dx, dy, c_psi, u0, u0_xixi, u0_etaeta, log_file));
+        eq8 = *(this->solve_eq8(nx, ny, dxi, deta, c_psi, u0, u0_xixi, u0_etaeta, log_file));  // eq8 is computed in computational space
 //------------------------------------------------------------------------------
         for (size_t i = 0; i < nxny; ++i)
         {
-            psi_11[i] = c_psi * (dx * dx + dy * dy) * eq8[i]/2.0;  // divide by 2: then is equal to 1D if dx=dy
-            psi_22[i] = c_psi * (dx * dx + dy * dy) * eq8[i]/2.0;  // divide by 2: then is equal to 1D if dx=dy
+            psi_11[i] = c_psi * (dxi * dxi + deta * deta) * eq8[i]/2.0;  // divide by 2: then is equal to 1D if dx=dy
+            psi_22[i] = c_psi * (dxi * dxi + deta * deta) * eq8[i]/2.0;  // divide by 2: then is equal to 1D if dx=dy
         }
 //------------------------------------------------------------------------------
-        u0 = *(this->solve_eq7(nx, ny, dx, dy, psi_11, psi_22, u_giv, log_file));
+        u0 = *(this->solve_eq7(nx, ny, x, y, psi_11, psi_22, u_giv, log_file));
 //------------------------------------------------------------------------------
 
         diff_max1 = 0.0;
@@ -165,7 +171,7 @@ void REGULARIZATION::given_function(
         {
             diff_max1 = std::max(diff_max1, std::abs(u0[i] - u_giv[i]));
         }
-        if (std::abs(diff_max1 - diff_max0) > eps_smooth)
+        if (std::abs(diff_max1 - diff_max0) > m_eps_smooth)
         {
             diff_max0 = diff_max1;
         }
@@ -200,7 +206,7 @@ void REGULARIZATION::first_derivative(std::vector<double>& psi, std::vector<doub
         }
     }
 }
-std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t ny, double dx, double dy, 
+std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t ny, std::vector<double>& x, std::vector<double>& y, 
     std::vector<double> psi_11, std::vector<double> psi_22, std::vector<double> u_giv, std::ofstream& log_file)
 {
     size_t nxny = nx * ny;
@@ -220,343 +226,110 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
     double* values = B.valuePtr();         // pointer to all non-zero values
     const int* outer = B.outerIndexPtr();   // row start pointers
 
-    size_t col;
-    size_t p_0;
+    //
+    // Add the diffusion term
+    //
+    // row 0, 1, 2; sw-corner
+    // row 3,..., 3 * (ny - 1) - 1: west boundary
+    // row 3 * (ny - 1), +1, +2; nw-corner
+    // row std::fmod(col , 3 * ny), +1, +2; south boundary 
+    // row std::fmod(col + 3, 3 * ny), +1, +2; north boundary
+    // row 3 * (nx - 1) * ny, +1, +2; se-corner
+    // row 3 * (nx - 1) * ny + 3, ..., 3 * nx * ny - 3 - 1: east boundary
+    // row 3 * nx * ny - 3, +1, +2 : ne-corner
+    START_TIMERN(Regularization diffusion);
+    //
+    // viscosity
+    //
+    // For the moment only interior nodes (2025-08-13)
+    // Do not clear the rows, but add the viscosity terms
 
     // south-west corner
     for (size_t row = 0; row < 1; row += 1)
     {
-        col = outer[row    ];
-        p_0 = col/(9);  // p_sw
-
-        values[col     ] = 1.0;
-        values[col +  1] = 0.0;
-        values[col +  2] = 0.0;
-        values[col +  3] = 0.0;
-        values[col +  4] = 0.0;
-        values[col +  5] = 0.0;
-        values[col +  6] = 0.0;
-        values[col +  7] = 0.0;
-        values[col +  8] = 0.0;
-        rhs[row    ] = u_giv[p_0];
+        size_t c_eq = (size_t) outer[row    ];
+        status = reg_corner_south_west(values, row, c_eq, rhs, 
+           u_giv, (double) 1.0, nx, ny);
     }
     // west boundary
-    for (size_t row = 1; row < (ny - 1); row += 1)
+    for (size_t row = 1; row < 1 * (ny - 1); row += 1)
     {
-        col = outer[row    ];
-        p_0 = col/(9);  // p_w
+        size_t c_eq = (size_t) outer[row    ];
+        size_t p_0 = c_eq/(9);
 
-        values[col     ] = 0.0;
-        values[col +  1] = -1.0;
-        values[col +  2] = 0.0;
-        values[col +  3] = 0.0;
-        values[col +  4] = 1.0;
-        values[col +  5] = 0.0;
-        values[col +  6] = 0.0;
-        values[col +  7] = 0.0;
-        values[col +  8] = 0.0;
-        rhs[row    ] = 0.0;
+        double psi_1 = -psi_11[p_0];
+        double psi_2 = -psi_22[p_0];
+        status = reg_boundary_west(values, row, c_eq, rhs,
+            x, y, u_giv, psi_1, psi_2, 
+            (double) 1.0, nx, ny);
     }
     // north-west corner
-    for (size_t row = ny - 1; row < ny; row += 1)
+    for (size_t row = 1 * (ny - 1); row < 1 * ny; row += 1)
     {
-        col = outer[row    ];
-        p_0 = col/(9);  // p_nw
-
-        values[col     ] = 0.0;
-        values[col +  1] = 0.0;
-        values[col +  2] = 1.0;
-        values[col +  3] = 0.0;
-        values[col +  4] = 0.0;
-        values[col +  5] = 0.0;
-        values[col +  6] = 0.0;
-        values[col +  7] = 0.0;
-        values[col +  8] = 0.0;
-        rhs[row    ] = u_giv[p_0];
-    }
-    //
-    // first internal west boundary column
-    for (size_t row = ny; row < 2 * ny; row += 1) 
-    {
-        if (row % ny == 0) {
-            // south boundary
-            col = outer[row    ];
-            p_0 = col/(9);  // p_s
-
-            values[col     ] = 0.0;
-            values[col +  1] = 0.0;
-            values[col +  2] = 0.0;
-            values[col +  3] = 1.0;
-            values[col +  4] = -1.0;
-            values[col +  5] = 0.0;
-            values[col +  6] = 0.0;
-            values[col +  7] = 0.0;
-            values[col +  8] = 0.0;
-            rhs[row    ] = 0.0;
-            continue;
-        }
-        if ((row + 1) % ny == 0) {
-            // north boundary
-            col = outer[row    ];
-            p_0 = col/(9);  // p_n
-
-            values[col     ] = 0.0;
-            values[col +  1] = 0.0;
-            values[col +  2] = 0.0;
-            values[col +  3] = 0.0;
-            values[col +  4] = -1.0;
-            values[col +  5] = 1.0;
-            values[col +  6] = 0.0;
-            values[col +  7] = 0.0;
-            values[col +  8] = 0.0;
-            rhs[row    ] = 0.0;
-            continue;
-        }
-        col = outer[row    ];
-        p_0 = col/(9);  // p_nw
-
-        values[col     ] = 0.0;
-        values[col +  1] = 0.0;
-        values[col +  2] = 0.0;
-        values[col +  3] = 0.0;
-        values[col +  4] = 1.0;
-        values[col +  5] = 0.0;
-        values[col +  6] = 0.0;
-        values[col +  7] = 0.0;
-        values[col +  8] = 0.0;
-        rhs[row    ] = u_giv[p_0];
+        size_t c_eq = (size_t) outer[row    ];
+        status = reg_corner_north_west(values, row, c_eq, rhs, 
+           u_giv, (double) 1.0, nx, ny);
     }
 
     // interior with south and north boundary
-    for (size_t row = 2 * ny; row < (nx - 2) * ny; row += 1) 
+    for (size_t row = 1 * ny; row < 1 * (nx - 1) * ny; row += 1) 
     {
+        size_t c_eq = outer[row    ];
+        size_t p_0 = c_eq/(9);
+
+        double psi_1 = -psi_11[p_0];
+        double psi_2 = -psi_22[p_0];
+
         if (row % ny == 0) {
-            // south boundary
-            col = outer[row    ];
-            p_0 = col/(9);  // p_s
-
-            values[col     ] = 0.0;
-            values[col +  1] = 0.0;
-            values[col +  2] = 0.0;
-            values[col +  3] = 1.0;
-            values[col +  4] = -1.0;
-            values[col +  5] = 0.0;
-            values[col +  6] = 0.0;
-            values[col +  7] = 0.0;
-            values[col +  8] = 0.0;
-            rhs[row    ] = 0.0;
-            continue;
-        }
-        if ((row - 1) %  ny == 0) {
-            // south boundary
-            col = outer[row    ];
-            p_0 = col/(9);  // p_s
-
-            values[col     ] = 0.0;
-            values[col +  1] = 0.0;
-            values[col +  2] = 0.0;
-            values[col +  3] = 0.0;
-            values[col +  4] = 1.0;
-            values[col +  5] = 0.0;
-            values[col +  6] = 0.0;
-            values[col +  7] = 0.0;
-            values[col +  8] = 0.0;
-            rhs[row    ] = u_giv[p_0];
-            continue;
-        }
-
-        if ((row + 1) % ny == 0) {
-            // north boundary
-            col = outer[row    ];
-            p_0 = col/(9);  // p_n
-
-            values[col     ] = 0.0;
-            values[col +  1] = 0.0;
-            values[col +  2] = 0.0;
-            values[col +  3] = 0.0;
-            values[col +  4] = -1.0;
-            values[col +  5] = 1.0;
-            values[col +  6] = 0.0;
-            values[col +  7] = 0.0;
-            values[col +  8] = 0.0;
-            rhs[row    ] = 0.0;
-            continue;
-        }
-        if ((row + 2) % ny == 0) {
-            // north boundary
-            col = outer[row    ];
-            p_0 = col/(9);  // p_n
-
-            values[col     ] = 0.0;
-            values[col +  1] = 0.0;
-            values[col +  2] = 0.0;
-            values[col +  3] = 0.0;
-            values[col +  4] = 1.0;
-            values[col +  5] = 0.0;
-            values[col +  6] = 0.0;
-            values[col +  7] = 0.0;
-            values[col +  8] = 0.0;
-            rhs[row    ] = u_giv[p_0];
-            continue;
-        }
-
-        col = outer[row    ];
-        size_t p0 = col/(9);  // p_s
-
-        size_t p_sw = p0 - ny - 1;
-        size_t p_w  = p0 - ny    ;
-        size_t p_nw = p0 - ny + 1;
-        size_t p_s  = p0 - 1;
-        size_t p_0  = p0    ;
-        size_t p_n  = p0 + 1;
-        size_t p_se = p0 + ny - 1;
-        size_t p_e  = p0 + ny    ;
-        size_t p_ne = p0 + ny + 1;
-        
-        values[col     ] = dx * dy * m_mass[0] * m_mass[0];
-        values[col +  1] = dx * dy * m_mass[0] * m_mass[1];
-        values[col +  2] = dx * dy * m_mass[0] * m_mass[2];
-        values[col +  3] = dx * dy * m_mass[1] * m_mass[0];
-        values[col +  4] = dx * dy * m_mass[1] * m_mass[1];
-        values[col +  5] = dx * dy * m_mass[1] * m_mass[2];
-        values[col +  6] = dx * dy * m_mass[2] * m_mass[0];
-        values[col +  7] = dx * dy * m_mass[2] * m_mass[1];
-        values[col +  8] = dx * dy * m_mass[2] * m_mass[2];
-
-        // psi should be computed on the 8 interfaces of the control volume
-        double psi_n = 0.5 * (psi_22[p_n] + psi_22[p_0]);
-        double psi_e = 0.5 * (psi_11[p_e] + psi_11[p_0]);
-        double psi_s = 0.5 * (psi_22[p_s] + psi_22[p_0]);
-        double psi_w = 0.5 * (psi_11[p_w] + psi_11[p_0]);
-        //psi_im12 = 2. * psi[i] * psi[i - 1] / (psi[i] + psi[i - 1]);
-        //psi_ip12 = 2. * psi[i + 1] * psi[i] / (psi[i + 1] + psi[i]);
-
-        values[col    ] += 0.0;
-        values[col + 1] += -psi_s * dx / dy;
-        values[col + 2] += 0.0;
-        values[col + 3] += -psi_w * dy / dx;
-        values[col + 4] +=  psi_s * dx / dy + psi_w * dy / dx + psi_n * dy / dx + psi_e * dx / dy;
-        values[col + 5] += -psi_e * dy / dx;
-        values[col + 6] += 0.0;
-        values[col + 7] += -psi_n * dx / dy;
-        values[col + 8] += 0.0;
-            
-        rhs[row]  = dx * dy * m_mass[0] * m_mass[0] * u_giv[p_sw];
-        rhs[row] += dx * dy * m_mass[0] * m_mass[1] * u_giv[p_s ];
-        rhs[row] += dx * dy * m_mass[0] * m_mass[2] * u_giv[p_se];
-
-        rhs[row] += dx * dy * m_mass[1] * m_mass[0] * u_giv[p_w ];
-        rhs[row] += dx * dy * m_mass[1] * m_mass[1] * u_giv[p_0 ];
-        rhs[row] += dx * dy * m_mass[1] * m_mass[2] * u_giv[p_e ];
-
-        rhs[row] += dx * dy * m_mass[2] * m_mass[0] * u_giv[p_nw];
-        rhs[row] += dx * dy * m_mass[2] * m_mass[1] * u_giv[p_n ];
-        rhs[row] += dx * dy * m_mass[2] * m_mass[2] * u_giv[p_ne];
-    }
-    // first internal east boundary column
-    for (size_t row = (nx - 2) * ny; row < (nx - 1) * ny; row += 1) 
-    {
-        if (row % ny == 0) {
-            // south boundary
-            col = outer[row    ];
-            p_0 = col/(9);  // p_s
-
-            values[col     ] = 0.0;
-            values[col +  1] = 0.0;
-            values[col +  2] = 0.0;
-            values[col +  3] = 1.0;
-            values[col +  4] = -1.0;
-            values[col +  5] = 0.0;
-            values[col +  6] = 0.0;
-            values[col +  7] = 0.0;
-            values[col +  8] = 0.0;
-            rhs[row    ] = 0.0;
+            // south boundary, over write coefficients
+            status = reg_boundary_south(values, row, c_eq, rhs, 
+                x, y, u_giv, psi_1, psi_2, 
+                (double) 1.0, nx, ny);
             continue;
         }
         if ((row + 1) % ny == 0) {
-            // north boundary
-            col = outer[row    ];
-            p_0 = col/(9);  // p_n
-
-            values[col     ] = 0.0;
-            values[col +  1] = 0.0;
-            values[col +  2] = 0.0;
-            values[col +  3] = 0.0;
-            values[col +  4] = -1.0;
-            values[col +  5] = 1.0;
-            values[col +  6] = 0.0;
-            values[col +  7] = 0.0;
-            values[col +  8] = 0.0;
-            rhs[row    ] = 0.0;
+            // north boundary, over write coefficients
+            status = reg_boundary_north(values, row, c_eq, rhs, 
+                x, y, u_giv, psi_1, psi_2, 
+                (double) 1.0, nx, ny);
             continue;
         }
-        col = outer[row    ];
-        p_0 = col/(9);  // p_nw
 
-        values[col     ] = 0.0;
-        values[col +  1] = 0.0;
-        values[col +  2] = 0.0;
-        values[col +  3] = 0.0;
-        values[col +  4] = 1.0;
-        values[col +  5] = 0.0;
-        values[col +  6] = 0.0;
-        values[col +  7] = 0.0;
-        values[col +  8] = 0.0;
-        rhs[row    ] = u_giv[p_0];
+        status = reg_interior_utilde(values, row, c_eq, rhs, u_giv, x, y, nx, ny);
+        status = diffusion_matrix_and_rhs(values, row, c_eq, rhs,
+                    x, y, u_giv, psi_1, psi_2, (double) 1.0, nx, ny);
     }
     // south-east corner
-    for (size_t row = (nx - 1) * ny; row < (nx - 1) * ny + 1; row += 1)
+    for (size_t row = 1 * (nx - 1) * ny; row < 1 * (nx - 1) * ny + 1; row += 1)
     {
-        col = outer[row    ];
-        p_0 = col/(9);  // p_se
-
-        values[col     ] = 0.0;
-        values[col +  1] = 0.0;
-        values[col +  2] = 0.0;
-        values[col +  3] = 0.0;
-        values[col +  4] = 0.0;
-        values[col +  5] = 0.0;
-        values[col +  6] = 1.0;
-        values[col +  7] = 0.0;
-        values[col +  8] = 0.0;
-        rhs[row    ] = u_giv[p_0];
-}
+        size_t c_eq = (size_t) outer[row    ];
+        status = reg_corner_south_east(values, row, c_eq, rhs, 
+           u_giv, (double) 1.0, nx, ny);
+    }
     // east boundary
-    for (size_t row = (nx - 1) * ny + 1; row < nx * ny - 1; row += 1) 
+    for (size_t row = 1 * (nx - 1) * ny + 1; row < 1 * nx * ny - 1; row += 1) 
     {
-        col = outer[row    ];
-        p_0 = col/(9);  // p_e
+        int c_eq = (size_t) outer[row    ];
+        size_t p_0 = c_eq/(9);
 
-        values[col     ] = 0.0;
-        values[col +  1] = 0.0;
-        values[col +  2] = 0.0;
-        values[col +  3] = 0.0;
-        values[col +  4] = -1.0;
-        values[col +  5] = 0.0;
-        values[col +  6] = 0.0;
-        values[col +  7] = 1.0;
-        values[col +  8] = 0.0;
-        rhs[row    ] = 0.0;
+        double psi_1 = -psi_11[p_0];
+        double psi_2 = -psi_22[p_0];
+
+        status = reg_boundary_east(values, row, c_eq, rhs, 
+            x, y, u_giv, psi_1, psi_2, 
+            (double) 1.0, nx, ny);
     }
     // north-east corner
-    for (size_t row = nx * ny - 1; row < nx * ny; row += 1)
+    for (size_t row = 1 * nx * ny - 1; row < 1 * nx * ny; row += 1)
     {
-        col = outer[row    ];
-        p_0 = col/(9);  // p_ne
-
-        values[col     ] = 0.0;
-        values[col +  1] = 0.0;
-        values[col +  2] = 0.0;
-        values[col +  3] = 0.0;
-        values[col +  4] = 0.0;
-        values[col +  5] = 0.0;
-        values[col +  6] = 0.0;
-        values[col +  7] = 0.0;
-        values[col +  8] = 1.0;
-        rhs[row    ] = u_giv[p_0];
+        size_t c_eq = (size_t) outer[row    ];
+        status = reg_corner_north_east(values, row, c_eq, rhs, 
+           u_giv, (double) 1.0, nx, ny);
     }
+    STOP_TIMER(Regularization diffusion);
 
-    if (false)
+
+    if (m_logging == "matrix")
     {
         log_file << "=== Matrix eq7 ========================================" << std::endl;
         for (size_t i = 0; i < nxny; ++i)
@@ -609,7 +382,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
     A.setFromTriplets(triplets.begin(), triplets.end());
     A.makeCompressed(); // Very important for valuePtr() access
 
-    if (false) 
+    if (m_logging == "pattern")
     {
         log_file << "=== Matrix build matrix pattern =======================" << std::endl;
         for (size_t i = 0; i < nxny; ++i)
@@ -639,101 +412,103 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
     }
     if (u0_xixi_max == 0.0) { u0_xixi_max = 1.0; }
     if (u0_etaeta_max == 0.0) { u0_etaeta_max = 1.0; }
+    u0_xixi_max = 1.0;
+    u0_etaeta_max = 1.0;
 
     double* values = A.valuePtr();         // pointer to all non-zero values
     const int* outer = A.outerIndexPtr();   // row start pointers
 
-    size_t col;
+    size_t c_eq;
     size_t p0;
 
     // south-west corner
     for (size_t row = 0; row < 1; row += 1)
     {
-        col = outer[row    ];
-        p0 = col/(9);  // p_sw
+        c_eq = outer[row    ];
+        p0 = c_eq/(9);  // p_sw
 
-        values[col     ] = -2.0;
-        values[col +  1] = 1.0;
-        values[col +  2] = 0.0;
-        values[col +  3] = 1.0;
-        values[col +  4] = 0.0;
-        values[col +  5] = 0.0;
-        values[col +  6] = 0.0;
-        values[col +  7] = 0.0;
-        values[col +  8] = 0.0;
+        values[c_eq     ] = -2.0;
+        values[c_eq +  1] = 1.0;
+        values[c_eq +  2] = 0.0;
+        values[c_eq +  3] = 1.0;
+        values[c_eq +  4] = 0.0;
+        values[c_eq +  5] = 0.0;
+        values[c_eq +  6] = 0.0;
+        values[c_eq +  7] = 0.0;
+        values[c_eq +  8] = 0.0;
         rhs[row    ] = 0.0;
     }
     // west boundary
     for (size_t row = 1; row < (ny - 1); row += 1)
     {
-        col = outer[row    ];
-        p0 = col/(9);  // p_w
+        c_eq = outer[row    ];
+        p0 = c_eq/(9);  // p_w
 
-        values[col     ] = 0.0;
-        values[col +  1] = -1.0;
-        values[col +  2] = 0.0;
-        values[col +  3] = 0.0;
-        values[col +  4] = 1.0;
-        values[col +  5] = 0.0;
-        values[col +  6] = 0.0;
-        values[col +  7] = 0.0;
-        values[col +  8] = 0.0;
+        values[c_eq     ] = 0.0;
+        values[c_eq +  1] = -1.0;
+        values[c_eq +  2] = 0.0;
+        values[c_eq +  3] = 0.0;
+        values[c_eq +  4] = 1.0;
+        values[c_eq +  5] = 0.0;
+        values[c_eq +  6] = 0.0;
+        values[c_eq +  7] = 0.0;
+        values[c_eq +  8] = 0.0;
         rhs[row    ] = 0.0;
     }
     // north-west corner
     for (size_t row = ny - 1; row < ny; row += 1)
     {
-        col = outer[row    ];
-        p0 = col/(9);  // p_nw
+        c_eq = outer[row    ];
+        p0 = c_eq/(9);  // p_nw
 
-        values[col     ] = 0.0;
-        values[col +  1] = 1.0;
-        values[col +  2] = -2.0;
-        values[col +  3] = 0.0;
-        values[col +  4] = 0.0;
-        values[col +  5] = 1.0;
-        values[col +  6] = 0.0;
-        values[col +  7] = 0.0;
-        values[col +  8] = 0.0;
+        values[c_eq     ] = 0.0;
+        values[c_eq +  1] = 1.0;
+        values[c_eq +  2] = -2.0;
+        values[c_eq +  3] = 0.0;
+        values[c_eq +  4] = 0.0;
+        values[c_eq +  5] = 1.0;
+        values[c_eq +  6] = 0.0;
+        values[c_eq +  7] = 0.0;
+        values[c_eq +  8] = 0.0;
         rhs[row    ] = 0.0;
     }
     // interior with south and north boundary
-    for (size_t row = ny; row < (nx - 1) * ny; row += 1) 
+    for (size_t row = 1 * ny; row < (nx - 1) * ny; row += 1) 
     {
-        col = outer[row    ];
-        p0 = col/(9);  // p_0
+        c_eq = outer[row    ];
+        p0 = c_eq/(9);  // p_0
 
         if (row % ny == 0) {
             // south boundary
-            col = outer[row    ];
-            p0 = col/(9);  // p_s
+            c_eq = outer[row    ];
+            p0 = c_eq/(9);  // p_s
 
-            values[col     ] = 0.0;
-            values[col +  1] = 0.0;
-            values[col +  2] = 0.0;
-            values[col +  3] = -1.0;
-            values[col +  4] = 1.0;
-            values[col +  5] = 0.0;
-            values[col +  6] = 0.0;
-            values[col +  7] = 0.0;
-            values[col +  8] = 0.0;
+            values[c_eq     ] = 0.0;
+            values[c_eq +  1] = 0.0;
+            values[c_eq +  2] = 0.0;
+            values[c_eq +  3] = -1.0;
+            values[c_eq +  4] = 1.0;
+            values[c_eq +  5] = 0.0;
+            values[c_eq +  6] = 0.0;
+            values[c_eq +  7] = 0.0;
+            values[c_eq +  8] = 0.0;
             rhs[row    ] = 0.0;
             continue;
         }
         if ((row + 1) % ny == 0) {
             // north boundary
-            col = outer[row    ];
-            p0 = col/(9);  // p_n
+            c_eq = outer[row    ];
+            p0 = c_eq/(9);  // p_n
 
-            values[col     ] = 0.0;
-            values[col +  1] = 0.0;
-            values[col +  2] = 0.0;
-            values[col +  3] = 0.0;
-            values[col +  4] = 1.0;
-            values[col +  5] = -1.0;
-            values[col +  6] = 0.0;
-            values[col +  7] = 0.0;
-            values[col +  8] = 0.0;
+            values[c_eq     ] = 0.0;
+            values[c_eq +  1] = 0.0;
+            values[c_eq +  2] = 0.0;
+            values[c_eq +  3] = 0.0;
+            values[c_eq +  4] = -1.0;
+            values[c_eq +  5] = 1.0;
+            values[c_eq +  6] = 0.0;
+            values[c_eq +  7] = 0.0;
+            values[c_eq +  8] = 0.0;
             rhs[row    ] = 0.0;
             continue;
         }
@@ -748,88 +523,88 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
         size_t p_e  = p0 + ny    ;
         size_t p_ne = p0 + ny + 1;
 
-        //values[col     ] = m_mass[0] * m_mass[0];
-        //values[col +  1] = m_mass[1] * m_mass[0] - c_error * u0_etaeta[p_w] / u0_etaeta_max;
-        //values[col +  2] = m_mass[0] * m_mass[2];
-        //values[col +  3] = m_mass[0] * m_mass[1] - c_error * u0_xixi[p_w] / u0_xixi_max;
-        //values[col +  4] = m_mass[1] * m_mass[1] + 2. * c_error * u0_xixi[p_w] / u0_xixi_max + 2. * c_error * u0_etaeta[p_w] / u0_etaeta_max;
-        //values[col +  5] = m_mass[2] * m_mass[1] - c_error * u0_xixi[p_w] / u0_xixi_max;
-        //values[col +  6] = m_mass[2] * m_mass[0];
-        //values[col +  7] = m_mass[1] * m_mass[2] - c_error * u0_etaeta[p_w] / u0_etaeta_max;
-        //values[col +  8] = m_mass[2] * m_mass[2];
+        //values[c_eq     ] = m_mass[0] * m_mass[0];
+        //values[c_eq +  1] = m_mass[1] * m_mass[0] - c_error * u0_etaeta[p_w] / u0_etaeta_max;
+        //values[c_eq +  2] = m_mass[0] * m_mass[2];
+        //values[c_eq +  3] = m_mass[0] * m_mass[1] - c_error * u0_xixi[p_w] / u0_xixi_max;
+        //values[c_eq +  4] = m_mass[1] * m_mass[1] + 2. * c_error * u0_xixi[p_w] / u0_xixi_max + 2. * c_error * u0_etaeta[p_w] / u0_etaeta_max;
+        //values[c_eq +  5] = m_mass[2] * m_mass[1] - c_error * u0_xixi[p_w] / u0_xixi_max;
+        //values[c_eq +  6] = m_mass[2] * m_mass[0];
+        //values[c_eq +  7] = m_mass[1] * m_mass[2] - c_error * u0_etaeta[p_w] / u0_etaeta_max;
+        //values[c_eq +  8] = m_mass[2] * m_mass[2];
         
-        values[col     ] = m_mass[0] * m_mass[0];
-        values[col +  1] = m_mass[0] * m_mass[1] - c_error;
-        values[col +  2] = m_mass[0] * m_mass[2];
-        values[col +  3] = m_mass[1] * m_mass[0] - c_error;
-        values[col +  4] = m_mass[1] * m_mass[1] + 4. * c_error;
-        values[col +  5] = m_mass[1] * m_mass[2] - c_error;
-        values[col +  6] = m_mass[2] * m_mass[0];
-        values[col +  7] = m_mass[2] * m_mass[1] - c_error;
-        values[col +  8] = m_mass[2] * m_mass[2];
+        values[c_eq     ] = m_mass[0] * m_mass[0];
+        values[c_eq +  1] = m_mass[0] * m_mass[1] - c_error;
+        values[c_eq +  2] = m_mass[0] * m_mass[2];
+        values[c_eq +  3] = m_mass[1] * m_mass[0] - c_error;
+        values[c_eq +  4] = m_mass[1] * m_mass[1] + 4. * c_error;
+        values[c_eq +  5] = m_mass[1] * m_mass[2] - c_error;
+        values[c_eq +  6] = m_mass[2] * m_mass[0];
+        values[c_eq +  7] = m_mass[2] * m_mass[1] - c_error;
+        values[c_eq +  8] = m_mass[2] * m_mass[2];
 
-        rhs[row]  = (u0_xixi[p_sw] + u0_etaeta[p_sw]);
-        rhs[row] += (u0_xixi[p_w ] + u0_etaeta[p_w ]);
-        rhs[row] += (u0_xixi[p_nw] + u0_etaeta[p_nw]);
+        rhs[row]  = (u0_xixi[p_sw] + u0_etaeta[p_sw])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] += (u0_xixi[p_w ] + u0_etaeta[p_w ])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] += (u0_xixi[p_nw] + u0_etaeta[p_nw])/(u0_xixi_max + u0_etaeta_max);
         
-        rhs[row] += (u0_xixi[p_s ] + u0_etaeta[p_s ]);
-        rhs[row] += (u0_xixi[p_0 ] + u0_etaeta[p_0 ]);
-        rhs[row] += (u0_xixi[p_n ] + u0_etaeta[p_n ]);
+        rhs[row] += (u0_xixi[p_s ] + u0_etaeta[p_s ])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] += (u0_xixi[p_0 ] + u0_etaeta[p_0 ])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] += (u0_xixi[p_n ] + u0_etaeta[p_n ])/(u0_xixi_max + u0_etaeta_max);
         
-        rhs[row] += (u0_xixi[p_se] + u0_etaeta[p_se]);
-        rhs[row] += (u0_xixi[p_e ] + u0_etaeta[p_e ]);
-        rhs[row] += (u0_xixi[p_ne] + u0_etaeta[p_ne]);
-        rhs[row] = std::abs(rhs[p_0]);
+        rhs[row] += (u0_xixi[p_se] + u0_etaeta[p_se])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] += (u0_xixi[p_e ] + u0_etaeta[p_e ])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] += (u0_xixi[p_ne] + u0_etaeta[p_ne])/(u0_xixi_max + u0_etaeta_max);
+        //rhs[row] = std::abs((u0_xixi[p_0 ] + u0_etaeta[p_0 ])/(u0_xixi_max + u0_etaeta_max));
     }
     // south-east corner
     for (size_t row = (nx - 1) * ny; row < (nx - 1) * ny + 1; row += 1)
     {
-        col = outer[row    ];
-        p0 = col/(9);  // p_se
+        c_eq = outer[row    ];
+        p0 = c_eq/(9);  // p_se
 
-        values[col     ] = 0.0;
-        values[col +  1] = 0.0;
-        values[col +  2] = 0.0;
-        values[col +  3] = 1.0;
-        values[col +  4] = 0.0;
-        values[col +  5] = 0.0;
-        values[col +  6] = -2.0;
-        values[col +  7] = 1.0;
-        values[col +  8] = 0.0;
+        values[c_eq     ] = 0.0;
+        values[c_eq +  1] = 0.0;
+        values[c_eq +  2] = 0.0;
+        values[c_eq +  3] = -1.0;
+        values[c_eq +  4] = 0.0;
+        values[c_eq +  5] = 0.0;
+        values[c_eq +  6] = 2.0;
+        values[c_eq +  7] = -1.0;
+        values[c_eq +  8] = 0.0;
         rhs[row    ] = 0.0;
-}
+    }
     // east boundary
     for (size_t row = (nx - 1) * ny + 1; row < nx * ny - 1; row += 1) 
     {
-        col = outer[row    ];
-        p0 = col/(9);  // p_e
+        c_eq = outer[row    ];
+        p0 = c_eq/(9);  // p_e
 
-        values[col     ] = 0.0;
-        values[col +  1] = 0.0;
-        values[col +  2] = 0.0;
-        values[col +  3] = 0.0;
-        values[col +  4] = -1.0;
-        values[col +  5] = 0.0;
-        values[col +  6] = 0.0;
-        values[col +  7] = 1.0;
-        values[col +  8] = 0.0;
+        values[c_eq     ] = 0.0;
+        values[c_eq +  1] = 0.0;
+        values[c_eq +  2] = 0.0;
+        values[c_eq +  3] = 0.0;
+        values[c_eq +  4] = -1.0;
+        values[c_eq +  5] = 0.0;
+        values[c_eq +  6] = 0.0;
+        values[c_eq +  7] = 1.0;
+        values[c_eq +  8] = 0.0;
         rhs[row    ] = 0.0;
     }
     // north-east corner
     for (size_t row = nx * ny - 1; row < nx * ny; row += 1)
     {
-        col = outer[row    ];
-        p0 = col/(9);  // p_ne
+        c_eq = outer[row    ];
+        p0 = c_eq/(9);  // p_ne
 
-        values[col     ] = 0.0;
-        values[col +  1] = 0.0;
-        values[col +  2] = 0.0;
-        values[col +  3] = 0.0;
-        values[col +  4] = 0.0;
-        values[col +  5] = 1.0;
-        values[col +  6] = 0.0;
-        values[col +  7] = 1.0;
-        values[col +  8] = -2.0;
+        values[c_eq     ] = 0.0;
+        values[c_eq +  1] = 0.0;
+        values[c_eq +  2] = 0.0;
+        values[c_eq +  3] = 0.0;
+        values[c_eq +  4] = 0.0;
+        values[c_eq +  5] = -1.0;
+        values[c_eq +  6] = 0.0;
+        values[c_eq +  7] = -1.0;
+        values[c_eq +  8] = 2.0;
         rhs[row    ] = 0.0;
     }
 
@@ -838,7 +613,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
         solution[i] = u0[i];
     }
 
-    if (false)
+    if (m_logging == "matrix")
     {
         log_file << "=== Matrix eq8 ========================================" << std::endl;
         for (size_t i = 0; i < nxny; ++i)
@@ -872,7 +647,7 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
     }
     return eq8;
 }
-size_t REGULARIZATION::p_index(size_t i, size_t j, size_t ny)
+size_t REGULARIZATION::p_index(size_t i, size_t j, size_t ny_in)
 {
-    return i * ny + j;
+    return i * ny_in + j;
 }

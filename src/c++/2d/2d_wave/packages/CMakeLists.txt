@@ -12,13 +12,19 @@ set(headers_files
     include/convection.h
     include/data_input_struct.h
     include/data_struct.h
+    include/diffusion2d.h
     include/grid.h
     include/initial_conditions.h
     include/interpolations.h
     include/jacobians.h
+    include/main_version.h
+    include/main_version.h.vcs
     include/matrix_assembly_boundaries.h
     include/matrix_assembly_corners.h
     include/matrix_assembly_interior.h
+    include/matrix_assembly_utilde_boundaries.h
+    include/matrix_assembly_utilde_corners.h
+    include/matrix_assembly_utilde_interior.h
     include/observation_stations.h
     include/perf_timer.h
     include/read_input_toml_file.h
@@ -26,8 +32,6 @@ set(headers_files
     include/ugrid2d.h
     include/version_number.ini
     include/viscosity.h
-    include/wave_2d_version.h
-    include/wave_2d_version.h.vcs
 )    
 
 set(source_files
@@ -38,21 +42,25 @@ set(source_files
     src/build_matrix_pattern_regularization.cpp
     src/cfts.cpp
     src/convection.cpp
+    src/diffusion2d.cpp
     src/grid.cpp
     src/initial_conditions.cpp
     src/interpolations.cpp
     src/jacobians.cpp
     src/main_2d.cpp
+    src/main_version.cpp
     src/matrix_assembly_boundaries.cpp
     src/matrix_assembly_corners.cpp
     src/matrix_assembly_interior.cpp
+    src/matrix_assembly_utilde_boundaries.cpp
+    src/matrix_assembly_utilde_corners.cpp
+    src/matrix_assembly_utilde_interior.cpp
     src/observation_stations.cpp
     src/perf_timer.cpp
     src/read_input_toml_file.cpp
     src/regularization.cpp
     src/ugrid2d.cpp
     src/viscosity.cpp
-    src/wave_2d_version.cpp
     src/write_input_toml_to_logfile.cpp
 )
 

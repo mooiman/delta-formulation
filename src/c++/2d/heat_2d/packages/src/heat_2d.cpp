@@ -45,6 +45,7 @@
 #include <Eigen/Sparse>
 #include <Eigen/Core>
 
+#if defined(MULTIGRID)
 // for Algebraic Multigrid solver
 #include <amgcl/adapter/eigen.hpp>
 #include <amgcl/backend/builtin.hpp>
@@ -56,7 +57,8 @@
 #include <amgcl/profiler.hpp>
 
 AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
-
+#endif
+#include "analytic_solution.h"
 #include "boundary_condition.h"
 #include "build_matrix_pattern.h"
 #include "cfts.h"
@@ -66,6 +68,7 @@ AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 #include "initial_conditions.h"
 #include "interpolations.h"
 #include "perf_timer.h"
+#include "main_version.h"
 #include "matrix_assembly_boundaries.h"
 #include "matrix_assembly_corners.h"
 #include "matrix_assembly_interior.h"
@@ -76,6 +79,7 @@ AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 #include "viscosity.h"
 
 void GetArguments(long argc, char** argv, std::filesystem::path & file_name);
+inline size_t idx(size_t i, size_t j, size_t ny_in);
 
 double dcdx_scv(double, double, double, double);
 double dcdy_scv(double, double, double, double);
@@ -86,7 +90,7 @@ double dcdy_scvf_n(double, double, double, double);
 int write_used_input(struct _data_input data, std::ofstream & log_file);
 
 // Solve the linear heat equation
-// Continuity equation: d(h)/dt + d/dx( nu d(h)/dx) = 0, h == Heat
+// Continuity equation: d(h)/dt + d/dx( psi d(h)/dx) = 0, h == Heat
 
 std::string compileDateTime()
 {
@@ -139,14 +143,14 @@ int main(int argc, char *argv[])
         }
         input_dir = std::filesystem::absolute(toml_file_name);
         input_dir.remove_filename();
-        output_dir = input_dir;
-        output_dir += "/output/";
+        output_dir = input_dir / "output" / "";
         std::filesystem::create_directory(output_dir);
     }
     else
     {
         std::cout << "======================================================" << std::endl;
-        std::cout << "Executable compiled: " << compileDateTime() << std::endl;
+        std::cout << "Git commit time/hash: " << getbuildstring_main() << std::endl;
+        std::cout << "Executable compiled : " << compileDateTime() << std::endl;
         std::cout << std::endl;
         std::cout << "usage: heat_2d.exe --toml <input_file>" << std::endl;
         std::cout << "======================================================" << std::endl;
@@ -159,6 +163,7 @@ int main(int argc, char *argv[])
     auto start_date_time = std::format("{:%F %H:%M:%OS %Oz}", now);
     std::cout << std::endl;
     std::cout << "======================================================" << std::endl;
+    std::cout << "Git commit time/hash: " << getbuildstring_main() << std::endl;
     std::cout << "Executable compiled : " << compileDateTime() << std::endl;
     std::cout << "Start time          : " << start_date_time << std::endl;
     std::cout << "======================================================" << std::endl;
@@ -175,7 +180,20 @@ int main(int argc, char *argv[])
     std::stringstream ss;
 
     struct _data_input input_data;
-    input_data = read_toml_file(input_dir, toml_file_name);
+    try
+    {
+        input_data = read_toml_file(input_dir, toml_file_name);
+    }
+    catch (const toml::parse_error& err) 
+    {
+        std::cout << "\n+++++++++++++++++++++\nTOML parse error\n"
+                  << err 
+                  << "\n+++++++++++++++++++++\n\n";
+        std::chrono::duration<int, std::milli> timespan(3000);
+        std::this_thread::sleep_for(timespan);
+        exit(1);
+    }
+
     if (input_data.numerics.dt == 0.0) { stationary = true;  }
     if (stationary) { 
         input_data.boundary.treg = 0.0; 
@@ -194,6 +212,7 @@ int main(int argc, char *argv[])
 
     ss << "heat_2d";
     out_file = output_dir.string() + ss.str();
+
     std::string his_filename(out_file + "_his.nc");
     std::string log_filename(out_file + ".log");
     std::string map_filename(out_file + "_map.nc");
@@ -207,8 +226,9 @@ int main(int argc, char *argv[])
     std::cout << "======================================================" << std::endl;
 
     log_file << "======================================================" << std::endl;
-    log_file << "Executable compiled: " << compileDateTime() << std::endl;
-    log_file << "Start time         : " << start_date_time << std::endl;
+    log_file << "Git commit time/hash: " << getbuildstring_main() << std::endl;
+    log_file << "Executable compiled : " << compileDateTime() << std::endl;
+    log_file << "Start time          : " << start_date_time << std::endl;
     log_file << "=== Input file =======================================" << std::endl;
     log_file << toml_file_name << std::endl;
 
@@ -234,7 +254,7 @@ int main(int argc, char *argv[])
 
     //  Create kdtree, needed to locate the obsservation points
     std::vector<std::vector<double>> xy_points;
-    for (int i = 0; i < x.size(); ++i)
+    for (size_t i = 0; i < x.size(); ++i)
     {
         std::vector<double> point = {x[i], y[i]};
         xy_points.push_back(point);
@@ -246,10 +266,8 @@ int main(int argc, char *argv[])
     double Lx = dx * mesh2d->face[0]->dims[0];
     double Ly = dy * mesh2d->face[0]->dims[1];
 
-    double dxinv = 1./dx;                               // invers grid size [m]
-    double dyinv = 1./dy;                               // invers grid size [m]
-    size_t nxny = nx * ny;                                   // total number of nodes
-    double dxdy = dx * dy ;                               // area of control volume
+    size_t nxny = nx * ny;  // total number of nodes
+    double dxdy = dx * dy;  // area of control volume
     //if (viscosity == 0.0)
     //{
     //    viscosity = 0.2 * std::sqrt(dx*dx + dy*dy);
@@ -293,7 +311,7 @@ int main(int argc, char *argv[])
     std::string model_title("Heat equation");
     model_title += ", " + solver_name;
 
-    REGULARIZATION* regularization = new REGULARIZATION(input_data.numerics.iter_max, input_data.physics.g);
+    REGULARIZATION* regularization = new REGULARIZATION(input_data.numerics.iter_max, input_data.physics.g, input_data.log.logging);
 
     log_file << "=== Used input variables ==============================" << std::endl;
     status = write_used_input(input_data, log_file);
@@ -322,7 +340,7 @@ int main(int argc, char *argv[])
     double eps_bicgstab = input_data.numerics.eps_bicgstab;
     double eps_newton = input_data.numerics.eps_newton;
     double theta = input_data.numerics.theta;
-    double iter_max = input_data.numerics.iter_max;
+    int iter_max = input_data.numerics.iter_max;
     std::string linear_solver = input_data.numerics.linear_solver;
     bool regularization_iter = input_data.numerics.regularization_iter;
     bool regularization_init = input_data.numerics.regularization_init;
@@ -338,14 +356,11 @@ int main(int argc, char *argv[])
     double tstart = input_data.time.tstart;
     double tstop = input_data.time.tstop;
 
-
     // Declare arrays
     std::vector<double> mass(3, 0.);  // weighting coefficients of the mass-matrix in x-direction
 
-    std::vector<double> zb(nxny, 0.);                     // regularized bed level
+    std::vector<double> h_ana(nxny, 0.);                     // water depth at (n)
     std::vector<double> hn(nxny, 0.);                     // water depth at (n)
-    std::vector<double> qn(nxny, 0.);                     // q-flux at (n)
-    std::vector<double> rn(nxny, 0.);                     // r-flux at (n)
     std::vector<double> hp(nxny, 0.);                     // total depth at (n+1,p), previous iteration
     std::vector<double> dh(nxny, 0.);                     // delta for water depth
     std::vector<double> visc_given(nxny, visc_const);     // Initialize viscosity array with given value
@@ -367,8 +382,7 @@ int main(int argc, char *argv[])
         eq8.resize(nxny, 0.);     // needed when regularization of given initial function (ie bed level);
     }
     std::vector<double> htheta(nxny);
-    std::vector<double> qtheta(nxny);
-    std::vector<double> rtheta(nxny);
+
 
     Eigen::SparseMatrix<double, Eigen::RowMajor> A(nxny, nxny);
     Eigen::VectorXd solution(nxny);                     // solution vector [h, q, r]^{n}
@@ -410,14 +424,13 @@ int main(int argc, char *argv[])
     std::cout << "Initialisation" << std::endl;
     status = 0;
 
-    log_file << "-------------------------------------------------------" << std::endl;
-    log_file << "Nodes   : " << nx << "x" << ny << "=" << nxny << std::endl;
-    log_file << "Elements: " << (nx - 1) << "x" << (ny - 1) << "=" << (nx - 1) * (ny - 1) << std::endl;
-    log_file << "Volumes : " << (nx - 2) << "x" << (ny - 2) << "=" << (nx - 2) * (ny - 2) << std::endl;
-    log_file << "Ddt/dx^2: " << visc_const * dt * std::sqrt(( 1./(dx*dx) + 1./(dy*dy))) << std::endl;
-    log_file << "LxLy    : " << Lx - 2. * dx << "x" << Ly - 2. * dy << " without virtual cells" << std::endl;
-    log_file << "dxdy    : " << dx << "x" << dy << "=" << dxdy << " [m2]" << std::endl;
-    log_file << "nxny    : " << nx << "x" << ny << "=" << nxny << std::endl;
+    log_file << "Nodes    : " << nx << "x" << ny << "=" << nxny << std::endl;
+    log_file << "Elements : " << (nx - 1) << "x" << (ny - 1) << "=" << (nx - 1) * (ny - 1) << std::endl;
+    log_file << "Volumes  : " << (nx - 2) << "x" << (ny - 2) << "=" << (nx - 2) * (ny - 2) << std::endl;
+    log_file << "D.dt/dx^2: " << visc_const * dt * std::sqrt(( 1./(dx*dx) + 1./(dy*dy))) << std::endl;
+    log_file << "LxLy     : " << Lx - 2. * dx << "x" << Ly - 2. * dy << " without virtual cells" << std::endl;
+    log_file << "dxdy     : " << dx << "x" << dy << "=" << dxdy << " [m2]" << std::endl;
+    log_file << "nxny     : " << nx << "x" << ny << "=" << nxny << std::endl;
     log_file << "=======================================================" << std::endl;
     std::cout << "    LxLy: " << Lx - 2. * dx << "x" << Ly - 2. * dy << " without virtual cells" << std::endl;
     std::cout << "    dxdy: " << dx << "x" << dy << "=" << dxdy << " [m2]" << std::endl;
@@ -433,6 +446,15 @@ int main(int argc, char *argv[])
     (void) initial_conditions(x, y, nx, ny,
         hn, 
         ini_vars, gauss_amp, gauss_mu_x, gauss_mu_y, gauss_sigma_x, gauss_sigma_y);
+
+    (void) analytic_solution(0.1, visc_const, x, y, nx, ny, h_ana);
+
+    for (size_t i = 0; i < hn.size(); ++i)
+    {
+        hn[i] = h_ana[i];
+    }
+    //hn[idx(nx/2, ny/2, ny)] = 1.0;
+
 
     if (regularization_init)
     {
@@ -482,8 +504,8 @@ int main(int argc, char *argv[])
     status = map_file->def_dimensions(nr_nodes, nr_edges, nr_faces, mesh2d_nmax_face_nodes);
     status = map_file->add_edge_nodes(nx, ny);
     status = map_file->add_face_nodes(x, y, mesh2d->node[0]->fill_value, nx, ny);
-    status = map_file->add_nodes_coord(x, y, mesh2d->node[0]->fill_value);
-    status = map_file->add_edges_coord(x, y, mesh2d->node[0]->fill_value);
+    status = map_file->add_node_coords(x, y, mesh2d->node[0]->fill_value);
+    status = map_file->add_edge_coords(x, y, mesh2d->node[0]->fill_value);
     status = map_file->add_face_mass_centres(x, y, mesh2d->node[0]->fill_value, nx, ny);
     status = map_file->add_face_area(x, y, mesh2d->node[0]->fill_value, nx, ny);
 
@@ -492,7 +514,8 @@ int main(int argc, char *argv[])
     std::vector<std::string> dim_names;
     dim_names.push_back("time");
     dim_names.push_back("mesh2d_nNodes");
-    std::string map_h_name("hT_2d");
+    std::string map_ana_name("T_ana_2d");
+    std::string map_h_name("T_2d");
     std::string map_dh_name("delta_h_2d");
     std::string map_psi_11_name("psi_11");
     std::string map_psi_22_name("psi_22");
@@ -500,6 +523,7 @@ int main(int argc, char *argv[])
     std::string map_visc_q_name("viscosity_q");
     std::string map_visc_r_name("viscosity_r");
 
+    status = map_file->add_variable(map_ana_name, dim_names, "", "Temperature (ana)", "degC", "mesh2D", "node");
     status = map_file->add_variable(map_h_name, dim_names, "", "Temperature", "degC", "mesh2D", "node");
     status = map_file->add_variable(map_dh_name, dim_names, "", "Delta T^{n+1,p+1}", "m", "mesh2D", "node");
     if (regularization_init)
@@ -519,6 +543,7 @@ int main(int argc, char *argv[])
     START_TIMER(Writing map-file);
     int nst_map = 0;
     map_file->put_time(nst_map, time);
+    map_file->put_time_variable(map_ana_name, nst_map, h_ana);
     map_file->put_time_variable(map_h_name, nst_map, hn);
     map_file->put_time_variable(map_dh_name, nst_map, dh);
     if (regularization_init)
@@ -529,7 +554,7 @@ int main(int argc, char *argv[])
     }
     if (do_viscosity)
     {
-        viscosity_post_rhs(post_q, hn, visc, dx, dy, nx, ny);
+        viscosity_post_rhs(post_q, hn, visc, nx, ny, x, y);
         map_file->put_time_variable(map_visc_q_name, nst_map, post_q);
     }
     STOP_TIMER(Writing map-file);
@@ -542,23 +567,23 @@ int main(int argc, char *argv[])
     CFTS* his_file = new CFTS();
     status = his_file->open(nc_hisfile, model_title);
 
-    if (int(2500. / dx) * dx != 2500. || int(2500. / dy) * dy != 2500.)
-    {
-        std::cout << "----------------------------" << std::endl;
-        std::cout << "dx=" << dx << " or dy=" << dy << " is not a divider of 2500 [m]" << std::endl;
-        std::cout << "Press Enter to finish";
-        std::chrono::duration<int, std::milli> timespan(3000);
-        std::this_thread::sleep_for(timespan);
-        //std::cin.ignore();
-        exit(1);
-    }
+    //if (int(2500. / dx) * dx != 2500. || int(2500. / dy) * dy != 2500.)
+    //{
+    //    std::cout << "----------------------------" << std::endl;
+    //    std::cout << "dx=" << dx << " or dy=" << dy << " is not a divider of 2500 [m]" << std::endl;
+    //    std::cout << "Press Enter to finish";
+    //    std::chrono::duration<int, std::milli> timespan(3000);
+    //    std::this_thread::sleep_for(timespan);
+    //    //std::cin.ignore();
+    //    exit(1);
+    //}
 
     std::vector<std::string> obs_station_names;
     status = def_observation_stations(obs_station_names, input_data.obs_points, xy_tree, x, y, Lx, Ly, dx, dy, nx, ny);
     {
         std::vector<double> x_obs;
         std::vector<double> y_obs;
-        for (int i = 0; i < input_data.obs_points.size(); ++i)
+        for (size_t i = 0; i < input_data.obs_points.size(); ++i)
         {
             auto obs = input_data.obs_points[i];
             x_obs.push_back(obs.x);
@@ -569,7 +594,9 @@ int main(int argc, char *argv[])
     }
     his_file->add_time_series();
 
+    std::string his_ana_name("T_ana_2d");
     std::string his_h_name("Tn_2d");
+    his_file->add_variable(his_ana_name, "", "Temperature (ana)", "degC");
     his_file->add_variable(his_h_name, "", "Temperature", "degC");
 
     // Put data on time history file
@@ -582,6 +609,13 @@ int main(int argc, char *argv[])
         his_values.push_back(hn[input_data.obs_points[i].idx]);
     }
     his_file->put_variable(his_h_name, nst_his, his_values);
+
+    his_values.clear();
+    for (int i = 0; i < input_data.obs_points.size(); ++i)
+    {
+        his_values.push_back(h_ana[input_data.obs_points[i].idx]);
+    }
+    his_file->put_variable(his_ana_name, nst_his, his_values);
  
     std::string his_newton_iter_name("his_newton_iterations");
     his_file->add_variable_without_location(his_newton_iter_name, "iterations", "Newton iteration", "-");
@@ -616,9 +650,9 @@ int main(int argc, char *argv[])
     if (logging == "pattern")
     {
         log_file << "=== Matrix build matrix pattern =======================" << std::endl;
-        for (int i = 0; i < nxny; ++i)
+        for (size_t i = 0; i < 3 * nxny; ++i)
         {
-            for (int j = 0; j < nxny; ++j)
+            for (size_t j = 0; j < nxny; ++j)
             {
                 if (A.coeff(i, j) != 0.0)
                 {
@@ -644,17 +678,14 @@ int main(int argc, char *argv[])
     // Start time loop
     START_TIMER(Time loop);
     double dh_max = 0.0;
-    double dq_max = 0.0;
-    double dr_max = 0.0;
     int dh_maxi = 0;
-    int dq_maxi = 0;
-    int dr_maxi = 0;
 
     Eigen::BiCGSTAB< Eigen::SparseMatrix<double> > solver;
     Eigen::IncompleteLUT<double> ilu;
     //Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
     //Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::DiagonalPreconditioner<double> > solver;
     // 
+#if defined(MULTIGRID)
     // AMGCL setup
     using T = double;
     using Backend = amgcl::backend::builtin<T>;
@@ -667,7 +698,7 @@ int main(int argc, char *argv[])
     Solver::params prm;
     prm.solver.tol = eps_bicgstab;
     prm.solver.maxiter = 1000;
-               
+#endif               
 
     for (int nst = 1; nst < total_time_steps; ++nst)
     {
@@ -695,7 +726,7 @@ int main(int argc, char *argv[])
             // interior nodes
             //
             START_TIMER(Linear heat);
-            for (int k = 0; k < nxny; ++k)
+            for (size_t k = 0; k < nxny; ++k)
             {
                 htheta[k] = theta * hp[k] + (1.0 - theta) * hn[k];
             }
@@ -718,60 +749,60 @@ int main(int argc, char *argv[])
             // row 3 * nx * ny - 3, +1, +2 : ne-corner
 
            // south-west corner
-            for (int row = 0; row < 1; row += 1)
+            for (size_t row = 0; row < 1; row += 1)
             {
                 int c_eq = outer[row    ];
                 status =  corner_south_west(values, row, c_eq, rhs, 
                     theta, nx, ny, htheta);
             }
             // west boundary
-            for (int row = 1; row < 1 * (ny - 1); row += 1)
+            for (size_t row = 1; row < 1 * (ny - 1); row += 1)
             {
                 int c_eq = outer[row    ];
 
                 status =  boundary_west(values, row, c_eq, rhs, 
                                         dtinv, theta, eps_bc_corr, 
                                         stationary,
-                                        dx, dy, nx, ny,
+                                        nx, ny, x, y,
                                         hn, 
                                         hp, 
                                         htheta,
                                         bc_type,  bc_vars, BC_WEST, bc);
             }
             // north-west corner
-            for (int row = 1 * (ny - 1); row < 1 * ny; row += 1)
+            for (size_t row = 1 * (ny - 1); row < 1 * ny; row += 1)
             {
                 int c_eq = outer[row    ];
                  status =  corner_north_west(values, row, c_eq, rhs, 
                     theta, nx, ny, htheta);
             }
             // interior with south and north boundary
-            for (int row = 1 * ny; row < 1 * (nx - 1) * ny; row += 1) 
+            for (size_t row = 1 * ny; row < 1 * (nx - 1) * ny; row += 1) 
             {
                 int c_eq = outer[row    ];
 
                 status =  interior_time(values, row, c_eq, rhs, 
-                                    dtinv, theta, nx, ny,
-                                    hn, 
-                                    hp, dx, dy, dxdy, mass);
+                                    dtinv, nx, ny,
+                                    x, y, 
+                                    hn, hp);
 
-                if (std::fmod(row , 1 * ny) == 0) {
+                if (row % ny == 0) {
                     // south boundary, over write coefficients
                     status = boundary_south(values, row, c_eq, rhs, 
                                             dtinv, theta, eps_bc_corr, 
                                             stationary,
-                                            dx, dy, nx, ny,
+                                            nx, ny, x, y,
                                             hn, 
                                             hp, 
                                             htheta,
                                             bc_type,  bc_vars, BC_SOUTH, bc);
                 } 
-                if (std::fmod(row + 1, 1 * ny) == 0) {
+                if ((row + 1) % ny == 0) {
                     // north boundary, over write coefficients
                     status = boundary_north(values, row, c_eq, rhs, 
                                             dtinv, theta, eps_bc_corr, 
                                             stationary,
-                                            dx, dy, nx, ny,
+                                            nx, ny, x, y,
                                             hn,
                                             hp,
                                             htheta,
@@ -779,28 +810,28 @@ int main(int argc, char *argv[])
                 }
             }
             // south-east corner
-            for (int row = 1 * (nx - 1) * ny; row < 1 * (nx - 1) * ny + 1; row += 1)
+            for (size_t row = 1 * (nx - 1) * ny; row < 1 * (nx - 1) * ny + 1; row += 1)
             {
                 int c_eq = outer[row    ];
                 status = corner_south_east(values, row, c_eq, rhs, 
                     theta, nx, ny, htheta);
             }
             // east boundary
-            for (int row = 1 * (nx - 1) * ny + 1; row < 1 * nx * ny - 1; row += 1) 
+            for (size_t row = 1 * (nx - 1) * ny + 1; row < 1 * nx * ny - 1; row += 1) 
             {
                 int c_eq = outer[row    ];
 
                 status = boundary_east(values, row, c_eq,rhs, 
                                        dtinv, theta, eps_bc_corr, 
                                        stationary,
-                                       dx, dy, nx, ny,
+                                       nx, ny, x, y,
                                        hn,
                                        hp,
                                        htheta,
                                        bc_type,  bc_vars, BC_EAST, bc);
             }
             // north-east corner
-            for (int row = 1 * nx * ny - 1; row < 1 * nx * ny; row += 1)
+            for (size_t row = 1 * nx * ny - 1; row < 1 * nx * ny; row += 1)
             {
                 int c_eq = outer[row    ];
                 status =  corner_north_east(values, row, c_eq, rhs, 
@@ -826,8 +857,17 @@ int main(int argc, char *argv[])
                 {
                     int c_eq = outer[row    ];
 
+                    if (row % ny == 0) {
+                        // south boundary, over write coefficients
+                        continue;
+                    }
+                    if ((row + 1) % ny == 0) {
+                        // north boundary, over write coefficients
+                        continue;
+                    }
                     status = viscosity_matrix_and_rhs(values, row, c_eq, rhs,
-                                htheta, visc, theta, dx, dy, nx, ny);
+                                x, y, htheta, visc, theta, nx, ny);
+
                     // boundary_south
                     // boundary_north
                 }
@@ -854,9 +894,10 @@ int main(int argc, char *argv[])
                 if (logging == "matrix" && (nst == 1 || nst == total_time_steps-1) && iter == 0)
                 {
                     log_file << "=== Matrix ============================================" << std::endl;
-                    for (int i = 0; i < nxny; ++i)
+                    for (size_t i = 0; i < nxny; ++i)
                     {
-                        for (int j = 0; j < nxny; ++j)
+                        log_file << std::showpos << std::setprecision(3) << i << "   ";
+                        for (size_t j = 0; j < nxny; ++j)
                         {
                             log_file << std::showpos << std::setprecision(3) << std::scientific << A.coeff(i, j) << " ";
                         }
@@ -867,7 +908,7 @@ int main(int argc, char *argv[])
                     {
                         double off_diag = 0.0;
                         double diag = 0.0;
-                        for (int j = 0; j < nxny; ++j)
+                        for (size_t j = 0; j < nxny; ++j)
                         {
                             if (i != j ) { off_diag += std::abs(A.coeff(i,j)); }
                             else { diag = std::abs(A.coeff(i,j)); }
@@ -877,8 +918,9 @@ int main(int argc, char *argv[])
                         log_file << std::endl;
                     }
                     log_file << "=== RHS ===============================================" << std::endl;
-                    for (int i = 0; i < nxny; ++i)
+                    for (size_t i = 0; i < nxny; ++i)
                     {
+                        log_file << std::noshowpos << std::setprecision(3) << i << "   ";
                         log_file << std::setprecision(8) << std::scientific << rhs[i] << std::endl;
                     }
                 }
@@ -912,6 +954,7 @@ int main(int argc, char *argv[])
                 }
             }
             ////////////////////////////////////////////////////////////////////
+#if defined(MULTIGRID)
             else if (linear_solver == "multigrid")
             {
                 if (nst == 1 && iter == 0)
@@ -920,7 +963,7 @@ int main(int argc, char *argv[])
                 }
                 else if (nst > 1)
                 {
-                    START_TIMER(MULTIGRID);
+                    START_TIMER(MULTIGRID_timer);
                 }
                
                 Solver solve(A, prm);
@@ -932,7 +975,7 @@ int main(int argc, char *argv[])
                 }
                 else if (nst > 1)
                 {
-                    STOP_TIMER(MULTIGRID);
+                    STOP_TIMER(MULTIGRID_timer);
                 }
                solver_iterations = iters;
                 if (logging == "iterations" || logging == "matrix")
@@ -944,21 +987,18 @@ int main(int argc, char *argv[])
                         << std::endl;
                 }
             }
+#endif
             ////////////////////////////////////////////////////////////////////
 
             // 
             // The new solution is the previous iterant plus the delta
             //
             dh_max = 0.0;
-            dq_max = 0.0;
-            dr_max = 0.0;
             dh_maxi = 0;
-            dq_maxi = 0;
-            dr_maxi = 0;
-            int k = 0;
-            for (int i = 0; i < nx; i++)
+            size_t k = 0;
+            for (size_t i = 0; i < nx; i++)
             {
-                for (int j = 0; j < ny; j++)
+                for (size_t j = 0; j < ny; j++)
                 {
                     k = idx(i, j ,ny);
                     // needed for postprocessing
@@ -974,12 +1014,12 @@ int main(int argc, char *argv[])
             if (logging == "matrix" && (nst == 1 || nst == total_time_steps-1) && iter == 0)
             {
                 log_file << "=== Solution ==========================================" << std::endl;
-                for (int i = 0; i < nxny; ++i)
+                for (size_t i = 0; i < nxny; ++i)
                 {
                     log_file << std::setprecision(8) << std::scientific << solution[i] << std::endl;
                 }
                 log_file << "=== hp ================================================" << std::endl;
-                for (int i = 0; i < nxny; ++i)
+                for (size_t i = 0; i < nxny; ++i)
                 {
                     log_file << std::setprecision(8) << std::scientific << hp[i] <<  std::endl;
                 }
@@ -989,19 +1029,19 @@ int main(int argc, char *argv[])
             if (regularization_iter)
             {
                 START_TIMER(Regularization_iter_loop);
-                //for (int i = 0; i < nr_nodes; ++i)
+                //for (size_t i = 0; i < nr_nodes; ++i)
                 //{
                 //    u[i] = qp[i] / hp[i];
                 //}
                 //(void)regular->first_derivative(psi, visc_reg, u, dx);
                 STOP_TIMER(Regularization_iter_loop);
-                //for (int i = 0; i < nr_nodes; ++i)
+                //for (size_t i = 0; i < nr_nodes; ++i)
                 //{
                     //visc[i] = visc_reg[i] * std::abs(psi[i]);
                     //pe[i] = qp[i] / hp[i] * dx / visc[i];
                 //}
             }
-            if (dh_max < eps_newton && dq_max < eps_newton && dr_max < eps_newton)
+            if (dh_max < eps_newton)
             {
                 break;
             }
@@ -1013,13 +1053,11 @@ int main(int argc, char *argv[])
             log_file << "stationary solution " << std::endl;
             log_file << std::setprecision(8) << std::scientific
                 << "    Newton iterations  : " << used_newton_iter << std::endl
-                << "    Delta h^{n + 1,p + 1}: " << dh_max << " at index: " << dh_maxi << std::endl
-                << "    Delta q^{n + 1,p + 1}: " << dq_max << " at index: " << dq_maxi << std::endl
-                << "    Delta r^{n + 1,p + 1}: " << dr_max << " at index: " << dr_maxi << std::endl;
+                << "    Delta h^{n + 1,p + 1}: " << dh_max << " at index: " << dh_maxi << std::endl;
         }
         else
         {
-            if (std::fmod(time, 60.) == 0)
+            if (std::fmod(time, input_data.output.dt_screen) == 0)
             {
                 std::cout << std::fixed << std::setprecision(2) << tstart + time << ";   " << tstart + tstop << std::endl;
             }
@@ -1028,20 +1066,18 @@ int main(int argc, char *argv[])
                 log_file << "time [sec]: " << std::setprecision(4) << std::scientific << time
                     << std::setprecision(8) << std::scientific << std::endl
                     << "    Newton iterations  : " << used_newton_iter << std::endl
-                    << "    Delta h^{n + 1,p + 1}: " << dh_max << " at index: " << dh_maxi << std::endl
-                    << "    Delta q^{n + 1,p + 1}: " << dq_max << " at index: " << dq_maxi << std::endl
-                    << "    Delta r^{n + 1,p + 1}: " << dr_max << " at index: " << dr_maxi << std::endl;
+                    << "    Delta h^{n + 1,p + 1}: " << dh_max << " at index: " << dh_maxi << std::endl;
 
             }
         }
         if (used_newton_iter == iter_max)
         {
-            if (dh_max > eps_newton || dq_max > eps_newton || dr_max > eps_newton)
+            if (dh_max > eps_newton)
             {
                 log_file << "    ----    maximum number of iterations reached, probably not converged, at time: " <<  time << " [sec]" << std::endl;
             }
         }
-        for (int k = 0; k < nxny; ++k)
+        for (size_t k = 0; k < nxny; ++k)
         {
             hn[k] = hp[k];  // h, continuity-eq
         }
@@ -1051,7 +1087,7 @@ int main(int argc, char *argv[])
         //STOP_TIMER(Regularization_time_loop);
         //if (regularization_time)
         //{
-        //    for (int i = 0; i < nr_nodes; ++i)
+        //    for (size_t i = 0; i < nr_nodes; ++i)
         //    {
         //        visc[i] = visc_reg[i] * std::abs(psi[i]);
         //        pe[i] = u[i] * dx / visc[i];
@@ -1060,19 +1096,22 @@ int main(int argc, char *argv[])
 
 
         // Map-files
-        if (std::fmod(nst, wrimap) == 0)
+        if (nst % wrimap == 0)
         {
             // Put data on time map file
             START_TIMER(Writing map-file);
             nst_map++;
+            double time = double(nst) * dt;
+            (void) analytic_solution(time + 0.1, visc_const, x, y, nx, ny, h_ana);
             if (stationary)
             {
                 map_file->put_time(nst_map, double(nst));
             }
             else
             {
-                map_file->put_time(nst_map, double(nst) * dt);
+                map_file->put_time(nst_map, time);
             }
+            map_file->put_time_variable(map_ana_name, nst_map, h_ana);
             map_file->put_time_variable(map_h_name, nst_map, hn);
             map_file->put_time_variable(map_dh_name, nst_map, delta_h);
             if (regularization_init)
@@ -1083,33 +1122,42 @@ int main(int argc, char *argv[])
             }
             if (do_viscosity)
             {
-                viscosity_post_rhs(post_q, hn, visc, dx, dy, nx, ny);
+                viscosity_post_rhs(post_q, hn, visc, nx, ny, x, y);
                 map_file->put_time_variable(map_visc_q_name, nst_map, post_q);
             }
             STOP_TIMER(Writing map-file);
         }
 
         // His-files
-        if (std::fmod(nst, wrihis) == 0)
+        if (nst % wrihis == 0)
         {
             START_TIMER(Writing his-file);
             nst_his++;
+            time = double(nst) * dt;
+            (void) analytic_solution(time + 0.1, visc_const, x, y, nx, ny, h_ana);
             if (stationary)
             {
                 his_file->put_time(nst_his, double(nst));
             }
             else
             {
-                his_file->put_time(nst_his, double(nst) * dt);
+                his_file->put_time(nst_his, time);
             }
             his_file->put_time(nst_his, time);
 
             his_values.clear();
-            for (int i = 0; i < input_data.obs_points.size(); ++i)
+            for (size_t i = 0; i < input_data.obs_points.size(); ++i)
             {
                 his_values.push_back(hn[input_data.obs_points[i].idx]);
             }
             his_file->put_variable(his_h_name, nst_his, his_values);
+
+            his_values.clear();
+            for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+            {
+                his_values.push_back(h_ana[input_data.obs_points[i].idx]);
+            }
+            his_file->put_variable(his_ana_name, nst_his, his_values);
 
             his_values.clear();
             his_values = { double(used_newton_iter) };
@@ -1166,3 +1214,8 @@ void GetArguments(long argc,   /* I Number of command line arguments */
     }
     return;
 }
+inline size_t idx(size_t i, size_t j, size_t ny_in)
+{
+    return i * ny_in + j;
+}
+

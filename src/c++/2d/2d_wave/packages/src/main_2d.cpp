@@ -71,6 +71,7 @@ AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 #include "initial_conditions.h"
 #include "interpolations.h"
 #include "perf_timer.h"
+#include "main_version.h"
 #include "matrix_assembly_boundaries.h"
 #include "matrix_assembly_corners.h"
 #include "matrix_assembly_interior.h"
@@ -141,14 +142,14 @@ int main(int argc, char *argv[])
         }
         input_dir = std::filesystem::absolute(toml_file_name);
         input_dir.remove_filename();
-        output_dir = input_dir;
-        output_dir += "/output/";
+        output_dir = input_dir / "output" / "";
         std::filesystem::create_directory(output_dir);
     }
     else
     {
         std::cout << "======================================================" << std::endl;
-        std::cout << "Executable compiled: " << compileDateTime() << std::endl;
+        std::cout << "Git commit time/hash: " << getbuildstring_main() << std::endl;
+        std::cout << "Executable compiled : " << compileDateTime() << std::endl;
         std::cout << std::endl;
         std::cout << "usage: 2d_wave.exe --toml <input_file>" << std::endl;
         std::cout << "======================================================" << std::endl;
@@ -161,6 +162,7 @@ int main(int argc, char *argv[])
     auto start_date_time = std::format("{:%F %H:%M:%OS %Oz}", now);
     std::cout << std::endl;
     std::cout << "======================================================" << std::endl;
+    std::cout << "Git commit time/hash: " << getbuildstring_main() << std::endl;
     std::cout << "Executable compiled : " << compileDateTime() << std::endl;
     std::cout << "Start time          : " << start_date_time << std::endl;
     std::cout << "======================================================" << std::endl;
@@ -222,8 +224,9 @@ int main(int argc, char *argv[])
     std::cout << "======================================================" << std::endl;
 
     log_file << "======================================================" << std::endl;
-    log_file << "Executable compiled: " << compileDateTime() << std::endl;
-    log_file << "Start time         : " << start_date_time << std::endl;
+    log_file << "Git commit time/hash: " << getbuildstring_main() << std::endl;
+    log_file << "Executable compiled : " << compileDateTime() << std::endl;
+    log_file << "Start time          : " << start_date_time << std::endl;
     log_file << "=== Input file =======================================" << std::endl;
     log_file << toml_file_name << std::endl;
 
@@ -261,7 +264,7 @@ int main(int argc, char *argv[])
     status = bed->read(nx, ny);
     std::vector<double> zb_giv = bed->get_bed_level();
 
-    //  Create kdtree, needed to locate the obsservation points
+    //  Create kdtree, needed to locate the observation points
     std::vector<std::vector<double>> xy_points;
     for (size_t i = 0; i < x.size(); ++i)
     {
@@ -275,8 +278,8 @@ int main(int argc, char *argv[])
     double Lx = dx * mesh2d->face[0]->dims[0];
     double Ly = dy * mesh2d->face[0]->dims[1];
 
-    size_t nxny = nx * ny;                                   // total number of nodes
-    double dxdy = dx * dy ;                               // area of control volume
+    size_t nxny = nx * ny;  // total number of nodes
+    double dxdy = dx * dy;  // area of control volume
     //if (viscosity == 0.0)
     //{
     //    viscosity = 0.2 * std::sqrt(dx*dx + dy*dy);
@@ -358,7 +361,7 @@ int main(int argc, char *argv[])
     }
     model_title += ", " + solver_name;
 
-    REGULARIZATION* regularization = new REGULARIZATION(input_data.numerics.iter_max, input_data.physics.g);
+    REGULARIZATION* regularization = new REGULARIZATION(input_data.numerics.iter_max, input_data.physics.g, input_data.log.logging);
 
     log_file << "=== Used input variables ==============================" << std::endl;
     status = write_used_input(input_data, log_file);
@@ -387,7 +390,7 @@ int main(int argc, char *argv[])
     double eps_bicgstab = input_data.numerics.eps_bicgstab;
     double eps_newton = input_data.numerics.eps_newton;
     double theta = input_data.numerics.theta;
-    double iter_max = input_data.numerics.iter_max;
+    int iter_max = input_data.numerics.iter_max;
     std::string linear_solver = input_data.numerics.linear_solver;
     bool regularization_iter = input_data.numerics.regularization_iter;
     bool regularization_init = input_data.numerics.regularization_init;
@@ -402,7 +405,6 @@ int main(int argc, char *argv[])
 
     double tstart = input_data.time.tstart;
     double tstop = input_data.time.tstop;
-
 
     // Declare arrays
     std::vector<double> mass(3, 0.);  // weighting coefficients of the mass-matrix in x-direction
@@ -519,12 +521,12 @@ int main(int argc, char *argv[])
     if (regularization_init)
     {
         START_TIMER(Regularization_init);
-        regularization->given_function(zb, psi_11, psi_22, eq8, zb_giv, nx, ny, dx, dy, c_psi, log_file);
-        regularization->given_function(visc_reg, psi_11, psi_22, eq8, visc_given, nx, ny, dx, dy, c_psi, log_file);
-        for (size_t i = 0; i < visc_reg.size(); ++i)
-        {
-            visc[i] = visc_reg[i] + std::sqrt(psi_11[i] * psi_11[i] + psi_22[i] * psi_22[i]);
-        }
+        regularization->given_function(zb, psi_11, psi_22, eq8, x, y, zb_giv, nx, ny, c_psi, log_file);  
+        //regularization->given_function(visc_reg, psi_11, psi_22, eq8, x, y, visc_given, nx, ny, c_psi, log_file);
+        //for (size_t i = 0; i < visc_reg.size(); ++i)
+        //{
+        //    visc[i] = visc_reg[i] + std::sqrt(psi_11[i] * psi_11[i] + psi_22[i] * psi_22[i]);
+        //}
 
         STOP_TIMER(Regularization_init);
     }
@@ -610,38 +612,38 @@ int main(int argc, char *argv[])
     std::string map_visc_q_name("viscosity_q");
     std::string map_visc_r_name("viscosity_r");
 
-    status = map_file->add_variable(map_h_name, dim_names, "sea_floor_depth_below_sea_surface", "Water depth", "m", "mesh2D", "node");
-    status = map_file->add_variable(map_q_name, dim_names, "", "Water flux (x)", "m2 s-1", "mesh2D", "node");
-    status = map_file->add_variable(map_r_name, dim_names, "", "Water flux (y)", "m2 s-1", "mesh2D", "node");
-    status = map_file->add_variable(map_dh_name, dim_names, "", "Delta h^{n+1,p+1}", "m", "mesh2D", "node");
-    status = map_file->add_variable(map_dq_name, dim_names, "", "Delta q^{n+1,p+1}", "m2 s-1", "mesh2D", "node");
-    status = map_file->add_variable(map_dr_name, dim_names, "", "Delta r^{n+1,p+1}", "m2 s-1", "mesh2D", "node");
-    status = map_file->add_variable(map_s_name, dim_names, "sea_surface_height_above_geoid", "WaterLevel", "m", "mesh2D", "node");
-    status = map_file->add_variable(map_u_name, dim_names, "sea_water_x_velocity", "Velocity (x)", "m s-1", "mesh2D", "node");
-    status = map_file->add_variable(map_v_name, dim_names, "sea_water_y_velocity", "Velocity (y)", "m s-1", "mesh2D", "node");
-    status = map_file->add_variable(map_umag_name, dim_names, "sea_water_speed", "Velocity magnitude", "m s-1", "mesh2D", "node");
-    status = map_file->add_variable(map_zb_name, dim_names, "", "BedLevel", "m", "mesh2D", "node");
+    status = map_file->add_variable(map_h_name, dim_names, "sea_floor_depth_below_sea_surface", "Water depth", "m", "mesh2D", "node", "");
+    status = map_file->add_variable(map_q_name, dim_names, "", "Water flux (x)", "m2 s-1", "mesh2D", "node", "");
+    status = map_file->add_variable(map_r_name, dim_names, "", "Water flux (y)", "m2 s-1", "mesh2D", "node", "");
+    status = map_file->add_variable(map_dh_name, dim_names, "", "Delta h^{n+1,p+1}", "m", "mesh2D", "node", "");
+    status = map_file->add_variable(map_dq_name, dim_names, "", "Delta q^{n+1,p+1}", "m2 s-1", "mesh2D", "node", "");
+    status = map_file->add_variable(map_dr_name, dim_names, "", "Delta r^{n+1,p+1}", "m2 s-1", "mesh2D", "node", "");
+    status = map_file->add_variable(map_s_name, dim_names, "sea_surface_height_above_geoid", "WaterLevel", "m", "mesh2D", "node", "");
+    status = map_file->add_variable(map_u_name, dim_names, "sea_water_x_velocity", "Velocity (x)", "m s-1", "mesh2D", "node", "");
+    status = map_file->add_variable(map_v_name, dim_names, "sea_water_y_velocity", "Velocity (y)", "m s-1", "mesh2D", "node", "");
+    status = map_file->add_variable(map_umag_name, dim_names, "sea_water_speed", "Velocity magnitude", "m s-1", "mesh2D", "node", "");
+    status = map_file->add_variable(map_zb_name, dim_names, "", "BedLevel", "m", "mesh2D", "node", "");
     if (regularization_init)
     {
-        status = map_file->add_variable(map_psi_11_name, dim_names, "", "Psi_11", "m2 s-1", "mesh2D", "node");
-        status = map_file->add_variable(map_psi_22_name, dim_names, "", "Psi_22", "m2 s-1", "mesh2D", "node");
-        status = map_file->add_variable(map_eq8_name, dim_names, "", "Eq8", "-", "mesh2D", "node");
+        status = map_file->add_variable(map_psi_11_name, dim_names, "", "Psi_11", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (x)");
+        status = map_file->add_variable(map_psi_22_name, dim_names, "", "Psi_22", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (y)");
+        status = map_file->add_variable(map_eq8_name, dim_names, "", "Eq8", "-", "mesh2D", "node", "Result of equation 8, see Borsboom 1998");
     }
 
     if (do_bed_shear_stress)
     {
-        status = map_file->add_variable(map_beds_q_name, dim_names, "", "Bed shear stress (x)", "m2 s-2", "mesh2D", "node");
-        status = map_file->add_variable(map_beds_r_name, dim_names, "", "Bed shear stress (y)", "m2 s-2", "mesh2D", "node");
+        status = map_file->add_variable(map_beds_q_name, dim_names, "", "Bed shear stress term (x)", "m2 s-2", "mesh2D", "node", "");
+        status = map_file->add_variable(map_beds_r_name, dim_names, "", "Bed shear stress term (y)", "m2 s-2", "mesh2D", "node", "");
     }
     if (do_convection)
     {
-        status = map_file->add_variable(map_conv_q_name, dim_names, "", "Convection (x)", "m2 s-2", "mesh2D", "node");
-        status = map_file->add_variable(map_conv_r_name, dim_names, "", "Convection (y)", "m2 s-2", "mesh2D", "node");
+        status = map_file->add_variable(map_conv_q_name, dim_names, "", "Convection term (x)", "m2 s-2", "mesh2D", "node", "");
+        status = map_file->add_variable(map_conv_r_name, dim_names, "", "Convection term (y)", "m2 s-2", "mesh2D", "node", "");
     }
     if (do_viscosity)
     {
-        status = map_file->add_variable(map_visc_q_name, dim_names, "", "Viscosity (x)", "m2 s-1", "mesh2D", "node");
-        status = map_file->add_variable(map_visc_r_name, dim_names, "", "Viscosity (y)", "m2 s-1", "mesh2D", "node");
+        status = map_file->add_variable(map_visc_q_name, dim_names, "", "Viscosity term (x)", "m2 s-2", "mesh2D", "node", "");
+        status = map_file->add_variable(map_visc_r_name, dim_names, "", "Viscosity term (y)", "m2 s-2", "mesh2D", "node", "");
     }
 
     // Put data on map file
@@ -686,7 +688,7 @@ int main(int argc, char *argv[])
     }
     if (do_viscosity)
     {
-        viscosity_post_rhs(post_q, post_r, hn, qn, rn, visc, dx, dy, nx, ny);
+        viscosity_post_rhs(post_q, post_r, x, y, hn, qn, rn, visc, nx, ny);
         map_file->put_time_variable(map_visc_q_name, nst_map, post_q);
         map_file->put_time_variable(map_visc_r_name, nst_map, post_r);
     }
@@ -834,7 +836,7 @@ int main(int argc, char *argv[])
         log_file << "=== Matrix build matrix pattern =======================" << std::endl;
         for (size_t i = 0; i < 3 * nxny; ++i)
         {
-            for (int j = 0; j < 3*nxny; ++j)
+            for (size_t j = 0; j < 3*nxny; ++j)
             {
                 if (A.coeff(i, j) != 0.0)
                 {
@@ -1138,7 +1140,7 @@ int main(int argc, char *argv[])
                     int r_eq = outer[row + 2];
 
                     status = viscosity_matrix_and_rhs(values, row, c_eq, q_eq, r_eq, rhs,
-                                htheta, qtheta, rtheta, visc, theta, dx, dy, nx, ny);
+                                x, y, htheta, qtheta, rtheta, visc, theta, nx, ny);
                     // boundary_south
                     // boundary_north
                 }
@@ -1168,7 +1170,7 @@ int main(int argc, char *argv[])
                     for (size_t i = 0; i < 3 * nxny; ++i)
                     {
                         log_file << std::showpos << std::setprecision(3) << i << "   ";
-                        for (int j = 0; j < 3*nxny; ++j)
+                        for (size_t j = 0; j < 3*nxny; ++j)
                         {
                             log_file << std::showpos << std::setprecision(3) << std::scientific << A.coeff(i, j) << " ";
                             if (std::fmod(j+1,3) == 0) { log_file << "| "; }
@@ -1176,22 +1178,22 @@ int main(int argc, char *argv[])
                         log_file << std::endl;
                         if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
                     }
-                    log_file << "=== Diagonal dominant == diag, off_diag, -, + =========" << std::endl;
-                    for (size_t i = 0; i < 3 * nxny; ++i)
-                    {
-                        double off_diag = 0.0;
-                        double diag = 0.0;
-                        log_file << std::showpos << std::setprecision(3) << i << "   ";
-                        for (int j = 0; j < 3*nxny; ++j)
-                        {
-                            if (i != j ) { off_diag += std::abs(A.coeff(i,j)); }
-                            else { diag = std::abs(A.coeff(i,j)); }
-                        }
-                        log_file << std::showpos << std::setprecision(5) << std::scientific << diag << " " << off_diag << " " 
-                            <<  diag - off_diag << " " <<  diag + off_diag << " ";
-                        log_file << std::endl;
-                        if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
-                    }
+                    //log_file << "=== Diagonal dominant == diag, off_diag, -, + =========" << std::endl;
+                    //for (size_t i = 0; i < 3 * nxny; ++i)
+                    //{
+                    //    double off_diag = 0.0;
+                    //    double diag = 0.0;
+                    //    log_file << std::showpos << std::setprecision(3) << i << "   ";
+                    //    for (int j = 0; j < 3*nxny; ++j)
+                    //    {
+                    //        if (i != j ) { off_diag += std::abs(A.coeff(i,j)); }
+                    //        else { diag = std::abs(A.coeff(i,j)); }
+                    //    }
+                    //    log_file << std::showpos << std::setprecision(5) << std::scientific << diag << " " << off_diag << " " 
+                    //        <<  diag - off_diag << " " <<  diag + off_diag << " ";
+                    //    log_file << std::endl;
+                    //    if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
+                    //}
                     log_file << "=== RHS ===============================================" << std::endl;
                     for (size_t i = 0; i < 3 * nxny; ++i)
                     {
@@ -1375,7 +1377,7 @@ int main(int argc, char *argv[])
                 log_file << "    ----    maximum number of iterations reached, probably not converged, at time: " <<  time << " [sec]" << std::endl;
             }
         }
-        for (int k = 0; k < nxny; ++k)
+        for (size_t k = 0; k < nxny; ++k)
         {
             hn[k] = hp[k];  // h, continuity-eq
             qn[k] = qp[k];  // q, momentum-eq
@@ -1448,7 +1450,7 @@ int main(int argc, char *argv[])
             }
             if (do_viscosity)
             {
-                viscosity_post_rhs(post_q, post_r, hn, qn, rn, visc, dx, dy, nx, ny);
+                viscosity_post_rhs(post_q, post_r, x, y, hn, qn, rn, visc, nx, ny);
                 map_file->put_time_variable(map_visc_q_name, nst_map, post_q);
                 map_file->put_time_variable(map_visc_r_name, nst_map, post_r);
             }
@@ -1548,10 +1550,7 @@ int main(int argc, char *argv[])
     std::this_thread::sleep_for(timespan);
     return 0;
 }
-inline size_t main_idx(size_t i, size_t j, size_t ny)
-{
-    return i * ny + j;
-}
+
 //------------------------------------------------------------------------------
 /* @@ GetArguments
 *
@@ -1578,4 +1577,8 @@ void GetArguments(long argc,   /* I Number of command line arguments */
         i = i + 1;
     }
     return;
+}
+inline size_t main_idx(size_t i, size_t j, size_t ny)
+{
+    return i * ny + j;
 }

@@ -41,7 +41,7 @@ long BED_LEVEL::open(std::string filename)
     return status;
 }
 //------------------------------------------------------------------------------
-long BED_LEVEL::read(int nx, int ny)
+long BED_LEVEL::read(size_t nx, size_t ny)
 {
     long status = -1;
     std::istringstream iss;
@@ -49,7 +49,7 @@ long BED_LEVEL::read(int nx, int ny)
 
     m_bed_given.resize(nx*ny);
 
-    int k = -1;
+    size_t k = -1;
     std::string token;
     std::string line;
     std::getline(m_fname, line);
@@ -88,15 +88,15 @@ std::vector<double> BED_LEVEL::get_bed_level()
 //
 ////  PRIVATE  ////////////////////////////////////////////////////////
 //
-void BED_LEVEL::transpose(std::vector<double>& x, int nx, int ny)
+void BED_LEVEL::transpose(std::vector<double>& x, size_t nx, size_t ny)
 {
     std::vector<double> xt;
     xt.resize(nx * ny);
     int k1;
     int k2;
-    for (int i = 0; i < nx; ++i) 
+    for (size_t i = 0; i < nx; ++i) 
     {
-        for (int j = 0; j < ny; ++j) 
+        for (size_t j = 0; j < ny; ++j) 
         {
             k1 = i * ny + j;
             k2 = j * nx + i;

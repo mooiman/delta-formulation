@@ -34,31 +34,37 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
+#include "matrix_assembly_utilde_boundaries.h"
+#include "matrix_assembly_utilde_corners.h"
+#include "matrix_assembly_utilde_interior.h"
+#include "diffusion2d.h"
+
 class REGULARIZATION
 {
 public:
     REGULARIZATION();
-    REGULARIZATION(int iter_max, double g);
+    REGULARIZATION(int iter_max, double g, std::string logging);
 
     void given_function(
         std::vector<double>& u_out, std::vector<double>& psi_11, std::vector<double>& psi_22, std::vector<double>& eq8,
+        std::vector<double>& x, std::vector<double>& y,
         std::vector<double>& u_giv,
-        size_t nx, size_t ny, double dx, double dy, double c_psi, std::ofstream& log_file);
+        size_t nx, size_t ny, double c_psi, std::ofstream& log_file);
 
     void first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx);
-
 private:
-    std::unique_ptr<std::vector<double>> solve_eq7(size_t nx, size_t ny, double dx, double dy, 
+    std::unique_ptr<std::vector<double>> solve_eq7(size_t nx, size_t ny, std::vector<double>& x, std::vector<double>& y, 
         std::vector<double> psi_11, std::vector<double> psi_22, std::vector<double> u_giv, std::ofstream& log_file);
     std::unique_ptr<std::vector<double>> solve_eq8(size_t nx, size_t ny, double dx, double dy, double c_psi, std::vector<double> u0, 
         std::vector<double> u0_xixi, std::vector<double> u0_etaeta, std::ofstream& log_file);
 
     int m_iter_max;
     double m_g;
+    std::string m_logging;
 
     double m_alpha;
     std::vector<double> m_mass;
-    double eps_smooth;  // epsilon of regularization process
+    double m_eps_smooth;  // epsilon of regularization process
     double m_u0_is_smooth;  // is function u0 is smooth enough, 
     size_t p_index(size_t i, size_t j, size_t ny);
 };

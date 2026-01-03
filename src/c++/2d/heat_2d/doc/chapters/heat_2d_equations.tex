@@ -1,5 +1,5 @@
 %-------------------------------------------------------------------------------
-\chapter{Heat 2D equation}
+\chapter{2D Heat equation}
 %-------------------------------------------------------------------------------
 Consider the non-linear heat equation
 \begin{subequations}
@@ -11,9 +11,9 @@ Consider the non-linear heat equation
 with
 \begin{symbollist}
     \item[$u$] Temperature, \bunit{\celsius}.
-    \item[$\bPsi$] 2-dimensional thermal diffusivity, \bunit{\square\metre\per\second}.
+    \item[$\bPsi$] 2-dimensional thermal conductivity coefficient, \bunit{\square\metre\per\second}.
 \end{symbollist}
-$\bPsi$ the thermal diffusivity is defined as:
+$\bPsi$ the thermal conductivity coefficient is defined as:
 \begin{align}
     \bPsi =
     \begin{pmatrix}
@@ -21,16 +21,24 @@ $\bPsi$ the thermal diffusivity is defined as:
         \Psi_{21} & \Psi_{22}
     \end{pmatrix}
 \end{align}
-
+The 2D-heat equation in curvilinear ($\xi,\eta$)-coordinates reads:
+\begin{align}
+    &J \pdiff{u}{t} - \nabla \dotp \left( \bPsi \nabla u \right) = 0,
+    \label{eq:heat_2d_curvi}
+\end{align}
 \subsection*{Finite Volume approach}
 Integrating the equations over a finite volume $\Omega$ yields:
 \begin{align}
-    \int_\Omega \pdiff{h}{t}\, d\omega &
+    \int_\Omega \pdiff{u}{t}\, d\omega &
     - \int_\Omega \nabla \dotp \left( \bPsi \nabla u \right) \, d\omega = 0
     \label{eq:heat_2d_equation}
 \end{align}
-with
-
+%
+The 2D-heat equation in curvilinear coordinates reads:
+\begin{align}
+    &\int_{\Omega_{\xi\eta}} J \pdiff{u}{t}\, d\xi d\eta - \int_{\Omega_{\xi\eta}} \nabla \dotp \left( \bPsi \nabla u \right)\, d\xi d\eta = 0,
+    \label{eq:heat_2d_curvi}
+\end{align}
 
 
 %-------------------------------------------------------------------------------
@@ -59,75 +67,200 @@ See for the locations \autoref{fig:2d_structured_grid}.
 The discretization of heat \autoref{eq:heat_2d_equation} will be presented term by term.
 %-------------------------------------------------------------------------------
 \subsubsection{Time derivative}
-The discretization of the time derivative term of the continuity equation reads:
+The time derivative term of the heat equation reads:
 \begin{align}
-    \int_{\Omega} \pdiff{u}{t}\, d\omega
+    \int_{\Omega_{\xi\eta}} J \pdiff{u}{t}\, d\xi d\eta
 \end{align}
-which will be approximated by the sum of the integral over the sub-control volumes.
+which will be approximated by the sum of the integral over the sub-control volumes,
+with taking into account that the Jacobian $J$ is constant in time.
 On a structured grid one control volume ($cv$) around a node consist of four sub-control volumes ($scv_i$, $i\in\{0,1,2,3\}$).
 \begin{align}
-    \int_{cv} \pdiff{u}{t}\, d\omega =
-    \int_{scv_0} \pdiff{u}{t}\, d\omega +
-    \int_{scv_1} \pdiff{u}{t}\, d\omega +
-    \int_{scv_2} \pdiff{u}{t}\, d\omega +
-    \int_{scv_3} \pdiff{u}{t}\, d\omega
+    J_{cv}\int_{cv} \pdiff{u}{t}\, d\omega &=
+    J_{scv_0}\int_{scv_0} \pdiff{u}{t}\, d\omega +
+    J_{scv_1}\int_{scv_1} \pdiff{u}{t}\, d\omega +
+    \nonumber \\*
+    &\quad
+    +J_{scv_2}\int_{scv_2} \pdiff{u}{t}\, d\omega +
+    J_{scv_3}\int_{scv_3} \pdiff{u}{t}\, d\omega
 \end{align}
-For a cartesian grid we get:
+Fore the discretization on a curvilinear grid we get:
 \begin{align}
-    \int_{cv} \pdiff{h}{t}\, d\omega \approx &
-    \quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i-\quart, j-\quart} -  h^{n+1,n}_{i-\quart, j-\quart} \right) +
+    J_{cv}\int_{cv} \pdiff{u}{t}\, d\omega \approx &
+    J_{scv_0}\Dtinv \left( u^{n+1,p+1}_{i-\quart, j-\quart} -  u^{n+1,n}_{i-\quart, j-\quart} \right) +
     \nonumber \\*
-    &\quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i+\quart, j-\quart} -  h^{n+1,n}_{i+\quart, j-\quart} \right) +
+    &J_{scv_1}\Dtinv \left( u^{n+1,p+1}_{i+\quart, j-\quart} -  u^{n+1,n}_{i+\quart, j-\quart} \right) +
     \nonumber \\*
-    &\quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i+\quart, j+\quart} -  h^{n+1,n}_{i+\quart, j+\quart} \right) +
+    &J_{scv_2}\Dtinv \left( u^{n+1,p+1}_{i+\quart, j+\quart} -  u^{n+1,n}_{i+\quart, j+\quart} \right) +
     \nonumber \\*
-    &\quart\Dx\Dy\Dtinv \left( h^{n+1,p+1}_{i-\quart, j+\quart} -  h^{n+1,n}_{i-\quart, j+\quart} \right)
+    &J_{scv_3}\Dtinv \left( u^{n+1,p+1}_{i-\quart, j+\quart} -  u^{n+1,n}_{i-\quart, j+\quart} \right)
 \end{align}
-Just looking to the quadrature point of $scv_0$ as part of the control volume for node $(i,j)$ the discretization reads:
+with $J_{scv_i}$ the area of the sub control volume $i$.
+For cartesian grids we have $J_{scv_i} = \quart \Dx\Dy$.
+
+Just looking to the quadrature point of $scv_2$ as part of the control volume for node $(i,j)$ the discretization reads:
 \begin{align}
-    &\quart\Dx\Dy\Dtinv \left( h^{n+1}_{i-\quart, j-\quart} -  h^{n+1,n}_{i-\quart, j-\quart} \right) =
+    &J_{scv_2}\Dtinv \left( u^{n+1}_{i+\quart, j+\quart} -  u^{n+1,n}_{i+\quart, j+\quart} \right) =
     \\*
-    &= \quart\Dx\Dy\Dtinv \left[ \frac{1}{16}\left( 9h^{n+1}_{i, j} + 3 h^{n+1}_{i-1,j}  + 3  h^{n+1}_{i, j-1} + h^{n+1}_{i-1, j-1}\right) \right. +
+    &= J_{scv_2}\Dtinv \left[ \frac{1}{16}\left( 9u^{n+1}_{i, j} + 3 u^{n+1}_{i+1,j}  + 3  u^{n+1}_{i, j+1} + u^{n+1}_{i+1, j+1}\right) \right. +
     \\*
-    &\quad - \left. \frac{1}{16}\left( 9 h^{n}_{i, j} +  3 h^{n}_{i-1,j}  + 3  h^{n}_{i, j-1} + h^{n}_{i-1, j-1}\right)\right]
+    &\quad - \left. \frac{1}{16}\left( 9 u^{n}_{i, j} +  3 u^{n}_{i+1,j}  + 3  u^{n}_{i, j+1} + u^{n}_{i+1, j+1}\right)\right]
 \end{align}
-Written in \deltaformulation  it reads:
+Written in \deltaformulation it yields (using $\Delta u^{n+1,p+1} = \Delta u$):
 \begin{align}
-    &\quart\Dx\Dy\Dtinv \left( h^{n+1}_{i-\quart, j-\quart} -  h^{n}_{i-\quart, j-\quart} \right) =
+    &J_{scv_2}\Dtinv \left( u^{n+1}_{i+\quart, j+\quart} -  u^{n}_{i+\quart, j+\quart} \right) =
+    \\*
+    &=J_{scv_2}\Dtinv \left[ \frac{1}{16}\left( 9 \Delta u_{i, j} + 3 \Delta u_{i+1,j+1}  + 3 \Delta u_{i, j+1} + \Delta u_{i+1, j+1}\right) \right] +
     \nonumber \\*
-    &=\quart\Dx\Dy\Dtinv \left[ \frac{1}{16}\left( 9 \Delta h^{n+1,p+1}_{i, j} + 3 \Delta q^{n+1,p+1}_{i-1,j}  + 3 \Delta q^{n+1,p+1}_{i, j-1} + \Delta h^{n+1,p+1}_{i-1, j-1}\right) \right] +
+    & + J_{scv_2}\Dtinv \Bigg[ \frac{1}{16}\bigg(
+    9 \left( u^{n+1,p}_{i, j} - u^{n}_{i, j}\right) +
+    3 \left( u^{n+1,p}_{i+1,j} - u^{n}_{i+1,j}\right)  +
     \nonumber \\*
-    & + \quart\Dx\Dy\Dtinv \left[ \frac{1}{16}\left( 9 h^{n+1,p}_{i, j} + 3 h^{n+1,p}_{i-1,j}  + 3 h^{n+1,p}_{i, j-1} + h^{n+1,p+1}_{i-1, j-1}\right) \right. +
-    \nonumber \\*
-    &\quad - \left. \frac{1}{16}\left( 9h^{n}_{i, j} +  3 h^{n}_{i-1,j}  + 3  h^{n}_{i, j-1} + h^{n}_{i-1, j-1}\right)\right]
+    & \qquad \qquad \qquad 3 \left(u^{n+1,p}_{i, j+1} - u^{n}_{i, j+1}\right) +
+    \left(u^{n+1,p+1}_{i+1, j+1} - u^{n}_{i+1, j+1}\right) \Bigg) \Bigg]
+\end{align}
+with
+\begin{align}
+    J_{scv_2} &= x_\xi y_\eta - y_\xi x_\eta
+\end{align}
+with  $J_{scv_2}$ representing the area of $scv_2$, this area is computed
+by
+\begin{align}
+    J = \half \sum_{i=0}^{3} (x_{i} y_{i+1}  - x_{i+1} y_{i}),
+    \quad \text{with } x_4 = x_0 \text{ and } y_4 = y_0
+\end{align}
+
+
+%--------------------------------------------------------------------------------
+\subsubsection{Thermal conductivity}
+The thermal conductivity term in vector notation reads:
+\begin{align}
+    \int_\Omega & \nabla \dotp \left( \mat{\Psi} \nabla u \right) \, d\omega  =
+    \oint_{\Omega}  \left(  \mat{\Psi} \nabla u \right) \dotp \vec{n}\, dl =
+    \\
+    = & \oint_{\Omega} \left(
+      \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y}  \right) \nx
+    + \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}  \right) \ny
+    \right) \norm{dl}
+\end{align}
+with $\vecn = (\nx, \ny)^T$ the outward normal vector.
+
+For the heat-equation the thermal conductivity term:
+\begin{align}
+    \pdiff{}{x} \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y}  \right) +
+    \pdiff{}{y} \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}  \right)
+\end{align}
+can be transformed as\newline
+\textit{step 1a}
+\begin{align}
+&\frac{1}{J} \Bigg[
+y_n \pdiff{}{\xi} \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right) - y_\xi \pdiff{}{\eta} \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
++
+\\*
+& \qquad
+-x_\eta \pdiff{}{\xi} \left(  \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}  \right) + x_\xi \pdiff{}{\eta} \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}   \right)
+\Bigg]
+\end{align}
+\textit{step 1b}\newline
+Assume $x_{\xi\eta} = x_{\eta\xi}$ and $y_{\xi\eta} = y_{\eta\xi}$
+\begin{align}
+    &\frac{1}{J} \Bigg[
+    \pdiff{}{\xi} \left( y_\eta \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right) \right)
+    - \pdiff{}{\eta} \left( y_\xi \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right) \right)
+    +
+    \\*
+    & \qquad
+    -\pdiff{}{\xi} \left( x_\eta  \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right)
+    + \pdiff{}{\eta} \left( x_\xi \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right)
+    \Bigg]
+\end{align}
+Rearrange this equation to a divergence type in $\xi$- and $\eta$-direction to prepare to use Green's theorem, yields:
+\begin{align}
+    &\frac{1}{J} \Bigg[
+    \pdiff{}{\xi} \left( y_\eta \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
+    - x_\eta  \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right)
+    +
+    \\*
+    & \qquad
+    + \pdiff{}{\eta} \left( -y_\xi \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
+    +   x_\xi \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right)
+    \Bigg]
+\end{align}
+ Applying Green's theorem, and multiplying with $J$ (because the whole heat equation is multiplied by $J$)\newline
+ \textit{step 2a}:
+\begin{align}
+    &
+    \left( y_\eta \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
+    - x_\eta  \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right) \nxi
+    +
+    \\*
+    & \qquad
+    + \left( -y_\xi \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
+    +   x_\xi \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right) \neta
+\end{align}
+with $\vecn = (\nxi, \neta)^T$ the outward normal vector.
+
+\textit{step 2b}:
+\begin{align}
+    &
+    \frac{1}{J} \Bigg[ y_\eta \left(
+      \Psi_{11} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+    + \Psi_{12} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right) \right) +
+    \\*
+    & \quad - x_\eta \left(
+      \Psi_{21} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+    + \Psi_{22} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)
+    \right)
+    \Bigg] \nxi
+    +
+    \\
+    &\frac{1}{J} \Bigg[
+    -y_\xi \left(
+       \Psi_{11} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+     + \Psi_{12} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)  \right) +
+    \\*
+    &\quad +   x_\xi \left(
+       \Psi_{21} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+     + \Psi_{22} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)  \right)
+     \Bigg] \neta
 \end{align}
 
 %--------------------------------------------------------------------------------
-\subsubsection{Viscosity}
-The viscosity term in vector notation reads:
-\begin{align}
-    &\int_\Omega \nabla \dotp \left( \mat{\Psi} \nabla u \right) \, d\omega  =
-    \oint_{\Omega}  \left(  \mat{\Psi} \nabla u \right) \dotp \vec{n}\, dl \approx
-    \\
-    & \oint_{\Omega}  \left( \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y}  \right) n_x + \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}  \right) n_y \right) \norm{dl}
-\end{align}
-with $\vec{n} = (n_x, n_y)^T$ the outward normal vector.
-
-Integration of the term for the eight quadrature points $qp$, for each face of the control volume $scv$  we get:
-%
-\begin{align}
-&
-\left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right) n_x \norm{dl} +
-\left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) n_y \norm{dl}
-\end{align}
-If the  viscosity is isotropic ($\Psi_{12} = \Psi_{21} = 0$) these equations reduce to:
+\subsection*{Orthotropic conductivity}
+When the thermal conductivity coefficient is orthotropic  ($\Psi_{12} = \Psi_{21} = 0$) reduces to:
+%($\Psi_{11} = \Psi_{22} = \Psi(\xi, \eta)$ and $\Psi_{12} = \Psi_{21} = 0$)
 \begin{align}
     &
-    \left( \Psi_{11} \pdiff{{u}}{x} \right) n_x \norm{dl} +
-    \left( \Psi_{22} \pdiff{{u}}{y} \right) n_y \norm{dl}
+    \frac{1}{J} \Bigg[ y_\eta
+    \Psi_{11} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+     - x_\eta
+    \Psi_{22} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)
+    \Bigg] \nxi
+    +
+    \\
+    & + \frac{1}{J} \Bigg[
+    -y_\xi
+    \Psi_{11} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+    +   x_\xi
+     \Psi_{22} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)
+    \Bigg] \neta
 \end{align}
 
-Define the components of $\bPsi$ at different locations with $(\mu, \nu) \in \{ 1, 2\}$ as
+In case it is also orthogonal (i.e.\ $y_\xi = x_\eta =0$) it reads:
+\begin{align}
+    &
+    \frac{1}{J} \Bigg[ y_\eta
+    \Psi_{11} \left( y_\eta \pdiff{u}{\xi} \right)
+    \Bigg] \nxi
+    + \frac{1}{J} \Bigg[
+    x_\xi
+    \Psi_{22} \left( x_\xi \pdiff{u}{\eta} \right)
+    \Bigg] \neta
+\end{align}
+
+\notyet
+
+
+Define the components of $\bPsi$ at different locations of the volume faces where $(\mu, \nu) \in \{ 1, 2\}$ as
 %
 \begin{align}
     \left. \overline\Psi_{\mu\nu} \right|_{i+\half,j+\quart} = \frac{1}{8} \left(\left. 3\Psi_{\mu\nu} \right|_{i,j}
@@ -141,13 +274,23 @@ and define the partial differentials as
     \left. \pdiff{u}{y} \right|_{i+\half,j+\quart} =  \half \left(\frac{u_{i,j+1} - u_{i,j}}{\Dy_{i,j+\half}} + \frac{u_{i+1,j+1} - u_{i+1,j}}{\Dy_{i+1,j+\half}}\right)
 \end{align}
 
-In case the viscosity is isotropic it reads:
+%================================================================================
+\chapter{Numerical experiment}
+\section{Initial Dirac-delta function}
+Th analytic solution for a 2D heat equation is
 \begin{align}
-    \bPsi =
-    \begin{pmatrix}
-        \Psi & 0 \\
-        0 & \Psi
-    \end{pmatrix}
+T(t)= \frac{1}{4D\pi t} \exp\left(\frac{-x^2 - y^2}{4Dt}\right)
 \end{align}
-(isotropic, $\Psi_{11} = \Psi_{22} = \Psi$ and $\Psi_{12} = \Psi_{21} = 0$).
-and then the discretization is straight forward.
+where
+\begin{symbollist}
+    \item[$T$] Temperature, \bunit{\celsius}.
+    \item[$D$] Heat conductivity, \bunit{\watt\per\metre\per\kelvin}.
+    \item[$t$] Time, \bunit{\second}.
+    \item[$x$] Coordinate in $x$-direction, \bunit{\metre}.
+    \item[$y$] Coordinate in $y$-direction, \bunit{\metre}.
+\end{symbollist}
+
+%================================================================================
+\appendix
+\chapter{Curvilinear coordinate transformation}\label{app:CoordinateTransform}
+\notyet

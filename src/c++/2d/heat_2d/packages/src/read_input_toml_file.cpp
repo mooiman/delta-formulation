@@ -49,7 +49,6 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
     status = get_toml_array(tbl_chp, "bc_type", data.boundary.bc_type);
     status = get_toml_array(tbl_chp, "bc_vars", data.boundary.bc_vars);
     status = get_toml_array(tbl_chp, "bc_vals", data.boundary.bc_vals);
-    status = get_toml_array(tbl_chp, "bc_absorbing", data.boundary.bc_absorbing);
 
     // Domain
     tbl_chp = *tbl["Domain"].as_table();
@@ -110,6 +109,7 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
     tbl_chp = *tbl["Output"].as_table();
     data.output.dt_his = tbl_chp["dt_his"].value_or(double(1.0));  // write interval to his-file
     data.output.dt_map = tbl_chp["dt_map"].value_or(double(0.0));  // write interval to his-file
+    data.output.dt_screen = tbl_chp["dt_screen"].value_or(double(60.0));  // time interval counter on screen 
 
     // Time
     tbl_chp = *tbl["Time"].as_table();
@@ -125,6 +125,8 @@ std::vector<_ObservationPoint> read_observation_points(toml::table tbl)
 {
     auto obs_points = tbl["ObservationPoint"].as_array();
     std::vector<_ObservationPoint> points;
+    if (obs_points == nullptr) { return points; }
+
     for (const auto& item : *obs_points) 
     {
         _ObservationPoint pt;

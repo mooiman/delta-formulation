@@ -52,10 +52,13 @@
     <ClCompile Include="src\read_input_toml_file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\heat_2d_version.cpp">
+    <ClCompile Include="src\observation_stations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\observation_stations.cpp">
+    <ClCompile Include="src\main_version.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\analytic_solution.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -108,7 +111,7 @@
     <ClInclude Include="include\perf_timer.h">
       <Filter>Include Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\heat_2d_version.h">
+    <ClInclude Include="include\main_version.h">
       <Filter>Include Files</Filter>
     </ClInclude>
     <ClInclude Include="include\data_input_struct.h">
@@ -120,9 +123,12 @@
     <ClInclude Include="include\observation_stations.h">
       <Filter>Include Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\analytic_solution.h">
+      <Filter>Include Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="include\heat_2d_version.h.vcs">
+    <None Include="include\main_version.h.vcs">
       <Filter>Include Files</Filter>
     </None>
     <None Include="include\version_number.ini">

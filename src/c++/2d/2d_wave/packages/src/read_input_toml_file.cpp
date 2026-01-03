@@ -1,4 +1,4 @@
-﻿//
+//
 // Programmer: Jan Mooiman
 // Email     : jan.mooiman@outlook.com
 //
@@ -22,7 +22,6 @@
 
 #include <string>
 #include <filesystem>
-#include <iostream>
 
 #include "data_input_struct.h"
 #include "read_input_toml_file.h"

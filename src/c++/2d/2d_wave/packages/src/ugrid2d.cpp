@@ -23,7 +23,7 @@
 #include "ugrid2d.h"
 #include "compile_date_and_time.h"
 #include "interpolations.h"
-#include "wave_2d_version.h"
+#include "main_version.h"
 #include "include/netcdf.h"
 
 UGRID2D::UGRID2D()
@@ -60,7 +60,8 @@ int UGRID2D::open(std::string ncfile, std::string model_title)
     status = set_global_attribute("Title", model_title);
     status = set_global_attribute("Model", "Delta-formulation 2D, C++");
     status = set_global_attribute("Program created", compileDateTime() );
-    status = set_global_attribute("Program version", getversionstring_2d_wave() );
+    status = set_global_attribute("Program version", getversionstring_main() );
+    status = set_global_attribute("Program build", getbuildstring_main() );
     status = set_global_attribute("Conventions", "CF-1.8 UGRID-1.0");
     status = set_global_attribute("file_created", date_time);
     status = set_global_attribute("reference", "https://www.github.com/mooiman");
@@ -342,7 +343,7 @@ int UGRID2D::add_face_area(std::vector<double> & x, std::vector<double> & y, dou
 
     std::vector<std::string> dim_names;
     dim_names.push_back("mesh2d_nFaces");
-    status = this->add_variable("cell_area", dim_names, "cell_area", "-", "m2", "mesh2D", "face");
+    status = this->add_variable("cell_area", dim_names, "cell_area", "-", "m2", "mesh2D", "face", "Area of an element bounded by the vertices");
     status = this->add_attribute("cell_area", "coordinates", "mesh2d_face_x, mesh2d_face_y");
     status = this->put_variable("cell_area", cell_area);
 
@@ -368,7 +369,8 @@ int UGRID2D::add_variable(std::string var_name, std::vector<std::string> dim_nam
     status = set_attribute(var_name, std::string("units"), unit);
     return status;
 }
-int UGRID2D::add_variable(std::string var_name, std::vector<std::string> dim_names, std::string std_name, std::string long_name, std::string unit, std::string mesh, std::string location)
+int UGRID2D::add_variable(std::string var_name, std::vector<std::string> dim_names, std::string std_name, std::string long_name, 
+    std::string unit, std::string mesh, std::string location, std::string comment)
 {
     int dim_id;
     int i_var;
@@ -392,6 +394,8 @@ int UGRID2D::add_variable(std::string var_name, std::vector<std::string> dim_nam
     status = set_attribute(var_name, std::string("standard_name"), std_name);
     status = set_attribute(var_name, std::string("long_name"), long_name);
     status = set_attribute(var_name, std::string("units"), unit);
+    if (comment.size() != 0) { status = set_attribute(var_name, std::string("comment"), comment); }
+
     return status;
 }
 int UGRID2D::add_attribute(std::string var_name, std::string att_name, std::string att_value)
