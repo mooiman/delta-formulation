@@ -1,0 +1,35 @@
+openfile '.\102x6\output\2d_wave_map.nc'
+selectfield 'WaterLevel'
+hselectiontype '(M,N) point/path'
+editmn '11:7:708'
+colour [ 0 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\102x6\output_01\2d_wave_map.nc'
+selectfield 'WaterLevel'
+hselectiontype '(M,N) point/path'
+editmn '11:7:708'
+colour [ 1 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\102x6\output\2d_wave_map.nc'
+selectfield 'sea_water_velocity'
+hselectiontype '(M,N) point/path'
+editmn '11:7:708'
+colour [ 0 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\102x6\output\2d_wave_map.nc'
+selectfield 'BedLevel'
+hselectiontype '(M,N) point/path'
+editmn '11:7:708'
+colour [ 0 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview

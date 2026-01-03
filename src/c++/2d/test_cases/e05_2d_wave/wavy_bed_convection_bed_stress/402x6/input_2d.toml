@@ -1,0 +1,47 @@
+# Logging = "matrix"  # "iterations", "matrix"
+
+[Domain]
+    mesh_file = "geometry/402x6_dx02d50_net.nc"
+    bed_level_file = "geometry/402x6_dx02d50_wavy.dep"   
+[Time]
+    tstart = 0.0                                  # Start time [s]
+    tstop = 5400.0                                # End time [s]
+        
+[Initial]
+    ini_vars = ["zeta_constant"]
+    gauss_amp = 0.0 # amplitude of the gaussian hump
+    gauss_mu = 0.0    # location of the top of the gaussian hump
+    gauss_sigma = 350.0    # width of the gaussian hump
+
+[Boundary] # north, east, south, west
+    bc_type = ["free_slip", "borsboom", "free_slip", "borsboom"] # Type "borsboom", "free_slip", "mooiman" 
+    bc_vars = ["-", "zeta", "-", "q"]
+    bc_vals = [0.0, 0.0, 0.0, 4.0]
+    bc_absorbing = [false, true, false, true]
+    treg = 150.0                                  # Regularization time boundary signal
+    eps_bc_corr = 1.0e-2
+
+[Physics]
+    g = 10.0                                      # Gravitational acceleration
+    do_continuity = true                   # continuity equation
+    do_q_equation = true                   # q momentum equation
+    do_r_equation = true                   # r momentum equation
+    do_convection = true                   # Include momentum convection term
+    do_viscosity = false                   # Include momentum viscosity term
+    do_bed_shear_stress = true             # Include momentum bed shear stress term
+    viscosity = 0.01
+    chezy_coefficient = 50.0               # Chezy coefficient
+
+[Numerics]
+    dt = 0.25                              # Time step size [s], if dt == 0: then stationary problem
+    iter_max = 25                          # Maximum number of nonlinear iterations
+    theta = 0.501                          # Implicitness factor (0.5 <= theta <= 1.0)
+    regularization_init = true
+    regularization_iter = false
+    regularization_time = false
+    eps_newton = 1.0e-12
+    eps_bicgstab = 1.0e-6
+
+[Output]
+    dt_his = 0.01   # [s]
+    dt_map = 30.0   # [s]
