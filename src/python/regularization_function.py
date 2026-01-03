@@ -95,9 +95,12 @@ def compute_regularization(c_psi, ugiv, dx, nx, ugiv_ana, refine):
         f[i] = 0.
         i = 1
         a[i] = 0.
-        b[i] = 1./12.
-        c[i] = 10./12.
-        d[i] = 1./12.
+        # b[i] = 1./12.
+        # c[i] = 10./12.
+        # d[i] = 1./12.
+        b[i] = 11./24.
+        c[i] = 14./24.
+        d[i] = -1./24.
         e[i] = 0.
         f[i] = f[i]
         i = nx - 2
@@ -120,8 +123,8 @@ def compute_regularization(c_psi, ugiv, dx, nx, ugiv_ana, refine):
             psi[i] = c_psi * dx * dx * Err[i]
 
         for i in range(1, nx - 1):
-            psi_im12 = 0.5 * (psi[i - 1] + psi[i])
-            psi_ip12 = 0.5 * (psi[i] + psi[i + 1])
+            psi_im12 = psi[i]  # 0.5 * (psi[i - 1] + psi[i])
+            psi_ip12 = psi[i]  # 0.5 * (psi[i] + psi[i + 1])
             a[i] = 0.
             b[i] = alpha * dx - psi_im12 / dx
             c[i] = 0.5 * ((1. - 2. * alpha) * dx + (1. - 2. * alpha) * dx) + psi_im12 / dx + psi_ip12 / dx
