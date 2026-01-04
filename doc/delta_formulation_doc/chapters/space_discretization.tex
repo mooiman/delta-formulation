@@ -151,7 +151,7 @@ Regularization of the artificial viscosity $\Psi$ is performed as described in \
 \begin{align}
     \int_\Omega \Psi\, d\omega - \alpha_{\psi} \int_\Omega \Dxi^2 \pdiff[2]{\Psi}{\xi}\, d\omega = \int_\Omega \beta_{\psi} Err_{\beta_{\psi}}\, d\omega
 \end{align}
-When discretized it yields \citep[eq.\ 18]{Borsboom2001}:
+When discretized in computational space it yields \citep[eq.\ 18]{Borsboom2001}:
 \begin{align}
     \left(\frac{1}{8} - \alpha_{\psi} \right)\Psi_{i-1} +
     \left(\frac{3}{4} + 2\alpha_{\psi} \right)\Psi_{i} +
@@ -187,7 +187,7 @@ For $Err_{\beta_{\psi}}$ the following expression is used (comparable to \citet[
     \frac{1}{16} \sqrt{2} \abs{\frac{D_\xi(\qbar)}{\hbar} - \frac{\qbar D_\xi(\hbar)}{\hbar^2}} \right)
 \end{align}
 For the Weir experiment (\autoref{sec:numerical_experiment_weir}) the following parameters are used, $\alpha_{\psi} = c_{\Psi}$ and $\beta_{\psi} = 32 c_{\Psi}$
-\emph{which are educational guesses!}.
+\emph{which are educational guesses!}
 
 Using (with $\ubar \in \{\hbar, \qbar\}$):
 \begin{align}

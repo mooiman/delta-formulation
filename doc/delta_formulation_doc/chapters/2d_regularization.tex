@@ -2,7 +2,7 @@
 \chapter{Regularization of a two dimensional given function $u_{\mathit{giv}}$}
 The regularization function read, based on \citet[eq.\ 6]{Borsboom1998}:
 \begin{align}
-    \widetilde{u} - \nabla \dotp \bPsi \nabla \widetilde{u} = u_{\mathit{giv}}, \qquad \bPsi = c_{\Psi}(\Delta x^2 + \Dy^2) E,
+    \widetilde{u} - \nabla \dotp \bPsi \nabla \widetilde{u} = u_{\mathit{giv}}, \qquad \bPsi = c_{\Psi}(\Delta x^2 + \Dy^2) E_\psi,
     \label{eq:regularization}
 \end{align}
 with $\bPsi$ the artificial viscosity and defined as:
@@ -20,7 +20,7 @@ where
     \item[$\Psi$] (artificial) smoothing constant, [\si{\square\metre}]
     \item[$\Dx, \Dy$] Space discretization, $\Dx_{i} = x_{i+\half} - x_{i-\half}$ and $\Dy_{j} = y_{j+\half} - y_{j-\half}$, [\si{\metre}]
     \item[$c_{\Psi}$] Smooting factor (set by user), [\si{1/\cdot}]
-    \item[$E$] Error function, [\si{\cdot}]
+    \item[$E_\Psi$] Error function, [\si{\cdot}]
 \end{symbollist}
 First the discretization of \autoref{eq:regularization} is discussed and second the determination of the artificial smoothing coefficient $\bPsi$.
 

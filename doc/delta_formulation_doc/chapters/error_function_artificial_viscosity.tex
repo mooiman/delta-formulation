@@ -1,13 +1,19 @@
 %--------------------------------------------------------------------------------
-\chapter{Error function needed to regularize with artificial viscosity} \label{sec:error_artificial_viscosity}
-Regularization of the artificial viscosity, assumed to be independent of time, is described in \autoref{sec:regularization_artificial_viscosity}.
-The mentioned error-function is derived in this section and is based on \citet[eq.\ 42]{Borsboom2001}:
+\chapter{Error function needed to regularize the artificial viscosity} \label{sec:error_artificial_viscosity}
+Regularization of the artificial viscosity $\Psi$ is described in \autoref{sec:regularization_artificial_viscosity}.
+\begin{align}
+    \int_{\Omega_{\xi\eta}} \Psi\, d\omega - \alpha_{\psi} \int_{\Omega_{\xi\eta}} \nabla \dotp \nabla \Psi\, d\xi d\eta = \int_{\Omega_{\xi\eta}} \beta_{\psi} \mathit{Err}_{\psi}\, d\omega
+    \label{eq:reg_artificial_viscosity}
+\end{align}
+when $\Dxi = \Deta = 1$.
+
+The mentioned error-function $Err_{\psi}$ is derived in this section and is based on \citet[eq.\ 42]{Borsboom2001}.
 
 In this section the error function is derived for the 1-dimensional (\autoref{sec:err_1dimensional}) and 2-dimensional  case (\autoref{sec:err_2dimensional}).
 The 2D-dimensional case is derived for curvilinear coordinates.
 
 %--------------------------------------------------------------------------------
-\section{One dimensional}\label{sec:err_1dimensional}
+\section{One dimensional shallow water equations}\label{sec:err_1dimensional}
 
 We start from the continuity and momentum equation for non-linear waves (i.e. \autoref{eq:continuity_equation} and \eqref{eq:momentum_equation} and combine these two equations to one equation representing the energy.
 
@@ -78,9 +84,9 @@ Looking to square root of the kinetic energy: $\sqrt{u^2/2} = \half\sqrt{2} \abs
     & \Rightarrow \frac{1}{16}\sqrt{2} \Dxi^2 \left( \frac{1}{\hbar} \pdiff[2]{\qbar}{\xi} -
     \frac{\qbar}{\hbar^2}\pdiff[2]{\hbar}{\xi} \right), \quad \bunit{\metre\per\second}.
 \end{align}
-The error function for artificial viscosity  ${\mathit Err}_\Psi$ reads (comparable with \citet[eq.\ 42]{Borsboom2001}, differs by a factor of $1/8$):
+The error function $\mathit{Err}_{\psi}$ for artificial viscosity as used in \autoref{eq:reg_artificial_viscosity}  for the one dimensional shallow water equations reads (comparable with \citet[eq.\ 42]{Borsboom2001}, differs by a factor of $1/8$):
 \begin{align}
-    {\mathit Err}_\Psi = \Dxi \overline{x}_\xi  \left( \frac{1}{16} \sqrt{\frac{g}{\hbar}}\abs{D_\xi(\overline\zeta)} +
+    \mathit{Err}_{\psi} = \Dxi \overline{x}_\xi  \left( \frac{1}{16} \sqrt{\frac{g}{\hbar}}\abs{D_\xi(\overline\zeta)} +
     \frac{\sqrt{2}}{16} \abs{\frac{1}{\hbar} D_\xi(\qbar) -
         \frac{\qbar}{\hbar^2}D_\xi(\hbar)} \right), \quad \bunit{\square\metre\per\second}
 \end{align}
@@ -90,7 +96,7 @@ with $D_\xi$ defined as \citep[eq. 35]{Borsboom2001}:
 \end{align}
 
 %--------------------------------------------------------------------------------
-\section{Two dimensional}\label{sec:err_2dimensional}
+\section{Two dimensional shallow water equations}\label{sec:err_2dimensional}
 We start from the continuity and momentum equation for non-linear waves (i.e. \autoref{eq:continuity_equation} and \eqref{eq:momentum_equation} and combine these two equations to one equation representing the energy.
 
 The continuity and momentum equation read:
@@ -136,7 +142,12 @@ When a steady state solution is assumed ($\lpdiff{}{t}=0$, $q=\textit{Constant}$
     \half \left( \frac{q^2}{h^2} + \frac{r^2}{h^2} \right) + g \zeta =  \textit{Constant}, \bunit{\square\metre\per\square\second}
 \end{align}
 %--------------------------------------------------------------------------------
-\subsection{Err function}
+\subsection{Error function}
+The error function to determine the artificial viscosity $\Psi$ (\autoref{eq:regularization}) is dependent on the velocities.
+To reach suitable velocities the square root is taken from the potential and kinetic energy.
+\begin{align}
+    \mathit{Err}_{\psi} = Err \left( \sqrt{g \hbar} \right) + Err \left( \sqrt{\half \norm{\frac{\vec{q}}{h^2}} } \right)
+\end{align}
 %--------------------------------------------------------------------------------
 \paragraph*{Based on potential energy}
 Looking to square root of the potential energy
@@ -337,7 +348,65 @@ Similar for
     \frac{1}{8\hbar} F_1(\hbar) - \frac{1}{4\hbar} F_2(\hbar) - \frac{1}{8\hbar} F_3(\hbar)
     \Bigg)
 \end{align}
-
+The error function $\mathit{Err}_{\psi}$ for artificial viscosity as used in \autoref{eq:reg_artificial_viscosity}    for the two dimensional shallow water equations read:
+\begin{align}
+\mathit{Err}_{\psi}& =
+%
+% based on potential energy
+%
+\sqrt{\frac{g}{\hbar}} \left(  \frac{1}{16} F_1(\hbar) +  \frac{1}{8} F_2(\hbar) + \frac{1}{16} F_3(\hbar) \right)
+\\*
+%
+% based ont kinetic energyy q-equation
+%
+& + \half\sqrt{2}\Bigg(
+\frac{1}{8\qbar} F_1(\qbar) + \frac{1}{4\qbar} F_2(\qbar) + \frac{1}{8\qbar} F_3(\qbar)
+\Bigg)
+\Bigg(
+\frac{1}{8\hbar} F_1(\hbar) - \frac{1}{4\hbar} F_2(\hbar) - \frac{1}{8\hbar} F_3(\hbar)
+\Bigg)
+\\*
+%
+% based ont kinetic energyy r-equation
+%
+& + \half\sqrt{2}\Bigg(
+\frac{1}{8\rbar} F_1(\rbar) + \frac{1}{4\rbar} F_2(\rbar) + \frac{1}{8\rbar} F_3(\rbar)
+\Bigg)
+\Bigg(
+\frac{1}{8\hbar} F_1(\hbar) - \frac{1}{4\hbar} F_2(\hbar) - \frac{1}{8\hbar} F_3(\hbar)
+\Bigg)
+\end{align}
+with functions $F_1$, $F_2$ and $F_3$ defined as:
+\begin{align}
+    F_1(\cdot) & =
+    \Dxi^2 x_\xi^2\Bigg(\xi_x^2 \pdiff[2]{\cdot}{\xi}
+    + 2 \xi_x \eta_x \frac{\partial\kern 0.083333em^2 \cdot}{\partial \xi \partial \eta}\,
+    + \eta_x^2 \pdiff[2]{\cdot}{\eta}
+    + \xi_{xx} \pdiff{\cdot}{\xi}
+    + \eta_{xx} \pdiff{\cdot}{\eta}
+    \Bigg)
+    \label{eq:d2hdx2}
+\end{align}
+\begin{align}
+    F_2(\cdot) & =
+    \Dxi\Deta\, x_\xi y_\eta \Bigg(\xi_x \xi_y \pdiff[2]{\cdot}{\xi}
+    + (\xi_x \eta_y + \eta_x \xi_y) \frac{\partial\kern 0.083333em^2 \cdot}{\partial \xi \partial \eta}
+    + \eta_x \eta_y \pdiff[2]{\cdot}{\eta}
+    + \xi_{xy} \pdiff{\cdot}{\xi}
+    + \eta_{xy} \pdiff{\cdot}{\eta}
+    \Bigg)
+    \label{eq:d2hdxdy}
+\end{align}
+\begin{align}
+    F_3(\cdot) & =
+    \Deta^2 y_\eta^2 \Bigg(\xi_y^2   \pdiff[2]{\cdot}{\xi}
+    + 2 \xi_y \eta_y \frac{\partial\kern 0.083333em^2 \cdot}{\partial \xi \partial \eta}
+    + \eta_y^2 \pdiff[2]{\cdot}{\eta}
+    + \xi_{yy} \pdiff{\cdot}{\xi}
+    + \eta_{yy} \pdiff{\cdot}{\eta}
+    \Bigg)
+    \label{eq:d2hdy2}
+\end{align}
 \subsection{Obtaining the 2D-energy equation}\label{sec:obtaining_2denergy_equation}
 Applying these multiplications and skipping th convection terms)
 \begin{align}

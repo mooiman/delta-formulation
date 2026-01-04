@@ -378,7 +378,7 @@ The numerical experiment is performed with the following parameters:
 \notyet
 %--------------------------------------------------------------------------------
 \section{1-D Advection-diffusion equation}
-In this section we will show the resuls of the advection-diffusion equation with a Dirichlet boundary conditions at both sides of the domain and an interface problem, i.e.\ a large jump of the diffusion coefficiebt in the middle of the domain.
+In this section we will show the resuls of the advection-diffusion equation with  Dirichlet boundary conditions at both sides of the domain and an interface problem, i.e.\ a large jump of the diffusion coefficient in the middle of the domain.
 
 The considered advection-diffusion equation reads:
 \begin{align}
@@ -397,7 +397,7 @@ where
 The Dirichlet value at the outflow boundary is so chosen that there will appear an outflow boundary layer.
 Due to this outflow boundary the numerical scheme need to have a cell P\'eclet number ($\Pe = u\Dx/\eps$) smaller then two in the vicinity of that layer.
 In the \deltaformulation that will be reach by a regularization step, i.e. increase the diffusion in the vicinity of the boundary layer.
-To force a outflow boundary layer at both boundaries a Dirichlet boundary is prescribed.
+To force an outflow boundary layer at both boundaries a Dirichlet boundary is prescribed.
 With the boundary conditions
 $c(0,t) = a$ and $c(L,t) = b$ the analytic solution read:
 \begin{align}

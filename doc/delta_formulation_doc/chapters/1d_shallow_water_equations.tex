@@ -392,11 +392,11 @@ The considered advection-diffusion equation than reads:
 \section{1-D Wave equation}
 
 The hyperbolic part of the one dimensional shallow water equations (assuming that the viscosity term vanish) are diagonalized to separate the left and right going wave.
-We start from the follwoing equations, with convection
+We start from the following equations, with convection
 for flat bottom ($\half g\, \lpdiff{h^2}{x} = gh\, \lpdiff{h}{x}$ and $\lpdiff{z_b}{x} = 0$), reads
 %
 \begin{align}
-    \pdiff{h}{t}  + \pdiff{q}{x} & = 0 \qquad \textit{continuity eq.} \label{eq:continuity_equation}\\
+    \pdiff{h}{t}  + \pdiff{q}{x} & = 0 \qquad \textit{continuity eq.}  \label{eq:continuity_equation}\\
     \pdiff{q}{t}  + \pdiff{}{x} \left( \frac{q^2}{h} \right) + g h \pdiff{h}{x} & = 0 \qquad \textit{momentum eq.}
     \label{eq:momentum_equation}
 \end{align}
@@ -923,7 +923,7 @@ After rearranging the equation into an implicit and an explicit part it reads:
 At the left/west boundary ($x_{i+\half}$ with $i=0$) the discretization of the pressure term for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
 \begin{align}
     gh \pdiff{\zeta}{x} \approx
-& g h^{n+\theta,p+1}_{i+\half} \pdiff{}{x} \left( \zeta^{n+\theta,p+1}_{i+\half}\right)
+g h^{n+\theta,p+1}_{i+\half} \pdiff{}{x} \left( \zeta^{n+\theta,p+1}_{i+\half}\right)
 \end{align}
 In a formulation of the shallow-water equations, where the equation for the free-surface level $\zeta$ reduces to $\zeta = h + z_b$ (excluding drying and flooding), the equations can be simplified, because $\Delta \zeta = \Delta h$ (when $z_b$ is not time dependent).
 In this case, the contributions to the $\Delta \zeta$-equations need to be incorporated in the $\Delta h$-equations.
