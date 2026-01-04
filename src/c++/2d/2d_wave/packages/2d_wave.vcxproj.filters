@@ -82,6 +82,15 @@
     <ClCompile Include="src\matrix_assembly_utilde_interior.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\matrix_assembly_psi_boundaries.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\matrix_assembly_psi_corners.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\matrix_assembly_psi_interior.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\cfts.h">
@@ -163,6 +172,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\matrix_assembly_utilde_interior.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\matrix_assembly_psi_boundaries.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\matrix_assembly_psi_corners.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\matrix_assembly_psi_interior.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

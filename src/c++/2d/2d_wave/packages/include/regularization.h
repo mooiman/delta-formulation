@@ -34,6 +34,9 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
+#include "matrix_assembly_psi_boundaries.h"
+#include "matrix_assembly_psi_corners.h"
+#include "matrix_assembly_psi_interior.h"
 #include "matrix_assembly_utilde_boundaries.h"
 #include "matrix_assembly_utilde_corners.h"
 #include "matrix_assembly_utilde_interior.h"
@@ -51,12 +54,31 @@ public:
         std::vector<double>& u_giv,
         size_t nx, size_t ny, double c_psi, std::ofstream& log_file);
 
+    void artificial_viscosity(std::vector<double>& psi, 
+        std::vector<double>& h, std::vector<double>& q, std::vector<double>& r, std::vector<double>& zb, 
+        std::vector<double>& x, std::vector<double>& y, size_t nx, size_t ny, 
+        double c_psi_in);
+
     void first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx);
+
 private:
     std::unique_ptr<std::vector<double>> solve_eq7(size_t nx, size_t ny, std::vector<double>& x, std::vector<double>& y, 
-        std::vector<double> psi_11, std::vector<double> psi_22, std::vector<double> u_giv, std::ofstream& log_file);
-    std::unique_ptr<std::vector<double>> solve_eq8(size_t nx, size_t ny, double dx, double dy, double c_psi, std::vector<double> u0, 
-        std::vector<double> u0_xixi, std::vector<double> u0_etaeta, std::ofstream& log_file);
+        std::vector<double>& psi_11, std::vector<double>& psi_22, std::vector<double>& u_giv, std::ofstream& log_file);
+    std::unique_ptr<std::vector<double>> solve_eq8(size_t nx, size_t ny, std::vector<double>& x, std::vector<double>& y, 
+        double c_psi, std::vector<double>& u0, std::vector<double>& u0_xixi, std::vector<double>& u0_etaeta, 
+        std::ofstream& log_file);
+    int reg_interior_rhs_psi( size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
+        std::vector<double>& h, std::vector<double>& q, std::vector<double>& r,
+        std::vector<double>& x, std::vector<double>& y,
+        double c_psi, double g, size_t nx, size_t ny);
+
+    inline double F1(std::vector<double> & u, std::vector<size_t>& p, std::vector<double> & x, std::vector<double> &y, size_t nx, size_t ny );
+    inline double F2(std::vector<double> & u, std::vector<size_t>& p, std::vector<double> & x, std::vector<double> &y, size_t nx, size_t ny );
+    inline double F3(std::vector<double> & u, std::vector<size_t>& p, std::vector<double> & x, std::vector<double> &y, size_t nx, size_t ny );
+
+    inline double d2udxi2(std::vector<double> & u, std::vector<size_t>& p);
+    inline double d2udxideta(std::vector<double> & u, std::vector<size_t>& p);
+    inline double d2udeta2(std::vector<double> & u, std::vector<size_t>& p);
 
     int m_iter_max;
     double m_g;

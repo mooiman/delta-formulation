@@ -20,8 +20,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __MATRIX_ASSEMBLY_UTILDE_CORNERS_H__
-#define __MATRIX_ASSEMBLY_UTILDE_CORNERS_H__
+#ifndef __MATRIX_ASSEMBLY_PSI_BOUNDARIES_H__
+#define __MATRIX_ASSEMBLY_PSI_BOUNDARIES_H__
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -34,16 +34,24 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
-int reg_corner_north_east_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny);
+int reg_boundary_north_psi(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
+    std::vector<double>& x, std::vector<double>& y,
+    std::vector<double>& u_giv, double psi_11, double psi_22, 
+    double theta, size_t nx, size_t ny);
 
-int reg_corner_south_east_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny);
+int reg_boundary_east_psi(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
+    std::vector<double>& x, std::vector<double>& y,
+    std::vector<double>& u_giv, double psi_11, double psi_22, 
+    double theta, size_t nx, size_t ny);
 
-int reg_corner_south_west_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny);
+int reg_boundary_south_psi(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
+    std::vector<double>& x, std::vector<double>& y,
+    std::vector<double>& u_giv, double psi_11, double psi_22, 
+    double theta, size_t nx, size_t ny);
 
-int reg_corner_north_west_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny);
+int reg_boundary_west_psi(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
+    std::vector<double>& x, std::vector<double>& y,
+    std::vector<double>& u_giv, double psi_11, double psi_22, 
+    double theta, size_t nx, size_t ny);
 
 #endif

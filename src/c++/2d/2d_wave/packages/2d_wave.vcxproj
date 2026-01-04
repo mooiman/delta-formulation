@@ -204,6 +204,9 @@
     <ClCompile Include="src\matrix_assembly_boundaries.cpp" />
     <ClCompile Include="src\matrix_assembly_corners.cpp" />
     <ClCompile Include="src\matrix_assembly_interior.cpp" />
+    <ClCompile Include="src\matrix_assembly_psi_boundaries.cpp" />
+    <ClCompile Include="src\matrix_assembly_psi_corners.cpp" />
+    <ClCompile Include="src\matrix_assembly_psi_interior.cpp" />
     <ClCompile Include="src\matrix_assembly_utilde_boundaries.cpp" />
     <ClCompile Include="src\matrix_assembly_utilde_corners.cpp" />
     <ClCompile Include="src\matrix_assembly_utilde_interior.cpp" />
@@ -234,6 +237,9 @@
     <ClInclude Include="include\matrix_assembly_boundaries.h" />
     <ClInclude Include="include\matrix_assembly_corners.h" />
     <ClInclude Include="include\matrix_assembly_interior.h" />
+    <ClInclude Include="include\matrix_assembly_psi_boundaries.h" />
+    <ClInclude Include="include\matrix_assembly_psi_corners.h" />
+    <ClInclude Include="include\matrix_assembly_psi_interior.h" />
     <ClInclude Include="include\matrix_assembly_utilde_boundaries.h" />
     <ClInclude Include="include\matrix_assembly_utilde_corners.h" />
     <ClInclude Include="include\matrix_assembly_utilde_interior.h" />

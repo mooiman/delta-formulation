@@ -2,7 +2,7 @@
 // programmer: Jan Mooiman
 // Email     : jan.mooiman@outlook.com
 //
-//    Solving the 2D shallow water equations, fully implicit with delta-formuation and Modified Newton iteration 
+//    Solving the HEAT-equation in 2 dimensions, fully implicit with delta-formuation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -38,110 +38,113 @@
 //    |               |               |           |               |               |
 //   sw - - - - - - - s - - - - - - - se          0 - - - - - - - 3 - - - - - - - 6
 
-#include "matrix_assembly_utilde_corners.h"
-
 //
 //corner nodes
 //
-int reg_corner_north_east_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny)
-{
-    size_t p0 = c_eq/(9);
-    size_t p1 = p0 - ny;
-    size_t p2 = p0 - 1;
-    rhs[row    ] = utilde[p1] - 2.0 * utilde[p0] + utilde[p2];
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <iostream>
+#include <string>
+#include <vector>
 
-    //--------------------------------------------------------------------------
-    // c-equation
-    // 
+// for BiCGstab  solver
+#include <Eigen/Dense>
+#include <Eigen/IterativeLinearSolvers>
+#include <Eigen/Sparse>
+
+#include "interpolations.h"
+#include "matrix_assembly_utilde_boundaries.h"
+
+int reg_boundary_north_psi(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
+    std::vector<double>& x, std::vector<double>& y,
+    std::vector<double>& u_giv, double psi_11, double psi_22, 
+    double theta, size_t nx, size_t ny)
+{
+    size_t p_5 = c_eq/(9);  // node number of boundary point, ie north point of molecule
+    size_t p_4 = p_5 - 1;
+    size_t p_3 = p_5 - 2;
+    size_t p_0 = p_5 - ny - 2;
+    size_t p_1 = p_5 - ny - 1;
+    size_t p_2 = p_5 - ny;
+    size_t p_6 = p_5 + ny - 2;
+    size_t p_7 = p_5 + ny - 1;
+    size_t p_8 = p_5 + ny;
+
+    size_t col_b  = c_eq + 5 * 1;
+    size_t col_s  = c_eq + 4 * 1;
+    size_t col_ss = c_eq + 3 * 1;
+
+    // Contribution Delta h
     values[c_eq     ] = 0.0;
     values[c_eq +  1] = 0.0;
     values[c_eq +  2] = 0.0;
+    values[c_eq +  3] = 1.0;
+    values[c_eq +  4] = -2.0;
+    values[c_eq +  5] = 1.0;
+    values[c_eq +  6] = 0.0;
+    values[c_eq +  7] = 0.0;
+    values[c_eq +  8] = 0.0;
+    rhs[row    ] = 0.0;
 
+    return 0;
+}
+int reg_boundary_east_psi(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
+    std::vector<double>& x, std::vector<double>& y,
+    std::vector<double>& u_giv, double psi_11, double psi_22, 
+    double theta, size_t nx, size_t ny)
+{
+    size_t p_0 = c_eq/(9);  // p_e
+
+    values[c_eq     ] = 0.0;
+    values[c_eq +  1] = 1.0;
+    values[c_eq +  2] = 0.0;
     values[c_eq +  3] = 0.0;
-    values[c_eq +  4] = 0.0;
-    values[c_eq +  5] = -theta;
-
+    values[c_eq +  4] = -2.0;
+    values[c_eq +  5] = 0.0;
     values[c_eq +  6] = 0.0;
-    values[c_eq +  7] = -theta;
-    values[c_eq +  8] = 2.0 * theta;
+    values[c_eq +  7] = 1.0;
+    values[c_eq +  8] = 0.0;
+    rhs[row    ] = 0.0;
 
     return 0;
 }
-int reg_corner_south_east_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny)
+int reg_boundary_south_psi(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
+    std::vector<double>& x, std::vector<double>& y,
+    std::vector<double>& u_giv, double psi_11, double psi_22, 
+    double theta, size_t nx, size_t ny)
 {
-    size_t p0 = c_eq/(9);
-    size_t p1 = p0 - ny;
-    size_t p2 = p0 + 1;
-    rhs[row    ] = utilde[p1] - 2.0 * utilde[p0] + utilde[p2];
+    size_t p_0 = c_eq/(9);  // p_s
 
-    //--------------------------------------------------------------------------
-    // c-equation
-    // 
     values[c_eq     ] = 0.0;
     values[c_eq +  1] = 0.0;
     values[c_eq +  2] = 0.0;
-
-    values[c_eq +  3] = -theta;
-    values[c_eq +  4] = 0.0;
-    values[c_eq +  5] = 0.0;
-
-    values[c_eq +  6] = 2.0 * theta;
-    values[c_eq +  7] = -theta;
-    values[c_eq +  8] = 0.0;
-
-    return 0;
-}
-int reg_corner_south_west_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny)
-{
-    size_t p0 = c_eq/(9);
-    size_t p1 = p0 + 1;
-    size_t p2 = p0 + ny;
-    rhs[row    ] = utilde[p1] - 2.0 * utilde[p0] + utilde[p2];
-
-    //--------------------------------------------------------------------------
-    // c-equation
-    // 
-    values[c_eq     ] = 2.0 * theta;
-    values[c_eq +  1] = -theta;
-    values[c_eq +  2] = 0.0;
-
-    values[c_eq +  3] = -theta;
-    values[c_eq +  4] = 0.0;
-    values[c_eq +  5] = 0.0;
-
+    values[c_eq +  3] = 1.0;
+    values[c_eq +  4] = -2.0;
+    values[c_eq +  5] = 1.0;
     values[c_eq +  6] = 0.0;
     values[c_eq +  7] = 0.0;
     values[c_eq +  8] = 0.0;
+    rhs[row    ] = 0.0;
 
     return 0;
 }
-int reg_corner_north_west_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny)
+int reg_boundary_west_psi(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
+    std::vector<double>& x, std::vector<double>& y,
+    std::vector<double>& u_giv, double psi_11, double psi_22, 
+    double theta, size_t nx, size_t ny) 
 {
-    size_t p0 = c_eq/(9);
-    size_t p1 = p0 - 1;
-    size_t p2 = p0 + ny;
-    rhs[row    ] = utilde[p1] - 2.0 * utilde[p0] + utilde[p2];
+    size_t p_0 = c_eq/(9);  // p_w
 
-    //--------------------------------------------------------------------------
-    // c-equation
-    // 
     values[c_eq     ] = 0.0;
-    values[c_eq +  1] = -theta;
-    values[c_eq +  2] = 2.0 * theta;
-
-    // w
-    values[c_eq +  3] = 0.0;   
-    values[c_eq +  4] = 0.0;   
-    values[c_eq +  5] = -theta;
-
-    // nw
-    values[c_eq +  6] = 0;
-    values[c_eq +  7] = 0.0;
+    values[c_eq +  1] = 1.0;
+    values[c_eq +  2] = 0.0;
+    values[c_eq +  3] = 0.0;
+    values[c_eq +  4] = -2.0;
+    values[c_eq +  5] = 0.0;
+    values[c_eq +  6] = 0.0;
+    values[c_eq +  7] = 1.0;
     values[c_eq +  8] = 0.0;
+    rhs[row    ] = 0.0;
 
     return 0;
 }

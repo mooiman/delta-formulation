@@ -20,8 +20,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __MATRIX_ASSEMBLY_UTILDE_CORNERS_H__
-#define __MATRIX_ASSEMBLY_UTILDE_CORNERS_H__
+#ifndef __MATRIX_ASSEMBLY_PSI_INTERIOR_H__
+#define __MATRIX_ASSEMBLY_PSI_INTERIOR_H__
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -34,16 +34,9 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
-int reg_corner_north_east_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny);
+int reg_interior_psi(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
+    double c_psi, std::vector<double>& x, std::vector<double>& y, size_t nx, size_t ny);
 
-int reg_corner_south_east_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny);
-
-int reg_corner_south_west_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny);
-
-int reg_corner_north_west_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny);
+inline void add_value(double * values, size_t col, double data);
 
 #endif

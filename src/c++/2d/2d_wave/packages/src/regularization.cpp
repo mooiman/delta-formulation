@@ -23,9 +23,9 @@
 //
 //   Regularization of given function in 2 dimension
 //
-//   u - d\dx psi d\dx u - d\dy psi d\dy u = u_giv
+//   u_tilde - d\dx psi d\dx u_tilde - d\dy psi d\dy u_tilde = u_giv
 // 
-//   Based in article:
+//   Based on article:
 //       From M. Borsboom
 //       Applied Numerical Mathematics 26 (1998)
 //       Borsboom_developerrorminadaptgridmethod_ApplNumerMath1998.pdf
@@ -59,9 +59,9 @@ REGULARIZATION::REGULARIZATION(int iter_max, double g, std::string logging) :
     m_eps_smooth = 1e-12;
     m_u0_is_smooth = 1.e-10;
 }
-
-void REGULARIZATION::given_function( 
-    std::vector<double>& u_out, std::vector<double>& psi_11, std::vector<double>& psi_22, std::vector<double>& eq8, 
+//------------------------------------------------------------------------------
+void REGULARIZATION::given_function(
+    std::vector<double>& u_tilde, std::vector<double>& psi_11, std::vector<double>& psi_22, std::vector<double>& eq8,
     std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& u_giv_in,
     size_t nx, size_t ny, double c_psi, std::ofstream& log_file)
@@ -152,13 +152,13 @@ void REGULARIZATION::given_function(
             u0_xixi[p_w] = u0_xixi[p_ww];
         }
 
-        double dxi = 1.0;
-        double deta = 1.0;
 //------------------------------------------------------------------------------
-        eq8 = *(this->solve_eq8(nx, ny, dxi, deta, c_psi, u0, u0_xixi, u0_etaeta, log_file));  // eq8 is computed in computational space
+        eq8 = *(this->solve_eq8(nx, ny, x, y, c_psi, u0, u0_xixi, u0_etaeta, log_file));  // eq8 is computed in computational space
 //------------------------------------------------------------------------------
         for (size_t i = 0; i < nxny; ++i)
         {
+            double dxi = 1.0;
+            double deta = 1.0;
             psi_11[i] = c_psi * (dxi * dxi + deta * deta) * eq8[i]/2.0;  // divide by 2: then is equal to 1D if dx=dy
             psi_22[i] = c_psi * (dxi * dxi + deta * deta) * eq8[i]/2.0;  // divide by 2: then is equal to 1D if dx=dy
         }
@@ -183,11 +183,150 @@ void REGULARIZATION::given_function(
     }
     for (size_t i = 0; i < nxny; ++i)
     {
-        u_out[i] = u0[i] * u_giv_range;
+        u_tilde[i] = u0[i] * u_giv_range;
     }
 }
+//------------------------------------------------------------------------------
+void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, 
+    std::vector<double>& h, std::vector<double>& q, std::vector<double>& r, std::vector<double>& zb, 
+    std::vector<double>& x, std::vector<double>& y, size_t nx, size_t ny, 
+    double c_psi_in)
+{
+    int status = 0;
+    size_t nxny = nx * ny;
 
-void REGULARIZATION::first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx)
+    std::vector<double> Err_psi;
+
+    return;
+
+    Eigen::SparseMatrix<double> A(nxny, nxny);
+    Eigen::VectorXd solution(nxny);               // solution vector 
+    Eigen::VectorXd rhs(nxny);                // RHS vector
+
+    std::vector< Eigen::Triplet<double> > triplets; 
+    triplets.reserve(9 * nxny); // 9-points per row, nrow = nxny; large enough to avoid reallocation
+    
+    status = build_matrix_pattern_regularization(triplets, nx, ny);
+    A.setFromTriplets(triplets.begin(), triplets.end());
+    A.makeCompressed(); // Very important for valuePtr() access
+
+    double *values = A.valuePtr();         // pointer to all non-zero values
+    const int* outer = A.outerIndexPtr();   // row start pointers
+
+    double c_psi = c_psi_in;
+
+    START_TIMERN(Regularization diffusion);
+    A.setZero();
+    double psi_1 = 0.0;
+    double psi_2 = 0.0;
+    //
+    // viscosity
+    //
+    // For the moment only interior nodes (2025-08-13)
+    // Do not clear the rows, but add the viscosity terms
+
+    // south-west corner
+    for (size_t row = 0; row < 1; row += 1)
+    {
+        size_t c_eq = (size_t) outer[row    ];
+        status = reg_corner_south_west_psi( values, row, c_eq, rhs, 
+              Err_psi, 1.0, nx, ny);
+    }
+    // west boundary
+    for (size_t row = 1; row < 1 * (ny - 1); row += 1)
+    {
+        size_t c_eq = (size_t) outer[row    ];
+        size_t p_0 = c_eq/(9);
+
+        status = reg_boundary_west_psi( values, row, c_eq, rhs,
+             x,  y,
+             h, psi_1, psi_2, 
+             1.0, nx, ny);
+    }
+    // north-west corner
+    for (size_t row = 1 * (ny - 1); row < 1 * ny; row += 1)
+    {
+        size_t c_eq = (size_t) outer[row    ];
+        status = reg_corner_north_west_psi( values, row, c_eq, rhs, 
+              h, 1.0, nx, ny);
+    }
+
+    // interior with south and north boundary
+    for (size_t row = 1 * ny; row < 1 * (nx - 1) * ny; row += 1) 
+    {
+        size_t c_eq = outer[row    ];
+        size_t p_0 = c_eq/(9);
+
+        if (row % ny == 0) {
+            // south boundary, over write coefficients
+            status = reg_boundary_south_psi( values, row, c_eq, rhs,
+                 x,  y,
+                 h, psi_1, psi_2, 
+                1.0, nx, ny);
+                continue;
+        }
+        if ((row + 1) % ny == 0) {
+            // north boundary, over write coefficients
+            status = reg_boundary_north_psi( values, row, c_eq, rhs,
+                 x,  y,
+                 h, psi_1, psi_2, 
+                1.0, nx, ny);
+                continue;
+        continue;
+        }
+        status = reg_interior_psi( values, row, c_eq, rhs, 
+             c_psi,  x,  y, nx, ny);
+        // overwrite the right hand side
+        status = reg_interior_rhs_psi(row, c_eq, rhs, 
+            h, q, r, x,  y, c_psi, m_g, nx, ny);
+
+        rhs[row] = 
+            0.0
+            ;
+    }
+    // south-east corner
+    for (size_t row = 1 * (nx - 1) * ny; row < 1 * (nx - 1) * ny + 1; row += 1)
+    {
+        size_t c_eq = (size_t) outer[row    ];
+        status = reg_corner_south_east_psi( values, row, c_eq, rhs, 
+              h, 1.0, nx, ny);
+    }
+    // east boundary
+    for (size_t row = 1 * (nx - 1) * ny + 1; row < 1 * nx * ny - 1; row += 1) 
+    {
+        int c_eq = (size_t) outer[row    ];
+        status = 0;
+        size_t p_0 = c_eq/(9);
+
+        status = reg_boundary_east_psi( values, row, c_eq, rhs,
+             x,  y,
+             h, psi_1, psi_2, 
+            1.0, nx, ny);
+            continue;
+    }
+    // north-east corner
+    for (size_t row = 1 * nx * ny - 1; row < 1 * nx * ny; row += 1)
+    {
+        size_t c_eq = (size_t) outer[row    ];
+        status = reg_corner_north_east_psi( values, row, c_eq, rhs, 
+              h, 1.0, nx, ny);
+    }
+    STOP_TIMER(Regularization diffusion);
+
+    Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solverA;
+    solverA.compute(A);
+    solverA.setTolerance(1e-12);
+    solution = solverA.solve(rhs);
+
+    for (size_t i = 1; i < nxny - 1; ++i)
+    {
+        Err_psi[i] = solution[i];
+    }
+
+    return;
+}
+//------------------------------------------------------------------------------
+void REGULARIZATION::first_derivative( std::vector<double> & psi, std::vector<double>& eps,  std::vector<double>& u, double dx)
 {
     size_t nx = eps.size();
     std::vector<double> pe(nx, 0.0);
@@ -206,8 +345,9 @@ void REGULARIZATION::first_derivative(std::vector<double>& psi, std::vector<doub
         }
     }
 }
+//------------------------------------------------------------------------------
 std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t ny, std::vector<double>& x, std::vector<double>& y, 
-    std::vector<double> psi_11, std::vector<double> psi_22, std::vector<double> u_giv, std::ofstream& log_file)
+    std::vector<double>& psi_11, std::vector<double>& psi_22, std::vector<double>& u_giv, std::ofstream& log_file)
 {
     size_t nxny = nx * ny;
     auto u = std::make_unique<std::vector<double>> ();
@@ -248,7 +388,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
     for (size_t row = 0; row < 1; row += 1)
     {
         size_t c_eq = (size_t) outer[row    ];
-        status = reg_corner_south_west(values, row, c_eq, rhs, 
+        status = reg_corner_south_west_utilde(values, row, c_eq, rhs, 
            u_giv, (double) 1.0, nx, ny);
     }
     // west boundary
@@ -259,7 +399,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
 
         double psi_1 = -psi_11[p_0];
         double psi_2 = -psi_22[p_0];
-        status = reg_boundary_west(values, row, c_eq, rhs,
+        status = reg_boundary_west_utilde(values, row, c_eq, rhs,
             x, y, u_giv, psi_1, psi_2, 
             (double) 1.0, nx, ny);
     }
@@ -267,7 +407,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
     for (size_t row = 1 * (ny - 1); row < 1 * ny; row += 1)
     {
         size_t c_eq = (size_t) outer[row    ];
-        status = reg_corner_north_west(values, row, c_eq, rhs, 
+        status = reg_corner_north_west_utilde(values, row, c_eq, rhs, 
            u_giv, (double) 1.0, nx, ny);
     }
 
@@ -282,14 +422,14 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
 
         if (row % ny == 0) {
             // south boundary, over write coefficients
-            status = reg_boundary_south(values, row, c_eq, rhs, 
+            status = reg_boundary_south_utilde(values, row, c_eq, rhs, 
                 x, y, u_giv, psi_1, psi_2, 
                 (double) 1.0, nx, ny);
             continue;
         }
         if ((row + 1) % ny == 0) {
             // north boundary, over write coefficients
-            status = reg_boundary_north(values, row, c_eq, rhs, 
+            status = reg_boundary_north_utilde(values, row, c_eq, rhs, 
                 x, y, u_giv, psi_1, psi_2, 
                 (double) 1.0, nx, ny);
             continue;
@@ -303,7 +443,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
     for (size_t row = 1 * (nx - 1) * ny; row < 1 * (nx - 1) * ny + 1; row += 1)
     {
         size_t c_eq = (size_t) outer[row    ];
-        status = reg_corner_south_east(values, row, c_eq, rhs, 
+        status = reg_corner_south_east_utilde(values, row, c_eq, rhs, 
            u_giv, (double) 1.0, nx, ny);
     }
     // east boundary
@@ -315,7 +455,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
         double psi_1 = -psi_11[p_0];
         double psi_2 = -psi_22[p_0];
 
-        status = reg_boundary_east(values, row, c_eq, rhs, 
+        status = reg_boundary_east_utilde(values, row, c_eq, rhs, 
             x, y, u_giv, psi_1, psi_2, 
             (double) 1.0, nx, ny);
     }
@@ -323,7 +463,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
     for (size_t row = 1 * nx * ny - 1; row < 1 * nx * ny; row += 1)
     {
         size_t c_eq = (size_t) outer[row    ];
-        status = reg_corner_north_east(values, row, c_eq, rhs, 
+        status = reg_corner_north_east_utilde(values, row, c_eq, rhs, 
            u_giv, (double) 1.0, nx, ny);
     }
     STOP_TIMER(Regularization diffusion);
@@ -362,11 +502,11 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
     }
 
     return u;
-};
-
-
-std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(size_t nx, size_t ny, double dx, double dy, double c_error, 
-std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etaeta, std::ofstream& log_file)
+}
+//------------------------------------------------------------------------------
+std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(size_t nx, size_t ny, std::vector<double>& x, std::vector<double>& y,
+     double c_error, std::vector<double>& u0, std::vector<double>& u0_xixi, std::vector<double>& u0_etaeta, 
+    std::ofstream& log_file)
 {
     size_t nxny = nx*ny;
     auto eq8 = std::make_unique<std::vector<double>> ();
@@ -533,15 +673,15 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
         //values[c_eq +  7] = m_mass[1] * m_mass[2] - c_error * u0_etaeta[p_w] / u0_etaeta_max;
         //values[c_eq +  8] = m_mass[2] * m_mass[2];
         
-        values[c_eq     ] = m_mass[0] * m_mass[0];
-        values[c_eq +  1] = m_mass[0] * m_mass[1] - c_error;
-        values[c_eq +  2] = m_mass[0] * m_mass[2];
-        values[c_eq +  3] = m_mass[1] * m_mass[0] - c_error;
-        values[c_eq +  4] = m_mass[1] * m_mass[1] + 4. * c_error;
-        values[c_eq +  5] = m_mass[1] * m_mass[2] - c_error;
-        values[c_eq +  6] = m_mass[2] * m_mass[0];
-        values[c_eq +  7] = m_mass[2] * m_mass[1] - c_error;
-        values[c_eq +  8] = m_mass[2] * m_mass[2];
+        values[c_eq     ] = m_mass[0] * m_mass[0] - 1.0/6.0 * c_error;
+        values[c_eq +  1] = m_mass[0] * m_mass[1] - 4.0/6.0 * c_error;
+        values[c_eq +  2] = m_mass[0] * m_mass[2] - 1.0/6.0 * c_error;
+        values[c_eq +  3] = m_mass[1] * m_mass[0] - 4.0/6.0 * c_error;
+        values[c_eq +  4] = m_mass[1] * m_mass[1] + 20.0/6.0 * c_error;
+        values[c_eq +  5] = m_mass[1] * m_mass[2] - 4.0/6.0 * c_error;
+        values[c_eq +  6] = m_mass[2] * m_mass[0] - 1.0/6.0 * c_error;
+        values[c_eq +  7] = m_mass[2] * m_mass[1] - 4.0/6.0 * c_error;
+        values[c_eq +  8] = m_mass[2] * m_mass[2] - 1.0/6.0 * c_error;
 
         rhs[row]  = (u0_xixi[p_sw] + u0_etaeta[p_sw])/(u0_xixi_max + u0_etaeta_max);
         rhs[row] += (u0_xixi[p_w ] + u0_etaeta[p_w ])/(u0_xixi_max + u0_etaeta_max);
@@ -646,6 +786,302 @@ std::vector<double> u0, std::vector<double> u0_xixi, std::vector<double> u0_etae
         eq8->push_back(solution[i]); // / (err_max + 1e-13);  // to prevent division bij zero
     }
     return eq8;
+}
+//------------------------------------------------------------------------------
+int REGULARIZATION::reg_interior_rhs_psi( size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
+    std::vector<double>& h, std::vector<double>& q, std::vector<double>& r,
+    std::vector<double>& x, std::vector<double>& y,
+    double c_psi, double g, size_t nx, size_t ny)
+{
+    size_t nxny = nx * ny;
+    std::vector<double> Err_psi(nxny, 0.0);
+
+    std::vector<double> d2h_dxi2(nxny, 0.0);
+    std::vector<double> d2h_dxideta(nxny, 0.0);
+    std::vector<double> d2h_deta2(nxny, 0.0);
+    std::vector<double> d2q_dxi2(nxny, 0.0);
+    std::vector<double> d2q_dxideta(nxny, 0.0);
+    std::vector<double> d2q_deta2(nxny, 0.0);
+    std::vector<double> d2r_dxi2(nxny, 0.0);
+    std::vector<double> d2r_dxideta(nxny, 0.0);
+    std::vector<double> d2r_deta2(nxny, 0.0);
+    std::vector<double> d2s_dxi2(nxny, 0.0);
+    std::vector<double> d2s_dxideta(nxny, 0.0);
+    std::vector<double> d2s_deta2(nxny, 0.0);
+    std::vector<double> s(nxny, 0.0);
+    std::vector<size_t> p(9);
+
+    for (size_t i = 1; i < nx - 1; ++i)
+    {
+        for (size_t j = 1; j < ny - 1; ++j)
+        {
+            p[0] = p_index(i - 1, j - 1, ny);
+            p[1] = p_index(i - 1, j    , ny);
+            p[2] = p_index(i - 1, j + 1, ny);
+            p[3] = p_index(i    , j - 1, ny);
+            p[4] = p_index(i    , j    , ny);
+            p[5] = p_index(i    , j + 1, ny);
+            p[6] = p_index(i + 1, j - 1, ny);
+            p[7] = p_index(i + 1, j    , ny);
+            p[8] = p_index(i + 1, j + 1, ny);
+            d2h_dxi2[p[4]]    = d2udxi2(h, p);
+            d2q_dxi2[p[4]]    = d2udxi2(q, p);
+            d2r_dxi2[p[4]]    = d2udxi2(r, p);
+            d2s_dxi2[p[4]]    = d2udxi2(s, p);
+            d2h_dxideta[p[4]] = d2udxideta(h, p);
+            d2q_dxideta[p[4]] = d2udxideta(q, p);
+            d2r_dxideta[p[4]] = d2udxideta(r, p);
+            d2s_dxideta[p[4]] = d2udxideta(s, p);
+            d2h_deta2[p[4]]   = d2udeta2(h, p);
+            d2q_deta2[p[4]]   = d2udeta2(q, p);
+            d2r_deta2[p[4]]   = d2udeta2(r, p);
+            d2s_deta2[p[4]]   = d2udeta2(s, p);
+        }
+    }
+
+    for (size_t i = 0; i < nx; ++i)  // south and north boundary
+    {
+        size_t j = 0;  // south boundary
+        size_t p_0  = p_index(i, j    , ny);
+        size_t p_n  = p_index(i, j + 1, ny);
+        size_t p_nn = p_index(i, j + 2, ny);
+        d2h_dxi2[p_0]    = 2.0 * d2h_dxi2[p_n]    - d2h_dxi2[p_nn];
+        d2q_dxi2[p_0]    = 2.0 * d2q_dxi2[p_n]    - d2q_dxi2[p_nn];
+        d2r_dxi2[p_0]    = 2.0 * d2r_dxi2[p_n]    - d2r_dxi2[p_nn];
+        d2s_dxi2[p_0]    = 2.0 * d2s_dxi2[p_n]    - d2s_dxi2[p_nn];
+        d2h_dxideta[p_0] = 2.0 * d2h_dxideta[p_n] - d2h_dxideta[p_nn];
+        d2q_dxideta[p_0] = 2.0 * d2q_dxideta[p_n] - d2q_dxideta[p_nn];
+        d2r_dxideta[p_0] = 2.0 * d2r_dxideta[p_n] - d2r_dxideta[p_nn];
+        d2s_dxideta[p_0] = 2.0 * d2s_dxideta[p_n] - d2s_dxideta[p_nn];
+        d2h_deta2[p_0]   = 2.0 * d2h_deta2[p_n]   - d2h_deta2[p_nn];
+        d2q_deta2[p_0]   = 2.0 * d2q_deta2[p_n]   - d2q_deta2[p_nn];
+        d2r_deta2[p_0]   = 2.0 * d2r_deta2[p_n]   - d2r_deta2[p_nn]; 
+        d2s_deta2[p_0]   = 2.0 * d2s_deta2[p_n]   - d2s_deta2[p_nn]; 
+
+        j = ny - 1;  // north boundary
+        p_0         = p_index(i, j    , ny);
+        size_t p_s  = p_index(i, j - 1, ny);
+        size_t p_ss = p_index(i, j - 2, ny);
+        d2h_dxi2[p_0]    = 2.0 * d2h_dxi2[p_s]    - d2h_dxi2[p_ss];
+        d2q_dxi2[p_0]    = 2.0 * d2q_dxi2[p_s]    - d2q_dxi2[p_ss];
+        d2r_dxi2[p_0]    = 2.0 * d2r_dxi2[p_s]    - d2r_dxi2[p_ss];
+        d2s_dxi2[p_0]    = 2.0 * d2s_dxi2[p_s]    - d2s_dxi2[p_ss];
+        d2h_dxideta[p_0] = 2.0 * d2h_dxideta[p_s] - d2h_dxideta[p_ss];
+        d2q_dxideta[p_0] = 2.0 * d2q_dxideta[p_s] - d2q_dxideta[p_ss];
+        d2r_dxideta[p_0] = 2.0 * d2r_dxideta[p_s] - d2r_dxideta[p_ss];
+        d2s_dxideta[p_0] = 2.0 * d2s_dxideta[p_s] - d2s_dxideta[p_ss];
+        d2h_deta2[p_0]   = 2.0 * d2h_deta2[p_s]   - d2h_deta2[p_ss];
+        d2q_deta2[p_0]   = 2.0 * d2q_deta2[p_s]   - d2q_deta2[p_ss];
+        d2r_deta2[p_0]   = 2.0 * d2r_deta2[p_s]   - d2r_deta2[p_ss]; 
+        d2s_deta2[p_0]   = 2.0 * d2s_deta2[p_s]   - d2s_deta2[p_ss]; 
+    }
+    for (size_t j = 0; j < ny; ++j)  // west and east boundary
+    {
+        size_t i = 0;  // west boundary
+        size_t p_0  = p_index(i    , j, ny);
+        size_t p_e  = p_index(i + 1, j, ny);
+        size_t p_ee = p_index(i + 2, j, ny);
+        d2h_dxi2[p_0]    = 2.0 * d2h_dxi2[p_e]    - d2h_dxi2[p_ee];
+        d2q_dxi2[p_0]    = 2.0 * d2q_dxi2[p_e]    - d2q_dxi2[p_ee];
+        d2r_dxi2[p_0]    = 2.0 * d2r_dxi2[p_e]    - d2r_dxi2[p_ee];
+        d2s_dxi2[p_0]    = 2.0 * d2s_dxi2[p_e]    - d2s_dxi2[p_ee];
+        d2h_dxideta[p_0] = 2.0 * d2h_dxideta[p_e] - d2h_dxideta[p_ee];
+        d2q_dxideta[p_0] = 2.0 * d2q_dxideta[p_e] - d2q_dxideta[p_ee];
+        d2r_dxideta[p_0] = 2.0 * d2r_dxideta[p_e] - d2r_dxideta[p_ee];
+        d2s_dxideta[p_0] = 2.0 * d2s_dxideta[p_e] - d2s_dxideta[p_ee];
+        d2h_deta2[p_0]   = 2.0 * d2h_deta2[p_e]   - d2h_deta2[p_ee];
+        d2q_deta2[p_0]   = 2.0 * d2q_deta2[p_e]   - d2q_deta2[p_ee];
+        d2r_deta2[p_0]   = 2.0 * d2r_deta2[p_e]   - d2r_deta2[p_ee]; 
+        d2s_deta2[p_0]   = 2.0 * d2s_deta2[p_e]   - d2s_deta2[p_ee]; 
+
+        i = nx - 1;  // east boundary
+        p_0      = p_index(i    , j, ny);
+        size_t p_w  = p_index(i - 1, j, ny);
+        size_t p_ww = p_index(i - 2, j, ny);
+        d2h_dxi2[p_0]    =  2.0 * d2h_dxi2[p_w]    - d2h_dxi2[p_ww];
+        d2q_dxi2[p_0]    =  2.0 * d2q_dxi2[p_w]    - d2q_dxi2[p_ww];
+        d2r_dxi2[p_0]    =  2.0 * d2r_dxi2[p_w]    - d2r_dxi2[p_ww];
+        d2s_dxi2[p_0]    =  2.0 * d2s_dxi2[p_w]    - d2s_dxi2[p_ww];
+        d2h_dxideta[p_0] =  2.0 * d2h_dxideta[p_w] - d2h_dxideta[p_ww];
+        d2q_dxideta[p_0] =  2.0 * d2q_dxideta[p_w] - d2q_dxideta[p_ww];
+        d2r_dxideta[p_0] =  2.0 * d2r_dxideta[p_w] - d2r_dxideta[p_ww];
+        d2s_dxideta[p_0] =  2.0 * d2s_dxideta[p_w] - d2s_dxideta[p_ww];
+        d2h_deta2[p_0]   =  2.0 * d2h_deta2[p_w]   - d2h_deta2[p_ww];
+        d2q_deta2[p_0]   =  2.0 * d2q_deta2[p_w]   - d2q_deta2[p_ww];
+        d2r_deta2[p_0]   =  2.0 * d2r_deta2[p_w]   - d2r_deta2[p_ww]; 
+        d2s_deta2[p_0]   =  2.0 * d2s_deta2[p_w]   - d2s_deta2[p_ww]; 
+    }
+
+    rhs.setZero();
+
+    // Erro based on potential energy
+    //
+    //   \sqrt{g \widehat{h}}
+    // 
+    for (size_t i = 1; i < nx - 1; ++i)
+    {
+        for (size_t j = 1; j < ny - 1; ++j)
+        {
+            p[0] = p_index(i - 1, j - 1, ny);
+            p[1] = p_index(i - 1, j    , ny);
+            p[2] = p_index(i - 1, j + 1, ny);
+            p[3] = p_index(i    , j - 1, ny);
+            p[4] = p_index(i    , j    , ny);
+            p[5] = p_index(i    , j + 1, ny);
+            p[6] = p_index(i + 1, j - 1, ny);
+            p[7] = p_index(i + 1, j    , ny);
+            p[8] = p_index(i + 1, j + 1, ny);
+
+            double f1 = F1(h, p, x, y, nx, ny);
+            double f2 = F2(h, p, x, y, nx, ny);
+            double f3 = F3(h, p, x, y, nx, ny);
+            rhs[p[4]] = std::sqrt( g/h[p[4]] ) * (
+                1.0/16.0 * f1 + 1.0/8.0 * f2 + 1.0/16.0 * f3
+                );
+        }
+    }
+    return 0;
+}
+
+inline double REGULARIZATION::d2udxi2(std::vector<double> & u, std::vector<size_t>& p)
+{
+    // Computational space
+    double dxi = 1.0;
+    double deta = 1.0;
+    double retval = 0.0;
+
+    retval = 1.0 * u[p[0]] +
+             4.0 * u[p[1]] +
+             1.0 * u[p[2]] +
+             4.0 * u[p[3]] +
+            -20.0 * u[p[4]] +
+             4.0 * u[p[5]] +
+             1.0 * u[p[6]] +
+             4.0 * u[p[7]] +
+             1.0 * u[p[8]];
+    return retval/6.0;
+}
+inline double REGULARIZATION::d2udxideta(std::vector<double> & u, std::vector<size_t>& p)
+{
+    // Computational space
+    double dxi = 1.0;
+    double deta = 1.0;
+    double retval = 0.0;
+
+    retval = 1.0 * u[p[0]] +
+             0.0 * u[p[1]] +
+            -1.0 * u[p[2]] +
+             0.0 * u[p[3]] +
+             0.0 * u[p[4]] +
+             0.0 * u[p[5]] +
+            -1.0 * u[p[6]] +
+             0.0 * u[p[7]] +
+             1.0 * u[p[8]];
+    return retval/(4.0 * dxi * deta);
+}
+inline double REGULARIZATION::d2udeta2(std::vector<double> & u, std::vector<size_t>& p)
+{
+    // Computational space
+    return d2udxi2(u, p);
+}
+inline double REGULARIZATION::F1(std::vector<double> & u, std::vector<size_t>& p, 
+    std::vector<double> & x, std::vector<double> &y, 
+    size_t nx, size_t ny )
+{
+    double retval = 0.0;
+
+    double dx_dxi = 1.0;
+    double dx_deta = 1.0;
+    double dxi_dx = 1.0;
+    double deta_dx = 1.0;
+    double d2xi_dxdy = 0.0;  // Assume no cuvature in grid
+    double d2eta_dxdy = 0.0; // Assume no cuvature in grid
+    double d2xi_dy2 = 0.0;  // Assume no cuvature in grid
+    double d2eta_dy2 = 0.0; // Assume no cuvature in grid
+    double d2xi_dx2 = 0.0;
+    double d2eta_dx2 = 0.0;
+
+    double du_dxi = 1.0;
+    double du_deta = 1.0;
+    double d2u_dxi2 = d2udxi2(u, p);
+    double d2u_dxideta = d2udxideta(u, p);
+    double d2u_deta2 = d2udeta2(u, p);
+
+    retval = dx_dxi * dx_dxi * (
+          dxi_dx * dxi_dx * d2u_dxi2 
+        + 2.0 * dxi_dx * deta_dx * d2u_dxideta 
+        + deta_dx * deta_dx * d2u_deta2 
+        + d2xi_dx2 * du_dxi 
+        + d2eta_dx2 * du_deta
+        );
+
+    return retval;
+}
+inline double REGULARIZATION::F2(std::vector<double> & u, std::vector<size_t>& p,
+    std::vector<double> & x, std::vector<double> &y, 
+    size_t nx, size_t ny )
+{
+    double retval = 0.0;
+
+    double dx_dxi = 1.0;
+    double dy_deta = 1.0;
+    double dxi_dx = 1.0;
+    double dxi_dy = 1.0;
+    double deta_dx = 1.0;
+    double deta_dy = 1.0;
+    double d2xi_dxdy = 0.0;  // Assume no cuvature in grid
+    double d2eta_dxdy = 0.0; // Assume no cuvature in grid
+    double d2xi_dy2 = 0.0;  // Assume no cuvature in grid
+    double d2eta_dy2 = 0.0; // Assume no cuvature in grid
+
+    double du_dxi = 1.0;
+    double du_deta = 1.0;
+    double d2u_dxi2 = d2udxi2(u, p);
+    double d2u_dxideta = d2udxideta(u, p);
+    double d2u_deta2 = d2udeta2(u, p);
+
+    retval = dx_dxi * dy_deta * (
+        dxi_dx * dxi_dy * d2u_dxi2 
+        + (dxi_dx * deta_dy + deta_dx * dxi_dy) * d2u_dxideta 
+        + deta_dx * deta_dy * d2u_deta2
+        + d2xi_dxdy * du_dxi
+        + d2eta_dxdy * du_deta
+        );
+
+        return retval;
+}
+inline double REGULARIZATION::F3(std::vector<double> & u, std::vector<size_t>& p, 
+    std::vector<double> & x, std::vector<double> &y, 
+    size_t nx, size_t ny )
+{
+    double retval = 0.0;
+
+    double dx_dxi = 1.0;
+    double dy_deta = 1.0;
+    double dxi_dx = 1.0;
+    double dxi_dy = 1.0;
+    double deta_dx = 1.0;
+    double deta_dy = 1.0;
+    double d2xi_dxdy = 0.0;  // Assume no cuvature in grid
+    double d2eta_dxdy = 0.0; // Assume no cuvature in grid
+    double d2xi_dy2 = 0.0;  // Assume no cuvature in grid
+    double d2eta_dy2 = 0.0; // Assume no cuvature in grid
+
+    double du_dxi = 1.0;
+    double du_deta = 1.0;
+    double d2u_dxi2 = d2udxi2(u, p);
+    double d2u_dxideta = d2udxideta(u, p);
+    double d2u_deta2 = d2udeta2(u, p);
+
+    retval = dy_deta * dy_deta * (
+          dxi_dy * dxi_dy * d2u_dxi2 
+        + 2.0 * dxi_dy * deta_dy * d2u_dxideta 
+        + deta_dy * deta_dy * d2u_deta2 
+        + d2xi_dy2 * du_dxi 
+        + d2eta_dy2 * du_deta
+        );
+
+    return retval;
 }
 size_t REGULARIZATION::p_index(size_t i, size_t j, size_t ny_in)
 {

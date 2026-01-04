@@ -34,22 +34,22 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
-int reg_boundary_north(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
+int reg_boundary_north_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
     std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& u_giv, double psi_11, double psi_22, 
     double theta, size_t nx, size_t ny);
 
-int reg_boundary_east(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
+int reg_boundary_east_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
     std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& u_giv, double psi_11, double psi_22, 
     double theta, size_t nx, size_t ny);
 
-int reg_boundary_south(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
+int reg_boundary_south_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
     std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& u_giv, double psi_11, double psi_22, 
     double theta, size_t nx, size_t ny);
 
-int reg_boundary_west(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
+int reg_boundary_west_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
     std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& u_giv, double psi_11, double psi_22, 
     double theta, size_t nx, size_t ny);
