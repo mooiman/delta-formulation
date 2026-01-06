@@ -148,8 +148,8 @@ int main(int argc, char *argv[])
     else
     {
         std::cout << "======================================================" << std::endl;
-        std::cout << "Git commit time/hash: " << getbuildstring_main() << std::endl;
         std::cout << "Executable compiled : " << compileDateTime() << std::endl;
+        std::cout << "Git commit time/hash: " << getbuildstring_main() << std::endl;
         std::cout << std::endl;
         std::cout << "usage: 2d_wave.exe --toml <input_file>" << std::endl;
         std::cout << "======================================================" << std::endl;
@@ -162,9 +162,9 @@ int main(int argc, char *argv[])
     auto start_date_time = std::format("{:%F %H:%M:%OS %Oz}", now);
     std::cout << std::endl;
     std::cout << "======================================================" << std::endl;
-    std::cout << "Git commit time/hash: " << getbuildstring_main() << std::endl;
-    std::cout << "Executable compiled : " << compileDateTime() << std::endl;
     std::cout << "Start time          : " << start_date_time << std::endl;
+    std::cout << "Executable compiled : " << compileDateTime() << std::endl;
+    std::cout << "Git commit time/hash: " << getbuildstring_main() << std::endl;
     std::cout << "======================================================" << std::endl;
     std::cout << "Executable directory: " << exec_dir << std::endl;
     std::cout << "Start directory     : " << start_dir << std::endl;
@@ -224,9 +224,9 @@ int main(int argc, char *argv[])
     std::cout << "======================================================" << std::endl;
 
     log_file << "======================================================" << std::endl;
-    log_file << "Git commit time/hash: " << getbuildstring_main() << std::endl;
-    log_file << "Executable compiled : " << compileDateTime() << std::endl;
     log_file << "Start time          : " << start_date_time << std::endl;
+    log_file << "Executable compiled : " << compileDateTime() << std::endl;
+    log_file << "Git commit time/hash: " << getbuildstring_main() << std::endl;
     log_file << "=== Input file =======================================" << std::endl;
     log_file << toml_file_name << std::endl;
 
@@ -434,22 +434,34 @@ int main(int argc, char *argv[])
     std::vector<double> delta_q(nxny, 0.);
     std::vector<double> delta_r(nxny, 0.);
     std::vector<double> froude(nxny, 0.);    // froude number
-    std::vector<double> peclet(nxny, 0.);    // cell peclet number
     std::vector<double> post_q;              // needed for postprocessing; bed shear stress; convection;
     std::vector<double> post_r;              // needed for postprocessing; bed shear stress; convection;
+    std::vector<double> peclet_xi;     // cell peclet number
+    std::vector<double> peclet_eta;    // cell peclet number
     if (do_bed_shear_stress || do_convection || do_viscosity)
     {
         post_q.resize(nxny, 0.);              // needed for postprocessing; bed shear stress; convection;
         post_r.resize(nxny, 0.);              // needed for postprocessing; bed shear stress; convection;
     }
-    std::vector<double> psi_11;  // needed when regularization of given initial function (ie bed level);
-    std::vector<double> psi_22;  // needed when regularization of given initial function (ie bed level);
-    std::vector<double> eq8;     // needed when regularization of given initial function (ie bed level);
+    if (do_viscosity)
+    {
+        peclet_xi.resize(nxny, 0.);     // cell peclet number
+        peclet_eta.resize(nxny, 0.);    // cell peclet number
+    }
+    std::vector<double> psi_11_zb;  // needed when regularization of given initial function (ie bed level);
+    std::vector<double> psi_22_zb;  // needed when regularization of given initial function (ie bed level);
+    std::vector<double> eq8_zb;     // needed when regularization of given initial function (ie bed level);
+    std::vector<double> psi_11_visc;  // needed when regularization of given initial function (ie bed level);
+    std::vector<double> psi_22_visc;  // needed when regularization of given initial function (ie bed level);
+    std::vector<double> eq8_visc;     // needed when regularization of given initial function (ie bed level);
     if (regularization_init)
     {
-        psi_11.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
-        psi_22.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
-        eq8.resize(nxny, 0.);     // needed when regularization of given initial function (ie bed level);
+        psi_11_zb.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
+        psi_22_zb.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
+        eq8_zb.resize(nxny, 0.);     // needed when regularization of given initial function (ie bed level);
+        psi_11_visc.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
+        psi_22_visc.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
+        eq8_visc.resize(nxny, 0.);     // needed when regularization of given initial function (ie bed level);
     }
     std::vector<double> htheta(nxny);
     std::vector<double> qtheta(nxny);
@@ -524,12 +536,12 @@ int main(int argc, char *argv[])
     if (regularization_init)
     {
         START_TIMER(Regularization_init);
-        regularization->given_function(zb, psi_11, psi_22, eq8, x, y, zb_giv, nx, ny, c_psi, log_file);  
-        //regularization->given_function(visc_reg, psi_11, psi_22, eq8, x, y, visc_given, nx, ny, c_psi, log_file);
-        //for (size_t i = 0; i < visc_reg.size(); ++i)
-        //{
-        //    visc[i] = visc_reg[i] + std::sqrt(psi_11[i] * psi_11[i] + psi_22[i] * psi_22[i]);
-        //}
+        regularization->given_function(zb, psi_11_zb, psi_22_zb, eq8_zb, x, y, zb_giv, nx, ny, c_psi, log_file);  
+        regularization->given_function(visc_reg, psi_11_visc, psi_22_visc, eq8_visc, x, y, visc_given, nx, ny, c_psi, log_file);
+        for (size_t i = 0; i < visc_reg.size(); ++i)
+        {
+            visc[i] = visc_reg[i] + std::sqrt(psi_11_visc[i] * psi_11_visc[i] + psi_22_visc[i] * psi_22_visc[i]);
+        }
 
         STOP_TIMER(Regularization_init);
     }
@@ -605,9 +617,15 @@ int main(int argc, char *argv[])
     std::string map_v_name("v_2d");
     std::string map_umag_name("umag_2d");
     std::string map_zb_name("zb_2d");
-    std::string map_psi_11_name("psi_11");
-    std::string map_psi_22_name("psi_22");
-    std::string map_eq8_name("eq8");
+    std::string map_psi_11_name("psi_11_zb");
+    std::string map_psi_22_name("psi_22_zb");
+    std::string map_eq8_name("eq8_zb");
+    std::string map_psi_11_zb_name("psi_11_visc");
+    std::string map_psi_22_zb_name("psi_22_visc");
+    std::string map_eq8_zb_name("eq8_visc");
+    std::string map_psi_11_visc_name("psi_11_visc");
+    std::string map_psi_22_visc_name("psi_22_visc");
+    std::string map_eq8_visc_name("eq8_visc");
     std::string map_beds_q_name("bed_stress_q");
     std::string map_beds_r_name("bed_stress_r");
     std::string map_conv_q_name("convection_q");
@@ -615,7 +633,8 @@ int main(int argc, char *argv[])
     std::string map_visc_q_name("viscosity_q");
     std::string map_visc_r_name("viscosity_r");
     std::string map_froude_name("froude");
-    std::string map_peclet_name("peclet");
+    std::string map_peclet_xi_name("peclet_eta");
+    std::string map_peclet_eta_name("peclet_xi");
 
     status = map_file->add_variable(map_h_name, dim_names, "sea_floor_depth_below_sea_surface", "Water depth", "m", "mesh2D", "node", "");
     status = map_file->add_variable(map_q_name, dim_names, "", "Water flux (x)", "m2 s-1", "mesh2D", "node", "");
@@ -629,12 +648,14 @@ int main(int argc, char *argv[])
     status = map_file->add_variable(map_umag_name, dim_names, "sea_water_speed", "Velocity magnitude", "m s-1", "mesh2D", "node", "");
     status = map_file->add_variable(map_zb_name, dim_names, "", "BedLevel", "m", "mesh2D", "node", "");
     status = map_file->add_variable(map_froude_name, dim_names, "", "Froude", "-", "mesh2D", "node", "");
-    status = map_file->add_variable(map_peclet_name, dim_names, "", "Peclet", "-", "mesh2D", "node", "");
     if (regularization_init || regularization_iter || regularization_time )
     {
-        status = map_file->add_variable(map_psi_11_name, dim_names, "", "Psi_11", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (x)");
-        status = map_file->add_variable(map_psi_22_name, dim_names, "", "Psi_22", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (y)");
-        status = map_file->add_variable(map_eq8_name, dim_names, "", "Eq8", "-", "mesh2D", "node", "Result of equation 8, see Borsboom 1998");
+        status = map_file->add_variable(map_psi_11_zb_name, dim_names, "", "Psi_11_zb", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (x)");
+        status = map_file->add_variable(map_psi_22_zb_name, dim_names, "", "Psi_22_zb", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (y)");
+        status = map_file->add_variable(map_eq8_zb_name, dim_names, "", "Eq8_zb", "-", "mesh2D", "node", "Result of equation 8, see Borsboom 1998");
+        status = map_file->add_variable(map_psi_11_visc_name, dim_names, "", "Psi_11_visc", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (x)");
+        status = map_file->add_variable(map_psi_22_visc_name, dim_names, "", "Psi_22_visc", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (y)");
+        status = map_file->add_variable(map_eq8_visc_name, dim_names, "", "Eq8_visc", "-", "mesh2D", "node", "Result of equation 8, see Borsboom 1998");
     }
 
     if (do_bed_shear_stress)
@@ -651,6 +672,8 @@ int main(int argc, char *argv[])
     {
         status = map_file->add_variable(map_visc_q_name, dim_names, "", "Viscosity term (x)", "m2 s-2", "mesh2D", "node", "");
         status = map_file->add_variable(map_visc_r_name, dim_names, "", "Viscosity term (y)", "m2 s-2", "mesh2D", "node", "");
+        status = map_file->add_variable(map_peclet_xi_name, dim_names, "", "Peclet (xi)", "-", "mesh2D", "node", "");
+        status = map_file->add_variable(map_peclet_eta_name, dim_names, "", "Peclet (eta)", "-", "mesh2D", "node", "");
     }
 
     // Put data on map file
@@ -673,13 +696,39 @@ int main(int argc, char *argv[])
     }
     map_file->put_time_variable(map_umag_name, nst_map, u_speed);
 
+    if (do_viscosity)
+    {
+        for (size_t i = 1; i < nx - 1; ++i)  // skip nodes at boundaries
+        {
+            for (size_t j = 1; j < ny - 1; ++j)  // skip nodes at boundaries
+            {
+                size_t k1 = main_idx(i - 1, j    , ny);
+                size_t k3 = main_idx(i    , j - 1, ny);
+                size_t k4 = main_idx(i    , j    , ny);
+                size_t k5 = main_idx(i    , j + 1, ny);
+                size_t k7 = main_idx(i + 1, j    , ny);
 
+                double speed = (std::sqrt(u[k4] * u[k4] + v[k4] * v[k4]));
+                double dx_dxi = 0.5 * (x[k7] - x[k4]) + 0.5 * (x[k4] - x[k1]);
+                peclet_xi[k4] = speed * dx_dxi / visc_reg[k4];
+
+                speed = (std::sqrt(u[k4] * u[k4] + v[k4] * v[k4]));
+                double dy_deta = 0.5 * (y[k5] - y[k4]) + 0.5 * (y[k4] - y[k3]);
+                peclet_eta[k4] = speed * dy_deta / visc_reg[k4];
+            }
+        }
+        map_file->put_time_variable(map_peclet_xi_name, nst_map, peclet_xi);
+        map_file->put_time_variable(map_peclet_eta_name, nst_map, peclet_eta);
+    }
     map_file->put_time_variable(map_zb_name, nst_map, zb_giv);
     if (regularization_init)
     {
-        map_file->put_time_variable(map_psi_11_name, nst_map, psi_11);
-        map_file->put_time_variable(map_psi_22_name, nst_map, psi_22);
-        map_file->put_time_variable(map_eq8_name, nst_map, eq8);
+        map_file->put_time_variable(map_psi_11_zb_name, nst_map, psi_11_zb);
+        map_file->put_time_variable(map_psi_22_zb_name, nst_map, psi_22_zb);
+        map_file->put_time_variable(map_eq8_zb_name, nst_map, eq8_zb);
+        map_file->put_time_variable(map_psi_11_visc_name, nst_map, psi_11_visc);
+        map_file->put_time_variable(map_psi_22_visc_name, nst_map, psi_22_visc);
+        map_file->put_time_variable(map_eq8_visc_name, nst_map, eq8_visc);
     }
     if (do_bed_shear_stress)
     {
@@ -744,7 +793,8 @@ int main(int argc, char *argv[])
     std::string his_v_name("v_velocity");
     std::string his_umag_name("u_mag");
     std::string his_froude_name("froude");
-    std::string his_peclet_name("peclet");
+    std::string his_peclet_xi_name("peclet_xi");
+    std::string his_peclet_eta_name("peclet_eta");
 
     his_file->add_variable(his_h_name, "sea_floor_depth_below_sea_surface", "Water depth", "m");
     his_file->add_variable(his_q_name, "", "Water flux (x)", "m2 s-1");
@@ -753,8 +803,12 @@ int main(int argc, char *argv[])
     his_file->add_variable(his_u_name, "sea_water_x_velocity", "Velocity (x)", "m s-1");
     his_file->add_variable(his_v_name, "sea_water_y_velocity", "Velocity (y)", "m s-1");
     his_file->add_variable(his_umag_name, "sea_water_speed", "Velocity magnitude", "m s-1");
-    his_file->add_variable(his_froude_name, "", "Froude (speed/sqrt{gh})", "-");
-    his_file->add_variable(his_peclet_name, "", "Peclet (speed.dx/visc)", "-");
+    his_file->add_variable(his_froude_name, "", "Froude", "-");
+    if (do_viscosity)
+    {
+        his_file->add_variable(his_peclet_xi_name, "", "Peclet (xi)", "-");
+        his_file->add_variable(his_peclet_eta_name, "", "Peclet (eta)", "-");
+    }
 
     // Put data on time history file
     START_TIMER(Writing his-file);
@@ -822,19 +876,34 @@ int main(int argc, char *argv[])
     }
     his_file->put_variable(his_froude_name, nst_his, his_values);
 
-    his_values.clear();
-    for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+    if (do_viscosity)
     {
-        int k = input_data.obs_points[i].idx;
-        double speed = (std::sqrt(u[k] * u[k] + v[k] * v[k]));
-        double dx = 1.0;
-        double dy = 1.0;
-        double dxy = std::sqrt(dx * dx + dy * dy);
-        double pe = 0.0; speed * dx / visc_reg[k];
-        his_values.push_back(pe);
-    }
-    his_file->put_variable(his_peclet_name, nst_his, his_values);
+        his_values.clear();
+        for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+        {
+            size_t k4 = input_data.obs_points[i].idx;
+            size_t k7 = k4 + ny;
+            size_t k1 = k4 - ny;
+            double speed = (std::sqrt(u[k4] * u[k4] + v[k4] * v[k4]));
+            double dx_dxi = 0.5 * (x[k7] - x[k4]) + 0.5 * (x[k4] - x[k1]);
+            double pe_xi = speed * dx_dxi / visc_reg[k4];
+            his_values.push_back(pe_xi);
+        }
+        his_file->put_variable(his_peclet_xi_name, nst_his, his_values);
 
+        his_values.clear();
+        for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+        {
+            size_t k4 = input_data.obs_points[i].idx;
+            size_t k5 = k4 + 1;
+            size_t k3 = k4 - 1;
+            double speed = (std::sqrt(u[k4] * u[k4] + v[k4] * v[k4]));
+            double dy_deta = 0.5 * (y[k5] - y[k4]) + 0.5 * (y[k4] - y[k3]);
+            double pe_eta = speed * dy_deta / visc_reg[k4];
+            his_values.push_back(pe_eta);
+        }
+        his_file->put_variable(his_peclet_eta_name, nst_his, his_values);
+    }
     std::string his_newton_iter_name("his_newton_iterations");
     his_file->add_variable_without_location(his_newton_iter_name, "iterations", "Newton iteration", "-");
     his_values.clear();
@@ -951,11 +1020,11 @@ int main(int argc, char *argv[])
                 if (do_viscosity)
                 {
                     START_TIMER(Regularization_time_loop);
-                    regularization->artificial_viscosity(psi_11, hp, qp, rp, zb, 
+                    regularization->artificial_viscosity(psi_11_visc, hp, qp, rp, zb, 
                         x, y, nx, ny, c_psi);
                     for (int i = 0; i < nxny; ++i)
                     {
-                        visc[i] = visc_reg[i] + std::abs(psi_11[i]);
+                        visc[i] = visc_reg[i] + std::abs(psi_11_visc[i]);
                     }
                 }
             }
@@ -1452,12 +1521,11 @@ int main(int argc, char *argv[])
             if (do_viscosity)
             {
                 START_TIMER(Regularization_time_loop);
-                regularization->artificial_viscosity(psi_11, hp, qp, rp, zb, 
+                regularization->artificial_viscosity(psi_11_visc, hp, qp, rp, zb, 
                     x, y, nx, ny, c_psi);
                 for (int i = 0; i < nxny; ++i)
                 {
-                    visc[i] = visc_reg[i] + std::abs(psi_11[i]);
-                    peclet[i] = qp[i] / hp[i] * dx / visc[i];
+                    visc[i] = visc_reg[i] + std::abs(psi_11_visc[i]);
                 }
                 STOP_TIMER(Regularization_time_loop);
             }
@@ -1497,9 +1565,12 @@ int main(int argc, char *argv[])
             map_file->put_time_variable(map_zb_name, nst_map, zb);
             if (regularization_init)
             {
-                map_file->put_time_variable(map_psi_11_name, nst_map, psi_11);
-                map_file->put_time_variable(map_psi_22_name, nst_map, psi_22);
-                map_file->put_time_variable(map_eq8_name, nst_map, eq8);
+                map_file->put_time_variable(map_psi_11_zb_name, nst_map, psi_11_zb);
+                map_file->put_time_variable(map_psi_22_zb_name, nst_map, psi_22_zb);
+                map_file->put_time_variable(map_eq8_zb_name, nst_map, eq8_zb);
+                map_file->put_time_variable(map_psi_11_visc_name, nst_map, psi_11_visc);
+                map_file->put_time_variable(map_psi_22_visc_name, nst_map, psi_22_visc);
+                map_file->put_time_variable(map_eq8_visc_name, nst_map, eq8_visc);
             }
             if (do_convection)
             {
@@ -1518,6 +1589,28 @@ int main(int argc, char *argv[])
                 viscosity_post_rhs(post_q, post_r, x, y, hn, qn, rn, visc, nx, ny);
                 map_file->put_time_variable(map_visc_q_name, nst_map, post_q);
                 map_file->put_time_variable(map_visc_r_name, nst_map, post_r);
+
+                for (size_t i = 1; i < nx - 1; ++i)  // skip nodes at boundaries
+                {
+                    for (size_t j = 1; j < ny - 1; ++j)  // skip nodes at boundaries
+                    {
+                        size_t k1 = main_idx(i - 1, j    , ny);
+                        size_t k3 = main_idx(i    , j - 1, ny);
+                        size_t k4 = main_idx(i    , j    , ny);
+                        size_t k5 = main_idx(i    , j + 1, ny);
+                        size_t k7 = main_idx(i + 1, j    , ny);
+
+                        double speed = (std::sqrt(u[k4] * u[k4] + v[k4] * v[k4]));
+                        double dx_dxi = 0.5 * (x[k7] - x[k4]) + 0.5 * (x[k4] - x[k1]);
+                        peclet_xi[k4] = speed * dx_dxi / visc_reg[k4];
+
+                        speed = (std::sqrt(u[k4] * u[k4] + v[k4] * v[k4]));
+                        double dy_deta = 0.5 * (y[k5] - y[k4]) + 0.5 * (y[k4] - y[k3]);
+                        peclet_eta[k4] = speed * dy_deta / visc_reg[k4];
+                    }
+                }
+                map_file->put_time_variable(map_peclet_xi_name, nst_map, peclet_xi);
+                map_file->put_time_variable(map_peclet_eta_name, nst_map, peclet_eta);
             }
             STOP_TIMER(Writing map-file);
         }
@@ -1598,19 +1691,34 @@ int main(int argc, char *argv[])
             }
             his_file->put_variable(his_froude_name, nst_his, his_values);
 
-            his_values.clear();
-            for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+            if (do_viscosity)
             {
-                int k = input_data.obs_points[i].idx;
-                double speed = (std::sqrt(u[k] * u[k] + v[k] * v[k]));
-                double dx = 1.0;
-                double dy = 1.0;
-                double dxy = std::sqrt(dx * dx + dy * dy);
-                double pe = 0.0; speed * dx / visc_reg[k];
-                his_values.push_back(pe);
-            }
-            his_file->put_variable(his_peclet_name, nst_his, his_values);
+                his_values.clear();
+                for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+                {
+                    size_t k4 = input_data.obs_points[i].idx;
+                    size_t k7 = k4 + ny;
+                    size_t k1 = k4 - ny;
+                    double speed = (std::sqrt(u[k4] * u[k4] + v[k4] * v[k4]));
+                    double dx_dxi = 0.5 * (x[k7] - x[k4]) + 0.5 * (x[k4] - x[k1]);
+                    double pe_xi = speed * dx_dxi / visc_reg[k4];
+                    his_values.push_back(pe_xi);
+                }
+                his_file->put_variable(his_peclet_xi_name, nst_his, his_values);
 
+                his_values.clear();
+                for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+                {
+                    size_t k4 = input_data.obs_points[i].idx;
+                    size_t k5 = k4 + 1;
+                    size_t k3 = k4 - 1;
+                    double speed = (std::sqrt(u[k4] * u[k4] + v[k4] * v[k4]));
+                    double dy_deta = 0.5 * (y[k5] - y[k4]) + 0.5 * (y[k4] - y[k3]);
+                    double pe_eta = speed * dy_deta / visc_reg[k4];
+                    his_values.push_back(pe_eta);
+                }
+                his_file->put_variable(his_peclet_eta_name, nst_his, his_values);
+            }
 
             his_values = { double(used_newton_iter) };
             his_file->put_variable(his_newton_iter_name, nst_his, his_values);
