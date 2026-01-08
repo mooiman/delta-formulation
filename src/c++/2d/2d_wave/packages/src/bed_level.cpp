@@ -48,6 +48,9 @@ long BED_LEVEL::read(size_t nx, size_t ny)
     double missing_value = -999.0;  // used by quickin
 
     m_bed_given.resize(nx*ny);
+#ifdef NATIVE_C
+    fprintf(stderr, "BED_LEVEL::read(nx, ny); Start reading\n");
+#endif    
 
     size_t k = -1;
     std::string token;
@@ -69,6 +72,11 @@ long BED_LEVEL::read(size_t nx, size_t ny)
         iss.clear();
         iss.str(line);
         if ((k + 1) % (nx*ny) == 0) { break; }
+        if (line.size() == 0) 
+        {
+            status = 1;
+            break;
+        }
     }
     if (k + 1 == nx * ny)
     {
@@ -76,6 +84,9 @@ long BED_LEVEL::read(size_t nx, size_t ny)
     }
     transpose(m_bed_given, nx, ny);
     m_fname.close();
+#ifdef NATIVE_C
+    fprintf(stderr, "BED_LEVEL::read(nx, ny); Stop reading\n");
+#endif    
     return status;
 
 }

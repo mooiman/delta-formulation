@@ -262,6 +262,14 @@ int main(int argc, char *argv[])
         exit(1);
     }
     status = bed->read(nx, ny);
+    if (status != 0)
+    {
+        std::cout << "Not compatible bed level file \"" << input_data.domain.full_bed_level_filename.string() << "\"." << std::endl;
+        log_file << "Not compatible bed level file \"" << input_data.domain.full_bed_level_filename.string() << "\"." << std::endl;
+        std::chrono::duration<int, std::milli> timespan(3000);
+        std::this_thread::sleep_for(timespan);
+        exit(1);
+    }
     std::vector<double> zb_giv = bed->get_bed_level();
 
     //  Create kdtree, needed to locate the observation points
@@ -451,8 +459,8 @@ int main(int argc, char *argv[])
     std::vector<double> psi_11_zb;  // needed when regularization of given initial function (ie bed level);
     std::vector<double> psi_22_zb;  // needed when regularization of given initial function (ie bed level);
     std::vector<double> eq8_zb;     // needed when regularization of given initial function (ie bed level);
-    std::vector<double> psi_11_visc;  // needed when regularization of given initial function (ie bed level);
-    std::vector<double> psi_22_visc;  // needed when regularization of given initial function (ie bed level);
+    std::vector<double> psi_11_visc;  // artificial viscosity, xi-direction;
+    std::vector<double> psi_22_visc;  // artificial viscosity, eta-direction;
     std::vector<double> eq8_visc;     // needed when regularization of given initial function (ie bed level);
     if (regularization_init)
     {
@@ -540,7 +548,7 @@ int main(int argc, char *argv[])
         regularization->given_function(visc_reg, psi_11_visc, psi_22_visc, eq8_visc, x, y, visc_given, nx, ny, c_psi, log_file);
         for (size_t i = 0; i < visc_reg.size(); ++i)
         {
-            visc[i] = visc_reg[i] + std::sqrt(psi_11_visc[i] * psi_11_visc[i] + psi_22_visc[i] * psi_22_visc[i]);
+            visc[i] = visc_reg[i];
         }
 
         STOP_TIMER(Regularization_init);
@@ -624,8 +632,7 @@ int main(int argc, char *argv[])
     std::string map_psi_22_zb_name("psi_22_visc");
     std::string map_eq8_zb_name("eq8_visc");
     std::string map_psi_11_visc_name("psi_11_visc");
-    std::string map_psi_22_visc_name("psi_22_visc");
-    std::string map_eq8_visc_name("eq8_visc");
+    // std::string map_psi_22_visc_name("psi_22_visc");
     std::string map_beds_q_name("bed_stress_q");
     std::string map_beds_r_name("bed_stress_r");
     std::string map_conv_q_name("convection_q");
@@ -648,15 +655,6 @@ int main(int argc, char *argv[])
     status = map_file->add_variable(map_umag_name, dim_names, "sea_water_speed", "Velocity magnitude", "m s-1", "mesh2D", "node", "");
     status = map_file->add_variable(map_zb_name, dim_names, "", "BedLevel", "m", "mesh2D", "node", "");
     status = map_file->add_variable(map_froude_name, dim_names, "", "Froude", "-", "mesh2D", "node", "");
-    if (regularization_init || regularization_iter || regularization_time )
-    {
-        status = map_file->add_variable(map_psi_11_zb_name, dim_names, "", "Psi_11_zb", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (x)");
-        status = map_file->add_variable(map_psi_22_zb_name, dim_names, "", "Psi_22_zb", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (y)");
-        status = map_file->add_variable(map_eq8_zb_name, dim_names, "", "Eq8_zb", "-", "mesh2D", "node", "Result of equation 8, see Borsboom 1998");
-        status = map_file->add_variable(map_psi_11_visc_name, dim_names, "", "Psi_11_visc", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (x)");
-        status = map_file->add_variable(map_psi_22_visc_name, dim_names, "", "Psi_22_visc", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (y)");
-        status = map_file->add_variable(map_eq8_visc_name, dim_names, "", "Eq8_visc", "-", "mesh2D", "node", "Result of equation 8, see Borsboom 1998");
-    }
 
     if (do_bed_shear_stress)
     {
@@ -672,6 +670,12 @@ int main(int argc, char *argv[])
     {
         status = map_file->add_variable(map_visc_q_name, dim_names, "", "Viscosity term (x)", "m2 s-2", "mesh2D", "node", "");
         status = map_file->add_variable(map_visc_r_name, dim_names, "", "Viscosity term (y)", "m2 s-2", "mesh2D", "node", "");
+        status = map_file->add_variable(map_psi_11_zb_name, dim_names, "", "Psi_11_zb", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (x)");
+        status = map_file->add_variable(map_psi_22_zb_name, dim_names, "", "Psi_22_zb", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (y)");
+        status = map_file->add_variable(map_eq8_zb_name, dim_names, "", "Eq8_zb", "-", "mesh2D", "node", "Result of equation 8, see Borsboom 1998");
+        status = map_file->add_variable(map_psi_11_visc_name, dim_names, "", "Psi_11_visc", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (x)");
+        //status = map_file->add_variable(map_psi_22_visc_name, dim_names, "", "Psi_22_visc", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (y)");
+
         status = map_file->add_variable(map_peclet_xi_name, dim_names, "", "Peclet (xi)", "-", "mesh2D", "node", "");
         status = map_file->add_variable(map_peclet_eta_name, dim_names, "", "Peclet (eta)", "-", "mesh2D", "node", "");
     }
@@ -695,9 +699,32 @@ int main(int argc, char *argv[])
         u_speed[i] = (std::sqrt(u[i] * u[i] + v[i] * v[i]));
     }
     map_file->put_time_variable(map_umag_name, nst_map, u_speed);
+    map_file->put_time_variable(map_zb_name, nst_map, zb_giv);
 
+    if (do_bed_shear_stress)
+    {
+        bed_shear_stress_post_rhs(post_q, post_r, hn, qn, rn, cf, nx, ny);
+        map_file->put_time_variable(map_beds_q_name, nst_map, post_q);
+        map_file->put_time_variable(map_beds_r_name, nst_map, post_r);
+    }
+    if (do_convection)
+    {
+        convection_post_rhs(post_q, post_r, x, y, hn, qn, rn, nx, ny);
+        map_file->put_time_variable(map_conv_q_name, nst_map, post_q);
+        map_file->put_time_variable(map_conv_r_name, nst_map, post_r);
+    }
     if (do_viscosity)
     {
+        viscosity_post_rhs(post_q, post_r, x, y, hn, qn, rn, visc, nx, ny);
+        map_file->put_time_variable(map_visc_q_name, nst_map, post_q);
+        map_file->put_time_variable(map_visc_r_name, nst_map, post_r);
+
+        map_file->put_time_variable(map_psi_11_zb_name, nst_map, psi_11_zb);
+        map_file->put_time_variable(map_psi_22_zb_name, nst_map, psi_22_zb);
+        map_file->put_time_variable(map_eq8_zb_name, nst_map, eq8_zb);
+        map_file->put_time_variable(map_psi_11_visc_name, nst_map, psi_11_visc);
+        // map_file->put_time_variable(map_psi_22_visc_name, nst_map, psi_22_visc);
+
         for (size_t i = 1; i < nx - 1; ++i)  // skip nodes at boundaries
         {
             for (size_t j = 1; j < ny - 1; ++j)  // skip nodes at boundaries
@@ -717,36 +744,9 @@ int main(int argc, char *argv[])
                 peclet_eta[k4] = speed * dy_deta / visc_reg[k4];
             }
         }
+
         map_file->put_time_variable(map_peclet_xi_name, nst_map, peclet_xi);
         map_file->put_time_variable(map_peclet_eta_name, nst_map, peclet_eta);
-    }
-    map_file->put_time_variable(map_zb_name, nst_map, zb_giv);
-    if (regularization_init)
-    {
-        map_file->put_time_variable(map_psi_11_zb_name, nst_map, psi_11_zb);
-        map_file->put_time_variable(map_psi_22_zb_name, nst_map, psi_22_zb);
-        map_file->put_time_variable(map_eq8_zb_name, nst_map, eq8_zb);
-        map_file->put_time_variable(map_psi_11_visc_name, nst_map, psi_11_visc);
-        map_file->put_time_variable(map_psi_22_visc_name, nst_map, psi_22_visc);
-        map_file->put_time_variable(map_eq8_visc_name, nst_map, eq8_visc);
-    }
-    if (do_bed_shear_stress)
-    {
-        bed_shear_stress_post_rhs(post_q, post_r, hn, qn, rn, cf, nx, ny);
-        map_file->put_time_variable(map_beds_q_name, nst_map, post_q);
-        map_file->put_time_variable(map_beds_r_name, nst_map, post_r);
-    }
-    if (do_convection)
-    {
-        convection_post_rhs(post_q, post_r, x, y, hn, qn, rn, nx, ny);
-        map_file->put_time_variable(map_conv_q_name, nst_map, post_q);
-        map_file->put_time_variable(map_conv_r_name, nst_map, post_r);
-    }
-    if (do_viscosity)
-    {
-        viscosity_post_rhs(post_q, post_r, x, y, hn, qn, rn, visc, nx, ny);
-        map_file->put_time_variable(map_visc_q_name, nst_map, post_q);
-        map_file->put_time_variable(map_visc_r_name, nst_map, post_r);
     }
     STOP_TIMER(Writing map-file);
 
@@ -1504,18 +1504,6 @@ int main(int argc, char *argv[])
             v[k] = rn[k] / hn[k];
         }
 
-        //START_TIMER(Regularization_time_loop);
-        //(void)regular->first_derivative(psi, visc_reg, u, dx);
-        //STOP_TIMER(Regularization_time_loop);
-        //if (regularization_time)
-        //{
-        //    for (size_t i = 0; i < nr_nodes; ++i)
-        //    {
-        //        visc[i] = visc_reg[i] * std::abs(psi[i]);
-        //        pe[i] = u[i] * dx / visc[i];
-        //    }
-        //}
-
         if (regularization_time)
         {
             if (do_viscosity)
@@ -1563,15 +1551,6 @@ int main(int argc, char *argv[])
             map_file->put_time_variable(map_froude_name, nst_map, froude);
 
             map_file->put_time_variable(map_zb_name, nst_map, zb);
-            if (regularization_init)
-            {
-                map_file->put_time_variable(map_psi_11_zb_name, nst_map, psi_11_zb);
-                map_file->put_time_variable(map_psi_22_zb_name, nst_map, psi_22_zb);
-                map_file->put_time_variable(map_eq8_zb_name, nst_map, eq8_zb);
-                map_file->put_time_variable(map_psi_11_visc_name, nst_map, psi_11_visc);
-                map_file->put_time_variable(map_psi_22_visc_name, nst_map, psi_22_visc);
-                map_file->put_time_variable(map_eq8_visc_name, nst_map, eq8_visc);
-            }
             if (do_convection)
             {
                 convection_post_rhs(post_q, post_r, x, y, hn, qn, rn, nx, ny);
@@ -1589,6 +1568,10 @@ int main(int argc, char *argv[])
                 viscosity_post_rhs(post_q, post_r, x, y, hn, qn, rn, visc, nx, ny);
                 map_file->put_time_variable(map_visc_q_name, nst_map, post_q);
                 map_file->put_time_variable(map_visc_r_name, nst_map, post_r);
+                map_file->put_time_variable(map_psi_11_zb_name, nst_map, psi_11_zb);
+                map_file->put_time_variable(map_psi_22_zb_name, nst_map, psi_22_zb);
+                map_file->put_time_variable(map_eq8_zb_name, nst_map, eq8_zb);
+                map_file->put_time_variable(map_psi_11_visc_name, nst_map, psi_11_visc);
 
                 for (size_t i = 1; i < nx - 1; ++i)  // skip nodes at boundaries
                 {
@@ -1609,6 +1592,7 @@ int main(int argc, char *argv[])
                         peclet_eta[k4] = speed * dy_deta / visc_reg[k4];
                     }
                 }
+
                 map_file->put_time_variable(map_peclet_xi_name, nst_map, peclet_xi);
                 map_file->put_time_variable(map_peclet_eta_name, nst_map, peclet_eta);
             }
