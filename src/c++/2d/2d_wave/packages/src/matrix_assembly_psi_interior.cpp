@@ -38,9 +38,6 @@
 //    |               |               |           |               |               |
 //   sw - - - - - - - s - - - - - - - se          0 - - - - - - - 3 - - - - - - - 6
 
-//
-//corner nodes
-//
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
@@ -55,7 +52,7 @@
 #include "interpolations.h"
 #include "matrix_assembly_psi_interior.h"
 
-int reg_interior_psi(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
+int reg_interior_matrix_psi(double* values, size_t row, size_t c_eq,
     double c_psi, std::vector<double>& x, std::vector<double>& y, size_t nx, size_t ny)
 {
     size_t p_0 = c_eq/(9);  // node number;  // centre of discretization molecule
@@ -89,9 +86,7 @@ int reg_interior_psi(double* values, size_t row, size_t c_eq, Eigen::VectorXd& r
     double scv_area_2 = 0.25;  // computational space
     double scv_area_3 = 0.25;  // computational space
     //------------------------------------------------------------------------
-    // heat-equation
     // 
-    rhs[row] = 0.0;
     // scv_0
     add_value(values, col_0 , scv_area_0 * 9./16.);
     add_value(values, col_w , scv_area_0 * 3./16.);
@@ -116,37 +111,83 @@ int reg_interior_psi(double* values, size_t row, size_t c_eq, Eigen::VectorXd& r
     add_value(values, col_w , scv_area_3 * 3./16.);
     add_value(values, col_nw, scv_area_3 * 1./16.);
 
-    // Diffusion part:  - c_\psi \nabla \dotp \nabla \Psi
+    // Diffusion part
+    double n_xi = 0.0;
+    double n_eta = 0.0;
 
-    double dxi = 1.0;
-    double deta = 1.0;
-    double fac = c_psi * 1./(6. * dxi * deta);
+    double fac = c_psi * 0.5;
     //
-    // scv_0
-    add_value(values, col_0 , -fac * -5.);
-    add_value(values, col_w , -fac *  2.);
-    add_value(values, col_s , -fac *  2.);
-    add_value(values, col_sw, -fac *  1.);
+    // scv_0 face_0
+    n_xi = -1.0;
+    n_eta = 0.0;
+    fac = c_psi * 0.5;
+    add_value(values, col_0 , fac * n_xi *  3./4.);
+    add_value(values, col_w , fac * n_xi * -3./4.);
+    add_value(values, col_s , fac * n_xi *  1./4.);
+    add_value(values, col_sw, fac * n_xi * -1./4.);
     //
-    // scv 1
-    add_value(values, col_0 , scv_area_1 * -5.);
-    add_value(values, col_s , scv_area_1 *  2.);
-    add_value(values, col_e , scv_area_1 *  2.);
-    add_value(values, col_se, scv_area_1 *  1.);
+    // scv_0 face_1
+    n_xi = 0.0;
+    n_eta = -1.0;
+    fac = c_psi * 0.5;
+    add_value(values, col_0 , fac * n_eta *  3./4.);
+    add_value(values, col_s , fac * n_eta * -3./4.);
+    add_value(values, col_w , fac * n_eta *  1./4.);
+    add_value(values, col_sw, fac * n_eta * -1./4.);
     //
-    // scv 2
-    add_value(values, col_0 , scv_area_2 * -5.);
-    add_value(values, col_e , scv_area_2 *  2.);
-    add_value(values, col_n , scv_area_2 *  2.);
-    add_value(values, col_ne, scv_area_2 *  1.);
+    // scv 1 face_2
+    n_xi = 0.0;
+    n_eta = -1.0;
+    fac = c_psi * 0.5;
+    add_value(values, col_0 , fac * n_eta *  3./4.);
+    add_value(values, col_s , fac * n_eta * -3./4.);
+    add_value(values, col_e , fac * n_eta *  1./4.);
+    add_value(values, col_se, fac * n_eta * -1./4.);
     //
-    //scv 3
-    add_value(values, col_0 , scv_area_3 * -5.);
-    add_value(values, col_n , scv_area_3 *  2.);
-    add_value(values, col_w , scv_area_3 *  2.);
-    add_value(values, col_nw, scv_area_3 *  1.);
-
-    rhs[row] = 0.0;
+    // scv 1 face_3
+    n_xi = 1.0;
+    n_eta = 0.0;
+    fac = c_psi * 0.5;
+    add_value(values, col_e , fac * n_xi *  3./4.);
+    add_value(values, col_0 , fac * n_xi * -3./4.);
+    add_value(values, col_se, fac * n_xi *  1./4.);
+    add_value(values, col_e , fac * n_xi * -1./4.);
+    //
+    // scv 1 face_4
+    n_xi = 1.0;
+    n_eta = 0.0;
+    fac = c_psi * 0.5;
+    add_value(values, col_e , fac * n_xi *  3./4.);
+    add_value(values, col_0 , fac * n_xi * -3./4.);
+    add_value(values, col_ne, fac * n_xi *  1./4.);
+    add_value(values, col_n , fac * n_xi * -1./4.);
+    //
+    // scv 2 face_5
+    n_xi = 0.0;
+    n_eta = 1.0;
+    fac = c_psi * 0.5;
+    add_value(values, col_n , fac * n_eta *  3./4.);
+    add_value(values, col_0 , fac * n_eta * -3./4.);
+    add_value(values, col_ne, fac * n_eta *  1./4.);
+    add_value(values, col_n , fac * n_eta * -1./4.);
+    //
+    // scv 3 face_6
+    n_xi = 0.0;
+    n_eta = 1.0;
+    fac = c_psi * 0.5;
+    add_value(values, col_n , fac * n_eta *  3./4.);
+    add_value(values, col_0 , fac * n_eta * -3./4.);
+    add_value(values, col_nw, fac * n_eta *  1./4.);
+    add_value(values, col_w , fac * n_eta * -1./4.);
+    //
+    //scv 3 face_7
+    n_xi = -1.0;
+    n_eta = 0.0;
+    fac = c_psi * 0.5;
+    add_value(values, col_0 , fac * n_xi *  3./4.);
+    add_value(values, col_w , fac * n_xi * -3./4.);
+    add_value(values, col_n , fac * n_xi *  1./4.);
+    add_value(values, col_nw, fac * n_xi * -1./4.);
 
     return 0;
 }

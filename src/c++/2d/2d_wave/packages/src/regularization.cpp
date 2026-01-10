@@ -274,7 +274,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
                 continue;
         continue;
         }
-        status = reg_interior_psi( values, row, c_eq, rhs, 
+        status = reg_interior_matrix_psi( values, row, c_eq,
              c_psi,  x,  y, nx, ny);
         // overwrite the right hand side
         status = reg_interior_rhs_psi(row, c_eq, rhs, 
@@ -959,6 +959,7 @@ inline double REGULARIZATION::d2udxi2(std::vector<double> & u, std::vector<size_
              1.0 * u[p[6]] +
              4.0 * u[p[7]] +
              1.0 * u[p[8]];
+
     return retval/6.0;
 }
 inline double REGULARIZATION::d2udxideta(std::vector<double> & u, std::vector<size_t>& p)
@@ -977,6 +978,7 @@ inline double REGULARIZATION::d2udxideta(std::vector<double> & u, std::vector<si
             -1.0 * u[p[6]] +
              0.0 * u[p[7]] +
              1.0 * u[p[8]];
+
     return retval/(4.0 * dxi * deta);
 }
 inline double REGULARIZATION::d2udeta2(std::vector<double> & u, std::vector<size_t>& p)
@@ -1048,7 +1050,7 @@ inline double REGULARIZATION::F2(std::vector<double> & u, std::vector<size_t>& p
         + d2eta_dxdy * du_deta
         );
 
-        return retval;
+        return 0.0;
 }
 inline double REGULARIZATION::F3(std::vector<double> & u, std::vector<size_t>& p, 
     std::vector<double> & x, std::vector<double> &y, 

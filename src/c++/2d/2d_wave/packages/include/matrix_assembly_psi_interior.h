@@ -34,7 +34,7 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
-int reg_interior_psi(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
+int reg_interior_matrix_psi(double* values, size_t row, size_t c_eq,
     double c_psi, std::vector<double>& x, std::vector<double>& y, size_t nx, size_t ny);
 
 inline void add_value(double * values, size_t col, double data);
