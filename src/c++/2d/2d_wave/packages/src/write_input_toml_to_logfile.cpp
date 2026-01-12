@@ -32,7 +32,7 @@ std::string format_as_double(double value);
 
 int write_used_input(struct _data_input data, std::ofstream & log_file){
 
-    log_file << "logging = \"" << data.log.logging << "\"  # \"iterations\", \"matrix\", \"pattern\"" << std::endl;
+    log_file << "Logging = \"" << data.log.logging << "\"  # \"iterations\", \"matrix\", \"pattern\"" << std::endl;
 
     // Boundary
     log_file << std::endl << "[Boundary]  # north, east, south, west" << std::endl;
