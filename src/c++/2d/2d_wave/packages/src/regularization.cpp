@@ -33,6 +33,7 @@
 
 #include "build_matrix_pattern_regularization.h"
 #include "perf_timer.h"
+#include "print_matrix.h"
 #include "regularization.h"
 
 REGULARIZATION::REGULARIZATION()
@@ -729,24 +730,12 @@ std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(size_t nx, size_
 
     if (m_logging == "matrix")
     {
-        log_file << "=== Matrix eq8 ========================================" << std::endl;
-        for (size_t i = 0; i < nxny; ++i)
-        {
-            for (size_t j = 0; j < nxny; ++j)
-            {
-                log_file << std::showpos << std::setprecision(3) << std::scientific << A.coeff(i, j) << " ";
-                if ((j+1) % ny == 0) { log_file << "| "; }
-            }
-            log_file << std::endl;
-            if ((i+1) % ny == 0) { log_file << std::endl; }
-        }
-        log_file << "=== RHS eq8 ===========================================" << std::endl;
-        for (size_t i = 0; i < nxny; ++i)
-        {
-            log_file << std::setprecision(8) << std::scientific << rhs[i] << std::endl;
-            if ((i+1) % ny == 0) { log_file << std::endl; }
-        }
-        log_file << "=======================================================" << std::endl;
+        std::string header_text = "=== Matrix eq8 ========================================";
+        log_file << std::showpos << std::setprecision(3) << std::scientific;
+        print_matrix(A, 1, nx, ny, header_text, log_file);
+        header_text = "=== RHS eq8 ===========================================";
+        log_file << std::setprecision(8) << std::scientific;
+        print_vector(rhs, 1, nx, ny, header_text, log_file);
     }
 
     Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solverA;
