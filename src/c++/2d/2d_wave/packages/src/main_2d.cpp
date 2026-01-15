@@ -76,6 +76,7 @@ AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 #include "matrix_assembly_corners.h"
 #include "matrix_assembly_interior.h"
 #include "observation_stations.h"
+#include "print_matrix.h"
 #include "read_input_toml_file.h"
 #include "regularization.h"
 #include "ugrid2d.h"
@@ -942,25 +943,8 @@ int main(int argc, char *argv[])
     }
     if (logging == "pattern")
     {
-        log_file << "=== Matrix build matrix pattern =======================" << std::endl;
-        for (size_t i = 0; i < 3 * nxny; ++i)
-        {
-            for (size_t j = 0; j < 3*nxny; ++j)
-            {
-                if (A.coeff(i, j) != 0.0)
-                {
-                    log_file << "* ";
-                }
-                else
-                {
-                    log_file << "- ";
-                    //log_file << std::showpos << std::setprecision(3) << std::scientific << A.coeff(i, j) << " ";
-                }
-                if (std::fmod(j+1,3) == 0) { log_file << "| "; }
-            }
-            log_file << std::endl;
-            if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
-        }
+        std::string header_text = "=== Matrix build matrix pattern =======================";
+        print_matrix_pattern(A, 3, nx, ny, header_text, log_file);
     }
 
     STOP_TIMER(Initialization);
@@ -1027,7 +1011,7 @@ int main(int argc, char *argv[])
                 {
                     START_TIMER(Regularization_time_loop);
                     regularization->artificial_viscosity(psi_11_visc, hp, qp, rp, zb, 
-                        x, y, nx, ny, c_psi);
+                        x, y, nx, ny, c_psi, log_file);
                     for (int i = 0; i < nxny; ++i)
                     {
                         visc[i] = visc_reg[i] + std::abs(psi_11_visc[i]);
@@ -1289,41 +1273,10 @@ int main(int argc, char *argv[])
 
                 if (logging == "matrix" && (nst == 1 || nst == total_time_steps-1) && iter == 0)
                 {
-                    log_file << "=== Matrix ============================================" << std::endl;
-                    for (size_t i = 0; i < 3 * nxny; ++i)
-                    {
-                        log_file << std::showpos << std::setprecision(3) << i << "   ";
-                        for (size_t j = 0; j < 3*nxny; ++j)
-                        {
-                            log_file << std::showpos << std::setprecision(3) << std::scientific << A.coeff(i, j) << " ";
-                            if (std::fmod(j+1,3) == 0) { log_file << "| "; }
-                        }
-                        log_file << std::endl;
-                        if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
-                    }
-                    //log_file << "=== Diagonal dominant == diag, off_diag, -, + =========" << std::endl;
-                    //for (size_t i = 0; i < 3 * nxny; ++i)
-                    //{
-                    //    double off_diag = 0.0;
-                    //    double diag = 0.0;
-                    //    log_file << std::showpos << std::setprecision(3) << i << "   ";
-                    //    for (int j = 0; j < 3*nxny; ++j)
-                    //    {
-                    //        if (i != j ) { off_diag += std::abs(A.coeff(i,j)); }
-                    //        else { diag = std::abs(A.coeff(i,j)); }
-                    //    }
-                    //    log_file << std::showpos << std::setprecision(5) << std::scientific << diag << " " << off_diag << " " 
-                    //        <<  diag - off_diag << " " <<  diag + off_diag << " ";
-                    //    log_file << std::endl;
-                    //    if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
-                    //}
-                    log_file << "=== RHS ===============================================" << std::endl;
-                    for (size_t i = 0; i < 3 * nxny; ++i)
-                    {
-                        log_file << std::showpos << std::setprecision(3) << i << "   ";
-                        log_file << std::setprecision(8) << std::scientific << rhs[i] << std::endl;
-                        if (std::fmod(i+1,3) == 0) { log_file << std::endl; }
-                    }
+                    std::string header_text = "=== Matrix ============================================";
+                    print_matrix(A, 3, nx, ny, header_text, log_file);
+                    header_text = "=== RHS ===============================================";
+                    print_vector(rhs, 3, nx, ny, header_text, log_file);
                 }
 
                 if (nst == 1 && iter == 0)
@@ -1432,11 +1385,9 @@ int main(int argc, char *argv[])
             }
             if (logging == "matrix" && (nst == 1 || nst == total_time_steps-1) && iter == 0)
             {
-                log_file << "=== Solution ==========================================" << std::endl;
-                for (size_t i = 0; i < 3 * nxny; ++i)
-                {
-                    log_file << std::setprecision(8) << std::scientific << solution[i] << std::endl;
-                }
+                std::string header_text = "=== Solution ==========================================";
+                print_vector(solution, 3, nx, ny, header_text, log_file);
+
                 log_file << "=== hp, qp, rp, zeta ==================================" << std::endl;
                 for (size_t i = 0; i < nxny; ++i)
                 {
@@ -1516,7 +1467,7 @@ int main(int argc, char *argv[])
             {
                 START_TIMER(Regularization_time_loop);
                 regularization->artificial_viscosity(psi_11_visc, hp, qp, rp, zb, 
-                    x, y, nx, ny, c_psi);
+                    x, y, nx, ny, c_psi, log_file);
                 for (int i = 0; i < nxny; ++i)
                 {
                     visc[i] = visc_reg[i] + std::abs(psi_11_visc[i]);

@@ -41,6 +41,7 @@
 #include "matrix_assembly_utilde_corners.h"
 #include "matrix_assembly_utilde_interior.h"
 #include "diffusion2d.h"
+#include "print_matrix.h"
 
 class REGULARIZATION
 {
@@ -57,7 +58,7 @@ public:
     void artificial_viscosity(std::vector<double>& psi, 
         std::vector<double>& h, std::vector<double>& q, std::vector<double>& r, std::vector<double>& zb, 
         std::vector<double>& x, std::vector<double>& y, size_t nx, size_t ny, 
-        double c_psi_in);
+        double c_psi_in, std::ofstream& log_file);
 
     void first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx);
 
@@ -83,6 +84,7 @@ private:
     int m_iter_max;
     double m_g;
     std::string m_logging;
+    std::ofstream m_log_file;
 
     double m_alpha;
     std::vector<double> m_mass;

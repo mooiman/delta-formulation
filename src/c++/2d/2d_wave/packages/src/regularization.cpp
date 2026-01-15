@@ -39,7 +39,8 @@ REGULARIZATION::REGULARIZATION()
 {
     m_iter_max = 100;
     m_g = 10.0;
-
+    m_logging = "";
+    
     m_alpha = 1./8.;
     m_mass.push_back(m_alpha);
     m_mass.push_back(1.0 - 2. * m_alpha);
@@ -190,17 +191,13 @@ void REGULARIZATION::given_function(
 void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, 
     std::vector<double>& h, std::vector<double>& q, std::vector<double>& r, std::vector<double>& zb, 
     std::vector<double>& x, std::vector<double>& y, size_t nx, size_t ny, 
-    double c_psi_in)
+    double c_psi_in, std::ofstream& log_file)
 {
     int status = 0;
     size_t nxny = nx * ny;
 
-    std::vector<double> Err_psi;
-
-    return;
-
-    Eigen::SparseMatrix<double> A(nxny, nxny);
-    Eigen::VectorXd solution(nxny);               // solution vector 
+    Eigen::SparseMatrix<double, Eigen::RowMajor> A(nxny, nxny);
+    Eigen::VectorXd solution(nxny);           // solution vector 
     Eigen::VectorXd rhs(nxny);                // RHS vector
 
     std::vector< Eigen::Triplet<double> > triplets; 
@@ -210,13 +207,18 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
     A.setFromTriplets(triplets.begin(), triplets.end());
     A.makeCompressed(); // Very important for valuePtr() access
 
+    if (m_logging == "pattern")
+    {
+        std::string header_text = "=== Matrix pattern regularization =====================";
+        print_matrix_pattern(A, 1, nx, ny, header_text, log_file);
+    }
+
     double *values = A.valuePtr();         // pointer to all non-zero values
     const int* outer = A.outerIndexPtr();   // row start pointers
 
     double c_psi = c_psi_in;
 
     START_TIMERN(Regularization diffusion);
-    A.setZero();
     double psi_1 = 0.0;
     double psi_2 = 0.0;
     //
@@ -230,7 +232,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
     {
         size_t c_eq = (size_t) outer[row    ];
         status = reg_corner_south_west_psi( values, row, c_eq, rhs, 
-              Err_psi, 1.0, nx, ny);
+            h, 1.0, nx, ny);
     }
     // west boundary
     for (size_t row = 1; row < 1 * (ny - 1); row += 1)
@@ -239,16 +241,16 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
         size_t p_0 = c_eq/(9);
 
         status = reg_boundary_west_psi( values, row, c_eq, rhs,
-             x,  y,
-             h, psi_1, psi_2, 
-             1.0, nx, ny);
+            x,  y,
+            h, psi_1, psi_2, 
+            1.0, nx, ny);
     }
     // north-west corner
     for (size_t row = 1 * (ny - 1); row < 1 * ny; row += 1)
     {
         size_t c_eq = (size_t) outer[row    ];
         status = reg_corner_north_west_psi( values, row, c_eq, rhs, 
-              h, 1.0, nx, ny);
+            h, 1.0, nx, ny);
     }
 
     // interior with south and north boundary
@@ -260,19 +262,18 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
         if (row % ny == 0) {
             // south boundary, over write coefficients
             status = reg_boundary_south_psi( values, row, c_eq, rhs,
-                 x,  y,
-                 h, psi_1, psi_2, 
+                x,  y,
+                h, psi_1, psi_2, 
                 1.0, nx, ny);
                 continue;
         }
         if ((row + 1) % ny == 0) {
             // north boundary, over write coefficients
             status = reg_boundary_north_psi( values, row, c_eq, rhs,
-                 x,  y,
-                 h, psi_1, psi_2, 
+                x,  y,
+                h, psi_1, psi_2, 
                 1.0, nx, ny);
                 continue;
-        continue;
         }
         status = reg_interior_matrix_psi( values, row, c_eq,
              c_psi,  x,  y, nx, ny);
@@ -289,7 +290,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
     {
         size_t c_eq = (size_t) outer[row    ];
         status = reg_corner_south_east_psi( values, row, c_eq, rhs, 
-              h, 1.0, nx, ny);
+            h, 1.0, nx, ny);
     }
     // east boundary
     for (size_t row = 1 * (nx - 1) * ny + 1; row < 1 * nx * ny - 1; row += 1) 
@@ -299,8 +300,8 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
         size_t p_0 = c_eq/(9);
 
         status = reg_boundary_east_psi( values, row, c_eq, rhs,
-             x,  y,
-             h, psi_1, psi_2, 
+            x,  y,
+            h, psi_1, psi_2, 
             1.0, nx, ny);
             continue;
     }
@@ -309,7 +310,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
     {
         size_t c_eq = (size_t) outer[row    ];
         status = reg_corner_north_east_psi( values, row, c_eq, rhs, 
-              h, 1.0, nx, ny);
+            h, 1.0, nx, ny);
     }
     STOP_TIMER(Regularization diffusion);
 
@@ -320,7 +321,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
 
     for (size_t i = 1; i < nxny - 1; ++i)
     {
-        Err_psi[i] = solution[i];
+        psi[i] = solution[i];
     }
 
     return;
@@ -469,26 +470,14 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
     STOP_TIMER(Regularization diffusion);
 
 
-    if (m_logging == "matrix")
+    if (m_logging == "pattern")
     {
-        log_file << "=== Matrix eq7 ========================================" << std::endl;
-        for (size_t i = 0; i < nxny; ++i)
-        {
-            for (size_t j = 0; j < nxny; ++j)
-            {
-                log_file << std::showpos << std::setprecision(3) << std::scientific << B.coeff(i, j) << " ";
-                if ((j+1) % ny == 0) { log_file << "| "; }
-            }
-            log_file << std::endl;
-            if ((i+1) % ny == 0) { log_file << std::endl; }
-        }
-        log_file << "=== RHS eq7 ===========================================" << std::endl;
-        for (size_t i = 0; i < nxny; ++i)
-        {
-            log_file << std::setprecision(8) << std::scientific << rhs[i] << std::endl;
-            if ((i+1) % ny == 0) { log_file << std::endl; }
-        }
-        log_file << "=======================================================" << std::endl;
+        std::string header_text = "=== Matrix eq7 ========================================";
+        log_file << std::showpos << std::setprecision(3) << std::scientific;
+        print_matrix(B, 1, nx, ny, header_text, log_file);
+        header_text = "=== RHS eq7 ===========================================";
+        log_file << std::setprecision(8) << std::scientific;
+        print_vector(rhs, 1, nx, ny, header_text, log_file);
     }
 
     Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solverB;
@@ -524,23 +513,8 @@ std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(size_t nx, size_
 
     if (m_logging == "pattern")
     {
-        log_file << "=== Matrix build matrix pattern =======================" << std::endl;
-        for (size_t i = 0; i < nxny; ++i)
-        {
-            for (size_t j = 0; j < nxny; ++j)
-            {
-                if (A.coeff(i, j) != 0.0)
-                {
-                    log_file << "* ";
-                }
-                else
-                {
-                    log_file << "- ";
-                }
-            }
-            log_file << std::endl;
-            if ((i+1) % ny == 0) { log_file << std::endl; }
-        }
+        std::string header_text = "=== Matrix build matrix pattern (solve eq8) ===========";
+        print_matrix_pattern(A, 1, nx, ny, header_text,log_file);
     }
 
     double u0_xixi_max = 0.0;
