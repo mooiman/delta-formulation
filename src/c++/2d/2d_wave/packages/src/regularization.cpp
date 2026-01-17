@@ -266,7 +266,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
                 x,  y,
                 h, psi_1, psi_2, 
                 1.0, nx, ny);
-                continue;
+            continue;
         }
         if ((row + 1) % ny == 0) {
             // north boundary, over write coefficients
@@ -274,17 +274,13 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
                 x,  y,
                 h, psi_1, psi_2, 
                 1.0, nx, ny);
-                continue;
+            continue;
         }
         status = reg_interior_matrix_psi( values, row, c_eq,
              c_psi,  x,  y, nx, ny);
         // overwrite the right hand side
         status = reg_interior_rhs_psi(row, c_eq, rhs, 
             h, q, r, x,  y, c_psi, m_g, nx, ny);
-
-        rhs[row] = 
-            0.0
-            ;
     }
     // south-east corner
     for (size_t row = 1 * (nx - 1) * ny; row < 1 * (nx - 1) * ny + 1; row += 1)
@@ -304,7 +300,6 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
             x,  y,
             h, psi_1, psi_2, 
             1.0, nx, ny);
-            continue;
     }
     // north-east corner
     for (size_t row = 1 * nx * ny - 1; row < 1 * nx * ny; row += 1)
@@ -315,12 +310,28 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
     }
     STOP_TIMER(Regularization diffusion);
 
-    Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solverA;
+    if (m_logging == "matrix")
+    {
+        std::string header_text = "=== Regularization matrix =============================";
+        log_file << std::showpos << std::setprecision(3) << std::scientific;
+        print_matrix(A, 1, nx, ny, header_text, log_file);
+        header_text = "=== Regularization rhs ================================";
+        log_file << std::setprecision(8) << std::scientific;
+        print_vector(rhs, 1, nx, ny, header_text, log_file);
+    }
+
+    Eigen::BiCGSTAB< Eigen::SparseMatrix<double> > solverA;
     solverA.compute(A);
     solverA.setTolerance(1e-12);
     solution = solverA.solve(rhs);
 
-    for (size_t i = 1; i < nxny - 1; ++i)
+    if (m_logging == "matrix")
+    {
+        std::string header_text = "=== Regularization solution ===========================";
+        log_file << std::setprecision(8) << std::scientific;
+        print_vector(solution, 1, nx, ny, header_text, log_file);
+    }
+    for (size_t i = 0; i < nxny; ++i)
     {
         psi[i] = solution[i];
     }
@@ -774,181 +785,32 @@ int REGULARIZATION::reg_interior_rhs_psi( size_t row, size_t c_eq, Eigen::Vector
     std::vector<double> s(nxny, 0.0);
     std::vector<size_t> p(9);
 
-    for (size_t i = 1; i < nx - 1; ++i)
-    {
-        for (size_t j = 1; j < ny - 1; ++j)
-        {
-            p[0] = p_index(i - 1, j - 1, ny);
-            p[1] = p_index(i - 1, j    , ny);
-            p[2] = p_index(i - 1, j + 1, ny);
-            p[3] = p_index(i    , j - 1, ny);
-            p[4] = p_index(i    , j    , ny);
-            p[5] = p_index(i    , j + 1, ny);
-            p[6] = p_index(i + 1, j - 1, ny);
-            p[7] = p_index(i + 1, j    , ny);
-            p[8] = p_index(i + 1, j + 1, ny);
-            d2h_dxi2[p[4]]    = d2udxi2(h, p);
-            d2q_dxi2[p[4]]    = d2udxi2(q, p);
-            d2r_dxi2[p[4]]    = d2udxi2(r, p);
-            d2s_dxi2[p[4]]    = d2udxi2(s, p);
-            d2h_dxideta[p[4]] = d2udxideta(h, p);
-            d2q_dxideta[p[4]] = d2udxideta(q, p);
-            d2r_dxideta[p[4]] = d2udxideta(r, p);
-            d2s_dxideta[p[4]] = d2udxideta(s, p);
-            d2h_deta2[p[4]]   = d2udeta2(h, p);
-            d2q_deta2[p[4]]   = d2udeta2(q, p);
-            d2r_deta2[p[4]]   = d2udeta2(r, p);
-            d2s_deta2[p[4]]   = d2udeta2(s, p);
-        }
-    }
+    if ( row != c_eq/(9) ) { std::cerr << "Jan Mooiman" << std::endl; }
+    p[0] = row - ny - 1;
+    p[1] = row - ny ;
+    p[2] = row - ny + 1;
+    p[3] = row - 1;
+    p[4] = row;
+    p[5] = row + 1;
+    p[6] = row + ny - 1;
+    p[7] = row + ny;
+    p[8] = row + ny + 1;
 
-    for (size_t i = 0; i < nx; ++i)  // south and north boundary
-    {
-        size_t j = 0;  // south boundary
-        size_t p_0  = p_index(i, j    , ny);
-        size_t p_n  = p_index(i, j + 1, ny);
-        size_t p_nn = p_index(i, j + 2, ny);
-        d2h_dxi2[p_0]    = 2.0 * d2h_dxi2[p_n]    - d2h_dxi2[p_nn];
-        d2q_dxi2[p_0]    = 2.0 * d2q_dxi2[p_n]    - d2q_dxi2[p_nn];
-        d2r_dxi2[p_0]    = 2.0 * d2r_dxi2[p_n]    - d2r_dxi2[p_nn];
-        d2s_dxi2[p_0]    = 2.0 * d2s_dxi2[p_n]    - d2s_dxi2[p_nn];
-        d2h_dxideta[p_0] = 2.0 * d2h_dxideta[p_n] - d2h_dxideta[p_nn];
-        d2q_dxideta[p_0] = 2.0 * d2q_dxideta[p_n] - d2q_dxideta[p_nn];
-        d2r_dxideta[p_0] = 2.0 * d2r_dxideta[p_n] - d2r_dxideta[p_nn];
-        d2s_dxideta[p_0] = 2.0 * d2s_dxideta[p_n] - d2s_dxideta[p_nn];
-        d2h_deta2[p_0]   = 2.0 * d2h_deta2[p_n]   - d2h_deta2[p_nn];
-        d2q_deta2[p_0]   = 2.0 * d2q_deta2[p_n]   - d2q_deta2[p_nn];
-        d2r_deta2[p_0]   = 2.0 * d2r_deta2[p_n]   - d2r_deta2[p_nn]; 
-        d2s_deta2[p_0]   = 2.0 * d2s_deta2[p_n]   - d2s_deta2[p_nn]; 
-
-        j = ny - 1;  // north boundary
-        p_0         = p_index(i, j    , ny);
-        size_t p_s  = p_index(i, j - 1, ny);
-        size_t p_ss = p_index(i, j - 2, ny);
-        d2h_dxi2[p_0]    = 2.0 * d2h_dxi2[p_s]    - d2h_dxi2[p_ss];
-        d2q_dxi2[p_0]    = 2.0 * d2q_dxi2[p_s]    - d2q_dxi2[p_ss];
-        d2r_dxi2[p_0]    = 2.0 * d2r_dxi2[p_s]    - d2r_dxi2[p_ss];
-        d2s_dxi2[p_0]    = 2.0 * d2s_dxi2[p_s]    - d2s_dxi2[p_ss];
-        d2h_dxideta[p_0] = 2.0 * d2h_dxideta[p_s] - d2h_dxideta[p_ss];
-        d2q_dxideta[p_0] = 2.0 * d2q_dxideta[p_s] - d2q_dxideta[p_ss];
-        d2r_dxideta[p_0] = 2.0 * d2r_dxideta[p_s] - d2r_dxideta[p_ss];
-        d2s_dxideta[p_0] = 2.0 * d2s_dxideta[p_s] - d2s_dxideta[p_ss];
-        d2h_deta2[p_0]   = 2.0 * d2h_deta2[p_s]   - d2h_deta2[p_ss];
-        d2q_deta2[p_0]   = 2.0 * d2q_deta2[p_s]   - d2q_deta2[p_ss];
-        d2r_deta2[p_0]   = 2.0 * d2r_deta2[p_s]   - d2r_deta2[p_ss]; 
-        d2s_deta2[p_0]   = 2.0 * d2s_deta2[p_s]   - d2s_deta2[p_ss]; 
-    }
-    for (size_t j = 0; j < ny; ++j)  // west and east boundary
-    {
-        size_t i = 0;  // west boundary
-        size_t p_0  = p_index(i    , j, ny);
-        size_t p_e  = p_index(i + 1, j, ny);
-        size_t p_ee = p_index(i + 2, j, ny);
-        d2h_dxi2[p_0]    = 2.0 * d2h_dxi2[p_e]    - d2h_dxi2[p_ee];
-        d2q_dxi2[p_0]    = 2.0 * d2q_dxi2[p_e]    - d2q_dxi2[p_ee];
-        d2r_dxi2[p_0]    = 2.0 * d2r_dxi2[p_e]    - d2r_dxi2[p_ee];
-        d2s_dxi2[p_0]    = 2.0 * d2s_dxi2[p_e]    - d2s_dxi2[p_ee];
-        d2h_dxideta[p_0] = 2.0 * d2h_dxideta[p_e] - d2h_dxideta[p_ee];
-        d2q_dxideta[p_0] = 2.0 * d2q_dxideta[p_e] - d2q_dxideta[p_ee];
-        d2r_dxideta[p_0] = 2.0 * d2r_dxideta[p_e] - d2r_dxideta[p_ee];
-        d2s_dxideta[p_0] = 2.0 * d2s_dxideta[p_e] - d2s_dxideta[p_ee];
-        d2h_deta2[p_0]   = 2.0 * d2h_deta2[p_e]   - d2h_deta2[p_ee];
-        d2q_deta2[p_0]   = 2.0 * d2q_deta2[p_e]   - d2q_deta2[p_ee];
-        d2r_deta2[p_0]   = 2.0 * d2r_deta2[p_e]   - d2r_deta2[p_ee]; 
-        d2s_deta2[p_0]   = 2.0 * d2s_deta2[p_e]   - d2s_deta2[p_ee]; 
-
-        i = nx - 1;  // east boundary
-        p_0      = p_index(i    , j, ny);
-        size_t p_w  = p_index(i - 1, j, ny);
-        size_t p_ww = p_index(i - 2, j, ny);
-        d2h_dxi2[p_0]    =  2.0 * d2h_dxi2[p_w]    - d2h_dxi2[p_ww];
-        d2q_dxi2[p_0]    =  2.0 * d2q_dxi2[p_w]    - d2q_dxi2[p_ww];
-        d2r_dxi2[p_0]    =  2.0 * d2r_dxi2[p_w]    - d2r_dxi2[p_ww];
-        d2s_dxi2[p_0]    =  2.0 * d2s_dxi2[p_w]    - d2s_dxi2[p_ww];
-        d2h_dxideta[p_0] =  2.0 * d2h_dxideta[p_w] - d2h_dxideta[p_ww];
-        d2q_dxideta[p_0] =  2.0 * d2q_dxideta[p_w] - d2q_dxideta[p_ww];
-        d2r_dxideta[p_0] =  2.0 * d2r_dxideta[p_w] - d2r_dxideta[p_ww];
-        d2s_dxideta[p_0] =  2.0 * d2s_dxideta[p_w] - d2s_dxideta[p_ww];
-        d2h_deta2[p_0]   =  2.0 * d2h_deta2[p_w]   - d2h_deta2[p_ww];
-        d2q_deta2[p_0]   =  2.0 * d2q_deta2[p_w]   - d2q_deta2[p_ww];
-        d2r_deta2[p_0]   =  2.0 * d2r_deta2[p_w]   - d2r_deta2[p_ww]; 
-        d2s_deta2[p_0]   =  2.0 * d2s_deta2[p_w]   - d2s_deta2[p_ww]; 
-    }
-
-    rhs.setZero();
-
-    // Erro based on potential energy
+    //
+    // Error based on potential energy
     //
     //   \sqrt{g \widehat{h}}
     // 
-    for (size_t i = 1; i < nx - 1; ++i)
-    {
-        for (size_t j = 1; j < ny - 1; ++j)
-        {
-            p[0] = p_index(i - 1, j - 1, ny);
-            p[1] = p_index(i - 1, j    , ny);
-            p[2] = p_index(i - 1, j + 1, ny);
-            p[3] = p_index(i    , j - 1, ny);
-            p[4] = p_index(i    , j    , ny);
-            p[5] = p_index(i    , j + 1, ny);
-            p[6] = p_index(i + 1, j - 1, ny);
-            p[7] = p_index(i + 1, j    , ny);
-            p[8] = p_index(i + 1, j + 1, ny);
 
-            double f1 = F1(h, p, x, y, nx, ny);
-            double f2 = F2(h, p, x, y, nx, ny);
-            double f3 = F3(h, p, x, y, nx, ny);
-            rhs[p[4]] = std::sqrt( g/h[p[4]] ) * (
-                1.0/16.0 * f1 + 1.0/8.0 * f2 + 1.0/16.0 * f3
-                );
-        }
-    }
+    double f1 = F1(h, p, x, y, nx, ny);
+    double f2 = F2(h, p, x, y, nx, ny);
+    double f3 = F3(h, p, x, y, nx, ny);
+    rhs[row] = std::sqrt( g/h[row] ) * (
+        1.0/16.0 * f1 + 1.0/8.0 * f2 + 1.0/16.0 * f3
+        );
     return 0;
 }
 
-inline double REGULARIZATION::d2udxi2(std::vector<double> & u, std::vector<size_t>& p)
-{
-    // Computational space
-    double dxi = 1.0;
-    double deta = 1.0;
-    double retval = 0.0;
-
-    retval = 1.0 * u[p[0]] +
-             4.0 * u[p[1]] +
-             1.0 * u[p[2]] +
-             4.0 * u[p[3]] +
-            -20.0 * u[p[4]] +
-             4.0 * u[p[5]] +
-             1.0 * u[p[6]] +
-             4.0 * u[p[7]] +
-             1.0 * u[p[8]];
-
-    return retval/6.0;
-}
-inline double REGULARIZATION::d2udxideta(std::vector<double> & u, std::vector<size_t>& p)
-{
-    // Computational space
-    double dxi = 1.0;
-    double deta = 1.0;
-    double retval = 0.0;
-
-    retval = 1.0 * u[p[0]] +
-             0.0 * u[p[1]] +
-            -1.0 * u[p[2]] +
-             0.0 * u[p[3]] +
-             0.0 * u[p[4]] +
-             0.0 * u[p[5]] +
-            -1.0 * u[p[6]] +
-             0.0 * u[p[7]] +
-             1.0 * u[p[8]];
-
-    return retval/(4.0 * dxi * deta);
-}
-inline double REGULARIZATION::d2udeta2(std::vector<double> & u, std::vector<size_t>& p)
-{
-    // Computational space
-    return d2udxi2(u, p);
-}
 inline double REGULARIZATION::F1(std::vector<double> & u, std::vector<size_t>& p, 
     std::vector<double> & x, std::vector<double> &y, 
     size_t nx, size_t ny )
@@ -974,10 +836,10 @@ inline double REGULARIZATION::F1(std::vector<double> & u, std::vector<size_t>& p
 
     retval = dx_dxi * dx_dxi * (
           dxi_dx * dxi_dx * d2u_dxi2 
-        + 2.0 * dxi_dx * deta_dx * d2u_dxideta 
-        + deta_dx * deta_dx * d2u_deta2 
-        + d2xi_dx2 * du_dxi 
-        + d2eta_dx2 * du_deta
+//        + 2.0 * dxi_dx * deta_dx * d2u_dxideta 
+//        + deta_dx * deta_dx * d2u_deta2 
+//        + d2xi_dx2 * du_dxi 
+//        + d2eta_dx2 * du_deta
         );
 
     return retval;
@@ -1013,7 +875,8 @@ inline double REGULARIZATION::F2(std::vector<double> & u, std::vector<size_t>& p
         + d2eta_dxdy * du_deta
         );
 
-        return 0.0;
+    return 0.0;
+    return retval;
 }
 inline double REGULARIZATION::F3(std::vector<double> & u, std::vector<size_t>& p, 
     std::vector<double> & x, std::vector<double> &y, 
@@ -1039,14 +902,80 @@ inline double REGULARIZATION::F3(std::vector<double> & u, std::vector<size_t>& p
     double d2u_deta2 = d2udeta2(u, p);
 
     retval = dy_deta * dy_deta * (
-          dxi_dy * dxi_dy * d2u_dxi2 
-        + 2.0 * dxi_dy * deta_dy * d2u_dxideta 
+//         dxi_dy * dxi_dy * d2u_dxi2 
+//       + 2.0 * dxi_dy * deta_dy * d2u_dxideta 
         + deta_dy * deta_dy * d2u_deta2 
-        + d2xi_dy2 * du_dxi 
-        + d2eta_dy2 * du_deta
+//        + d2xi_dy2 * du_dxi 
+//        + d2eta_dy2 * du_deta
         );
 
     return retval;
+}
+inline double REGULARIZATION::d2udxi2(std::vector<double> & u, std::vector<size_t>& p)
+{
+    // Computational space
+    double dxi = 1.0;
+    double deta = 1.0;
+    double retval = 0.0;
+
+    retval = 1.0 * u[p[0]] +
+             4.0 * u[p[1]] +
+             1.0 * u[p[2]] +
+             4.0 * u[p[3]] +
+            -20.0 * u[p[4]] +
+             4.0 * u[p[5]] +
+             1.0 * u[p[6]] +
+             4.0 * u[p[7]] +
+             1.0 * u[p[8]];
+
+    retval = 0.0 * u[p[0]] +
+             1.0 * u[p[1]] +
+             0.0 * u[p[2]] +
+             0.0 * u[p[3]] +
+            -2.0 * u[p[4]] +
+             0.0 * u[p[5]] +
+             0.0 * u[p[6]] +
+             1.0 * u[p[7]] +
+             0.0 * u[p[8]];
+
+    return retval;
+}
+inline double REGULARIZATION::d2udxideta(std::vector<double> & u, std::vector<size_t>& p)
+{
+    // Computational space
+    double dxi = 1.0;
+    double deta = 1.0;
+    double retval = 0.0;
+
+    retval = 1.0 * u[p[0]] +
+             0.0 * u[p[1]] +
+            -1.0 * u[p[2]] +
+             0.0 * u[p[3]] +
+             0.0 * u[p[4]] +
+             0.0 * u[p[5]] +
+            -1.0 * u[p[6]] +
+             0.0 * u[p[7]] +
+             1.0 * u[p[8]];
+
+    return 0.0;
+    //return retval/(4.0 * dxi * deta);
+}
+inline double REGULARIZATION::d2udeta2(std::vector<double> & u, std::vector<size_t>& p)
+{
+    // Computational space
+    double retval;
+
+    retval = 0.0 * u[p[0]] +
+             0.0 * u[p[1]] +
+             0.0 * u[p[2]] +
+             1.0 * u[p[3]] +
+            -2.0 * u[p[4]] +
+             1.0 * u[p[5]] +
+             0.0 * u[p[6]] +
+             0.0 * u[p[7]] +
+             0.0 * u[p[8]];
+    return retval;
+    //return d2udxi2(u, p);
 }
 size_t REGULARIZATION::p_index(size_t i, size_t j, size_t ny_in)
 {

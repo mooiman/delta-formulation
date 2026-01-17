@@ -151,7 +151,7 @@ int reg_interior_matrix_psi(double* values, size_t row, size_t c_eq,
     add_value(values, col_e , fac * n_xi *  3./4.);
     add_value(values, col_0 , fac * n_xi * -3./4.);
     add_value(values, col_se, fac * n_xi *  1./4.);
-    add_value(values, col_e , fac * n_xi * -1./4.);
+    add_value(values, col_s , fac * n_xi * -1./4.);
     //
     // scv 1 face_4
     n_xi = 1.0;
@@ -169,7 +169,7 @@ int reg_interior_matrix_psi(double* values, size_t row, size_t c_eq,
     add_value(values, col_n , fac * n_eta *  3./4.);
     add_value(values, col_0 , fac * n_eta * -3./4.);
     add_value(values, col_ne, fac * n_eta *  1./4.);
-    add_value(values, col_n , fac * n_eta * -1./4.);
+    add_value(values, col_e , fac * n_eta * -1./4.);
     //
     // scv 3 face_6
     n_xi = 0.0;
