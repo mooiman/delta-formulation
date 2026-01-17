@@ -66,3 +66,81 @@ with
     \item[$\vec{x}_{\mathit obs}$] Location of the coincide observation points in the small and large domain.
 \end{symbollist}
     \notyet
+%------------------------------------------------------------------------------
+\section{Schematic river section, constant bed level}
+The schematic test case is based on river section of the river Waal.
+In this section a test case is presented for an orthogonal mesh with unequal mesh size in $x$- and $y$-direction (i.e.\ $\Dx \neq \Dy$) but constant in the coordinate direction (\autoref{sec:ortho_river_section}), and a curvilinear mesh with the $y$-coordinate regularized (\autoref{sec:non_ortho_river_section}).
+
+\paragraph*{Numerical experiment}
+
+The numerical experiments are performed with the following initial conditions:
+\begin{align}
+    \zeta(x,y,0) & = 0.01, \quad \bunit{\metre} \\
+    z_b(x,y,0) & = -4.0, \quad \bunit{\metre} \\
+    q(x,y,0) & = 0, \quad \bunit{\square\metre\per\second}
+\end{align}
+and boundary conditions:
+\begin{align}
+    q(t) & = 4, \text{ left boundary},\quad \bunit{\square\metre\per\square\second} \\
+    \zeta(t) & = 0,  \text{ right boundary},\quad \bunit{m}
+\end{align}
+and the following parameters
+\begin{itemize}
+    \item Length, \bqty{17.5}{\kilo\metre}
+    \item Width, \bqty{2.0}{\kilo\metre}
+\begin{itemize}
+    \item Orthogonal mesh size, $\Dx = \bqty{80}{\metre}$ and $\Dy = \qty{40}{\metre}$.
+    \item Non-orthogonal mesh size, 20 gridcell over the width of the river and the other 20 over the floodplains (\autoref{fig:non_ortho_grid_a}). The mesh shown in \autoref{fig:non_ortho_grid_b} is used for the computations.
+\end{itemize}
+    \item Bed friction, Ch\'ezy coefficient \bqty{50}{{\metre}^{1/2}\, s^{-1}}
+\end{itemize}
+
+%------------------------------------------------------------------------------
+\subsection{Orthogonal mesh}\label{sec:ortho_river_section}
+For this test case the following mesh is used, the river outline is also given in this figure because that is used in \autoref{sec:non_ortho_river_section}:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/meander_cartesian.png}
+    \caption{Constant quadrangular mesh with $\Dx = \bqty{80}{\metre}$ and $\Dy = \bqty{40}{\metre}$.}
+\end{figure}
+
+%------------------------------------------------------------------------------
+\subsection{Non-orthogonal meandering mesh}\label{sec:non_ortho_river_section}
+
+The non-orthogonal meandering test case is used to compute a uniform discharge over a non-orthogonal meandering mesh with constant $\Dx$.
+To obtain the computational grid we start from the grid as shown in \autoref{fig:non_ortho_grid_a}, this mesh is regularized for the $y$-coordinate (\autoref{fig:non_ortho_grid_b}) and then used for the computations.
+For this test case the following mesh is used:
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{figures/meander_constant_dx_5_river20.png}
+    \caption{Initial constructed mesh with 20 grid cells over the width of the river}
+    \label{fig:non_ortho_grid_a}
+\end{figure}
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{figures/meander_constant_dx_5_river20_smoothed.png}
+    \caption{Non orthogonal mesh, smooth $y$-coordinate over the river width}
+    \label{fig:non_ortho_grid_b}
+\end{figure}
+%------------------------------------------------------------------------------
+\subsection*{Results of the numerical experiments}
+\notyet
+%In this section some results are presented of the previous two sections (\nameref{sec:ortho_river_section} and \nameref{sec:non_ortho_river_section}).
+%Time histories of the centre point of the model
+%\begin{figure}[H]
+%    \includegraphics[width=\textwidth]{figures/maze.pdf}
+%    \caption{Water level time history at the centre point of the model}
+%    \label{fig:non_ortho_grid_b}
+%\end{figure}
+%
+%Vector plot of the velocity:
+%\begin{figure}[H]
+%    \includegraphics[width=\textwidth]{figures/maze.pdf}
+%    \caption{Water level time history at the centre point of the model}
+%    \label{fig:non_ortho_grid_b}
+%\end{figure}
+%%
+%and an iso-line plot of the velocity magnitude:
+%\begin{figure}[H]
+%    \includegraphics[width=\textwidth]{figures/maze.pdf}
+%    \caption{Water level time history at the centre point of the model}
+%    \label{fig:non_ortho_grid_b}
+%\end{figure}
