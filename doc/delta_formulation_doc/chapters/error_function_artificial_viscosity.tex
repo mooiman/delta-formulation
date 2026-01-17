@@ -2,15 +2,20 @@
 \chapter{Error function needed to regularize the artificial viscosity} \label{sec:error_artificial_viscosity}
 Regularization of the artificial viscosity $\Psi$ is described in \autoref{sec:regularization_artificial_viscosity}.
 \begin{align}
-    \int_{\Omega_{\xi\eta}} \Psi\, d\omega - \alpha_{\psi} \int_{\Omega_{\xi\eta}} \nabla \dotp \nabla \Psi\, d\xi d\eta = \int_{\Omega_{\xi\eta}} \beta_{\psi} \mathit{Err}_{\psi}\, d\omega
+    &\int_{\Omega_{\xi\eta}} \Psi\, d\omega - \alpha_{\psi} \int_{\Omega_{\xi\eta}} \nabla \dotp \nabla \Psi\, d\xi d\eta = \int_{\Omega_{\xi\eta}} \beta_{\psi} \mathit{Err}_{\psi}\, d\omega
     \label{eq:reg_artificial_viscosity}
+    \\*
+    &\int_{\Omega_{\xi\eta}} \Psi\, d\omega
+    - \alpha_{\psi} \oint_{\partial\Omega_{\xi\eta}} \nabla \Psi\, dl
+    = \int_{\Omega_{\xi\eta}} \beta_{\psi} \mathit{Err}_{\psi}\, d\omega
 \end{align}
 when $\Dxi = \Deta = 1$.
 
-The mentioned error-function $Err_{\psi}$ is derived in this section and is based on \citet[eq.\ 42]{Borsboom2001}.
-
-In this section the error function is derived for the 1-dimensional (\autoref{sec:err_1dimensional}) and 2-dimensional  case (\autoref{sec:err_2dimensional}).
+In this chapter the error function is derived for the 1-dimension (\autoref{sec:err_1dimensional}) and 2-dimension case (\autoref{sec:err_2dimensional}).
 The 2D-dimensional case is derived for curvilinear coordinates.
+
+The mentioned error-function $Err_{\psi}$ is derived in \autoref{sec:err_psi_2d} and is based on \citet[eq.\ 42]{Borsboom2001}.
+
 
 %--------------------------------------------------------------------------------
 \section{One dimensional shallow water equations}\label{sec:err_1dimensional}
@@ -37,10 +42,19 @@ and the energy equation reads (\label{sec:obtaining_1denergy_equation}):
 \end{align}
 For a steady state solution ($\lpdiff{}{t} = 0$ and $q=\textit{Constant}$), when have:
 \begin{align}
-    &\pdiff{}{x}\left( \frac{1}{2} \frac{q^2}{h^2} + g\zeta  \right) =
-\frac{q}{h^2} \pdiff{q}{x} - \frac{q^2}{h^3}  \pdiff{h}{x} + g\pdiff{\zeta}{x} = 0
+    &\pdiff{}{x}\left( \frac{1}{2} \frac{q^2}{h^2} + g\zeta  \right) = 0
+% \frac{q}{h^2} \pdiff{q}{x} - \frac{q^2}{h^3}  \pdiff{h}{x} + g\pdiff{\zeta}{x} = 0
 \end{align}
-We assume that the artificial viscosity $\Psi$ is proportional to the numerical error of the gradient term.
+
+%--------------------------------------------------------------------------------
+\subsection{1D Error function $\mathit{Err}_\psi$} \label{sec:err_psi_2d}
+
+We assume that the artificial viscosity $\Psi$ is proportional to the numerical error of the gradient term of the energy equation.
+
+To reach suitable velocities the square root is taken from the potential and kinetic energy.
+\begin{align}
+    \mathit{Err}_{\psi} = Err \left( \sqrt{g \hbar} \right) + Err \left( \sqrt{\half \frac{q^2}{h^2} } \right)
+\end{align}
 %
 %--------------------------------------------------------------------------------
 \paragraph*{Based on potential energy}
@@ -97,17 +111,17 @@ with $D_\xi$ defined as \citep[eq. 35]{Borsboom2001}:
 
 %--------------------------------------------------------------------------------
 \section{Two dimensional shallow water equations}\label{sec:err_2dimensional}
-We start from the continuity and momentum equation for non-linear waves (i.e. \autoref{eq:continuity_equation} and \eqref{eq:momentum_equation} and combine these two equations to one equation representing the energy.
+We start from the continuity and momentum equation for non-linear shallow water equations (i.e.\ \autoref{eq:continuity_equation_app}, \eqref{eq:q_momentum_equation_app} and \eqref{eq:r_momentum_equation_app}) and combine these three equations to one equation representing the energy.
 
 The continuity and momentum equation read:
 \begin{align}
-    \pdiff{h}{t}  + \pdiff{q}{x} + \pdiff{r}{y} & = 0 \qquad \textit{continuity eq.} \label{eq:continuity_equation}
+    \pdiff{h}{t}  + \pdiff{q}{x} + \pdiff{r}{y} & = 0 \qquad \textit{continuity eq.} \label{eq:continuity_equation_app}
     \\
     \pdiff{q}{t}  + \pdiff{}{x} \left( \frac{q^2}{h} \right) + \pdiff{}{y} \left( \frac{qr}{h} \right) + g h \pdiff{\zeta}{x} & = 0 \qquad \textit{$q$-momentum eq.}
-    \label{eq:q_momentum_equation}
+    \label{eq:q_momentum_equation_app}
     \\
     \pdiff{r}{t}  + \pdiff{}{x} \left( \frac{rq}{h} \right) + \pdiff{}{y} \left( \frac{r^2}{h} \right) + g h \pdiff{\zeta}{y} & = 0 \qquad \textit{$r$-momentum eq.}
-    \label{eq:r_momentum_equation}
+    \label{eq:r_momentum_equation_app}
 \end{align}
 a suitable combination of these three equations yields the energy equation.
 The suitable combination is:
@@ -135,18 +149,20 @@ the energy equation reads (\autoref{sec:obtaining_2denergy_equation}):
     + g \zeta \right)
     \right] = 0
 \end{align}
-When a steady state solution is assumed ($\lpdiff{}{t}=0$, $q=\textit{Constant}$ and $r=\textit{Constant}$) it yields:
+When a steady state solution is assumed ($\lpdiff{}{t}=0$, $q = r = \textit{Constant}$) it yields:
 \begin{align}
     \nabla \left( \half \left( \frac{q^2}{h^2} + \frac{r^2}{h^2} \right) + g \zeta \right) = 0
-    \quad \Rightarrow \quad
-    \half \left( \frac{q^2}{h^2} + \frac{r^2}{h^2} \right) + g \zeta =  \textit{Constant}, \bunit{\square\metre\per\square\second}
 \end{align}
 %--------------------------------------------------------------------------------
-\subsection{Error function}
-The error function to determine the artificial viscosity $\Psi$ (\autoref{eq:regularization}) is dependent on the velocities.
+\subsection{2D Error function $\mathit{Err}_\psi$} \label{sec:err_psi_2d}
+We assume that the artificial viscosity $\Psi$ is proportional to the numerical error of the gradient term of the energy equation.
+
 To reach suitable velocities the square root is taken from the potential and kinetic energy.
 \begin{align}
-    \mathit{Err}_{\psi} = Err \left( \sqrt{g \hbar} \right) + Err \left( \sqrt{\half \norm{\frac{\vec{q}}{h^2}} } \right)
+    \mathit{Err}_{\psi} =
+    \mathit{Err} \left( \sqrt{g \hbar} \right)
+    + \mathit{Err} \left( \sqrt{ \half \frac{q^2}{h^2} } \right)
+    + \mathit{Err} \left( \sqrt{ \half \frac{r^2}{h^2} } \right)
 \end{align}
 %--------------------------------------------------------------------------------
 \paragraph*{Based on potential energy}
@@ -225,45 +241,14 @@ Because $\lpdiff[2]{z_b}{x}$ is negligible, due to the regularization of the bed
 
 %--------------------------------------------------------------------------------
 \paragraph*{Based on kinetic energy}
-Looking to square root of the kinetic energy ($\sqrt{\norm{\vec{u}}/2} = \sqrt{\half(q^2/h^2 + r^2/h^2)}$):
+Looking to both square roots of the kinetic energy :
 \begin{align}
-    {\mathit Err}&\left( \sqrt{\half \left( \frac{\widehat{q}^2}{\widehat{h}^2} + \frac{\widehat{r}^2}{\widehat{h}^2} \right)} \right) =
-    \\*
-    & =
-    \half \sqrt{2} \sqrt{ \left( \frac{\widehat{q}^2}{\widehat{h}^2} + \frac{\widehat{r}^2}{\widehat{h}^2} \right)}
-    -
-    \half \sqrt{2} \sqrt{\left( \frac{\overline{q}^2}{\overline{h}^2} + \frac{\overline{r}^2}{\overline{h}^2} \right)} \leq
-    \\*
-    &\text{using $\sqrt{a^2 + b^2} \leq a + b$ when $a>0$ and $b>0$} \nonumber
-    \\*
-    & \leq
-    \half \sqrt{2} \left( \frac{\widehat{q}}{\widehat{h}}
-    + \frac{\widehat{r}}{\widehat{h}} \right)
-    -
-    \half \sqrt{2} \left( \frac{\overline{q}}{\overline{h}}
-    + \frac{\overline{r}}{\overline{h}} \right) =
-    \\*
-    & =
-    \half \sqrt{2} \left( \frac{\widehat{q}}{\widehat{h}}
-    - \frac{\overline{q}}{\overline{h}} \right)
-    +
-    \half \sqrt{2} \left( \frac{\widehat{r}}{\widehat{h}}
-    - \frac{\overline{r}}{\overline{h}} \right) =
-    \\*
-    = &{\mathit Err} \left( \sqrt{\half \frac{\widehat{q}^2}{\widehat{h}^2}} \right)
-    +
-    {\mathit Err}\left( \sqrt{\half \frac{\widehat{r}^2}{\widehat{h}^2}} \right)
-\end{align}
-thus
-\begin{align}
-    {\mathit Err}&\left( \sqrt{\half \left( \frac{\widehat{q}^2}{\widehat{h}^2} + \frac{\widehat{r}^2}{\widehat{h}^2} \right)} \right)
-    \leq
-    {\mathit Err} \left( \sqrt{\half \frac{\widehat{q}^2}{\widehat{h}^2}} \right)
+ &{\mathit Err} \left( \sqrt{\half \frac{\widehat{q}^2}{\widehat{h}^2}} \right)
     +
     {\mathit Err}\left( \sqrt{\half \frac{\widehat{r}^2}{\widehat{h}^2}} \right)
 \end{align}
 %
-Looking first to the dependencies of $q/h$ in two dimensions, for $r/h$ it is similar:
+First looking to the dependencies on $\qhat/\hhat$, for $\rhat/\hhat$ it is similar:
 \begin{align}
     {\mathit Err}& \left( \sqrt{\half \frac{\widehat{q}^2}{\widehat{h}^2}} \right) =
     \half \sqrt{2} \left( \frac{\widehat{q}}{\widehat{h}}
@@ -321,7 +306,7 @@ Looking first to the dependencies of $q/h$ in two dimensions, for $r/h$ it is si
     \frac{\partial\kern 0.083333em ^2 \hbar}{\partial x \partial y}
     - \frac{1}{8\hbar}\Dy^2\pdiff[2]{\hbar}{y} \right) \Bigg]+
 \end{align}
-Because $\lpdiff[2]{z_b}{x}$ is negligible, due to the regularization of the bedlevel, written in curvilinear coordinates when using \autoref{eq:d2hdx2}, \eqref{eq:d2hdxdy} and \eqref{eq:d2hdy2}, we get:
+Because $\lpdiff[2]{z_b}{x}$ is negligible, due to the regularization of the bedlevel, and using \autoref{eq:d2hdx2}, \eqref{eq:d2hdxdy} and \eqref{eq:d2hdy2} which are  written in curvilinear coordinates, we get:
 %
 \begin{align}
     {\mathit Err}&\left( \sqrt{\half \frac{\widehat{q}^2}{\widehat{h}^2}} \right) =
@@ -458,7 +443,6 @@ Applying these multiplications and skipping th convection terms)
     +  \frac{r}{h}\pdiff{r}{y} - \frac{r^2}{h^2}\pdiff{h}{y}
     + g h \pdiff{\zeta}{y} \right) = 0
 \end{align}
-\newpage
 Using the continuity equation
 \begin{align}
     \pdiff{q}{x} + \pdiff{r}{y} = -\pdiff{h}{t}
