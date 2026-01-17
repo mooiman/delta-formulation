@@ -191,7 +191,7 @@ int reg_interior_matrix_psi(double* values, size_t row, size_t c_eq,
 
     return 0;
 }
-        
+//------------------------------------------------------------------------------        
 inline void add_value(double * values, size_t col, double data){ 
     values[col] += data; 
 }
