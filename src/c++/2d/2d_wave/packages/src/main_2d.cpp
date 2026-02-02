@@ -679,8 +679,11 @@ int main(int argc, char *argv[])
         status = map_file->add_variable(map_psi_11_zb_name, dim_names, "", "Psi_11_zb", "m2 s-1", "mesh2D", "node", "Added artificial viscosity zb (x)");
         status = map_file->add_variable(map_psi_22_zb_name, dim_names, "", "Psi_22_zb", "m2 s-1", "mesh2D", "node", "Added artificial viscosity zb (y)");
         status = map_file->add_variable(map_eq8_zb_name, dim_names, "", "Eq8_zb", "-", "mesh2D", "node", "Result of equation 8, see Borsboom 1998");
-        status = map_file->add_variable(map_psi_11_visc_name, dim_names, "", "Psi_11_visc", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (x)");
-        //status = map_file->add_variable(map_psi_22_visc_name, dim_names, "", "Psi_22_visc", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (y)");
+        if (do_viscosity)
+        {
+            status = map_file->add_variable(map_psi_11_visc_name, dim_names, "", "Psi_11_visc", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (x)");
+            //status = map_file->add_variable(map_psi_22_visc_name, dim_names, "", "Psi_22_visc", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (y)");
+        }
     }
     // Put data on map file
     START_TIMER(Writing map-file);
@@ -751,8 +754,11 @@ int main(int argc, char *argv[])
         map_file->put_time_variable(map_psi_11_zb_name, nst_map, psi_11_zb);
         map_file->put_time_variable(map_psi_22_zb_name, nst_map, psi_22_zb);
         map_file->put_time_variable(map_eq8_zb_name, nst_map, eq8_zb);
-        map_file->put_time_variable(map_psi_11_visc_name, nst_map, psi_11_visc);
-        // map_file->put_time_variable(map_psi_22_visc_name, nst_map, psi_22_visc);
+        if (do_viscosity)
+        {
+            map_file->put_time_variable(map_psi_11_visc_name, nst_map, psi_11_visc);
+            // map_file->put_time_variable(map_psi_22_visc_name, nst_map, psi_22_visc);
+        }
     }
 
     STOP_TIMER(Writing map-file);
@@ -1556,8 +1562,11 @@ int main(int argc, char *argv[])
                 map_file->put_time_variable(map_psi_11_zb_name, nst_map, psi_11_zb);
                 map_file->put_time_variable(map_psi_22_zb_name, nst_map, psi_22_zb);
                 map_file->put_time_variable(map_eq8_zb_name, nst_map, eq8_zb);
-                map_file->put_time_variable(map_psi_11_visc_name, nst_map, psi_11_visc);
-                // map_file->put_time_variable(map_psi_22_visc_name, nst_map, psi_22_visc);
+                if (do_viscosity)
+                {
+                    map_file->put_time_variable(map_psi_11_visc_name, nst_map, psi_11_visc);
+                    // map_file->put_time_variable(map_psi_22_visc_name, nst_map, psi_22_visc);
+                }
             }
             STOP_TIMER(Writing map-file);
         }

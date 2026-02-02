@@ -310,12 +310,15 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
     }
     STOP_TIMER(Regularization diffusion);
 
-    if (m_logging == "matrix")
+    if (m_logging == "matrix_psi")
     {
         std::string header_text = "=== Regularization matrix =============================";
         log_file << std::showpos << std::setprecision(3) << std::scientific;
         print_matrix(A, 1, nx, ny, header_text, log_file);
-        header_text = "=== Regularization rhs ================================";
+    }
+    if (m_logging == "rhs_psi")
+    {
+        std::string header_text = "=== Regularization rhs ================================";
         log_file << std::setprecision(8) << std::scientific;
         print_vector(rhs, 1, nx, ny, header_text, log_file);
     }
@@ -918,26 +921,15 @@ inline double REGULARIZATION::d2udxi2(std::vector<double> & u, std::vector<size_
     double deta = 1.0;
     double retval = 0.0;
 
-    retval = 1.0 * u[p[0]] +
-             4.0 * u[p[1]] +
-             1.0 * u[p[2]] +
-             4.0 * u[p[3]] +
-            -20.0 * u[p[4]] +
-             4.0 * u[p[5]] +
-             1.0 * u[p[6]] +
-             4.0 * u[p[7]] +
-             1.0 * u[p[8]];
-
-    retval = 0.0 * u[p[0]] +
-             1.0 * u[p[1]] +
-             0.0 * u[p[2]] +
-             0.0 * u[p[3]] +
-            -2.0 * u[p[4]] +
-             0.0 * u[p[5]] +
-             0.0 * u[p[6]] +
-             1.0 * u[p[7]] +
-             0.0 * u[p[8]];
-
+    retval =  1./8. * u[p[0]] +
+              6./8. * u[p[1]] +
+              1./8. * u[p[2]] +
+             -6./8. * u[p[3]] +
+            -12./8. * u[p[4]] +
+             -6./8. * u[p[5]] +
+              1./8. * u[p[6]] +
+              6./8. * u[p[7]] +
+              1./8. * u[p[8]];
     return retval;
 }
 inline double REGULARIZATION::d2udxideta(std::vector<double> & u, std::vector<size_t>& p)
@@ -965,15 +957,15 @@ inline double REGULARIZATION::d2udeta2(std::vector<double> & u, std::vector<size
     // Computational space
     double retval;
 
-    retval = 0.0 * u[p[0]] +
-             0.0 * u[p[1]] +
-             0.0 * u[p[2]] +
-             1.0 * u[p[3]] +
-            -2.0 * u[p[4]] +
-             1.0 * u[p[5]] +
-             0.0 * u[p[6]] +
-             0.0 * u[p[7]] +
-             0.0 * u[p[8]];
+    retval =  1./8. * u[p[0]] +
+             -6./8. * u[p[1]] +
+              1./8. * u[p[2]] +
+              6./8. * u[p[3]] +
+            -12./8. * u[p[4]] +
+              6./8. * u[p[5]] +
+              1./8. * u[p[6]] +
+             -6./8. * u[p[7]] +
+              1./8. * u[p[8]];
     return retval;
     //return d2udxi2(u, p);
 }

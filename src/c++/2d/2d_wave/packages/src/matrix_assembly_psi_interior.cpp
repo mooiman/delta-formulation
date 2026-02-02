@@ -111,10 +111,13 @@ int reg_interior_matrix_psi(double* values, size_t row, size_t c_eq,
     add_value(values, col_w , scv_area_3 * 3./16.);
     add_value(values, col_nw, scv_area_3 * 1./16.);
 
+    
     // Diffusion part
     double n_xi = 0.0;
     double n_eta = 0.0;
 
+    double c_psi_org = c_psi;
+    c_psi = -c_psi;
     double fac = c_psi * 0.5;
     //
     // scv_0 face_0
@@ -189,6 +192,7 @@ int reg_interior_matrix_psi(double* values, size_t row, size_t c_eq,
     add_value(values, col_n , fac * n_xi *  1./4.);
     add_value(values, col_nw, fac * n_xi * -1./4.);
 
+    c_psi_org = c_psi;
     return 0;
 }
 //------------------------------------------------------------------------------        
