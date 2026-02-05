@@ -698,13 +698,15 @@ int main(int argc, char *argv[])
     map_file->put_time_variable(map_s_name, nst_map, s);
     map_file->put_time_variable(map_u_name, nst_map, u);
     map_file->put_time_variable(map_v_name, nst_map, v);
+    map_file->put_time_variable(map_zb_name, nst_map, zb_giv);
 
     for (size_t i = 0; i < u.size(); ++i)
     {
         u_speed[i] = (std::sqrt(u[i] * u[i] + v[i] * v[i]));
+        froude[i] = u_speed[i] / std::sqrt(g * hp[i]);
     }
     map_file->put_time_variable(map_umag_name, nst_map, u_speed);
-    map_file->put_time_variable(map_zb_name, nst_map, zb_giv);
+    map_file->put_time_variable(map_froude_name, nst_map, froude);
 
     if (do_bed_shear_stress)
     {
@@ -1505,6 +1507,8 @@ int main(int argc, char *argv[])
             map_file->put_time_variable(map_s_name, nst_map, s);
             map_file->put_time_variable(map_u_name, nst_map, u);
             map_file->put_time_variable(map_v_name, nst_map, v);
+            map_file->put_time_variable(map_zb_name, nst_map, zb);
+
             for (size_t i = 0; i < u.size(); ++i)
             {
                 u_speed[i] = (std::sqrt(u[i] * u[i] + v[i] * v[i]));
@@ -1513,7 +1517,6 @@ int main(int argc, char *argv[])
             map_file->put_time_variable(map_umag_name, nst_map, u_speed);
             map_file->put_time_variable(map_froude_name, nst_map, froude);
 
-            map_file->put_time_variable(map_zb_name, nst_map, zb);
             if (do_convection)
             {
                 convection_post_rhs(post_q, post_r, x, y, hn, qn, rn, nx, ny);

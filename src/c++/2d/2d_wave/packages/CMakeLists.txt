@@ -25,8 +25,12 @@ set(headers_files
     include/matrix_assembly_utilde_boundaries.h
     include/matrix_assembly_utilde_corners.h
     include/matrix_assembly_utilde_interior.h
+    include/matrix_assembly_psi_boundaries.h
+    include/matrix_assembly_psi_corners.h
+    include/matrix_assembly_psi_interior.h
     include/observation_stations.h
     include/perf_timer.h
+    include/print_matrix.h
     include/read_input_toml_file.h
     include/regularization.h
     include/ugrid2d.h
@@ -55,8 +59,12 @@ set(source_files
     src/matrix_assembly_utilde_boundaries.cpp
     src/matrix_assembly_utilde_corners.cpp
     src/matrix_assembly_utilde_interior.cpp
+    src/matrix_assembly_psi_boundaries.cpp
+    src/matrix_assembly_psi_corners.cpp
+    src/matrix_assembly_psi_interior.cpp
     src/observation_stations.cpp
     src/perf_timer.cpp
+    src/print_matrix.cpp
     src/read_input_toml_file.cpp
     src/regularization.cpp
     src/ugrid2d.cpp
