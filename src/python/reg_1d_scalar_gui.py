@@ -2,12 +2,9 @@
 # Programmer: Jan Mooiman
 # email: jan.mooiman@outlook.com
 #
-from PyQt6.QtWidgets import *
-from PyQt6.QtCore import Qt
-from PyQt6 import QtGui
-from PyQt6 import QtCore
-
 import reg_1d_scalar
+from PyQt6.QtWidgets import *
+
 
 class DFTgui(QMainWindow):
     def __init__(self):
@@ -45,6 +42,7 @@ class DFTgui(QMainWindow):
         self.bath_combobox = QComboBox(self)
         self.bath_combobox.addItem("tanh + step", 0)
         self.bath_combobox.addItem("tanh + step (deeper)", 1)
+        self.bath_combobox.addItem("Summer-winterbed", 9)
         self.bath_combobox.addItem("Frank Platzek", 2)
         self.bath_combobox.addItem("Interface problem", 8)
         self.bath_combobox.addItem("shoal: -10 [m] to -2.5 [m]", 3)
@@ -52,7 +50,7 @@ class DFTgui(QMainWindow):
         self.bath_combobox.addItem("Step function", 5)
         self.bath_combobox.addItem("Constant", 6)
         self.bath_combobox.addItem("Boundary layers", 7)
-        self.bath_combobox.setCurrentIndex(0)
+        self.bath_combobox.setCurrentIndex(2)
 
         self.bath_combobox.setToolTip("Several scalar profiles")
         edit_layout.addWidget(self.bath_label, nrow, 0)
@@ -87,12 +85,25 @@ class DFTgui(QMainWindow):
 
         nrow += 1
         self.step_left_label = QLabel(self)
-        self.step_left_label.setText('step left:')
+        self.step_left_label.setText('Step left:')
         self.step_left_edit = QLineEdit(self)
-        self.step_left_edit.setToolTip("step right = 100. * step left: ")
         edit_layout.addWidget(self.step_left_label, nrow, 0)
         edit_layout.addWidget(self.step_left_edit, nrow, 1)
         self.step_left_edit.setText("0.1")
+        if (self.bath_combobox.currentIndex() == 2):
+            self.step_left_label.setText('Winterbed:')
+            self.step_left_edit.setText("-4.0")
+
+        nrow += 1
+        self.step_right_label = QLabel(self)
+        self.step_right_label.setText('Step right:')
+        self.step_right_edit = QLineEdit(self)
+        edit_layout.addWidget(self.step_right_label, nrow, 0)
+        edit_layout.addWidget(self.step_right_edit, nrow, 1)
+        self.step_right_edit.setText("1.0")
+        if (self.bath_combobox.currentIndex() == 2):
+            self.step_right_label.setText('Summerbed:')
+            self.step_right_edit.setText("-0.5")
 
         # layout.addStretch()
         layout.addLayout(edit_layout)
@@ -102,6 +113,8 @@ class DFTgui(QMainWindow):
         self.bath_combobox.currentIndexChanged.connect(self.update_edit_text)
 
     def update_edit_text(self):
+        self.step_left_label.setText('Step left:')
+        self.step_right_label.setText('Step right:')
         self.lx_edit.setText("1000.")
         self.dx_edit.setText("20.")
         self.step_left_edit.setText("0.0")
@@ -130,15 +143,23 @@ class DFTgui(QMainWindow):
             self.lx_edit.setText("1.")
             self.dx_edit.setText("0.04")
             self.step_left_edit.setText("0.0")
+        if (self.bath_combobox.itemData(self.bath_combobox.currentIndex()) == 9):
+            self.step_left_label.setText('Summerbed:')
+            self.step_right_label.setText('Winterbed:')
+            self.lx_edit.setText("1000.")
+            self.dx_edit.setText("20.")
+            self.step_left_edit.setText("-4.0")
+            self.step_right_edit.setText("-0.5")
 
     def run(self):
         lx = self.lx_edit.text()
         dx = self.dx_edit.text()
         c_psi = self.cpsi_edit.text()
-        bath = self.bath_combobox.currentIndex()
         step_left = self.step_left_edit.text()
-        bath = self.bath_combobox.itemData(self.bath_combobox.currentIndex())
-        reg_1d_scalar.main(bath, lx, dx, c_psi, step_left)
+        step_right = self.step_right_edit.text()
+        bath = str(self.bath_combobox.itemData(self.bath_combobox.currentIndex()))
+
+        reg_1d_scalar.main(bath, lx, dx, c_psi, step_left, step_right)
 
 
 if __name__ == '__main__':

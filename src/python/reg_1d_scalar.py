@@ -23,15 +23,13 @@ def cm2inch(cm):
     return cm / 2.54
 
 
-def main(bath_in = 7, Lx_in=6000., dx_in=100., c_psi_in= 4.0, left_in = 0.00):  # c_psi paragraph after eq. 10 of article
+def main(bath_in = 9, Lx_in=500., dx_in=25., c_psi_in= 4.0, left_in = -4.0, right_in = -0.5):  # c_psi paragraph after eq. 10 of article
     bathymetry = int(bath_in)
     Lx = float(Lx_in)
     dx = float(dx_in)
     c_psi = float(c_psi_in)
     step_left = float(left_in)
-    step_right = 100. * step_left 
-    if step_left == 0.0:
-        step_right = 1.0
+    step_right = float(right_in)
 
     if (int(Lx/dx) != Lx/dx):
         print("Grid space is not a integer divider of domain length: Lx/dx = ", Lx/dx)
@@ -48,7 +46,7 @@ def main(bath_in = 7, Lx_in=6000., dx_in=100., c_psi_in= 4.0, left_in = 0.00):  
     # 6: Constant value of 1.0
     # 7: Step at right boundary of 1.0
     # 8: Interface
-    # 9: Tile
+    # 9: Summer-winterbed
     #
 
     Psi = c_psi * dx *dx
@@ -238,16 +236,15 @@ def main(bath_in = 7, Lx_in=6000., dx_in=100., c_psi_in= 4.0, left_in = 0.00):  
             if x_ana[i] > 0.5:
                 ugiv_ana[i] = 2. * x_ana[i]
     elif bathymetry == 9:
-        bathymetry_desc = "0.25 * Lx > x < 0.75 * Lx; f(x) = -5: Tile"
+        bathymetry_desc = "0.25 * Lx > x < 0.75 * Lx; f(x) = Winterbed"
         for i in range(0, nx):
-            ugiv[i] = -10.0
+            ugiv[i] = step_right  # summerbed
             if x[i] > 0.25 * Lx and x[i] < 0.75 * Lx:
-                ugiv[i] = -5.0
+                ugiv[i] = step_left   # winterbed
         for i in range(0, refine * (nx - 1) + 1):
-            ugiv_ana[i] = -10.0
+            ugiv_ana[i] = step_right  # summerbed
             if x_ana[i] > 0.25 * Lx and x_ana[i] < 0.75 * Lx:
-                ugiv_ana[i] = -5.0
-
+                ugiv_ana[i] = step_left   # winterbed
     else:
         print("No valid bathymetry option defined, value '%s' is not supported." % bathymetry)
         return(1)

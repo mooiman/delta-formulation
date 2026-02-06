@@ -78,6 +78,7 @@ def compute_regularization(c_psi, ugiv, dx, nx, ugiv_ana, refine):
 
         c_error = c_psi
 
+        # eq8
         alpha = 0.125
         for i in range(1, nx - 1):
             a[i] = 0.
@@ -117,11 +118,15 @@ def compute_regularization(c_psi, ugiv, dx, nx, ugiv_ana, refine):
         d[i] = 0.
         e[i] = 0.
         f[i] = 0.
+        
+        # solve eq8
         Err = thomas_algorithm_5(a, b, c, d, e, f)
 
+        #eq6
         for i in range(0, nx):
             psi[i] = c_psi * dx * dx * Err[i]
 
+        # eq7 
         for i in range(1, nx - 1):
             psi_im12 = psi[i]  # 0.5 * (psi[i - 1] + psi[i])
             psi_ip12 = psi[i]  # 0.5 * (psi[i] + psi[i + 1])
@@ -167,6 +172,7 @@ def compute_regularization(c_psi, ugiv, dx, nx, ugiv_ana, refine):
         d[i] = 0.
         e[i] = 0.
         f[i] = 0.0
+        # solve eq7
         u0 = thomas_algorithm_5(a, b, c, d, e, f)
 
         diff_max1 = 0.0
