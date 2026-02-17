@@ -1,7 +1,7 @@
 echo off
-set netCDF_DIR=c:\Program Files\netCDF 4.9.2\
-set PATH=c:\Qt\Qt6.7.2\6.7.2\msvc2019_64\;%PATH%
-set PATH=c:\boost\Boost-1.85.0\;%PATH%
+set NETCDF_DIR=c:\Program Files\netCDF 4.9.2\
+set PATH=c:\Qt\Qt6.8.2\6.8.2\msvc2022_64\;%PATH%
+set PATH=c:\boost\Boost-1.90.0\;%PATH%
 
 echo on
 del _build
