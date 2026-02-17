@@ -16,9 +16,8 @@
 
 [Boundary] # north, east, south, west
     bc_type = ["free_slip", "free_slip", "free_slip", "free_slip"] # Type "borsboom", "free_slip", "mooiman" 
-    bc_vars = ["zeta", "zeta", "zeta"]
+    bc_vars = ["zeta", "zeta", "zeta", "zeta"]
     bc_vals = [0.0, 0.0, 0.0, 0.0]
-    bc_absorbing = [true, true, true, true]
     treg = 150.0                                  # Regularization time boundary signal
     eps_bc_corr = 1.0e-2
 

@@ -18,7 +18,6 @@
     bc_type = [ "borsboom", "borsboom", "borsboom", "borsboom" ] # Type "borsboom", "free_slip", "mooiman" 
     bc_vars = [ "zeta", "zeta", "zeta", "zeta" ]
     bc_vals = [ 0.0, 0.0, 0.0, 0.0 ]
-    bc_absorbing = [ true, true, true, true ]
     treg = 150.0                                  # Regularization time boundary signal
     eps_bc_corr = 1.0e-02
 
