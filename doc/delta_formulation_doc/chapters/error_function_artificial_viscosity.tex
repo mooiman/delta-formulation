@@ -40,7 +40,7 @@ and the energy equation reads (\label{sec:obtaining_1denergy_equation}):
     \pdiff{}{t}\left( h \left(\half \frac{q^2}{h^2} + g \zeta - \half g h \right) \right) +
     \pdiff{}{x}\left( q \left( \half \frac{q^2}{h^2} + g\zeta  \right) \right)= 0
 \end{align}
-For a steady state solution ($\lpdiff{}{t} = 0$ and $q=\textit{Constant}$), when have:
+With energy conservation ($\lpdiff{}{t} = 0$) and $q=\textit{Constant}$, when have:
 \begin{align}
     &\pdiff{}{x}\left( \frac{1}{2} \frac{q^2}{h^2} + g\zeta  \right) = 0
 % \frac{q}{h^2} \pdiff{q}{x} - \frac{q^2}{h^3}  \pdiff{h}{x} + g\pdiff{\zeta}{x} = 0
@@ -62,9 +62,9 @@ Looking to square root of the potential energy
 \begin{align}
     {\mathit Err}\left(\sqrt{g\hhat}\right) & = \sqrt{g\hhat} - \sqrt{g\hbar} \approx
     \\
-    & \approx \sqrt{g\left(\hbar + \frac{1}{8}\Dx^2\pdiff[2]{\hbar}{x}\right)} - \sqrt{g\hbar} =
+    & \approx \sqrt{g\left(\hhat + \frac{1}{8}\Dx^2\pdiff[2]{\hhat}{x}\right)} - \sqrt{g\hbar} \approx
     \\
-    & = \sqrt{g\hbar\left(1 + \frac{1}{8\hbar}\Dx^2\pdiff[2]{\hbar}{x}\right)} - \sqrt{g\hbar} \approx
+    & \approx \sqrt{g\hbar\left(1 + \frac{1}{8\hbar}\Dx^2\pdiff[2]{\hbar}{x}\right)} - \sqrt{g\hbar} \approx
     \\
     &\approx \sqrt{g\hbar}\left(1 + \frac{1}{16\hbar}\Dx^2 \pdiff[2]{\hbar}{x}\right) - \sqrt{g\hbar} =
     \\
@@ -83,9 +83,9 @@ Because $\lpdiff[2]{z_b}{x}$ is negligible, due to the regularization of the bed
 Looking to square root of the kinetic energy: $\sqrt{u^2/2} = \half\sqrt{2} \abs{u} = \half\sqrt{2} \abs{q/h}$:
 \begin{align}
     {\mathit Err}\left( \half\sqrt{2}\frac{\qhat}{\hhat} \right) & =  \half\sqrt{2}\left(\frac{\qhat}{\hhat} - \frac{\qbar}{\hbar} \right) \approx
-    \half\sqrt{2} \left( \frac{\qbar + \frac{1}{8}\Dx^2\pdiff[2]{\qbar}{x}}{\hbar + \frac{1}{8}\Dx^2\pdiff[2]{\hbar}{x}} - \frac{\qbar}{\hbar} \right) =
+    \half\sqrt{2} \left( \frac{\qhat + \frac{1}{8}\Dx^2\pdiff[2]{\qhat}{x}}{\hhat + \frac{1}{8}\Dx^2\pdiff[2]{\hhat}{x}} - \frac{\qbar}{\hbar} \right) \approx
     \\
-    & = \half\sqrt{2} \left( \frac{\qbar}{\hbar}\frac{1 + \frac{1}{8}\Dx^2\frac{1}{\qbar}\pdiff[2]{\qbar}{x}}{1+\frac{1}{8}\Dx^2\frac{1}{\hbar}\pdiff[2]{\hbar}{x}} - \frac{\qbar}{\hbar} \right) \approx
+    & \approx \half\sqrt{2} \left( \frac{\qbar}{\hbar}\frac{1 + \frac{1}{8}\Dx^2\frac{1}{\qbar}\pdiff[2]{\qbar}{x}}{1+\frac{1}{8}\Dx^2\frac{1}{\hbar}\pdiff[2]{\hbar}{x}} - \frac{\qbar}{\hbar} \right) \approx
     \\
     & \approx \half\sqrt{2} \left( \frac{\qbar}{\hbar}
     \left( 1 + \frac{1}{8}\Dx^2\frac{1}{\qbar}\pdiff[2]{\qbar}{x} \right)
@@ -150,7 +150,7 @@ the energy equation reads (see \autoref{sec:obtaining_2denergy_equation}):
     + g \zeta \right)
     \right] = 0
 \end{align}
-When a steady state solution is assumed ($\lpdiff{}{t}=0$, $q = r = \textit{Constant}$) it yields:
+With energy conservation  ($\lpdiff{}{t}=0$) and $q = \textit{Constant}$, $r = \textit{Constant}$ it yields:
 \begin{align}
     \nabla \left( \half \left( \frac{q^2}{h^2} + \frac{r^2}{h^2} \right) + g \zeta \right) = 0
 \end{align}
@@ -173,16 +173,16 @@ Looking to square root of the potential energy
     - \sqrt{g \overline{h}}
     \\*
     & \approx \sqrt{g
-        \left(\hbar +
+        \left(\hhat +
         \half
-        \left( \frac{\Dx}{2} \right)^2 \pdiff[2]{\hbar}{x}
-        + \frac{\Dx}{2} \frac{\Dy}{2}  \frac{\partial\kern 0.083333em^2 \hbar}{\partial x \partial y}
-        + \half \left( \frac{\Dy}{2} \right)^2 \pdiff[2]{\hbar}{y}
+        \left( \frac{\Dx}{2} \right)^2 \pdiff[2]{\hhat}{x}
+        + \frac{\Dx}{2} \frac{\Dy}{2}  \frac{\partial\kern 0.083333em^2 \hhat}{\partial x \partial y}
+        + \half \left( \frac{\Dy}{2} \right)^2 \pdiff[2]{\hhat}{y}
         \right)
     }
-    - \sqrt{g\hbar} =
+    - \sqrt{g\hbar} \approx
     \\
-    & = \sqrt{g\hbar\left(1 + \frac{1}{8\hbar}\Dx^2\pdiff[2]{\hbar}{x} +
+    & \approx \sqrt{g\hbar\left(1 + \frac{1}{8\hbar}\Dx^2\pdiff[2]{\hbar}{x} +
         \frac{1}{4\hbar}\Dx\Dy\frac{\partial\kern 0.083333em^2 \hbar}{\partial x \partial y} +
         \frac{1}{8\hbar}\Dy^2\pdiff[2]{\hbar}{y}\right)}
     - \sqrt{g\hbar} \approx
@@ -258,17 +258,17 @@ First looking to the dependencies on $\qhat/\hhat$, for $\rhat/\hhat$ it is simi
     \\*
     & \approx
     \half\sqrt{2} \left(
-    \frac{\qbar + \half\left(\frac{\Dx}{2}\right)^2\pdiff[2]{\qbar}{x}
-        +  \frac{\Dx}{2} \frac{\Dy}{2} \frac{\partial\kern 0.083333em ^2 \qbar}{\partial x \partial y}
-        + \half\left(\frac{\Dy}{2}\right)^2\pdiff[2]{\qbar}{y}}
-    {\hbar + \half\left(\frac{\Dx}{2}\right)^2\pdiff[2]{\hbar}{x}
+    \frac{\qhat + \half\left(\frac{\Dx}{2}\right)^2\pdiff[2]{\qhat}{x}
+        +  \frac{\Dx}{2} \frac{\Dy}{2} \frac{\partial\kern 0.083333em ^2 \qhat}{\partial x \partial y}
+        + \half\left(\frac{\Dy}{2}\right)^2\pdiff[2]{\qhat}{y}}
+    {\hhat + \half\left(\frac{\Dx}{2}\right)^2\pdiff[2]{\hhat}{x}
         +  \frac{\Dx}{2} \frac{\Dy}{2}
-        \frac{\partial\kern 0.083333em ^2 \hbar}{\partial x \partial y}
-        + \half\left(\frac{\Dy}{2}\right)^2\pdiff[2]{\hbar}{y}}
-    - \frac{\qbar}{\hbar} \right) =
+        \frac{\partial\kern 0.083333em ^2 \hhat}{\partial x \partial y}
+        + \half\left(\frac{\Dy}{2}\right)^2\pdiff[2]{\hhat}{y}}
+    - \frac{\qbar}{\hbar} \right) \approx
     \\*
     &
-    =
+    \approx
     \half\sqrt{2} \left(
     \frac{\qbar}{\hbar}
     \frac{1 + \frac{1}{8\qbar}\Dx^2\pdiff[2]{\qbar}{x}
@@ -618,9 +618,7 @@ Rearranged equations, first $\lpdiff{}{t}$ then $\lpdiff{}{x}$ and $\lpdiff{}{y}
     \right] = 0
 \end{align}
 
-
-
-with steady state solution ($\lpdiff{}{t}=0$, $q=\textit{Constant}$ and $r=\textit{Constant}$):
+With energy conservation  ($\lpdiff{}{t}=0$) and  $q=\textit{Constant}$ and $r=\textit{Constant}$):
 \begin{align}
     \nabla \left( \half \left( \frac{q^2}{h^2} + \frac{r^2}{h^2} \right) + g \zeta \right) = 0
     \quad \Rightarrow \quad
