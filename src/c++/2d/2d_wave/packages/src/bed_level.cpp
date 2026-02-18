@@ -103,8 +103,8 @@ void BED_LEVEL::transpose(std::vector<double>& x, size_t nx, size_t ny)
 {
     std::vector<double> xt;
     xt.resize(nx * ny);
-    int k1;
-    int k2;
+    size_t k1;
+    size_t k2;
     for (size_t i = 0; i < nx; ++i) 
     {
         for (size_t j = 0; j < ny; ++j) 
