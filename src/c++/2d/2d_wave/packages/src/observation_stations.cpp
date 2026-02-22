@@ -24,11 +24,11 @@
 
 #include "observation_stations.h"
 
-int  def_observation_stations(std::vector<std::string>& obs_stations, std::vector<_ObservationPoint>& obs_points, KDTree xy_tree, std::vector<double> x, std::vector<double> y,
-    double Lx, double Ly, double dx, double dy, size_t nx, size_t ny)
+int  def_observation_stations(std::vector<std::string>& obs_stations, std::vector<_ObservationPoint>& obs_points, KDTree xy_tree, 
+    std::vector<double> x, std::vector<double> y, size_t nx, size_t ny)
 {
     int status;
-    status = add_hard_coded_observation_points(obs_points, x, y, Lx, Ly, dx, dy, nx, ny);
+    status = add_hard_coded_observation_points(obs_points, x, y, nx, ny);
 
     int nsig = 0;
     for (size_t i = 0; i < obs_points.size(); ++i)
@@ -51,7 +51,7 @@ int  def_observation_stations(std::vector<std::string>& obs_stations, std::vecto
     return status;
 }
 
-int add_hard_coded_observation_points(std::vector<_ObservationPoint>& obs_points, std::vector<double> x, std::vector<double> y, double Lx, double Ly, double dx, double dy, size_t nx, size_t ny)
+int add_hard_coded_observation_points(std::vector<_ObservationPoint>& obs_points, std::vector<double> x, std::vector<double> y, size_t nx, size_t ny)
 {
     // Initialize observation station locations
     size_t ptr_obs = idx(nx / 2, ny / 2, ny);

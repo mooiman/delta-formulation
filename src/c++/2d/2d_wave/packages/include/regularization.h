@@ -34,13 +34,14 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
+#include "grid_metric.h"
+#include "diffusion2d.h"
 #include "matrix_assembly_psi_boundaries.h"
 #include "matrix_assembly_psi_corners.h"
 #include "matrix_assembly_psi_interior.h"
 #include "matrix_assembly_utilde_boundaries.h"
 #include "matrix_assembly_utilde_corners.h"
 #include "matrix_assembly_utilde_interior.h"
-#include "diffusion2d.h"
 #include "print_matrix.h"
 
 class REGULARIZATION
@@ -50,32 +51,29 @@ public:
     REGULARIZATION(int iter_max, double g, std::string logging);
 
     void given_function(
-        std::vector<double>& u_out, std::vector<double>& psi_11, std::vector<double>& psi_22, std::vector<double>& eq8,
-        std::vector<double>& x, std::vector<double>& y,
+        std::vector<double>& u_out, std::vector<double>& psi_11, std::vector<double>& psi_22, 
         std::vector<double>& u_giv,
-        size_t nx, size_t ny, double c_psi, std::ofstream& log_file);
+        double c_psi, struct _grid_metric & metric, std::ofstream& log_file);
 
     void artificial_viscosity(std::vector<double>& psi, 
         std::vector<double>& h, std::vector<double>& q, std::vector<double>& r, std::vector<double>& zb, 
-        std::vector<double>& x, std::vector<double>& y, size_t nx, size_t ny, 
-        double c_psi_in, std::ofstream& log_file);
+        double c_psi_in, struct _grid_metric & metric, std::ofstream& log_file);
 
-    void first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx);
+    void first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, struct _grid_metric & metric);
 
 private:
-    std::unique_ptr<std::vector<double>> solve_eq7(size_t nx, size_t ny, std::vector<double>& x, std::vector<double>& y, 
+    std::unique_ptr<std::vector<double>> solve_eq7(struct _grid_metric & metric, 
         std::vector<double>& psi_11, std::vector<double>& psi_22, std::vector<double>& u_giv, std::ofstream& log_file);
-    std::unique_ptr<std::vector<double>> solve_eq8(size_t nx, size_t ny, std::vector<double>& x, std::vector<double>& y, 
+    std::unique_ptr<std::vector<double>> solve_eq8(struct _grid_metric & metric, 
         double c_psi, std::vector<double>& u0, std::vector<double>& u0_xixi, std::vector<double>& u0_etaeta, 
         std::ofstream& log_file);
     int reg_interior_rhs_psi( size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
         std::vector<double>& h, std::vector<double>& q, std::vector<double>& r,
-        std::vector<double>& x, std::vector<double>& y,
-        double c_psi, double g, size_t nx, size_t ny);
+        double c_psi, double g, struct _grid_metric & metric);
 
-    inline double F1(std::vector<double> & u, std::vector<size_t>& p, std::vector<double> & x, std::vector<double> &y, size_t nx, size_t ny );
-    inline double F2(std::vector<double> & u, std::vector<size_t>& p, std::vector<double> & x, std::vector<double> &y, size_t nx, size_t ny );
-    inline double F3(std::vector<double> & u, std::vector<size_t>& p, std::vector<double> & x, std::vector<double> &y, size_t nx, size_t ny );
+    inline double F1(std::vector<double> & u, std::vector<size_t>& p, struct _grid_metric & metric );
+    inline double F2(std::vector<double> & u, std::vector<size_t>& p, struct _grid_metric & metric );
+    inline double F3(std::vector<double> & u, std::vector<size_t>& p, struct _grid_metric & metric );
 
     inline double d2udxi2(std::vector<double> & u, std::vector<size_t>& p);
     inline double d2udxideta(std::vector<double> & u, std::vector<size_t>& p);

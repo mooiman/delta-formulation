@@ -56,10 +56,11 @@
 #include "matrix_assembly_utilde_boundaries.h"
 
 int reg_boundary_north_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
-    std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& u_giv, double psi_11, double psi_22, 
-    double theta, size_t nx, size_t ny)
+    double theta, struct _grid_metric & metric)
 {
+    size_t ny = metric.ny;
+
     size_t p_5 = c_eq/(9);  // node number of boundary point, ie north point of molecule
     size_t p_4 = p_5 - 1;
     size_t p_3 = p_5 - 2;
@@ -89,9 +90,8 @@ int reg_boundary_north_utilde(double* values, size_t row, size_t c_eq, Eigen::Ve
     return 0;
 }
 int reg_boundary_east_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
-    std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& u_giv, double psi_11, double psi_22, 
-    double theta, size_t nx, size_t ny)
+    double theta, struct _grid_metric & metric)
 {
     size_t p_0 = c_eq/(9);  // p_e
 
@@ -109,9 +109,8 @@ int reg_boundary_east_utilde(double* values, size_t row, size_t c_eq, Eigen::Vec
     return 0;
 }
 int reg_boundary_south_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
-    std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& u_giv, double psi_11, double psi_22, 
-    double theta, size_t nx, size_t ny)
+    double theta, struct _grid_metric & metric)
 {
     size_t p_0 = c_eq/(9);  // p_s
 
@@ -129,9 +128,8 @@ int reg_boundary_south_utilde(double* values, size_t row, size_t c_eq, Eigen::Ve
     return 0;
 }
 int reg_boundary_west_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
-    std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& u_giv, double psi_11, double psi_22, 
-    double theta, size_t nx, size_t ny) 
+    double theta, struct _grid_metric & metric)
 {
     size_t p_0 = c_eq/(9);  // p_w
 

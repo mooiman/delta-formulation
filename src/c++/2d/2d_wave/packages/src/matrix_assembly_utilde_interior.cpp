@@ -56,8 +56,12 @@
 #include "matrix_assembly_utilde_interior.h"
 
 int reg_interior_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& u_giv, std::vector<double>& x, std::vector<double>& y, size_t nx, size_t ny)
+    std::vector<double>& u_giv, struct _grid_metric & metric)
 {
+    size_t ny = metric.ny;
+    std::vector<double> x = metric.x;
+    std::vector<double> y = metric.y;
+
     size_t p_0 = c_eq/(9);  // node number;  // centre of discretization molecule
     // if node number is south or north boundary point, exit the function
     if (p_0 % ny == 0) { return 1; }  // south boundary

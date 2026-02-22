@@ -67,6 +67,7 @@ AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 #include "compile_date_and_time.h"
 #include "convection.h"
 #include "data_input_struct.h"
+#include "grid_metric.h"
 #include "grid.h"
 #include "initial_conditions.h"
 #include "interpolations.h"
@@ -83,7 +84,6 @@ AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 #include "viscosity.h"
 
 void GetArguments(long argc, char** argv, std::filesystem::path & file_name);
-
 int write_used_input(struct _data_input data, std::ofstream & log_file);
 inline size_t main_idx(size_t i, size_t j, size_t ny);
 
@@ -251,6 +251,28 @@ int main(int argc, char *argv[])
     std::vector<double>& x = mesh2d->node[0]->x; // reference to original x-coordinate
     std::vector<double>& y = mesh2d->node[0]->y; // reference to original y-coordinate
 
+    //
+    // Grid metric
+    //
+    struct _grid_metric metric;
+    metric.nx = nx;
+    metric.ny = ny;
+    metric.x = x;
+    metric.y = y;
+    size_t nxny = metric.nx * metric.ny;  // total number of nodes
+    metric.dx_dxi .resize(nxny, 0);  // at node
+    metric.dy_dxi .resize(nxny, 0);  // at node
+    metric.dx_deta.resize(nxny, 0);  // at node
+    metric.dy_deta.resize(nxny, 0);  // at node
+    metric.ddx_dxi2 .resize(nxny, 0);  // at node
+    metric.ddy_dxi2 .resize(nxny, 0);  // at node
+    metric.ddx_deta2.resize(nxny, 0);  // at node
+    metric.ddy_deta2.resize(nxny, 0);  // at node
+
+    status = grid_metric(metric);
+    //
+    // Bed level
+    //
     BED_LEVEL * bed = new BED_LEVEL();
     status = bed->open(input_data.domain.full_bed_level_filename.string());
     if (status != 0)
@@ -271,7 +293,7 @@ int main(int argc, char *argv[])
         std::this_thread::sleep_for(timespan);
         exit(1);
     }
-    std::vector<double> zb_giv = bed->get_bed_level();
+    std::vector<double> zb_given = bed->get_bed_level();
 
     //  Create kdtree, needed to locate the observation points
     std::vector<std::vector<double>> xy_points;
@@ -281,18 +303,6 @@ int main(int argc, char *argv[])
         xy_points.push_back(point);
     }
     KDTree xy_tree(xy_points);
-
-    double dx = x[ny] - x[0];
-    double dy = y[1] - y[0];
-    double Lx = dx * mesh2d->face[0]->dims[0];
-    double Ly = dy * mesh2d->face[0]->dims[1];
-
-    size_t nxny = nx * ny;  // total number of nodes
-    double dxdy = dx * dy;  // area of control volume
-    //if (viscosity == 0.0)
-    //{
-    //    viscosity = 0.2 * std::sqrt(dx*dx + dy*dy);
-    //}
 
     int total_time_steps = int((input_data.time.tstop - input_data.time.tstart) / input_data.numerics.dt) + 1;  // Number of time steps [-]
     double dtinv;                                         // Inverse of dt, if dt==0 then stationary solution [1/s]
@@ -515,21 +525,11 @@ int main(int argc, char *argv[])
     //initialize water level
     std::cout << "Initialisation" << std::endl;
     status = 0;
-    double min_zb = *std::min_element(zb_giv.begin(), zb_giv.end());
+    double min_zb = *std::min_element(zb_given.begin(), zb_given.end());
 
     log_file << "Nodes   : " << nx << "x" << ny << "=" << nxny << std::endl;
     log_file << "Elements: " << (nx - 1) << "x" << (ny - 1) << "=" << (nx - 1) * (ny - 1) << std::endl;
     log_file << "Volumes : " << (nx - 2) << "x" << (ny - 2) << "=" << (nx - 2) * (ny - 2) << std::endl;
-    log_file << "CFL (2D): " << std::sqrt(g * std::abs(min_zb)) * dt * std::sqrt(( 1./(dx*dx) + 1./(dy*dy))) << std::endl;
-    log_file << "CFL (1D): " << std::sqrt(g * std::abs(min_zb)) * dt /dx << std::endl;
-    if (do_viscosity) { log_file << "Ddt/d^2 : " << visc_const * dt * std::sqrt(( 1./(dx*dx) + 1./(dy*dy))) << std::endl; }
-    log_file << "LxLy    : " << Lx - 2. * dx << "x" << Ly - 2. * dy << " without virtual cells" << std::endl;
-    log_file << "dxdy    : " << dx << "x" << dy << "=" << dxdy << " [m2]" << std::endl;
-    log_file << "nxny    : " << nx << "x" << ny << "=" << nxny << std::endl;
-    log_file << "=======================================================" << std::endl;
-    std::cout << "    LxLy: " << Lx - 2. * dx << "x" << Ly - 2. * dy << " without virtual cells" << std::endl;
-    std::cout << "    dxdy: " << dx << "x" << dy << "=" << dxdy << " [m2]" << std::endl;
-    std::cout << "    nxny: " << nx << "x" << ny << "=" << nxny << std::endl;
     std::cout << "======================================================" << std::endl;
 
     STOP_TIMER(Writing log-file);  // but two write statements are not timed
@@ -545,8 +545,8 @@ int main(int argc, char *argv[])
     if (regularization_init)
     {
         START_TIMER(Regularization_init);
-        regularization->given_function(zb, psi_11_zb, psi_22_zb, eq8_zb, x, y, zb_giv, nx, ny, c_psi, log_file);  
-        regularization->given_function(visc_reg, psi_11_visc, psi_22_visc, eq8_visc, x, y, visc_given, nx, ny, c_psi, log_file);
+        regularization->given_function(zb, psi_11_zb, psi_22_zb, zb_given, c_psi, metric, log_file);  
+        regularization->given_function(visc_reg, psi_11_visc, psi_22_visc, visc_given, c_psi, metric, log_file);
         for (size_t i = 0; i < visc_reg.size(); ++i)
         {
             visc[i] = visc_reg[i];
@@ -556,13 +556,13 @@ int main(int argc, char *argv[])
     }
     else
     {
-        for (size_t i = 0; i < zb_giv.size(); ++i)
+        for (size_t i = 0; i < zb_given.size(); ++i)
         {
-            zb[i] = zb_giv[i];
+            zb[i] = zb_given[i];
             visc_reg[i] = visc_given[i];
         }
     }
-    for (size_t k = 0; k < zb_giv.size(); ++k)
+    for (size_t k = 0; k < zb_given.size(); ++k)
     {
         hn[k] = s_giv[k] - zb[k];  // Initial water depth
         qn[k] = hn[k] * u_giv[k];  // Initial q=hu -velocity
@@ -698,7 +698,7 @@ int main(int argc, char *argv[])
     map_file->put_time_variable(map_s_name, nst_map, s);
     map_file->put_time_variable(map_u_name, nst_map, u);
     map_file->put_time_variable(map_v_name, nst_map, v);
-    map_file->put_time_variable(map_zb_name, nst_map, zb_giv);
+    map_file->put_time_variable(map_zb_name, nst_map, zb_given);
 
     for (size_t i = 0; i < u.size(); ++i)
     {
@@ -785,7 +785,7 @@ int main(int argc, char *argv[])
     //}
 
     std::vector<std::string> obs_station_names;
-    status = def_observation_stations(obs_station_names, input_data.obs_points, xy_tree, x, y, Lx, Ly, dx, dy, nx, ny);
+    status = def_observation_stations(obs_station_names, input_data.obs_points, xy_tree, x, y, nx, ny);
     {
         std::vector<double> x_obs;
         std::vector<double> y_obs;
@@ -1019,7 +1019,7 @@ int main(int argc, char *argv[])
                 {
                     START_TIMER(Regularization_time_loop);
                     regularization->artificial_viscosity(psi_11_visc, hp, qp, rp, zb, 
-                        x, y, nx, ny, c_psi, log_file);
+                        c_psi, metric, log_file);
                     for (int i = 0; i < nxny; ++i)
                     {
                         visc[i] = visc_reg[i] + std::abs(psi_11_visc[i]);
@@ -1475,7 +1475,7 @@ int main(int argc, char *argv[])
             {
                 START_TIMER(Regularization_time_loop);
                 regularization->artificial_viscosity(psi_11_visc, hp, qp, rp, zb, 
-                    x, y, nx, ny, c_psi, log_file);
+                    c_psi, metric, log_file);
                 for (int i = 0; i < nxny; ++i)
                 {
                     visc[i] = visc_reg[i] + std::abs(psi_11_visc[i]);

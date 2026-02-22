@@ -196,6 +196,7 @@
     <ClCompile Include="src\convection.cpp" />
     <ClCompile Include="src\diffusion2d.cpp" />
     <ClCompile Include="src\grid.cpp" />
+    <ClCompile Include="src\grid_metric.cpp" />
     <ClCompile Include="src\initial_conditions.cpp" />
     <ClCompile Include="src\interpolations.cpp" />
     <ClCompile Include="src\jacobians.cpp" />
@@ -232,6 +233,7 @@
     <ClInclude Include="include\data_struct.h" />
     <ClInclude Include="include\diffusion2d.h" />
     <ClInclude Include="include\grid.h" />
+    <ClInclude Include="include\grid_metric.h" />
     <ClInclude Include="include\initial_conditions.h" />
     <ClInclude Include="include\interpolations.h" />
     <ClInclude Include="include\jacobians.h" />

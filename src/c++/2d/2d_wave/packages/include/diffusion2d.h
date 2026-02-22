@@ -26,15 +26,15 @@
 #include <vector>
 #include <Eigen/Sparse>
 
+#include "grid_metric.h"
 #include "perf_timer.h"
 
 int diffusion_matrix_and_rhs(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
-    std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& u_giv, double psi_11, double psi_22, 
-    double theta, size_t nx, size_t ny);
+    double theta, struct _grid_metric metric);
 int diffusion_post_rhs(std::vector<double>& rhs_q, 
     std::vector<double>& Tn, std::vector<double>& psi_11, std::vector<double>& psi_22, 
-    size_t nx, size_t ny, std::vector<double>& x, std::vector<double>& y);
+    struct _grid_metric metric);
 
 inline size_t diffusion_idx(size_t i, size_t j, size_t nx);
 inline void add_value(double * values, size_t col, double data);

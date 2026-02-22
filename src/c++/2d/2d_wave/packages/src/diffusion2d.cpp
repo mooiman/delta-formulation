@@ -21,6 +21,7 @@
 //------------------------------------------------------------------------------
 
 #include "diffusion2d.h"
+#include "grid_metric.h"
 #include "interpolations.h"
 
 //   nw - - - - - - - n - - - - - - - ne        nw - - - - - - - n - - - - - - - ne
@@ -42,10 +43,15 @@
 //   sw - - - - - - - s - - - - - - - se        sw - - - - - - - s - - - - - - - se
 
 int diffusion_matrix_and_rhs(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
-    std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& Ttheta, double psi_11, double psi_22, 
-    double theta, size_t nx, size_t ny)
+    double theta, struct _grid_metric metric)
 {
+    size_t nx = metric.nx;
+    size_t ny = metric.ny;
+
+    std::vector<double> x = metric.x;
+    std::vector<double> y = metric.y;
+
     double n_xi = 0.0;  // xi-component of the outward normal vector
     double n_eta = 0.0;  // eta-component of the outward normal vector
     double scvf_fac;
@@ -342,8 +348,11 @@ int diffusion_matrix_and_rhs(double* values, size_t row, size_t c_eq, Eigen::Vec
 //------------------------------------------------------------------------------
 int diffusion_post_rhs(std::vector<double>& rhs_q,
     std::vector<double>& Tn, std::vector<double>& psi_11, std::vector<double>& psi_22, 
-    size_t nx, size_t ny, std::vector<double>& x, std::vector<double>& y)
+    struct _grid_metric metric)
 {
+    size_t nx = metric.nx;
+    size_t ny = metric.ny;
+
     double nxi;
     double neta;
     double nxi_dl;
@@ -356,9 +365,9 @@ int diffusion_post_rhs(std::vector<double>& rhs_q,
 
     std::fill_n(rhs_q.data(), rhs_q.size(), 0.0);
 
-    for (int i = 1; i < nx - 1; ++i)
+    for (size_t i = 1; i < nx - 1; ++i)
     {
-        for (int j = 1; j < ny - 1; ++j)
+        for (size_t j = 1; j < ny - 1; ++j)
         {
             size_t p_0  = diffusion_idx(i    , j    , ny); // central point of control volume
             size_t p_sw = diffusion_idx(i - 1, j - 1, ny);  

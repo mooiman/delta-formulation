@@ -53,8 +53,13 @@
 #include "matrix_assembly_psi_interior.h"
 
 int reg_interior_matrix_psi(double* values, size_t row, size_t c_eq,
-    double c_psi, std::vector<double>& x, std::vector<double>& y, size_t nx, size_t ny)
+    double c_psi, struct _grid_metric metric)
 {
+    size_t nx = metric.nx;
+    size_t ny = metric.ny;
+    std:: vector<double>& x = metric.x;
+    std:: vector<double>& y = metric.y;
+
     size_t p_0 = c_eq/(9);  // node number;  // centre of discretization molecule
     // if node number is south or north boundary point, exit the function
     if (p_0 % ny == 0) { return 1; }  // south boundary

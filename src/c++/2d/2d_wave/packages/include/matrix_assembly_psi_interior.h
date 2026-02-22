@@ -34,8 +34,10 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
+#include "grid_metric.h"
+
 int reg_interior_matrix_psi(double* values, size_t row, size_t c_eq,
-    double c_psi, std::vector<double>& x, std::vector<double>& y, size_t nx, size_t ny);
+    double c_psi, struct _grid_metric metric);
 
 inline void add_value(double * values, size_t col, double data);
 
