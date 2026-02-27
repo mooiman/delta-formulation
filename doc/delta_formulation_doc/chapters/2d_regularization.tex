@@ -2,7 +2,7 @@
 \chapter{Regularization of a two dimensional given function $u_{\mathit{giv}}$}
 The regularization function read, based on \citet[eq.\ 6]{Borsboom1998}:
 \begin{align}
-    \widetilde{u} - \nabla \dotp \bPsi \nabla \widetilde{u} = u_{\mathit{giv}}, \qquad \bPsi = c_{\Psi}(\Delta x^2 + \Dy^2) E_\psi,
+    \widetilde{u} - \nabla \dotp \bPsi \nabla \widetilde{u} = u_{\mathit{giv}},
     \label{eq:regularization}
 \end{align}
 with $\bPsi$ the artificial viscosity and defined as:
@@ -12,12 +12,17 @@ with $\bPsi$ the artificial viscosity and defined as:
         \Psi_{11} & \Psi_{12} \\
         \Psi_{21} & \Psi_{22}
     \end{pmatrix}
+    = c_\psi \begin{pmatrix}
+        \Dx^2 & 0 \\
+        0     & \Dy^2
+    \end{pmatrix}
+    E_\psi
 \end{align}
 where
 \begin{symbollist}
     \item[$u_{giv}$] a given function, ex.\ bathymetry, viscosity, \ldots, [\si{\cdot}].
     \item[$\widetilde{u}$] Regularized/Smoothed function of $u_{giv}$, [\si{\cdot}].
-    \item[$\Psi$] (artificial) smoothing constant, [\si{\square\metre}]
+    \item[$\Psi_{ij}$] (artificial) smoothing values ($i,j \in \{1,2\}$), [\si{\square\metre}]
     \item[$\Dx, \Dy$] Space discretization, $\Dx_{i} = x_{i+\half} - x_{i-\half}$ and $\Dy_{j} = y_{j+\half} - y_{j-\half}$, [\si{\metre}]
     \item[$c_{\Psi}$] Smooting factor (set by user), [\si{1/\cdot}]
     \item[$E_\Psi$] Error function, [\si{\cdot}]
@@ -39,86 +44,177 @@ The finite volume approach of this equation read:
 \end{align}
 
 %--------------------------------------------------------------------------------
-\subsection*{Integration of the first term}
-The discretization of first term of \autoref{eq:2d_regularization} read
-(see for the coefficients \autoref{fig:2d_structured_grid}):
+\subsection{Integration of the first term}
+The discretization of first term of \autoref{eq:2d_regularization} read:
 \begin{align}
-    \int_\Omega  u\, d\omega
-    & \approx \Dx \Dy \Bigl( \frac{1}{64} u_{i-1,j-1} + \frac{6}{64} u_{i,j-1} + \frac{1}{64} u_{i+1,j-1} +
-    \nonumber \\
-    & + \frac{6}{64} u_{i-1,j} + \frac{36}{64} u_{i,j} + \frac{6}{64} u_{i+1,j} +
-    \nonumber \\
-    &  +\frac{1}{64} u_{i-1,j+1} + \frac{6}{64} u_{i,j+1} + \frac{1}{64} u_{i+1,j+1} \Bigl)
+    J\, \int_{\Omega}  \utilde\, d\omega
 \end{align}
+which will be approximated by the sum of the integral over the sub-control volumes.
+
+On a structured grid one control volume ($cv$) around a node consist of four sub-control volumes ($scv_i$, $i\in\{0,1,2,3\}$).
+\begin{align}
+    J_{cv}\int_{cv} \utilde \, d\omega &=
+    J_{scv_0}\int_{scv_0} \utilde\, d\omega +
+    J_{scv_1}\int_{scv_1} \utilde\, d\omega +
+    \nonumber \\*
+    &\quad
+    +J_{scv_2}\int_{scv_2} \utilde\, d\omega +
+    J_{scv_3}\int_{scv_3} \utilde\, d\omega
+\end{align}
+Fore the discretization on a curvilinear grid we get:
+\begin{align}
+    J_{cv}\int_{cv}\utilde\, d\omega \approx &
+    J_{scv_0} \utilde_{i-\quart, j-\quart} +
+    J_{scv_1} \utilde_{i+\quart, j-\quart} +
+    \nonumber \\*
+    & +
+    J_{scv_2} \utilde_{i+\quart, j+\quart} +
+    J_{scv_3} \utilde_{i-\quart, j+\quart}
+\end{align}
+with $J_{scv_i}$ the area of the sub control volume $i$.
+For cartesian grids we have $J_{scv_i} = \quart \Dx\Dy$.
+
+For the space discretizations of an arbitrary function $u$ on the quadrature point of a sub-control volume the following space interpolation is used, $\utilde$ (1-point Gauss):
+\begin{align}
+    \left. u\right|_{i+\quart, j+\quart} & \approx \frac{1}{16}\left( 9u_{i, j} + 3 u_{i+1,j} + u_{i+1, j+1} + 3  u_{i, j+1}\right)
+\end{align}
+(see for the location of the coefficients in the grid \autoref{fig:2d_structured_grid}).
 %--------------------------------------------------------------------------------
-\subsection*{Integration of the second term}
-Integration of the second term:
-%
+\subsection{Integration of the second term}
+Integration of the second term of \autoref{eq:2d_regularization} read:
 \begin{align}
-    \int_\Omega & \nabla \dotp \bPsi \nabla \widetilde{u}\, d\omega  =
-    \int_\Gamma \bPsi \nabla \widetilde{u} \dotp \vec{\hat n}\, ds \approx
+    \int_\Omega & \nabla \dotp \left( \mat{\Psi} \nabla u \right) \, d\omega  =
+    \oint_{\Omega}  \left(  \mat{\Psi} \nabla u \right) \dotp \vec{n}\, dl =
     \\
-    %
-    & \approx
-    \left. \frac{1}{2\Dy}\left( \Psi_{11} \pdiff{\widetilde{u}}{x} + \Psi_{12} \pdiff{\widetilde{u}}{y} \right) \right|_{i+\half,j-\quart}
-    + \left. \frac{1}{2\Dy} \left( \Psi_{11} \pdiff{\widetilde{u}}{x} + \Psi_{12} \pdiff{\widetilde{u}}{y} \right) \right|_{i+\half,j+\quart} +
-    \\
-    &
-    + \left. \frac{1}{2\Dx} \left( \Psi_{21} \pdiff{\widetilde{u}}{x} + \Psi_{22} \pdiff{\widetilde{u}}{y} \right) \right|_{i-\quart,j+\half}
-    + \left. \frac{1}{2\Dx} \left( \Psi_{21} \pdiff{\widetilde{u}}{x} + \Psi_{22} \pdiff{\widetilde{u}}{y} \right) \right|_{i+\quart,j+\half} +
-    \\
-    &
-    -  \left. \frac{1}{2\Dy} \left( \Psi_{11} \pdiff{\widetilde{u}}{x} + \Psi_{12} \pdiff{\widetilde{u}}{y} \right) \right|_{i-\half,j-\quart}
-    -  \left. \frac{1}{2\Dy} \left( \Psi_{11} \pdiff{\widetilde{u}}{x} + \Psi_{12} \pdiff{\widetilde{u}}{y} \right) \right|_{i-\half,j+\quart}
-    \\
-    &
-    - \left. \frac{1}{2\Dx} \left( \Psi_{21} \pdiff{\widetilde{u}}{x} + \Psi_{22} \pdiff{\widetilde{u}}{y} \right)  \right|_{i-\quart,j-\half}
-    - \left. \frac{1}{2\Dx} \left( \Psi_{21} \pdiff{\widetilde{u}}{x} + \Psi_{22} \pdiff{\widetilde{u}}{y} \right)  \right|_{i+\quart,j-\half}
+    = & \oint_{\Omega} \left(
+    \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y}  \right) \nx
+    + \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}  \right) \ny
+    \right) \norm{dl}
 \end{align}
-%
-Define the components of $\bPsi$ at different locations with $(\mu, \nu) \in \{ 1, 2\}$ as
-%
+with $\vecn = (\nx, \ny)^T$ the outward normal vector.
+
+The term within the integral:
 \begin{align}
-    \left. \overline\Psi_{\mu\nu} \right|_{i+\half,j+\quart} = \frac{1}{8} \left(\left. 3\Psi_{\mu\nu} \right|_{i,j}
-    + \left. 3\Psi_{\mu\nu} \right|_{i+1,j} + \left. \Psi_{\mu\nu} \right|_{i+1,j+1}  + \left. \Psi_{\mu\nu} \right|_{i,j+1}\right)
+    \pdiff{}{x} \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y}  \right) +
+    \pdiff{}{y} \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}  \right)
 \end{align}
+can be transformed to\newline
+%\textit{step 1a}
+%\begin{align}
+%    &\frac{1}{J} \Bigg[
+%    y_n \pdiff{}{\xi} \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right) - y_\xi \pdiff{}{\eta} \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
+%    +
+%    \\*
+%    & \qquad
+%    -x_\eta \pdiff{}{\xi} \left(  \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}  \right) + x_\xi \pdiff{}{\eta} \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}   \right)
+%    \Bigg]
+%\end{align}
+%\textit{step 1b}\newline
+%Assume $x_{\xi\eta} = x_{\eta\xi}$ and $y_{\xi\eta} = y_{\eta\xi}$
+%\begin{align}
+%    &\frac{1}{J} \Bigg[
+%    \pdiff{}{\xi} \left( y_\eta \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right) \right)
+%    - \pdiff{}{\eta} \left( y_\xi \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right) \right)
+%    +
+%    \\*
+%    & \qquad
+%    -\pdiff{}{\xi} \left( x_\eta  \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right)
+%    + \pdiff{}{\eta} \left( x_\xi \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right)
+%    \Bigg]
+%\end{align}
+%Rearrange this equation to a divergence type in $\xi$- and $\eta$-direction to prepare to use Green's theorem, yields:
+%\begin{align}
+%    &\frac{1}{J} \Bigg[
+%    \pdiff{}{\xi} \left( y_\eta \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
+%    - x_\eta  \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right)
+%    +
+%    \\*
+%    & \qquad
+%    + \pdiff{}{\eta} \left( -y_\xi \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
+%    +   x_\xi \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right)
+%    \Bigg]
+%\end{align}
+%Applying Green's theorem, and multiplying with $J$ (because the whole heat equation is multiplied by $J$)\newline
+%\textit{step 2a}:
+%\begin{align}
+%    &
+%    \left( y_\eta \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
+%    - x_\eta  \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right) \nxi
+%    +
+%    \\*
+%    & \qquad
+%    + \left( -y_\xi \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
+%    +   x_\xi \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right) \neta
+%\end{align}
+%with $\vecn = (\nxi, \neta)^T$ the outward normal vector.
 %
-and define the partial differentials as
+%\textit{step 2b}:
 \begin{align}
-    \left. \pdiff{u}{x} \right|_{i+\half,j+\quart} =  \quart \left(3\frac{u_{i+1,j} - u_{i,j}}{\Dx_{i+\half,j}} + \frac{u_{i+1,j+1} - u_{i,j+1}}{\Dx_{i+\half,j+1}}\right)
+    &
+    \frac{1}{J} \Bigg[ y_\eta \left(
+    \Psi_{11} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+    + \Psi_{12} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right) \right) +
+    \\*
+    & \quad - x_\eta \left(
+    \Psi_{21} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+    + \Psi_{22} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)
+    \right)
+    \Bigg] \nxi
+    +
     \\
-    \left. \pdiff{u}{y} \right|_{i+\half,j+\quart} =  \half \left(\frac{u_{i,j+1} - u_{i,j}}{\Dy_{i,j+\half}} + \frac{u_{i+1,j+1} - u_{i+1,j}}{\Dy_{i+1,j+\half}}\right)
+    &\frac{1}{J} \Bigg[
+    -y_\xi \left(
+    \Psi_{11} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+    + \Psi_{12} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)  \right) +
+    \\*
+    &\quad +   x_\xi \left(
+    \Psi_{21} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+    + \Psi_{22} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)  \right)
+    \Bigg] \neta
+    \label{eq:diffusion_ugiven}
 \end{align}
-%
-In case the artificial viscosity is symmetric ($\Psi_{12} = \Psi_{21} = 0$) it reads:
-%
+with $\vecn = (\nxi, \neta)^T$ the outward normal vector.
+
+
+
+%--------------------------------------------------------------------------------
+\subsubsection*{Orthotropic}
+When the artificial viscosity ($\mat{\Psi}$) is orthotropic  ($\Psi_{12} = \Psi_{21} = 0$) \autoref{eq:diffusion_ugiven} reduces to:
+%($\Psi_{11} = \Psi_{22} = \Psi(\xi, \eta)$ and $\Psi_{12} = \Psi_{21} = 0$)
 \begin{align}
-    \int_\Omega & \nabla \dotp \bPsi \nabla \widetilde{u}\, d\omega  =
-    \int_\Gamma \bPsi \nabla \widetilde{u} \dotp \vec{\hat n}\, ds \approx
-    \\
-    %
-    & \approx
-    \left. \frac{1}{2\Dy}\left( \Psi_{11} \pdiff{\widetilde{u}}{x} \right) \right|_{i+\half,j-\quart}
-    + \left. \frac{1}{2\Dy} \left( \Psi_{11} \pdiff{\widetilde{u}}{x} \right) \right|_{i+\half,j+\quart} +
-    \\
     &
-    + \left. \frac{1}{2\Dx} \left( \Psi_{22} \pdiff{\widetilde{u}}{y} \right) \right|_{i-\quart,j+\half}
-    + \left. \frac{1}{2\Dx} \left( \Psi_{22} \pdiff{\widetilde{u}}{y} \right) \right|_{i+\quart,j+\half} +
+    \frac{1}{J} \Bigg[ y_\eta
+    \Psi_{11} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+    - x_\eta
+    \Psi_{22} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)
+    \Bigg] \nxi
+    +
     \\
-    &
-    -  \left. \frac{1}{2\Dy} \left( \Psi_{11} \pdiff{\widetilde{u}}{x} \right) \right|_{i-\half,j-\quart}
-    -  \left. \frac{1}{2\Dy} \left( \Psi_{11} \pdiff{\widetilde{u}}{x} \right) \right|_{i-\half,j+\quart}
-    \\
-    &
-    - \left. \frac{1}{2\Dx} \left( \Psi_{22} \pdiff{\widetilde{u}}{y} \right)  \right|_{i-\quart,j-\half}
-    - \left. \frac{1}{2\Dx} \left( \Psi_{22} \pdiff{\widetilde{u}}{y} \right)  \right|_{i+\quart,j-\half}
+    & + \frac{1}{J} \Bigg[
+    -y_\xi
+    \Psi_{11} \left( y_\eta \pdiff{u}{\xi} - y_\xi  \pdiff{u}{\eta}\right)
+    +   x_\xi
+    \Psi_{22} \left( - x_\eta \pdiff{u}{\xi} + x_\xi \pdiff{u}{\eta} \right)
+    \Bigg] \neta
 \end{align}
 
+%--------------------------------------------------------------------------------
+\subsubsection*{Orthogonal}
+In case the artificial viscosity ($\mat{\Psi}$) is also orthogonal (i.e.\ $y_\xi = x_\eta =0$) it reads:
+\begin{align}
+    &
+    \frac{1}{J} \Bigg[ y_\eta
+    \Psi_{11} \left( y_\eta \pdiff{u}{\xi} \right)
+    \Bigg] \nxi
+    + \frac{1}{J} \Bigg[
+    x_\xi
+    \Psi_{22} \left( x_\xi \pdiff{u}{\eta} \right)
+    \Bigg] \neta
+\end{align}
 
-
-
-
-In case the artificial viscosity is isotropic it reads:
+%--------------------------------------------------------------------------------
+\subsubsection*{Isotropic}
+In case the artificial viscosity ($\mat{\Psi}$) is isotropic then the tensor reads:
 \begin{align}
     \bPsi =
     \begin{pmatrix}
@@ -128,41 +224,12 @@ In case the artificial viscosity is isotropic it reads:
 \end{align}
  (isotropic, $\Psi_{11} = \Psi_{22} = \Psi$ and $\Psi_{12} = \Psi_{21} = 0$).
 
-The integration of the second  term will reduce to:
-\begin{align}
-    \int_\Omega & \nabla \dotp \bPsi \nabla \widetilde{u}\, d\omega  =
-    \int_\Gamma \bPsi \nabla \widetilde{u} \dotp \vec{\hat n}\, ds =
-    \Psi
-    \int_{i-\half}^{i+\half} \int_{j-\half}^{j+\half} \nabla \widetilde{u} \dotp \vec{\hat n}\, dy dx
-    \approx
-    \\
-    %
-    & \approx
-      \Psi \left(
-      \left. \frac{1}{2\Dy} \pdiff{\widetilde{u}}{x}  \right|_{i+\half,j-\quart}
-    + \left. \frac{1}{2\Dy} \pdiff{\widetilde{u}}{x}  \right|_{i+\half,j+\quart} +
-    \right.
-    \\
-    &
-    + \left. \frac{1}{2\Dx} \pdiff{\widetilde{u}}{y}  \right|_{i-\quart,j+\half}
-    + \left. \frac{1}{2\Dx} \pdiff{\widetilde{u}}{y}  \right|_{i+\quart,j+\half} +
-    \\
-    &
-    - \left. \frac{1}{2\Dy} \pdiff{\widetilde{u}}{x} \right|_{i-\half,j-\quart}
-    - \left. \frac{1}{2\Dy} \pdiff{\widetilde{u}}{x} \right|_{i-\half,j+\quart}
-    \\
-    &
-    \left.
-    - \left. \frac{1}{2\Dx} \pdiff{\widetilde{u}}{y}   \right|_{i-\quart,j-\half}
-    - \left. \frac{1}{2\Dx} \pdiff{\widetilde{u}}{y}   \right|_{i+\quart,j-\half}
-    \right)
-\end{align}
 %--------------------------------------------------------------------------------
-\subsection*{Integration of right hand side}
-For the integration of the right hand side we could use a smaller integration step size, to incorporate the sub-grid scale effects.
+\subsection{Integration of right hand side}
+For the integration of the right hand side of \autoref{eq:2d_regularization}, we could use a smaller integration step size, to incorporate the sub-grid scale effects.
 
 %--------------------------------------------------------------------------------
-\section{Determination of artificial smoothing coefficient $\Psi$}
+\section{Determination of artificial smoothing coefficient $\Psi$} \label{sec:artificial_viscosity}
 The artificial smoothing coefficient (\autoref{eq:regularization}) is dependent on the second derivative of given function $u_{giv}$ \citep[eq.\ 8]{Borsboom1998}.
 \textbf{Assuming} that $c_E$ is constant over the whole two dimensional area, thus isotropic.
 
@@ -200,9 +267,11 @@ The artificial smoothing coefficient (\autoref{eq:regularization}) is dependent 
     & = \frac{1}{\Dx\Dy} \int_{j-\half}^{j+\half} \int_{i-\half}^{i+\half} \abs{D} \, dx\, dy
     \label{eq:error_regularization}
 \end{align}
-with \citep[eq.\ 2]{Borsboom1998}
+with \citep[eq.\ 2]{Borsboom1998} (omitting the influence of curvilinear coordinates)
 \begin{align}
-    D = \Dx^2 \pdiff[2]{u_{giv}}{x} + \Dy^2 \pdiff[2]{u_{giv}}{y}
+    D_{11} = \Dx^2 \pdiff[2]{u_{giv}}{x}
+    \\
+    D_{22} = \Dy^2 \pdiff[2]{u_{giv}}{y}
 \end{align}
 and
 \begin{align}
