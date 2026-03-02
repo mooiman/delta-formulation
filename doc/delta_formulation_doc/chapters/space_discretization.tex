@@ -293,8 +293,9 @@ So the discretization of \autoref{eq:1d_regularization} with $\alpha = \frac{1}{
 The boundary conditions to close the three diagonal system are $u_0  = {u_{giv}}(x_{0})$ and $u_{I+1} = {u_{giv}}(x_{I+1})$.
 
 %--------------------------------------------------------------------------------
-\subsection{Determination of artificial smoothing coefficient $\Psi$}\label{sec:determine_psi}
-The artificial smoothing coefficient $\Psi$ ( $ = c_{\psi} \Dx^2 E$, \autoref{eq:regularization}) is dependent on error $E$, the smoothing coefficent $c_E$ and the second derivative of the given function $u_{giv}$ \citep[eq.\ 8]{Borsboom1998}.
+\subsection{Determination of artificial smoothing coefficient $\mathbf \Psi$}
+\label{sec:determine_psi}
+The artificial smoothing coefficient $\Psi$ ($ = c_{\psi} \Dx^2 E$, \autoref{eq:regularization}) is dependent on error $E$, the smoothing coefficent $c_E$ and the second derivative of the given function $u_{giv}$ \citep[eq.\ 8]{Borsboom1998}.
 The error $E$ will be computed in computational space, meaning that a disturbance is spreaded over an equal number of cells before and after the location of the disturbance:
 %
 \begin{align}

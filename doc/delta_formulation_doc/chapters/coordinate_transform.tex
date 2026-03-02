@@ -114,6 +114,18 @@ Hence, we can use \autoref{eq:inverse_transformation_1} to transform the partial
 		+x_{\xi}\pdiff{}{\eta}
 		\right)
 	\end{align}
+\subparagraph*{One dimension}
+\begin{quote}
+{{\scriptsize
+In one dimension we have $y_\xi = x_\eta = 0$, $\xi_x = y_\eta/J$ and $J = x_\xi y_\eta$, thus
+\begin{align}
+    \pdiff{}{x}
+    &=\xi_x\pdiff{}{\xi}
+    =\frac{1}{J}y_{\eta} \pdiff{}{\xi}
+    = \frac{1}{x_\xi} \pdiff{}{\xi}
+\end{align}
+}}
+\end{quote}
 %--------------------------------------------------------------------------------
 \paragraph*{Second derivatives}
 Second derivatives are instead transformed by applying this operator twice.
@@ -223,7 +235,26 @@ from which we can find the following relations:
 		+ \frac{x_{\xi\eta}x_{\xi}}{J^2}
 		- \frac{x_{\xi \xi}x_{\eta}}{J^2}
 \end{align}
-
+\subparagraph*{One dimension}
+\begin{quote}
+{\scriptsize
+In one dimension we have $y_\xi = x_\eta = 0$, $\xi_x = y_\eta/J$ and $J = x_\xi y_\eta$, thus
+\begin{align}
+    \pdiff[2]{}{x}
+    & =\xi_x\pdiff{}{\xi}\left(  \xi_x\pdiff{}{\xi} \right)
+      =\frac{1}{x_\xi}\pdiff{}{\xi}\left( \frac{1}{x_\xi} \pdiff{}{\xi} \right) =
+    \\
+    & =\frac{1}{x_\xi^2} \pdiff[2]{}{\xi} - \frac{x_{\xi\xi}}{x_\xi^3}\pdiff{}{\xi}
+\end{align}
+Multiplying this equation by $\Dx = \Dxi x_\xi^2$ it yields \citet[eq.\ 2]{Borsboom1998}, which reads:
+\begin{align}
+    \Dx \pdiff[2]{}{x}
+& = \Dxi x_\xi^2 \left( \frac{1}{x_\xi^2} \pdiff[2]{}{\xi} - \frac{x_{\xi\xi}}{x_\xi^3}\pdiff{}{\xi} \right)
+=
+\Dxi \left( \pdiff[2]{}{\xi} - \frac{x_{\xi\xi}}{x_\xi}\pdiff{}{\xi} \right)
+\end{align}
+}
+\end{quote}
 %-------------------------------------------------------------------------------
 \section{Transforming the terms}\label{sec:transforming_the_terms}
 For completeness, we show the transformation of various terms here since some particular choices will be made to ease the implementation.
