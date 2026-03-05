@@ -1,0 +1,9 @@
+=================================================================================
+level    calls      time[s]   name                   file       function     line
+---------------------------------------------------------------------------------
+    1        1        0.763   Main                   main.cpp   main          122
+    2        1        0.710     Regularization       main.cpp   main          231
+    3        1        0.035       Coordinate x       main.cpp   main          236
+    3        1        0.675       Coordinate y       main.cpp   main          250
+    2        1        0.002     Writing map-file     main.cpp   main          315
+=================================================================================
