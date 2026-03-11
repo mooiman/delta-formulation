@@ -1,13 +1,13 @@
 %--------------------------------------------------------------------------------
 \chapter{Linearization in time}
 %--------------------------------------------------------------------------------
-\section{Viscosity term}\label{sec:linearisation_viscosity}
-The viscosity term read:
+\section{Viscosity term, 1D}\label{sec:linearisation_viscosity}
+The viscosity term in one dimension reads:
 \begin{align}
     &  \int^{x_{i+\half}}_{x_{i-\half}}\pdiff{}{x} \left( \nu h \pdiff{(q/h)}{x} \right)\ dx & =
     \left. \nu \left( \pdiff{q}{x} - \frac{q}{h} \pdiff{h}{x} \right) \right|_{x_{i+\half}} - \left. \nu \left( \pdiff{q}{x} - \frac{q}{h} \pdiff{h}{x} \right) \right|_{x_{i-\half}}
 \end{align}
-Linearization of the viscosity term at $x_{i+\half}$ read, where $\Delta h^{n+1, p+1} = \Delta h$ and  $\Delta q^{n+1, p+1} = \Delta q$:
+Linearization of the viscosity term at $x_{i+\half}$ reads, where $\Delta h^{n+1, p+1} = \Delta h$ and  $\Delta q^{n+1, p+1} = \Delta q$:
 \begin{align}
     &\left. \nu h \pdiff{(q/h)}{x} \right|^{n+\theta, p+1}  = \left. \nu \left(\pdiff{q}{x} - \frac{q}{h} \pdiff{h}{x} \right) \right|^{n+\theta, p+1} \approx
     \\
