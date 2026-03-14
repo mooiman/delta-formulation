@@ -1025,23 +1025,25 @@ int main(int argc, char* argv[])
                         rhs[c_eq] += corr_term;
                     }
                 }
-                // 
+                //----------------------------------------------------------------------
                 // Natural boundary condition
-                // 
+                //----------------------------------------------------------------------
                 double hn_b = w_nat[0] * hn_0 + w_nat[1] * hn_ip1 + w_nat[2] * hn_ip2;
                 double hp_b = w_nat[0] * hp_0 + w_nat[1] * hp_ip1 + w_nat[2] * hp_ip2;
-                double htheta_b = w_nat[0] * htheta_0 + w_nat[1] * htheta_ip1 + w_nat[2] * htheta_ip2;
+                htheta_b = w_nat[0] * htheta_0 + w_nat[1] * htheta_ip1 + w_nat[2] * htheta_ip2;
 
                 double qn_b = w_nat[0] * qn_0 + w_nat[1] * qn_ip1 + w_nat[2] * qn_ip2;
                 double qp_b = w_nat[0] * qp_0 + w_nat[1] * qp_ip1 + w_nat[2] * qp_ip2;
                 double qtheta_b = w_nat[0] * qtheta_0 + w_nat[1] * qtheta_ip1 + w_nat[2] * qtheta_ip2;
 
-                A.coeffRef(q_eq, ph) = 0.0;
-                A.coeffRef(q_eq, ph_e) = 0.0;
+                zb_b = w_nat[0] * zb[i] + w_nat[1] * zb[i - 1] + w_nat[2] * zb[i - 2];
+
+                A.coeffRef(q_eq, ph   ) = 0.0;
+                A.coeffRef(q_eq, ph_e ) = 0.0;
                 A.coeffRef(q_eq, ph_ee) = 0.0;
                 //
-                A.coeffRef(q_eq, ph + 1) = 0.0;
-                A.coeffRef(q_eq, ph_e + 1) = 0.0;
+                A.coeffRef(q_eq, ph    + 1) = 0.0;
+                A.coeffRef(q_eq, ph_e  + 1) = 0.0;
                 A.coeffRef(q_eq, ph_ee + 1) = 0.0;
                 //
                 rhs[q_eq] = 0.0;
@@ -1248,16 +1250,17 @@ int main(int argc, char* argv[])
                         rhs[c_eq] += corr_term;
                         sign = 1.0;
                     }
+                }
                 //----------------------------------------------------------------------
                 // Natural boundary condition
                 //----------------------------------------------------------------------
-                hn_b = w_nat[0] * hn_0 + w_nat[1] * hn_im1 + w_nat[2] * hn_im2;
-                hp_b = w_nat[0] * hp_0 + w_nat[1] * hp_im1 + w_nat[2] * hp_im2;
+                double hn_b = w_nat[0] * hn_0 + w_nat[1] * hn_im1 + w_nat[2] * hn_im2;
+                double hp_b = w_nat[0] * hp_0 + w_nat[1] * hp_im1 + w_nat[2] * hp_im2;
                 htheta_b = w_nat[0] * htheta_0 + w_nat[1] * htheta_im1 + w_nat[2] * htheta_im2;
 
-                qn_b = w_nat[0] * qn_0 + w_nat[1] * qn_im1 + w_nat[2] * qn_im2;
-                qp_b = w_nat[0] * qp_0 + w_nat[1] * qp_im1 + w_nat[2] * qp_im2;
-                qtheta_b = w_nat[0] * qtheta_0 + w_nat[1] * qtheta_im1 + w_nat[2] * qtheta_im2;
+                double qn_b = w_nat[0] * qn_0 + w_nat[1] * qn_im1 + w_nat[2] * qn_im2;
+                double qp_b = w_nat[0] * qp_0 + w_nat[1] * qp_im1 + w_nat[2] * qp_im2;
+                double qtheta_b = w_nat[0] * qtheta_0 + w_nat[1] * qtheta_im1 + w_nat[2] * qtheta_im2;
 
                 zb_b = w_nat[0] * zb[i] + w_nat[1] * zb[i - 1] + w_nat[2] * zb[i - 2];
 
@@ -1274,17 +1277,14 @@ int main(int argc, char* argv[])
                 //
                 // momentum + c_wave * continuity
                 // 
-                dhdt = dtinv * (hp_0 - hn_0) * w_nat[0]
+                double dhdt = dtinv * (hp_0 - hn_0) * w_nat[0]
                     + dtinv * (hp_im1 - hn_im1) * w_nat[1]
                     + dtinv * (hp_im2 - hn_im2) * w_nat[2];
                 double dqdx = dxinv * (qtheta_0 - qtheta_im1);
-                dqdt = dtinv * (qp_0 - qn_0) * w_nat[0]
+                double dqdt = dtinv * (qp_0 - qn_0) * w_nat[0]
                     + dtinv * (qp_im1 - qn_im1) * w_nat[1]
                     + dtinv * (qp_im2 - qn_im2) * w_nat[2];
                 double dzetadx = dxinv * (htheta_0 + zb[i] - htheta_im1 - zb[i - 1]);
-                // ---------------------------------------------------------------------
-                if (do_convection) { con_fac = c_wave - qp_b / hp_b; }
-                // ---------------------------------------------------------------------
                 // 
                 // momentum part dq/dt + gh d(zeta)/dx
                 // 
@@ -1295,7 +1295,7 @@ int main(int argc, char* argv[])
                 A.coeffRef(q_eq, ph_w  + 1) += dtinv * w_nat[1];
                 A.coeffRef(q_eq, ph_ww + 1) += dtinv * w_nat[2];
                 rhs[q_eq] += - ( dqdt + g * htheta_b * dzetadx );
-                if (do_convection) // 
+                if (do_convection)
                 {
                     double aa = - dxinv * 2. * qtheta_b / (htheta_b * htheta_b) * (qtheta_0 - qtheta_im1)
                         + dxinv * 2. * (qtheta_b * qtheta_b) / (htheta_b * htheta_b * htheta_b) * (htheta_0 - htheta_im1);
@@ -1346,8 +1346,8 @@ int main(int argc, char* argv[])
                 //
                 // continuity part (added and multiplied by +c_wave)
                 //
-                con_fac = c_wave;
-                if (do_convection) { con_fac = c_wave + qp_b / hp_b; }
+                double con_fac = c_wave;
+                if (do_convection) { con_fac = c_wave - qp_b / hp_b; }
                 A.coeffRef(q_eq, ph   ) += con_fac * dtinv * w_nat[0];
                 A.coeffRef(q_eq, ph_w ) += con_fac * dtinv * w_nat[1];
                 A.coeffRef(q_eq, ph_ww) += con_fac * dtinv * w_nat[2];
@@ -1369,12 +1369,11 @@ int main(int argc, char* argv[])
                 START_TIMER(BiCGStab);
             }
             if (logging == "matrix" && (nst == 1 || nst == total_time_steps-1) && iter == 0)
-                {
-                    std::string header_text = "=== Matrix ============================================";
-                    print_matrix(A, 2, nx, ny, header_text, log_file);
-                    header_text = "=== RHS ===============================================";
-                    print_vector(rhs, 2, nx, ny, header_text, log_file);
-                }
+            {
+                std::string header_text = "=== Matrix ============================================";
+                print_matrix(A, 2, nx, ny, header_text, log_file);
+                header_text = "=== RHS ===============================================";
+                print_vector(rhs, 2, nx, ny, header_text, log_file);
             }
 
             solver.compute(A);
@@ -1453,6 +1452,7 @@ int main(int argc, char* argv[])
             {
                 break;
             }
+
     }
         STOP_TIMER(Newton iteration);
 
