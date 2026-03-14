@@ -31,16 +31,18 @@ REGULARIZATION::REGULARIZATION()
 {
     m_iter_max = 100;
     m_g = 10.0;
+    m_logging = "";
     m_alpha = 1./8.;
     m_mass.push_back(m_alpha);
     m_mass.push_back(1.0 - 2. * m_alpha);
     m_mass.push_back(m_alpha);
     m_u0_xixi_smooth = 0.0;
 }
-REGULARIZATION::REGULARIZATION(int iter_max, double g) :
+REGULARIZATION::REGULARIZATION(int iter_max, double g, std::string logging) :
     m_iter_max(iter_max),
-    m_g(g)
-{
+    m_g(g),
+    m_logging(logging)
+{   
     m_alpha = 1./8.;
     m_mass.push_back(m_alpha);
     m_mass.push_back(1.0 - 2. * m_alpha);
@@ -62,10 +64,7 @@ void REGULARIZATION::given_function(std::vector<double>& u_out, std::vector<doub
     std::vector<double> tmp(nx, 0.);
 
     std::ofstream log_file;
-#if LOGFILE == 1
-    std::filesystem::create_directory("./output");
-    log_file.open("./output/janm.log", std::ios_base::app);
-#endif
+
     const auto [u_giv_in_min, u_giv_in_max] = std::minmax_element(u_giv_in.begin(), u_giv_in.end());
     double min_range = 0.0001;
     double u_giv_range = *u_giv_in_max - *u_giv_in_min > min_range ? *u_giv_in_max - *u_giv_in_min : min_range;
@@ -96,13 +95,6 @@ void REGULARIZATION::given_function(std::vector<double>& u_out, std::vector<doub
 //------------------------------------------------------------------------------
         eq8 = *(this->solve_eq8(c_psi, u0, u0_xixi));
 //------------------------------------------------------------------------------
-#if LOGFILE == 1
-        log_file << "--- eq8 -----------------------------------------------" << std::endl;
-        for (int i = 0; i < nx; ++i)
-        {
-            log_file << std::setprecision(8) << std::scientific << eq8[i] << std::endl;
-        }
-#endif
 
         for (int i = 0; i < nx; ++i)
         {
@@ -111,14 +103,6 @@ void REGULARIZATION::given_function(std::vector<double>& u_out, std::vector<doub
 //------------------------------------------------------------------------------
         u0 = *(this->solve_eq7(dx, psi, u_giv));
 //------------------------------------------------------------------------------
-#if LOGFILE == 1
-        log_file << "--- eq7 -----------------------------------------------" << std::endl;
-        for (int i = 0; i < nx; ++i)
-        {
-            log_file << std::setprecision(8) << std::scientific << u0[i] << std::endl;
-        }
-#endif
-
 
         diff_max1 = 0.0;
         for (int i = 0; i < nx; ++i)

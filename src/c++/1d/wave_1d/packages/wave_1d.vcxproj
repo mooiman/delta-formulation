@@ -16,6 +16,7 @@
     <Keyword>QtVS_v304</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+    <ProjectName>wave_1d</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -83,7 +84,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;.\include;%NETCDF_DIR%;..\..\..\lib\eigen;..\..\..\lib\toml++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;.\include;..\..\..\lib\eigen;..\..\..\lib\toml++;%KDTREE_DIR%;%NETCDF_DIR%;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -permissive- -Zc:__cplusplus -Zc:externConstexpr -utf-8 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -107,7 +108,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%NETCDF_DIR%\lib\netcdf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%KDTREE_DIR%\lib\kdtree.lib;%NETCDF_DIR%\lib\netcdf.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\lib\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -128,13 +129,12 @@
       <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;QT_NO_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>call ..\scripts\git_insert_hash.cmd .\include main_version.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;.\include;%NETCDF_DIR%;..\..\..\lib\eigen;..\..\..\lib\toml++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;.\include;..\..\..\lib\eigen;..\..\..\lib\toml++;%KDTREE_DIR%;%NETCDF_DIR%;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -permissive- -Zc:__cplusplus -Zc:externConstexpr -utf-8 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -156,7 +156,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%NETCDF_DIR%\lib\netcdf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%KDTREE_DIR%\lib\kdtree_dbg.lib;%NETCDF_DIR%\lib\netcdf.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\lib\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -176,26 +176,40 @@
       <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>call ..\scripts\git_insert_hash.cmd .\include main_version.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\bed_level.cpp" />
     <ClCompile Include="src\bed_shear_stress.cpp" />
     <ClCompile Include="src\boundary_condition.cpp" />
     <ClCompile Include="src\cfts.cpp" />
     <ClCompile Include="src\definition_map_file.cpp" />
+    <ClCompile Include="src\initial_conditions.cpp" />
     <ClCompile Include="src\main_1d_wave.cpp" />
+    <ClCompile Include="src\main_version.cpp" />
+    <ClCompile Include="src\observation_stations.cpp" />
     <ClCompile Include="src\perf_timer.cpp" />
+    <ClCompile Include="src\print_matrix.cpp" />
+    <ClCompile Include="src\read_input_toml_file.cpp" />
     <ClCompile Include="src\regularization.cpp" />
     <ClCompile Include="src\ugrid1d.cpp" />
+    <ClCompile Include="src\write_input_toml_to_logfile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\bed_level.h" />
     <ClInclude Include="include\bed_shear_stress.h" />
     <ClInclude Include="include\boundary_condition.h" />
     <ClInclude Include="include\cfts.h" />
+    <ClInclude Include="include\compile_date_and_time.h" />
+    <ClInclude Include="include\data_input_struct.h" />
     <ClInclude Include="include\definition_map_file.h" />
+    <ClInclude Include="include\initial_conditions.h" />
+    <ClInclude Include="include\main_version.h" />
+    <ClInclude Include="include\observation_stations.h" />
     <ClInclude Include="include\perf_timer.h" />
+    <ClInclude Include="include\print_matrix.h" />
+    <ClInclude Include="include\read_input_toml_file.h" />
     <ClInclude Include="include\regularization.h" />
     <ClInclude Include="include\ugrid1d.h" />
   </ItemGroup>

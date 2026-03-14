@@ -2,7 +2,7 @@
 // Programmer: Jan Mooiman
 // Email     : jan.mooiman@outlook.com
 //
-//    Solving the 2D shallow water equations, fully implicit with delta-formulation and Modified Newton iteration 
+//    Solving the 1D shallow water equations, fully implicit with delta-formulation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -41,24 +41,24 @@ int bed_stress_matrix_rhs(Eigen::SparseMatrix<double>& A, Eigen::VectorXd& rhs,
     double q;
     double scv_fac;
 
-    int nx = hn.size();
+    size_t nx = hn.size();
 
     // Loop over the nodes first and store the Jacobians
-    for (int k = 0; k < nx; ++k)
+    for (size_t k = 0; k < nx; ++k)
     {
         htheta[k] = theta * hp[k] + (1.0 - theta) * hn[k];
         qtheta[k] = theta * qp[k] + (1.0 - theta) * qn[k];
     }
     
     // The terms are added to the matrix coefficients and rhs, they already contain contributions from other terms in momentum equation
-    for (int i = 1; i < nx-1; ++i)
+    for (size_t i = 1; i < nx-1; ++i)
     {
-            int ph_0  = i; // central point of control volume
-            int ph_w  = i - 1;  
-            int ph_e  = i + 1;  
+            size_t ph_0  = i; // central point of control volume
+            size_t ph_w  = i - 1;  
+            size_t ph_e  = i + 1;  
             
             //int h_eq = 2 * ph_0;
-            int q_eq = 2 * ph_0 + 1;
+            size_t q_eq = 2 * ph_0 + 1;
 
             // scv0
             h = bed_stress_scv(htheta[ph_0], htheta[ph_w]);
@@ -107,11 +107,11 @@ void bed_stress_rhs(std::vector<double>& rhs_q, std::vector<double> hn, std::vec
     double h;
     double q;
 
-    int nx = hn.size();
+    size_t nx = hn.size();
 
-    for (int i = 1; i < nx - 1; ++i)
+    for (size_t i = 1; i < nx - 1; ++i)
     {
-        int p0 = i; // central point of control volume
+        size_t p0 = i; // central point of control volume
         h = hn[p0];
         q = qn[p0];
         // q-momentum equation

@@ -57,4 +57,17 @@ constexpr std::string_view compileDay() {
     // NOTE: Cannot construct std::string_view concatenation directly in constexpr yet
     return dayStr; // For now just returning year as proof of concept
 }
+std::string compileDateTime()
+{
+    std::string str1(compileYear());
+    std::string str2(compileMonth());
+    std::string str3(compileDay());
+    if (str3.size() == 1)
+    {
+        str3.resize(2);
+        str3[1] = str3[0];
+        str3[0] = '0';
+    }
+    return str1 + "-" + str2 + "-" + str3 + " " + __TIME__;
+}
 #endif __COMPILE_DATE_AND_TIME__

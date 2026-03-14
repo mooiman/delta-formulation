@@ -35,7 +35,7 @@ class REGULARIZATION
 {
 public:
     REGULARIZATION();
-    REGULARIZATION(int, double);
+    REGULARIZATION(int iter_max, double g, std::string logging);
     void given_function(std::vector<double>& u_out, std::vector<double>& psi, std::vector<double>& u_giv_in,
         double dx, double c_psi);
 
@@ -50,6 +50,7 @@ private:
     int m_iter_max;
     double m_alpha;
     double m_g;
+    std::string m_logging;
     double m_u0_xixi_smooth;
     std::vector<double> m_mass;
 };

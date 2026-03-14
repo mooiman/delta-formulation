@@ -2,7 +2,7 @@
 // Programmer: Jan Mooiman
 // Email     : jan.mooiman@outlook.com
 //
-//    Solving the 1D wave equation, fully implicit with delta-formulation and Modified Newton iteration 
+//    Solving the 2D shallow water equations, fully implicit with delta-formuation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -18,15 +18,16 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
-#ifndef __BOUNDARY_CONDITION_H__
-#define __BOUNDARY_CONDITION_H__
+//------------------------------------------------------------------------------
+#pragma once
 
-#define _USE_MATH_DEFINES
-#include <cstdlib>
-#include <vector>
-#include <cmath>
-#include <string>
+#include <fstream>
+#include <iomanip>      // std::setprecision
+#include <iostream>
 
-void boundary_condition(double&, double&, double&, double&, double&, double&, int);
+#include <Eigen/IterativeLinearSolvers>
+#include <Eigen/Sparse>
 
-#endif __BOUNDARY_CONDITION_H__
+void print_matrix_pattern(Eigen::SparseMatrix<double, Eigen::RowMajor> A, size_t n_eq, size_t nx, size_t ny, std::string header_text, std::ofstream& log_file);
+void print_matrix(Eigen::SparseMatrix<double, Eigen::RowMajor> A, size_t n_eq, size_t nx, size_t ny, std::string header_text, std::ofstream& log_file);
+void print_vector(Eigen::VectorXd& rhs, size_t n_eq, size_t nx, size_t ny, std::string header_text, std::ofstream& log_file);

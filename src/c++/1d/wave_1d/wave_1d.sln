@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36109.1 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "1d_wave", "packages\1d_wave.vcxproj", "{E416BD51-4B40-316F-9703-D9547497EF04}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wave_1d", "packages\wave_1d.vcxproj", "{E416BD51-4B40-316F-9703-D9547497EF04}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
