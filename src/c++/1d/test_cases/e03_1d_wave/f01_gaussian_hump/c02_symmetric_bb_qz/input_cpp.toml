@@ -1,3 +1,5 @@
+Logging = "None"  # "iterations", "matrix", "pattern", "none"
+
 [Domain]
     Lx = 36000.0                                  # Domain length [m]
     depth = 10.0    # bathymetry below reference level [m]
@@ -8,22 +10,21 @@
     tstop = 43200.0                               # End time [s]
         
 [Initial]
-    ini_vars = ["zeta"]
+    ini_vars = ["zeta_gauss_hump"]
     gauss_mu = 9000.0    # location of the top of the gaussian hump
     gauss_sigma = 700.0    # location of the top of the gaussian hump
-    a0 = 0.01 # amplitude of the gaussian hump at the boundary
+    gauss_amp = 0.02 # twice the amplitude of the gaussian hump at the boundary
 
 [Boundary]
     bc_type = ["borsboom", "borsboom"]              # Type "mooiman", "borsboom"
     bc_vars = ["q", "zeta"]                       # Incoming signal "q" or "zeta"
     bc_vals = [0.0, 0.0]                          # The inflow discharge
-    bc_absorbing = [true, true]
     treg = 600.0                                 # Regularization time on boundary
     eps_bc_corr = 1.0e-2
 
 [Physics]
     g = 10.0                                      # Gravitational acceleration
-    momentum_convection = false                   # Include momentum convection term
+    do_convection = false                   # Include momentum convection term
 
 [Numerics]
     dt = 10.0                                     # Time step size [s], if dt == 0: then stationary problem
@@ -36,3 +37,4 @@
 [Output]
     dt_his = 10.0   # [s]
     dt_map = 1200.0  # [s] 
+    dt_screen = 300.0  # [s] 
