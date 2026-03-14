@@ -72,7 +72,7 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
     // Physics
     tbl_chp = *tbl["Physics"].as_table();
     data.physics.g = tbl_chp["g"].value_or(double(10.));  // Gravitational acceleration
-    data.physics.do_q_equation = tbl_chp["do_q_equation"].value_or(bool(false));
+    data.physics.do_q_equation = tbl_chp["do_q_equation"].value_or(bool(true));
     data.physics.do_convection = tbl_chp["do_convection"].value_or(bool(false));
     data.physics.do_bed_shear_stress = tbl_chp["do_bed_shear_stress"].value_or(bool(false));
     data.physics.do_viscosity = tbl_chp["do_viscosity"].value_or(bool(false));

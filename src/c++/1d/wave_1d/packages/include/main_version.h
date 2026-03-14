@@ -6,7 +6,7 @@
 #define main_major "0"
 #define main_minor "00"
 #define main_revision "000"
-#define main_build "2026-03-11 21:29:56, M-c5f5519"
+#define main_build "2026-03-14 14:48:30, M-976177b"
 
 #define main_company "Mooiman"
 #define main_company_url "https://www.github.com/mooiman"
