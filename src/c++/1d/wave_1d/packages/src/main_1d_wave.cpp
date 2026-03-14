@@ -940,7 +940,8 @@ int main(int argc, char* argv[])
                 qtheta_ip1 = theta * qp_ip1 + (1.0 - theta) * qn_ip1;
                 qtheta_ip2 = theta * qp_ip2 + (1.0 - theta) * qn_ip2;
 
-                double zb_b = w_nat[0] * zb[i] + w_nat[1] * zb[i + 1] + w_nat[2] * zb[i + 2];
+                double htheta_b = w_ess[0] * htheta_0 + w_ess[1] * htheta_ip1 + w_ess[2] * htheta_ip2;
+                double zb_b = w_ess[0] * zb[i] + w_ess[1] * zb[i + 1] + w_ess[2] * zb[i + 2];
 
                 A.coeffRef(c_eq, ph) = 0.0;
                 A.coeffRef(c_eq, ph_e) = 0.0;
@@ -954,7 +955,7 @@ int main(int argc, char* argv[])
                 //
                 double h_given = bc[BC_WEST] - zb_b;
                 double h_infty = h_given;  // s_offset - zb_b;
-                double c_wave = std::sqrt(g * h_infty);
+                double c_wave = std::sqrt(g * htheta_b);
                 if (bc_type[BC_WEST] == "mooiman")
                 {
                     // q
@@ -1157,6 +1158,7 @@ int main(int argc, char* argv[])
                 qtheta_im1 = theta * qp_im1 + (1.0 - theta) * qn_im1;
                 qtheta_im2 = theta * qp_im2 + (1.0 - theta) * qn_im2;
 
+                double htheta_b = w_ess[0] * htheta_0 + w_ess[1] * htheta_im1 + w_ess[2] * htheta_im2;
                 double zb_b = w_ess[0] * zb[i] + w_ess[1] * zb[i - 1] + w_ess[2] * zb[i - 2];
 
                 A.coeffRef(c_eq, ph) = 0.0;
@@ -1171,7 +1173,7 @@ int main(int argc, char* argv[])
 
                 double h_given = bc[BC_EAST] - zb_b;
                 double h_infty = h_given;  // s_offset - zb_b;
-                double c_wave = std::sqrt(g * h_infty);
+                double c_wave = std::sqrt(g * htheta_b);
 
                 if (bc_type[BC_EAST] == "mooiman")
                 {
@@ -1202,8 +1204,6 @@ int main(int argc, char* argv[])
                     double qn_b = w_ess[0] * qn_0 + w_ess[1] * qn_im1 + w_ess[2] * qn_im2;
                     double qp_b = w_ess[0] * qp_0 + w_ess[1] * qp_im1 + w_ess[2] * qp_im2;
                     double qtheta_b = w_ess[0] * qtheta_0 + w_ess[1] * qtheta_im1 + w_ess[2] * qtheta_im2;
-
-                    double zb_b = w_ess[0] * zb[i] + w_ess[1] * zb[i - 1] + w_ess[2] * zb[i - 2];
 
                     //
                     // momentum - c_wave * continuity (ingoing signal)
