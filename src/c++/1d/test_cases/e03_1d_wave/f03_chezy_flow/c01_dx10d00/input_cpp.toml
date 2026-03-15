@@ -13,7 +13,7 @@
     ini_vars = ["zeta_gauss_hump"]
     gauss_mu = 0.0    # location of the top of the gaussian hump
     gauss_sigma = 350.0    # width of the gaussian hump
-    gauss_amp = 0.0 # twice the amplitudeof the gaussian hump at the boundary
+    gauss_amp = 0.0 # twice the amplitude of the gaussian hump at the boundary
 
 [Boundary]
     bc_type = ["borsboom", "borsboom"]            # Type "mooiman", "borsboom"
