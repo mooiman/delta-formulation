@@ -40,7 +40,7 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
 
     tbl = toml::parse_file(toml_file_name.c_str());
 
-    std::string logging = tbl["Logging"].value_or("None");
+    data.log.logging = tbl["Logging"].value_or("None");
 
     // Domain
     tbl_chp = *tbl["Domain"].as_table();

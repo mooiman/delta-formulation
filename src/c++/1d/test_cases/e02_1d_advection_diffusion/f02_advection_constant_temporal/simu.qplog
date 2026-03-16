@@ -1,0 +1,103 @@
+openfile '.\c01_dx100d0\output\advection_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '92:1:103'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\c02_dx050d0\output\advection_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '1:1:206'
+colour [ 0 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c03_dx025d0\output\advection_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '1:1:412'
+colour [ 1 0 1 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c04_dx010d0\output\advection_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '1:1:1030'
+colour [ 1 0 0 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c05_dx005d0\output\advection_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '1:1:2060'
+colour [ 0 0 1 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
+
+#===================================================================
+
+openfile '.\c01_dx100d0\output\advection_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '92:1:103'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\c02_dx050d0\output\advection_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '1:1:206'
+colour [ 0 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c03_dx025d0\output\advection_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '1:1:412'
+colour [ 1 0 1 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c04_dx010d0\output\advection_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '1:1:1030'
+colour [ 1 0 0 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c05_dx005d0\output\advection_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '1:1:2060'
+colour [ 0 0 1 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
+#===================================================================
+

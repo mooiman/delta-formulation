@@ -25,6 +25,6 @@
 #include <vector>
 #include "ugrid1d.h"
 
-UGRID1D * create_map_file(std::string, std::string, std::vector<double> &, std::vector<std::string>&);
+UGRID1D * create_map_file(std::string, std::string, std::vector<double> &, std::vector<std::string>&, bool do_viscosity);
 
 #endif __DEFINITION_MAP_FILE_H__

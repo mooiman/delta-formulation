@@ -54,7 +54,7 @@
 
 double Fabs(double, double);
 void GetArguments(long argc, char** argv, std::filesystem::path & file_name);
-inline int p_index(int i, int j, int nx);
+inline size_t p_index(size_t i, size_t j, size_t nx);
 int write_used_input(struct _data_input data, std::ofstream & log_file);
 
 int read_bed_level(std::string filename, std::vector<double> & value);
@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
         std::cout << "\n+++++++++++++++++++++\nTOML parse error\n"
                   << err 
                   << "\n+++++++++++++++++++++\n\n";
-        std::chrono::duration<int, std::milli> timespan(3000);
+        std::chrono::duration<int, std::milli> timespan(5000);
         std::this_thread::sleep_for(timespan);
         exit(1);
     }
@@ -214,9 +214,9 @@ int main(int argc, char* argv[])
     log_file << toml_file_name << std::endl;
 
     double dxinv = 1./input_data.numerics.dx;                                 // invers grid size [m]
-    int nx = int(input_data.domain.Lx * dxinv) + 1 + 2 ;                    // number of nodes; including 2 virtual points
-    int ny = 1; 
-    int nxny = nx * ny; 
+    size_t nx = int(input_data.domain.Lx * dxinv) + 1 + 2 ;                    // number of nodes; including 2 virtual points
+    size_t ny = 1; 
+    size_t nxny = nx * ny; 
 
     int total_time_steps = int((input_data.time.tstop - input_data.time.tstart) / input_data.numerics.dt) + 1;  // Number of time steps [-]
     double dtinv;                                         // Inverse of dt, if dt==0 then stationary solution [1/s]
@@ -409,12 +409,11 @@ int main(int argc, char* argv[])
     double min_zb = *std::min_element(zb_given.begin(), zb_given.end());
     double s_offset = 0.0;
 
-    log_file << "Nodes   : " << nx << "x" << ny << "=" << nxny << std::endl;
-    log_file << "Elements: " << (nx - 1) << "x" << (ny - 1) << "=" << (nx - 1) * (ny - 1) << std::endl;
-    log_file << "Volumes : " << (nx - 2) << "x" << (ny - 2) << "=" << (nx - 2) * (ny - 2) << std::endl;
-    log_file << "nxny    : " << nx << "x" << ny << "=" << nxny << std::endl;
+    log_file << "Nodes   : " << nx << std::endl;
+    log_file << "Elements: " << (nx - 1) <<  std::endl;
+    log_file << "Volumes : " << (nx - 2) << std::endl;
     log_file << "=======================================================" << std::endl;
-    std::cout << "    nxny: " << nx << "x" << ny << "=" << nxny << std::endl;
+    std::cout << "    Nodes: " << nx << std::endl;
     std::cout << "======================================================" << std::endl;
 
     STOP_TIMER(Writing log-file);  // but two write statements are not timed
@@ -433,7 +432,7 @@ int main(int argc, char* argv[])
         START_TIMER(Regularization_init);
         regularization->given_function(zb, psi, zb_given, dx, c_psi);
         regularization->given_function(visc_reg, psi, visc_given, dx, c_psi);
-        for (int i = 0; i < nx; ++i)
+        for (size_t i = 0; i < nx; ++i)
         {
             visc[i] = visc_reg[i] + std::abs(psi[i]);
             froude[i] = qp[i] / hp[i] / std::sqrt(g * hp[i]);
@@ -488,7 +487,7 @@ int main(int argc, char* argv[])
     map_names.push_back("froude_1d");
     map_names.push_back("pe_id");
 
-    map_file = create_map_file(nc_mapfilename, model_title, x, map_names);
+    map_file = create_map_file(nc_mapfilename, model_title, x, map_names, do_viscosity);
 
     // Put data on map file
     START_TIMER(Writing map-file);
@@ -501,11 +500,14 @@ int main(int argc, char* argv[])
     map_file->put_time_variable(map_names[4], nst_map, zb);
     map_file->put_time_variable(map_names[5], nst_map, delta_h);
     map_file->put_time_variable(map_names[6], nst_map, delta_q);
-    map_file->put_time_variable(map_names[7], nst_map, visc_reg);
-    map_file->put_time_variable(map_names[8], nst_map, visc);
-    map_file->put_time_variable(map_names[9], nst_map, psi);
     map_file->put_time_variable(map_names[10], nst_map, froude);
-    map_file->put_time_variable(map_names[11], nst_map, pe);
+    if (do_viscosity)
+    {
+        map_file->put_time_variable(map_names[7], nst_map, visc_reg);
+        map_file->put_time_variable(map_names[8], nst_map, visc);
+        map_file->put_time_variable(map_names[9], nst_map, psi);
+        map_file->put_time_variable(map_names[11], nst_map, pe);
+    }
     STOP_TIMER(Writing map-file);
 
     // End define map file
@@ -556,14 +558,18 @@ int main(int argc, char* argv[])
 
     std::string his_newton_iter_name("newton_iterations");
     his_file->add_variable_without_location(his_newton_iter_name, "", "Newton iterations", "-");
-    std::string his_lin_solv_iter_name("lin_solver_iterations");
-    his_file->add_variable_without_location(his_lin_solv_iter_name, "", "Lin. solver iterations", "-");
+    std::string his_LinSolver_iter_name("his_LinSolver_iterations");
+    his_file->add_variable_without_location(his_LinSolver_iter_name, "iterations", "LinSolver iterations", "-");
+    std::string his_LinSolver_iter_error_name("LinSolver_iteration_error");
+    his_file->add_variable_without_location(his_LinSolver_iter_error_name, "iteration_error", "LinSolver iteration error", "-");
 
     // Put data on time history file
     START_TIMER(Writing his-file);
     int nst_his = 0;
     his_file->put_time(nst_his, time);
     std::vector<double> his_values;
+
+    his_values.clear();
     for (size_t i = 0; i < input_data.obs_points.size(); ++i)
     {
         his_values.push_back(hn[input_data.obs_points[i].idx]);
@@ -608,26 +614,29 @@ int main(int argc, char* argv[])
     }
     his_file->put_variable(his_froude_name, nst_his, his_values);
 
+    if (do_viscosity)
+    {
+        his_values.clear();
+        for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+        {
+            his_values.push_back(pe[input_data.obs_points[i].idx]);
+        }
+        his_file->put_variable(his_peclet_name, nst_his, his_values);
+    }
+
     //his_values = { riemann_pos[p_a], riemann_pos[p_b], riemann_pos[p_c], riemann_pos[p_d], riemann_pos[p_e] };
     //his_file->put_variable(his_riemann_pos_name, nst_his, his_values);
     //his_values = { riemann_neg[p_a], riemann_neg[p_b], riemann_neg[p_c], riemann_neg[p_d], riemann_neg[p_e] };
     //his_file->put_variable(his_riemann_neg_name, nst_his, his_values);
 
-    his_values = { 0 };
-    his_file->put_variable(his_froude_name, nst_his, his_values);
-    his_file->add_variable_without_location(his_newton_iter_name, "iterations", "Newton iteration", "-");
     his_values.clear();
-    his_values = { 0.0 };
+    his_values = { 0 };
     his_file->put_variable(his_newton_iter_name, nst_his, his_values);
 
-    std::string his_LinSolver_iter_name("his_LinSolver_iterations");
-    his_file->add_variable_without_location(his_LinSolver_iter_name, "iterations", "LinSolver iteration", "-");
     his_values.clear();
     his_values = { 0.0 };
     his_file->put_variable(his_LinSolver_iter_name, nst_his, his_values);
 
-    std::string his_LinSolver_iter_error_name("LinSolver_iteration_error");
-    his_file->add_variable_without_location(his_LinSolver_iter_error_name, "iteration_error", "LinSolver iteration error", "-");
     his_values.clear();
     his_values = { 0.0 };
     his_file->put_variable(his_LinSolver_iter_error_name, nst_his, his_values);
@@ -644,8 +653,8 @@ int main(int argc, char* argv[])
         std::this_thread::sleep_for(timespan);
         //std::cin.ignore();
     }
-     Eigen::SparseMatrix<double> A(2 * nx, 2 * nx);
-   if (logging == "pattern")
+    Eigen::SparseMatrix<double> A(2 * nx, 2 * nx);
+    if (logging == "pattern")
     {
         std::string header_text = "=== Matrix build matrix pattern =======================";
         print_matrix_pattern(A, 2, nx, 1, header_text, log_file);
@@ -669,8 +678,8 @@ int main(int argc, char* argv[])
     START_TIMER(Time loop);
     double dh_max = 0.0;
     double dq_max = 0.0;
-    int dh_maxi = 0;
-    int dq_maxi = 0;
+    size_t dh_maxi = 0;
+    size_t dq_maxi = 0;
 
     for (int nst = 1; nst < total_time_steps; ++nst)
     {
@@ -1026,7 +1035,7 @@ int main(int argc, char* argv[])
                     }
                 }
                 //----------------------------------------------------------------------
-                // Natural boundary condition
+                // Natural boundary condition (west)
                 //----------------------------------------------------------------------
                 double hn_b = w_nat[0] * hn_0 + w_nat[1] * hn_ip1 + w_nat[2] * hn_ip2;
                 double hp_b = w_nat[0] * hp_0 + w_nat[1] * hp_ip1 + w_nat[2] * hp_ip2;
@@ -1036,7 +1045,7 @@ int main(int argc, char* argv[])
                 double qp_b = w_nat[0] * qp_0 + w_nat[1] * qp_ip1 + w_nat[2] * qp_ip2;
                 double qtheta_b = w_nat[0] * qtheta_0 + w_nat[1] * qtheta_ip1 + w_nat[2] * qtheta_ip2;
 
-                zb_b = w_nat[0] * zb[i] + w_nat[1] * zb[i - 1] + w_nat[2] * zb[i - 2];
+                zb_b = w_nat[0] * zb[i] + w_nat[1] * zb[i + 1] + w_nat[2] * zb[i + 2];
 
                 A.coeffRef(q_eq, ph   ) = 0.0;
                 A.coeffRef(q_eq, ph_e ) = 0.0;
@@ -1113,6 +1122,25 @@ int main(int argc, char* argv[])
                 }
                 if (do_viscosity) // 
                 {
+                    double psi_0 = psi[i];
+                    double psi_ip1 = psi[i + 1];
+                    double psi_ip2 = psi[i + 2];
+                    double psi_b = w_nat[0] * psi_0 + w_nat[1] * psi_ip1 + w_nat[2] * psi_ip2;
+                    double htheta_b = w_nat[0] * htheta_0 + w_nat[1] * htheta_ip1 + w_nat[2] * htheta_ip2;
+                    double qtheta_b = w_nat[0] * htheta_0 + w_nat[1] * qtheta_ip1 + w_nat[2] * qtheta_ip2;
+                    double dpsidx = dxinv * (psi_0 - psi_ip1);
+                    double dhdx = dxinv * (htheta_0 - htheta_ip1);
+                    double d2qdx2 = dxinv * dxinv * (qtheta_0 - 2. * qtheta_ip1 + qtheta_ip2);
+                    double d2hdx2 = dxinv * dxinv * (htheta_0 - 2. * htheta_ip1 + htheta_ip2);
+                    rhs[q_eq] += + (
+                        dpsidx * (dqdx - qtheta_b/htheta_b * dhdx) +
+                        psi_b * 1.0/ htheta_b * dhdx * (dqdx - qtheta_b/htheta_b * dhdx) +
+                        - psi_b * 1.0/ htheta_b * dhdx * dqdx 
+                        + psi_b * d2qdx2 
+                        - psi_b * 1.0 / htheta_b  * dhdx * dqdx
+                        + 2. * psi_b * qtheta_b /(htheta_b * htheta_b) * dhdx * dhdx 
+                        - psi_b * qtheta_b / htheta_b * d2hdx2
+                        );
                 }
                 //
                 // continuity part (added and multiplied by -c_wave)
@@ -1252,7 +1280,7 @@ int main(int argc, char* argv[])
                     }
                 }
                 //----------------------------------------------------------------------
-                // Natural boundary condition
+                // Natural boundary condition (east)
                 //----------------------------------------------------------------------
                 double hn_b = w_nat[0] * hn_0 + w_nat[1] * hn_im1 + w_nat[2] * hn_im2;
                 double hp_b = w_nat[0] * hp_0 + w_nat[1] * hp_im1 + w_nat[2] * hp_im2;
@@ -1318,8 +1346,8 @@ int main(int argc, char* argv[])
                 {
                     double cf_im1 = cf[i - 1];
                     double cf_i = cf[i];
-                    double htheta_b = scv(htheta_0, htheta_im1);
-                    double qtheta_b = scv(qtheta_0, qtheta_im1);
+                    double htheta_b = w_nat[0] * htheta_0 + w_nat[1] * htheta_im1 + w_nat[2] * htheta_im2;
+                    double qtheta_b = w_nat[0] * htheta_0 + w_nat[1] * qtheta_im1 + w_nat[2] * qtheta_im2;
                     double abs_qtheta_b = scv(Fabs(qtheta_0, eps_abs), Fabs(qtheta_im1, eps_abs));
                     double cf_b = scv(cf_i, cf_im1);
                     //
@@ -1342,6 +1370,25 @@ int main(int argc, char* argv[])
                 }
                 if (do_viscosity) // 
                 {
+                    double psi_0 = psi[i];
+                    double psi_im1 = psi[i - 1];
+                    double psi_im2 = psi[i - 2];
+                    double psi_b = w_nat[0] * psi_0 + w_nat[1] * psi_im1 + w_nat[2] * psi_im2;
+                    double htheta_b = w_nat[0] * htheta_0 + w_nat[1] * htheta_im1 + w_nat[2] * htheta_im2;
+                    double qtheta_b = w_nat[0] * htheta_0 + w_nat[1] * qtheta_im1 + w_nat[2] * qtheta_im2;
+                    double dpsidx = dxinv * (psi_0 - psi_im1);
+                    double dhdx = dxinv * (htheta_0 - htheta_im1);
+                    double d2qdx2 = dxinv * dxinv * (qtheta_0 - 2. * qtheta_im1 + qtheta_im2);
+                    double d2hdx2 = dxinv * dxinv * (htheta_0 - 2. * htheta_im1 + htheta_im2);
+                    rhs[q_eq] += +(
+                        dpsidx * (dqdx - qtheta_b/htheta_b * dhdx) +
+                        psi_b * 1.0/ htheta_b * dhdx * (dqdx - qtheta_b/htheta_b * dhdx) +
+                        - psi_b * 1.0/ htheta_b * dhdx * dqdx 
+                        + psi_b * d2qdx2 
+                        - psi_b * 1.0 / htheta_b  * dhdx * dqdx
+                        + 2. * psi_b * qtheta_b /(htheta_b * htheta_b) * dhdx * dhdx 
+                        - psi_b * qtheta_b / htheta_b * d2hdx2
+                        );
                 }
                 //
                 // continuity part (added and multiplied by +c_wave)
@@ -1507,7 +1554,7 @@ int main(int argc, char* argv[])
             {
                 START_TIMER(Regularization_time_loop);
                 (void)regularization->artificial_viscosity(psi, hp, qp, zb, c_psi, dx);
-                for (int i = 0; i < nx; ++i)
+                for (size_t i = 0; i < nx; ++i)
                 {
                     visc[i] = visc_reg[i] + std::abs(psi[i]);
                     pe[i] = qp[i] / hp[i] * dx / visc[i];
@@ -1537,11 +1584,14 @@ int main(int argc, char* argv[])
             map_file->put_time_variable(map_names[4], nst_map, zb);
             map_file->put_time_variable(map_names[5], nst_map, delta_h);
             map_file->put_time_variable(map_names[6], nst_map, delta_q);
-            map_file->put_time_variable(map_names[7], nst_map, visc_reg);
-            map_file->put_time_variable(map_names[8], nst_map, visc);
-            map_file->put_time_variable(map_names[9], nst_map, psi);
             map_file->put_time_variable(map_names[10], nst_map, froude);
-            map_file->put_time_variable(map_names[11], nst_map, pe);
+            if (do_viscosity)
+            {
+                map_file->put_time_variable(map_names[7], nst_map, visc_reg);
+                map_file->put_time_variable(map_names[8], nst_map, visc);
+                map_file->put_time_variable(map_names[9], nst_map, psi);
+                map_file->put_time_variable(map_names[11], nst_map, pe);
+            }
             STOP_TIMER(Writing map-file);
         }
 
@@ -1558,6 +1608,8 @@ int main(int argc, char* argv[])
             {
                 his_file->put_time(nst_his, double(nst) * dt);
             }
+
+            his_values.clear();
             for (size_t i = 0; i < input_data.obs_points.size(); ++i)
             {
                 his_values.push_back(hn[input_data.obs_points[i].idx]);
@@ -1588,6 +1640,13 @@ int main(int argc, char* argv[])
             his_values.clear();
             for (size_t i = 0; i < input_data.obs_points.size(); ++i)
             {
+                his_values.push_back(zb[input_data.obs_points[i].idx]);
+            }
+            his_file->put_variable(his_zb_name, nst_his, his_values);
+
+            his_values.clear();
+            for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+            {
                 int k = input_data.obs_points[i].idx;
                 double speed = std::abs(u[k]);
                 double frd = speed/std::sqrt(g * hp[k]);
@@ -1595,13 +1654,22 @@ int main(int argc, char* argv[])
             }
             his_file->put_variable(his_froude_name, nst_his, his_values);
 
-            his_file->put_variable(his_froude_name, nst_his, his_values);
+            if (do_viscosity)
+            {
+                his_values.clear();
+                for (size_t i = 0; i < input_data.obs_points.size(); ++i)
+                {
+                    his_values.push_back(pe[input_data.obs_points[i].idx]);
+                }
+                his_file->put_variable(his_peclet_name, nst_his, his_values);
+            }
 
             //his_values = { riemann_pos[p_a], riemann_pos[p_b], riemann_pos[p_c], riemann_pos[p_d], riemann_pos[p_e] };
             //his_file->put_variable(his_riemann_pos_name, nst_his, his_values);
             //his_values = { riemann_neg[p_a], riemann_neg[p_a], riemann_neg[p_c], riemann_neg[p_d], riemann_neg[p_e] };
             //his_file->put_variable(his_riemann_neg_name, nst_his, his_values);
 
+            his_values.clear();
             his_values = { double(used_newton_iter) };
             his_file->put_variable(his_newton_iter_name, nst_his, his_values);
             his_values.clear();
@@ -1629,23 +1697,23 @@ int main(int argc, char* argv[])
     std::this_thread::sleep_for(timespan);
     return 0;
 }
-inline int p_index(int i, int j, int nx)
+size_t p_index(size_t i, size_t j, size_t nx)
 {
     return j * nx + i;
 }
 
 int initialize_scalar(double alpha, std::vector<double>& value_in, std::vector<double>& value_out)
 {
-    int nx = (int) value_in.size();
+    size_t nx = value_in.size();
     Eigen::SparseMatrix<double> A(nx, nx);
     Eigen::VectorXd solution(nx);           // solution vector
     Eigen::VectorXd rhs(nx);                // RHS vector
 
-    int i = 0;
+    size_t i = 0;
     A.coeffRef(i, i) = -alpha;
     A.coeffRef(i, i + 1) = alpha;
     rhs[i] = value_in[i];
-    for (int i = 1; i < nx-1; ++i)
+    for (size_t i = 1; i < nx-1; ++i)
     {
         A.coeffRef(i, i - 1) = alpha;
         A.coeffRef(i, i) = 1.0 - 2.0 *alpha;
@@ -1661,7 +1729,7 @@ int initialize_scalar(double alpha, std::vector<double>& value_in, std::vector<d
     solver.compute(A);
     solution = solver.solveWithGuess(rhs, solution);
 
-    for (int i = 0; i < nx; ++i)
+    for (size_t i = 0; i < nx; ++i)
     {
         value_out[i] = solution[i]; // h, continuity-eq
     }
@@ -1674,7 +1742,7 @@ int read_bed_level(std::string filename, std::vector<double> & value)
     double dummy;
     std::string record;
 
-    int nx = (int) value.size();
+    size_t nx = (size_t) value.size();
     std::ifstream input_file;
 
     input_file.open(filename);
@@ -1691,12 +1759,12 @@ int read_bed_level(std::string filename, std::vector<double> & value)
         }
     }
     input_file >> nrow >> ncol;
-    if (nrow != nx)
+    if (nrow != (int)nx)
     {
         std::cout << "Dimension of bed_filename does not match;  " << nrow << " != " << nx << std::endl;
         return 1;
     }
-    for (int k = 0; k < nx; ++k)
+    for (size_t k = 0; k < nx; ++k)
     {
         input_file >> dummy >> value[k];
     }
