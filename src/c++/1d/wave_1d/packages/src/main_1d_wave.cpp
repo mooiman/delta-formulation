@@ -1499,8 +1499,7 @@ int main(int argc, char* argv[])
             {
                 break;
             }
-
-    }
+        }
         STOP_TIMER(Newton iteration);
 
         if (stationary) 
@@ -1510,7 +1509,6 @@ int main(int argc, char* argv[])
                 << "    Newton iterations  : " << used_newton_iter << std::endl
                 << "    Delta h^{n + 1,p + 1}: " << dh_max << " at index: " << dh_maxi << std::endl
                 << "    Delta q^{n + 1,p + 1}: " << dq_max << " at index: " << dq_maxi << std::endl;
- 
         }
         else
         {
