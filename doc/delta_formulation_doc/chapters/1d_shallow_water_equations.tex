@@ -1018,23 +1018,23 @@ At the left/west boundary ($x_{i+\half}$ with $i=0$) the discretization of the v
 %\nu \pdiff{h}{x} \left( \frac{1}{h} \pdiff{q}{x} - \frac{q}{h^2}\pdiff{h}{x} \right) + \nu h \pdiff{}{x} \left( \frac{1}{h} \pdiff{q}{x} - \frac{q}{h^2}\pdiff{h}{x} \right) =
 %\\
 & = \pdiff{\nu}{x} \left(\pdiff{q}{x} - \frac{q}{h}\pdiff{h}{x}\right) +
-\nu \pdiff{h}{x} \left( \frac{1}{h} \pdiff{q}{x} - \frac{q}{h^2}\pdiff{h}{x} \right) +
+\nu \frac{1}{h} \pdiff{h}{x} \left(  \pdiff{q}{x} - \frac{q}{h}\pdiff{h}{x} \right) +
 \nonumber \\*
 %&
-%- \nu \frac{1}{h}  \pdiff{q}{x} \pdiff{h}{x} +\nu \pdiff[2]{q}{x} +
+%\phantom{=} - \nu \frac{1}{h}  \pdiff{q}{x} \pdiff{h}{x} +\nu \pdiff[2]{q}{x} +
 %\\
-%&- \left[ \nu \frac{1}{h} \pdiff{h}{x}\pdiff{q}{x} +
+%&\phantom{=} - \left[ \nu \frac{1}{h} \pdiff{q}{x}\pdiff{h}{x} +
 %\nu \frac{2q}{h^2} \pdiff{h}{x}\pdiff{h}{x}
 %-
 %\nu \frac{q}{h} \pdiff[2]{h}{x}
 %\right]
 %\nonumber \\
 & \phantom{=}
-- \nu \frac{1}{h}  \pdiff{q}{x} \pdiff{h}{x} +\nu \pdiff[2]{q}{x}
--  \nu \frac{1}{h} \pdiff{h}{x}\pdiff{q}{x} -
-\nu \frac{2q}{h^2} \pdiff{h}{x}\pdiff{h}{x}
-+
-\nu \frac{q}{h} \pdiff[2]{h}{x}
+- \nu \frac{1}{h}  \pdiff{q}{x} \pdiff{h}{x}
++ \nu \pdiff[2]{q}{x}
+- \nu \frac{1}{h} \pdiff{h}{x}\pdiff{q}{x}
++ \nu \frac{2q}{h^2} \pdiff{h}{x}\pdiff{h}{x}
+- \nu \frac{q}{h} \pdiff[2]{h}{x}
 \end{align}
 which will be approximated by the following discretizations:
 \begin{align}
