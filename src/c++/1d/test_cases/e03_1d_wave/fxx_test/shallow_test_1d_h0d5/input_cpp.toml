@@ -1,47 +1,49 @@
-# Logging = "matrix"
+Logging = "None"  # "iterations", "matrix"
 
+[Boundary]  # west, east
+    bc_type = ["borsboom", "borsboom"]            # Type "mooiman", "borsboom"
+    bc_vars = ["q", "zeta"]                       # Incoming signal  
+    bc_vals = [1.25, 0.0]                          # The inflow discharge q should be 4.0
+    treg = 1800.0                                 # Regularization time on boundary
+    eps_bc_corr = 1.0e-2
+    
 [Domain]
     Lx = 17760.0                                   # Domain length [m]
     depth = 0.5    # bathymetry below reference level [m]
     geometry_type = "UniformGeometry"
 
-[Time]
-    tstart = 0.0                                  # Start time [s]
-    tstop = 43200.0                               # End time [s]
-        
 [Initial]
     ini_vars = ["zeta_gauss_hump"]
     gauss_mu = 0.0    # location of the top of the gaussian hump
     gauss_sigma = 350.0    # width of the gaussian hump
     gauss_amp = 0.0 # twice the amplitude of the gaussian hump at the boundary
 
-[Boundary]  # west, east
-    bc_type = ["borsboom", "borsboom"]            # Type "mooiman", "borsboom"
-    bc_vars = ["q", "zeta"]                       # Incoming signal  
-    bc_vals = [4.0, 0.0]                          # The inflow discharge q should be 4.0
-    treg = 600.0                                 # Regularization time on boundary
-    eps_bc_corr = 1.0e-2
-    
-[Physics]
-    g = 10.0                                      # Gravitational acceleration
-    do_q_equation = true
-    do_convection = false                    # Include momentum convection term
-    do_bed_shear_stress = false              # Include bed shear stress
-    do_viscosity = true                      # Include bed shear stress
-    chezy_coefficient = 50.0                      # Chezy coefficient
-    viscosity = 100.0
-
 [Numerics]
     dt = 20.0                                     # Time step size [s], if dt == 0: then stationary problem
-    dx = 80                                      # Grid size [m]
+    dx = 80.0                                     # Grid size [m]
     iter_max = 25                                 # Maximum number of nonlinear iterations
-    theta = 0.501                                 # Implicitness factor (0.5 <= theta <= 1.0)
+    theta = 0.501                                # Implicitness factor (0.5 <= theta <= 1.0)
     eps_newton = 1.0e-12
     eps_bicgstab = 1.0e-12
     regularization_init = true
     regularization_iter = false
     regularization_time = true
+
 [Output]
     dt_his = 0.25   # [s]
     dt_map = 20.0  # [s] 
-    dt_screen = 120.0  # [s] 
+    dt_screen = 7200.0  # [s] 
+
+[Physics]
+    g = 10.0                                      # Gravitational acceleration
+    do_q_equation = true
+    do_convection = true                     # Include momentum convection term
+    do_bed_shear_stress = false              # Include bed shear stress
+    do_viscosity = true                      # Include bed shear stress
+    chezy_coefficient = 50.0                 # Chezy coefficient
+    viscosity = 1000.0
+
+[Time]
+    tstart = 0.0                                  # Start time [s]
+    tstop = 172800.0                               # End time [s]
+        

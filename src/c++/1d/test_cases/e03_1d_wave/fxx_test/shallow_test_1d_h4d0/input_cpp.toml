@@ -7,7 +7,7 @@
 
 [Time]
     tstart = 0.0                                  # Start time [s]
-    tstop = 43200.0                               # End time [s]
+    tstop = 10800.0                               # End time [s]
         
 [Initial]
     ini_vars = ["zeta_gauss_hump"]
@@ -19,17 +19,17 @@
     bc_type = ["borsboom", "borsboom"]            # Type "mooiman", "borsboom"
     bc_vars = ["q", "zeta"]                       # Incoming signal  
     bc_vals = [4.0, 0.0]                          # The inflow discharge q should be 4.0
-    treg = 600.0                                 # Regularization time on boundary
+    treg = 600.0                                  # Regularization time on boundary
     eps_bc_corr = 1.0e-2
     
 [Physics]
     g = 10.0                                      # Gravitational acceleration
     do_q_equation = true
-    do_convection = false                    # Include momentum convection term
-    do_bed_shear_stress = false              # Include bed shear stress
-    do_viscosity = false                      # Include bed shear stress
-    chezy_coefficient = 50.0                      # Chezy coefficient
-    viscosity = 100.0
+    do_convection = true                    # Include momentum convection term
+    do_bed_shear_stress = true              # Include bed shear stress
+    do_viscosity = true                      # Include bed shear stress
+    chezy_coefficient = 50.0                 # Chezy coefficient
+    viscosity = 1000.0
 
 [Numerics]
     dt = 20.0                                     # Time step size [s], if dt == 0: then stationary problem
@@ -42,4 +42,4 @@
 [Output]
     dt_his = 0.25   # [s]
     dt_map = 20.0  # [s] 
-    dt_screen = 120.0  # [s] 
+    dt_screen = 300.0  # [s] 
