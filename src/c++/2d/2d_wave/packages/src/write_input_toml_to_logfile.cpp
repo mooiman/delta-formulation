@@ -84,6 +84,12 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     log_file << "    " << "regularization_iter = " << bool_value_as_string(data.numerics.regularization_iter) << std::endl;
     log_file << "    " << "regularization_time = " << bool_value_as_string(data.numerics.regularization_time) << std::endl;
 
+    // Output
+    log_file << std::endl << "[Output]" << std::endl;
+    log_file << "    " << "dt_his    = " << format_as_double(data.output.dt_his) << std::endl;
+    log_file << "    " << "dt_map    = " << format_as_double(data.output.dt_map) << std::endl;
+    log_file << "    " << "dt_screen = " << format_as_double(data.output.dt_screen) << std::endl;
+
     // Physics
     log_file << std::endl << "[Physics]" << std::endl;
     log_file << "    " << "do_linear_waves     = " << bool_value_as_string(data.physics.do_linear_waves) << std::endl;
@@ -95,12 +101,6 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     log_file << "    " << "do_viscosity        = " << bool_value_as_string(data.physics.do_viscosity) << std::endl;
     log_file << "    " << "chezy_coefficient   = " << format_as_double(data.physics.chezy_coefficient) << std::endl;
     log_file << "    " << "viscosity           = " << format_as_double(data.physics.visc_const) << std::endl;
-
-    // Output
-    log_file << std::endl << "[Output]" << std::endl;
-    log_file << "    " << "dt_his    = " << format_as_double(data.output.dt_his) << std::endl;
-    log_file << "    " << "dt_map    = " << format_as_double(data.output.dt_map) << std::endl;
-    log_file << "    " << "dt_screen = " << format_as_double(data.output.dt_screen) << std::endl;
 
     // Time
     log_file << std::endl << "[Time]" << std::endl;
