@@ -1,48 +1,55 @@
-# Logging = "matrix"  # "iterations", "matrix"
+Logging = "None"  # "iterations", "matrix", "pattern"
+
+[Boundary]  # north, east, south, west
+    treg         = 1800.0  # Regularization time boundary signal
+    eps_bc_corr  = 0.01
+    bc_type      = ["free_slip", "borsboom", "free_slip", "borsboom"]  # Type "free_slip", "no_slip", "borsboom", "mooiman"  
+    bc_vars      = ["q", "zeta", "q", "q"]
+    bc_vals      = [0.0, 0.0, 0.0, 1.25]
 
 [Domain]
-    mesh_file = "geometry/160mx080m_111x26_net.nc"
-    bed_level_file = "geometry/160mx080m_111x26_flat4.dep"
-    
-[Time]
-    tstart = 0.0                                  # Start time [s]
-    tstop = 14400.0                                # End time [s]
-        
+    bed_level_file = "geometry/160mx080m_111x6_flat0d5.dep"
+    mesh_file      = "geometry/160mx080m_111x6_net.nc"
+
 [Initial]
-    ini_vars = ["zeta_constant"]
-    gauss_amp = 0.1 # amplitude of the gaussian hump
-    gauss_mu = 0.0    # location of the top of the gaussian hump
-    gauss_sigma = 350.0    # width of the gaussian hump
-
-[Boundary] # north, east, south, west
-    bc_type = ["free_slip", "borsboom", "free_slip", "borsboom"] # Type "borsboom", "no_slip", "free_slip", "mooiman" 
-    bc_vars = ["-", "q", "-", "zeta"]
-    bc_vals = [0.0, -4.0, 0.0, 0.0]
-    treg = 150.0                                  # Regularization time boundary signal
-    eps_bc_corr = 1.0e-2
-
-[Physics]
-    g = 10.0                                      # Gravitational acceleration
-    do_continuity = true                          # continuity equation
-    do_q_equation = true                          # q momentum equation
-    do_r_equation = true                          # r momentum equation
-    do_convection = true                          # Include momentum convection term
-    do_viscosity = true                          # Include momentum viscosity term
-    do_bed_shear_stress = true                    # Include momentum bed shear stress term
-    viscosity = 0.01
-    chezy_coefficient = 50.0                      # Chezy coefficient
+    ini_vars      = ["zeta_constant"]
+    gauss_amp     = 0.0
+    gauss_mu      = 0.0
+    gauss_mu_x    = 0.0
+    gauss_mu_y    = 0.0
+    gauss_sigma   = 350.0
+    gauss_sigma_x = 350.0
+    gauss_sigma_y = 350.0
 
 [Numerics]
-    dt = 20.0                                     # Time step size [s], if dt == 0: then stationary problem
-    iter_max = 25                                 # Maximum number of nonlinear iterations
-    theta = 0.501                                 # Implicitness factor (0.5 <= theta <= 1.0)
+    dt                  = 20.0  # Time step size [s], if dt == 0: then stationary problem
+    theta               = 0.501  # Implicitness factor (0.5 <= theta <= 1.0)
+    c_psi               = 4.0
+    iter_max            = 25  # Maximum number of nonlinear iterations
+    eps_newton          = 1.0e-12
+    eps_bicgstab        = 1.0e-12
+    eps_abs_function    = 0.02
+    linear_solver       = "bicgstab"  # "bicgstab", "multigrid"
     regularization_init = true
     regularization_iter = false
     regularization_time = true
-    eps_newton = 1.0e-12
-    eps_bicgstab = 1.0e-6
 
 [Output]
-    dt_his = 0.01   # [s]
-    dt_map = 20.0   # [s] 
-    dt_screen = 120.0   # [s] 
+    dt_his    = 0.01
+    dt_map    = 60.0
+    dt_screen = 300.0
+
+[Physics]
+    do_linear_waves     = true
+    do_continuity       = true
+    do_q_equation       = true
+    do_r_equation       = true
+    do_convection       = true
+    do_bed_shear_stress = false
+    do_viscosity        = true
+    chezy_coefficient   = 50.0
+    viscosity           = 1000.0
+
+[Time]
+    tstart = 0.0
+    tstop  = 43200.0  # 43200.0

@@ -488,11 +488,11 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         // Contribution Delta h
         // face 0
         double face_fac = 0.5;
-        add_value(values, col_wb , face_fac * 1./4. * w_nat[0] * theta * g * dzetady_e +  face_fac * 1./4. * theta * g * htheta_e);
-        add_value(values, col_ws , face_fac * 1./4. * w_nat[1] * theta * g * dzetady_e -  face_fac * 1./4. * theta * g * htheta_e);
-        add_value(values, col_wss, face_fac * 1./4. * w_nat[2] * theta * g * dzetady_e);
-        add_value(values, col_b  , face_fac * 3./4. * w_nat[0] * theta * g * dzetady_b +  face_fac * 3./4. * theta * g * htheta_b);
-        add_value(values, col_s  , face_fac * 3./4. * w_nat[1] * theta * g * dzetady_b -  face_fac * 3./4. * theta * g * htheta_b);
+        add_value(values, col_wb , face_fac * 1./4. * w_nat[0] * theta * g * dzetady_w + face_fac * 1./4. * theta * g * htheta_w);
+        add_value(values, col_ws , face_fac * 1./4. * w_nat[1] * theta * g * dzetady_w - face_fac * 1./4. * theta * g * htheta_w);
+        add_value(values, col_wss, face_fac * 1./4. * w_nat[2] * theta * g * dzetady_w);
+        add_value(values, col_b  , face_fac * 3./4. * w_nat[0] * theta * g * dzetady_b + face_fac * 3./4. * theta * g * htheta_b);
+        add_value(values, col_s  , face_fac * 3./4. * w_nat[1] * theta * g * dzetady_b - face_fac * 3./4. * theta * g * htheta_b);
         add_value(values, col_ss , face_fac * 3./4. * w_nat[2] * theta * g * dzetady_b);
         
         //face 1
@@ -500,9 +500,9 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
         add_value(values, col_b  , face_fac * 3./4. * w_nat[0] * theta * g * dzetady_b +  face_fac * 3./4. * theta * g * htheta_b);
         add_value(values, col_s  , face_fac * 3./4. * w_nat[1] * theta * g * dzetady_b -  face_fac * 3./4. * theta * g * htheta_b);
         add_value(values, col_ss , face_fac * 3./4. * w_nat[2] * theta * g * dzetady_b);
-        add_value(values, col_eb , face_fac * 1./4. * w_nat[0] * theta * g * dzetady_w +  face_fac * 1./4. * theta * g * htheta_w);
-        add_value(values, col_es , face_fac * 1./4. * w_nat[1] * theta * g * dzetady_w -  face_fac * 1./4. * theta * g * htheta_w);
-        add_value(values, col_ess, face_fac * 1./4. * w_nat[2] * theta * g * dzetady_w);
+        add_value(values, col_eb , face_fac * 1./4. * w_nat[0] * theta * g * dzetady_e +  face_fac * 1./4. * theta * g * htheta_e);
+        add_value(values, col_es , face_fac * 1./4. * w_nat[1] * theta * g * dzetady_e -  face_fac * 1./4. * theta * g * htheta_e);
+        add_value(values, col_ess, face_fac * 1./4. * w_nat[2] * theta * g * dzetady_e);
 
         // Contribution Delta q
         add_value(values, col_b  + 1, 0.0);
@@ -1795,6 +1795,7 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
                 add_value(values, col_n   + 2, face_fac * 3./4. * (dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1]));
                 add_value(values, col_nn  + 2, face_fac * 3./4. * (dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2]));
 
+                // face 1
                 face_fac = 0.5 * dx_dxi_1;
                 add_value(values, col_b   + 2, face_fac * 3./4. * (dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0]));
                 add_value(values, col_n   + 2, face_fac * 3./4. * (dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1]));

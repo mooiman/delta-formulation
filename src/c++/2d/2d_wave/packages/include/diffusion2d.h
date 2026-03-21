@@ -29,7 +29,7 @@
 #include "grid_metric.h"
 #include "perf_timer.h"
 
-int diffusion_matrix_and_rhs(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
+int reg_interior_matrix_diffusion(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
     std::vector<double>& u_giv, double psi_11, double psi_22, 
     double theta, struct _grid_metric metric);
 int diffusion_post_rhs(std::vector<double>& rhs_q, 

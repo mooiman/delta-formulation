@@ -42,7 +42,7 @@
 //    |       |       |       |       |          |       |       |       |       |
 //   sw - - - - - - - s - - - - - - - se        sw - - - - - - - s - - - - - - - se
 
-int diffusion_matrix_and_rhs(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
+int reg_interior_matrix_diffusion(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
     std::vector<double>& Ttheta, double psi_11, double psi_22, 
     double theta, struct _grid_metric metric)
 {
@@ -169,9 +169,9 @@ int diffusion_matrix_and_rhs(double* values, size_t row, size_t c_eq, Eigen::Vec
     add_value(values, col_s , theta * scvf_fac * ( + psi_22 * -dx_deta_f0 * 1./4. - psi_22 *  dx_dxi_f0 * 1./2.) );
     add_value(values, col_sw, theta * scvf_fac * ( - psi_22 * -dx_deta_f0 * 1./4. - psi_22 *  dx_dxi_f0 * 1./2.) );
 
-    rhs[row] += - ( 0.5 *  dy_deta_f0 / cv_area_0 * n_xi * ( psi_11 * ( dy_deta_f0 * dT_dxi_0 - dy_dxi_f0 * dT_deta_0) )
-                  + 0.5 * -dx_deta_f0 / cv_area_0 * n_xi * ( psi_22 * (-dx_deta_f0 * dT_dxi_0 + dx_dxi_f0 * dT_deta_0) )
-                  );
+    //rhs[row] += - ( 0.5 *  dy_deta_f0 / cv_area_0 * n_xi * ( psi_11 * ( dy_deta_f0 * dT_dxi_0 - dy_dxi_f0 * dT_deta_0) )
+    //              + 0.5 * -dx_deta_f0 / cv_area_0 * n_xi * ( psi_22 * (-dx_deta_f0 * dT_dxi_0 + dx_dxi_f0 * dT_deta_0) )
+    //              );
 
     // scv_0 face_1
     n_xi =  0.0;
@@ -192,9 +192,9 @@ int diffusion_matrix_and_rhs(double* values, size_t row, size_t c_eq, Eigen::Vec
     add_value(values, col_s , theta * scvf_fac * ( - psi_22 * -dx_deta_f1 * 1./2. - psi_22 *  dx_dxi_f1 * 3./4. ) );
     add_value(values, col_sw, theta * scvf_fac * ( - psi_22 * -dx_deta_f1 * 1./2. - psi_22 *  dx_dxi_f1 * 1./4. ) );
         
-    rhs[row] += - ( 0.5 * -dy_dxi_f1 / cv_area_0 * n_eta * ( psi_11 * ( dy_deta_f1 * dT_dxi_0 - dy_dxi_f1 * dT_deta_0) )
-                  + 0.5 *  dx_dxi_f1 / cv_area_0 * n_eta * ( psi_22 * (-dx_deta_f1 * dT_dxi_0 + dx_dxi_f1 * dT_deta_0) )
-                  );
+    //rhs[row] += - ( 0.5 * -dy_dxi_f1 / cv_area_0 * n_eta * ( psi_11 * ( dy_deta_f1 * dT_dxi_0 - dy_dxi_f1 * dT_deta_0) )
+    //              + 0.5 *  dx_dxi_f1 / cv_area_0 * n_eta * ( psi_22 * (-dx_deta_f1 * dT_dxi_0 + dx_dxi_f1 * dT_deta_0) )
+    //              );
  
     // sub control volume 1 ============================================
     // scv_1 face_2
@@ -216,9 +216,9 @@ int diffusion_matrix_and_rhs(double* values, size_t row, size_t c_eq, Eigen::Vec
     add_value(values, col_e , theta * scvf_fac * ( + psi_22 * -dx_deta_f2 * 1./2. + psi_22 * dx_dxi_f2 * 1./4. ) );
     add_value(values, col_se, theta * scvf_fac * ( + psi_22 * -dx_deta_f2 * 1./2. - psi_22 * dx_dxi_f2 * 1./4. ) );
 
-    rhs[row] += - ( 0.5 * -dy_dxi_f2 / cv_area_1 * n_eta * ( psi_11 * ( dy_deta_f2 * dT_dxi_0 - dy_dxi_f2 * dT_deta_0) )
-                  + 0.5 *  dx_dxi_f2 / cv_area_1 * n_eta * ( psi_22 * (-dx_deta_f2 * dT_dxi_0 + dx_dxi_f2 * dT_deta_0) )
-                  );
+    //rhs[row] += - ( 0.5 * -dy_dxi_f2 / cv_area_1 * n_eta * ( psi_11 * ( dy_deta_f2 * dT_dxi_0 - dy_dxi_f2 * dT_deta_0) )
+    //              + 0.5 *  dx_dxi_f2 / cv_area_1 * n_eta * ( psi_22 * (-dx_deta_f2 * dT_dxi_0 + dx_dxi_f2 * dT_deta_0) )
+    //              );
  
     // scv_1 face_3
     n_xi =  1.0;
@@ -239,9 +239,9 @@ int diffusion_matrix_and_rhs(double* values, size_t row, size_t c_eq, Eigen::Vec
     add_value(values, col_se, theta * scvf_fac * ( + psi_22 * -dx_deta_f3 * 1./4. - psi_22 * dx_dxi_f3 * 1./2.) );
     add_value(values, col_s , theta * scvf_fac * ( - psi_22 * -dx_deta_f3 * 1./4. - psi_22 * dx_dxi_f3 * 1./2.) );
 
-    rhs[row] += - ( 0.5 *  dy_deta_f3 / cv_area_1 * n_xi * ( psi_11 * ( dy_deta_f3 * dT_dxi_0 - dy_dxi_f3 * dT_deta_0) )
-                  + 0.5 * -dx_deta_f3 / cv_area_1 * n_xi * ( psi_22 * (-dx_deta_f3 * dT_dxi_0 + dx_dxi_f3 * dT_deta_0) )
-                  );
+    //rhs[row] += - ( 0.5 *  dy_deta_f3 / cv_area_1 * n_xi * ( psi_11 * ( dy_deta_f3 * dT_dxi_0 - dy_dxi_f3 * dT_deta_0) )
+    //              + 0.5 * -dx_deta_f3 / cv_area_1 * n_xi * ( psi_22 * (-dx_deta_f3 * dT_dxi_0 + dx_dxi_f3 * dT_deta_0) )
+    //              );
 
     // sub control volume 2 ============================================
     // scv_2 face_4
@@ -263,9 +263,9 @@ int diffusion_matrix_and_rhs(double* values, size_t row, size_t c_eq, Eigen::Vec
     add_value(values, col_ne, theta * scvf_fac * ( + psi_22 * 1./4. * -dx_deta_f4 - psi_22 * dx_dxi_f4 * 1./2) );
     add_value(values, col_n , theta * scvf_fac * ( - psi_22 * 1./4. * -dx_deta_f4 - psi_22 * dx_dxi_f4 * 1./2) );
 
-    rhs[row] += - (  0.5 *  dy_deta_f4 / cv_area_2 * n_xi * ( psi_11 * ( dy_deta_f4 * dT_dxi_0 - dy_dxi_f4 * dT_deta_0) )
-                   + 0.5 * -dx_deta_f4 / cv_area_2 * n_xi * ( psi_22 * (-dx_deta_f4 * dT_dxi_0 + dx_dxi_f4 * dT_deta_0) )
-                  );
+    //rhs[row] += - (  0.5 *  dy_deta_f4 / cv_area_2 * n_xi * ( psi_11 * ( dy_deta_f4 * dT_dxi_0 - dy_dxi_f4 * dT_deta_0) )
+    //               + 0.5 * -dx_deta_f4 / cv_area_2 * n_xi * ( psi_22 * (-dx_deta_f4 * dT_dxi_0 + dx_dxi_f4 * dT_deta_0) )
+    //              );
 
     // scv_2 face_5
     n_xi =  0.0;
@@ -286,9 +286,9 @@ int diffusion_matrix_and_rhs(double* values, size_t row, size_t c_eq, Eigen::Vec
     add_value(values, col_e , theta * scvf_fac * ( + psi_22 * -dx_deta_f5 * 1./2. - psi_22 * dx_dxi_f5 * 1./4. ) );
     add_value(values, col_ne, theta * scvf_fac * ( + psi_22 * -dx_deta_f5 * 1./2. + psi_22 * dx_dxi_f5 * 1./4. ) );
 
-    rhs[row] += - ( 0.5 * -dy_dxi_f5 / cv_area_2 * n_eta * ( psi_11 * ( dy_deta_f5 * dT_dxi_0 - dy_dxi_f5 * dT_deta_0) )
-                  + 0.5 *  dx_dxi_f5 / cv_area_2 * n_eta * ( psi_22 * (-dx_deta_f5 * dT_dxi_0 + dx_dxi_f5 * dT_deta_0) )
-                  );
+    //rhs[row] += - ( 0.5 * -dy_dxi_f5 / cv_area_2 * n_eta * ( psi_11 * ( dy_deta_f5 * dT_dxi_0 - dy_dxi_f5 * dT_deta_0) )
+    //              + 0.5 *  dx_dxi_f5 / cv_area_2 * n_eta * ( psi_22 * (-dx_deta_f5 * dT_dxi_0 + dx_dxi_f5 * dT_deta_0) )
+    //              );
 
     // sub control volume 3 ============================================
     // scv_3 face_6
@@ -310,9 +310,9 @@ int diffusion_matrix_and_rhs(double* values, size_t row, size_t c_eq, Eigen::Vec
     add_value(values, col_w , theta * scvf_fac * ( - psi_22 * -dx_deta_f6 * 1./2. - psi_22 * dx_dxi_f6 * 1./4. ) );
     add_value(values, col_nw, theta * scvf_fac * ( + psi_22 * -dx_deta_f6 * 1./2. + psi_22 * dx_dxi_f6 * 1./4. ) );
 
-    rhs[row] += - ( 0.5 * -dy_dxi_f6 / cv_area_3 * n_eta * ( psi_11 * ( dy_deta_f6 * dT_dxi_0 - dy_dxi_f6 * dT_deta_0) )
-                  + 0.5 *  dx_dxi_f6 / cv_area_3 * n_eta * ( psi_22 * (-dx_deta_f6 * dT_dxi_0 + dx_dxi_f6 * dT_deta_0) )
-                  );
+    //rhs[row] += - ( 0.5 * -dy_dxi_f6 / cv_area_3 * n_eta * ( psi_11 * ( dy_deta_f6 * dT_dxi_0 - dy_dxi_f6 * dT_deta_0) )
+    //              + 0.5 *  dx_dxi_f6 / cv_area_3 * n_eta * ( psi_22 * (-dx_deta_f6 * dT_dxi_0 + dx_dxi_f6 * dT_deta_0) )
+    //              );
     
     // scv_3 face_7
     n_xi =  -1.0;
@@ -333,14 +333,14 @@ int diffusion_matrix_and_rhs(double* values, size_t row, size_t c_eq, Eigen::Vec
     add_value(values, col_n , theta * scvf_fac * ( + psi_22 * -dx_deta_f7 * 1./4 + psi_22 * dx_dxi_f7 * 1./2.) );
     add_value(values, col_nw, theta * scvf_fac * ( - psi_22 * -dx_deta_f7 * 1./4 + psi_22 * dx_dxi_f7 * 1./2.) );
 
-    rhs[row] += - ( 0.5 *  dy_deta_f7 / cv_area_3 * n_xi * ( psi_11 * ( dy_deta_f7 * dT_dxi_0 - dy_dxi_f7 * dT_deta_0) )
-                  + 0.5 * -dx_deta_f7 / cv_area_3 * n_xi * ( psi_22 * (-dx_deta_f7 * dT_dxi_0 + dx_dxi_f7 * dT_deta_0) )
-                  );
+    //rhs[row] += - ( 0.5 *  dy_deta_f7 / cv_area_3 * n_xi * ( psi_11 * ( dy_deta_f7 * dT_dxi_0 - dy_dxi_f7 * dT_deta_0) )
+    //              + 0.5 * -dx_deta_f7 / cv_area_3 * n_xi * ( psi_22 * (-dx_deta_f7 * dT_dxi_0 + dx_dxi_f7 * dT_deta_0) )
+    //              );
 
     // source at (0.0, 0.0)
     if (row == nx * ny/2)
     {
-        rhs[p_0] += 0.0;
+        //rhs[p_0] += 0.0;
     }
 
     return 0;

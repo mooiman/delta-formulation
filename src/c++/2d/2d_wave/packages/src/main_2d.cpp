@@ -448,7 +448,8 @@ int main(int argc, char *argv[])
     std::vector<double> u_speed(nxny, 0.);                // speed of water, needed for post-processing
     std::vector<double> visc_given(nxny, visc_const);     // Initialize viscosity array with given value
     std::vector<double> visc_reg(nxny, visc_const);       // Initialize given viscosity array with regularized value
-    std::vector<double> visc(nxny, visc_const);           // Viscosity array used for computation, adjusted for cell peclet number
+    std::vector<double> visc_11(nxny, visc_const);           // Viscosity array used for computation, adjusted for cell peclet number
+    std::vector<double> visc_22(nxny, visc_const);           // Viscosity array used for computation, adjusted for cell peclet number
     std::vector<double> delta_h(nxny, 0.);
     std::vector<double> delta_q(nxny, 0.);
     std::vector<double> delta_r(nxny, 0.);
@@ -467,19 +468,19 @@ int main(int argc, char *argv[])
         peclet_xi.resize(nxny, 0.);     // cell peclet number
         peclet_eta.resize(nxny, 0.);    // cell peclet number
     }
-    std::vector<double> psi_11_zb;  // needed when regularization of given initial function (ie bed level);
-    std::vector<double> psi_22_zb;  // needed when regularization of given initial function (ie bed level);
+    std::vector<double> psi_zb_11;  // needed when regularization of given initial function (ie bed level);
+    std::vector<double> psi_zb_22;  // needed when regularization of given initial function (ie bed level);
     std::vector<double> eq8_zb;     // needed when regularization of given initial function (ie bed level);
-    std::vector<double> psi_11_visc;  // artificial viscosity, xi-direction;
-    std::vector<double> psi_22_visc;  // artificial viscosity, eta-direction;
+    std::vector<double> psi_visc_11;  // artificial viscosity, xi-direction;
+    std::vector<double> psi_visc_22;  // artificial viscosity, eta-direction;
     std::vector<double> eq8_visc;     // needed when regularization of given initial function (ie bed level);
     if (regularization_init || regularization_iter || regularization_time)
     {
-        psi_11_zb.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
-        psi_22_zb.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
+        psi_zb_11.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
+        psi_zb_22.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
         eq8_zb.resize(nxny, 0.);     // needed when regularization of given initial function (ie bed level);
-        psi_11_visc.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
-        psi_22_visc.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
+        psi_visc_11.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
+        psi_visc_22.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
         eq8_visc.resize(nxny, 0.);     // needed when regularization of given initial function (ie bed level);
     }
     std::vector<double> htheta(nxny);
@@ -530,6 +531,9 @@ int main(int argc, char *argv[])
     log_file << "Nodes   : " << nx << "x" << ny << "=" << nxny << std::endl;
     log_file << "Elements: " << (nx - 1) << "x" << (ny - 1) << "=" << (nx - 1) * (ny - 1) << std::endl;
     log_file << "Volumes : " << (nx - 2) << "x" << (ny - 2) << "=" << (nx - 2) * (ny - 2) << std::endl;
+    log_file << "nxny    : " << nx << "x" << ny << "=" << nxny << std::endl;
+    log_file << "=======================================================" << std::endl;
+    std::cout << "    nxny: " << nx << "x" << ny << "=" << nxny << std::endl;
     std::cout << "======================================================" << std::endl;
 
     STOP_TIMER(Writing log-file);  // but two write statements are not timed
@@ -545,11 +549,12 @@ int main(int argc, char *argv[])
     if (regularization_init)
     {
         START_TIMER(Regularization_init);
-        regularization->given_function(zb, psi_11_zb, psi_22_zb, zb_given, c_psi, metric, log_file);  
-        regularization->given_function(visc_reg, psi_11_visc, psi_22_visc, visc_given, c_psi, metric, log_file);
+        regularization->given_function(zb, psi_zb_11, psi_zb_22, eq8_zb, zb_given, c_psi, metric, log_file);  
+        regularization->given_function(visc_reg, psi_visc_11, psi_visc_22, eq8_visc, visc_given, c_psi, metric, log_file);
         for (size_t i = 0; i < visc_reg.size(); ++i)
         {
-            visc[i] = visc_reg[i];
+            visc_11[i] = visc_reg[i];
+            visc_22[i] = visc_reg[i];
         }
 
         STOP_TIMER(Regularization_init);
@@ -560,6 +565,8 @@ int main(int argc, char *argv[])
         {
             zb[i] = zb_given[i];
             visc_reg[i] = visc_given[i];
+            visc_11[i] = visc_reg[i];
+            visc_22[i] = visc_reg[i];
         }
     }
     for (size_t k = 0; k < zb_given.size(); ++k)
@@ -618,19 +625,19 @@ int main(int argc, char *argv[])
     std::string map_h_name("hn_2d");
     std::string map_q_name("qn_2d");
     std::string map_r_name("rn_2d");
-    std::string map_dh_name("delta_h_2d");
-    std::string map_dq_name("delta_q_2d");
-    std::string map_dr_name("delta_r_2d");
+    //std::string map_dh_name("delta_h_2d");
+    //std::string map_dq_name("delta_q_2d");
+    //std::string map_dr_name("delta_r_2d");
     std::string map_s_name("s_2d");
     std::string map_u_name("u_2d");
     std::string map_v_name("v_2d");
     std::string map_umag_name("umag_2d");
     std::string map_zb_name("zb_2d");
-    std::string map_psi_11_zb_name("psi_11_zb");
-    std::string map_psi_22_zb_name("psi_22_zb");
+    std::string map_psi_zb_11_name("psi_zb_11");
+    std::string map_psi_zb_22_name("psi_zb_22");
     std::string map_eq8_zb_name("eq8_zb");
-    std::string map_psi_11_visc_name("psi_11_visc");
-    // std::string map_psi_22_visc_name("psi_22_visc");
+    std::string map_psi_visc_11_name("psi_visc_11");
+    std::string map_psi_visc_22_name("psi_visc_22");
     std::string map_beds_q_name("bed_stress_q");
     std::string map_beds_r_name("bed_stress_r");
     std::string map_conv_q_name("convection_q");
@@ -645,9 +652,9 @@ int main(int argc, char *argv[])
     status = map_file->add_variable(map_h_name, dim_names, "sea_floor_depth_below_sea_surface", "Water depth", "m", "mesh2D", "node", "");
     status = map_file->add_variable(map_q_name, dim_names, "", "Water flux (x)", "m2 s-1", "mesh2D", "node", "");
     status = map_file->add_variable(map_r_name, dim_names, "", "Water flux (y)", "m2 s-1", "mesh2D", "node", "");
-    status = map_file->add_variable(map_dh_name, dim_names, "", "Delta h^{n+1,p+1}", "m", "mesh2D", "node", "");
-    status = map_file->add_variable(map_dq_name, dim_names, "", "Delta q^{n+1,p+1}", "m2 s-1", "mesh2D", "node", "");
-    status = map_file->add_variable(map_dr_name, dim_names, "", "Delta r^{n+1,p+1}", "m2 s-1", "mesh2D", "node", "");
+    //status = map_file->add_variable(map_dh_name, dim_names, "", "Delta h^{n+1,p+1}", "m", "mesh2D", "node", "");
+    //status = map_file->add_variable(map_dq_name, dim_names, "", "Delta q^{n+1,p+1}", "m2 s-1", "mesh2D", "node", "");
+    //status = map_file->add_variable(map_dr_name, dim_names, "", "Delta r^{n+1,p+1}", "m2 s-1", "mesh2D", "node", "");
     status = map_file->add_variable(map_s_name, dim_names, "sea_surface_height_above_geoid", "WaterLevel", "m", "mesh2D", "node", "");
     status = map_file->add_variable(map_u_name, dim_names, "sea_water_x_velocity", "Velocity (x)", "m s-1", "mesh2D", "node", "");
     status = map_file->add_variable(map_v_name, dim_names, "sea_water_y_velocity", "Velocity (y)", "m s-1", "mesh2D", "node", "");
@@ -676,13 +683,13 @@ int main(int argc, char *argv[])
     }
     if (regularization_init || regularization_iter || regularization_time)
     {
-        status = map_file->add_variable(map_psi_11_zb_name, dim_names, "", "Psi_11_zb", "m2 s-1", "mesh2D", "node", "Added artificial viscosity zb (x)");
-        status = map_file->add_variable(map_psi_22_zb_name, dim_names, "", "Psi_22_zb", "m2 s-1", "mesh2D", "node", "Added artificial viscosity zb (y)");
+        status = map_file->add_variable(map_psi_zb_11_name, dim_names, "", "Psi_zb_11", "m2 s-1", "mesh2D", "node", "Added artificial viscosity zb (x)");
+        status = map_file->add_variable(map_psi_zb_22_name, dim_names, "", "Psi_zb_22", "m2 s-1", "mesh2D", "node", "Added artificial viscosity zb (y)");
         status = map_file->add_variable(map_eq8_zb_name, dim_names, "", "Eq8_zb", "-", "mesh2D", "node", "Result of equation 8, see Borsboom 1998");
         if (do_viscosity)
         {
-            status = map_file->add_variable(map_psi_11_visc_name, dim_names, "", "Psi_11_visc", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (x)");
-            //status = map_file->add_variable(map_psi_22_visc_name, dim_names, "", "Psi_22_visc", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (y)");
+            status = map_file->add_variable(map_psi_visc_11_name, dim_names, "", "Psi_visc_11", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (x)");
+            status = map_file->add_variable(map_psi_visc_22_name, dim_names, "", "Psi_visc_22", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (y)");
         }
     }
     // Put data on map file
@@ -692,9 +699,9 @@ int main(int argc, char *argv[])
     map_file->put_time_variable(map_h_name, nst_map, hn);
     map_file->put_time_variable(map_q_name, nst_map, qn);
     map_file->put_time_variable(map_r_name, nst_map, rn);
-    map_file->put_time_variable(map_dh_name, nst_map, dh);
-    map_file->put_time_variable(map_dq_name, nst_map, dq);
-    map_file->put_time_variable(map_dr_name, nst_map, dr);
+    //map_file->put_time_variable(map_dh_name, nst_map, dh);
+    //map_file->put_time_variable(map_dq_name, nst_map, dq);
+    //map_file->put_time_variable(map_dr_name, nst_map, dr);
     map_file->put_time_variable(map_s_name, nst_map, s);
     map_file->put_time_variable(map_u_name, nst_map, u);
     map_file->put_time_variable(map_v_name, nst_map, v);
@@ -724,7 +731,7 @@ int main(int argc, char *argv[])
     {
         map_file->put_time_variable(map_visc_name, nst_map, post_q);
 
-        viscosity_post_rhs(post_q, post_r, x, y, hn, qn, rn, visc, nx, ny);
+        viscosity_post_rhs(post_q, post_r, x, y, hn, qn, rn, visc_11, visc_22, nx, ny);
         map_file->put_time_variable(map_visc_q_name, nst_map, post_q);
         map_file->put_time_variable(map_visc_r_name, nst_map, post_r);
 
@@ -753,13 +760,13 @@ int main(int argc, char *argv[])
     }
     if (regularization_init || regularization_iter || regularization_time)
     {
-        map_file->put_time_variable(map_psi_11_zb_name, nst_map, psi_11_zb);
-        map_file->put_time_variable(map_psi_22_zb_name, nst_map, psi_22_zb);
+        map_file->put_time_variable(map_psi_zb_11_name, nst_map, psi_zb_11);
+        map_file->put_time_variable(map_psi_zb_22_name, nst_map, psi_zb_22);
         map_file->put_time_variable(map_eq8_zb_name, nst_map, eq8_zb);
         if (do_viscosity)
         {
-            map_file->put_time_variable(map_psi_11_visc_name, nst_map, psi_11_visc);
-            // map_file->put_time_variable(map_psi_22_visc_name, nst_map, psi_22_visc);
+            map_file->put_time_variable(map_psi_visc_11_name, nst_map, psi_visc_11);
+            map_file->put_time_variable(map_psi_visc_22_name, nst_map, psi_visc_22);
         }
     }
 
@@ -773,31 +780,19 @@ int main(int argc, char *argv[])
     CFTS* his_file = new CFTS();
     status = his_file->open(nc_hisfile, model_title);
 
-    //if (int(2500. / dx) * dx != 2500. || int(2500. / dy) * dy != 2500.)
-    //{
-    //    std::cout << "----------------------------" << std::endl;
-    //    std::cout << "dx=" << dx << " or dy=" << dy << " is not a divider of 2500 [m]" << std::endl;
-    //    std::cout << "Press Enter to finish";
-    //    std::chrono::duration<int, std::milli> timespan(3000);
-    //    std::this_thread::sleep_for(timespan);
-    //    //std::cin.ignore();
-    //    exit(1);
-    //}
-
     std::vector<std::string> obs_station_names;
     status = def_observation_stations(obs_station_names, input_data.obs_points, xy_tree, x, y, nx, ny);
+    
+    std::vector<double> x_obs;
+    std::vector<double> y_obs;
+    for (size_t i = 0; i < input_data.obs_points.size(); ++i)
     {
-        std::vector<double> x_obs;
-        std::vector<double> y_obs;
-        for (size_t i = 0; i < input_data.obs_points.size(); ++i)
-        {
-            _ObservationPoint obs = input_data.obs_points[i];
-            x_obs.push_back(obs.x);
-            y_obs.push_back(obs.y);
-        }
-
-        his_file->add_stations(obs_station_names, x_obs, y_obs);
+        _ObservationPoint obs = input_data.obs_points[i];
+        x_obs.push_back(obs.x);
+        y_obs.push_back(obs.y);
     }
+    his_file->add_stations(obs_station_names, x_obs, y_obs);
+    
     his_file->add_time_series();
 
     std::string his_h_name("hn_2d");
@@ -856,7 +851,6 @@ int main(int argc, char *argv[])
         his_values.push_back(s[input_data.obs_points[i].idx]);
     }
     his_file->put_variable(his_s_name, nst_his, his_values);
-
 
     his_values.clear();
     for (size_t i = 0; i < input_data.obs_points.size(); ++i)
@@ -936,8 +930,8 @@ int main(int argc, char *argv[])
     his_values.clear();
     his_values = { 0.0 };
     his_file->put_variable(his_LinSolver_iter_error_name, nst_his, his_values);
-    STOP_TIMER(Writing his-file);
 
+    STOP_TIMER(Writing his-file);
     // End define history file
     ////////////////////////////////////////////////////////////////////////////
 
@@ -1018,12 +1012,19 @@ int main(int argc, char *argv[])
                 if (do_viscosity)
                 {
                     START_TIMER(Regularization_time_loop);
-                    regularization->artificial_viscosity(psi_11_visc, hp, qp, rp, zb, 
+                    regularization->artificial_viscosity(psi_visc_11, hp, qp, rp, zb, 
+                        c_psi, metric, log_file);
+                    regularization->artificial_viscosity(psi_visc_22, hp, qp, rp, zb, 
                         c_psi, metric, log_file);
                     for (int i = 0; i < nxny; ++i)
                     {
-                        visc[i] = visc_reg[i] + std::abs(psi_11_visc[i]);
+                        visc_11[i] = visc_reg[i] + std::abs(psi_visc_11[i]);
+                        visc_22[i] = visc_reg[i] + std::abs(psi_visc_22[i]);
                     }
+                //regularization->given_function(hp, psi_visc_11, psi_visc_22, eq8_zb, hp, c_psi, metric, log_file);  
+                //regularization->given_function(qp, psi_visc_11, psi_visc_22, eq8_zb, qp, c_psi, metric, log_file);  
+                //regularization->given_function(rp, psi_visc_11, psi_visc_22, eq8_zb, rp, c_psi, metric, log_file);  
+  
                 }
             }
 
@@ -1255,7 +1256,7 @@ int main(int argc, char *argv[])
                     int r_eq = outer[row + 2];
 
                     status = viscosity_matrix_and_rhs(values, row, c_eq, q_eq, r_eq, rhs,
-                                x, y, htheta, qtheta, rtheta, visc, theta, nx, ny);
+                                x, y, htheta, qtheta, rtheta, visc_11, visc_22, theta, nx, ny);
                     // boundary_south
                     // boundary_north
                 }
@@ -1362,9 +1363,9 @@ int main(int argc, char *argv[])
             dq_maxi = 0;
             dr_maxi = 0;
             size_t k = 0;
-            for (size_t i = 0; i < nx; i++)
+            for (size_t i = 0; i < nx; ++i)
             {
-                for (size_t j = 0; j < ny; j++)
+                for (size_t j = 0; j < ny; ++j)
                 {
                     k = main_idx(i, j ,ny);
                     // needed for postprocessing
@@ -1449,7 +1450,6 @@ int main(int argc, char *argv[])
                     << "    Delta h^{n + 1,p + 1}: " << dh_max << " at index: " << dh_maxi << std::endl
                     << "    Delta q^{n + 1,p + 1}: " << dq_max << " at index: " << dq_maxi << std::endl
                     << "    Delta r^{n + 1,p + 1}: " << dr_max << " at index: " << dr_maxi << std::endl;
-
             }
         }
         if (used_newton_iter == iter_max)
@@ -1474,12 +1474,18 @@ int main(int argc, char *argv[])
             if (do_viscosity)
             {
                 START_TIMER(Regularization_time_loop);
-                regularization->artificial_viscosity(psi_11_visc, hp, qp, rp, zb, 
+                regularization->artificial_viscosity(psi_visc_11, hp, qp, rp, zb, 
+                    c_psi, metric, log_file);
+                regularization->artificial_viscosity(psi_visc_22, hp, qp, rp, zb, 
                     c_psi, metric, log_file);
                 for (int i = 0; i < nxny; ++i)
                 {
-                    visc[i] = visc_reg[i] + std::abs(psi_11_visc[i]);
+                    visc_11[i] = visc_reg[i] + psi_visc_11[i];
+                    visc_22[i] = visc_reg[i] + psi_visc_22[i];
                 }
+                //regularization->given_function(hp, psi_visc_11, psi_visc_22, eq8_zb, hp, c_psi, metric, log_file);  
+                //regularization->given_function(qp, psi_visc_11, psi_visc_22, eq8_zb, qp, c_psi, metric, log_file);  
+                //regularization->given_function(rp, psi_visc_11, psi_visc_22, eq8_zb, rp, c_psi, metric, log_file);  
                 STOP_TIMER(Regularization_time_loop);
             }
         }
@@ -1501,9 +1507,9 @@ int main(int argc, char *argv[])
             map_file->put_time_variable(map_h_name, nst_map, hn);
             map_file->put_time_variable(map_q_name, nst_map, qn);
             map_file->put_time_variable(map_r_name, nst_map, rn);
-            map_file->put_time_variable(map_dh_name, nst_map, delta_h);
-            map_file->put_time_variable(map_dq_name, nst_map, delta_q);
-            map_file->put_time_variable(map_dr_name, nst_map, delta_r);
+            //map_file->put_time_variable(map_dh_name, nst_map, delta_h);
+            //map_file->put_time_variable(map_dq_name, nst_map, delta_q);
+            //map_file->put_time_variable(map_dr_name, nst_map, delta_r);
             map_file->put_time_variable(map_s_name, nst_map, s);
             map_file->put_time_variable(map_u_name, nst_map, u);
             map_file->put_time_variable(map_v_name, nst_map, v);
@@ -1531,9 +1537,9 @@ int main(int argc, char *argv[])
             }
             if (do_viscosity)
             {
-                map_file->put_time_variable(map_visc_name, nst_map, visc);
+                map_file->put_time_variable(map_visc_name, nst_map, visc_11);
 
-                viscosity_post_rhs(post_q, post_r, x, y, hn, qn, rn, visc, nx, ny);
+                viscosity_post_rhs(post_q, post_r, x, y, hn, qn, rn, visc_11, visc_22, nx, ny);
                 map_file->put_time_variable(map_visc_q_name, nst_map, post_q);
                 map_file->put_time_variable(map_visc_r_name, nst_map, post_r);
 
@@ -1562,13 +1568,13 @@ int main(int argc, char *argv[])
             }
             if (regularization_init || regularization_iter || regularization_time)
             {
-                map_file->put_time_variable(map_psi_11_zb_name, nst_map, psi_11_zb);
-                map_file->put_time_variable(map_psi_22_zb_name, nst_map, psi_22_zb);
+                map_file->put_time_variable(map_psi_zb_11_name, nst_map, psi_zb_11);
+                map_file->put_time_variable(map_psi_zb_22_name, nst_map, psi_zb_22);
                 map_file->put_time_variable(map_eq8_zb_name, nst_map, eq8_zb);
                 if (do_viscosity)
                 {
-                    map_file->put_time_variable(map_psi_11_visc_name, nst_map, psi_11_visc);
-                    // map_file->put_time_variable(map_psi_22_visc_name, nst_map, psi_22_visc);
+                    map_file->put_time_variable(map_psi_visc_11_name, nst_map, psi_visc_11);
+                    map_file->put_time_variable(map_psi_visc_22_name, nst_map, psi_visc_22);
                 }
             }
             STOP_TIMER(Writing map-file);

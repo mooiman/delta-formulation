@@ -36,8 +36,11 @@
 
 #include "grid_metric.h"
 
-int reg_interior_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& u_giv, struct _grid_metric & metric);
+int utilde_interior_matrix(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
+    double psi_1, double psi_2, struct _grid_metric & metric);
+int utilde_interior_rhs(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
+        std::vector<double>& u_giv, struct _grid_metric & metric);
+inline double bilinear_interpolation(double alpha, double beta, double u_0, double u_1, double u_2, double u_3);
 
 inline void add_value(double * values, size_t col, double data);
 

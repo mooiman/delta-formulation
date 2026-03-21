@@ -52,7 +52,7 @@ public:
 
     void given_function(
         std::vector<double>& u_out, std::vector<double>& psi_11, std::vector<double>& psi_22, 
-        std::vector<double>& u_giv,
+        std::vector<double>& eq8, std::vector<double>& u_giv,
         double c_psi, struct _grid_metric & metric, std::ofstream& log_file);
 
     void artificial_viscosity(std::vector<double>& psi, 
@@ -67,17 +67,6 @@ private:
     std::unique_ptr<std::vector<double>> solve_eq8(struct _grid_metric & metric, 
         double c_psi, std::vector<double>& u0, std::vector<double>& u0_xixi, std::vector<double>& u0_etaeta, 
         std::ofstream& log_file);
-    int reg_interior_rhs_psi( size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-        std::vector<double>& h, std::vector<double>& q, std::vector<double>& r,
-        double c_psi, double g, struct _grid_metric & metric);
-
-    inline double F1(std::vector<double> & u, std::vector<size_t>& p, struct _grid_metric & metric );
-    inline double F2(std::vector<double> & u, std::vector<size_t>& p, struct _grid_metric & metric );
-    inline double F3(std::vector<double> & u, std::vector<size_t>& p, struct _grid_metric & metric );
-
-    inline double d2udxi2(std::vector<double> & u, std::vector<size_t>& p);
-    inline double d2udxideta(std::vector<double> & u, std::vector<size_t>& p);
-    inline double d2udeta2(std::vector<double> & u, std::vector<size_t>& p);
 
     int m_iter_max;
     double m_g;
