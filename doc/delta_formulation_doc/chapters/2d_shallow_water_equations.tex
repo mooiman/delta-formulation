@@ -694,7 +694,8 @@ For the $x$-momentum equation the viscous terms can be transformed as (see \auto
         &
         \qquad \qquad - x_{\xi} x_{\eta} \pdiff{(q/h)}{\xi}
         + x_{\xi}x_{\xi} \pdiff{(q/h)}{\eta} \bigg) \Bigg]
-\end{align}and for the $y$-momentum equation the viscous terms can be transformed as (see \autoref{eq:eta_viscous_term}):
+\end{align}
+and for the $y$-momentum equation the viscous terms can be transformed as (see \autoref{eq:eta_viscous_term}):
 \begin{align}
         - &\pdiff{}{x}\left(\nu h\pdiff{(r/h)}{x} + \nu h \pdiff{(q/h)}{y} \right)
         - \pdiff{}{y}\left(2\nu h\pdiff{(r/h)}{y} \right) =
@@ -804,8 +805,13 @@ The boundary conditions in this section are presented for the left/west boundary
 First the \textbf{essential} boundary conditions are discussed and after that the \textbf{natural} boundary condition.
 A similar derivation can be given for right/east boundary.
 
+\input{chapters/line_integral_boundary.tex}
+
 %------------------------------------------------------------------------------
-\subsubsection{Essential boundary condition}
+\subsection{Essential boundary condition}
+
+\todo{Check the description of the boundary, after intro ducing the line integral approach}
+
 The \textbf{essential} boundary condition is to be assumed somewhere in the first control volume, ($x_{i_{bc}}$ with $i_{bc} \in [i-\half, i+\half]$ ).
 For simplicity the boundary condition is chosen to be on node $i=1$ (location $x_{1}$).
 
@@ -941,7 +947,9 @@ The discretization of  boundary \autoref{eq:essential_bc_zeta} at $x=i+\half$ re
 \end{align}
 
 %------------------------------------------------------------------------------
-\subsubsection{Natural boundary condition}
+\subsection{Natural boundary condition}
+\todo{Check the description of the boundary, after intro ducing the line integral approach}
+
 The \textbf{natural} boundary condition for the left/west boundary, describing the undisturbed outgoing wave, reads (\autoref{eq:left_right_going_equations}):
 \begin{align}
     - \left(\sqrt{gh} + \frac{q}{h}\right) \underbrace{ \left(\pdiff{h}{t} + \pdiff{q}{x} + \ldots \right) }_{\text{continuity eq.}} + \underbrace{\left(\pdiff{q}{t} + g h \pdiff{\zeta}{x}+\ldots\right)}_{\text{momentum eq.}} = 0
@@ -962,14 +970,14 @@ where $q$ is normal to this boundary.
 \paragraph*{Time derivative, continuity equation}
 At the left/west boundary ($x_{i-\half, j-\quart}$ with $i=1$) the time discretization of the continuity equation for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
 \begin{align}
-    \left.\int_\Gamma\pdiff{h}{t}\, ds \right|_{i-\half, j-\quart} & \approx  \half\frac{y_\eta}{\Dt}   \left(  h^{n+1}_{i-\half, j-\quart} - h^{n}_{i-\half, j-\quart} \right)
+    \left.\int_\Gamma\pdiff{h}{t}\, ds \right|_{i-\half, j-\quart} & \approx  \half \sqrt{g_{\eta\eta}} \frac{1}{\Dt}   \left(  h^{n+1}_{i-\half, j-\quart} - h^{n}_{i-\half, j-\quart} \right)
 \end{align}
-with $y_\eta$ defined at $(i-\half, j-\quart)$.
+with $g_{\eta\eta}$ defined at $(i-\half, j-\quart)$.
 
 A diffusion like term is added to the boundary equation to damp the reflection of spurious waves.
 A coefficient $\alpha_{\mathit bnd}$ is placed before that extra term, the optimal value of this coefficient is taken from the analysis in \citet{transpeq-analysisdiscretizationinsidedomain_boundaries.mw}.
 \begin{align}
-    & \half\frac{y_\eta}{\Dt}\left[ \frac{1}{2} \left( h^{n+1,p+1}_{i-1, j-\quart} + h^{n+1,p+1}_{i, j-\quart} \right)
+    & \half \sqrt{g_{\eta\eta}} \frac{1}{\Dt}\left[ \frac{1}{2} \left( h^{n+1,p+1}_{i-1, j-\quart} + h^{n+1,p+1}_{i, j-\quart} \right)
     + \frac{\alpha_{\mathit bnd}}{2} \left( h^{n+1,p+1}_{i-1, j-\quart} - 2 h^{n+1,p+1}_{i, j-\quart} + h^{n+1,p+1}_{i+1, j-\quart}  \right) \right. +
     \nonumber \\*
     & \qquad  - \left. \left(
@@ -979,11 +987,11 @@ A coefficient $\alpha_{\mathit bnd}$ is placed before that extra term, the optim
 \end{align}
 After rearranging the equation to the \deltaformulation, the implicit and the explicit part reads:
 \begin{align}
-    & \half\frac{y_\eta}{\Dt}  \left( \half \left( \Delta h^{n+1, p+1}_{i-1, j-\quart} + \Delta h^{n+1, p+1}_{i, j-\quart} \right) \right. +
+    & \half \sqrt{g_{\eta\eta}} \frac{1}{\Dt}  \left( \half \left( \Delta h^{n+1, p+1}_{i-1, j-\quart} + \Delta h^{n+1, p+1}_{i, j-\quart} \right) \right. +
     \nonumber \\*
     & \qquad + \left. \frac{\alpha_{\mathit bnd}}{2}\left( \Delta h^{n+1,p+1}_{i-1, j-\quart} - 2 \Delta h^{n+1,p+1}_{i, j-\quart} + \Delta h^{n+1,p+1}_{i+1, j-\quart} \right) \right) +
     \nonumber \\
-    & \qquad + \half \frac{y_\eta}{\Dt} \left\{ \half \left( h^{n+1, p}_{i-1, j-\quart} + h^{n+1, p}_{i, j-\quart} \right)
+    & \qquad + \half \sqrt{g_{\eta\eta}} \frac{1}{\Dt} \left\{ \half \left( h^{n+1, p}_{i-1, j-\quart} + h^{n+1, p}_{i, j-\quart} \right)
     + \frac{\alpha_{\mathit bnd}}{2}\left(  h^{n+1,p}_{i-1, j-\quart} - 2 h^{n+1,p}_{i, j-\quart}  + h^{n+1,p}_{i+1, j-\quart} \right) + \right.
     \nonumber \\*
     &
@@ -1012,12 +1020,12 @@ which will be approximated by ($\Delta \xi = \Delta \eta = 1$):
 \paragraph*{Time derivative, momentum equation}
 At the left/west boundary ($x_{i-\half, j-\quart}$ with $i=1$) the time discretization of the momentum equation for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
 \begin{align}
-    \left. \int_\Gamma\pdiff{q}{t}\, ds \right|_{i-\half, j-\quart} & \approx \half\frac{y_\eta}{\Dt} \left(  q^{n+1}_{i-\half, j-\quart} - q^{n}_{i-\half, j-\quart} \right)
+    \left. \int_\Gamma\pdiff{q}{t}\, ds \right|_{i-\half, j-\quart} & \approx \half \sqrt{g_{\eta\eta}} \frac{1}{\Dt} \left(  q^{n+1}_{i-\half, j-\quart} - q^{n}_{i-\half, j-\quart} \right)
 \end{align}
 A diffusion like term is added to the boundary equation to damp the reflection of spurious waves.
 A coefficient $\alpha_{\mathit bnd}$ is placed before that extra term, the optimal value of this coefficient is taken from the analysis in \citet{transpeq-analysisdiscretizationinsidedomain_boundaries.mw}.
 \begin{align}
-    & \half \frac{y_\eta}{\Dt}\left[ \frac{1}{2} \left( q^{n+1,p+1}_{i-1, j-\quart} + q^{n+1,p+1}_{i, j-\quart} \right)
+    & \half \sqrt{g_{\eta\eta}} \frac{1}{\Dt} \left[ \frac{1}{2} \left( q^{n+1,p+1}_{i-1, j-\quart} + q^{n+1,p+1}_{i, j-\quart} \right)
     + \frac{\alpha_{\mathit bnd}}{2} \left( q^{n+1,p+1}_{i-1, j-\quart} - 2 q^{n+1,p+1}_{i, j-\quart} + q^{n+1,p+1}_{i+1, j-\quart}  \right) \right. +
     \nonumber \\*
     & \qquad  - \left. \left(
@@ -1027,11 +1035,11 @@ A coefficient $\alpha_{\mathit bnd}$ is placed before that extra term, the optim
 \end{align}
 After rearranging the equation to the \deltaformulation, the implicit and the explicit part reads:
 \begin{align}
-    & \half \frac{y_\eta}{\Dt}  \left( \half \left( \Delta q^{n+1, p+1}_{i-1, j-\quart} + \Delta q^{n+1, p+1}_{i, j-\quart} \right) \right. +
+    & \half \sqrt{g_{\eta\eta}} \frac{1}{\Dt}  \left( \half \left( \Delta q^{n+1, p+1}_{i-1, j-\quart} + \Delta q^{n+1, p+1}_{i, j-\quart} \right) \right. +
     \nonumber \\*
     & \qquad \qquad + \left. \frac{\alpha_{\mathit bnd}}{2}\left( \Delta q^{n+1,p+1}_{i-1, j-\quart} - 2 \Delta q^{n+1,p+1}_{i, j-\quart} + \Delta q^{n+1,p+1}_{i+1, j-\quart} \right) \right) +
     \nonumber \\
-    & \quad +  \half\frac{y_\eta}{\Dt} \left\{ \half \left( q^{n+1, p}_{i-1, j-\quart} + q^{n+1, p}_{i, j-\quart} \right) + \frac{\alpha_{\mathit bnd}}{2}\left( q^{n+1,p}_{i-1, j-\quart} - 2 q^{n+1,p}_{i, j-\quart}  + q^{n+1,p}_{i+1, j-\quart} \right) + \right.
+    & \quad +  \half \sqrt{g_{\eta\eta}} \frac{1}{\Dt} \left\{ \half \left( q^{n+1, p}_{i-1, j-\quart} + q^{n+1, p}_{i, j-\quart} \right) + \frac{\alpha_{\mathit bnd}}{2}\left( q^{n+1,p}_{i-1, j-\quart} - 2 q^{n+1,p}_{i, j-\quart}  + q^{n+1,p}_{i+1, j-\quart} \right) + \right.
     \nonumber \\*
     & \qquad \qquad
     \left.  - \frac{1}{2} \left( q^{n}_{i-1, j-\quart} + q^{n}_{i, j-\quart} \right) - \frac{\alpha_{\mathit bnd}}{2} \left( q^{n}_{i-1, j-\quart} - 2 q^{n}_{i, j-\quart} + q^{n}_{i+1, j-\quart}  \right) \right\}
@@ -1222,6 +1230,100 @@ The components for the two momentum equations read:
     F_q = \int_\Gamma c_f \left( \frac{q\abs{\vec{q}}}{h^2} \right)\, ds, \qquad \textit{q-momentum eq.}
     \\
     F_r = \int_\Gamma c_f \left( \frac{r\abs{\vec{q}}}{h^2} \right)\, ds, \qquad \textit{r-momentum eq.}
+\end{align}
+\notyet
+%------------------------------------------------------------------------------
+\paragraph*{Viscosity term, momentum equation}
+The viscosity term at the boundary reads:
+\begin{align}
+    -\int_\Gamma \Bigg[
+    &
+    \begin{pmatrix}
+        \pdiff{}{x} \\
+        \pdiff{}{y}
+    \end{pmatrix}
+    \dotp
+    \Bigg[
+    \mat{\nu} h
+    \left(
+    \begin{pmatrix}
+        \pdiff{(q/h)}{x} & \pdiff{(q/h)}{y}
+        \\
+        \pdiff{(r/h)}{x} & \pdiff{(r/h)}{y}
+    \end{pmatrix}
+    +
+    \begin{pmatrix}
+        \pdiff{(q/h)}{x} & \pdiff{(r/h)}{x}
+        \\
+        \pdiff{(q/h)}{y} & \pdiff{(r/h)}{y}
+    \end{pmatrix}
+    \right)
+\Bigg] \dotp \vec{ds}.
+\end{align}
+with $\mat{\nu}$ the viscosity tensor:
+\begin{align}
+    \mat{\nu} =
+    \begin{pmatrix}
+        \nu_{11} & \nu_{12} \\
+        \nu_{21}  & \nu_{22}
+    \end{pmatrix}=
+    \begin{pmatrix}
+        \nu + \Psi_{11} & \nu + \Psi_{12} \\
+        \nu + \Psi_{21}  & \nu + \Psi_{22}
+    \end{pmatrix}
+\end{align}
+with $\Psi$ representing the added artificial viscosity due to regularization.
+
+For the $q$-momentum equation the transformed term read (see \autoref{eq:xi_viscous_term}):
+\begin{align}
+\int_\Gamma \Bigg[
+%
+- \frac{1}{J} \pdiff{}{\xi}\Bigg[ &  \frac{\nu_{11} h}{J} \bigg(
+2 y_{\eta}  y_{\eta} \pdiff{(q/h)}{\xi}
+- 2 y_{\eta} y_{\xi} \pdiff{(q/h)}{\eta} \bigg)
++
+\\
++ &
+\frac{\nu_{12} h}{J} \bigg(
+- x_{\eta}y_{\eta} \pdiff{(r/h)}{\xi}
++ x_{\eta}y_{\xi} \pdiff{(r/h)}{\eta}
++ x_{\eta}x_{\eta}\pdiff{(q/h)}{\xi}
+- x_{\eta}x_{\xi}\pdiff{(q/h)}{\eta} \bigg) \Bigg] +
+\\
++ \frac{1}{J} \pdiff{}{\eta}\Bigg[& \frac{\nu_{11} h}{J} \bigg(
+2 y_{\xi}y_{\eta} \pdiff{(q/h)}{\xi}
+- 2 y_{\xi}y_{\xi} \pdiff{(q/h)}{\eta} \bigg) +
+\\
++ &
+\frac{\nu_{12} h}{J} \bigg(
+- x_{\xi}y_{\eta} \pdiff{(r/h)}{\xi}
++ x_{\xi}y_{\xi} \pdiff{(r/h)}{\eta}
++ x_{\xi} x_{\eta} \pdiff{(q/h)}{\xi}
+- x_{\xi}x_{\xi} \pdiff{(q/h)}{\eta} \bigg) \Bigg]
+%
+\Bigg] \dotp \vec{ds}
+\end{align}
+For the $r$-momentum equation the transformed term read (see \autoref{eq:eta_viscous_term}):
+\begin{align}
+\int_\Gamma \Bigg[
+%
+- \frac{1}{J} \pdiff{}{\xi} \Bigg[\frac{\nu_{21} h}{J} &\bigg( y_{\eta}y_{\eta}  \pdiff{(r/h)}{\xi} - y_{\eta} y_{\xi} \pdiff{(r/h)}{\eta} + y_{\eta} x_{\eta} \pdiff{(q/h)}{\xi} - y_{\eta} x_{\xi} \pdiff{(q/h)}{\eta}
+\bigg) +
+\\
++ \frac{\nu_{22} h}{J} & \bigg(
+2 x_{\eta}x_{\eta} \pdiff{(r/h)}{\xi} - 2 x_{\xi} x_{\eta} \pdiff{(r/h)}{\eta} \bigg) \Bigg]
++
+\\
++ \frac{1}{J} \pdiff{}{\eta} \Bigg[\frac{\nu_{21} h}{J} & \bigg(
+y_{\xi} y_{\eta} \pdiff{(r/h)}{\xi}
+- y_{\xi} y_{\xi} \pdiff{(r/h)}{\eta}
+- y_{\xi} x_{\eta} \pdiff{(q/h)}{\xi}
++ y_{\xi} x_{\xi} \pdiff{(q/h)}{\eta}
+\bigg) +
+\\
+\frac{\nu_{22} h}{J} & \bigg( 2 x_{\eta}x_{\xi} \pdiff{(r/h)}{\xi} - 2 x_{\xi}x_{\xi} \pdiff{(r/h)}{\eta} \bigg) \Bigg]
+%
+\Bigg] \dotp \vec{ds}
 \end{align}
 \notyet
 %------------------------------------------------------------------------------

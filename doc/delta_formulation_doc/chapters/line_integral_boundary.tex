@@ -1,0 +1,186 @@
+%------------------------------------------------------------------------------
+Consider the line integral needed along the natural boundary of the area
+\begin{align}
+    \int_\Gamma\, dS
+\end{align}
+where $\Gamma$ is the curve describing the natural boundary.
+For curvilinear coordinates the distance formulation reads (using the metric tensor):
+\begin{align}
+    (ds)^2 = g_{\xi\xi}\,(d\xi)^2 + 2 g_{\xi\eta}\,d\xi d\eta + g_{\eta \eta}\, (d\eta)^2
+\end{align}
+The line intgral in curvilinear coordinates reads:
+\begin{align}
+    \int_\Gamma \, dS = \int^{\paramt_1}_{\paramt_0}  ds \, d\paramt = \int^{\paramt_1}_{\paramt_0} \, \sqrt{ g_{\xi\xi} \left(\diff{\xi}{\paramt}\right)^2
+        + 2g_{\xi\eta} \diff{\xi}{\paramt} \diff{\eta}{\paramt}
+        + g_{\eta\eta} \left(\diff{\eta}{\paramt}\right)^2 } \, d\paramt
+\end{align}
+with the parametrization of the curve is for $\paramt \in [0,1]$.
+In the remainder of this section we will discuss the west boundary of a control volume (i.e.\ natural boundary).
+
+\paragraph*{Essential and natural boundary location}
+The essential boundary is located at the middle of an element (see \autoref{fig:structured_grid_along_straight_boundary_natural}) and the natural boundary is located at the middle of an element (see \autoref{fig:structured_grid_along_straight_boundary_essential}).
+%------------------------------------------------------------------------------
+\subsubsection{Time derivative}
+The time derivative for $h$ reads
+\begin{align}
+    \int_\Gamma\pdiff{h}{t}\, dS
+\end{align}
+and is similar for the discharges $q$ and $r$.
+
+The distance formulation reads:
+\begin{align}
+    (ds)^2 = g_{\xi\xi}\,(d\xi)^2 + 2 g_{\xi\eta}\,d\xi d\eta + g_{\eta \eta}\, (d\eta)^2
+\end{align}
+The line intgral in curvilinear coordinates reads:
+\begin{align}
+    \int_\Gamma \pdiff{h}{t} \, dS  = \int^{\paramt_1}_{\paramt_0} \pdiff{h}{t} \, \sqrt{ g_{\xi\xi} \left(\diff{\xi}{\paramt}\right)^2
+    + 2g_{\xi\eta} \diff{\xi}{\paramt} \diff{\eta}{\paramt}
+    + g_{\eta\eta} \left(\diff{\eta}{\paramt}\right)^2 } \, d\paramt
+\end{align}
+
+The natural boundary is on the edge of a control volume.
+Here we consider a part on the west boundary from $[j - \half, j]$ and with the curve parametrization for $j = 1$ and $\paramt \in [0,1]$:
+%
+\begin{alignat}{3}
+\xi(\paramt) &= \half      &\quad \Rightarrow \diff{\xi(\paramt)}{\paramt} = 0 \\
+\eta(\paramt) &= \half + \half \paramt &\quad \Rightarrow \diff{\eta(\paramt)}{\paramt} = \half
+\end{alignat}
+yields, with $g_{\eta\eta} = y_{\eta}y_{\eta} + x_\eta x_\eta$:
+\begin{align}
+    &\int_\Gamma  \pdiff{h}{t}\, dS
+    = \int^1_0 \pdiff{h}{t} ds \, d\paramt
+%    = \int^{\paramt_1}_{\paramt_0} \pdiff{h}{t} \sqrt{g_{\eta\eta} \left(\half\right)^2} \, d\paramt
+    = \half \sqrt{g_{\eta\eta}} \pdiff{h}{t}
+\end{align}
+and will be approximated by, each item evaluated at $(i-\half, j-\quart)$:
+\begin{align}
+    \int_\Gamma\pdiff{h}{t}\, dS  & \approx  \half \sqrt{g_{\eta\eta}}  \frac{1}{\Dt} \left( h^{n+1} - h^{n} \right)
+\end{align}
+%------------------------------------------------------------------------------
+\subsubsection{Mass flux}
+The mass flux in the continuity equation reads:
+\begin{align}
+    \nabla \dotp \vec{q} = \pdiff{q}{x} + \pdiff{r}{x}
+\end{align}
+Taking the line integral at the boundary of the first term at the right hand side, yields, each item evaluated at $(i-\half, j-\quart)$:
+\begin{align}
+    &\int_\Gamma \pdiff{q}{x}\, ds  =
+    \int^{\paramt_1}_{\paramt_0} \pdiff{q}{x} \sqrt{g_{\eta\eta}} \, d\paramt  =
+    \half \sqrt{y_{\eta}y_{\eta} + x_\eta x_\eta} \pdiff{q}{x}
+\end{align}
+In curvilinear coordinates it reads, each item evaluated at $(i-\half, j-\quart)$:
+\begin{align}
+    &\int^{j}_{j-\half} \pdiff{q}{x}\, ds  \approx
+    \half \sqrt{g_{\eta\eta}} \ \frac{1}{J}\left(y_{\eta} \pdiff{q}{\xi}
+    -y_{\xi}\pdiff{q}{\eta}\right)
+\end{align}
+and for the second term at the right hand side, yields, each item evaluated at $(i-\half, j-\quart)$:
+\begin{align}
+    &\int_\Gamma \pdiff{r}{y}\, ds  =
+    \int^{j}_{j-\half} \pdiff{r}{y} \sqrt{g_{\eta\eta}} \, d\paramt  =
+    \half \sqrt{g_{\eta\eta}} \pdiff{r}{y}
+\end{align}
+In curvilinear coordinates it reads, each item evaluated at $(i-\half, j-\quart)$:
+\begin{align}
+    &\int^{j}_{j-\half} \pdiff{r}{y}\, ds  \approx
+    \half \sqrt{g_{\eta\eta}}  \frac{1}{J}\left(-x_{\eta}\pdiff{r}{\xi}
+    +x_{\xi}\pdiff{r}{\eta}\right)
+\end{align}
+
+When adding these terms, and with
+$(y_{\eta\xi} - y_{\xi\eta})q = 0$ and $(x_{\eta\xi} - x_{\xi\eta})r = 0$, yields
+\begin{align}
+    \int_\Gamma \nabla \dotp \vec{q}\, ds & = \half \sqrt{g_{\eta\eta}} \left( \pdiff{q}{x} + \pdiff{r}{y} \right) =
+\\
+%    & = \frac{1}{J} \Bigg(
+%    y_{\eta} \pdiff{q}{\xi}- y_{\xi}\pdiff{q}{\eta} + {\color{blue}y_{\eta\xi}q - y_{\xi\eta}q}
+%    \\
+%    & \qquad - x_{\eta}\pdiff{r}{\xi} + x_{\xi}\pdiff{r}{\eta} +{\color{blue}x_{\eta\xi}r - x_{\xi\eta}r} \Bigg)
+%    \\
+     & = \half \sqrt{g_{\eta\eta}} \left[ \frac{1}{J}\Bigg( \pdiff{}{\xi} \left( y_{\eta} q - x_{\eta} r \right) + \pdiff{}{\eta} \left( -y_{\xi} q + x_{\xi} r \right)\Bigg) \right],
+\end{align}
+for the term between square brackets see \autoref{eq:full_curvilinear_mass_flux}.
+%------------------------------------------------------------------------------
+\subsubsection{Convection}
+%------------------------------------------------------------------------------
+\paragraph*{$q$-momentum}
+The convection term in the $q$-momentum equation can be transformed as:
+\begin{align}
+     \int_\Gamma \textit{convection}\, ds &= \half \sqrt{g_{\eta\eta}} \left[\frac{1}{J} \pdiff{}{\xi}\left(y_{\eta} \frac{q^2}{h} - x_{\eta} \frac{qr}{h} \right) + \frac{1}{J} \pdiff{}{\eta}\left(-y_{\xi} \frac{q^2}{h} + x_{\xi} \frac{qr}{h} \right) \right].
+\end{align}
+for the term between square brackets see \autoref{eq:xi_convection_term}.
+%------------------------------------------------------------------------------
+\paragraph*{$q$-momentum}
+The convection term in the $r$-momentum equation can be transformed as:
+\begin{align}
+     \int_\Gamma \textit{convection} \, ds &= \half \sqrt{g_{\eta\eta}} \left[\frac{1}{J} \pdiff{}{\xi}\left(y_{\eta} \frac{rq}{h} - x_{\eta} \frac{r^2}{h} \right) + \frac{1}{J} \pdiff{}{\eta}\left(-y_{\xi} \frac{rq}{h} + x_{\xi} \frac{r^2}{h} \right) \right].
+\end{align}
+for the term between square brackets see \autoref{eq:eta_convection_term}.
+%------------------------------------------------------------------------------
+\subsubsection{Viscosity}
+%------------------------------------------------------------------------------
+\paragraph*{$q$-momentum}
+	\begin{align}
+    \begin{aligned}
+        \int_\Gamma \textit{viscosity} \, ds & = \half \sqrt{g_{\eta\eta}} \Bigg[
+        \\
+        - \frac{1}{J} \pdiff{}{\xi}\Bigg[ & \frac{\nu_{11} h}{J} \bigg(
+        2 y_{\eta}  y_{\eta} \pdiff{(q/h)}{\xi}
+        - 2 y_{\eta} y_{\xi} \pdiff{(q/h)}{\eta} \bigg)
+        +
+        \\
+        + &
+        \frac{\nu_{12} h}{J} \bigg(
+        - x_{\eta}y_{\eta} \pdiff{(r/h)}{\xi}
+        + x_{\eta}y_{\xi} \pdiff{(r/h)}{\eta}
+        + x_{\eta}x_{\eta}\pdiff{(q/h)}{\xi}
+        - x_{\eta}x_{\xi}\pdiff{(q/h)}{\eta} \bigg) \Bigg] +
+        \\
+        + \frac{1}{J} \pdiff{}{\eta}\Bigg[& \frac{\nu_{11} h}{J} \bigg(
+        2 y_{\xi}y_{\eta} \pdiff{(q/h)}{\xi}
+        - 2 y_{\xi}y_{\xi} \pdiff{(q/h)}{\eta} \bigg) +
+        \\
+        + &
+        \frac{\nu_{12} h}{J} \bigg(
+        - x_{\xi}y_{\eta} \pdiff{(r/h)}{\xi}
+        + x_{\xi}y_{\xi} \pdiff{(r/h)}{\eta}
+        + x_{\xi} x_{\eta} \pdiff{(q/h)}{\xi}
+        - x_{\xi}x_{\xi} \pdiff{(q/h)}{\eta} \bigg) \Bigg]
+        \Bigg]
+    \end{aligned}
+\end{align}
+for the term between square brackets see \autoref{eq:xi_viscous_term}.
+%------------------------------------------------------------------------------
+\paragraph*{$r$-momentum}
+\begin{align}
+    \begin{aligned}
+        \int_\Gamma \textit{viscosity} \, ds & = \half \sqrt{g_{\eta\eta}} \Bigg[
+        \\
+        - \frac{1}{J} \pdiff{}{\xi} \Bigg[& \frac{\nu_{21} h}{J} \bigg( y_{\eta}y_{\eta}  \pdiff{(r/h)}{\xi} - y_{\eta} y_{\xi} \pdiff{(r/h)}{\eta} + y_{\eta} x_{\eta} \pdiff{(q/h)}{\xi} - y_{\eta} x_{\xi} \pdiff{(q/h)}{\eta}
+        \bigg) +
+        \\
+        + & \frac{\nu_{22} h}{J} \bigg(
+        2 x_{\eta}x_{\eta} \pdiff{(r/h)}{\xi} - 2 x_{\xi} x_{\eta} \pdiff{(r/h)}{\eta} \bigg) \Bigg]
+        +
+        \\
+        + \frac{1}{J} \pdiff{}{\eta} \Bigg[& \frac{\nu_{21} h}{J} \bigg(
+        y_{\xi} y_{\eta} \pdiff{(r/h)}{\xi}
+        - y_{\xi} y_{\xi} \pdiff{(r/h)}{\eta}
+        - y_{\xi} x_{\eta} \pdiff{(q/h)}{\xi}
+        + y_{\xi} x_{\xi} \pdiff{(q/h)}{\eta}
+        \bigg) +
+        \\
+         + & \frac{\nu_{22} h}{J} \bigg( 2 x_{\eta}x_{\xi} \pdiff{(r/h)}{\xi} - 2 x_{\xi}x_{\xi} \pdiff{(r/h)}{\eta} \bigg) \Bigg]
+        \Bigg]
+    \end{aligned}
+\end{align}
+for the term between square brackets see \autoref{eq:eta_viscous_term}.
+%------------------------------------------------------------------------------
+\subsubsection{Bed shear stress}
+\notyet
+%------------------------------------------------------------------------------
+\subsubsection{$q$-momentum}
+\notyet
+%------------------------------------------------------------------------------
+\subsubsection{$r$-momentum}
+\notyet

@@ -10,8 +10,8 @@
 \usepackage{dutchcal}
 
 \usepackage{bm}
-\renewcommand{\vec}[1]{\mbox{\boldmath ${#1}$} }
-
+%\renewcommand{\vec}[1]{\mbox{\boldmath ${#1}$} }
+\renewcommand{\vec}[1]{ \mbox{\boldmath $\underline{#1}$} }
 \sisetup{mode=math}
 \captionsetup[subfigure]{justification=RaggedRight}
 
@@ -28,7 +28,7 @@
 \newcommand{\Dt}{\Delta t}
 \newcommand{\Dtinv}{\Delta t_{\mathit{inv}}}
 \newcommand{\Du}{\Delta u}
-\newcommand{\vecn}{\scalebox{1.1}{$\mathbcal{n}$}}  % normal component in eta-direction
+\newcommand{\vecn}{\scalebox{1.1}{$\mathbcal{\underline{n}}$}}  % normal component in eta-direction
 \newcommand{\nx}{\scalebox{1.1}{$\mathcal{n}_x$}}  % normal component in x-direction
 \newcommand{\ny}{\scalebox{1.1}{$\mathcal{n}_y$}}  % normal component in y-direction
 \newcommand{\nxi}{\scalebox{1.1}{$\mathcal{n}_\xi$}}  % normal component in xi-direction
@@ -58,6 +58,7 @@
 \newcommand{\rtilde}{\widetilde{r}}
 \newcommand{\rbar}{\overline{r}}
 \newcommand{\rhat }{\widehat{r}}
+\newcommand{\paramt}{\textbf{\textit{t}}}  % needed for the parameter of the line integrals
 
 \newcommand{\maplesoft}{\textbf{Maplesoft}}
 \newcommand{\deltaformulation}{$\Delta$-formulation\xspace}
