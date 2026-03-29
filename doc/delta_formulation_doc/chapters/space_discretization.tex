@@ -483,10 +483,10 @@ Decrease the grid size $\Dx$:
     \caption{Grid size decreased to $25\ [m]$ ($c_\Psi = 4, \Dx = 25\ [m]$)}
 \end{figure}
 %------------------------------------------------------------------------------
-\section{Compatible initialization in one dimension}\label{sec:compatible_initialization}
+\section{Compatible initialization in one dimension}\label{sec:compatible_initialization_1d}
 To assure that the given initial condition(s) are compatible with the numerical scheme, the given function need to fulfill the follow equation:
 \begin{align}
-    \int_{x_{i-\half}}^{x_{i+\half}} \overline u_{initial}\, dx = \int_{x_{i-\half}}^{x_{i+\half}} u_{given}\, dx \label{eq:compatible_initialization}
+    \int_{x_{i-\half}}^{x_{i+\half}} \overline u_{initial}\, dx = \int_{x_{i-\half}}^{x_{i+\half}} u_{given}\, dx \label{eq:compatible_initialization_1d}
 \end{align}
 where $\overline{u}$ is the piecewise linear function and $u_{given}$ the given initial condition.
 In case the function $u_{given}$ is an integrable analytic function the integral can be exact computed.
@@ -500,7 +500,7 @@ Extra equations are needed for the boundary conditions, the following boundary t
     \frac{1}{12} u_0 + \frac{10}{12}u_1 + \frac{1}{12} u_2 = u_{given}(0)
 \end{align}
 and similar at the other boundary ($x=12$).
-An illustration off the result of \autoref{eq:compatible_initialization} is given in \autoref{fig:compatible_initial_condition}.
+An illustration off the result of \autoref{eq:compatible_initialization_1d} is given in \autoref{fig:compatible_initial_condition}.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/compatible_initialization_lx=12.0_dx=2.0.pdf}
@@ -521,10 +521,10 @@ Some numerical items used to generate \autoref{fig:compatible_initial_condition}
     \end{cases}
 \end{align}
 %------------------------------------------------------------------------------
-\section{Compatible initialization in two dimensions}\label{sec:compatible_initialization}
+\section{Compatible initialization in two dimensions}\label{sec:compatible_initialization_2d}
 To assure that the given initial condition(s) are compatible with the numerical scheme, the given function need to fulfill the follow equation for each control volume:
 \begin{align}
-    \int_{y_{i-\half}}^{x_{i+\half}} \int_{y_{i-\half}}^{x_{i+\half}} \overline u_{initial}\, dxdy = \int_{y_{i-\half}}^{y_{i+\half}} \int_{x_{i-\half}}^{x_{i+\half}} u_{given}\, dxdy \label{eq:compatible_initialization}
+    \int_{y_{i-\half}}^{x_{i+\half}} \int_{y_{i-\half}}^{x_{i+\half}} \overline u_{initial}\, dxdy = \int_{y_{i-\half}}^{y_{i+\half}} \int_{x_{i-\half}}^{x_{i+\half}} u_{given}\, dxdy \label{eq:compatible_initialization_2d}
 \end{align}
 where $\overline{u}$ is the piecewise linear function and $u_{given}$ the given initial condition.
 See for an example \autoref{fig:subgrid_scale_2d}, when the function $u_{given}$ is constructed by an interpolation method (triangulation, \ldots) between the dots.

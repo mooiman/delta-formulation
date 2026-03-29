@@ -55,10 +55,10 @@ The 'linear' shallow water equations in curvilinear coordinates read:
     \label{eq:continuity_curvi}
     \\*
     &J \pdiff{q}{t} + g h \left( y_{\eta}\, \pdiff{\zeta}{\xi} - y_{\xi}\, \pdiff{\zeta}{\eta} \right) = 0, & \textit{q-momentum eq.}
-    \label{eq:q_momentum_curvi}
+    \label{eq:xi_momentum_curvi}
     \\*
     &J \pdiff{r}{t} + g h \left( -x_{\eta}\, \pdiff{\zeta}{\xi} + x_{\xi}\, \pdiff{\zeta}{\eta} \right) = 0, & \textit{r-momentum eq.}
-    \label{eq:r_momentum_curvi}
+    \label{eq:eta_momentum_curvi}
 \end{align}
 %--------------------------------------------------------------------------------
 \subsection*{Finite Volume approach}
@@ -101,13 +101,13 @@ Integrating the equations over a finite volume $\Omega$ yields:
 Integrating the 'linear' shallow water equations in curvilinear  coordinates over a finite volume $\Omega_{\xi\eta}$ yields:
 \begin{align}
     &\int_{\Omega_{\xi\eta}}\bigg[ J \pdiff{h}{t} +\pdiff{}{\xi} \left( y_{\eta}\, q - x_{\eta}\, r \right) + \pdiff{}{\eta} \left( -y_{\xi}\, q + x_{\xi}\, r \right)\bigg] \, d\xi d\eta = 0,
-    \label{eq:continuity_curvi}
+    \label{eq:volume_xieta_continuity_curvi}
     \\*
     &\int_{\Omega_{\xi\eta}}\bigg[ J \pdiff{q}{t} + g h \left( y_{\eta}\, \pdiff{\zeta}{\xi} - y_{\xi}\, \pdiff{\zeta}{\eta} \right) \bigg] \, d\xi d\eta = 0, & \textit{q-momentum eq.}
-    \label{eq:q_momentum_curvi}
+    \label{eq:volume_xi_momentum_curvi}
     \\*
     &\int_{\Omega_{\xi\eta}}\bigg[ J \pdiff{r}{t} + g h \left( -x_{\eta}\, \pdiff{\zeta}{\xi} + x_{\xi}\, \pdiff{\zeta}{\eta} \right) \bigg] \, d\xi d\eta = 0, & \textit{r-momentum eq.}
-    \label{eq:r_momentum_curvi}
+    \label{eq:volume_eta_momentum_curvi}
 \end{align}
 
 %-------------------------------------------------------------------------------
@@ -311,7 +311,7 @@ Considering one sub-control volume and only for the $x$-direction (similar for t
  - y_{\xi_{qp}}\, \pdiff{}{\eta}\left(\zeta^{n+\theta,p}_{qp} + \theta \Delta \zeta_{qp}   \right)
    \right)
 \end{align}
-with $qp$ the location of the quadrature point in the sub-control volume.
+with subscript $qp$ the location of the quadrature point in the sub-control volume.
 Assume that the higher order terms are negligible then the discretization for each of the 4 sub-control volumes reads:
 %
 \begin{align}
@@ -566,8 +566,10 @@ To avoid the discontinuity in the first derivative around zero, the absolute fun
 The bed shear stress then reads:
 \begin{align}
     F_q &\approx J\, c_f \left( \frac{q\abs{\widetilde{\vec{q}}}}{h^2} \right), & \textit{q-momentum eq.}
+    \label{eq:xi_bed_shear_stress_term}
     \\
     F_r &\approx J\, c_f \left( \frac{r\abs{\widetilde{\vec{q}}}}{h^2} \right), & \textit{r-momentum eq.}
+    \label{eq:eta_bed_shear_stress_term}
 \end{align}
 The Jacobian for the bed shear stress $F(h,q,r)$ reads:
 \begin{align}
@@ -803,14 +805,11 @@ The natural boundary condition is always located at the boundary of a control vo
 
 The boundary conditions in this section are presented for the left/west boundary.
 First the \textbf{essential} boundary conditions are discussed and after that the \textbf{natural} boundary condition.
-A similar derivation can be given for right/east boundary.
+A similar derivation can be given for right/east, and bottom/south and top/north boundary of the computational domain.
 
-\input{chapters/line_integral_boundary.tex}
 
 %------------------------------------------------------------------------------
 \subsection{Essential boundary condition}
-
-\todo{Check the description of the boundary, after intro ducing the line integral approach}
 
 The \textbf{essential} boundary condition is to be assumed somewhere in the first control volume, ($x_{i_{bc}}$ with $i_{bc} \in [i-\half, i+\half]$ ).
 For simplicity the boundary condition is chosen to be on node $i=1$ (location $x_{1}$).
@@ -862,7 +861,7 @@ So the essential boundary condition for incoming signal (if $\lpdiff{z_b}{t} = 0
 a correction term is added, to prevent drifting away of the solution (an integration constant is missing).
 The variable $\eps$ has dimension \bunit{\metre\per\square\second}.
 
-The discretization of  boundary \autoref{eq:essential_bc_zeta} at $x=i+\half$ reads (when $\lpdiff{z_b}{t}=0$):
+The discretization of  boundary \autoref{eq:essential_bc_2d_zeta} at $x=i+\half$ reads (when $\lpdiff{z_b}{t}=0$):
 \begin{align}
     &\left(\sqrt{gh^{n+\theta,p+1}} - \frac{q^{n+\theta,p+1}}{h^{n+\theta,p+1}}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t}  =
     \nonumber \\*
@@ -909,6 +908,7 @@ substituting \autoref{eq:essential_conv_2d_6} into the right hand side of \autor
 \end{align}
 a correction term is added, to prevent drifting away of the solution (an integration constant is missing).
 The variable $\eps$ has dimension \bunit{\per\second}.
+
 The discretization of  boundary \autoref{eq:essential_bc_2d_q} at $x=i+\half$ reads
 \begin{align}
     &\left(\sqrt{gh^{n+\theta,p+1}} - \frac{q^{n+\theta,p+1}}{h^{n+\theta,p+1}} \right) \pdiff{h}{t} + \pdiff{q}{t} =
@@ -945,27 +945,19 @@ The discretization of  boundary \autoref{eq:essential_bc_zeta} at $x=i+\half$ re
     & = 2 \sqrt{gh^{n+\theta,p+1}} \pdiff{\zeta_{\textit{given}}}{t}
     + \eps \left( (\zeta_{\textit{given}} -z_b) - h^{n+1,p}   \right)
 \end{align}
-
 %------------------------------------------------------------------------------
 \subsection{Natural boundary condition}
-\todo{Check the description of the boundary, after intro ducing the line integral approach}
 
 The \textbf{natural} boundary condition for the left/west boundary, describing the undisturbed outgoing wave, reads (\autoref{eq:left_right_going_equations}):
 \begin{align}
     - \left(\sqrt{gh} + \frac{q}{h}\right) \underbrace{ \left(\pdiff{h}{t} + \pdiff{q}{x} + \ldots \right) }_{\text{continuity eq.}} + \underbrace{\left(\pdiff{q}{t} + g h \pdiff{\zeta}{x}+\ldots\right)}_{\text{momentum eq.}} = 0
 \end{align}
-where $q$ is normal to this boundary.
-\begin{figure}[H]
-    \begin{center}
-        \def\svgwidth{0.80\textwidth} % scaling text
-        \resizebox{0.65\textwidth}{!}{
-            \input{figures/cartesian_grid_along_straight_boundary_natural.pdf_tex}
-        }
-    \end{center}
-    \caption{Natural boundary condition ($i=1$), dotted lines indicate the border of the control volumes.
-             The diamonds indicate the quadrature points.}
-    \label{fig:structured_grid_along_straight_boundary_natural}
-\end{figure}
+where $q$ is along the $x$-axis.
+
+
+%--------------------------------------------------------------------------------
+\input{chapters/line_integral_boundary.tex}
+
 %------------------------------------------------------------------------------
 \paragraph*{Time derivative, continuity equation}
 At the left/west boundary ($x_{i-\half, j-\quart}$ with $i=1$) the time discretization of the continuity equation for the \textbf{natural} boundary condition, describing the outgoing wave, reads:

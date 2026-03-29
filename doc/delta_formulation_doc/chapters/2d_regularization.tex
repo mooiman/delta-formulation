@@ -3,7 +3,7 @@
 The regularization function read, based on \citet[eq.\ 6]{Borsboom1998}:
 \begin{align}
     \widetilde{u} - \nabla \dotp \bPsi \nabla \widetilde{u} = u_{\mathit{giv}},
-    \label{eq:regularization}
+    \label{eq:regularization_2d}
 \end{align}
 with $\bPsi$ the artificial viscosity and defined as:
 \begin{align}
@@ -27,7 +27,7 @@ where
     \item[$c_{\Psi}$] Smooting factor (set by user), [\si{1/\cdot}]
     \item[$E_\Psi$] Error function, [\si{\cdot}]
 \end{symbollist}
-First the discretization of \autoref{eq:regularization} is discussed and second the determination of the artificial smoothing coefficient $\bPsi$.
+First the discretization of \autoref{eq:regularization_2d} is discussed and second the determination of the artificial smoothing coefficient $\bPsi$.
 
 Notation agreements:
 \begin{symbollist}
@@ -37,7 +37,7 @@ Notation agreements:
     \item[$u_i$] Value of the numerical value at point $x_i$.
 \end{symbollist}
 %--------------------------------------------------------------------------------
-\section{Discretization} % of \autoref{eq:regularization}}
+\section{Discretization} % of \autoref{eq:regularization_2d}}
 The finite volume approach of this equation read:
 \begin{align}
     \int_\Omega \widetilde{u}\, d\omega  - \int_\Omega \nabla \dotp \bPsi \nabla \widetilde{u}\, d\omega  = \int_\Omega  u_{\mathit{giv}}\, d\omega \label{eq:2d_regularization}
@@ -230,7 +230,7 @@ For the integration of the right hand side of \autoref{eq:2d_regularization}, we
 
 %--------------------------------------------------------------------------------
 \section{Determination of artificial smoothing coefficient $\Psi$} \label{sec:artificial_viscosity}
-The artificial smoothing coefficient (\autoref{eq:regularization}) is dependent on the second derivative of given function $u_{giv}$ \citep[eq.\ 8]{Borsboom1998}.
+The artificial smoothing coefficient (\autoref{eq:regularization_2d}) is dependent on the second derivative of given function $u_{giv}$ \citep[eq.\ 8]{Borsboom1998}.
 \textbf{Assuming} that $c_E$ is constant over the whole two dimensional area, thus isotropic.
 
 \todo{Check next equations}
