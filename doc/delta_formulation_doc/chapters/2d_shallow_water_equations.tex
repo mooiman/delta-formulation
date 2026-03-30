@@ -793,11 +793,11 @@ So for inflow there are \textbf{two essential} and \textbf{one natural} boundary
 The natural boundary condition is always located at the boundary of a control volume and the essential (the genuine) boundary condition is always located inside the last control volume of the grid, as indicated in \autoref{fig:structured_grid_along_straight_boundary}.
 \begin{figure}[H]
     \begin{center}
-        \def\svgwidth{0.80\textwidth} % scaling text
-        \resizebox{0.65\textwidth}{!}{
-            \input{figures/cartesian_grid_along_straight_boundary_essential_natural_2.pdf_tex}
-        }
-    \end{center}
+    \def\svgwidth{0.8\textwidth} % scaling text
+    \resizebox{0.65\textwidth}{!}{
+        \input{figures/curvi_grid_along_straight_boundary_essential_natural_2.pdf_tex}
+    }
+\end{center}
     \caption[Definition of the grid to solve the 2D-shallow water equations at the boundary]{Dotted lines indicate the border of the control volumes. The natural boundary condition is located at the boundary of a control volume, the orange line and the essential boundary condition is located inside the last control volume, the cyan-colored line.
     The black diamonds are the location of the quadrature points at the boundary.}
     \label{fig:structured_grid_along_straight_boundary}
@@ -812,13 +812,12 @@ A similar derivation can be given for right/east, and bottom/south and top/north
 \subsection{Essential boundary condition}
 
 The \textbf{essential} boundary condition is to be assumed somewhere in the first control volume, ($x_{i_{bc}}$ with $i_{bc} \in [i-\half, i+\half]$ ).
-For simplicity the boundary condition is chosen to be on node $i=1$ (location $x_{1}$).
 
 \begin{figure}[H]
     \begin{center}
         \def\svgwidth{0.80\textwidth} % scaling text
         \resizebox{0.65\textwidth}{!}{
-            \input{figures/cartesian_grid_along_straight_boundary_essential.pdf_tex}
+            \input{figures/curvi_grid_along_straight_boundary_essential.pdf_tex}
         }
     \end{center}
     \caption{Essential boundary condition, dotted lines indicate the border of the control volumes.}    \label{fig:structured_grid_along_straight_boundary_essential}

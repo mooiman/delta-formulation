@@ -1,0 +1,70 @@
+%% Creator: Inkscape 1.4.3 (0d15f75, 2025-12-25), www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'curvi_grid_along_straight_boundary_essential_natural_2.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{361.08818715bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,1.01412078)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{curvi_grid_along_straight_boundary_essential_natural_2.pdf}}%
+    \put(0.2999614,0.15769339){\color[rgb]{0,0,0}\rotatebox{-0.28581689}{\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$i-1,j-1$\end{tabular}}}}}%
+    \put(0.20809102,0.40057379){\color[rgb]{0,0,0}\rotatebox{-0.47721879}{\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$i-1,j$\end{tabular}}}}}%
+    \put(0.13644128,0.70489643){\color[rgb]{0,0,0}\rotatebox{-1.1342183}{\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$i-1,j+1$\end{tabular}}}}}%
+    \put(0.43427412,0.81204838){\color[rgb]{0,0,0}\rotatebox{0.66885146}{\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$i,j+1$\end{tabular}}}}}%
+    \put(0.50472494,0.50517479){\color[rgb]{0,0,0}\rotatebox{-0.10103686}{\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$i,j$\end{tabular}}}}}%
+    \put(0.5964674,0.26150923){\color[rgb]{0,0,0}\rotatebox{-0.62036981}{\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$i,j-1$\end{tabular}}}}}%
+    \put(0.8913217,0.37175955){\color[rgb]{0,0,0}\rotatebox{0.08383529}{\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$i+1,j-1$\end{tabular}}}}}%
+    \put(0.79984333,0.60990315){\color[rgb]{0,0,0}\rotatebox{-0.32837041}{\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$i+1,j$\end{tabular}}}}}%
+    \put(0.72990966,0.91669622){\color[rgb]{0,0,0}\rotatebox{0.7212405}{\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$i+1,j+1$\end{tabular}}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{curvi_grid_along_straight_boundary_essential_natural_2.pdf}}%
+    \put(-0.00171703,0.18627828){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$y$\end{tabular}}}}%
+    \put(0.19401399,0.00460649){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$x$\end{tabular}}}}%
+  \end{picture}%
+\endgroup%
