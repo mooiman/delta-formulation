@@ -782,7 +782,7 @@ with $\vecn = (\nxi, \neta)^T$ the outward normal vector.
 %\section{Space discretization, unstructured}
 %\notyet
 %------------------------------------------------------------------------------
-\subsection{Discretization at boundary}
+\subsection{Boundary treatment}
 For the 2D non-linear wave equations (\autoref{eq:pressure_dependent_on_zeta}) at each boundary boundary conditions need to be prescribed, the number of boundary conditions depends on the flow direction on the boundary.
 Considering a hyperbolic system, if the flow is flowing into the domain two boundary conditions need to prescribed and when the flow is flowing out the domain just one boundary need to prescribed.
 This is according the characteristic theory of 2D hyperbolic systems \citep{DaubertEtGraffe1967}.
@@ -918,33 +918,6 @@ The discretization of  boundary \autoref{eq:essential_bc_2d_q} at $x=i+\half$ re
 
 
 
-%
-%--------------------------------------------------------------------------------
-\paragraph*{Given water level at left/west boundary}
-
-% \todo{Is the following assumption correct: if $\zeta_{\textit{given}} = f(t)$  is then $\lpdiff{q}{t}=0$}
-
-Adding the equations (\eqref{eq:essential_conv_1} $+$ \eqref{eq:essential_conv_2}) yields
-\begin{align}
-    2 \sqrt{gh} \pdiff{h}{t} & = F(t)
-\end{align}
-%
-So the essential boundary condition for incoming signal (if $\lpdiff{z_b}{t} = 0$) reads
-\begin{align}
-    {\boxed{
-            \left(\sqrt{gh} - \frac{q}{h}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t}  = 2 \sqrt{gh} \pdiff{\zeta_{\textit{given}}}{t}  + \eps(\zeta_{\textit{given}} - \zeta)
-    }}\label{eq:essential_bc_zeta}
-\end{align}
-a correction term is added, to prevent drifting away of the solution (an integration constant is missing).
-The variable $\eps$ has dimension \bunit{\metre\per\square\second}.
-
-The discretization of  boundary \autoref{eq:essential_bc_zeta} at $x=i+\half$ reads
-\begin{align}
-    &\left(\sqrt{gh^{n+\theta,p+1}} - \frac{q^{n+\theta,p+1}}{h^{n+\theta,p+1}}\right) \pdiff{h^{+}}{t} + \pdiff{q^{+}}{t}  =
-    \nonumber \\*
-    & = 2 \sqrt{gh^{n+\theta,p+1}} \pdiff{\zeta_{\textit{given}}}{t}
-    + \eps \left( (\zeta_{\textit{given}} -z_b) - h^{n+1,p}   \right)
-\end{align}
 %------------------------------------------------------------------------------
 \subsection{Natural boundary condition}
 
@@ -959,12 +932,15 @@ where $q$ is along the $x$-axis.
 \input{chapters/line_integral_boundary.tex}
 
 %------------------------------------------------------------------------------
-\paragraph*{Time derivative, continuity equation}
-At the left/west boundary ($x_{i-\half, j-\quart}$ with $i=1$) the time discretization of the continuity equation for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
+\subsection{Discretization boundary}
+
+\paragraph*{Time derivative}
+At the left/west boundary ($x_{i-\half, j-\quart}$ with $i=1$) the time discretization of the equation reads:
 \begin{align}
-    \left.\int_\Gamma\pdiff{h}{t}\, ds \right|_{i-\half, j-\quart} & \approx  \half \sqrt{g_{\eta\eta}} \frac{1}{\Dt}   \left(  h^{n+1}_{i-\half, j-\quart} - h^{n}_{i-\half, j-\quart} \right)
+    \left.\int_\Gamma\pdiff{h}{t}\, dS \right|_{i-\half, j-\quart} & \approx  \half \sqrt{g_{\eta\eta}} \frac{1}{\Dt}   \left(  h^{n+1}_{i-\half, j-\quart} - h^{n}_{i-\half, j-\quart} \right)
 \end{align}
 with $g_{\eta\eta}$ defined at $(i-\half, j-\quart)$.
+Similar discretization is suitbale for the discharges $q$ and $r$.
 
 A diffusion like term is added to the boundary equation to damp the reflection of spurious waves.
 A coefficient $\alpha_{\mathit bnd}$ is placed before that extra term, the optimal value of this coefficient is taken from the analysis in \citet{transpeq-analysisdiscretizationinsidedomain_boundaries.mw}.
@@ -991,133 +967,202 @@ After rearranging the equation to the \deltaformulation, the implicit and the ex
     + \frac{\alpha_{\mathit bnd}}{2}  \left( h^{n}_{i-1, j-\quart} - 2 h^{n}_{i, j-\quart} + h^{n}_{i+1, j-\quart}  \right) \right) \right\}
 \end{align}
 %------------------------------------------------------------------------------
-\paragraph*{Mass flux, continuity equation}
-At the left/west boundary ($x_{i-\half, j-\quart}$ with $i=1$) the discretization of the mass flux for the \textbf{natural} boundary condition reads, describing the outgoing wave (assuming $\lpdiff{r}{y} = 0$ and already multiplied by $J$):
-%\todo{Is assumption that  $\lpdiff{r}{y} = 0$, OK?}
+\paragraph*{Mass flux}
+At the left/west boundary ($x_{i-\half, j-\quart}$ with $i=1$) the discretization of the mass flux boundary condition reads:
+%
 \begin{align}
-    \int_\Gamma \pdiff{q}{x}\, ds & =
-    \int_\Gamma \left(  y_\eta \pdiff{q}{\xi} - y_\xi \pdiff{q}{\eta} \right)\, ds
+    \int_\Gamma \pdiff{q}{x}\, dS
+     & = \half \sqrt{g_{\eta\eta}} \left[ \frac{1}{J}\Bigg( \pdiff{}{\xi} \left( y_{\eta} q - x_{\eta} r \right) + \pdiff{}{\eta} \left( -y_{\xi} q + x_{\xi} r \right)\Bigg) \right],
 \end{align}
-which will be approximated by ($\Delta \xi = \Delta \eta = 1$):
+which will be approximated by ($\Delta \xi = \Delta \eta = 1$ and each item at its location):
 \begin{align}
-    &\half y_\eta \left( \left( q^{n+\theta, p}_{i, j-\quart} + \theta \Delta q^{n+1, p+1}_{i, j-\quart}\right)
-    - \left( q^{n+\theta, p+1}_{i-1, j-\quart} + \theta \Delta q^{n+1, p+1}_{i-1, j-\quart}\right) \right)
-    \\
-    \Leftrightarrow &
-    \\
-    &\half  y_\eta \theta \left( \Delta q^{n+1, p+1}_{i, j-\quart} - \Delta q^{n+1, p+1}_{i-1, j-\quart}\right) +
-    y_\eta \left\{ q^{n+\theta, p}_{i, j-\quart} - q^{n+\theta, p+1}_{i-1, j-\quart} \right\}
-\end{align}
-%------------------------------------------------------------------------------
-\paragraph*{Time derivative, momentum equation}
-At the left/west boundary ($x_{i-\half, j-\quart}$ with $i=1$) the time discretization of the momentum equation for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
-\begin{align}
-    \left. \int_\Gamma\pdiff{q}{t}\, ds \right|_{i-\half, j-\quart} & \approx \half \sqrt{g_{\eta\eta}} \frac{1}{\Dt} \left(  q^{n+1}_{i-\half, j-\quart} - q^{n}_{i-\half, j-\quart} \right)
-\end{align}
-A diffusion like term is added to the boundary equation to damp the reflection of spurious waves.
-A coefficient $\alpha_{\mathit bnd}$ is placed before that extra term, the optimal value of this coefficient is taken from the analysis in \citet{transpeq-analysisdiscretizationinsidedomain_boundaries.mw}.
-\begin{align}
-    & \half \sqrt{g_{\eta\eta}} \frac{1}{\Dt} \left[ \frac{1}{2} \left( q^{n+1,p+1}_{i-1, j-\quart} + q^{n+1,p+1}_{i, j-\quart} \right)
-    + \frac{\alpha_{\mathit bnd}}{2} \left( q^{n+1,p+1}_{i-1, j-\quart} - 2 q^{n+1,p+1}_{i, j-\quart} + q^{n+1,p+1}_{i+1, j-\quart}  \right) \right. +
-    \nonumber \\*
-    & \qquad  - \left. \left(
-    \frac{1}{2} \left( q^{n}_{i-1, j-\quart} + q^{n}_{i, j-\quart} \right)
-    + \frac{\alpha_{\mathit bnd}}{2}  \left( q^{n}_{i-1, j-\quart} - 2 q^{n}_{i, j-\quart} + q^{n}_{i+1, j-\quart}  \right) \right)
-    \right]
-\end{align}
-After rearranging the equation to the \deltaformulation, the implicit and the explicit part reads:
-\begin{align}
-    & \half \sqrt{g_{\eta\eta}} \frac{1}{\Dt}  \left( \half \left( \Delta q^{n+1, p+1}_{i-1, j-\quart} + \Delta q^{n+1, p+1}_{i, j-\quart} \right) \right. +
-    \nonumber \\*
-    & \qquad \qquad + \left. \frac{\alpha_{\mathit bnd}}{2}\left( \Delta q^{n+1,p+1}_{i-1, j-\quart} - 2 \Delta q^{n+1,p+1}_{i, j-\quart} + \Delta q^{n+1,p+1}_{i+1, j-\quart} \right) \right) +
+%    \half \sqrt{g_{\eta\eta}} & \frac{1}{J} \bigg[
+%    \\
+%    & \left( y_{\eta} ( q^{n+\theta, p} + \theta \Delta q) - x_\eta (r^{n+\theta, p} + \theta \Delta r )\right)_{i, j-\quart} +
+%    \\
+%    - & \left( y_{\eta} ( q^{n+\theta, p} + \theta \Delta q) - x_\eta (r^{n+\theta, p} + \theta \Delta r )\right)_{i-1, j-\quart} +
+%    \\
+%    + & \left(-y_{\xi} ( q^{n+\theta, p} + \theta \Delta q) + x_\xi (r^{n+\theta, p} + \theta \Delta r )\right)_{i-\half, j} +
+%    \\
+%    - &\left(-y_{\xi} ( q^{n+\theta, p} + \theta \Delta q) + x_\xi (r^{n+\theta, p} + \theta \Delta r )\right)_{i-\half, j-1}
+%    \bigg]
+%    \\
+%    \Leftrightarrow &
+%    \\
+    \half \sqrt{g_{\eta\eta}} & \frac{1}{J} \theta \bigg[
     \nonumber \\
-    & \quad +  \half \sqrt{g_{\eta\eta}} \frac{1}{\Dt} \left\{ \half \left( q^{n+1, p}_{i-1, j-\quart} + q^{n+1, p}_{i, j-\quart} \right) + \frac{\alpha_{\mathit bnd}}{2}\left( q^{n+1,p}_{i-1, j-\quart} - 2 q^{n+1,p}_{i, j-\quart}  + q^{n+1,p}_{i+1, j-\quart} \right) + \right.
-    \nonumber \\*
-    & \qquad \qquad
-    \left.  - \frac{1}{2} \left( q^{n}_{i-1, j-\quart} + q^{n}_{i, j-\quart} \right) - \frac{\alpha_{\mathit bnd}}{2} \left( q^{n}_{i-1, j-\quart} - 2 q^{n}_{i, j-\quart} + q^{n}_{i+1, j-\quart}  \right) \right\}
+    & \left( y_{\eta} \Delta q - x_\eta \Delta r \right)_{i, j-\quart} - \left( y_{\eta} \Delta q - x_\eta \Delta r \right)_{i-1, j-\quart} +
+    \nonumber \\
+    + & \left(-y_{\xi} \Delta q + x_\xi \Delta r \right)_{i-\half, j} - \left(-y_{\xi} \Delta q + x_\xi \Delta r \right)_{i-\half, j-1}
+    \bigg]
+    +
+    \\
+    \half \sqrt{g_{\eta\eta}} & \frac{1}{J} \bigg[
+    \nonumber \\
+    & \left( y_{\eta} q^{n+\theta, p} - x_\eta r^{n+\theta, p} \right)_{i, j-\quart}
+    -  \left( y_{\eta} q^{n+\theta, p} - x_\eta (r^{n+\theta, p} \right)_{i-1, j-\quart} +
+    \nonumber \\
+    + & \left(-y_{\xi} ( q^{n+\theta, p} + x_\xi r^{n+\theta, p} \right)_{i-\half, j} - \left(-y_{\xi} q^{n+\theta, p}  + x_\xi (r^{n+\theta, p} \right)_{i-\half, j-1}
+    \bigg]
 \end{align}
 %------------------------------------------------------------------------------
-\paragraph*{Pressure term, momentum equation}
-At the left/west boundary ($x_{i-\half, j-\quart}$ with $i=1$) the discretization of the pressure term for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
+\paragraph*{Pressure term}
+At the left/west boundary ($x_{i-\half, j-\quart}$ with $i=1$) the discretization of the pressure term  for the $q$-momentum equation reads:
 \begin{align}
-    \left. \int_\Gamma\left(gh \pdiff{\zeta}{x}\right)\, ds \right|_{i-\half, j-\quart} \approx
-    & \half g h \left( y_{\eta}\, \pdiff{\zeta}{\xi} - y_{\xi}\, \pdiff{\zeta}{\eta} \right)
+    \left. \int_\Gamma\left(gh \pdiff{\zeta}{x}\right)\, dF \right|_{i-\half, j-\quart} \approx
+    & \half \sqrt{g_{\eta\eta}}  g h \Jinv \left( y_{\eta}\, \pdiff{\zeta}{\xi} - y_{\xi}\, \pdiff{\zeta}{\eta} \right)
+\end{align}
+and for the $r$-momentum equation it reads:
+\begin{align}
+    \left. \int_\Gamma\left(gh \pdiff{\zeta}{y}\right)\, dS \right|_{i-\half, j-\quart} \approx
+    & \half \sqrt{g_{\eta\eta}}  g h \Jinv \left( -x_{\eta}\, \pdiff{\zeta}{\xi} + x_{\xi}\, \pdiff{\zeta}{\eta} \right)
 \end{align}
 In a formulation of the shallow-water equations, where the bed level is time independent it can be used that $\Delta \zeta = \Delta h$.
 In that case, the contributions to  $\Delta \zeta$ need to be incorporated to $\Delta h$.
-The pressure term will then be approximated by (assuming $y_\xi = 0$)
+The pressure term in the $q$-momentum equation will then be approximated by after rearranging the equation into an implicit and a explicit part it reads:
 \begin{align}
-    & \half y_\eta g h^{n+\theta,p}_{i-\half, j-\quart} \left( \zeta^{n+\theta,p}_{i, j-\quart} - \zeta^{n+\theta,p}_{i-1, j-\quart}  \right) +
+    & \half \sqrt{g_{\eta\eta}} \theta g \Jinv \bigg[
+y_n \left( \zeta^{n+\theta,p}_{i, j-\quart} - \zeta^{n+\theta,p}_{i-1, j-\quart} \right)
+    - y_\xi \left( \zeta^{n+\theta,p}_{i-\half, j} - \zeta^{n+\theta,p}_{i-\half, j-1} \right) \bigg] \Delta h^{n+1, p+1}_{i-\half, j-\quart} +
+    \nonumber \\
+    & \quad +
+    \half \sqrt{g_{\eta\eta}}  \theta g h^{n+\theta, p}_{i-\half, j-\quart} \Jinv \bigg[ y_\eta
+    \left( \Delta \zeta^{n+1,p+1}_{i, j-\quart}  - \Delta \zeta^{n+1,p+1}_{i-1, j-\quart}\right)
+    -y_\xi \left( \Delta \zeta^{n+1,p+1}_{i-\half, j}  - \Delta \zeta^{n+1,p+1}_{i-\half, j-1}  \right) \bigg] +
     \nonumber \\*
-    & \qquad + \half y_\eta  g \left( \zeta^{n+\theta,p}_{i, j-\quart} - \zeta^{n+\theta,p}_{i-1, j-\quart} \right) \theta \Delta h^{n+1, p+1}_{i-\half, j-\quart} +
-    \nonumber \\*
-    & \qquad + \half y_\eta g h^{n+\theta, p}_{i-\half, j-\quart}
-    \theta \left( \Delta \zeta^{n+1,p+1}_{i, j-\quart}  - \Delta \zeta^{n+1,p+1}_{i-1, j-\quart}\right)
+    & \quad + \half \sqrt{g_{\eta\eta}} g h^{n+1, p}_{i-\half, j-\quart} \Jinv \bigg[
+    y_\eta \left( \zeta^{n+\theta,p}_{i, j-\quart} - \zeta^{n+\theta,p}_{i-1, j-\quart} \right)
+    - y_\xi \left( \zeta^{n+\theta,p}_{i-\half, j} - \zeta^{n+\theta,p}_{i-\half, j-1} \right) \bigg]
 \end{align}
-After rearranging the equation into an implicit and an explicit part it reads:
+and the pressure term in the $r$-momentum equation will then be approximated by
 \begin{align}
-    & \half y_\eta  g \left( \zeta^{n+\theta,p}_{i, j-\quart} - \zeta^{n+\theta,p}_{i-1, j-\quart} \right) \theta \Delta h^{n+1, p+1}_{i-\half, j-\quart} +
-    \\
-    & \qquad +
-    \half y_\eta g h^{n+\theta, p}_{i-\half, j-\quart}
-    \theta \left( \Delta \zeta^{n+1,p+1}_{i, j-\quart}  - \Delta \zeta^{n+1,p+1}_{i-1, j-\quart}\right) +
+    & \half \sqrt{g_{\eta\eta}} \theta g \Jinv \bigg[
+    -x_\eta \left( \zeta^{n+\theta,p}_{i, j-\quart} - \zeta^{n+\theta,p}_{i-1, j-\quart} \right)
+    + x_\xi \left( \zeta^{n+\theta,p}_{i-\half, j} - \zeta^{n+\theta,p}_{i-\half, j-1} \right) \bigg] \Delta h^{n+1, p+1}_{i-\half, j-\quart} +
+    \nonumber \\
+    & \quad +
+    \half \sqrt{g_{\eta\eta}}  \theta g h^{n+\theta, p}_{i-\half, j-\quart} \Jinv \bigg[ -x_\eta
+    \left( \Delta \zeta^{n+1,p+1}_{i, j-\quart}  - \Delta \zeta^{n+1,p+1}_{i-1, j-\quart}\right)
+    +x_\xi \left( \Delta \zeta^{n+1,p+1}_{i-\half, j}  - \Delta \zeta^{n+1,p+1}_{i-\half, j-1}  \right) \bigg] +
     \nonumber \\*
-    & \qquad + \left\{
-    \half y_\eta g h^{n+\theta,p}_{i-\half, j-\quart} \left( \zeta^{n+\theta,p}_{i, j-\quart} - \zeta^{n+\theta,p}_{i-1, j-\quart}  \right)  \right\}
+    & \quad + \half \sqrt{g_{\eta\eta}} g h^{n+1, p}_{i-\half, j-\quart} \Jinv \bigg[
+    -x_\eta \left( \zeta^{n+\theta,p}_{i, j-\quart} - \zeta^{n+\theta,p}_{i-1, j-\quart} \right)
+    +x_\xi \left( \zeta^{n+\theta,p}_{i-\half, j} - \zeta^{n+\theta,p}_{i-\half, j-1} \right) \bigg]
 \end{align}
 %------------------------------------------------------------------------------
-\paragraph*{Convection, momentum equation}
-%The convection term in the interior of the domain reads
-%\begin{align}
-%    &\nabla \dotp \frac{\vec{q}\vec{q}^T}{h}.
-%\end{align}
-%Integrated along a line element of the boundary yields
-%\begin{align}
-%    &\int_\Gamma \left[ \nabla \dotp \frac{\vec{q}\vec{q}^T}{h}\right] \, d\Gamma =
-%    \\
-%    &
-%    \int_\Gamma \left[ \nabla \dotp  \frac{1}{h}\begin{pmatrix} q \\ r \end{pmatrix} \begin{pmatrix} q & r \end{pmatrix}\right] \, d\Gamma =
-%    \\
-%    &=\int_\Gamma \left[ \nabla \dotp
-%    \begin{pmatrix}
-%        qq/h & qr/h \\
-%        rq/h & rr/h
-%    \end{pmatrix}
-%    \right] \, d\Gamma
-%    =\int_\Gamma
-%    \begin{pmatrix}
-%        \pdiff{qq/h}{x} + \pdiff{rq/h}{y} \\
-%        \pdiff{qr/h}{x} + \pdiff{rr/h}{y}
-%    \end{pmatrix}
-%    \, d\Gamma
-%\end{align}
-The finite volume flux through the boundary line element $ds$ yields
+\paragraph*{Convection}
+The flux through the boundary line element $dS$ yields
 \begin{align}
-    &\int_\Gamma \left( \nabla \dotp \frac{\vec{q}\vec{q}^T}{h}\right) \, ds =
+    &\int_\Gamma \left( \nabla \dotp \frac{\vec{q}\,\vec{q}^T}{h}\right) \, dS =
     \int_\Gamma
     \begin{pmatrix}
         \pdiff{qq/h}{x} + \pdiff{rq/h}{y} \\
         \pdiff{qr/h}{x} + \pdiff{rr/h}{y}
     \end{pmatrix}
-    \dotp \vecn\, ds
-    = \\
-    & =
-    \left[ \left( \pdiff{qq/h}{x} + \pdiff{rq/h}{y} \right) \mathcal{n}_x +
-    \left( \pdiff{qr/h}{x} + \pdiff{rr/h}{y} \right) \mathcal{n}_y \right] \norm{ds}
+    \, dS
 \end{align}
-with $\vecn = (\mathcal{n}_x, \mathcal{n}_y)^T$ the outward normal vector.
-
-Written in linear terms for the derivative they read:
+For the $q$-momentum equation, the transformed line integral it reads:
 \begin{align}
-    \pdiff{(qq/h)}{x} &= \frac{2q}{h}\pdiff{q}{x} -\frac{q^2}{h^2} \pdiff{h}{x}
-    \\*
-    \pdiff{(rq/h)}{y} &= \frac{q}{h}\pdiff{r}{y} + \frac{r}{h}\pdiff{q}{y} - \frac{rq}{h^2} \pdiff{h}{y}
-    \\*
-    \pdiff{(qr/h)}{x} &= \frac{r}{h}\pdiff{q}{x} + \frac{q}{h}\pdiff{r}{x} - \frac{qr}{h^2} \pdiff{h}{x}
-    \\*
-    \pdiff{(rr/h)}{y} &= \frac{2r}{h}\pdiff{q}{y} -\frac{r^2}{h^2} \pdiff{h}{y}
+    &
+	\half\sqrt{g_{\eta\eta}} \frac{1}{J} \left(y_{\eta} \pdiff{(q^2/h)}{\xi} - y_{\xi} \pdiff{(q^2/h)}{\eta} -x_{\eta} \pdiff{(qr/h)}{\xi} + x_{\xi} \pdiff{(qr/h)}{\eta}\right)
 \end{align}
+see \autoref{eq:xi_convection_term_1},
+and for the $r$-momentum equation, the transformed line integral it reads:
+\begin{align}
+    \half\sqrt{g_{\eta\eta}}
+    \frac{1}{J} \left(y_{\eta} \pdiff{(rq/h)}{\xi} - y_{\xi} \pdiff{(rq/h)}{\eta} -x_{\eta} \pdiff{(r^2/h)}{\xi} + x_{\xi} \pdiff{(r^2/h)}{\eta}\right)
+\end{align}
+see \autoref{eq:eta_convection_term_1}.
+
+Written in linear terms for the $\xi$-derivative they (similar for the $\eta$-derivative) read:
+\begin{align}
+    \pdiff{(qq/h)}{\xi} &= \frac{2q}{h}\pdiff{q}{\xi} -\frac{q^2}{h^2} \pdiff{h}{\xi}
+    \\*
+    \pdiff{(qr/h)}{\xi} &= \frac{r}{h}\pdiff{q}{\xi} + \frac{q}{h}\pdiff{r}{\xi} - \frac{qr}{h^2} \pdiff{h}{\xi}
+    \\*
+    \pdiff{(rr/h)}{\xi} &= \frac{2r}{h}\pdiff{r}{\xi} -\frac{r^2}{h^2} \pdiff{h}{\xi}
+\end{align}
+\paragraph*{$q$-momentum equation}
+Th approximated at the quadrature point $qp$ and at time level ${n+\theta, p}$ by
+{\small
+\begin{align}
+    & \underbrace{ \half \sqrt{g_{\eta\eta}} \Jinv \Bigg[
+        \frac{2q}{h}
+        \left( y_\eta \pdiff{q}{\xi} - y_\xi \pdiff{q}{\eta}  \right)
+        - \frac{q^2}{h^2}
+        \left(  y_\eta \pdiff{h}{\xi} - y_\xi \pdiff{h}{\eta}  \right)
+        \Bigg]}_{\textit{ to right hand side}} +
+    \\*
+    %
+    & \underbrace{ \half \sqrt{g_{\eta\eta}} \Jinv \Bigg[
+    \frac{r}{h}
+    \left( -x_\eta \pdiff{q}{\xi} + x_\xi \pdiff{q}{\eta}  \right)
+    + \frac{q}{h}
+    \left( -x_\eta \pdiff{r}{\xi} + x_\xi \pdiff{r}{\eta}  \right)
+    - \frac{qr}{h^2}
+    \left(  -x_\eta \pdiff{h}{\xi} + x_\xi \pdiff{h}{\eta}  \right)
+    \Bigg]}_{\textit{ to right hand side}} +
+    \\
+    &\text{Jacobian to $h$}
+    \nonumber \\*
+    & + \half \sqrt{g_{\eta\eta}} \Jinv \theta \Dh  \underbrace{\Bigg[
+        -\frac{2q}{h^2} \left( y_\eta \pdiff{q}{\xi} - y_\xi \pdiff{q}{\eta} \right)
+        + \frac{2q^2}{h^3} \left( y_\eta \pdiff{h}{\xi} - y_\xi \pdiff{h}{\eta} \right)
+        \Bigg]}_{\cal A} +
+    \\*
+    &+\half \sqrt{g_{\eta\eta}} \Jinv \theta \Dh \underbrace{\Bigg[
+        -\frac{r}{h^2}
+        \left( -x_\eta \pdiff{q}{\xi} + x_\xi \pdiff{q}{\eta}  \right)
+        - \frac{q}{h^2}
+        \left( -x_\eta \pdiff{r}{\xi} + x_\xi \pdiff{r}{\eta}  \right)
+        + \frac{qr}{h^3}
+        \left(  -x_\eta \pdiff{h}{\xi} + x_\xi \pdiff{h}{\eta}  \right)
+        \Bigg]}_{\cal{A}} +
+    \\
+    &\text{Jacobian to $q$}
+    \nonumber \\*
+    & + \half \sqrt{g_{\eta\eta}} \Jinv \theta \Dq \underbrace{\Bigg[
+        \frac{2}{h} \left( y_\eta \pdiff{q}{\xi} - y_\xi \pdiff{q}{\eta} \right)
+        - \frac{2q}{h^2} \left( y_\eta \pdiff{h}{\xi} - y_\xi \pdiff{h}{\eta} \right)
+        \Bigg]}_{\cal B} +
+    \\*
+ &+ \half \sqrt{g_{\eta\eta}} \Jinv \theta \Dq \underbrace{\Bigg[
+    \frac{1}{h}
+    \left( -x_\eta \pdiff{r}{\xi} + x_\xi \pdiff{r}{\eta}  \right)
+    - \frac{r}{h^2}
+    \left(  -x_\eta \pdiff{h}{\xi} + x_\xi \pdiff{h}{\eta}  \right)
+    \Bigg]}_{\cal B} +
+    \\
+    &\text{Jacobian to $r$}
+    \nonumber \\*
+    & \half \sqrt{g_{\eta\eta}} \Jinv \theta \Dr \underbrace{\Bigg[
+    \frac{1}{h}
+    \left( -x_\eta \pdiff{q}{\xi} + x_\xi \pdiff{q}{\eta}  \right)
+    - \frac{q}{h^2}
+    \left(  -x_\eta \pdiff{h}{\xi} + x_\xi \pdiff{h}{\eta}  \right)
+    \Bigg]}_{\cal B} +
+    \\
+    &\text{Gradients of $\Dh$, $\Dq$ and $\Dr$}
+    \nonumber \\*
+    & + \half \sqrt{g_{\eta\eta}} \Jinv \theta \Bigg[ \underbrace{\left(-\frac{q^2}{h^2}\right)}_{\cal C} \left(  y_\eta \pdiff{\Dh}{\xi} - y_\xi \pdiff{\Dh}{\eta} \right)
+    +
+    \underbrace{\frac{2q}{h}}_{\cal D} \left( y_\eta \pdiff{\Dq}{\xi} - y_\xi \pdiff{\Dq}{\eta} \right)
+    \\*
+    & + \frac{r}{h}
+    \left( -x_\eta \pdiff{\Dq}{\xi} + x_\xi \pdiff{\Dq}{\eta}  \right)
+    + \frac{q}{h}
+    \left( -x_\eta \pdiff{\Dr}{\xi} + x_\xi \pdiff{\Dr}{\eta}  \right)
+    + \left( -\frac{qr}{h^2} \right)
+    \left(  -x_\eta \pdiff{\Dh}{\xi} + x_\xi \pdiff{\Dh}{\eta}  \right)
+    \Bigg]
+\end{align}
+}%
 %
+ and where $\cal{A}$, $\cal{B}$, $\cal{C}$ and $\cal{D}$ multiplied by $\half\sqrt{g_{\eta\eta}} \Jinv \theta$  and gradients supply the coefficients in the matrix of the \deltaformulation,
+all these terms evaluated at the quadrature point $qp$.
+
+
+{{\color{gray}
 Consider on a cartesian grid the boundary at the west/left side of the domain, ranging over the interval $\left[ \vec{x}_{i-\half, j-\half}, \vec{x}_{i-\half, j+\half} \right]$.
 %
 \begin{align}
@@ -1210,22 +1255,21 @@ which will be approximated at the quadrature point $qp$ and at time level ${n+\t
   + \half \theta \underbrace{\frac{2r}{h}}_{\cal D} \left( -x_\eta \pdiff{\Dr}{\xi} + x_\xi \pdiff{\Dr}{\eta} \right)
 \end{align}
 where $\cal{A}$, $\cal{B}$, $\cal{C}$ and $\cal{D}$ multiplied by $\half\theta$ and \emph{the geometrical factors} are the coefficients in the matrix of the \deltaformulation.
-
+}} % end color{gray}
 %------------------------------------------------------------------------------
-\paragraph*{Bed shear stress, momentum equation}
+\paragraph*{Bed shear stress}
 The bed shear stress  term at the boundary  reads:
 \begin{align}
-    \int_\Gamma c_f \left( \frac{\vec{q}\abs{\vec{q}}}{h^2} \right)\, ds.
+    \int_\Gamma c_f \left( \frac{\vec{q}\abs{\vec{q}}}{h^2} \right)\, dS.
 \end{align}
 The components for the two momentum equations read:
 \begin{align}
-    F_q = \int_\Gamma c_f \left( \frac{q\abs{\vec{q}}}{h^2} \right)\, ds, \qquad \textit{q-momentum eq.}
+    F_q = \int_\Gamma c_f \left( \frac{q\abs{\vec{q}}}{h^2} \right)\, dS, \qquad \textit{q-momentum eq.}
     \\
-    F_r = \int_\Gamma c_f \left( \frac{r\abs{\vec{q}}}{h^2} \right)\, ds, \qquad \textit{r-momentum eq.}
+    F_r = \int_\Gamma c_f \left( \frac{r\abs{\vec{q}}}{h^2} \right)\, dS, \qquad \textit{r-momentum eq.}
 \end{align}
-\notyet
 %------------------------------------------------------------------------------
-\paragraph*{Viscosity term, momentum equation}
+\paragraph*{Viscosity term}
 The viscosity term at the boundary reads:
 \begin{align}
     -\int_\Gamma \Bigg[
@@ -1250,7 +1294,7 @@ The viscosity term at the boundary reads:
         \pdiff{(q/h)}{y} & \pdiff{(r/h)}{y}
     \end{pmatrix}
     \right)
-\Bigg] \dotp \vec{ds}.
+\Bigg] dS.
 \end{align}
 with $\mat{\nu}$ the viscosity tensor:
 \begin{align}
