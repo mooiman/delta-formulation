@@ -55,7 +55,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     log_file << "[Domain]" << std::endl;
     log_file << "    Lx            = " << format_as_double(data.domain.Lx) << std::endl;
     log_file << "    depth         = " << format_as_double(data.domain.depth) << std::endl;
-    log_file << "    geometry_type = " << data.domain.geometry_type << std::endl;
+    log_file << "    geometry_type = \"" << data.domain.geometry_type << "\"" << std::endl;
 
     // Initial
     log_file << std::endl << "[Initial]" << std::endl;
