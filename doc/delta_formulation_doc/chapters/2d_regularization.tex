@@ -265,7 +265,7 @@ The artificial smoothing coefficient (\autoref{eq:regularization_2d}) is depende
     =
     \nonumber \\
     & = \frac{1}{\Dx\Dy} \int_{j-\half}^{j+\half} \int_{i-\half}^{i+\half} \abs{D} \, dx\, dy
-    \label{eq:error_regularization}
+    \label{eq:error_regularization_2d}
 \end{align}
 with \citep[eq.\ 2]{Borsboom1998} (omitting the influence of curvilinear coordinates)
 \begin{align}
@@ -301,7 +301,7 @@ The right hand side is approximated by:
 \frac{1}{64} \abs{D}_{i+1,j+1}
 \end{align}
 
-Now system \autoref{eq:error_regularization} can be solved and $\bPsi$ is set to:
+Now system \autoref{eq:error_regularization_2d} can be solved and $\bPsi$ is set to:
 \begin{align}
     \Psi = c_{\Psi}(\Dx^2 + \Dy^2) E
 \end{align}

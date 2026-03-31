@@ -6,7 +6,7 @@ For the essential and natural boundary condition the boundary condition is precr
 %--------------------------------------------------------------------------------
 Consider the line integral needed along the boundary, for a left/west boundary we have $\xi = \it{Constant}$.
 \begin{align}
-    \int_\Gamma\, dS
+    \int_\Gamma \vec{f}(x,y) \, dS
 \end{align}
 where $\Gamma$ is the curve describing the boundary.
 For curvilinear coordinates the distance formulation reads (using the metric tensor, \citet{Aris1962}):
@@ -21,78 +21,53 @@ g_{\eta\eta} &= x_\eta x_\eta  + y_\eta y_\eta
 \end{align}
 The line intgral in curvilinear coordinates reads:
 \begin{align}
-    \int_\Gamma \, dS = \int^{\paramt_1}_{\paramt_0}  ds \, d\paramt = \int^{\paramt_1}_{\paramt_0} \, \sqrt{ g_{\xi\xi} \left(\diff{\xi}{\paramt}\right)^2
+    \int^{\paramt_1}_{\paramt_0}  \vec{f}(\xi,\eta) ds \, d\paramt  = \int^{\paramt_1}_{\paramt_0} \vec{f}(\xi,\eta) \, \sqrt{ g_{\xi\xi} \left(\diff{\xi}{\paramt}\right)^2
         + 2g_{\xi\eta} \diff{\xi}{\paramt} \diff{\eta}{\paramt}
         + g_{\eta\eta} \left(\diff{\eta}{\paramt}\right)^2 } \, d\paramt
 \end{align}
 with the parametrization of the curve is for $\paramt \in [0,1]$.
 
 \paragraph*{Essential and natural boundary location}
-The essential boundary is located at a location in the control volume $0\leq\xi\leq 1$ (see \autoref{fig:structured_grid_along_straight_boundary}, where $\xi \approx \frac{1}{3}$) and the natural boundary is located at the middle of an element (edge of a subcontrol volume.
+The essential boundary is located at a location in the control volume $0\leq\xi\leq 1$ (see \autoref{fig:structured_grid_along_straight_boundary}, where $\xi \approx \frac{1}{3}$) and the natural boundary is located at the middle of an element (edge of a sub-control volume).
 
-In the remainder of this section we will focus on the right/west boundary of a control volume (i.e.\ natural boundary).
+In the remainder of this section we will focus on the left/west boundary of a control volume (i.e.\ natural boundary, same derivation holds for the essential boundary condition).
 Similar approaches are suitable for the boundary at the other three sides of the structured grid and also for the various terms of the equations.
+
+The natural boundary is on the edge of a control volume, $\xi = \half$.
+We consider a part on the left/west boundary from $[j - \half, j]$ and with the curve parametrization for $j = 1$ and $\paramt \in [0,1]$:
+%
+\begin{alignat}{3}
+    \begin{aligned}
+    \xi(\paramt) &= \half      &\quad \Rightarrow \diff{\xi(\paramt)}{\paramt} = 0 \\
+    \eta(\paramt) &= \half + \half \paramt &\quad \Rightarrow \diff{\eta(\paramt)}{\paramt} = \half
+    \end{aligned}
+    \label{eq:parametrization}
+\end{alignat}
+Using this parametrization for a general function $\vec{f}$ yields
+\begin{align}
+    &\int_\Gamma  \vec{f}(x,y)\, dS
+%    = \int^1_0 \vec{f}(\xi,\eta) ds \, d\paramt
+    = \sqrt{g_{\eta\eta} \left(\half\right)^2} \,\vec{f}(\xi,\eta)
+    = \half \sqrt{g_{\eta\eta}} \vec{f}(\xi,\eta)
+\end{align}
+%
+This parametrization will be used in the remainder of this section.
 
 %------------------------------------------------------------------------------
 \subsubsection{Time derivative}
 The time derivative for $h$ reads
 \begin{align}
-    \int_\Gamma\pdiff{h}{t}\, dS
+    \int_\Gamma \pdiff{h}{t} \, dS = \half \sqrt{g_{\eta\eta}} \pdiff{h}{t}
 \end{align}
 and is similar for the discharges $q$ and $r$.
 
-The natural boundary is on the edge of a control volume, $\xi = \half$.
-Here we consider a part on the west boundary from $[j - \half, j]$ and with the curve parametrization for $j = 1$ and $\paramt \in [0,1]$:
-%
-\begin{alignat}{3}
-\xi(\paramt) &= \half      &\quad \Rightarrow \diff{\xi(\paramt)}{\paramt} = 0 \\
-\eta(\paramt) &= \half + \half \paramt &\quad \Rightarrow \diff{\eta(\paramt)}{\paramt} = \half
-\end{alignat}
-yields
-\begin{align}
-    &\int_\Gamma  \pdiff{h}{t}\, dS
-    = \int^1_0 \pdiff{h}{t} ds \, d\paramt
-%    = \int^{\paramt_1}_{\paramt_0} \pdiff{h}{t} \sqrt{g_{\eta\eta} \left(\half\right)^2} \, d\paramt
-    = \half \sqrt{g_{\eta\eta} \left(\half\right)^2} \, \pdiff{h}{t}
-    = \half \sqrt{g_{\eta\eta}} \pdiff{h}{t}
-\end{align}
-and it will be approximated by, each item evaluated at the quadrature point $(i-\half, j-\quart)$:
-\begin{align}
-    \int_\Gamma\pdiff{h}{t}\, dS  & \approx  \half \sqrt{g_{\eta\eta}}  \frac{1}{\Dt} \left( h^{n+1} - h^{n} \right)
-\end{align}
 %------------------------------------------------------------------------------
 \subsubsection{Mass flux}
 The mass flux in the continuity equation reads:
 \begin{align}
     \nabla \dotp \vec{q} = \pdiff{q}{x} + \pdiff{r}{x}
 \end{align}
-Taking the line integral at the boundary of the first term at the right hand side, yields, each item evaluated at $(i-\half, j-\quart)$:
-\begin{align}
-    &\int_\Gamma \pdiff{q}{x}\, dS  =
-    \int^{\paramt_1}_{\paramt_0} \pdiff{q}{x} ds \, d\paramt  =
-    \half \sqrt{g_{\eta\eta}} \pdiff{q}{x}
-\end{align}
-In curvilinear coordinates it reads, each item evaluated at $(i-\half, j-\quart)$:
-\begin{align}
-    &\int^{j}_{j-\half} \pdiff{q}{x}\, ds  \approx
-    \half \sqrt{g_{\eta\eta}} \ \frac{1}{J}\left(y_{\eta} \pdiff{q}{\xi}
-    -y_{\xi}\pdiff{q}{\eta}\right)
-\end{align}
-and for the second term at the right hand side, yields, each item evaluated at the quadrature point $(i-\half, j-\quart)$:
-\begin{align}
-    &\int_\Gamma \pdiff{r}{y}\, ds  =
-    \int^{j}_{j-\half} \pdiff{r}{y} \sqrt{g_{\eta\eta}} \, d\paramt  =
-    \half \sqrt{g_{\eta\eta}} \pdiff{r}{y}
-\end{align}
-In curvilinear coordinates it reads, each item evaluated at $(i-\half, j-\quart)$:
-\begin{align}
-    &\int^{j}_{j-\half} \pdiff{r}{y}\, ds  \approx
-    \half \sqrt{g_{\eta\eta}}  \frac{1}{J}\left(-x_{\eta}\pdiff{r}{\xi}
-    +x_{\xi}\pdiff{r}{\eta}\right)
-\end{align}
-
-When adding these terms, and with
-$(y_{\eta\xi} - y_{\xi\eta})q = 0$ and $(x_{\eta\xi} - x_{\xi\eta})r = 0$, yields
+Taking the line integral at the boundary yields:
 \begin{align}
     \int_\Gamma \nabla \dotp \vec{q}\, ds & = \half \sqrt{g_{\eta\eta}} \left( \pdiff{q}{x} + \pdiff{r}{y} \right) =
 \\
@@ -198,4 +173,4 @@ for the term between the outer square brackets see \autoref{eq:xi_viscous_term}.
 \end{align}
 for the term between the outer square brackets see \autoref{eq:eta_viscous_term}.
 
-\todo{Check the description of the boundary, after intro ducing the line integral approach}
+\todo{Check the description of the boundary, after introducing the line integral approach}
