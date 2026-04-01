@@ -35,7 +35,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     log_file << "Logging = \"" << data.log.logging << "\"  # \"iterations\", \"matrix\", \"pattern\"" << std::endl;
 
     // Boundary
-    log_file << std::endl << "[Boundary]" << std::endl;
+    log_file << std::endl << "[Boundary]" << "  # west, east" << std::endl;
     log_file << "    " << "treg         = " << format_as_double(data.boundary.treg) << "  # Regularization time boundary signal" << std::endl;
     log_file << "    " << "eps_bc_corr  = " << format_as_double(data.boundary.eps_bc_corr) << std::endl;
 
@@ -45,7 +45,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
 
     log_file << "    " << "bc_vars      = [\"";
     for (int i = 0; i < data.boundary.bc_vars.size() - 1; ++i) { log_file << data.boundary.bc_vars[i] << "\", \""; }
-    log_file << data.boundary.bc_vars[data.boundary.bc_vars.size() - 1] << "\"]" << std::endl;
+    log_file << data.boundary.bc_vars[data.boundary.bc_vars.size() - 1] << "\"]  # incoming signal" << std::endl;
 
     log_file << "    " << "bc_vals      = [";
     for (int i = 0; i < data.boundary.bc_vals.size() - 1; ++i) { log_file << format_as_double(data.boundary.bc_vals[i]) << ", "; }
@@ -53,26 +53,26 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
 
     //Domain
     log_file << "[Domain]" << std::endl;
-    log_file << "    Lx            = " << format_as_double(data.domain.Lx) << std::endl;
-    log_file << "    depth         = " << format_as_double(data.domain.depth) << std::endl;
+    log_file << "    Lx            = " << format_as_double(data.domain.Lx) << "  # Domain length" << std::endl;
+    log_file << "    depth         = " << format_as_double(data.domain.depth) << "  # bathymetry below reference level [m]" << std::endl;
     log_file << "    geometry_type = \"" << data.domain.geometry_type << "\"" << std::endl;
 
     // Initial
     log_file << std::endl << "[Initial]" << std::endl;
-    log_file << "    gauss_mu    = " << format_as_double(data.initial.gauss_mu) << std::endl;
-    log_file << "    gauss_sigma = " << format_as_double(data.initial.gauss_sigma) << std::endl;
-    log_file << "    gauss_amp   = " << format_as_double(data.initial.gauss_amp) << std::endl;
+    log_file << "    gauss_mu    = " << format_as_double(data.initial.gauss_mu) << "  # location of the top on the gaussian hump" << std::endl;
+    log_file << "    gauss_sigma = " << format_as_double(data.initial.gauss_sigma) << "  # width of the gaussian hump" << std::endl;
+    log_file << "    gauss_amp   = " << format_as_double(data.initial.gauss_amp) << "  # twice the amplitude of the guassian hump" << std::endl;
     log_file << "    ini_vars    = [\"";
     for (int i = 0; i < data.initial.ini_vars.size() - 1; ++i) { log_file << data.initial.ini_vars[i] << "\", \""; }
     log_file << data.initial.ini_vars[data.initial.ini_vars.size() - 1] << "\"]" << std::endl;
 
     // Numerics
     log_file << std::endl << "[Numerics]" << std::endl;
-    log_file << "    dt                  = " << format_as_double(data.numerics.dt) << std::endl;
-    log_file << "    dx                  = " << format_as_double(data.numerics.dx) << std::endl;
+    log_file << "    dt                  = " << format_as_double(data.numerics.dt) << "  # Time step size [s], if dt == 0: then stationary problem" << std::endl;
+    log_file << "    dx                  = " << format_as_double(data.numerics.dx) << "  # Grid size [m]" << std::endl;
     log_file << "    c_psi               = " << format_as_double(data.numerics.c_psi) << std::endl;
-    log_file << "    theta               = " << format_as_double(data.numerics.theta) << std::endl;
-    log_file << "    iter_max            = " << format_as_double(data.numerics.iter_max) << std::endl;
+    log_file << "    theta               = " << format_as_double(data.numerics.theta) << "  # Implicitness factor (0.5 <= theta <= 1.0)" << std::endl;
+    log_file << "    iter_max            = " << format_as_double(data.numerics.iter_max) << "  # Maximum number of non linear iterations" << std::endl;
     log_file << "    eps_newton          = " << format_as_double(data.numerics.eps_newton) << std::endl;
     log_file << "    eps_bicgstab        = " << format_as_double(data.numerics.eps_bicgstab) << std::endl;
     log_file << "    eps_abs_function    = " << format_as_double(data.numerics.eps_abs) << std::endl;
