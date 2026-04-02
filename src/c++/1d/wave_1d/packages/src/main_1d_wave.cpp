@@ -1122,25 +1122,26 @@ int main(int argc, char* argv[])
                 }
                 if (do_viscosity) // 
                 {
-                    double psi_0 = psi[i];
-                    double psi_ip1 = psi[i + 1];
-                    double psi_ip2 = psi[i + 2];
-                    double psi_b = w_nat[0] * psi_0 + w_nat[1] * psi_ip1 + w_nat[2] * psi_ip2;
+                    double visc_0 = visc[i];
+                    double visc_ip1 = visc[i + 1];
+                    double visc_ip2 = visc[i + 2];
+                    double visc_b = w_nat[0] * visc_0 + w_nat[1] * visc_ip1 + w_nat[2] * visc_ip2;
                     double htheta_b = w_nat[0] * htheta_0 + w_nat[1] * htheta_ip1 + w_nat[2] * htheta_ip2;
                     double qtheta_b = w_nat[0] * htheta_0 + w_nat[1] * qtheta_ip1 + w_nat[2] * qtheta_ip2;
-                    double dpsidx = dxinv * (psi_0 - psi_ip1);
-                    double dhdx = dxinv * (htheta_0 - htheta_ip1);
+                    double dviscdx = dxinv * (visc_ip1 - visc_0);
+                    double dhdx = dxinv * (htheta_ip1 - htheta_0);
                     double d2qdx2 = dxinv * dxinv * (qtheta_0 - 2. * qtheta_ip1 + qtheta_ip2);
                     double d2hdx2 = dxinv * dxinv * (htheta_0 - 2. * htheta_ip1 + htheta_ip2);
-                    rhs[q_eq] += + (
-                        dpsidx * (dqdx - qtheta_b/htheta_b * dhdx) +
-                        psi_b * 1.0/ htheta_b * dhdx * (dqdx - qtheta_b/htheta_b * dhdx) +
-                        - psi_b * 1.0/ htheta_b * dhdx * dqdx 
-                        + psi_b * d2qdx2 
-                        - psi_b * 1.0 / htheta_b  * dhdx * dqdx
-                        + 2. * psi_b * qtheta_b /(htheta_b * htheta_b) * dhdx * dhdx 
-                        - psi_b * qtheta_b / htheta_b * d2hdx2
+                    double viscos = (
+                        dviscdx * (dqdx - qtheta_b / htheta_b * dhdx)
+                        + visc_b * 1.0 / htheta_b * dhdx * (dqdx - qtheta_b / htheta_b * dhdx)
+                        - visc_b * 1.0 / htheta_b * dhdx * dqdx 
+                        + visc_b * d2qdx2 
+                        - visc_b * 1.0 / htheta_b  * dhdx * dqdx
+                        + 2. * visc_b * qtheta_b /(htheta_b * htheta_b) * dhdx * dhdx 
+                        - visc_b * qtheta_b / htheta_b * d2hdx2
                         );
+                    rhs[q_eq] += std::abs(0.0);
                 }
                 //
                 // continuity part (added and multiplied by -c_wave)
@@ -1370,25 +1371,26 @@ int main(int argc, char* argv[])
                 }
                 if (do_viscosity) // 
                 {
-                    double psi_0 = psi[i];
-                    double psi_im1 = psi[i - 1];
-                    double psi_im2 = psi[i - 2];
-                    double psi_b = w_nat[0] * psi_0 + w_nat[1] * psi_im1 + w_nat[2] * psi_im2;
+                    double visc_0   = visc[i];
+                    double visc_im1 = visc[i - 1];
+                    double visc_im2 = visc[i - 2];
+                    double visc_b = w_nat[0] * visc_0 + w_nat[1] * visc_im1 + w_nat[2] * visc_im2;
                     double htheta_b = w_nat[0] * htheta_0 + w_nat[1] * htheta_im1 + w_nat[2] * htheta_im2;
                     double qtheta_b = w_nat[0] * htheta_0 + w_nat[1] * qtheta_im1 + w_nat[2] * qtheta_im2;
-                    double dpsidx = dxinv * (psi_0 - psi_im1);
+                    double dviscdx = dxinv * (visc_0 - visc_im1);
                     double dhdx = dxinv * (htheta_0 - htheta_im1);
                     double d2qdx2 = dxinv * dxinv * (qtheta_0 - 2. * qtheta_im1 + qtheta_im2);
                     double d2hdx2 = dxinv * dxinv * (htheta_0 - 2. * htheta_im1 + htheta_im2);
-                    rhs[q_eq] += +(
-                        dpsidx * (dqdx - qtheta_b/htheta_b * dhdx) +
-                        psi_b * 1.0/ htheta_b * dhdx * (dqdx - qtheta_b/htheta_b * dhdx) +
-                        - psi_b * 1.0/ htheta_b * dhdx * dqdx 
-                        + psi_b * d2qdx2 
-                        - psi_b * 1.0 / htheta_b  * dhdx * dqdx
-                        + 2. * psi_b * qtheta_b /(htheta_b * htheta_b) * dhdx * dhdx 
-                        - psi_b * qtheta_b / htheta_b * d2hdx2
+                    double viscos = (
+                        dviscdx * (dqdx - qtheta_b / htheta_b * dhdx)
+                        + visc_b * 1.0 / htheta_b * dhdx * (dqdx - qtheta_b / htheta_b * dhdx)
+                        - visc_b * 1.0 / htheta_b * dhdx * dqdx 
+                        + visc_b * d2qdx2 
+                        - visc_b * 1.0 / htheta_b * dhdx * dqdx
+                        + 2. * visc_b * qtheta_b / (htheta_b * htheta_b) * dhdx * dhdx 
+                        - visc_b * qtheta_b / htheta_b * d2hdx2
                         );
+                    rhs[q_eq] += std::abs(0.0);
                 }
                 //
                 // continuity part (added and multiplied by +c_wave)
