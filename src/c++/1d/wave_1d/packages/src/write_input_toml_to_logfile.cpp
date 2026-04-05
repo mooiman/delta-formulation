@@ -36,7 +36,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
 
     // Boundary
     log_file << std::endl << "[Boundary]" << "  # west, east" << std::endl;
-    log_file << "    " << "treg         = " << format_as_double(data.boundary.treg) << "  # Regularization time boundary signal" << std::endl;
+    log_file << "    " << "treg         = " << format_as_double(data.boundary.treg) << "  # Regularization time boundary signal [s]" << std::endl;
     log_file << "    " << "eps_bc_corr  = " << format_as_double(data.boundary.eps_bc_corr) << std::endl;
 
     log_file << "    " << "bc_type      = [\"";
@@ -53,15 +53,15 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
 
     //Domain
     log_file << "[Domain]" << std::endl;
-    log_file << "    Lx            = " << format_as_double(data.domain.Lx) << "  # Domain length" << std::endl;
+    log_file << "    Lx            = " << format_as_double(data.domain.Lx) << "  # Domain length [m]" << std::endl;
     log_file << "    depth         = " << format_as_double(data.domain.depth) << "  # bathymetry below reference level [m]" << std::endl;
     log_file << "    geometry_type = \"" << data.domain.geometry_type << "\"" << std::endl;
 
     // Initial
     log_file << std::endl << "[Initial]" << std::endl;
-    log_file << "    gauss_mu    = " << format_as_double(data.initial.gauss_mu) << "  # location of the top on the gaussian hump" << std::endl;
-    log_file << "    gauss_sigma = " << format_as_double(data.initial.gauss_sigma) << "  # width of the gaussian hump" << std::endl;
-    log_file << "    gauss_amp   = " << format_as_double(data.initial.gauss_amp) << "  # twice the amplitude of the guassian hump" << std::endl;
+    log_file << "    gauss_mu    = " << format_as_double(data.initial.gauss_mu) << "  # location of the top on the gaussian hump [m]" << std::endl;
+    log_file << "    gauss_sigma = " << format_as_double(data.initial.gauss_sigma) << "  # width of the gaussian hump [m]" << std::endl;
+    log_file << "    gauss_amp   = " << format_as_double(data.initial.gauss_amp) << "  # twice the amplitude of the guassian hump [m]" << std::endl;
     log_file << "    ini_vars    = [\"";
     for (int i = 0; i < data.initial.ini_vars.size() - 1; ++i) { log_file << data.initial.ini_vars[i] << "\", \""; }
     log_file << data.initial.ini_vars[data.initial.ini_vars.size() - 1] << "\"]" << std::endl;

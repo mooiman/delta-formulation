@@ -99,6 +99,9 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
     data.output.dt_map = tbl_chp["dt_map"].value_or(double(0.0));  // write interval to his-file
     data.output.dt_screen = tbl_chp["dt_screen"].value_or(double(60.0));  // time interval counter on screen 
 
+    // Observation points
+    data.obs_points = read_observation_points(tbl);
+
     return data;
 }
 std::vector<_ObservationPoint> read_observation_points(toml::table tbl)

@@ -21,6 +21,7 @@
 //------------------------------------------------------------------------------
 
 #include "cfts.h"
+#include "observation_stations.h"
 #include "include/netcdf.h"
 
 CFTS::CFTS()
