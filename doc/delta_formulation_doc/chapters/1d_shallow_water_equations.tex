@@ -875,7 +875,7 @@ After rearranging the equation into an implicit and an explicit part it reads:
 \end{align}
 
 %------------------------------------------------------------------------------
-\paragraph*{Mass flux, continuity equation}
+\paragraph*{Mass flux}
 At the left/west boundary ($x_{i+\half}$ with $i=0$) the discretization of the mass flux for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
 \begin{align}
     \pdiff{q}{x} & \approx \frac{1}{\Dx} \left(  q^{n+\theta, p+1}_{i+1} - q^{n+\theta, p+1}_{i} \right)
@@ -919,7 +919,7 @@ After rearranging the equation into an implicit and an explicit part it reads:
     \left.  - \frac{1}{2} \left( q^{n}_{i} + q^{n}_{i+1} \right) - \frac{\alpha_{\mathit bnd}}{2} \left( q^{n}_{i} - 2 q^{n}_{i+1} + q^{n}_{i+2}  \right) \right\}
 \end{align}
 %------------------------------------------------------------------------------
-\paragraph*{Pressure term, momentum equation}
+\paragraph*{Pressure term}
 At the left/west boundary ($x_{i+\half}$ with $i=0$) the discretization of the pressure term for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
 \begin{align}
     gh \pdiff{\zeta}{x} \approx
@@ -946,7 +946,7 @@ After rearranging the equation into an implicit and an explicit part it reads:
 \frac{1}{\Dx} g h^{n+\theta,p}_{i+\half} \left( \zeta^{n+\theta,p}_{i+1} - \zeta^{n+\theta,p}_{i}  \right)  \right\}
 \end{align}
 %------------------------------------------------------------------------------
-\paragraph*{Convection term, momentum equation}
+\paragraph*{Convection term}
 At the left/west boundary ($x_{i+\half}$ with $i=0$) the discretization of the convection term for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
 \begin{align}
     \pdiff{q^2/h}{x} & = \frac{2q}{h}\pdiff{q}{x} - \frac{q^2}{h^2}\pdiff{h}{x}
@@ -973,7 +973,7 @@ which will be approximated by
 \end{align}
 where $\cal{A}$, $\cal{B}$, $\cal{C}$ and $\cal{D}$ multiplied by $\theta$ are the coefficients in the matrix of the \deltaformulation.
 %------------------------------------------------------------------------------
-\paragraph*{Bed shear stress term, momentum equation}
+\paragraph*{Bed shear stress term}
 At the left/west boundary ($x_{i+\half}$ with $i=0$) the discretization of the bed shear stress term for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
 \begin{align}
     c_f \frac{q\abs{q}}{h^2} \approx
@@ -1003,52 +1003,119 @@ with
     (q^{n+\theta, p}_{i+\half})^3\,((q^{n+\theta, p}_{i+\half})^4 + \eps^4)^{-3/4}
 \end{align}
 %------------------------------------------------------------------------------
-\paragraph*{Viscosity term, momentum equation}
-At the left/west boundary ($x_{i+\half}$ with $i=0$) the discretization of the viscosity term for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
+\paragraph*{Viscosity term}
+At the left/west boundary ($x_{i+\half}$ with $i=0$) the viscosity term for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
+\textbf{Note:}
+    Strictly spoken there is no separation between left and right going waves when there is a viscosity term.
 %
-\begin{Remark}
-    \item Strictly spoken there is no separation between left and right going waves when there is a viscosity term.
-\end{Remark}
 \begin{align}
-&\pdiff{}{x}\left(\nu h \pdiff{(q/h)}{x}\right) =
+    &\pdiff{}{x}\left(\nu h \pdiff{(q/h)}{x}\right) =
+    \\
+%    &{\color{cyan}\qquad = \pdiff{\nu}{x} h \pdiff{(q/h)}{x} + \nu \pdiff{h}{x} \pdiff{(q/h)}{x} + \nu h \pdiff{}{x}\pdiff{(q/h)}{x} =}
+%    \nonumber \\
+%    &{\color{black}\qquad =
+%        \pdiff{\nu}{x} h \left( \frac{1}{h} \pdiff{q}{x} - \frac{q}{h^2}\pdiff{h}{x}\right)} +
+%    {\color{blue}\nu \pdiff{h}{x} \left( \frac{1}{h} \pdiff{q}{x} - \frac{q}{h^2}\pdiff{h}{x} \right)}
+%    + {\color{red}\nu h \pdiff{}{x} \left( \frac{1}{h} \pdiff{q}{x} - \frac{q}{h^2}\pdiff{h}{x} \right) =}
+%    \nonumber \\
+%    & = \pdiff{\nu}{x} \left(\pdiff{q}{x} - \frac{q}{h}\pdiff{h}{x}\right) +
+%    {\color{blue} \nu \frac{1}{h} \pdiff{h}{x} \left(  \pdiff{q}{x} - \frac{q}{h}\pdiff{h}{x} \right) +}
+%    \nonumber \\*
+%    &
+%    {\color{red} \qquad \phantom{=} + \nu h \Bigg[ -\frac{1}{h^2}  \pdiff{q}{x} \pdiff{h}{x} + \frac{1}{h} \pdiff[2]{q}{x} \quad
+%        - \frac{1}{h^2} \pdiff{q}{x}\pdiff{h}{x}
+%        + \frac{2q}{h^3} \pdiff{h}{x}\pdiff{h}{x}
+%        - \frac{q}{h^2} \pdiff[2]{h}{x}
+%        \Bigg]}
+%    \nonumber \\*
+%    & = \pdiff{\nu}{x} \left(\pdiff{q}{x} - \frac{q}{h}\pdiff{h}{x}\right)
+%    {\color{blue} + \cancel{ \nu \frac{1}{h} \pdiff{h}{x}  \pdiff{q}{x}} - \bcancel{\nu \frac{q}{h^2} \pdiff{h}{x} \pdiff{h}{x}}  +}
+%    \nonumber \\*
+%    & \qquad{\color{red} \phantom{=}
+%        \Ccancel[blue]{- \nu \frac{1}{h}  \pdiff{q}{x} \pdiff{h}{x}}
+%        + \nu \pdiff[2]{q}{x}
+%        - \nu \frac{1}{h} \pdiff{h}{x}\pdiff{q}{x}
+%        + \nu \frac{\Cbcancel[blue]{2}q}{h^2} \pdiff{h}{x}\pdiff{h}{x}
+%        - \nu \frac{q}{h} \pdiff[2]{h}{x}
+%    }
+%    \\
+    & = \pdiff{\nu}{x} \left(\pdiff{q}{x} - \frac{q}{h}\pdiff{h}{x}\right) +
+    \nonumber \\*
+    &\qquad  {\color{black}
+        + \nu \pdiff[2]{q}{x}
+        - \nu \frac{1}{h} \pdiff{h}{x}\pdiff{q}{x}
+        + \nu \frac{q}{h^2} \pdiff{h}{x}\pdiff{h}{x}
+        - \nu \frac{q}{h} \pdiff[2]{h}{x}
+    }
+\end{align}
+which will be approximated by
+\begin{align}
+&\left.  \pdiff{}{x}\left( \nu h \pdiff{(q/h)}{x} \right)  \right|^{n+\theta, p+1}_{i+\half} \approx
+\end{align}
+\textit{Right hand side}
+\begin{align}
+&\approx
+\frac{\nu_{i+1} - \nu_{i}}{\Dx} \left( \frac{q^{n+\theta,p}_{i+1} - q^{n+\theta,p}_{i}}{\Dx}
+- \frac{q^{n+\theta,p}_{i+\half}}{h^{n+\theta,p}_{i+\half}} \frac{h^{n+\theta,p}_{i+1} - h^{n+\theta,p}_{i}}{\Dx} \right) +
 \\
-%& = \pdiff{\nu}{x} h \pdiff{(q/h)}{x} + \nu \pdiff{h}{x} \pdiff{(q/h)}{x} + \nu h \pdiff{}{x}\pdiff{(q/h)}{x} =
-%\\
-%& = \pdiff{\nu}{x} \left(\pdiff{q}{x} - \frac{q}{h}\pdiff{h}{x}\right) +
-%\nu \pdiff{h}{x} \left( \frac{1}{h} \pdiff{q}{x} - \frac{q}{h^2}\pdiff{h}{x} \right) + \nu h \pdiff{}{x} \left( \frac{1}{h} \pdiff{q}{x} - \frac{q}{h^2}\pdiff{h}{x} \right) =
-%\\
-& = \pdiff{\nu}{x} \left(\pdiff{q}{x} - \frac{q}{h}\pdiff{h}{x}\right) +
-\nu \frac{1}{h} \pdiff{h}{x} \left(  \pdiff{q}{x} - \frac{q}{h}\pdiff{h}{x} \right) +
-\nonumber \\*
-%&
-%\phantom{=} - \nu \frac{1}{h}  \pdiff{q}{x} \pdiff{h}{x} +\nu \pdiff[2]{q}{x} +
-%\\
-%&\phantom{=} - \left[ \nu \frac{1}{h} \pdiff{q}{x}\pdiff{h}{x} +
-%\nu \frac{2q}{h^2} \pdiff{h}{x}\pdiff{h}{x}
-%-
-%\nu \frac{q}{h} \pdiff[2]{h}{x}
-%\right]
-%\nonumber \\
-& \phantom{=}
-- \nu \frac{1}{h}  \pdiff{q}{x} \pdiff{h}{x}
-+ \nu \pdiff[2]{q}{x}
-- \nu \frac{1}{h} \pdiff{h}{x}\pdiff{q}{x}
-+ \nu \frac{2q}{h^2} \pdiff{h}{x}\pdiff{h}{x}
-- \nu \frac{q}{h} \pdiff[2]{h}{x}
+&
++ \nu_{i+\half} \frac{ q^{n+\theta,p}_{i} - 2 q^{n+\theta,p}_{i+1} + q^{n+\theta,p}_{i+2} }{\Dx^2}   +
+\\
+&
+- \nu_{i+\half} \frac{1}{h^{n+\theta,p}_{i+\half}} \frac{h^{n+\theta,p}_{i+1} - h^{n+\theta,p}_{i}}{\Dx}
+\frac{q^{n+\theta,p}_{i+1} - q^{n+\theta,p}_{i}}{\Dx} +
+\\
+& + \nu_{i+\half} \frac{q^{n+\theta,p}_{i+\half}}{\left(h^{n+\theta,p}_{i+\half}\right)^2}
+\left(\frac{h^{n+\theta,p}_{i+1} - h^{n+\theta,p}_{i}}{\Dx}\right)^2 +
+\\
+& - \nu_{i+\half} \frac{q^{n+\theta,p}_{i+\half}}{h^{n+\theta,p}_{i+\half}}
+\frac{ h^{n+\theta,p}_{i} - 2 h^{n+\theta,p}_{i+1} + h^{n+\theta,p}_{i+2} }{\Dx^2} +
+%
 \end{align}
-which will be approximated by the following discretizations:
+\textit{matrix coefficients  for $\Dh$}
 \begin{align}
-    \pdiff{\nu}{x} & \approx \frac{\nu_{i+1} - \nu_{i}}{\Dx}
-    \\
-    \pdiff{q}{x} & \approx \frac{q^{n+\theta,p+1}_{i+1} - q^{n+\theta, p+1}_{i}}{\Dx}
-    \\
-    \pdiff{h}{x} & \approx \frac{h^{n+\theta,p+1}_{i+1} - h^{n+\theta, p+1}_{i}}{\Dx}
-    \\
-    \pdiff[2]{q}{x} & \approx \frac{q^{n+\theta,p+1}_{i-1} - 2 q^{n+\theta, p+1}_{i} + q^{n+\theta, p+1}_{i+1}}{\Dx}
-    \\
-    \pdiff[2]{h}{x} & \approx \frac{h^{n+\theta,p+1}_{i-1} - 2 h^{n+\theta, p+1}_{i} + h^{n+\theta, p+1}_{i+1}}{\Dx}
++ \left[ \frac{\delta\nu}{\delta x} \left(
+\frac{q^{n+\theta,p}_{i+\half}}{\left(h^{n+\theta,p}_{i+\half}\right)^2} \frac{\delta h}{\delta x}
+- \frac{q^{n+\theta,p}_{i+\half}}{h^{n+\theta,p}_{i+\half}} \frac{\delta\cdot}{\delta x}
+\right)
+\right] & \theta \Dh_{i+\half}+
+\\
++ \left[
+\nu_{i+\half} \frac{1}{\left(h^{n+\theta,p}_{i+\half}\right)^2} \frac{\delta h}{\delta x} \frac{\delta q}{\delta x}
+- \nu_{i+\half} \frac{1}{h^{n+\theta,p}_{i+\half}} \frac{\delta q}{\delta x} \frac{\delta \cdot}{\delta x}
+\right] & \theta \Dh_{i+\half}  +
+\\
++ \left[
+\frac{2q^{n+\theta,p}_{i+\half}}{\left(h^{n+\theta,p}_{i+\half}\right)^2} \frac{\delta h}{\delta x} \frac{\delta \cdot}{\delta x}
+-\frac{2q^{n+\theta,p}_{i+\half}}{\left(h^{n+\theta,p}_{i+\half}\right)^3} \frac{\delta h}{\delta x}\frac{\delta \cdot}{\delta x}
+\right] & \theta \Dh_{i+\half}  +
+ \\
+ + \left[
+ \frac{q^{n+\theta,p}_{i+\half}}{\left(h^{n+\theta,p}_{i+\half}\right)^2}
+ \frac{\delta^2 h}{(\delta x)^2}
+ - \frac{q^{n+\theta,p}_{i+\half}}{h^{n+\theta,p}_{i+\half}}
+ \frac{\delta^2 \cdot}{(\delta x)^2}
+ \right] & \theta \Dh_{i+\half}  +
+ \end{align}
+\textit{matrix coefficients  for $\Dq$}
+\begin{align}
++ \left[
+\frac{\delta\nu}{\delta x}  \left( \frac{\delta \cdot}{\delta x}
+- \frac{1}{h^{n+\theta,p}_{i+\half}} \frac{\delta h}{\delta x} \right)
+\right] & \theta \Dq_{i+\half} +
+\\
++ \left[
+\nu_{i+\half}\frac{\delta^2\cdot}{(\delta x)^2} \right] & \theta \Dq_{i+\half} +
+\\
++ \left[
+-\nu_{i+\half} \frac{1}{h^{n+\theta,p}_{i+\half}} \frac{\delta h}{\delta x} \frac{\delta \cdot}{\delta x} \right] & \theta \Dq_{i+\half}
+\\
++ \left[
+\frac{1}{\left(h^{n+\theta,p}_{i+\half}\right)^2} \frac{\delta h}{\delta x} \frac{\delta h}{\delta x}
+\right] & \theta \Dq_{i+\half}  +
+\\
++ \left[
+ - \frac{1}{h^{n+\theta,p}_{i+\half}}
+\frac{\delta^2 h}{(\delta x)^2}
+\right] & \theta \Dq_{i+\half}  +
 \end{align}
-\todo{Natural boundary: viscosity term}
-
-
-
