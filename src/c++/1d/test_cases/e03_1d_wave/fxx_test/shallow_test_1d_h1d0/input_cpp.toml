@@ -1,0 +1,63 @@
+Logging = "None"  # "iterations", "matrix", "pattern"
+
+[Boundary]  # west, east
+    treg         = 1800.0  # Regularization time boundary signal [s]
+    eps_bc_corr  = 0.01
+    bc_type      = ["borsboom", "borsboom"]  # Type "free_slip", "no_slip", "borsboom", "mooiman"  
+    bc_vars      = ["q", "zeta"]  # incoming signal
+    bc_vals      = [1.25, 0.0]
+    # bc_vars      = ["zeta", "q"]  # incoming signal
+    # bc_vals      = [0.0, -1.25]
+[Domain]
+    Lx            = 17760.0  # Domain length [m]
+    depth         = 1.0 # bathymetry below reference level [m]
+    geometry_type = "UniformGeometry"
+
+[Initial]
+    gauss_mu    = 0.0  # location of the top on the gaussian hump [m]
+    gauss_sigma = 350.0  # width of the gaussian hump [m]
+    gauss_amp   = 0.0  # twice the amplitude of the guassian hump [m]
+    ini_vars    = ["zeta_gauss_hump"]
+
+[Numerics]
+    dt                  = 30.0  # Time step size [s], if dt == 0: then stationary problem
+    dx                  = 80.0  # Grid size [m]
+    c_psi               = 4.0
+    theta               = 0.501  # Implicitness factor (0.5 <= theta <= 1.0)
+    iter_max            = 25.0  # Maximum number of non linear iterations
+    eps_newton          = 1e-12
+    eps_bicgstab        = 1e-12
+    eps_abs_function    = 0.01
+    regularization_init = true
+    regularization_iter = false
+    regularization_time = true
+
+[Physics]
+    g                   = 10.0
+    do_q_equation       = true
+    do_convection       = false
+    do_bed_shear_stress = false
+    do_viscosity        = true
+    chezy_coefficient   = 50.0
+    viscosity           = 20.0
+
+[Output]
+    dt_his    = 0.25
+    dt_map    = 5.0
+    dt_screen = 1800.0
+
+[Time]
+    tstart = 0.0
+    tstop  = 86400.0 # 172800.0 # 86400.0 # 43200.0 # 21600.0 #
+
+# Hard coded observation points are not listed
+
+# [[ObservationPoint]]
+#     x = -8800.0
+#     y = 0.0
+#     name = "A_west"    
+#   
+# [[ObservationPoint]]
+#     x = 8800.0
+#     y = 0.0
+#     name = "A_east"    
