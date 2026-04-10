@@ -32,6 +32,11 @@ Logging = "None"  # "iterations", "matrix", "pattern"
     regularization_iter = false
     regularization_time = true
 
+[Output]
+    dt_his    = 0.25
+    dt_map    = 5.0
+    dt_screen = 1800.0
+
 [Physics]
     g                   = 10.0
     do_q_equation       = true
@@ -40,11 +45,6 @@ Logging = "None"  # "iterations", "matrix", "pattern"
     do_viscosity        = true
     chezy_coefficient   = 50.0
     viscosity           = 20.0
-
-[Output]
-    dt_his    = 0.25
-    dt_map    = 5.0
-    dt_screen = 1800.0
 
 [Time]
     tstart = 0.0

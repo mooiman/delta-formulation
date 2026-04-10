@@ -434,8 +434,8 @@ int main(int argc, char* argv[])
     if (regularization_init)
     {
         START_TIMER(Regularization_init);
-        regularization->given_function(zb, psi, zb_given, dx, c_psi);
-        regularization->given_function(visc_reg, psi, visc_given, dx, c_psi);
+        regularization->given_function(zb, psi, zb_given, dx, c_psi, log_file);
+        regularization->given_function(visc_reg, psi, visc_given, dx, c_psi, log_file);
         for (size_t i = 0; i < nx; ++i)
         {
             visc[i] = visc_reg[i] + std::abs(psi[i]);
@@ -1016,7 +1016,7 @@ int main(int argc, char* argv[])
                         A.coeffRef(c_eq, ph   ) += -dtinv * w_ess[0] - eps_bc_corr * theta * w_ess[0];
                         A.coeffRef(c_eq, ph_e ) += -dtinv * w_ess[1] - eps_bc_corr * theta * w_ess[1];
                         A.coeffRef(c_eq, ph_ee) += -dtinv * w_ess[2] - eps_bc_corr * theta * w_ess[2];
-                        corr_term = ( dhdt + eps_bc_corr * ((bc[BC_WEST] - zb_b) - htheta_b) );
+                        corr_term =dhdt + eps_bc_corr * ((bc[BC_WEST] - zb_b) - htheta_b);
                         rhs[c_eq] += corr_term;
                     }
                     if (bc_vars[BC_WEST] == "q")
@@ -1024,7 +1024,7 @@ int main(int argc, char* argv[])
                         A.coeffRef(c_eq, ph    + 1) += dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
                         A.coeffRef(c_eq, ph_e  + 1) += dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
                         A.coeffRef(c_eq, ph_ee + 1) += dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
-                        corr_term = -dqdt + eps_bc_corr * (bc[BC_WEST] - qtheta_b);
+                        corr_term = - dqdt + eps_bc_corr * (bc[BC_WEST] - qtheta_b);
                         rhs[c_eq] += corr_term;
                     }
                 }
@@ -1114,7 +1114,8 @@ int main(int argc, char* argv[])
                         cf_ip12 * qtheta_b * abs_qtheta_b / (htheta_b * htheta_b)
                         );
                 }
-                if (do_viscosity) // 
+                // (do_viscosity) // 
+                if (false) // 
                 {
                     double visc_0   = visc[i];
                     double visc_ip1 = visc[i + 1];
@@ -1134,7 +1135,7 @@ int main(int argc, char* argv[])
                         + visc_b * qtheta_b / (htheta_b * htheta_b) * dhdx * dhdx 
                         - visc_b * qtheta_b / htheta_b * d2hdx2
                         );
-                    rhs[q_eq] += std::abs(viscos);
+                    rhs[q_eq] += (viscos);
                 }
                 //
                 // continuity part (added and multiplied by -c_wave)
@@ -1258,7 +1259,7 @@ int main(int argc, char* argv[])
                         A.coeffRef(c_eq, ph   ) += dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
                         A.coeffRef(c_eq, ph_w ) += dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
                         A.coeffRef(c_eq, ph_ww) += dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
-                        corr_term = - (dhdt + sign * eps_bc_corr * ((bc[BC_EAST] - zb_b) - htheta_b));
+                        corr_term = - ( dhdt + sign * eps_bc_corr * ((bc[BC_EAST] - zb_b) - htheta_b) );
                         rhs[c_eq] += corr_term;
                         sign = 1.0;
                     }
@@ -1268,7 +1269,7 @@ int main(int argc, char* argv[])
                         A.coeffRef(c_eq, ph    + 1) += dtinv * w_ess[0] + eps_bc_corr * theta * w_ess[0];
                         A.coeffRef(c_eq, ph_w  + 1) += dtinv * w_ess[1] + eps_bc_corr * theta * w_ess[1];
                         A.coeffRef(c_eq, ph_ww + 1) += dtinv * w_ess[2] + eps_bc_corr * theta * w_ess[2];
-                        corr_term = (-dqdt + sign * eps_bc_corr * (bc[BC_EAST] - qtheta_b));
+                        corr_term = - dqdt + sign * eps_bc_corr * (bc[BC_EAST] - qtheta_b);
                         rhs[c_eq] += corr_term;
                         sign = 1.0;
                     }
@@ -1362,7 +1363,8 @@ int main(int argc, char* argv[])
                         );
                     rhs[q_eq] += rhs_bed_stress;
                 }
-                if (do_viscosity) // 
+                // (do_viscosity) // 
+                if (false) // 
                 {
                     double visc_0   = visc[i];
                     double visc_im1 = visc[i - 1];
@@ -1375,6 +1377,15 @@ int main(int argc, char* argv[])
                     double dqdx = dxinv * (qtheta_0 - qtheta_im1);
                     double d2qdx2 = dxinv * dxinv * (qtheta_0 - 2. * qtheta_im1 + qtheta_im2);
                     double d2hdx2 = dxinv * dxinv * (htheta_0 - 2. * htheta_im1 + htheta_im2);
+
+                    A.coeffRef(q_eq, ph   ) += 0.0;
+                    A.coeffRef(q_eq, ph_w ) += 0.0;
+                    A.coeffRef(q_eq, ph_ww) += 0.0;
+
+                    A.coeffRef(q_eq, ph   + 1) += 0.0;
+                    A.coeffRef(q_eq, ph_w + 1) += 0.0;
+                    A.coeffRef(q_eq, ph_ww+ 1) += 0.0;
+
                     double viscos = (
                         dviscdx * (dqdx - qtheta_b / htheta_b * dhdx)
                         + visc_b * d2qdx2 
@@ -1382,9 +1393,7 @@ int main(int argc, char* argv[])
                         + visc_b * qtheta_b / (htheta_b * htheta_b) * dhdx * dhdx 
                         - visc_b * qtheta_b / htheta_b * d2hdx2
                         );
-                    //viscos = dxinv * dxinv * (qtheta_0/htheta_0 - 2. * qtheta_im1/htheta_im1 + qtheta_im2/htheta_im2);
-                    //viscos = dxinv * dxinv * (qtheta_im1/htheta_im1 - 2. * qtheta_im1/htheta_im1 + qtheta_im2/htheta_im2);
-                    rhs[q_eq] += std::abs(viscos);
+                    rhs[q_eq] += (viscos);
                 }
                 //
                 // continuity part (added and multiplied by +c_wave)

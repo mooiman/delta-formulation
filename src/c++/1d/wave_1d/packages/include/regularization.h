@@ -18,8 +18,10 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
-#ifndef __ADV_DIFF_REGULARIZATION_H__
-#define __ADV_DIFF_REGULARIZATION_H__
+//------------------------------------------------------------------------------
+
+#ifndef __1D_REGULARIZATION_H__
+#define __1D_REGULARIZATION_H__
 
 #include <cstdlib>
 #include <fstream>
@@ -37,7 +39,7 @@ public:
     REGULARIZATION();
     REGULARIZATION(int iter_max, double g, std::string logging);
     void given_function(std::vector<double>& u_out, std::vector<double>& psi, std::vector<double>& u_giv_in,
-        double dx, double c_psi);
+        double dx, double c_psi, std::ofstream& log_file);
 
     void artificial_viscosity(std::vector<double>& psi, std::vector<double>& h, std::vector<double>& q,
         std::vector<double>& zb, double c_psi, double dx);
@@ -52,7 +54,9 @@ private:
     double m_g;
     std::string m_logging;
     double m_u0_xixi_smooth;
+    std::ofstream m_log_file;
     std::vector<double> m_mass;
+    double m_eps_smooth;  // epsilon of regularization process
 };
 
-#endif __ADV_DIFF_REGULARIZATION_H__
+#endif __1D_REGULARIZATION_H__
