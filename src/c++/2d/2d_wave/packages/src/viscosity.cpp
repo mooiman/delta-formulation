@@ -301,8 +301,8 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
 
     dx_dxi  = dcdx_scvf_n(x[p_e], x[p_0], x[p_se], x[p_s]);
     dy_dxi  = dcdx_scvf_n(y[p_e], y[p_0], y[p_se], y[p_s]);
-    dx_deta = dcdy_scvf_t(x[p_0], x[p_s], x[p_w], x[p_sw]);
-    dy_deta = dcdy_scvf_t(y[p_0], y[p_s], y[p_w], y[p_sw]);
+    dx_deta = dcdy_scvf_t(x[p_0], x[p_s], x[p_e], x[p_se]);
+    dy_deta = dcdy_scvf_t(y[p_0], y[p_s], y[p_e], y[p_se]);
 
     aa_q = visc_1 / scv_area_1 * qtheta_0 /(htheta_0 * htheta_0) * dh_dxi;
     bb_q = visc_1 / scv_area_1 * -1./ htheta_0 * dh_dxi;
@@ -582,8 +582,8 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     double dx_deta = dcdy_scvf_t(x[p_0], x[p_s], x[p_w], x[p_sw]);
     double dy_deta = dcdy_scvf_t(y[p_0], y[p_s], y[p_w], y[p_sw]);
 
-    double aa_q = visc_1 / scv_area_0 * qtheta_0 /(htheta_0 * htheta_0) * dh_deta;
-    double bb_q = visc_1 / scv_area_0 * -1./ htheta_0 * dh_deta;
+    double aa_q = visc_1 / scv_area_0 * qtheta_0 / (htheta_0 * htheta_0) * dh_deta;
+    double bb_q = visc_1 / scv_area_0 * -1.0 / htheta_0 * dh_deta;
     double cc_q = visc_1 / scv_area_0 * 1.0;
     double dd_q = visc_1 / scv_area_0 * - qtheta_0 / htheta_0;
 
@@ -627,8 +627,8 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     n_xi = 0.0;
     n_eta = -1.0;
 
-    visc_1  = scvf_eta(visc_11[p_0], visc_11[p_s], visc_11[p_sw], visc_11[p_w]);
-    visc_2  = scvf_eta(visc_22[p_0], visc_22[p_s], visc_22[p_sw], visc_22[p_w]);
+    visc_1   = scvf_eta(visc_11[p_0], visc_11[p_s], visc_11[p_sw], visc_11[p_w]);
+    visc_2   = scvf_eta(visc_22[p_0], visc_22[p_s], visc_22[p_sw], visc_22[p_w]);
     htheta_0 = scvf_eta(htheta[p_0], htheta[p_s], htheta[p_sw], htheta[p_w]);
     qtheta_0 = scvf_eta(qtheta[p_0], qtheta[p_s], qtheta[p_sw], qtheta[p_w]);
     rtheta_0 = scvf_eta(qtheta[p_0], rtheta[p_s], rtheta[p_sw], rtheta[p_w]);
@@ -736,8 +736,8 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     dx_deta = dcdy_scvf_t(x[p_0], x[p_s], x[p_e], x[p_se]);
     dy_deta = dcdy_scvf_t(y[p_0], y[p_s], y[p_e], y[p_se]);
 
-    aa_q = visc_1 / scv_area_1 * qtheta_0 /(htheta_0 * htheta_0) * dh_deta;
-    bb_q = visc_1 / scv_area_1 * -1./ htheta_0 * dh_deta;
+    aa_q = visc_1 / scv_area_1 * qtheta_0 / (htheta_0 * htheta_0) * dh_deta;
+    bb_q = visc_1 / scv_area_1 * -1.0 / htheta_0 * dh_deta;
     cc_q = visc_1 / scv_area_1 * 1.0;
     dd_q = visc_1 / scv_area_1 * - qtheta_0 / htheta_0;
 
@@ -798,8 +798,8 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     dx_deta = dcdy_scvf_t(x[p_n], x[p_0], x[p_ne], x[p_e]);
     dy_deta = dcdy_scvf_t(y[p_n], y[p_0], y[p_ne], y[p_e]);
 
-    aa_q = visc_1 / scv_area_2 * qtheta_0 /(htheta_0 * htheta_0) * dh_deta;
-    bb_q = visc_1 / scv_area_2 * -1./ htheta_0 * dh_deta;
+    aa_q = visc_1 / scv_area_2 * qtheta_0 / (htheta_0 * htheta_0) * dh_deta;
+    bb_q = visc_1 / scv_area_2 * -1.0 / htheta_0 * dh_deta;
     cc_q = visc_1 / scv_area_2 * 1.0;
     dd_q = visc_1 / scv_area_2 * - qtheta_0 / htheta_0;
 
@@ -952,8 +952,8 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     dx_deta = dcdy_scvf_t(x[p_n], x[p_0], x[p_nw], x[p_w]);
     dy_deta = dcdy_scvf_t(y[p_n], y[p_0], y[p_nw], y[p_w]);
 
-    aa_q = visc_1 / scv_area_3 * qtheta_0 /(htheta_0 * htheta_0) * dh_deta;
-    bb_q = visc_1 / scv_area_3 * -1./ htheta_0 * dh_deta;
+    aa_q = visc_1 / scv_area_3 * qtheta_0 / (htheta_0 * htheta_0) * dh_deta;
+    bb_q = visc_1 / scv_area_3 * -1.0 / htheta_0 * dh_deta;
     cc_q = visc_1 / scv_area_3 * 1.0;
     dd_q = visc_1 / scv_area_3 * - qtheta_0 / htheta_0;
 
@@ -986,8 +986,8 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
 
     rhs[row + 2] += - (
         0.5 * (
-            + dy_deta * dx_dxi  * ( cc_q * dq_deta + dd_q * dh_deta)
-            - dy_deta * dy_deta * ( cc_r * dr_dxi  + dd_r * dh_dxi )
+            + dy_deta * dx_dxi  * ( cc_q * dq_deta + dd_q * dh_deta )
+            - dy_deta * dy_deta * ( cc_r * dr_dxi  + dd_r * dh_dxi  )
         ) * n_xi
         );
     }
