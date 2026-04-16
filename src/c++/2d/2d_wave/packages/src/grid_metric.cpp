@@ -112,36 +112,46 @@ int grid_metric(struct _grid_metric & metric)
     size_t j = 0;
     i = 0;  // for (size_t i = 0; i < 1; ++i)
     {
-        for (size_t j = 1; j < ny - 2; ++j)
+        for (size_t j = 0; j < ny - 1; ++j)
         {
             node0 = idx (i    , j    , ny);
             node1 = idx (i + 1, j    , ny);
             node2 = idx (i + 1, j + 1, ny);
             node3 = idx (i    , j + 1, ny);
 
-            dx_dxi[node0]  = dx_dxi[node1];
-            dx_dxi[node3]  = dx_dxi[node2];
-            dy_dxi[node0]  = dy_dxi[node1];
-            dy_dxi[node3]  = dy_dxi[node2];
+            double dx = (x[node1] - x[node0]);
+            double dy = (y[node1] - y[node0]);
 
-            dx_deta[node0]  = dx_deta[node1];
-            dx_deta[node3]  = dx_deta[node2];
-            dy_deta[node0]  = dy_deta[node1];
-            dy_deta[node3]  = dy_deta[node2];
+            dx_dxi[node0] += 0.25 * dx;
+            dy_dxi[node0] += 0.25 * dy;
 
-            ddx_dxi2[node0] = ddx_dxi2[node1];
-            ddx_dxi2[node3] = ddx_dxi2[node2];
-            ddy_dxi2[node0] = ddy_dxi2[node1];
-            ddy_dxi2[node3] = ddy_dxi2[node2];
+            dx = (x[node2] - x[node3]);
+            dy = (y[node2] - y[node3]);
 
-            ddx_deta2[node0] = ddx_deta2[node1];
-            ddx_deta2[node3] = ddx_deta2[node2];
-            ddy_deta2[node0] = ddy_deta2[node1];
-            ddy_deta2[node3] = ddy_deta2[node2];
+            dx_dxi[node3] += 0.25 * dx;
+            dy_dxi[node3] += 0.25 * dy;
+
+            ddx_dxi2[node0] = 0.0;
+            ddx_dxi2[node3] = 0.0;
+            ddy_dxi2[node0] = 0.0;
+            ddy_dxi2[node3] = 0.0;
+
+            dx = (x[node3] - x[node0]);
+            dy = (y[node3] - y[node0]);
+
+            dx_deta[node0] += 0.25 * dx;
+            dx_deta[node3] += 0.25 * dx;
+            dy_deta[node0] += 0.25 * dy;
+            dy_deta[node3] += 0.25 * dy;
+
+            ddx_deta2[node0] -= dx;
+            ddx_deta2[node3] += dx;
+            ddy_deta2[node0] -= dy;
+            ddy_deta2[node3] += dy;
         }
     }
     // south boundary
-    for (size_t i = 1; i < nx - 2; ++i)
+    for (size_t i = 0; i < nx - 1; ++i)
     {
         j = 0;  // for (size_t j = 0; j < 1; ++j)
         {
@@ -150,29 +160,42 @@ int grid_metric(struct _grid_metric & metric)
             node2 = idx (i + 1, j + 1, ny);
             node3 = idx (i    , j + 1, ny);
 
-            dx_dxi[node0]  = dx_dxi[node3];
-            dx_dxi[node1]  = dx_dxi[node2];
-            dy_dxi[node0]  = dy_dxi[node3];
-            dy_dxi[node1]  = dy_dxi[node2];
+            double dx =0.0;
+            double dy = 0.0;
 
-            dx_deta[node0]  = dx_deta[node3];
-            dx_deta[node1]  = dx_deta[node2];
-            dy_deta[node0]  = dy_deta[node3];
-            dy_deta[node1]  = dy_deta[node2];
+            dx = (x[node1] - x[node0]);
+            dy = (y[node1] - y[node0]);
 
-            ddx_dxi2[node0] = ddx_dxi2[node3];
-            ddx_dxi2[node1] = ddx_dxi2[node2];
-            ddy_dxi2[node0] = ddy_dxi2[node3];
-            ddy_dxi2[node1] = ddy_dxi2[node2];
+            dx_dxi[node0] += 0.25 * dx;
+            dx_dxi[node1] += 0.25 * dx;
+            dy_dxi[node0] += 0.25 * dy;
+            dy_dxi[node1] += 0.25 * dy;
 
-            ddx_deta2[node0] = ddx_deta2[node3];
-            ddx_deta2[node1] = ddx_deta2[node2];
-            ddy_deta2[node0] = ddy_deta2[node3];
-            ddy_deta2[node1] = ddy_deta2[node2];
-        }
-    }
-    // north boundary
-    for (size_t i = 1; i < nx - 2; ++i)
+            ddx_dxi2[node0] -= dx;
+            ddx_dxi2[node1] += dx;
+            ddy_dxi2[node0] -= dy;
+            ddy_dxi2[node1] += dy;
+
+            dx = (x[node3] - x[node0]);
+            dy = (y[node3] - y[node0]);
+
+            dx_deta[node0] += 0.25 * dx;
+            dy_deta[node0] += 0.25 * dy;
+
+            dx = (x[node2] - x[node1]);
+            dy = (y[node2] - y[node1]);
+
+            dx_deta[node1] += 0.25 * dx;
+            dy_deta[node1] += 0.25 * dy;
+
+            ddx_deta2[node0] = 0.0;
+            ddx_deta2[node1] = 0.0;
+            ddy_deta2[node0] = 0.0;
+            ddy_deta2[node1] = 0.0;
+        }                          
+    }                              
+    // north boundary              
+    for (size_t i = 0; i < nx - 1; ++i)
     {
         j = ny - 2;
         {
@@ -181,66 +204,89 @@ int grid_metric(struct _grid_metric & metric)
             node2 = idx (i + 1, j + 1, ny);
             node3 = idx (i    , j + 1, ny);
 
-            dx_dxi[node2]  = dx_dxi[node1];
-            dx_dxi[node3]  = dx_dxi[node0];
-            dy_dxi[node2]  = dy_dxi[node1];
-            dy_dxi[node3]  = dy_dxi[node0];
+            double dx = 0.0;
+            double dy = 0.0;
 
-            dx_deta[node2]  = dx_deta[node1];
-            dx_deta[node3]  = dx_deta[node0];
-            dy_deta[node2]  = dy_deta[node1];
-            dy_deta[node3]  = dy_deta[node0];
+            dx = (x[node2] - x[node3]);
+            dy = (y[node2] - y[node3]);
 
-            ddx_dxi2[node3] = ddx_dxi2[node0];
-            ddx_dxi2[node2] = ddx_dxi2[node1];
-            ddy_dxi2[node3] = ddy_dxi2[node0];
-            ddy_dxi2[node2] = ddy_dxi2[node1];
+            dx_dxi[node2] += 0.25 * dx;
+            dx_dxi[node3] += 0.25 * dx;
+            dy_dxi[node2] += 0.25 * dy;
+            dy_dxi[node3] += 0.25 * dy;
 
-            ddx_deta2[node3] = ddx_deta2[node0];
-            ddx_deta2[node2] = ddx_deta2[node1];
-            ddy_deta2[node3] = ddy_deta2[node0];
-            ddy_deta2[node2] = ddy_deta2[node1];
+            ddx_dxi2[node2] -= dx;
+            ddx_dxi2[node3] += dx;
+            ddy_dxi2[node2] -= dy;
+            ddy_dxi2[node3] += dy;
+
+            dx = (x[node2] - x[node1]);
+            dy = (y[node2] - y[node1]);
+
+            dx_deta[node2] += 0.25 * dx;
+            dy_deta[node2] += 0.25 * dy;
+
+            dx = (x[node3] - x[node0]);
+            dy = (y[node3] - y[node0]);
+
+            dx_deta[node3] += 0.25 * dx;
+            dy_deta[node3] += 0.25 * dy;
+
+            ddx_deta2[node2] = 0.0;
+            ddx_deta2[node3] = 0.0;
+            ddy_deta2[node2] = 0.0;
+            ddy_deta2[node3] = 0.0;
         }
     }
     // east boundary
     i = nx - 2;  // for (size_t i = nx - 2; i < nx - 1; ++i)
     {
-        for (size_t j = 1; j < ny - 2; ++j)
+        for (size_t j = 0; j < ny - 1; ++j)
         {
             node0 = idx (i    , j    , ny);
             node1 = idx (i + 1, j    , ny);
             node2 = idx (i + 1, j + 1, ny);
             node3 = idx (i    , j + 1, ny);
 
-            dx_dxi[node1]  = dx_dxi[node0];
-            dx_dxi[node2]  = dx_dxi[node3];
-            dy_dxi[node1]  = dy_dxi[node0];
-            dy_dxi[node2]  = dy_dxi[node3];
+            double dx = (x[node1] - x[node0]);
+            double dy = (y[node1] - y[node0]);
 
-            dx_deta[node1]  = dx_deta[node0];
-            dx_deta[node2]  = dx_deta[node3];
-            dy_deta[node1]  = dy_deta[node0];
-            dy_deta[node2]  = dy_deta[node3];
+            dx_dxi[node1] += 0.25 * dx;
+            dy_dxi[node1] += 0.25 * dy;
 
-            ddx_dxi2[node1] = ddx_dxi2[node0];
-            ddx_dxi2[node2] = ddx_dxi2[node3];
-            ddy_dxi2[node1] = ddy_dxi2[node0];
-            ddy_dxi2[node2] = ddy_dxi2[node3];
+            dx = (x[node2] - x[node3]);
+            dy = (y[node2] - y[node3]);
 
-            ddx_deta2[node1] = ddx_deta2[node0];
-            ddx_deta2[node2] = ddx_deta2[node3];
-            ddy_deta2[node1] = ddy_deta2[node0];
-            ddy_deta2[node2] = ddy_deta2[node3];
+            dx_dxi[node2] += 0.25 * dx;
+            dy_dxi[node2] += 0.25 * dy;
+
+            ddx_dxi2[node1] = 0.0;
+            ddx_dxi2[node2] = 0.0;
+            ddy_dxi2[node1] = 0.0;
+            ddy_dxi2[node2] = 0.0;
+
+            dx = (x[node2] - x[node1]);
+            dy = (y[node2] - y[node1]);
+
+            dx_deta[node1] += 0.25 * dx;
+            dx_deta[node2] += 0.25 * dx;
+            dy_deta[node1] += 0.25 * dy;
+            dy_deta[node2] += 0.25 * dy;
+
+            ddx_deta2[node1] -= dx;
+            ddx_deta2[node2] += dx;
+            ddy_deta2[node1] -= dy;
+            ddy_deta2[node2] += dy;
         }
     }
     // south-west corner
     i = 0;
     j = 0;
     node0 = idx(i, j, ny);
-    dx_dxi[node0] = 4. * dx_dxi[node0];
-    dy_dxi[node0] = 4. * dy_dxi[node0];
-    dx_deta[node0] = 4. * dx_deta[node0];
-    dy_deta[node0] = 4. * dy_deta[node0];
+    dx_dxi[node0]  = 4./3. * dx_dxi[node0];
+    dy_dxi[node0]  = 4./3. * dy_dxi[node0];
+    dx_deta[node0] = 4./3. * dx_deta[node0];
+    dy_deta[node0] = 4./3. * dy_deta[node0];
 
     ddx_dxi2 [node0] = 0.0;
     ddy_dxi2 [node0] = 0.0;
@@ -251,10 +297,10 @@ int grid_metric(struct _grid_metric & metric)
     i = 0;
     j = ny - 2;
     node3 = idx(i, j + 1, ny);
-    dx_dxi [node3] = 4. * dx_dxi[node3];
-    dy_dxi [node3] = 4. * dy_dxi[node3];
-    dx_deta[node3] = 4. * dx_deta[node3];
-    dy_deta[node3] = 4. * dy_deta[node3];
+    dx_dxi [node3] = 4./3. * dx_dxi[node3];
+    dy_dxi [node3] = 4./3. * dy_dxi[node3];
+    dx_deta[node3] = 4./3. * dx_deta[node3];
+    dy_deta[node3] = 4./3. * dy_deta[node3];
 
     ddx_dxi2 [node3] = 0.0;
     ddy_dxi2 [node3] = 0.0;
@@ -265,10 +311,10 @@ int grid_metric(struct _grid_metric & metric)
     i = nx - 2;
     j = ny - 2;
     node2 = idx(i + 1, j + 1, ny);
-    dx_dxi [node2] = 4. * dx_dxi[node2];
-    dy_dxi [node2] = 4. * dy_dxi[node2];
-    dx_deta[node2] = 4. * dx_deta[node2];
-    dy_deta[node2] = 4. * dy_deta[node2];
+    dx_dxi [node2] = 4./3. * dx_dxi[node2];
+    dy_dxi [node2] = 4./3. * dy_dxi[node2];
+    dx_deta[node2] = 4./3. * dx_deta[node2];
+    dy_deta[node2] = 4./3. * dy_deta[node2];
 
     ddx_dxi2 [node2] = 0.0;
     ddy_dxi2 [node2] = 0.0;
@@ -279,10 +325,10 @@ int grid_metric(struct _grid_metric & metric)
     i = nx - 2;
     j = 0;
     node1 = idx(i + 1, j, ny);
-    dx_dxi [node1] = 4. * dx_dxi[node1];
-    dy_dxi [node1] = 4. * dy_dxi[node1];
-    dx_deta[node1] = 4. * dx_deta[node1];
-    dy_deta[node1] = 4. * dy_deta[node1];
+    dx_dxi [node1] = 4./3. * dx_dxi[node1];
+    dy_dxi [node1] = 4./3. * dy_dxi[node1];
+    dx_deta[node1] = 4./3. * dx_deta[node1];
+    dy_deta[node1] = 4./3. * dy_deta[node1];
 
     ddx_dxi2 [node1] = 0.0;
     ddy_dxi2 [node1] = 0.0;
