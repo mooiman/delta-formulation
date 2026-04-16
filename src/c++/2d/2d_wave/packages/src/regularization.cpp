@@ -41,7 +41,7 @@ REGULARIZATION::REGULARIZATION()
     m_iter_max = 100;
     m_g = 10.0;
     m_logging = "";
-    
+
     m_alpha = 1./8.;
     m_mass.push_back(m_alpha);
     m_mass.push_back(1.0 - 2. * m_alpha);
@@ -84,7 +84,7 @@ void REGULARIZATION::given_function(
     double min_range = 0.0001;
     double u_giv_range = *u_giv_in_max - *u_giv_in_min > min_range ? *u_giv_in_max - *u_giv_in_min : min_range;
     u_giv_range = 1.0;
-    
+
     for (size_t i = 0; i < nxny; ++i)
     {
         // scaling of the input array u_giv_in
@@ -108,10 +108,10 @@ void REGULARIZATION::given_function(
                 size_t p_e = p_index(i + 1, j, ny);
                 size_t p_s = p_index(i, j - 1, ny);
                 size_t p_w = p_index(i - 1, j, ny);
-                du0_dxi  = 0.5 * (u0[p_e] - u0[p_0]) - (u0[p_0] - u0[p_w]);
-                du0_deta = 0.5 * (u0[p_n] - u0[p_0]) - (u0[p_0] - u0[p_s]);
-                Du0_xixi[p_0]   = std::abs((u0[p_e] - 2. * u0[p_0] + u0[p_w]) - metric.ddx_dxi2[i]  / metric.dx_dxi[i]  * du0_dxi );
-                Du0_etaeta[p_0] = std::abs((u0[p_n] - 2. * u0[p_0] + u0[p_s]) - metric.ddy_deta2[i] / metric.dy_deta[i] * du0_deta);
+                du0_dxi  = 0.5 * (u0[p_e] - u0[p_0]) + (u0[p_0] - u0[p_w]);
+                du0_deta = 0.5 * (u0[p_n] - u0[p_0]) + (u0[p_0] - u0[p_s]);
+                Du0_xixi[p_0]   = std::abs((u0[p_e] - 2. * u0[p_0] + u0[p_w]));  // - metric.ddx_dxi2[i]  / metric.dx_dxi[i]  * du0_dxi );
+                Du0_etaeta[p_0] = std::abs((u0[p_n] - 2. * u0[p_0] + u0[p_s]));  // - metric.ddy_deta2[i] / metric.dy_deta[i] * du0_deta);
                 Du0_xixi_max = std::max(Du0_xixi_max, std::abs(Du0_xixi[p_0]));
                 Du0_etaeta_max = std::max(Du0_etaeta_max, std::abs(Du0_etaeta[p_0]));
             }
@@ -153,7 +153,7 @@ void REGULARIZATION::given_function(
             Du0_xixi[p_e] = Du0_xixi[p_ee];
 
             i = nx - 1;
-            p_0      = p_index(i    , j, ny);
+            p_0         = p_index(i    , j, ny);
             size_t p_w  = p_index(i - 1, j, ny);
             size_t p_ww = p_index(i - 2, j, ny);
             Du0_xixi[p_0] = Du0_xixi[p_ww];
@@ -165,10 +165,10 @@ void REGULARIZATION::given_function(
 //------------------------------------------------------------------------------
         for (size_t i = 0; i < nxny; ++i)
         {
-            psi_11[i] = c_psi * metric.dx_dxi[i]  * metric.dx_dxi[i]  * eq8[i];
-            psi_22[i] = c_psi * metric.dy_deta[i] * metric.dy_deta[i] * eq8[i];
-            psi_11[i] = c_psi * eq8[i];
-            psi_22[i] = c_psi * eq8[i];
+            //psi_11[i] = -c_psi * metric.dx_dxi[i]  * metric.dx_dxi[i]  * eq8[i];
+            //psi_22[i] = -c_psi * metric.dy_deta[i] * metric.dy_deta[i] * eq8[i];
+            psi_11[i] = -c_psi * eq8[i];
+            psi_22[i] = -c_psi * eq8[i];
         }
 //------------------------------------------------------------------------------
         u0 = *(this->solve_eq7(metric, psi_11, psi_22, u_giv, log_file));
@@ -398,7 +398,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(struct _grid_metr
     // row 3 * (nx - 1) * ny, +1, +2; se-corner
     // row 3 * (nx - 1) * ny + 3, ..., 3 * nx * ny - 3 - 1: east boundary
     // row 3 * nx * ny - 3, +1, +2 : ne-corner
-    START_TIMERN(Regularization diffusion);
+    START_TIMERN(Regularization solve eq7);
     //
     // viscosity
     //
@@ -418,10 +418,8 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(struct _grid_metr
         size_t c_eq = (size_t) outer[row    ];
         size_t p_0 = c_eq/(9);
 
-        double psi_1 = -psi_11[p_0];
-        double psi_2 = -psi_22[p_0];
         status = reg_boundary_west_utilde(values, row, c_eq, rhs,
-            u_giv, psi_1, psi_2, 
+            u_giv, psi_11[p_0], psi_22[p_0], 
             (double) 1.0, metric);
     }
     // north-west corner
@@ -438,26 +436,23 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(struct _grid_metr
         size_t c_eq = outer[row    ];
         size_t p_0 = c_eq/(9);
 
-        double psi_1 = -psi_11[p_0];
-        double psi_2 = -psi_22[p_0];
-
         if (row % ny == 0) {
             // south boundary, over write coefficients
             status = reg_boundary_south_utilde(values, row, c_eq, rhs, 
-                u_giv, psi_1, psi_2, 
+                u_giv, psi_11[p_0], psi_22[p_0], 
                 (double) 1.0, metric);
             continue;
         }
         if ((row + 1) % ny == 0) {
             // north boundary, over write coefficients
             status = reg_boundary_north_utilde(values, row, c_eq, rhs, 
-                u_giv, psi_1, psi_2, 
+                u_giv, psi_11[p_0], psi_22[p_0], 
                 (double) 1.0, metric);
             continue;
         }
 
         status = utilde_interior_matrix(values, row, c_eq, rhs, 
-            psi_1, psi_2, metric);
+            psi_11[p_0], psi_22[p_0], metric);
         status = utilde_interior_rhs(values, row, c_eq, rhs,
             u_giv, metric);
     }
@@ -474,11 +469,8 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(struct _grid_metr
         int c_eq = (size_t) outer[row    ];
         size_t p_0 = c_eq/(9);
 
-        double psi_1 = -psi_11[p_0];
-        double psi_2 = -psi_22[p_0];
-
         status = reg_boundary_east_utilde(values, row, c_eq, rhs, 
-            u_giv, psi_1, psi_2, 
+            u_giv, psi_11[p_0], psi_22[p_0], 
             (double) 1.0, metric);
     }
     // north-east corner
@@ -488,8 +480,6 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(struct _grid_metr
         status = reg_corner_north_east_utilde(values, row, c_eq, rhs, 
            u_giv, (double) 1.0, metric);
     }
-    STOP_TIMER(Regularization diffusion);
-
 
     if (m_logging == "pattern")
     {
@@ -505,6 +495,8 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(struct _grid_metr
     solverB.compute(B);
     solution = solverB.solve(rhs);
     //solution = solverB.solveWithGuess(rhs, solution);
+
+    STOP_TIMER(Regularization solve eq7);
 
     for (size_t i = 0; i < nxny; ++i)
     {

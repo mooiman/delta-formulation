@@ -242,13 +242,24 @@ int reg_interior_rhs_psi( size_t row, size_t c_eq, Eigen::VectorXd& rhs,
     //   \sqrt{g \widehat{h}}
     // 
 
-    double f1 = F1(h, p, metric);
-    double f2 = F2(h, p, metric);
-    double f3 = F3(h, p, metric);
-    f2 = 0.0;
-    rhs[row] = c_psi * std::sqrt( g/h[row] ) * (
-        1.0/16.0 * f1 + 1.0/8.0 * f2 + 1.0/16.0 * f3
+    double f1_h = F1(h, p, metric);
+    double f2_h = 0.0;  // = F2(h, p, metric);
+    double f3_h = F3(h, p, metric);
+    rhs[row] = c_psi * std::sqrt( g/h[row] ) * std::abs(
+        1.0/16.0 * f1_h + 1.0/8.0 * f2_h + 1.0/16.0 * f3_h
         );
+    double f1_q = F1(q, p, metric);
+    double f2_q = 0.0;  // = F2(q, p, metric);
+    double f3_q = F3(q, p, metric);
+    //rhs[row] += c_psi * 0.5 * std::sqrt(2.0) / (q[p[4]] * h[p[4]]) 
+    //    * std::abs( 1.0/8.0 * f1_q + 1.0/4.0 * f2_q + 1.0/8.0 * f3_q )
+    //    * std::abs( 1.0/8.0 * f1_h - 1.0/4.0 * f2_h - 1.0/8.0 * f3_h );
+    //double f1_r = F1(r, p, metric);
+    //double f2_r = 0.0;  // = F2(r, p, metric);
+    //double f3_r = F3(r, p, metric);
+    //rhs[row] += c_psi * 0.5 * std::sqrt(2.0) / (r[p[4]] * h[p[4]]) 
+    //    * std::abs( 1.0/8.0 * f1_r + 1.0/4.0 * f2_r + 1.0/8.0 * f3_r )
+    //    * std::abs( 1.0/8.0 * f1_h - 1.0/4.0 * f2_h - 1.0/8.0 * f3_h );
     return 0;
 }
 
