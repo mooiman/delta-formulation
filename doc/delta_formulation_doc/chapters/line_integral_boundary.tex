@@ -117,60 +117,122 @@ for the term between square brackets see \autoref{eq:eta_bed_shear_stress_term} 
 \paragraph*{$q$-momentum}
 \vspace{-1\baselineskip}
 \begin{align}
-    \begin{aligned}
-        \int_\Gamma \textit{viscosity} \, dS & = \half \sqrt{g_{\eta\eta}} \Bigg[
-        \\
-        - \frac{1}{J} \pdiff{}{\xi}\Bigg[ & \frac{\nu_{11} h}{J} \bigg(
-        2 y_{\eta}  y_{\eta} \pdiff{(q/h)}{\xi}
-        - 2 y_{\eta} y_{\xi} \pdiff{(q/h)}{\eta} \bigg)
-        +
-        \\
-        + &
-        \frac{\nu_{12} h}{J} \bigg(
-        - x_{\eta}y_{\eta} \pdiff{(r/h)}{\xi}
-        + x_{\eta}y_{\xi} \pdiff{(r/h)}{\eta}
-        + x_{\eta}x_{\eta}\pdiff{(q/h)}{\xi}
-        - x_{\eta}x_{\xi}\pdiff{(q/h)}{\eta} \bigg) \Bigg] +
-        \\
-        + \frac{1}{J} \pdiff{}{\eta}\Bigg[& \frac{\nu_{11} h}{J} \bigg(
-        2 y_{\xi}y_{\eta} \pdiff{(q/h)}{\xi}
-        - 2 y_{\xi}y_{\xi} \pdiff{(q/h)}{\eta} \bigg) +
-        \\
-        + &
-        \frac{\nu_{12} h}{J} \bigg(
-        - x_{\xi}y_{\eta} \pdiff{(r/h)}{\xi}
-        + x_{\xi}y_{\xi} \pdiff{(r/h)}{\eta}
-        + x_{\xi} x_{\eta} \pdiff{(q/h)}{\xi}
-        - x_{\xi}x_{\xi} \pdiff{(q/h)}{\eta} \bigg) \Bigg]
-        \Bigg]
-    \end{aligned}
+\int_\Gamma \textit{viscosity} \, dS & = \half \sqrt{g_{\eta\eta}} \Bigg[
+\\
+\frac{1}{J} \pdiff{}{\xi}\Bigg[ &
+\frac{\nu_{11} h}{J} \left(
+- 2 y_{\eta}  y_{\eta} \pdiff{(q/h)}{\xi}
++ 2 y_{\eta} y_{\xi} \pdiff{(q/h)}{\eta} \right)
++
+\\ + &
+\frac{\nu_{12} h}{J} \left(
+- y_{\eta}y_{\eta} \pdiff{(r/h)}{\xi}
++ y_{\eta}y_{\xi} \pdiff{(r/h)}{\eta}
++ y_{\eta}x_{\eta}\pdiff{(q/h)}{\xi}
+- y_{\eta}x_{\xi}\pdiff{(q/h)}{\eta} \right) +
+\\ + &
+\frac{\nu_{11} h}{J} \left(
++ x_{\eta}y_{\eta} \pdiff{(r/h)}{\xi}
+- x_{\eta}y_{\xi} \pdiff{(r/h)}{\eta}
+- x_{\eta}x_{\eta}\pdiff{(q/h)}{\xi}
++ x_{\eta}x_{\xi}\pdiff{(q/h)}{\eta}
+\right) +
+\\
++ &
+\frac{\nu_{12} h}{J}   \left(
+- 2 x_{\eta}x_{\eta} \pdiff{(r/h)}{\xi}
++ 2 x_{\eta}x_{\xi} \pdiff{(r/h)}{\eta}
+\right)
+\Bigg] +
+%---------------
+\\
++ \frac{1}{J} \pdiff{}{\eta}\Bigg[ &
+\frac{\nu_{11} h}{J} \left(
+2 y_{\xi}  y_{\eta} \pdiff{(q/h)}{\xi}
+- 2 y_{\xi} y_{\xi} \pdiff{(q/h)}{\eta}
+\right)
+\\* + &
+\frac{\nu_{12} h}{J} \left(
+y_{\xi}y_{\eta} \pdiff{(r/h)}{\xi}
+- y_{\xi}y_{\xi} \pdiff{(r/h)}{\eta}
+- y_{\xi}x_{\eta}\pdiff{(q/h)}{\xi}
++ y_{\xi}x_{\xi}\pdiff{(q/h)}{\eta}
+\right)
+\\* + &
+\frac{\nu_{11} h}{J} \left(
+- x_{\xi}y_{\eta} \pdiff{(r/h)}{\xi}
++ x_{\xi}y_{\xi} \pdiff{(r/h)}{\eta}
++ x_{\xi}x_{\eta}\pdiff{(q/h)}{\xi}
+- x_{\xi}x_{\xi}\pdiff{(q/h)}{\eta}
+\right)
+\\* + &
+\frac{\nu_{12} h}{J} \left(
+2 x_{\xi}x_{\eta} \pdiff{(r/h)}{\xi}
+- 2 x_{\xi}x_{\xi} \pdiff{(r/h)}{\eta}
+\right)
+\Bigg]
 \end{align}
 for the term between the outer square brackets see \autoref{eq:xi_viscous_term}.
 %------------------------------------------------------------------------------
 \paragraph*{$r$-momentum}
 \vspace{-1\baselineskip}
 \begin{align}
-    \begin{aligned}
-        \int_\Gamma \textit{viscosity} \, dS & = \half \sqrt{g_{\eta\eta}} \Bigg[
-        \\
-        - \frac{1}{J} \pdiff{}{\xi} \Bigg[& \frac{\nu_{21} h}{J} \bigg( y_{\eta}y_{\eta}  \pdiff{(r/h)}{\xi} - y_{\eta} y_{\xi} \pdiff{(r/h)}{\eta} + y_{\eta} x_{\eta} \pdiff{(q/h)}{\xi} - y_{\eta} x_{\xi} \pdiff{(q/h)}{\eta}
-        \bigg) +
-        \\
-        + & \frac{\nu_{22} h}{J} \bigg(
-        2 x_{\eta}x_{\eta} \pdiff{(r/h)}{\xi} - 2 x_{\xi} x_{\eta} \pdiff{(r/h)}{\eta} \bigg) \Bigg]
-        +
-        \\
-        + \frac{1}{J} \pdiff{}{\eta} \Bigg[& \frac{\nu_{21} h}{J} \bigg(
-        y_{\xi} y_{\eta} \pdiff{(r/h)}{\xi}
-        - y_{\xi} y_{\xi} \pdiff{(r/h)}{\eta}
-        - y_{\xi} x_{\eta} \pdiff{(q/h)}{\xi}
-        + y_{\xi} x_{\xi} \pdiff{(q/h)}{\eta}
-        \bigg) +
-        \\
-        + & \frac{\nu_{22} h}{J} \bigg( 2 x_{\eta}x_{\xi} \pdiff{(r/h)}{\xi} - 2 x_{\xi}x_{\xi} \pdiff{(r/h)}{\eta} \bigg) \Bigg]
-        \Bigg]
-    \end{aligned}
+\int_\Gamma \textit{viscosity} \, dS & = \half \sqrt{g_{\eta\eta}} \Bigg[
+\\*
+\frac{1}{J} \pdiff{}{\xi} \Bigg[ &
+\frac{\nu_{21} h}{J} \left(
+- 2 y_{\eta} y_{\eta} h\pdiff{(q/h)}{\xi}
++ 2 y_{\eta} y_{\xi} h\pdiff{(q/h)}{\eta}
+\right)
++
+\\
++ &\frac{\nu_{22} h}{J} \left(
+- y_{\eta} y_{\eta} h \pdiff{(r/h)}{\xi}
++ y_{\eta} y_{\xi} h \pdiff{(r/h)}{\eta}
++ y_{\eta} x_{\eta} h \pdiff{(q/h)}{\xi}
+- y_{\eta} x_{\xi} h \pdiff{(q/h)}{\eta}
+\right)
++
+\\
++ &\frac{\nu_{21} h}{J} \left(
++ x_{\xi} y_{\eta} h \pdiff{(r/h)}{\xi}
+- x_{\xi} y_{\xi} h \pdiff{(r/h)}{\eta}
+- x_{\xi} x_{\eta} h \pdiff{(q/h)}{\xi}
++ x_{\xi} x_{\xi} h \pdiff{(q/h)}{\eta}
+\right)
++
+\\
++ &\frac{\nu_{22} h}{J} \left(
+- 2 x_{\eta} x_{\eta} h\pdiff{(q/h)}{\xi}
++ 2 x_{\eta} x_{\xi} h\pdiff{(q/h)}{\eta}
+\right)
+\Bigg] +
+%---------------
+\\
++ \frac{1}{J} \pdiff{}{\eta}\Bigg[ &
+\frac{\nu_{21} h}{J} \left(
+2 y_{\xi} y_{\eta} \pdiff{(q/h)}{\xi}
+- 2 y_{\xi} y_{\xi} \pdiff{(q/h)}{\eta}
+\right)
+\\* + &
+\frac{\nu_{22} h}{J} \left(
+y_{\xi}y_{\eta} \pdiff{(r/h)}{\xi}
+- y_{\xi}y_{\xi} \pdiff{(r/h)}{\eta}
+- y_{\xi}x_{\eta} \pdiff{(q/h)}{\xi}
++ y_{\xi}x_{\xi} \pdiff{(q/h)}{\eta}
+\right)
+\\* + &
+\frac{\nu_{21} h}{J} \left(
+- x_{\xi}y_{\eta} \pdiff{(r/h)}{\xi}
++ x_{\xi}y_{\xi} \pdiff{(r/h)}{\eta}
++ x_{\xi}x_{\eta} \pdiff{(q/h)}{\xi}
+- x_{\xi}x_{\xi} \pdiff{(q/h)}{\eta}
+\right)
+\\* + &
+\frac{\nu_{22} h}{J} \left(
+2 x_{\xi}x_{\eta} \pdiff{(r/h)}{\xi}
+- 2 x_{\xi}x_{\xi} \pdiff{(r/h)}{\eta}
+\right)
+\Bigg]
 \end{align}
 for the term between the outer square brackets see \autoref{eq:eta_viscous_term}.
-
-\todo{Check the description of the boundary, after introducing the line integral approach}
