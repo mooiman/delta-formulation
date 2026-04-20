@@ -4,7 +4,7 @@
 For the essential and natural boundary condition the boundary condition is precribed via a line integral.
 
 %--------------------------------------------------------------------------------
-Consider the line integral needed along the boundary, for a left/west boundary we have $\xi = \it{Constant}$.
+Consider the line integral needed along the boundary, ex.\ for a left/west boundary we have $\xi = \it{Constant}$.
 \begin{align}
     \int_\Gamma \vec{f}(x,y) \, dS
 \end{align}
@@ -25,10 +25,10 @@ The line intgral in curvilinear coordinates reads:
         + 2g_{\xi\eta} \diff{\xi}{\paramt} \diff{\eta}{\paramt}
         + g_{\eta\eta} \left(\diff{\eta}{\paramt}\right)^2 } \, d\paramt
 \end{align}
-with the parametrization of the curve is for $\paramt \in [0,1]$.
+with the parametrization of the curve is given for $\paramt \in [0,1]$.
 
 \paragraph*{Essential and natural boundary location}
-The essential boundary is located at a location in the control volume $0\leq\xi\leq 1$ (see \autoref{fig:structured_grid_along_straight_boundary}, where $\xi \approx \frac{1}{3}$) and the natural boundary is located at the middle of an element (edge of a sub-control volume).
+The essential boundary is located at a location in the control volume $0\leq\xi\leq 1$ (see \autoref{fig:structured_grid_along_straight_boundary}, where $\xi \approx \frac{1}{3}$) and the natural boundary is located at the middle of an element (i.e.\ edge of a sub-control volume).
 
 In the remainder of this section we will focus on the left/west boundary of a control volume (i.e.\ natural boundary, same derivation holds for the essential boundary condition).
 Similar approaches are suitable for the boundary at the other three sides of the structured grid and also for the various terms of the equations.

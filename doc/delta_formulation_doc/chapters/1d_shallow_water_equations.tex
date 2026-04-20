@@ -1004,9 +1004,16 @@ with
 \end{align}
 %------------------------------------------------------------------------------
 \paragraph*{Viscosity term}
-At the left/west boundary ($x_{i+\half}$ with $i=0$) the viscosity term for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
 \textbf{Note:}
-    Strictly spoken there is no separation between left and right going waves when there is a viscosity term.
+Strictly spoken there is no separation between left and right going waves when there is a viscosity term.
+%
+
+Notation agreement:
+\begin{align}
+    \left. \frac{\delta u}{\delta x}\right|_{i+\half} = \frac{u_{i+1} - u_{i}}{\Dx}
+\end{align}
+
+At the left/west boundary ($x_{i+\half}$ with $i=0$) the viscosity term for the \textbf{natural} boundary condition, describing the outgoing wave, reads:
 %
 \begin{align}
     &\pdiff{}{x}\left(\nu h \pdiff{(q/h)}{x}\right) =
