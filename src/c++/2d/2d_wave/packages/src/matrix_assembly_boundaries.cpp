@@ -686,7 +686,6 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
                 + 0.5 * dy_deta_1 * cf_1 * rtheta_1 * abs_qtheta_1 / (htheta_1 * htheta_1)
             );
         }
-        do_viscosity = false;  // north boundary
         if (do_viscosity)
         {
             // North boundary viscosity
@@ -1363,7 +1362,6 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
                 + 0.5 * dx_dxi_1 * cf_1 * qtheta_1 * abs_qtheta_1 / (htheta_1 * htheta_1)
                 );
         }  
-        do_viscosity = false;  // east boundary
         if (do_viscosity)
         {
             // East boundary viscosity
@@ -2098,7 +2096,6 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
 
             );
         }
-        do_viscosity = false;  // south boundary
         if (do_viscosity)
         {
             // South boundary viscosity
@@ -2776,7 +2773,6 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
                 + 0.5 * dx_dxi_1 * cf_1 * qtheta_1 * abs_qtheta_1 / (htheta_1 * htheta_1)
                 );
         }
-        do_viscosity = false;  // west boundary
         if (do_viscosity)
         {
             // West boundary viscosity
