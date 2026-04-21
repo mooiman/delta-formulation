@@ -425,8 +425,7 @@ When the viscous value is not symmetric due to the used numerical method
 the viscosity tensor is written as:
 %
 \begin{align}
-    \mat{\nu} =not symmetric due to the used numerical method
-    the viscosity tensor is written as
+    \mat{\nu} =
     \begin{pmatrix}
         \nu_{11} & \nu_{12} \\
         \nu_{21}  & \nu_{22}
@@ -484,8 +483,6 @@ h
 \end{array}
 \right)
     \right]
-\end{align}
-\begin{align}
 %    \, d\omega
 \end{align}
 Applying the gradient to the elements of the matrix yields:
@@ -749,10 +746,10 @@ Using the chain rule $uv' = (uv)' - u'v$, and assuming $x_{\xi\eta} - x_{\eta\xi
 +
 \\
 + &\frac{\nu_{21} h}{J} \left(
-+ x_{\xi} y_{\eta} h \pdiff{(r/h)}{\xi}
-- x_{\xi} y_{\xi} h \pdiff{(r/h)}{\eta}
-- x_{\xi} x_{\eta} h \pdiff{(q/h)}{\xi}
-+ x_{\xi} x_{\xi} h \pdiff{(q/h)}{\eta}
++ x_{\eta} y_{\eta} h \pdiff{(r/h)}{\xi}
+- x_{\eta} y_{\xi} h \pdiff{(r/h)}{\eta}
+- x_{\eta} x_{\eta} h \pdiff{(q/h)}{\xi}
++ x_{\eta} x_{\xi} h \pdiff{(q/h)}{\eta}
 \right)
 +
 \\
@@ -873,7 +870,7 @@ On a cartesian grid ($y_\xi = x_\eta = 0$) these viscous terms reduces for the $
     \\* & +
     \frac{\nu_{12}}{J} \left(
     - y_{\eta}y_{\eta} h \pdiff{(r/h)}{\xi}
-    - y_{\eta}x_{\xi} h \pdiff{(q/h)}{\eta} \right) +
+    - y_{\eta}x_{\xi} h \pdiff{(q/h)}{\eta} \right)
     \Bigg] \nxi +
     %---------------
     \\
@@ -896,13 +893,13 @@ And the $r$-momentum equation (i.e.\ \autoref{eq:eta_greens_viscous_term}) to:
     = \Bigg[
     & + \frac{\nu_{22}}{J} \left(
     - y_{\eta} y_{\eta} h \pdiff{(r/h)}{\xi}
-    - y_{\eta} x_{\xi} h \pdiff{(q/h)}{\eta}
+    + y_{\eta} x_{\xi} h \pdiff{(q/h)}{\eta}
     \right)
     +
     \\
     & + \frac{\nu_{21}}{J} \left(
     + x_{\xi} y_{\eta} h \pdiff{(r/h)}{\xi}
-    + x_{\xi} x_{\xi} h \pdiff{(q/h)}{\eta}
+    - x_{\xi} x_{\xi} h \pdiff{(q/h)}{\eta}
     \right)
     \Bigg] \nxi +
     %---------------
@@ -931,7 +928,7 @@ On a cartesian grid and $\nu_{12} = \nu_{21} = 0$:
         0  & \nu + \Psi_{22}
     \end{pmatrix}
 \end{align}
-with $\Psi_{11}$ and $\Psi_{22}$ are the added artificial viscosity due to the regularization of the primairy variables (see \autoref{sec:artificial_viscosity}), for the $q$-equation yields
+with $\Psi_{11}$ and $\Psi_{22}$ are the added artificial viscosity due to the regularization of the primairy variables (see \autoref{sec:artificial_viscosity}), for the $q$-equation it yields
 %
 \begin{align}
     \Bigg[ &  \frac{\nu_{11}}{J} \left(
@@ -947,7 +944,7 @@ with $\Psi_{11}$ and $\Psi_{22}$ are the added artificial viscosity due to the r
     \right)
     \Bigg] \neta
 \end{align}
-and for the $r$-momentum equation to:
+and for the $r$-momentum equation it yields:
 \begin{align}
     = \Bigg[
     & \frac{\nu_{22}}{J} \left(
