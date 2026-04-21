@@ -99,6 +99,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     log_file << "    " << "do_convection       = " << bool_value_as_string(data.physics.do_convection) << std::endl;
     log_file << "    " << "do_bed_shear_stress = " << bool_value_as_string(data.physics.do_bed_shear_stress) << std::endl;
     log_file << "    " << "do_viscosity        = " << bool_value_as_string(data.physics.do_viscosity) << std::endl;
+    log_file << "    " << "g                   = " << format_as_double(data.physics.g) << std::endl;
     log_file << "    " << "chezy_coefficient   = " << format_as_double(data.physics.chezy_coefficient) << std::endl;
     log_file << "    " << "viscosity           = " << format_as_double(data.physics.visc_const) << std::endl;
 
