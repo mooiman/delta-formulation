@@ -1657,11 +1657,11 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             n_xi = 1.0;
             n_eta = 0.0;
 
-            visc_1 = scvf_xi(visc_11[p_e], visc_11[p_0], visc_11[p_se], visc_11[p_e]);
-            visc_2 = scvf_xi(visc_22[p_e], visc_22[p_0], visc_22[p_se], visc_22[p_e]);
-            htheta_0 = scvf_xi(htheta[p_e], htheta[p_0], htheta[p_se], htheta[p_e]);
-            qtheta_0 = scvf_xi(qtheta[p_e], qtheta[p_0], qtheta[p_se], qtheta[p_e]);
-            rtheta_0 = scvf_xi(rtheta[p_e], rtheta[p_0], rtheta[p_se], rtheta[p_e]);
+            visc_1 = scvf_xi(visc_11[p_e], visc_11[p_0], visc_11[p_se], visc_11[p_s]);
+            visc_2 = scvf_xi(visc_22[p_e], visc_22[p_0], visc_22[p_se], visc_22[p_s]);
+            htheta_0 = scvf_xi(htheta[p_e], htheta[p_0], htheta[p_se], htheta[p_s]);
+            qtheta_0 = scvf_xi(qtheta[p_e], qtheta[p_0], qtheta[p_se], qtheta[p_s]);
+            rtheta_0 = scvf_xi(rtheta[p_e], rtheta[p_0], rtheta[p_se], rtheta[p_s]);
             dh_dxi  = dcdx_scvf_n(htheta[p_e], htheta[p_0], htheta[p_se], htheta[p_s]);
             dq_dxi  = dcdx_scvf_n(qtheta[p_e], qtheta[p_0], qtheta[p_se], qtheta[p_s]);
             dr_dxi  = dcdx_scvf_n(rtheta[p_e], rtheta[p_0], rtheta[p_se], rtheta[p_s]);
@@ -1829,11 +1829,11 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             n_xi = -1.0;
             n_eta = 0.0;
 
-            visc_1 = scvf_xi(visc_11[p_0], visc_11[p_w], visc_11[p_nw], visc_11[p_n]);
-            visc_2 = scvf_xi(visc_22[p_0], visc_22[p_w], visc_22[p_nw], visc_22[p_n]);
-            htheta_0 = scvf_xi(htheta[p_0], htheta[p_w], htheta[p_nw], htheta[p_n]);
-            qtheta_0 = scvf_xi(qtheta[p_0], qtheta[p_w], qtheta[p_nw], qtheta[p_n]);
-            rtheta_0 = scvf_xi(rtheta[p_0], rtheta[p_w], rtheta[p_nw], rtheta[p_n]);
+            visc_1 = scvf_xi(visc_11[p_0], visc_11[p_w], visc_11[p_n], visc_11[p_nw]);
+            visc_2 = scvf_xi(visc_22[p_0], visc_22[p_w], visc_22[p_n], visc_22[p_nw]);
+            htheta_0 = scvf_xi(htheta[p_0], htheta[p_w], htheta[p_n], htheta[p_nw]);
+            qtheta_0 = scvf_xi(qtheta[p_0], qtheta[p_w], qtheta[p_n], qtheta[p_nw]);
+            rtheta_0 = scvf_xi(rtheta[p_0], rtheta[p_w], rtheta[p_n], rtheta[p_nw]);
             dh_dxi  = dcdx_scvf_n(htheta[p_0], htheta[p_w], htheta[p_n], htheta[p_nw]);
             dq_dxi  = dcdx_scvf_n(qtheta[p_0], qtheta[p_w], qtheta[p_n], qtheta[p_nw]);
             dr_dxi  = dcdx_scvf_n(rtheta[p_0], rtheta[p_w], rtheta[p_n], rtheta[p_nw]);
