@@ -122,9 +122,9 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     double htheta_0 = scvf_xi(htheta[p_0], htheta[p_w], htheta[p_s], htheta[p_sw]);
     double qtheta_0 = scvf_xi(qtheta[p_0], qtheta[p_w], qtheta[p_s], qtheta[p_sw]);
     double rtheta_0 = scvf_xi(rtheta[p_0], rtheta[p_w], rtheta[p_s], rtheta[p_sw]);
-    double dh_dxi = dcdx_scvf_n(htheta[p_0], htheta[p_w], htheta[p_s], htheta[p_sw]);
-    double dq_dxi = dcdx_scvf_n(qtheta[p_0], qtheta[p_w], qtheta[p_s], qtheta[p_sw]);
-    double dr_dxi = dcdx_scvf_n(rtheta[p_0], rtheta[p_w], rtheta[p_s], rtheta[p_sw]);
+    double dh_dxi  = dcdx_scvf_n(htheta[p_0], htheta[p_w], htheta[p_s], htheta[p_sw]);
+    double dq_dxi  = dcdx_scvf_n(qtheta[p_0], qtheta[p_w], qtheta[p_s], qtheta[p_sw]);
+    double dr_dxi  = dcdx_scvf_n(rtheta[p_0], rtheta[p_w], rtheta[p_s], rtheta[p_sw]);
     double dh_deta = dcdy_scvf_t(htheta[p_0], htheta[p_s], htheta[p_w], htheta[p_sw]);
     double dq_deta = dcdy_scvf_t(qtheta[p_0], qtheta[p_s], qtheta[p_w], qtheta[p_sw]);
     double dr_deta = dcdy_scvf_t(rtheta[p_0], rtheta[p_s], rtheta[p_w], rtheta[p_sw]);
@@ -178,7 +178,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     visc_2   = scvf_eta(visc_22[p_0], visc_22[p_s], visc_22[p_sw], visc_22[p_w]);
     htheta_0 = scvf_eta(htheta[p_0], htheta[p_s], htheta[p_sw], htheta[p_w]);
     qtheta_0 = scvf_eta(qtheta[p_0], qtheta[p_s], qtheta[p_sw], qtheta[p_w]);
-    rtheta_0 = scvf_eta(qtheta[p_0], rtheta[p_s], rtheta[p_sw], rtheta[p_w]);
+    rtheta_0 = scvf_eta(rtheta[p_0], rtheta[p_s], rtheta[p_sw], rtheta[p_w]);
     dh_dxi  = dcdx_scvf_t(htheta[p_0], htheta[p_w], htheta[p_s], htheta[p_sw]);
     dq_dxi  = dcdx_scvf_t(qtheta[p_0], qtheta[p_w], qtheta[p_s], qtheta[p_sw]);
     dr_dxi  = dcdx_scvf_t(rtheta[p_0], rtheta[p_w], rtheta[p_s], rtheta[p_sw]);
@@ -246,7 +246,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     visc_2   = scvf_eta(visc_22[p_0], visc_22[p_s], visc_22[p_se], visc_22[p_e]);
     htheta_0 = scvf_eta(htheta[p_0], htheta[p_s], htheta[p_se], htheta[p_e]);
     qtheta_0 = scvf_eta(qtheta[p_0], qtheta[p_s], qtheta[p_se], qtheta[p_e]);
-    rtheta_0 = scvf_eta(qtheta[p_0], rtheta[p_s], rtheta[p_se], rtheta[p_e]);
+    rtheta_0 = scvf_eta(rtheta[p_0], rtheta[p_s], rtheta[p_se], rtheta[p_e]);
     dh_dxi  = dcdx_scvf_t(htheta[p_e], htheta[p_0], htheta[p_se], htheta[p_s]);
     dq_dxi  = dcdx_scvf_t(qtheta[p_e], qtheta[p_0], qtheta[p_se], qtheta[p_s]);
     dr_dxi  = dcdx_scvf_t(rtheta[p_e], rtheta[p_0], rtheta[p_se], rtheta[p_s]);
@@ -428,7 +428,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     visc_2   = scvf_eta(visc_22[p_n], visc_22[p_0], visc_22[p_ne], visc_22[p_e]);
     htheta_0 = scvf_eta(htheta[p_n], htheta[p_0], htheta[p_ne], htheta[p_e]);
     qtheta_0 = scvf_eta(qtheta[p_n], qtheta[p_0], qtheta[p_ne], qtheta[p_e]);
-    rtheta_0 = scvf_eta(qtheta[p_n], rtheta[p_0], rtheta[p_ne], rtheta[p_e]);
+    rtheta_0 = scvf_eta(rtheta[p_n], rtheta[p_0], rtheta[p_ne], rtheta[p_e]);
     dh_dxi  = dcdx_scvf_t(htheta[p_e], htheta[p_0], htheta[p_ne], htheta[p_n]);
     dq_dxi  = dcdx_scvf_t(qtheta[p_e], qtheta[p_0], qtheta[p_ne], qtheta[p_n]);
     dr_dxi  = dcdx_scvf_t(rtheta[p_e], rtheta[p_0], rtheta[p_ne], rtheta[p_n]);
@@ -496,7 +496,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     visc_2   = scvf_eta(visc_22[p_n], visc_22[p_0], visc_22[p_nw], visc_22[p_w]);
     htheta_0 = scvf_eta(htheta[p_n], htheta[p_0], htheta[p_nw], htheta[p_w]);
     qtheta_0 = scvf_eta(qtheta[p_n], qtheta[p_0], qtheta[p_nw], qtheta[p_w]);
-    rtheta_0 = scvf_eta(qtheta[p_n], rtheta[p_0], rtheta[p_nw], rtheta[p_w]);
+    rtheta_0 = scvf_eta(rtheta[p_n], rtheta[p_0], rtheta[p_nw], rtheta[p_w]);
     dh_dxi  = dcdx_scvf_t(htheta[p_0], htheta[p_w], htheta[p_n], htheta[p_nw]);
     dq_dxi  = dcdx_scvf_t(qtheta[p_0], qtheta[p_w], qtheta[p_n], qtheta[p_nw]);
     dr_dxi  = dcdx_scvf_t(rtheta[p_0], rtheta[p_w], rtheta[p_n], rtheta[p_nw]);
@@ -757,7 +757,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     // sub control volume 1 ============================================
     // scv_1 face_2
     n_xi = 0.0;
-    n_eta = 0.0; -1.0;
+    n_eta = -1.0;
 
     visc_1   = scvf_eta(visc_11[p_0], visc_11[p_s], visc_11[p_se], visc_11[p_e]);
     visc_2   = scvf_eta(visc_22[p_0], visc_22[p_s], visc_22[p_se], visc_22[p_e]);
@@ -833,10 +833,10 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     dx_deta = dcdy_scvf_t(x[p_0], x[p_s], x[p_e], x[p_se]);
     dy_deta = dcdy_scvf_t(y[p_0], y[p_s], y[p_e], y[p_se]);
 
-    aa_q = visc_1 / scv_area_1 * qtheta_0 / (htheta_0 * htheta_0) * dh_deta;
-    bb_q = visc_1 / scv_area_1 * -1.0 / htheta_0 * dh_deta;
-    cc_q = visc_1 / scv_area_1 * 1.0;
-    dd_q = visc_1 / scv_area_1 * - qtheta_0 / htheta_0;
+    aa_q = visc_2 / scv_area_1 * qtheta_0 / (htheta_0 * htheta_0) * dh_deta;
+    bb_q = visc_2 / scv_area_1 * -1.0 / htheta_0 * dh_deta;
+    cc_q = visc_2 / scv_area_1 * 1.0;
+    dd_q = visc_2 / scv_area_1 * - qtheta_0 / htheta_0;
 
     aa_r = visc_2 / scv_area_1 * rtheta_0 / (htheta_0 * htheta_0) * dh_dxi;
     bb_r = visc_2 / scv_area_1 * -1.0 / htheta_0 * dh_dxi;
@@ -950,7 +950,7 @@ int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int
     // sub control volume 2 ============================================
     // scv_2 face_5
     n_xi = 0.0;
-    n_eta = 0.0; 1.0;
+    n_eta = 1.0;
 
     visc_1   = scvf_eta(visc_11[p_n], visc_11[p_0], visc_11[p_ne], visc_11[p_e]);
     visc_2   = scvf_eta(visc_22[p_n], visc_22[p_0], visc_22[p_ne], visc_22[p_e]);
@@ -1186,9 +1186,9 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             double htheta_0 = scvf_xi(htheta[p_0], htheta[p_w], htheta[p_s], htheta[p_sw]);
             double qtheta_0 = scvf_xi(qtheta[p_0], qtheta[p_w], qtheta[p_s], qtheta[p_sw]);
             double rtheta_0 = scvf_xi(rtheta[p_0], rtheta[p_w], rtheta[p_s], rtheta[p_sw]);
-            double dh_dxi = dcdx_scvf_n(htheta[p_0], htheta[p_w], htheta[p_s], htheta[p_sw]);
-            double dq_dxi = dcdx_scvf_n(qtheta[p_0], qtheta[p_w], qtheta[p_s], qtheta[p_sw]);
-            double dr_dxi = dcdx_scvf_n(rtheta[p_0], rtheta[p_w], rtheta[p_s], rtheta[p_sw]);
+            double dh_dxi  = dcdx_scvf_n(htheta[p_0], htheta[p_w], htheta[p_s], htheta[p_sw]);
+            double dq_dxi  = dcdx_scvf_n(qtheta[p_0], qtheta[p_w], qtheta[p_s], qtheta[p_sw]);
+            double dr_dxi  = dcdx_scvf_n(rtheta[p_0], rtheta[p_w], rtheta[p_s], rtheta[p_sw]);
             double dh_deta = dcdy_scvf_t(htheta[p_0], htheta[p_s], htheta[p_w], htheta[p_sw]);
             double dq_deta = dcdy_scvf_t(qtheta[p_0], qtheta[p_s], qtheta[p_w], qtheta[p_sw]);
             double dr_deta = dcdy_scvf_t(rtheta[p_0], rtheta[p_s], rtheta[p_w], rtheta[p_sw]);
@@ -1487,9 +1487,9 @@ int viscosity_post_rhs(std::vector<double>& rhs_q, std::vector<double>& rhs_r,
             htheta_0 = scvf_xi(htheta[p_0], htheta[p_w], htheta[p_n], htheta[p_nw]);
             qtheta_0 = scvf_xi(qtheta[p_0], qtheta[p_w], qtheta[p_n], qtheta[p_nw]);
             rtheta_0 = scvf_xi(rtheta[p_0], rtheta[p_w], rtheta[p_n], rtheta[p_nw]);
-            dh_dxi = dcdx_scvf_n(htheta[p_0], htheta[p_w], htheta[p_n], htheta[p_nw]);
-            dq_dxi = dcdx_scvf_n(qtheta[p_0], qtheta[p_w], qtheta[p_n], qtheta[p_nw]);
-            dr_dxi = dcdx_scvf_n(rtheta[p_0], rtheta[p_w], rtheta[p_n], rtheta[p_nw]);
+            dh_dxi  = dcdx_scvf_n(htheta[p_0], htheta[p_w], htheta[p_n], htheta[p_nw]);
+            dq_dxi  = dcdx_scvf_n(qtheta[p_0], qtheta[p_w], qtheta[p_n], qtheta[p_nw]);
+            dr_dxi  = dcdx_scvf_n(rtheta[p_0], rtheta[p_w], rtheta[p_n], rtheta[p_nw]);
             dh_deta = dcdy_scvf_t(htheta[p_n], htheta[p_0], htheta[p_nw], htheta[p_w]);
             dq_deta = dcdy_scvf_t(qtheta[p_n], qtheta[p_0], qtheta[p_nw], qtheta[p_w]);
             dr_deta = dcdy_scvf_t(rtheta[p_n], rtheta[p_0], rtheta[p_nw], rtheta[p_w]);
