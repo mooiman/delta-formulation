@@ -339,7 +339,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
     }
     for (size_t i = 0; i < nxny; ++i)
     {
-        psi[i] = std::abs(solution[i]);
+        psi[i] = metric.dx_dxi[i] * metric.dy_deta[i] * std::abs(solution[i]);  // multiplied by an approximation of det(J)
     }
 
     return;

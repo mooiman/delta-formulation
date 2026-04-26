@@ -86,10 +86,10 @@ int reg_interior_matrix_psi(double* values, size_t row, size_t c_eq,
     size_t col_e  = c_eq + 7;
     size_t col_ne = c_eq + 8;
 
-    double scv_area_0 = 0.25;  // computational space
-    double scv_area_1 = 0.25;  // computational space
-    double scv_area_2 = 0.25;  // computational space
-    double scv_area_3 = 0.25;  // computational space
+    double scv_area_0 = 0.25 * metric.dx_dxi[p_0] * metric.dy_deta[p_0];  // computational space
+    double scv_area_1 = 0.25 * metric.dx_dxi[p_0] * metric.dy_deta[p_0];  // computational space
+    double scv_area_2 = 0.25 * metric.dx_dxi[p_0] * metric.dy_deta[p_0];  // computational space
+    double scv_area_3 = 0.25 * metric.dx_dxi[p_0] * metric.dy_deta[p_0];  // computational space
     //------------------------------------------------------------------------
     // 
     // scv_0
