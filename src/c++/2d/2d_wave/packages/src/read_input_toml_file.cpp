@@ -114,6 +114,7 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
 
     // Time
     tbl_chp = *tbl["Time"].as_table();
+    data.time.tunit = tbl_chp["tunit"].value_or("s");
     data.time.tstart = tbl_chp["tstart"].value_or(double(0.0));
     data.time.tstop = tbl_chp["tstop"].value_or(double(60.));
 
