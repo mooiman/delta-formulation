@@ -819,8 +819,8 @@ int main(int argc, char *argv[])
     std::string his_v_name("v_velocity");
     std::string his_umag_name("u_mag");
     std::string his_froude_name("froude");
-    std::string his_peclet_xi_name("his_peclet_xi_name");
-    std::string his_peclet_eta_name("his_peclet_eta_name");
+    std::string his_peclet_xi_name("his_peclet_xi");
+    std::string his_peclet_eta_name("his_peclet_eta");
     std::string his_visc_name("his_visc_name");
     std::string his_visc_q_name("viscosity_q");
     std::string his_visc_r_name("viscosity_r");
