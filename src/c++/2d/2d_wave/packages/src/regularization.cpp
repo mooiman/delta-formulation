@@ -41,7 +41,7 @@ REGULARIZATION::REGULARIZATION()
     m_iter_max = 100;
     m_g = 10.0;
     m_logging = "";
-    
+
     m_alpha = 1./8.;
     m_mass.push_back(m_alpha);
     m_mass.push_back(1.0 - 2. * m_alpha);
@@ -63,26 +63,28 @@ REGULARIZATION::REGULARIZATION(int iter_max, double g, std::string logging) :
 }
 //------------------------------------------------------------------------------
 void REGULARIZATION::given_function(
-    std::vector<double>& u_tilde, std::vector<double>& psi_11, std::vector<double>& psi_22, std::vector<double>& eq8,
-    std::vector<double>& x, std::vector<double>& y,
-    std::vector<double>& u_giv_in,
-    size_t nx, size_t ny, double c_psi, std::ofstream& log_file)
+    std::vector<double>& u_tilde, std::vector<double>& psi_11, std::vector<double>& psi_22,
+    std::vector<double>& eq8, std::vector<double>& u_giv_in,
+    double c_psi, struct _grid_metric & metric, std::ofstream& log_file)
 {
     double diff_max0 = 0.0;
     double diff_max1 = 0.0;
+    size_t nx = metric.nx;
+    size_t ny = metric.ny;
     size_t nxny = nx * ny;
+    //std::vector<double> eq8(nxny, 0.);
     std::vector<double> u_giv(nxny, 0.);
     std::vector<double> u0(nxny, 0.);
     std::vector<double> u1(nxny, 0.);
-    std::vector<double> u0_xixi(nxny, 0.);
-    std::vector<double> u0_etaeta(nxny, 0.);
+    std::vector<double> Du0_xixi(nxny, 0.);
+    std::vector<double> Du0_etaeta(nxny, 0.);
     std::vector<double> tmp(nxny, 0.);
 
     const auto [u_giv_in_min, u_giv_in_max] = std::minmax_element(u_giv_in.begin(), u_giv_in.end());
     double min_range = 0.0001;
     double u_giv_range = *u_giv_in_max - *u_giv_in_min > min_range ? *u_giv_in_max - *u_giv_in_min : min_range;
     u_giv_range = 1.0;
-    
+
     for (size_t i = 0; i < nxny; ++i)
     {
         // scaling of the input array u_giv_in
@@ -93,8 +95,10 @@ void REGULARIZATION::given_function(
     {
         //std::cout << "Iteration: " << iter << std::endl;
         //std::cout << "Compute second derivative" << std::endl;
-        double u0_xixi_max = 0.0;
-        double u0_etaeta_max = 0.0;
+        double du0_dxi = 0.0;
+        double du0_deta = 0.0;
+        double Du0_xixi_max = 0.0;
+        double Du0_etaeta_max = 0.0;
         for (size_t j = 1; j < ny - 1; ++j)
         {
             for (size_t i = 1; i < nx - 1; ++i)
@@ -104,13 +108,15 @@ void REGULARIZATION::given_function(
                 size_t p_e = p_index(i + 1, j, ny);
                 size_t p_s = p_index(i, j - 1, ny);
                 size_t p_w = p_index(i - 1, j, ny);
-                u0_xixi[p_0]   = std::abs((u0[p_e] - 2. * u0[p_0] + u0[p_w]));
-                u0_etaeta[p_0] = std::abs((u0[p_n] - 2. * u0[p_0] + u0[p_s]));
-                u0_xixi_max = std::max(u0_xixi_max, std::abs(u0_xixi[p_0]));
-                u0_etaeta_max = std::max(u0_etaeta_max, std::abs(u0_etaeta[p_0]));
+                du0_dxi  = 0.5 * (u0[p_e] - u0[p_0]) + (u0[p_0] - u0[p_w]);
+                du0_deta = 0.5 * (u0[p_n] - u0[p_0]) + (u0[p_0] - u0[p_s]);
+                Du0_xixi[p_0]   = std::abs((u0[p_e] - 2. * u0[p_0] + u0[p_w]));  // - metric.ddx_dxi2[i]  / metric.dx_dxi[i]  * du0_dxi );
+                Du0_etaeta[p_0] = std::abs((u0[p_n] - 2. * u0[p_0] + u0[p_s]));  // - metric.ddy_deta2[i] / metric.dy_deta[i] * du0_deta);
+                Du0_xixi_max = std::max(Du0_xixi_max, std::abs(Du0_xixi[p_0]));
+                Du0_etaeta_max = std::max(Du0_etaeta_max, std::abs(Du0_etaeta[p_0]));
             }
         }
-        double smooth= std::max(u0_xixi_max, u0_etaeta_max);
+        double smooth= std::max(Du0_xixi_max, Du0_etaeta_max);
         if (smooth < m_u0_is_smooth)
         {
             for (size_t i = 0; i < nxny; ++i)
@@ -121,51 +127,51 @@ void REGULARIZATION::given_function(
             smooth = smooth + 1.e-12;
         }
 
-        for (size_t i = 0; i < nx; ++i)  // horizontal direction
+        for (size_t i = 0; i < nx; ++i)  // south and north boundary
         {
             size_t j = 0;
             size_t p_0  = p_index(i, j    , ny);
             size_t p_n  = p_index(i, j + 1, ny);
             size_t p_nn = p_index(i, j + 2, ny);
-            u0_etaeta[p_0] = u0_etaeta[p_nn];
-            u0_etaeta[p_n] = u0_etaeta[p_nn];
+            Du0_etaeta[p_0] = Du0_etaeta[p_nn];
+            Du0_etaeta[p_n] = Du0_etaeta[p_nn];
 
             j = ny - 1;
             p_0         = p_index(i, j    , ny);
             size_t p_s  = p_index(i, j - 1, ny);
             size_t p_ss = p_index(i, j - 2, ny);
-            u0_etaeta[p_0] = u0_etaeta[p_ss];
-            u0_etaeta[p_s] = u0_etaeta[p_ss];
+            Du0_etaeta[p_0] = Du0_etaeta[p_ss];
+            Du0_etaeta[p_s] = Du0_etaeta[p_ss];
         }
-        for (size_t j = 0; j < ny; ++j)  // vertical direction
+        for (size_t j = 0; j < ny; ++j)  // west and east boundary
         {
             size_t i = 0;
             size_t p_0  = p_index(i    , j, ny);
             size_t p_e  = p_index(i + 1, j, ny);
             size_t p_ee = p_index(i + 2, j, ny);
-            u0_xixi[p_0] = u0_xixi[p_ee];
-            u0_xixi[p_e] = u0_xixi[p_ee];
+            Du0_xixi[p_0] = Du0_xixi[p_ee];
+            Du0_xixi[p_e] = Du0_xixi[p_ee];
 
             i = nx - 1;
-            p_0      = p_index(i    , j, ny);
+            p_0         = p_index(i    , j, ny);
             size_t p_w  = p_index(i - 1, j, ny);
             size_t p_ww = p_index(i - 2, j, ny);
-            u0_xixi[p_0] = u0_xixi[p_ww];
-            u0_xixi[p_w] = u0_xixi[p_ww];
+            Du0_xixi[p_0] = Du0_xixi[p_ww];
+            Du0_xixi[p_w] = Du0_xixi[p_ww];
         }
 
 //------------------------------------------------------------------------------
-        eq8 = *(this->solve_eq8(nx, ny, x, y, c_psi, u0, u0_xixi, u0_etaeta, log_file));  // eq8 is computed in computational space
+        eq8 = *(this->solve_eq8(metric, c_psi, u0, Du0_xixi, Du0_etaeta, log_file));  // eq8 is computed in computational space
 //------------------------------------------------------------------------------
         for (size_t i = 0; i < nxny; ++i)
         {
-            double dxi = 1.0;
-            double deta = 1.0;
-            psi_11[i] = c_psi * (dxi * dxi + deta * deta) * eq8[i]/2.0;  // divide by 2: then is equal to 1D if dx=dy
-            psi_22[i] = c_psi * (dxi * dxi + deta * deta) * eq8[i]/2.0;  // divide by 2: then is equal to 1D if dx=dy
+            //psi_11[i] = -c_psi * metric.dx_dxi[i]  * metric.dx_dxi[i]  * eq8[i];
+            //psi_22[i] = -c_psi * metric.dy_deta[i] * metric.dy_deta[i] * eq8[i];
+            psi_11[i] = -c_psi * eq8[i];
+            psi_22[i] = -c_psi * eq8[i];
         }
 //------------------------------------------------------------------------------
-        u0 = *(this->solve_eq7(nx, ny, x, y, psi_11, psi_22, u_giv, log_file));
+        u0 = *(this->solve_eq7(metric, psi_11, psi_22, u_giv, log_file));
 //------------------------------------------------------------------------------
 
         diff_max1 = 0.0;
@@ -179,7 +185,7 @@ void REGULARIZATION::given_function(
         }
         else
         {
-            m_u0_is_smooth = std::max(u0_xixi_max, u0_etaeta_max);
+            m_u0_is_smooth = std::max(Du0_xixi_max, Du0_etaeta_max);
             break;
         }
     }
@@ -191,10 +197,11 @@ void REGULARIZATION::given_function(
 //------------------------------------------------------------------------------
 void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, 
     std::vector<double>& h, std::vector<double>& q, std::vector<double>& r, std::vector<double>& zb, 
-    std::vector<double>& x, std::vector<double>& y, size_t nx, size_t ny, 
-    double c_psi_in, std::ofstream& log_file)
+    double c_psi_in, struct _grid_metric & metric, std::ofstream& log_file)
 {
     int status = 0;
+    size_t nx = metric.nx;
+    size_t ny = metric.ny;
     size_t nxny = nx * ny;
 
     Eigen::SparseMatrix<double, Eigen::RowMajor> A(nxny, nxny);
@@ -242,9 +249,8 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
         size_t p_0 = c_eq/(9);
 
         status = reg_boundary_west_psi( values, row, c_eq, rhs,
-            x,  y,
             h, psi_1, psi_2, 
-            1.0, nx, ny);
+            1.0, metric);
     }
     // north-west corner
     for (size_t row = 1 * (ny - 1); row < 1 * ny; row += 1)
@@ -263,24 +269,22 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
         if (row % ny == 0) {
             // south boundary, over write coefficients
             status = reg_boundary_south_psi( values, row, c_eq, rhs,
-                x,  y,
                 h, psi_1, psi_2, 
-                1.0, nx, ny);
+                1.0, metric);
             continue;
         }
         if ((row + 1) % ny == 0) {
             // north boundary, over write coefficients
             status = reg_boundary_north_psi( values, row, c_eq, rhs,
-                x,  y,
                 h, psi_1, psi_2, 
-                1.0, nx, ny);
+                1.0, metric);
             continue;
         }
         status = reg_interior_matrix_psi( values, row, c_eq,
-             c_psi,  x,  y, nx, ny);
+             c_psi, metric);
         // overwrite the right hand side
         status = reg_interior_rhs_psi(row, c_eq, rhs, 
-            h, q, r, x,  y, c_psi, m_g, nx, ny);
+            h, q, r, c_psi, m_g, metric);
     }
     // south-east corner
     for (size_t row = 1 * (nx - 1) * ny; row < 1 * (nx - 1) * ny + 1; row += 1)
@@ -297,9 +301,8 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
         size_t p_0 = c_eq/(9);
 
         status = reg_boundary_east_psi( values, row, c_eq, rhs,
-            x,  y,
             h, psi_1, psi_2, 
-            1.0, nx, ny);
+            1.0, metric);
     }
     // north-east corner
     for (size_t row = 1 * nx * ny - 1; row < 1 * nx * ny; row += 1)
@@ -336,13 +339,13 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
     }
     for (size_t i = 0; i < nxny; ++i)
     {
-        psi[i] = solution[i];
+        psi[i] = metric.dx_dxi[i] * metric.dy_deta[i] * std::abs(solution[i]);  // multiplied by an approximation of det(J)
     }
 
     return;
 }
 //------------------------------------------------------------------------------
-void REGULARIZATION::first_derivative( std::vector<double> & psi, std::vector<double>& eps,  std::vector<double>& u, double dx)
+void REGULARIZATION::first_derivative( std::vector<double> & psi, std::vector<double>& eps,  std::vector<double>& u, struct _grid_metric & metric)
 {
     size_t nx = eps.size();
     std::vector<double> pe(nx, 0.0);
@@ -350,7 +353,7 @@ void REGULARIZATION::first_derivative( std::vector<double> & psi, std::vector<do
 
     for (size_t i = 0; i < nx; ++i)
     {
-        pe[i] = std::abs(u[i] * dx / eps[i]);
+        pe[i] = std::abs(u[i] * metric.dx_dxi[i] / eps[i]);
     }
     for (size_t i = 0; i < nx; ++i)
     {
@@ -362,9 +365,11 @@ void REGULARIZATION::first_derivative( std::vector<double> & psi, std::vector<do
     }
 }
 //------------------------------------------------------------------------------
-std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t ny, std::vector<double>& x, std::vector<double>& y, 
+std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(struct _grid_metric & metric, 
     std::vector<double>& psi_11, std::vector<double>& psi_22, std::vector<double>& u_giv, std::ofstream& log_file)
 {
+    size_t nx = metric.nx;
+    size_t ny = metric.ny;
     size_t nxny = nx * ny;
     auto u = std::make_unique<std::vector<double>> ();
     std::vector<double> tmp(nxny, 0.0);
@@ -393,7 +398,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
     // row 3 * (nx - 1) * ny, +1, +2; se-corner
     // row 3 * (nx - 1) * ny + 3, ..., 3 * nx * ny - 3 - 1: east boundary
     // row 3 * nx * ny - 3, +1, +2 : ne-corner
-    START_TIMERN(Regularization diffusion);
+    START_TIMERN(Regularization solve eq7);
     //
     // viscosity
     //
@@ -405,7 +410,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
     {
         size_t c_eq = (size_t) outer[row    ];
         status = reg_corner_south_west_utilde(values, row, c_eq, rhs, 
-           u_giv, (double) 1.0, nx, ny);
+           u_giv, (double) 1.0, metric);
     }
     // west boundary
     for (size_t row = 1; row < 1 * (ny - 1); row += 1)
@@ -413,18 +418,16 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
         size_t c_eq = (size_t) outer[row    ];
         size_t p_0 = c_eq/(9);
 
-        double psi_1 = -psi_11[p_0];
-        double psi_2 = -psi_22[p_0];
         status = reg_boundary_west_utilde(values, row, c_eq, rhs,
-            x, y, u_giv, psi_1, psi_2, 
-            (double) 1.0, nx, ny);
+            u_giv, psi_11[p_0], psi_22[p_0], 
+            (double) 1.0, metric);
     }
     // north-west corner
     for (size_t row = 1 * (ny - 1); row < 1 * ny; row += 1)
     {
         size_t c_eq = (size_t) outer[row    ];
         status = reg_corner_north_west_utilde(values, row, c_eq, rhs, 
-           u_giv, (double) 1.0, nx, ny);
+           u_giv, (double) 1.0, metric);
     }
 
     // interior with south and north boundary
@@ -433,34 +436,32 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
         size_t c_eq = outer[row    ];
         size_t p_0 = c_eq/(9);
 
-        double psi_1 = -psi_11[p_0];
-        double psi_2 = -psi_22[p_0];
-
         if (row % ny == 0) {
             // south boundary, over write coefficients
             status = reg_boundary_south_utilde(values, row, c_eq, rhs, 
-                x, y, u_giv, psi_1, psi_2, 
-                (double) 1.0, nx, ny);
+                u_giv, psi_11[p_0], psi_22[p_0], 
+                (double) 1.0, metric);
             continue;
         }
         if ((row + 1) % ny == 0) {
             // north boundary, over write coefficients
             status = reg_boundary_north_utilde(values, row, c_eq, rhs, 
-                x, y, u_giv, psi_1, psi_2, 
-                (double) 1.0, nx, ny);
+                u_giv, psi_11[p_0], psi_22[p_0], 
+                (double) 1.0, metric);
             continue;
         }
 
-        status = reg_interior_utilde(values, row, c_eq, rhs, u_giv, x, y, nx, ny);
-        status = diffusion_matrix_and_rhs(values, row, c_eq, rhs,
-                    x, y, u_giv, psi_1, psi_2, (double) 1.0, nx, ny);
+        status = utilde_interior_matrix(values, row, c_eq, rhs, 
+            psi_11[p_0], psi_22[p_0], metric);
+        status = utilde_interior_rhs(values, row, c_eq, rhs,
+            u_giv, metric);
     }
     // south-east corner
     for (size_t row = 1 * (nx - 1) * ny; row < 1 * (nx - 1) * ny + 1; row += 1)
     {
         size_t c_eq = (size_t) outer[row    ];
         status = reg_corner_south_east_utilde(values, row, c_eq, rhs, 
-           u_giv, (double) 1.0, nx, ny);
+           u_giv, (double) 1.0, metric);
     }
     // east boundary
     for (size_t row = 1 * (nx - 1) * ny + 1; row < 1 * nx * ny - 1; row += 1) 
@@ -468,22 +469,17 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
         int c_eq = (size_t) outer[row    ];
         size_t p_0 = c_eq/(9);
 
-        double psi_1 = -psi_11[p_0];
-        double psi_2 = -psi_22[p_0];
-
         status = reg_boundary_east_utilde(values, row, c_eq, rhs, 
-            x, y, u_giv, psi_1, psi_2, 
-            (double) 1.0, nx, ny);
+            u_giv, psi_11[p_0], psi_22[p_0], 
+            (double) 1.0, metric);
     }
     // north-east corner
     for (size_t row = 1 * nx * ny - 1; row < 1 * nx * ny; row += 1)
     {
         size_t c_eq = (size_t) outer[row    ];
         status = reg_corner_north_east_utilde(values, row, c_eq, rhs, 
-           u_giv, (double) 1.0, nx, ny);
+           u_giv, (double) 1.0, metric);
     }
-    STOP_TIMER(Regularization diffusion);
-
 
     if (m_logging == "pattern")
     {
@@ -500,6 +496,8 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
     solution = solverB.solve(rhs);
     //solution = solverB.solveWithGuess(rhs, solution);
 
+    STOP_TIMER(Regularization solve eq7);
+
     for (size_t i = 0; i < nxny; ++i)
     {
         u->push_back(solution[i]);
@@ -508,10 +506,12 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(size_t nx, size_t
     return u;
 }
 //------------------------------------------------------------------------------
-std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(size_t nx, size_t ny, std::vector<double>& x, std::vector<double>& y,
+std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(struct _grid_metric & metric,
      double c_error, std::vector<double>& u0, std::vector<double>& u0_xixi, std::vector<double>& u0_etaeta, 
-    std::ofstream& log_file)
+     std::ofstream& log_file)
 {
+    size_t nx = metric.nx;
+    size_t ny = metric.ny;
     size_t nxny = nx*ny;
     auto eq8 = std::make_unique<std::vector<double>> ();
     std::vector<double> tmp(nxny, NAN);
@@ -534,13 +534,13 @@ std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(size_t nx, size_
 
     double u0_xixi_max = 0.0;
     double u0_etaeta_max = 0.0;
-    for (size_t i = 0; i < nxny; ++i)
-    {
-        u0_xixi_max = std::max(u0_xixi_max, u0_xixi[i]);
-        u0_etaeta_max = std::max(u0_etaeta_max, u0_etaeta[i]);
-    }
-    if (u0_xixi_max == 0.0) { u0_xixi_max = 1.0; }
-    if (u0_etaeta_max == 0.0) { u0_etaeta_max = 1.0; }
+    //for (size_t i = 0; i < nxny; ++i)
+    //{
+    //    u0_xixi_max = std::max(u0_xixi_max, u0_xixi[i]);
+    //    u0_etaeta_max = std::max(u0_etaeta_max, u0_etaeta[i]);
+    //}
+    //if (u0_xixi_max == 0.0) { u0_xixi_max = 1.0; }
+    //if (u0_etaeta_max == 0.0) { u0_etaeta_max = 1.0; }
     u0_xixi_max = 1.0;
     u0_etaeta_max = 1.0;
 
@@ -672,17 +672,17 @@ std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(size_t nx, size_
         values[c_eq +  7] = m_mass[2] * m_mass[1] - 4.0/6.0 * c_error;
         values[c_eq +  8] = m_mass[2] * m_mass[2] - 1.0/6.0 * c_error;
 
-        rhs[row]  = (u0_xixi[p_sw] + u0_etaeta[p_sw])/(u0_xixi_max + u0_etaeta_max);
-        rhs[row] += (u0_xixi[p_w ] + u0_etaeta[p_w ])/(u0_xixi_max + u0_etaeta_max);
-        rhs[row] += (u0_xixi[p_nw] + u0_etaeta[p_nw])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row]  =  1./64. * (u0_xixi[p_sw] + u0_etaeta[p_sw])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] +=  6./64. * (u0_xixi[p_w ] + u0_etaeta[p_w ])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] +=  1./64. * (u0_xixi[p_nw] + u0_etaeta[p_nw])/(u0_xixi_max + u0_etaeta_max);
         
-        rhs[row] += (u0_xixi[p_s ] + u0_etaeta[p_s ])/(u0_xixi_max + u0_etaeta_max);
-        rhs[row] += (u0_xixi[p_0 ] + u0_etaeta[p_0 ])/(u0_xixi_max + u0_etaeta_max);
-        rhs[row] += (u0_xixi[p_n ] + u0_etaeta[p_n ])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] +=  6./64. * (u0_xixi[p_s ] + u0_etaeta[p_s ])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] += 36./64. * (u0_xixi[p_0 ] + u0_etaeta[p_0 ])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] +=  6./64. * (u0_xixi[p_n ] + u0_etaeta[p_n ])/(u0_xixi_max + u0_etaeta_max);
         
-        rhs[row] += (u0_xixi[p_se] + u0_etaeta[p_se])/(u0_xixi_max + u0_etaeta_max);
-        rhs[row] += (u0_xixi[p_e ] + u0_etaeta[p_e ])/(u0_xixi_max + u0_etaeta_max);
-        rhs[row] += (u0_xixi[p_ne] + u0_etaeta[p_ne])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] +=  1./64. * (u0_xixi[p_se] + u0_etaeta[p_se])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] +=  6./64. * (u0_xixi[p_e ] + u0_etaeta[p_e ])/(u0_xixi_max + u0_etaeta_max);
+        rhs[row] +=  1./64. * (u0_xixi[p_ne] + u0_etaeta[p_ne])/(u0_xixi_max + u0_etaeta_max);
         //rhs[row] = std::abs((u0_xixi[p_0 ] + u0_etaeta[p_0 ])/(u0_xixi_max + u0_etaeta_max));
     }
     // south-east corner
@@ -763,211 +763,6 @@ std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(size_t nx, size_
         eq8->push_back(solution[i]); // / (err_max + 1e-13);  // to prevent division bij zero
     }
     return eq8;
-}
-//------------------------------------------------------------------------------
-int REGULARIZATION::reg_interior_rhs_psi( size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& h, std::vector<double>& q, std::vector<double>& r,
-    std::vector<double>& x, std::vector<double>& y,
-    double c_psi, double g, size_t nx, size_t ny)
-{
-    size_t nxny = nx * ny;
-    std::vector<double> Err_psi(nxny, 0.0);
-
-    std::vector<double> d2h_dxi2(nxny, 0.0);
-    std::vector<double> d2h_dxideta(nxny, 0.0);
-    std::vector<double> d2h_deta2(nxny, 0.0);
-    std::vector<double> d2q_dxi2(nxny, 0.0);
-    std::vector<double> d2q_dxideta(nxny, 0.0);
-    std::vector<double> d2q_deta2(nxny, 0.0);
-    std::vector<double> d2r_dxi2(nxny, 0.0);
-    std::vector<double> d2r_dxideta(nxny, 0.0);
-    std::vector<double> d2r_deta2(nxny, 0.0);
-    std::vector<double> d2s_dxi2(nxny, 0.0);
-    std::vector<double> d2s_dxideta(nxny, 0.0);
-    std::vector<double> d2s_deta2(nxny, 0.0);
-    std::vector<double> s(nxny, 0.0);
-    std::vector<size_t> p(9);
-
-    if ( row != c_eq/(9) ) { std::cerr << "Jan Mooiman" << std::endl; }
-    p[0] = row - ny - 1;
-    p[1] = row - ny ;
-    p[2] = row - ny + 1;
-    p[3] = row - 1;
-    p[4] = row;
-    p[5] = row + 1;
-    p[6] = row + ny - 1;
-    p[7] = row + ny;
-    p[8] = row + ny + 1;
-
-    //
-    // Error based on potential energy
-    //
-    //   \sqrt{g \widehat{h}}
-    // 
-
-    double f1 = F1(h, p, x, y, nx, ny);
-    double f2 = F2(h, p, x, y, nx, ny);
-    double f3 = F3(h, p, x, y, nx, ny);
-    rhs[row] = std::sqrt( g/h[row] ) * (
-        1.0/16.0 * f1 + 1.0/8.0 * f2 + 1.0/16.0 * f3
-        );
-    return 0;
-}
-
-inline double REGULARIZATION::F1(std::vector<double> & u, std::vector<size_t>& p, 
-    std::vector<double> & x, std::vector<double> &y, 
-    size_t nx, size_t ny )
-{
-    double retval = 0.0;
-
-    double dx_dxi = 1.0;
-    double dx_deta = 1.0;
-    double dxi_dx = 1.0;
-    double deta_dx = 1.0;
-    double d2xi_dxdy = 0.0;  // Assume no cuvature in grid
-    double d2eta_dxdy = 0.0; // Assume no cuvature in grid
-    double d2xi_dy2 = 0.0;  // Assume no cuvature in grid
-    double d2eta_dy2 = 0.0; // Assume no cuvature in grid
-    double d2xi_dx2 = 0.0;
-    double d2eta_dx2 = 0.0;
-
-    double du_dxi = 1.0;
-    double du_deta = 1.0;
-    double d2u_dxi2 = d2udxi2(u, p);
-    double d2u_dxideta = d2udxideta(u, p);
-    double d2u_deta2 = d2udeta2(u, p);
-
-    retval = dx_dxi * dx_dxi * (
-          dxi_dx * dxi_dx * d2u_dxi2 
-//        + 2.0 * dxi_dx * deta_dx * d2u_dxideta 
-//        + deta_dx * deta_dx * d2u_deta2 
-//        + d2xi_dx2 * du_dxi 
-//        + d2eta_dx2 * du_deta
-        );
-
-    return retval;
-}
-inline double REGULARIZATION::F2(std::vector<double> & u, std::vector<size_t>& p,
-    std::vector<double> & x, std::vector<double> &y, 
-    size_t nx, size_t ny )
-{
-    double retval = 0.0;
-
-    double dx_dxi = 1.0;
-    double dy_deta = 1.0;
-    double dxi_dx = 1.0;
-    double dxi_dy = 1.0;
-    double deta_dx = 1.0;
-    double deta_dy = 1.0;
-    double d2xi_dxdy = 0.0;  // Assume no cuvature in grid
-    double d2eta_dxdy = 0.0; // Assume no cuvature in grid
-    double d2xi_dy2 = 0.0;  // Assume no cuvature in grid
-    double d2eta_dy2 = 0.0; // Assume no cuvature in grid
-
-    double du_dxi = 1.0;
-    double du_deta = 1.0;
-    double d2u_dxi2 = d2udxi2(u, p);
-    double d2u_dxideta = d2udxideta(u, p);
-    double d2u_deta2 = d2udeta2(u, p);
-
-    retval = dx_dxi * dy_deta * (
-        dxi_dx * dxi_dy * d2u_dxi2 
-        + (dxi_dx * deta_dy + deta_dx * dxi_dy) * d2u_dxideta 
-        + deta_dx * deta_dy * d2u_deta2
-        + d2xi_dxdy * du_dxi
-        + d2eta_dxdy * du_deta
-        );
-
-    return 0.0;
-    return retval;
-}
-inline double REGULARIZATION::F3(std::vector<double> & u, std::vector<size_t>& p, 
-    std::vector<double> & x, std::vector<double> &y, 
-    size_t nx, size_t ny )
-{
-    double retval = 0.0;
-
-    double dx_dxi = 1.0;
-    double dy_deta = 1.0;
-    double dxi_dx = 1.0;
-    double dxi_dy = 1.0;
-    double deta_dx = 1.0;
-    double deta_dy = 1.0;
-    double d2xi_dxdy = 0.0;  // Assume no cuvature in grid
-    double d2eta_dxdy = 0.0; // Assume no cuvature in grid
-    double d2xi_dy2 = 0.0;  // Assume no cuvature in grid
-    double d2eta_dy2 = 0.0; // Assume no cuvature in grid
-
-    double du_dxi = 1.0;
-    double du_deta = 1.0;
-    double d2u_dxi2 = d2udxi2(u, p);
-    double d2u_dxideta = d2udxideta(u, p);
-    double d2u_deta2 = d2udeta2(u, p);
-
-    retval = dy_deta * dy_deta * (
-//         dxi_dy * dxi_dy * d2u_dxi2 
-//       + 2.0 * dxi_dy * deta_dy * d2u_dxideta 
-        + deta_dy * deta_dy * d2u_deta2 
-//        + d2xi_dy2 * du_dxi 
-//        + d2eta_dy2 * du_deta
-        );
-
-    return retval;
-}
-inline double REGULARIZATION::d2udxi2(std::vector<double> & u, std::vector<size_t>& p)
-{
-    // Computational space
-    double dxi = 1.0;
-    double deta = 1.0;
-    double retval = 0.0;
-
-    retval =  1./8. * u[p[0]] +
-              6./8. * u[p[1]] +
-              1./8. * u[p[2]] +
-             -6./8. * u[p[3]] +
-            -12./8. * u[p[4]] +
-             -6./8. * u[p[5]] +
-              1./8. * u[p[6]] +
-              6./8. * u[p[7]] +
-              1./8. * u[p[8]];
-    return retval;
-}
-inline double REGULARIZATION::d2udxideta(std::vector<double> & u, std::vector<size_t>& p)
-{
-    // Computational space
-    double dxi = 1.0;
-    double deta = 1.0;
-    double retval = 0.0;
-
-    retval = 1.0 * u[p[0]] +
-             0.0 * u[p[1]] +
-            -1.0 * u[p[2]] +
-             0.0 * u[p[3]] +
-             0.0 * u[p[4]] +
-             0.0 * u[p[5]] +
-            -1.0 * u[p[6]] +
-             0.0 * u[p[7]] +
-             1.0 * u[p[8]];
-
-    return 0.0;
-    //return retval/(4.0 * dxi * deta);
-}
-inline double REGULARIZATION::d2udeta2(std::vector<double> & u, std::vector<size_t>& p)
-{
-    // Computational space
-    double retval;
-
-    retval =  1./8. * u[p[0]] +
-             -6./8. * u[p[1]] +
-              1./8. * u[p[2]] +
-              6./8. * u[p[3]] +
-            -12./8. * u[p[4]] +
-              6./8. * u[p[5]] +
-              1./8. * u[p[6]] +
-             -6./8. * u[p[7]] +
-              1./8. * u[p[8]];
-    return retval;
-    //return d2udxi2(u, p);
 }
 size_t REGULARIZATION::p_index(size_t i, size_t j, size_t ny_in)
 {

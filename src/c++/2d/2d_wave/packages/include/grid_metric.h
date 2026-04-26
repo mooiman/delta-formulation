@@ -2,7 +2,7 @@
 // Programmer: Jan Mooiman
 // Email     : jan.mooiman@outlook.com
 //
-//    Solving the HEAT-equation in 2 dimensions, fully implicit with delta-formuation and Modified Newton iteration 
+//    Solving the 2D wave equation, fully implicit with delta-formulation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -20,28 +20,27 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __MATRIX_ASSEMBLY_UTILDE_INTERIOR_H__
-#define __MATRIX_ASSEMBLY_UTILDE_INTERIOR_H__
+#pragma once
 
 #define _USE_MATH_DEFINES
-#include <cmath>
-#include <iostream>
-#include <string>
+#include <cstdlib>
 #include <vector>
+#include <cmath>
+#include <string>
 
-// for BiCGstab  solver
-#include <Eigen/Dense>
-#include <Eigen/IterativeLinearSolvers>
-#include <Eigen/Sparse>
-
-#include "grid_metric.h"
-
-int utilde_interior_matrix(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    double psi_1, double psi_2, struct _grid_metric & metric);
-int utilde_interior_rhs(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-        std::vector<double>& u_giv, struct _grid_metric & metric);
-inline double bilinear_interpolation(double alpha, double beta, double u_0, double u_1, double u_2, double u_3);
-
-inline void add_value(double * values, size_t col, double data);
-
-#endif
+struct _grid_metric {
+    size_t nx;
+    size_t ny;
+    std::vector<double> x;
+    std::vector<double> y;
+    std::vector<double> dx_dxi ; 
+    std::vector<double> dy_dxi ; 
+    std::vector<double> dx_deta; 
+    std::vector<double> dy_deta;
+    std::vector<double> ddx_dxi2 ; 
+    std::vector<double> ddy_dxi2;
+    std::vector<double> ddx_deta2; 
+    std::vector<double> ddy_deta2; 
+};
+int grid_metric(struct _grid_metric & metric); 
+inline size_t idx(size_t i, size_t j, size_t ny_in);

@@ -34,16 +34,18 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
+#include "grid_metric.h"
+
 int reg_corner_north_east_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny);
+    std::vector<double>& utilde, double theta, struct _grid_metric & metric);
 
 int reg_corner_south_east_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny);
+    std::vector<double>& utilde, double theta, struct _grid_metric & metric);
 
 int reg_corner_south_west_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny);
+    std::vector<double>& utilde, double theta, struct _grid_metric & metric);
 
 int reg_corner_north_west_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny);
+    std::vector<double>& utilde, double theta, struct _grid_metric & metric);
 
 #endif

@@ -30,7 +30,7 @@ double c_scv(double c0, double c1, double c2, double c3)
     // scv 2 c_{i+1/4, j+1/4}
     // scv 3 c_{i-1/4, j+1/4}
 
-    //  2 - - - - - - - 3 3 - - - - - - - 2
+    //  3 - - - - - - - 2 2 - - - - - - - 3
     //  |       |       | |       |       | 
     //  |       |       | |       |       | 
     //  |       |       | |       |       | 
@@ -47,7 +47,7 @@ double c_scv(double c0, double c1, double c2, double c3)
     //  |       |       | |       |       | 
     //  |       |       | |       |       | 
     //  |       |       | |       |       | 
-    //  2 - - - - - - - 3 3 - - - - - - - 2 
+    //  3 - - - - - - - 2 2 - - - - - - - 3 
     return 1./16. * (9. * c0 + 3. * c1 +  3. * c2 + c3);
 }
 double scvf_xi(double c0, double c1, double c2, double c3)

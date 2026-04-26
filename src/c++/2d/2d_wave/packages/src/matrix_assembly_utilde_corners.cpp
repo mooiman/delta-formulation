@@ -44,8 +44,10 @@
 //corner nodes
 //
 int reg_corner_north_east_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny)
+    std::vector<double>& utilde, double theta, struct _grid_metric & metric)
 {
+    size_t ny = metric.ny;
+
     size_t p0 = c_eq/(9);
     size_t p1 = p0 - ny;
     size_t p2 = p0 - 1;
@@ -69,8 +71,10 @@ int reg_corner_north_east_utilde(double* values, size_t row, size_t c_eq, Eigen:
     return 0;
 }
 int reg_corner_south_east_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny)
+    std::vector<double>& utilde, double theta, struct _grid_metric & metric)
 {
+    size_t ny = metric.ny;
+
     size_t p0 = c_eq/(9);
     size_t p1 = p0 - ny;
     size_t p2 = p0 + 1;
@@ -94,8 +98,10 @@ int reg_corner_south_east_utilde(double* values, size_t row, size_t c_eq, Eigen:
     return 0;
 }
 int reg_corner_south_west_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny)
+    std::vector<double>& utilde, double theta, struct _grid_metric & metric)
 {
+    size_t ny = metric.ny;
+
     size_t p0 = c_eq/(9);
     size_t p1 = p0 + 1;
     size_t p2 = p0 + ny;
@@ -119,8 +125,10 @@ int reg_corner_south_west_utilde(double* values, size_t row, size_t c_eq, Eigen:
     return 0;
 }
 int reg_corner_north_west_utilde(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
-    std::vector<double>& utilde, double theta, size_t nx, size_t ny)
+    std::vector<double>& utilde, double theta, struct _grid_metric & metric)
 {
+    size_t ny = metric.ny;
+
     size_t p0 = c_eq/(9);
     size_t p1 = p0 - 1;
     size_t p2 = p0 + ny;

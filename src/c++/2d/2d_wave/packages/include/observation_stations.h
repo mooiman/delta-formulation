@@ -31,10 +31,10 @@
 #include <include/KDtree.hpp>
 
 int def_observation_stations(std::vector<std::string>& obs_stations, std::vector<_ObservationPoint>& obs_points, KDTree xy_tree, std::vector<double> x, std::vector<double> y,
-    double Lx, double Ly, double dx, double dy, size_t nx, size_t ny);
+    size_t nx, size_t ny);
 
 int add_hard_coded_observation_points(std::vector<_ObservationPoint>& obs_points, std::vector<double> x, std::vector<double> y, 
-    double Lx, double Ly, double dx, double dy, size_t nx, size_t ny);
+    size_t nx, size_t ny);
 struct _ObservationPoint add_obs(size_t ptr_obs, double x_obs, double y_obs, std::string obs_name);
 std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs_name);
 std::string string_format_with_zeros(double value, int width);

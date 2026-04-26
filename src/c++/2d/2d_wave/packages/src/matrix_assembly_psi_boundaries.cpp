@@ -52,13 +52,11 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
-#include "interpolations.h"
-#include "matrix_assembly_utilde_boundaries.h"
+#include "matrix_assembly_psi_boundaries.h"
 
 int reg_boundary_north_psi(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
-    std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& u_giv, double psi_11, double psi_22, 
-    double theta, size_t nx, size_t ny)
+    double theta, struct _grid_metric metric) 
 {
     size_t p_0 = c_eq/(9);
 
@@ -77,9 +75,8 @@ int reg_boundary_north_psi(double* values, size_t row, size_t c_eq, Eigen::Vecto
     return 0;
 }
 int reg_boundary_east_psi(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
-    std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& u_giv, double psi_11, double psi_22, 
-    double theta, size_t nx, size_t ny)
+    double theta, struct _grid_metric metric) 
 {
     size_t p_0 = c_eq/(9);  // p_e
 
@@ -97,9 +94,8 @@ int reg_boundary_east_psi(double* values, size_t row, size_t c_eq, Eigen::Vector
     return 0;
 }
 int reg_boundary_south_psi(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
-    std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& u_giv, double psi_11, double psi_22, 
-    double theta, size_t nx, size_t ny)
+    double theta, struct _grid_metric metric) 
 {
     size_t p_0 = c_eq/(9);  // p_s
 
@@ -117,9 +113,8 @@ int reg_boundary_south_psi(double* values, size_t row, size_t c_eq, Eigen::Vecto
     return 0;
 }
 int reg_boundary_west_psi(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs,
-    std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& u_giv, double psi_11, double psi_22, 
-    double theta, size_t nx, size_t ny) 
+    double theta, struct _grid_metric metric) 
 {
     size_t p_0 = c_eq/(9);  // p_w
 

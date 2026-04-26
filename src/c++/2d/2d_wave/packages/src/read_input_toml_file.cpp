@@ -90,9 +90,14 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
     data.numerics.regularization_iter = tbl_chp["regularization_iter"].value_or(bool(false));
     data.numerics.regularization_time = tbl_chp["regularization_time"].value_or(bool(false));
 
+    // Output
+    tbl_chp = *tbl["Output"].as_table();
+    data.output.dt_his = tbl_chp["dt_his"].value_or(double(1.0));  // write interval to his-file
+    data.output.dt_map = tbl_chp["dt_map"].value_or(double(0.0));  // write interval to his-file
+    data.output.dt_screen = tbl_chp["dt_screen"].value_or(double(60.0));  // time interval counter on screen 
+
     //Physics
     tbl_chp = *tbl["Physics"].as_table();
-    data.physics.g = tbl_chp["g"].value_or(double(9.81));  // Gravitational acceleration
     data.physics.do_continuity   = tbl_chp["do_continuity"].value_or(bool(true));  // default, continuity
     data.physics.do_q_equation   = tbl_chp["do_q_equation"].value_or(bool(true));  // default, q_equation
     data.physics.do_r_equation   = tbl_chp["do_r_equation"].value_or(bool(true));  // default, r_equation
@@ -102,17 +107,14 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
     data.physics.do_viscosity = tbl_chp["do_viscosity"].value_or(bool(false));  // default, no viscosity
     data.physics.visc_const = tbl_chp["viscosity"].value_or(double(0.0001));  // default 1e-4
 
+    data.physics.g = tbl_chp["g"].value_or(double(9.81));  // Gravitational acceleration
     data.physics.do_bed_shear_stress = tbl_chp["do_bed_shear_stress"].value_or(bool(false));  // default, no bed shear stress
     data.physics.chezy_coefficient = tbl_chp["chezy_coefficient"].value_or(double(50.0));
 
-    // Output
-    tbl_chp = *tbl["Output"].as_table();
-    data.output.dt_his = tbl_chp["dt_his"].value_or(double(1.0));  // write interval to his-file
-    data.output.dt_map = tbl_chp["dt_map"].value_or(double(0.0));  // write interval to his-file
-    data.output.dt_screen = tbl_chp["dt_screen"].value_or(double(60.0));  // time interval counter on screen 
 
     // Time
     tbl_chp = *tbl["Time"].as_table();
+    data.time.tunit = tbl_chp["tunit"].value_or("s");
     data.time.tstart = tbl_chp["tstart"].value_or(double(0.0));
     data.time.tstop = tbl_chp["tstop"].value_or(double(60.));
 
