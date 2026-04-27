@@ -306,10 +306,10 @@ inline double F2(std::vector<double> & u, std::vector<size_t>& p,
     double dxi_dy = 1.0;
     double deta_dx = 1.0;
     double deta_dy = 1.0;
-    double d2xi_dxdy = 0.0;  // Assume no cuvature in grid
-    double d2eta_dxdy = 0.0; // Assume no cuvature in grid
-    double d2xi_dy2 = 0.0;  // Assume no cuvature in grid
-    double d2eta_dy2 = 0.0; // Assume no cuvature in grid
+    double d2xi_dxdy = 0.0;  // Assume no curvature in grid
+    double d2eta_dxdy = 0.0; // Assume no curvature in grid
+    double d2xi_dy2 = 0.0;  // Assume no curvature in grid
+    double d2eta_dy2 = 0.0; // Assume no curvature in grid
 
     double du_dxi = 1.0;
     double du_deta = 1.0;
@@ -338,10 +338,10 @@ inline double F3(std::vector<double> & u, std::vector<size_t>& p,
     double dxi_dy = 1.0;
     double deta_dx = 1.0;
     double deta_dy = 1.0;
-    double d2xi_dxdy = 0.0;  // Assume no cuvature in grid
-    double d2eta_dxdy = 0.0; // Assume no cuvature in grid
-    double d2xi_dy2 = 0.0;  // Assume no cuvature in grid
-    double d2eta_dy2 = 0.0; // Assume no cuvature in grid
+    double d2xi_dxdy = 0.0;  // Assume no curvature in grid
+    double d2eta_dxdy = 0.0; // Assume no curvature in grid
+    double d2xi_dy2 = 0.0;  // Assume no curvature in grid
+    double d2eta_dy2 = 0.0; // Assume no curvature in grid
 
     double du_dxi = 1.0;
     double du_deta = 1.0;
