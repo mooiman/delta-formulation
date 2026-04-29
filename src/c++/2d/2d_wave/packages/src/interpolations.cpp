@@ -203,3 +203,34 @@ double polygon_area(std::vector<double>& x, std::vector<double>& y)
     area *= 0.5;
     return area;
 }
+std::vector<double> scv_areas(std::vector<double> &x,std::vector<double> &y, size_t &p_0, size_t & ny)
+{
+    std::vector<double>scv_area;
+
+    size_t p_sw = p_0 - ny - 1;
+    size_t p_w  = p_0 - ny;
+    size_t p_nw = p_0 - ny + 1;
+    size_t p_s  = p_0 - 1; 
+    size_t p_n  = p_0 + 1;
+    size_t p_se = p_0 + ny - 1;
+    size_t p_e  = p_0 + ny;
+    size_t p_ne = p_0 + ny + 1;
+
+    std::vector<double> x_pol = scv_nodes(0, x[p_0], x[p_w], x[p_sw], x[p_s]);
+    std::vector<double> y_pol = scv_nodes(0, y[p_0], y[p_w], y[p_sw], y[p_s]);
+    scv_area.push_back(polygon_area(x_pol, y_pol));
+
+    x_pol = scv_nodes(1, x[p_0], x[p_s], x[p_se], x[p_e]);
+    y_pol = scv_nodes(1, y[p_0], y[p_s], y[p_se], y[p_e]);
+    scv_area.push_back(polygon_area(x_pol, y_pol));
+
+    x_pol = scv_nodes(2, x[p_0], x[p_e], x[p_ne], x[p_n]);
+    y_pol = scv_nodes(2, y[p_0], y[p_e], y[p_ne], y[p_n]);
+    scv_area.push_back(polygon_area(x_pol, y_pol));
+
+    x_pol = scv_nodes(3, x[p_0], x[p_n], x[p_nw], x[p_w]);
+    y_pol = scv_nodes(3, y[p_0], y[p_n], y[p_nw], y[p_w]);
+    scv_area.push_back(polygon_area(x_pol, y_pol));
+    
+    return scv_area;
+}

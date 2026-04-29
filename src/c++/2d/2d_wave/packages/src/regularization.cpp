@@ -296,7 +296,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
     // east boundary
     for (size_t row = 1 * (nx - 1) * ny + 1; row < 1 * nx * ny - 1; row += 1) 
     {
-        int c_eq = (size_t) outer[row    ];
+        size_t c_eq = (size_t) outer[row    ];
         status = 0;
         size_t p_0 = c_eq/(9);
 

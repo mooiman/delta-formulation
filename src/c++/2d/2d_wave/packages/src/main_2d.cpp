@@ -109,7 +109,6 @@ std::string compileDateTime()
 int main(int argc, char *argv[])
 {
     bool stationary = false;
-    double sign = 1.0;
     int solver_iterations = -1;
     std::filesystem::path toml_file_name("---not-defined---");
     int status = -1;
@@ -321,7 +320,7 @@ int main(int argc, char *argv[])
 
     int total_time_steps = int((input_data.time.tstop - input_data.time.tstart) / input_data.numerics.dt) + 1;  // Number of time steps [-]
     double dtinv;                                         // Inverse of dt, if dt==0 then stationary solution [1/s]
-    double dtpseuinv = 0.0;                                     // Inverse of dtpseu
+    // double dtpseuinv = 0.0;                               // Inverse of dtpseu
     int wrihis;                                           // write interval to his-file
     int wrimap;                                           // write interval to map-file
     if (stationary)
@@ -411,10 +410,8 @@ int main(int argc, char *argv[])
     std::vector<double> bc_vals = input_data.boundary.bc_vals;
 
     double gauss_amp = input_data.initial.gauss_amp;
-    double gauss_mu = input_data.initial.gauss_mu;
     double gauss_mu_x = input_data.initial.gauss_mu_x;
     double gauss_mu_y = input_data.initial.gauss_mu_y;
-    double gauss_sigma = input_data.initial.gauss_sigma;
     double gauss_sigma_x = input_data.initial.gauss_sigma_x;
     double gauss_sigma_y = input_data.initial.gauss_sigma_y;
     std::vector<std::string> ini_vars = input_data.initial.ini_vars;
@@ -542,7 +539,7 @@ int main(int argc, char *argv[])
     //initialize water level
     std::cout << "Initialisation" << std::endl;
     status = 0;
-    double min_zb = *std::min_element(zb_given.begin(), zb_given.end());
+    //double min_zb = *std::min_element(zb_given.begin(), zb_given.end());
 
     log_file << "Nodes   : " << nx << "x" << ny << "=" << nxny << std::endl;
     log_file << "Elements: " << (nx - 1) << "x" << (ny - 1) << "=" << (nx - 1) * (ny - 1) << std::endl;
@@ -621,9 +618,9 @@ int main(int argc, char *argv[])
     }
     status = map_file->mesh2d();  // initialize the mesh2D variable
 
-    int nr_nodes = nx * ny;
-    int nr_edges = (nx - 1) * ny + nx * (ny - 1);
-    int nr_faces = (nx - 1) * (ny - 1);
+    int nr_nodes = int(nx * ny);
+    int nr_edges = int((nx - 1) * ny + nx * (ny - 1));
+    int nr_faces = int((nx - 1) * (ny - 1));
     int mesh2d_nmax_face_nodes = 4;  // all elements are quads
     status = map_file->def_dimensions(nr_nodes, nr_edges, nr_faces, mesh2d_nmax_face_nodes);
     status = map_file->add_edge_nodes(nx, ny);
@@ -869,7 +866,7 @@ int main(int argc, char *argv[])
     his_values.clear();
     for (size_t i = 0; i < input_data.obs_points.size(); ++i)
     {
-        int k = input_data.obs_points[i].idx;
+        size_t k = input_data.obs_points[i].idx;
         double speed = (std::sqrt(u[k] * u[k] + v[k] * v[k]));
         his_values.push_back(speed);
     }
@@ -878,7 +875,7 @@ int main(int argc, char *argv[])
     his_values.clear();
     for (size_t i = 0; i < input_data.obs_points.size(); ++i)
     {
-        int k = input_data.obs_points[i].idx;
+        size_t k = input_data.obs_points[i].idx;
         double speed = (std::sqrt(u[k] * u[k] + v[k] * v[k]));
         double frd = speed/std::sqrt(g * hp[k]);
         his_values.push_back(frd);
@@ -970,9 +967,9 @@ int main(int argc, char *argv[])
     double dh_max = 0.0;
     double dq_max = 0.0;
     double dr_max = 0.0;
-    int dh_maxi = 0;
-    int dq_maxi = 0;
-    int dr_maxi = 0;
+    size_t dh_maxi = 0;
+    size_t dq_maxi = 0;
+    size_t dr_maxi = 0;
 
     Eigen::BiCGSTAB< Eigen::SparseMatrix<double> > solver;
     Eigen::IncompleteLUT<double> ilu;
@@ -1070,18 +1067,18 @@ int main(int argc, char *argv[])
            // south-west corner
             for (size_t row = 0; row < 3; row += 3)
             {
-                int c_eq = outer[row    ];
-                int q_eq = outer[row + 1];
-                int r_eq = outer[row + 2];
+                size_t c_eq = outer[row    ];
+                size_t q_eq = outer[row + 1];
+                size_t r_eq = outer[row + 2];
                 status =  corner_south_west(values, row, c_eq, q_eq, r_eq, rhs, 
                     theta, nx, ny, htheta, qtheta, rtheta);
             }
             // west boundary
             for (size_t row = 3; row < 3 * (ny - 1); row += 3)
             {
-                int c_eq = outer[row    ];
-                int q_eq = outer[row + 1];
-                int r_eq = outer[row + 2];
+                size_t c_eq = outer[row    ];
+                size_t q_eq = outer[row + 1];
+                size_t r_eq = outer[row + 2];
 
                 status =  boundary_west(values, row, c_eq, q_eq, r_eq, rhs, 
                                         dtinv, theta, g, eps_bc_corr, 
@@ -1098,18 +1095,18 @@ int main(int argc, char *argv[])
             // north-west corner
             for (size_t row = 3 * (ny - 1); row < 3 * ny; row += 3)
             {
-                int c_eq = outer[row    ];
-                int q_eq = outer[row + 1];
-                int r_eq = outer[row + 2];
+                size_t c_eq = outer[row    ];
+                size_t q_eq = outer[row + 1];
+                size_t r_eq = outer[row + 2];
                  status =  corner_north_west(values, row, c_eq, q_eq, r_eq, rhs, 
                     theta, nx, ny, htheta, qtheta, rtheta);
             }
             // interior with south and north boundary
             for (size_t row = 3 * ny; row < 3 * (nx - 1) * ny; row += 3) 
             {
-                int c_eq = outer[row    ];
-                int q_eq = outer[row + 1];
-                int r_eq = outer[row + 2];
+                size_t c_eq = outer[row    ];
+                size_t q_eq = outer[row + 1];
+                size_t r_eq = outer[row + 2];
 
                 status =  interior(values, row, c_eq, q_eq, r_eq, rhs, 
                                     dtinv, theta, g, do_convection, nx, ny,
@@ -1151,18 +1148,18 @@ int main(int argc, char *argv[])
             // south-east corner
             for (size_t row = 3 * (nx - 1) * ny; row < 3 * (nx - 1) * ny + 3; row += 3)
             {
-                int c_eq = outer[row    ];
-                int q_eq = outer[row + 1];
-                int r_eq = outer[row + 2];
+                size_t c_eq = outer[row    ];
+                size_t q_eq = outer[row + 1];
+                size_t r_eq = outer[row + 2];
                 status = corner_south_east(values, row, c_eq, q_eq, r_eq, rhs, 
                     theta, nx, ny, htheta, qtheta, rtheta);
             }
             // east boundary
             for (size_t row = 3 * (nx - 1) * ny + 3; row < 3 * nx * ny - 3; row += 3) 
             {
-                int c_eq = outer[row    ];
-                int q_eq = outer[row + 1];
-                int r_eq = outer[row + 2];
+                size_t c_eq = outer[row    ];
+                size_t q_eq = outer[row + 1];
+                size_t r_eq = outer[row + 2];
 
                 status = boundary_east(values, row, c_eq, q_eq, r_eq, rhs, 
                                        dtinv, theta, g, eps_bc_corr, 
@@ -1179,9 +1176,9 @@ int main(int argc, char *argv[])
             // north-east corner
             for (size_t row = 3 * nx * ny - 3; row < 3 * nx * ny; row += 3)
             {
-                int c_eq = outer[row    ];
-                int q_eq = outer[row + 1];
-                int r_eq = outer[row + 2];
+                size_t c_eq = outer[row    ];
+                size_t q_eq = outer[row + 1];
+                size_t r_eq = outer[row + 2];
                 status =  corner_north_east(values, row, c_eq, q_eq, r_eq, rhs, 
                     theta, nx, ny, htheta, qtheta, rtheta);
             }
@@ -1201,9 +1198,9 @@ int main(int argc, char *argv[])
                 // interior with south and north boundary
                 for (size_t row = 3 * ny; row < 3 * (nx - 1) * ny; row += 3) 
                 {
-                    int c_eq = outer[row    ];
-                    int q_eq = outer[row + 1];
-                    int r_eq = outer[row + 2];
+                    size_t c_eq = outer[row    ];
+                    size_t q_eq = outer[row + 1];
+                    size_t r_eq = outer[row + 2];
 
                     status = bed_shear_stress_matrix_and_rhs(values, row, c_eq, q_eq, r_eq, rhs,
                                 x, y, htheta, qtheta, rtheta, cf, theta, nx, ny);
@@ -1229,9 +1226,9 @@ int main(int argc, char *argv[])
                 // interior with south and north boundary
                 for (size_t row = 3 * ny; row < 3 * (nx - 1) * ny; row += 3) 
                 {
-                    int c_eq = outer[row    ];
-                    int q_eq = outer[row + 1];
-                    int r_eq = outer[row + 2];
+                    size_t c_eq = outer[row    ];
+                    size_t q_eq = outer[row + 1];
+                    size_t r_eq = outer[row + 2];
 
                     status = convection_matrix_and_rhs(values, row, c_eq, q_eq, r_eq, rhs,
                                 x, y, htheta, qtheta, rtheta, theta, nx, ny);
@@ -1260,9 +1257,9 @@ int main(int argc, char *argv[])
                 // interior with south and north boundary
                 for (size_t row = 3 * ny; row < 3 * (nx - 1) * ny; row += 3) 
                 {
-                    int c_eq = outer[row    ];
-                    int q_eq = outer[row + 1];
-                    int r_eq = outer[row + 2];
+                    size_t c_eq = outer[row    ];
+                    size_t q_eq = outer[row + 1];
+                    size_t r_eq = outer[row + 2];
 
                     status = viscosity_matrix_and_rhs(values, row, c_eq, q_eq, r_eq, rhs,
                                 x, y, htheta, qtheta, rtheta, visc_11, visc_22, theta, nx, ny);
@@ -1315,7 +1312,7 @@ int main(int argc, char *argv[])
                 {
                     STOP_TIMER(BiCGStab);
                 }
-                solver_iterations = solver.iterations();
+                solver_iterations = int(solver.iterations());
                 if (logging == "iterations" || logging == "matrix")
                 {
                     log_file << "time [sec]: " << std::setprecision(4) << std::scientific << time
@@ -1628,7 +1625,7 @@ int main(int argc, char *argv[])
             his_values.clear();
             for (size_t i = 0; i < input_data.obs_points.size(); ++i)
             {
-                int k = input_data.obs_points[i].idx;
+                size_t k = input_data.obs_points[i].idx;
                 double speed = (std::sqrt(u[k] * u[k] + v[k] * v[k]));
                 his_values.push_back(speed);
             }
@@ -1637,7 +1634,7 @@ int main(int argc, char *argv[])
             his_values.clear();
             for (size_t i = 0; i < input_data.obs_points.size(); ++i)
             {
-                int k = input_data.obs_points[i].idx;
+                size_t k = input_data.obs_points[i].idx;
                 double speed2 = u[k] * u[k] + v[k] * v[k];
                 double frd = std::sqrt(speed2/g * hp[k]);
                 his_values.push_back(frd);

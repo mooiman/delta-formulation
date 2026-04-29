@@ -34,7 +34,7 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
-int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+int interior(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & theta, double & g, bool do_convection, 
     size_t nx, size_t ny,
     std::vector<double>& x, std::vector<double>& y,

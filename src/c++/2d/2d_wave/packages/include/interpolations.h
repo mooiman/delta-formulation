@@ -32,5 +32,7 @@ double dcdy_scvf_n(double c0, double c1, double c2, double c3);
 double dcdy_scvf_t(double c0, double c1, double c2, double c3);
 
 double polygon_area(std::vector<double>& x, std::vector<double>& y);
+std::vector<double> scv_areas(std::vector<double> &x,std::vector<double> &y, size_t &p_0, size_t & ny);
+
 std::vector<double> cv_nodes(double x0, double x1, double x2, double x3);
 std::vector<double> scv_nodes(int scv_i, double x0, double x1, double x2, double x3);

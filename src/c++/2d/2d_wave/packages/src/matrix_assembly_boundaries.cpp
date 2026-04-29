@@ -47,7 +47,7 @@
 // boundary nodes
 //
 //==============================================================================
-int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+int boundary_north(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & theta, double & g, double eps_bc_corr, 
     bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity, 
     size_t nx, size_t ny,
@@ -56,7 +56,7 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
     std::vector<double>& zb, double cf,
-    std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_NORTH, std::vector<double> bc,
+    std::vector<std::string> bc_type, std::vector<std::string> bc_vars, size_t BC_NORTH, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
     std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
@@ -751,7 +751,7 @@ int boundary_north(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
     return 0;
 }
 //==============================================================================
-int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+int boundary_east(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & theta, double & g, double eps_bc_corr, 
     bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity, 
     size_t nx, size_t ny,
@@ -760,20 +760,20 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
     std::vector<double>& zb, double cf,
-    std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_EAST, std::vector<double> bc,
+    std::vector<std::string> bc_type, std::vector<std::string> bc_vars, size_t BC_EAST, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
     std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
 
-    int p_7 = c_eq/(3*27);  // node number of boundary point, ie east point of molecule
-    int p_8 = p_7 + 1;
-    int p_6 = p_7 - 1;
-    int p_5 = p_7 - ny + 1;
-    int p_4 = p_7 - ny;
-    int p_3 = p_7 - ny - 1;
-    int p_2 = p_7 - 2 * ny + 1;
-    int p_1 = p_7 - 2 * ny;
-    int p_0 = p_7 - 2 * ny - 1;
+    size_t p_7 = c_eq/(3*27);  // node number of boundary point, ie east point of molecule
+    size_t p_8 = p_7 + 1;
+    size_t p_6 = p_7 - 1;
+    size_t p_5 = p_7 - ny + 1;
+    size_t p_4 = p_7 - ny;
+    size_t p_3 = p_7 - ny - 1;
+    size_t p_2 = p_7 - 2 * ny + 1;
+    size_t p_1 = p_7 - 2 * ny;
+    size_t p_0 = p_7 - 2 * ny - 1;
 
     double htheta_b = w_nat[0] * htheta[p_7] + w_nat[1] * htheta[p_4] + w_nat[2] * htheta[p_1];
     double zb_b = w_nat[0] * zb[p_7] + w_nat[1] * zb[p_4] + w_nat[2] * zb[p_1];
@@ -1456,7 +1456,7 @@ int boundary_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     return 0;
 }
 //==============================================================================
-int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+int boundary_south(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & theta, double & g, double eps_bc_corr, 
     bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity, 
     size_t nx, size_t ny,
@@ -1465,20 +1465,20 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
     std::vector<double>& zb, double cf, 
-    std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_SOUTH, std::vector<double> bc,
+    std::vector<std::string> bc_type, std::vector<std::string> bc_vars, size_t BC_SOUTH, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
     std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero
 
-    int p_3 = c_eq/(3*27);  // node number of boundary point, ie south point of molecule
-    int p_4 = p_3 + 1;
-    int p_5 = p_3 + 2;
-    int p_0 = p_3 - ny;
-    int p_1 = p_3 - ny + 1;
-    int p_2 = p_3 - ny + 2;
-    int p_6 = p_3 + ny;
-    int p_7 = p_3 + ny + 1;
-    int p_8 = p_3 + ny + 2;
+    size_t p_3 = c_eq/(3*27);  // node number of boundary point, ie south point of molecule
+    size_t p_4 = p_3 + 1;
+    size_t p_5 = p_3 + 2;
+    size_t p_0 = p_3 - ny;
+    size_t p_1 = p_3 - ny + 1;
+    size_t p_2 = p_3 - ny + 2;
+    size_t p_6 = p_3 + ny;
+    size_t p_7 = p_3 + ny + 1;
+    size_t p_8 = p_3 + ny + 2;
 
     double htheta_b = w_nat[0] * htheta[p_3] + w_nat[1] * htheta[p_4] + w_nat[2] * htheta[p_5];
     double zb_b = w_nat[0] * zb[p_3] + w_nat[1] * zb[p_4] + w_nat[2] * zb[p_5];
@@ -2161,7 +2161,7 @@ int boundary_south(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eig
     }
     return 0;
 }
-int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+int boundary_west(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & theta, double & g, double eps_bc_corr, 
     bool stationary, bool do_convection, bool do_bed_shear_stress, bool do_viscosity, 
     size_t nx, size_t ny,
@@ -2170,7 +2170,7 @@ int boundary_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eige
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
     std::vector<double>& zb, double cf,
-    std::vector<std::string> bc_type, std::vector<std::string> bc_vars, int BC_WEST, std::vector<double> bc,
+    std::vector<std::string> bc_type, std::vector<std::string> bc_vars, size_t BC_WEST, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
     std::fill_n(values + c_eq, 3 * 27, 0.0);  // set all coefficients for one row of Delta c-, Delta q- and Delta r-equation to zero

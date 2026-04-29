@@ -173,16 +173,14 @@ long SGRID::read_global_attributes()
 long SGRID::get_global_attribute_value(std::string att_name, std::string* att_value)
 {
     long status = 1;  // error by default
-    bool att_name_found = false;
     for (int i = 0; i < global_attributes->count; i++)
     {
-        if (att_name_found) { exit; }
         if (global_attributes->attribute[i]->name == att_name)
         {
-            att_name_found = true;
             *att_value = global_attributes->attribute[i]->cvalue;
             *att_value = std::string(global_attributes->attribute[i]->cvalue);
             status = 0;
+            break;
         }
     }
     return status;
@@ -491,7 +489,7 @@ long SGRID::read_sgrid_variables()
             }
             else if (m_mesh_vars->variable[m_nr_mesh_var - 1]->dims.size() == 3 )
             {
-                bool contains_time_dimension = false;
+                // bool contains_time_dimension = false;
                 for (int i = 0; i < m_mesh_vars->variable[m_nr_mesh_var - 1]->dims.size(); i++)
                 {
                     // check if one of the dimension is the time dimension
@@ -846,14 +844,14 @@ int SGRID::read_variables_with_cf_role(int i_var, std::string var_name, std::str
                 m_mesh2d->edge[nr_mesh2d - 1]->edge_nodes[i] = mesh2d_edge_nodes + _two * i;
             }
             // vertical edges
-            size_t k = -1;
+            size_t k = size_t(-1);
             for (size_t i = 0; i <imax_node; ++i)
             {
                 for (size_t j = 0; j < jmax_node-1; ++j)
                 {
                     k += 1;
-                    m_mesh2d->edge[nr_mesh2d - 1]->edge_nodes[k][0] = i * jmax_node + j;
-                    m_mesh2d->edge[nr_mesh2d - 1]->edge_nodes[k][1] = i * jmax_node + j + 1;
+                    m_mesh2d->edge[nr_mesh2d - 1]->edge_nodes[k][0] = int(i * jmax_node + j);
+                    m_mesh2d->edge[nr_mesh2d - 1]->edge_nodes[k][1] = int(i * jmax_node + j + 1);
                 }
             }
             //horizontal edges
@@ -862,8 +860,8 @@ int SGRID::read_variables_with_cf_role(int i_var, std::string var_name, std::str
                 for (size_t i = 0; i < imax_node - 1; ++i)
                 {
                     k += 1;
-                    m_mesh2d->edge[nr_mesh2d - 1]->edge_nodes[k][0] = i * jmax_node + j;
-                    m_mesh2d->edge[nr_mesh2d - 1]->edge_nodes[k][1] = (i + 1) * jmax_node + j;
+                    m_mesh2d->edge[nr_mesh2d - 1]->edge_nodes[k][0] = int(i * jmax_node + j);
+                    m_mesh2d->edge[nr_mesh2d - 1]->edge_nodes[k][1] = int((i + 1) * jmax_node + j);
                 }
             }
 
@@ -874,7 +872,7 @@ int SGRID::read_variables_with_cf_role(int i_var, std::string var_name, std::str
             status = nc_inq_varndims(this->m_ncid, var_id, &ndims);
             dimids = (int*)malloc(sizeof(int) * ndims);
             status = nc_inq_vardimid(this->m_ncid, var_id, dimids);
-            for (int i = 0; i < ndims; i++)
+            for (size_t i = 0; i < ndims; i++)
             {
                 length *= m_dimids[dimids[i]];
                 m_mesh2d->node[nr_mesh2d - 1]->dims.push_back(m_dimids[dimids[i]]);
@@ -964,14 +962,14 @@ int SGRID::read_variables_with_cf_role(int i_var, std::string var_name, std::str
             }
             else
             {
-                m_max = m_dimids[dimids[0]] + 1;  // HACK: 1 more node then faces, only true for structured grids
-                n_max = m_dimids[dimids[1]] + 1;  // HACK: 1 more node then faces, only true for structured grids
+                m_max = m_dimids[size_t(dimids[0])] + 1;  // HACK: 1 more node then faces, only true for structured grids
+                n_max = m_dimids[size_t(dimids[1])] + 1;  // HACK: 1 more node then faces, only true for structured grids
             }
 
             std::vector<int> value;
-            for (int m = 0; m < m_max-1; m++)  // faces x-direction
+            for (size_t m = 0; m < m_max-1; m++)  // faces x-direction
             {
-                for (int n = 0; n < n_max-1; n++)  // faces y-direction
+                for (size_t n = 0; n < n_max-1; n++)  // faces y-direction
                 {
                     value.push_back(m * n_max + n);
                     value.push_back((m+1) * n_max + n);

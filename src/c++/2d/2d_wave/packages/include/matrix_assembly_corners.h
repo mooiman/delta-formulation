@@ -30,19 +30,19 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
-int corner_north_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+int corner_north_east(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r_eq, Eigen::VectorXd& rhs, 
     double theta, size_t nx, size_t ny,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta
     );
-int corner_south_east(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+int corner_south_east(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r_eq, Eigen::VectorXd& rhs, 
     double theta, size_t nx, size_t ny,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta
     );
-int corner_south_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+int corner_south_west(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r_eq, Eigen::VectorXd& rhs, 
     double theta, size_t nx, size_t ny,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta
     );
-int corner_north_west(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+int corner_north_west(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r_eq, Eigen::VectorXd& rhs, 
     double theta, size_t nx, size_t ny,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta
     );

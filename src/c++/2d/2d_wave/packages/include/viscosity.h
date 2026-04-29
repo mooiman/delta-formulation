@@ -26,7 +26,7 @@
 #include <vector>
 #include <Eigen/Sparse>
 
-int viscosity_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs,
+int viscosity_matrix_and_rhs(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r_eq, Eigen::VectorXd& rhs,
     std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
     std::vector<double>& visc_11, std::vector<double>& visc_22, double theta, size_t nx, size_t ny);

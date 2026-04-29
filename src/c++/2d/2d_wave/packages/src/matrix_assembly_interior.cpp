@@ -56,7 +56,7 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 
-int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs, 
+int interior(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r_eq, Eigen::VectorXd& rhs, 
     double & dtinv, double & theta, double & g, bool do_convection, 
     size_t nx, size_t ny,
     std::vector<double>& x, std::vector<double>& y, 
@@ -65,7 +65,7 @@ int interior(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::Ve
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
     std::vector<double>& zb, std::vector<double>& mass)
 {
-    int p_0 = c_eq/(3*27);  // node number;  // centre of discretization molecule
+    size_t p_0 = c_eq/(3*27);  // node number;  // centre of discretization molecule
     // if node number is south or north boundary point, exit the function
     if (p_0 % ny == 0) { return 1; }  // south boundary
     if ((p_0 + 1) % ny == 0) { return 2; }  // north boundary

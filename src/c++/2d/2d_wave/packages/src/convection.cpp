@@ -42,7 +42,7 @@
 //    |       |       |       |       |          |       |       |       |       |
 //   sw - - - - - - - s - - - - - - - se        sw - - - - - - - s - - - - - - - se
 
-int convection_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, int r_eq, Eigen::VectorXd& rhs,
+int convection_matrix_and_rhs(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r_eq, Eigen::VectorXd& rhs,
     std::vector<double>& x, std::vector<double>& y,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
     double theta, size_t nx, size_t ny)
@@ -57,7 +57,7 @@ int convection_matrix_and_rhs(double* values, size_t row, int c_eq, int q_eq, in
     //
     // The terms are added to the matrix coefficients and rhs, they already contain contributions from other terms in momentum equation
     // 
-    int p_0 = c_eq/(3*27);  // node number;  // centre of discretization molecule
+    size_t p_0 = c_eq/(3*27);  // node number;  // centre of discretization molecule
     // if node number is south or north boundary point, exit the function
     if (std::fmod(p_0, ny) == 0) { return 1; }  // south boundary
     if (std::fmod(p_0 + 1, ny) == 0) { return 2; }  // north boundary

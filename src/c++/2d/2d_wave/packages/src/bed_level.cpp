@@ -52,7 +52,7 @@ long BED_LEVEL::read(size_t nx, size_t ny)
     fprintf(stderr, "BED_LEVEL::read(nx, ny); Start reading\n");
 #endif    
 
-    size_t k = -1;
+    size_t k = size_t(-1);
     std::string token;
     std::string line;
     std::getline(m_fname, line);
