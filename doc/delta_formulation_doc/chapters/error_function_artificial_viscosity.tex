@@ -152,7 +152,12 @@ the energy equation reads (see \autoref{sec:obtaining_2denergy_equation}):
 \end{align}
 With energy conservation  ($\lpdiff{}{t}=0$) and $q = \textit{Constant}$, $r = \textit{Constant}$ it yields:
 \begin{align}
-    \nabla \left( \half \left( \frac{q^2}{h^2} + \frac{r^2}{h^2} \right) + g \zeta \right) = 0
+    \pdiff{}{x}
+    \left( \half \left( \frac{q^2}{h^2}  + \frac{r^2}{h^2}  \right)
+    + g \zeta \right)
+    + \pdiff{}{y}
+    \left( \half \left( \frac{q^2}{h^2} + \frac{r^2}{h^2} \right)
+    + g \zeta \right) = 0
 \end{align}
 %--------------------------------------------------------------------------------
 \subsection{2D Error function $\mathit{Err}_\psi$} \label{sec:err_psi_2d}
@@ -617,7 +622,13 @@ Rearranged equations, first $\lpdiff{}{t}$ then $\lpdiff{}{x}$ and $\lpdiff{}{y}
 
 With energy conservation  ($\lpdiff{}{t}=0$) and  $q=\textit{Constant}$ and $r=\textit{Constant}$):
 \begin{align}
-    \nabla \left( \half \left( \frac{q^2}{h^2} + \frac{r^2}{h^2} \right) + g \zeta \right) = 0
-    \quad \Rightarrow \quad
+    &\pdiff{}{x}
+    \left( \half \left( \frac{q^2}{h^2}  + \frac{r^2}{h^2}  \right)
+    + g \zeta \right)
+    + \pdiff{}{y}
+    \left( \half \left( \frac{q^2}{h^2} + \frac{r^2}{h^2} \right)
+    + g \zeta \right) = 0
+    \\*
+    &\quad \Rightarrow \quad
     \half \left( \frac{q^2}{h^2} + \frac{r^2}{h^2} \right) + g \zeta =  \textit{Constant}, \bunit{\square\metre\per\square\second}
 \end{align}
