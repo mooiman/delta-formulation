@@ -59,6 +59,7 @@ int reg_interior_matrix_psi(double* values, size_t row, size_t c_eq,
     size_t ny = metric.ny;
     std:: vector<double>& x = metric.x;
     std:: vector<double>& y = metric.y;
+    std:: vector<double>scv_area;
 
     size_t p_0 = c_eq/(9);  // node number;  // centre of discretization molecule
     // if node number is south or north boundary point, exit the function
@@ -86,35 +87,36 @@ int reg_interior_matrix_psi(double* values, size_t row, size_t c_eq,
     size_t col_e  = c_eq + 7;
     size_t col_ne = c_eq + 8;
 
-    double scv_area_0 = 0.25 * metric.dx_dxi[p_0] * metric.dy_deta[p_0];  // computational space
-    double scv_area_1 = 0.25 * metric.dx_dxi[p_0] * metric.dy_deta[p_0];  // computational space
-    double scv_area_2 = 0.25 * metric.dx_dxi[p_0] * metric.dy_deta[p_0];  // computational space
-    double scv_area_3 = 0.25 * metric.dx_dxi[p_0] * metric.dy_deta[p_0];  // computational space
+    scv_area = scv_areas(x, y, p_0, ny);
+    //scv_area[0] = 0.25;  // computational space
+    //scv_area[1] = 0.25;  // computational space
+    //scv_area[2] = 0.25;  // computational space
+    //scv_area[3] = 0.25;  // computational space
     //------------------------------------------------------------------------
     // 
     // scv_0
-    add_value(values, col_0 , scv_area_0 * 9./16.);
-    add_value(values, col_w , scv_area_0 * 3./16.);
-    add_value(values, col_s , scv_area_0 * 3./16.);
-    add_value(values, col_sw, scv_area_0 * 1./16.);
+    add_value(values, col_0 , scv_area[0] * 9./16.);
+    add_value(values, col_w , scv_area[0] * 3./16.);
+    add_value(values, col_s , scv_area[0] * 3./16.);
+    add_value(values, col_sw, scv_area[0] * 1./16.);
     //
     // scv 1
-    add_value(values, col_0 , scv_area_1 * 9./16.);
-    add_value(values, col_s , scv_area_1 * 3./16.);
-    add_value(values, col_e , scv_area_1 * 3./16.);
-    add_value(values, col_se, scv_area_1 * 1./16.);
+    add_value(values, col_0 , scv_area[1] * 9./16.);
+    add_value(values, col_s , scv_area[1] * 3./16.);
+    add_value(values, col_e , scv_area[1] * 3./16.);
+    add_value(values, col_se, scv_area[1] * 1./16.);
     //
     // scv 2
-    add_value(values, col_0 , scv_area_2 * 9./16.);
-    add_value(values, col_e , scv_area_2 * 3./16.);
-    add_value(values, col_n , scv_area_2 * 3./16.);
-    add_value(values, col_ne, scv_area_2 * 1./16.);
+    add_value(values, col_0 , scv_area[2] * 9./16.);
+    add_value(values, col_e , scv_area[2] * 3./16.);
+    add_value(values, col_n , scv_area[2] * 3./16.);
+    add_value(values, col_ne, scv_area[2] * 1./16.);
     //
     //scv 3
-    add_value(values, col_0 , scv_area_3 * 9./16.);
-    add_value(values, col_n , scv_area_3 * 3./16.);
-    add_value(values, col_w , scv_area_3 * 3./16.);
-    add_value(values, col_nw, scv_area_3 * 1./16.);
+    add_value(values, col_0 , scv_area[3] * 9./16.);
+    add_value(values, col_n , scv_area[3] * 3./16.);
+    add_value(values, col_w , scv_area[3] * 3./16.);
+    add_value(values, col_nw, scv_area[3] * 1./16.);
 
     
     // Diffusion part
@@ -248,9 +250,9 @@ int reg_interior_rhs_psi( size_t row, size_t c_eq, Eigen::VectorXd& rhs,
     rhs[row] = c_psi * std::sqrt( g/h[row] ) * std::abs(
         1.0/16.0 * f1_h + 1.0/8.0 * f2_h + 1.0/16.0 * f3_h
         );
-    double f1_q = F1(q, p, metric);
-    double f2_q = 0.0;  // = F2(q, p, metric);
-    double f3_q = F3(q, p, metric);
+    //double f1_q = F1(q, p, metric);
+    //double f2_q = 0.0;  // = F2(q, p, metric);
+    //double f3_q = F3(q, p, metric);
     //rhs[row] += c_psi * 0.5 * std::sqrt(2.0) / (q[p[4]] * h[p[4]]) 
     //    * std::abs( 1.0/8.0 * f1_q + 1.0/4.0 * f2_q + 1.0/8.0 * f3_q )
     //    * std::abs( 1.0/8.0 * f1_h - 1.0/4.0 * f2_h - 1.0/8.0 * f3_h );
@@ -286,7 +288,7 @@ inline double F1(std::vector<double> & u, std::vector<size_t>& p,
     double d2u_deta2 = d2udeta2(u, p);
 
     retval = dx_dxi * dx_dxi * (
-          dxi_dx * dxi_dx * d2u_dxi2 
+          dxi_dx * dxi_dx * d2u_dxi2
 //        + 2.0 * dxi_dx * deta_dx * d2u_dxideta 
 //        + deta_dx * deta_dx * d2u_deta2 
 //        + d2xi_dx2 * du_dxi 
@@ -369,9 +371,9 @@ inline double d2udxi2(std::vector<double> & u, std::vector<size_t>& p)
     retval =  1./8. * u[p[0]] +
               6./8. * u[p[1]] +
               1./8. * u[p[2]] +
-             -6./8. * u[p[3]] +
+             -2./8. * u[p[3]] +
             -12./8. * u[p[4]] +
-             -6./8. * u[p[5]] +
+             -2./8. * u[p[5]] +
               1./8. * u[p[6]] +
               6./8. * u[p[7]] +
               1./8. * u[p[8]];
@@ -403,13 +405,13 @@ inline double d2udeta2(std::vector<double> & u, std::vector<size_t>& p)
     double retval;
 
     retval =  1./8. * u[p[0]] +
-             -6./8. * u[p[1]] +
+             -2./8. * u[p[1]] +
               1./8. * u[p[2]] +
               6./8. * u[p[3]] +
             -12./8. * u[p[4]] +
               6./8. * u[p[5]] +
               1./8. * u[p[6]] +
-             -6./8. * u[p[7]] +
+             -2./8. * u[p[7]] +
               1./8. * u[p[8]];
     return retval;
     //return d2udxi2(u, p);
