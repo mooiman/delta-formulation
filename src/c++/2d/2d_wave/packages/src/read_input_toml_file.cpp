@@ -111,7 +111,6 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
     data.physics.do_bed_shear_stress = tbl_chp["do_bed_shear_stress"].value_or(bool(false));  // default, no bed shear stress
     data.physics.chezy_coefficient = tbl_chp["chezy_coefficient"].value_or(double(50.0));
 
-
     // Time
     tbl_chp = *tbl["Time"].as_table();
     data.time.tunit = tbl_chp["tunit"].value_or("s");
