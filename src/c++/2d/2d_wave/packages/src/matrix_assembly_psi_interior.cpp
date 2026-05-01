@@ -57,9 +57,9 @@ int reg_interior_matrix_psi(double* values, size_t row, size_t c_eq,
 {
     size_t nx = metric.nx;
     size_t ny = metric.ny;
-    std:: vector<double>& x = metric.x;
-    std:: vector<double>& y = metric.y;
-    std:: vector<double>scv_area;
+    std::vector<double>& x = metric.x;
+    std::vector<double>& y = metric.y;
+    std::vector<double> scv_area(4, 0.0);
 
     size_t p_0 = c_eq/(9);  // node number;  // centre of discretization molecule
     // if node number is south or north boundary point, exit the function
@@ -87,11 +87,10 @@ int reg_interior_matrix_psi(double* values, size_t row, size_t c_eq,
     size_t col_e  = c_eq + 7;
     size_t col_ne = c_eq + 8;
 
-    scv_area = scv_areas(x, y, p_0, ny);
-    //scv_area[0] = 0.25;  // computational space
-    //scv_area[1] = 0.25;  // computational space
-    //scv_area[2] = 0.25;  // computational space
-    //scv_area[3] = 0.25;  // computational space
+    scv_area[0] = 0.25;  // computational space
+    scv_area[1] = 0.25;  // computational space
+    scv_area[2] = 0.25;  // computational space
+    scv_area[3] = 0.25;  // computational space
     //------------------------------------------------------------------------
     // 
     // scv_0

@@ -1670,8 +1670,6 @@ int main(int argc, char *argv[])
                 his_file->put_variable(his_peclet_eta_name, nst_his, his_values);
 
                 status = set_his_values(input_data.obs_points, visc_11, his_values);
-                his_file->put_variable(his_visc_name, nst_his, his_values);
-                status = set_his_values(input_data.obs_points, visc_11, his_values);
                 his_file->put_variable(his_visc_q_name, nst_his, his_values);
                 status = set_his_values(input_data.obs_points, visc_22, his_values);
                 his_file->put_variable(his_visc_r_name, nst_his, his_values);
