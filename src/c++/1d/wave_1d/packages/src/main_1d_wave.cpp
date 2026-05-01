@@ -163,6 +163,20 @@ int main(int argc, char* argv[])
         exit(1);
     }
 
+    // convert given time to seconds
+    if (input_data.time.tunit != "s")
+    {
+        if (input_data.time.tunit == "m")
+        {
+            input_data.time.tstart = 60.0 * input_data.time.tstart;
+            input_data.time.tstop  = 60.0 * input_data.time.tstop;
+        }
+        if (input_data.time.tunit == "h")
+        {
+            input_data.time.tstart = 3600.0 * input_data.time.tstart;
+            input_data.time.tstop  = 3600.0 * input_data.time.tstop;
+        }
+    }
     if (input_data.numerics.dt == 0.0) { stationary = true;  }
     if (stationary) { 
         input_data.boundary.treg = 0.0; 
@@ -780,12 +794,12 @@ int main(int argc, char* argv[])
                 qtheta_im12 = 0.5 * (qtheta[i] + qtheta[i - 1]);
                 qtheta_ip12 = 0.5 * (qtheta[i] + qtheta[i + 1]);
 
-                int ph   = 2 * p_index(i    , 0, nx);  // continuity equation
-                int ph_e = 2 * p_index(i + 1, 0, nx);  // continuity equation
-                int ph_w = 2 * p_index(i - 1, 0, nx);  // continuity equation
+                size_t ph   = 2 * p_index(i    , 0, nx);  // continuity equation
+                size_t ph_e = 2 * p_index(i + 1, 0, nx);  // continuity equation
+                size_t ph_w = 2 * p_index(i - 1, 0, nx);  // continuity equation
 
-                int c_eq = ph;
-                int q_eq = c_eq + 1;
+                size_t c_eq = ph;
+                size_t q_eq = c_eq + 1;
                 //
                 // continuity equation (dh/dt ... = 0)
                 //
@@ -915,13 +929,13 @@ int main(int argc, char* argv[])
                 //==============================================================
                 // wwest boundary
                 //==============================================================
-                int i = 0;
-                int ph = 2 * p_index(i, 0, nx);  // continuity equation
-                int ph_e = 2 * p_index(i + 1, 0, nx);  // continuity equation (east)
-                int ph_ee = 2 * p_index(i + 2, 0, nx);  // continuity equation (east-east)
+                size_t i = 0;
+                size_t ph = 2 * p_index(i, 0, nx);  // continuity equation
+                size_t ph_e = 2 * p_index(i + 1, 0, nx);  // continuity equation (east)
+                size_t ph_ee = 2 * p_index(i + 2, 0, nx);  // continuity equation (east-east)
 
-                int c_eq = ph; 
-                int q_eq = c_eq + 1;  // u-momentum equation 
+                size_t c_eq = ph; 
+                size_t q_eq = c_eq + 1;  // u-momentum equation 
 
                 hn_0   = hn[i];       // = h^{n}_{i}
                 hn_ip1 = hn[i + 1];       // = h^{n}_{i+1}
@@ -1155,13 +1169,13 @@ int main(int argc, char* argv[])
                 //==============================================================
                 // eeast boundary
                 //==============================================================
-                int i = nx - 1;
-                int ph = 2 * p_index(i, 0, nx);  // continuity equation
-                int ph_w = 2 * p_index(i - 1, 0, nx);  // continuity equation
-                int ph_ww = 2 * p_index(i - 2, 0, nx);  // continuity equation
+                size_t i = nx - 1;
+                size_t ph = 2 * p_index(i, 0, nx);  // continuity equation
+                size_t ph_w = 2 * p_index(i - 1, 0, nx);  // continuity equation
+                size_t ph_ww = 2 * p_index(i - 2, 0, nx);  // continuity equation
 
-                int c_eq = ph;
-                int q_eq = c_eq + 1;  // u-momentum equation
+                size_t c_eq = ph;
+                size_t q_eq = c_eq + 1;  // u-momentum equation
 
                 hn_0   = hn[i];       // = h^{n}_{i}
                 hn_im1 = hn[i - 1];       // = h^{n}_{i-1}

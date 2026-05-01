@@ -32,7 +32,7 @@ BED_LEVEL::~BED_LEVEL()
 }
 //------------------------------------------------------------------------------
 // set bed level type
-size_t BED_LEVEL::set_bed_level_type(std::string geometry_type, BED_LEVEL_ENUM& bed_level_type)
+int BED_LEVEL::set_bed_level_type(std::string geometry_type, BED_LEVEL_ENUM& bed_level_type)
 {
     if (geometry_type == "WavyBedGeometry") { bed_level_type = BED_LEVEL_ENUM::WAVY; }
     else if (geometry_type == "SlopedBedGeometry") { bed_level_type = BED_LEVEL_ENUM::SLOPED; }

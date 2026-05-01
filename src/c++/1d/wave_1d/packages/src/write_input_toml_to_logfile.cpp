@@ -52,7 +52,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     log_file << format_as_double(data.boundary.bc_vals[data.boundary.bc_vals.size() - 1]) << "]" << std::endl;
 
     //Domain
-    log_file << "[Domain]" << std::endl;
+    log_file << std::endl << "[Domain]" << std::endl;
     log_file << "    Lx            = " << format_as_double(data.domain.Lx) << "  # Domain length [m]" << std::endl;
     log_file << "    depth         = " << format_as_double(data.domain.depth) << "  # bathymetry below reference level [m]" << std::endl;
     log_file << "    geometry_type = \"" << data.domain.geometry_type << "\"" << std::endl;
@@ -72,7 +72,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     log_file << "    dx                  = " << format_as_double(data.numerics.dx) << "  # Grid size [m]" << std::endl;
     log_file << "    c_psi               = " << format_as_double(data.numerics.c_psi) << std::endl;
     log_file << "    theta               = " << format_as_double(data.numerics.theta) << "  # Implicitness factor (0.5 <= theta <= 1.0)" << std::endl;
-    log_file << "    iter_max            = " << format_as_double(data.numerics.iter_max) << "  # Maximum number of non linear iterations" << std::endl;
+    log_file << "    iter_max            = " << format_as_double(data.numerics.iter_max) << "  # Maximum number of non-linear iterations" << std::endl;
     log_file << "    eps_newton          = " << format_as_double(data.numerics.eps_newton) << std::endl;
     log_file << "    eps_bicgstab        = " << format_as_double(data.numerics.eps_bicgstab) << std::endl;
     log_file << "    eps_abs_function    = " << format_as_double(data.numerics.eps_abs) << std::endl;
@@ -98,6 +98,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
 
     //Time
     log_file << std::endl << "[Time]" << std::endl;
+    log_file << "    tunit  = \"" << "s" << "\"" << "  # \"s\", \"m\", \"h\"" << std::endl;
     log_file << "    tstart = " << format_as_double(data.time.tstart) << std::endl;
     log_file << "    tstop  = " << format_as_double(data.time.tstop) << std::endl;
 

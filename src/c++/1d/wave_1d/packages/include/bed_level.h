@@ -49,7 +49,7 @@ class BED_LEVEL
 public:
     BED_LEVEL();
     ~BED_LEVEL();
-    size_t set_bed_level_type(std::string geometry_type, BED_LEVEL_ENUM& bed_level_type);
+    int set_bed_level_type(std::string geometry_type, BED_LEVEL_ENUM& bed_level_type);
     int initialize_bed_level(BED_LEVEL_ENUM& bed_type, std::vector<double>& x, std::vector<double>& zb, std::string & model_title, double depth);
 //    long open(std::string filename);
 //    long read(size_t nx, size_t ny);

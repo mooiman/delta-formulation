@@ -90,6 +90,7 @@ struct _physics {
     bool do_viscosity;
 };
 struct _time {
+    std::string tunit;
     double tstart;
     double tstop;
 };

@@ -42,24 +42,6 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
 
     data.log.logging = tbl["Logging"].value_or("None");
 
-    // Domain
-    tbl_chp = *tbl["Domain"].as_table();
-    data.domain.Lx = tbl_chp["Lx"].value_or(double(12000.));
-    data.domain.depth = tbl_chp["depth"].value_or(double(10.));
-    data.domain.geometry_type = tbl_chp["geometry_type"].value_or("None");
-
-    // Time
-    tbl_chp = *tbl["Time"].as_table();
-    data.time.tstart = tbl_chp["tstart"].value_or(double(0.0));
-    data.time.tstop = tbl_chp["tstop"].value_or(double(2.0 * 3600.));
-
-    // Initial
-    tbl_chp = *tbl["Initial"].as_table();
-    status = get_toml_array(tbl_chp, "ini_vars", data.initial.ini_vars);
-    data.initial.gauss_mu = tbl_chp["gauss_mu"].value_or(double(0.0));  // location of th gaussian hump
-    data.initial.gauss_sigma = tbl_chp["gauss_sigma"].value_or(-INFINITY);  // sigma of the Guassian hump
-    data.initial.gauss_amp = tbl_chp["gauss_amp"].value_or(double(0.0));   // amplitude of the gaussian hump at the boundary
-
     // Boundary
     tbl_chp = *tbl["Boundary"].as_table();
     data.boundary.eps_bc_corr = tbl_chp["eps_bc_corr"].value_or(double(0.0001));  // default 1e-4
@@ -69,15 +51,18 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
     status = get_toml_array(tbl_chp, "bc_vars", data.boundary.bc_vars);
     status = get_toml_array(tbl_chp, "bc_vals", data.boundary.bc_vals);
 
-    // Physics
-    tbl_chp = *tbl["Physics"].as_table();
-    data.physics.g = tbl_chp["g"].value_or(double(10.));  // Gravitational acceleration
-    data.physics.do_q_equation = tbl_chp["do_q_equation"].value_or(bool(true));
-    data.physics.do_convection = tbl_chp["do_convection"].value_or(bool(false));
-    data.physics.do_bed_shear_stress = tbl_chp["do_bed_shear_stress"].value_or(bool(false));
-    data.physics.do_viscosity = tbl_chp["do_viscosity"].value_or(bool(false));
-    data.physics.chezy_coefficient = tbl_chp["chezy_coefficient"].value_or(double(50.0));
-    data.physics.visc_const = tbl_chp["viscosity"].value_or(double(0.0));
+    // Domain
+    tbl_chp = *tbl["Domain"].as_table();
+    data.domain.Lx = tbl_chp["Lx"].value_or(double(12000.));
+    data.domain.depth = tbl_chp["depth"].value_or(double(10.));
+    data.domain.geometry_type = tbl_chp["geometry_type"].value_or("None");
+
+    // Initial
+    tbl_chp = *tbl["Initial"].as_table();
+    status = get_toml_array(tbl_chp, "ini_vars", data.initial.ini_vars);
+    data.initial.gauss_mu = tbl_chp["gauss_mu"].value_or(double(0.0));  // location of th gaussian hump
+    data.initial.gauss_sigma = tbl_chp["gauss_sigma"].value_or(-INFINITY);  // sigma of the Guassian hump
+    data.initial.gauss_amp = tbl_chp["gauss_amp"].value_or(double(0.0));   // amplitude of the gaussian hump at the boundary
 
     // Numerics
     tbl_chp = *tbl["Numerics"].as_table();
@@ -98,6 +83,22 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
     data.output.dt_his = tbl_chp["dt_his"].value_or(double(1.0));  // write interval to his-file
     data.output.dt_map = tbl_chp["dt_map"].value_or(double(0.0));  // write interval to his-file
     data.output.dt_screen = tbl_chp["dt_screen"].value_or(double(60.0));  // time interval counter on screen 
+
+    // Physics
+    tbl_chp = *tbl["Physics"].as_table();
+    data.physics.g = tbl_chp["g"].value_or(double(10.));  // Gravitational acceleration
+    data.physics.do_q_equation = tbl_chp["do_q_equation"].value_or(bool(true));
+    data.physics.do_convection = tbl_chp["do_convection"].value_or(bool(false));
+    data.physics.do_bed_shear_stress = tbl_chp["do_bed_shear_stress"].value_or(bool(false));
+    data.physics.do_viscosity = tbl_chp["do_viscosity"].value_or(bool(false));
+    data.physics.chezy_coefficient = tbl_chp["chezy_coefficient"].value_or(double(50.0));
+    data.physics.visc_const = tbl_chp["viscosity"].value_or(double(0.0));
+
+    // Time
+    tbl_chp = *tbl["Time"].as_table();
+    data.time.tunit = tbl_chp["tunit"].value_or("s");
+    data.time.tstart = tbl_chp["tstart"].value_or(double(0.0));
+    data.time.tstop = tbl_chp["tstop"].value_or(double(2.0 * 3600.0));
 
     // Observation points
     data.obs_points = read_observation_points(tbl);
