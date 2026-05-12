@@ -207,6 +207,11 @@ int main(int argc, char *argv[])
             input_data.time.tstart = 3600.0 * input_data.time.tstart;
             input_data.time.tstop  = 3600.0 * input_data.time.tstop;
         }
+        if (input_data.time.tunit == "d")
+        {
+            input_data.time.tstart = 24.0 * 3600.0 * input_data.time.tstart;
+            input_data.time.tstop  = 24.0 * 3600.0 * input_data.time.tstop;
+        }
     }
     if (input_data.numerics.dt == 0.0) { stationary = true;  }
     if (stationary) { 
@@ -816,11 +821,12 @@ int main(int argc, char *argv[])
     std::string his_v_name("v_velocity");
     std::string his_umag_name("u_mag");
     std::string his_froude_name("froude");
-    std::string his_peclet_xi_name("his_peclet_xi");
-    std::string his_peclet_eta_name("his_peclet_eta");
-    std::string his_visc_name("his_visc_name");
-    std::string his_visc_q_name("viscosity_q");
-    std::string his_visc_r_name("viscosity_r");
+    std::string his_peclet_xi_name("peclet_xi");
+    std::string his_peclet_eta_name("peclet_eta");
+    std::string his_visc_11_name("visc_11");
+    std::string his_visc_22_name("visc_22");
+    std::string his_psi_11_name("psi_11");
+    std::string his_psi_22_name("psi_22");
 
     his_file->add_variable(his_h_name, "sea_floor_depth_below_sea_surface", "Water depth", "m");
     his_file->add_variable(his_q_name, "", "Water flux (x)", "m2 s-1");
@@ -834,9 +840,10 @@ int main(int argc, char *argv[])
     {
         his_file->add_variable(his_peclet_xi_name, "", "Peclet (xi)", "-");
         his_file->add_variable(his_peclet_eta_name, "", "Peclet (eta)", "-");
-        his_file->add_variable(his_visc_name, "", "Viscosity (used)", "m2 s-1");
-        his_file->add_variable(his_visc_q_name, "", "Viscosity (xi)", "m2 s-1");
-        his_file->add_variable(his_visc_r_name, "", "Viscosity (eta)", "m2 s-1");
+        his_file->add_variable(his_visc_11_name, "", "Viscosity (xi)", "m2 s-1");
+        his_file->add_variable(his_visc_22_name, "", "Viscosity (eta)", "m2 s-1");
+        his_file->add_variable(his_psi_11_name, "", "Viscosity artificial (xi)", "m2 s-1");
+        his_file->add_variable(his_psi_22_name, "", "Viscosity artificial (eta)", "m2 s-1");
     }
 
     // Put data on time history file
@@ -911,13 +918,15 @@ int main(int argc, char *argv[])
 
         his_file->put_variable(his_peclet_eta_name, nst_his, his_values);
 
-        status = set_his_values(input_data.obs_points, visc_reg, his_values);
-        his_file->put_variable(his_visc_name, nst_his, his_values);
-
         status = set_his_values(input_data.obs_points, visc_11, his_values);
-        his_file->put_variable(his_visc_q_name, nst_his, his_values);
+        his_file->put_variable(his_visc_11_name, nst_his, his_values);
         status = set_his_values(input_data.obs_points, visc_22, his_values);
-        his_file->put_variable(his_visc_r_name, nst_his, his_values);
+        his_file->put_variable(his_visc_22_name, nst_his, his_values);
+
+        status = set_his_values(input_data.obs_points, psi_visc_11, his_values);
+        his_file->put_variable(his_psi_11_name, nst_his, his_values);
+        status = set_his_values(input_data.obs_points, psi_visc_22, his_values);
+        his_file->put_variable(his_psi_22_name, nst_his, his_values);
     }
     std::string his_newton_iter_name("his_newton_iterations");
     his_file->add_variable_without_location(his_newton_iter_name, "iterations", "Newton iteration", "-");
@@ -948,6 +957,7 @@ int main(int argc, char *argv[])
         std::chrono::duration<int, std::milli> timespan(3000);
         std::this_thread::sleep_for(timespan);
         //std::cin.ignore();
+        std::cout << std::endl;
     }
     if (logging == "pattern")
     {
@@ -1017,20 +1027,24 @@ int main(int argc, char *argv[])
             {
                 if (do_viscosity)
                 {
-                    START_TIMER(Regularization_iter_loop);
-                    regularization->artificial_viscosity(psi_visc_11, hp, qp, rp, zb, 
-                        c_psi, metric, log_file);
-                    regularization->artificial_viscosity(psi_visc_22, hp, qp, rp, zb, 
-                        c_psi, metric, log_file);
-                    for (int i = 0; i < nxny; ++i)
+                    START_TIMER(Regularization_time_loop);
+                    //regularization->artificial_viscosity_xi (psi_visc_11, hp, qp, zb, c_psi, metric, log_file);
+                    //regularization->artificial_viscosity_eta(psi_visc_22, hp, rp, zb, c_psi, metric, log_file);
+
+                    //regularization->artificial_viscosity(psi_visc_11, hp, qp, rp, zb, c_psi, metric, log_file);
+                    //regularization->artificial_viscosity(psi_visc_22, hp, qp, rp, zb, c_psi, metric, log_file);
+                    for (size_t i = 0; i < nxny; ++i)
                     {
-                        visc_11[i] = visc_reg[i] + std::abs(psi_visc_11[i]);
-                        visc_22[i] = visc_reg[i] + std::abs(psi_visc_22[i]);
+                        visc_11[i] = visc_reg[i] + psi_visc_11[i];
+                        visc_22[i] = visc_reg[i] + psi_visc_22[i];
                     }
-                //regularization->given_function(hp, psi_visc_11, psi_visc_22, eq8_zb, hp, c_psi, metric, log_file);  
-                //regularization->given_function(qp, psi_visc_11, psi_visc_22, eq8_zb, qp, c_psi, metric, log_file);  
-                //regularization->given_function(rp, psi_visc_11, psi_visc_22, eq8_zb, rp, c_psi, metric, log_file);  
-                    STOP_TIMER(Regularization_iter_loop);
+                    //regularization->given_function(tmp, psi_visc_11, psi_visc_22, eq8_zb, hp, c_psi, metric, log_file);  
+                    //for (size_t i = 0; i < tmp.size(); ++i) { hp[i] = tmp[i]; }
+                    //regularization->given_function(tmp, psi_visc_11, psi_visc_22, eq8_zb, qp, c_psi, metric, log_file);  
+                    //for (size_t i = 0; i < tmp.size(); ++i) { qp[i] = tmp[i]; }
+                    //regularization->given_function(tmp, psi_visc_11, psi_visc_22, eq8_zb, rp, c_psi, metric, log_file);  
+                    //for (size_t i = 0; i < tmp.size(); ++i) { rp[i] = tmp[i]; }
+                    STOP_TIMER(Regularization_time_loop);
                 }
             }
 
@@ -1480,11 +1494,12 @@ int main(int argc, char *argv[])
             if (do_viscosity)
             {
                 START_TIMER(Regularization_time_loop);
-                regularization->artificial_viscosity(psi_visc_11, hp, qp, rp, zb, 
-                    c_psi, metric, log_file);
-                //regularization->artificial_viscosity(psi_visc_22, hp, qp, rp, zb, 
-                //    c_psi, metric, log_file);
-                for (int i = 0; i < nxny; ++i)
+                regularization->artificial_viscosity_xi (psi_visc_11, hp, qp, zb, c_psi, metric, log_file);
+                regularization->artificial_viscosity_eta(psi_visc_22, hp, rp, zb, c_psi, metric, log_file);
+
+                //regularization->artificial_viscosity(psi_visc_11, hp, qp, rp, zb, c_psi, metric, log_file);
+                //regularization->artificial_viscosity(psi_visc_22, hp, qp, rp, zb, c_psi, metric, log_file);
+                for (size_t i = 0; i < nxny; ++i)
                 {
                     visc_11[i] = visc_reg[i] + psi_visc_11[i];
                     visc_22[i] = visc_reg[i] + psi_visc_11[i];
@@ -1670,9 +1685,14 @@ int main(int argc, char *argv[])
                 his_file->put_variable(his_peclet_eta_name, nst_his, his_values);
 
                 status = set_his_values(input_data.obs_points, visc_11, his_values);
-                his_file->put_variable(his_visc_q_name, nst_his, his_values);
+                his_file->put_variable(his_visc_11_name, nst_his, his_values);
                 status = set_his_values(input_data.obs_points, visc_22, his_values);
-                his_file->put_variable(his_visc_r_name, nst_his, his_values);
+                his_file->put_variable(his_visc_22_name, nst_his, his_values);
+
+                status = set_his_values(input_data.obs_points, psi_visc_11, his_values);
+                his_file->put_variable(his_psi_11_name, nst_his, his_values);
+                status = set_his_values(input_data.obs_points, psi_visc_22, his_values);
+                his_file->put_variable(his_psi_22_name, nst_his, his_values);
             }
 
             his_values = { double(used_newton_iter) };

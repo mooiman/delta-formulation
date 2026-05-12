@@ -345,6 +345,323 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi,
     return;
 }
 //------------------------------------------------------------------------------
+void REGULARIZATION::artificial_viscosity_xi(std::vector<double>& psi, 
+    std::vector<double>& h, std::vector<double>& q, std::vector<double>& zb, 
+    double c_psi_in, struct _grid_metric & metric, std::ofstream& log_file)
+{
+    size_t nx = metric.nx;
+    size_t ny = metric.ny;
+    size_t nxny = nx * ny;
+
+    int status = 1; 
+
+    std::vector<double> h_xixi(nxny, 0.);  // second derivative of total depth in computational space
+    std::vector<double> q_xixi(nxny, 0.);  // second derivative of flow flux in computational space
+    std::vector<double> s_xixi(nxny, 0.);  // second derivative of water level: s = h + zb in computational space
+
+    Eigen::SparseMatrix<double, Eigen::RowMajor> A(nxny, nxny);
+    Eigen::VectorXd solution(nxny);           // solution vector 
+    Eigen::VectorXd rhs(nxny);                // RHS vector
+
+    double c_psi = c_psi_in;
+
+    for (size_t i = 1; i < nx-1; ++i)
+    {
+        for (size_t j = 0; j < ny; ++j)
+        {
+            size_t p_w = p_index(i - 1, j, ny);
+            size_t p_0 = p_index(i    , j, ny);
+            size_t p_e = p_index(i + 1, j, ny);
+            h_xixi[p_0] = (h[p_w] - 2. * h[p_0] + h[p_e]);
+            q_xixi[p_0] = (q[p_w] - 2. * q[p_0] + q[p_e]);
+            s_xixi[p_0] = ((h[p_w] + zb[p_w]) - 2. * (h[p_0] + zb[p_0]) + (h[p_e] + zb[p_e]));
+        }
+    }
+    for (size_t j = 0; j < ny; ++j)  // loop over west and east boundary
+    {
+        size_t i = 0;
+        size_t p_0  = p_index(i    , j, ny);
+        size_t p_e  = p_index(i + 1, j, ny);
+        size_t p_ee = p_index(i + 2, j, ny);
+        h_xixi[p_0] = 2. * h_xixi[p_e] - h_xixi[p_ee];
+        q_xixi[p_0] = 2. * q_xixi[p_e] - q_xixi[p_ee];
+        s_xixi[p_0] = 2. * s_xixi[p_e] - s_xixi[p_ee];
+
+        i = nx - 1;
+        p_0         = p_index(i    , j, ny);
+        size_t p_w  = p_index(i - 1, j, ny);
+        size_t p_ww = p_index(i - 2, j, ny);
+        h_xixi[p_0] = 2. * h_xixi[p_w] - h_xixi[p_ww];
+        q_xixi[p_0] = 2. * q_xixi[p_w] - q_xixi[p_ww];
+        s_xixi[p_0] = 2. * s_xixi[p_w] - s_xixi[p_ww];
+    }
+
+    // eq. 18
+    double hbar_im14;
+    double hbar_ip14;
+    double qbar_im14;
+    double qbar_ip14;
+
+    double c_error = 1.0; // same value as for regularization of given function
+    for (size_t i = 1; i < nx - 1; ++i)
+    {
+        for (size_t j = 0; j < ny ; ++j)  // loop also over south and north boundary
+        {
+            size_t p_w = p_index(i - 1, j, ny);
+            size_t p_0 = p_index(i    , j, ny);
+            size_t p_e = p_index(i + 1, j, ny);
+
+            A.coeffRef(p_0, p_w) = m_mass[0] - c_error;
+            A.coeffRef(p_0, p_0) = m_mass[1] + 2. * c_error;
+            A.coeffRef(p_0, p_e) = m_mass[2] - c_error;
+
+            hbar_im14 = 0.25 * (h[p_w] + 3. * h[p_0]);
+            hbar_ip14 = 0.25 * (h[p_e] + 3. * h[p_0]);
+            qbar_im14 = 0.25 * (q[p_w] + 3. * q[p_0]);
+            qbar_ip14 = 0.25 * (q[p_e] + 3. * q[p_0]);
+
+            rhs[p_0] = 32.0 * c_psi * metric.dx_dxi[p_0] * (
+                  0.0625 * std::sqrt(m_g / hbar_im14) * std::abs(s_xixi[p_0])
+                + 0.0625 * std::sqrt(2.) * (std::abs(q_xixi[p_0] / hbar_im14 - qbar_im14 * h_xixi[p_0] / (hbar_im14 * hbar_im14)))
+                + 0.0625 * std::sqrt(m_g / hbar_ip14) * std::abs(s_xixi[p_0])
+                + 0.0625 * std::sqrt(2.) * (std::abs(q_xixi[p_0] / hbar_ip14 - qbar_ip14 * h_xixi[p_0] / (hbar_ip14 * hbar_ip14)))
+                );
+        }
+    }
+    // eq. 19
+    // west and east boundary
+    for (size_t j = 0; j < ny; ++j)  // loop also over south and north boundary
+    {
+        size_t p_ww;  
+        size_t p_w;  
+        size_t p_0;  
+        size_t p_e;  
+        size_t p_ee;  
+
+        // west boundary
+        size_t i = 0;
+        p_0  = p_index(i    , j, ny);
+        p_e  = p_index(i + 1, j, ny);
+        p_ee = p_index(i + 2, j, ny);
+        A.coeffRef(p_0, p_0 ) = 1.0;
+        A.coeffRef(p_0, p_e ) = -2.0;
+        A.coeffRef(p_0, p_ee) = 1.0;
+        rhs[p_0] = 0.0;
+
+        i = 1;
+        p_w = p_index(i - 1, j, ny);
+        p_0 = p_index(i    , j, ny);
+        p_e = p_index(i + 1, j, ny);
+        A.coeffRef(p_0, p_w) = 0.0;
+        A.coeffRef(p_0, p_0) = 1.0;
+        A.coeffRef(p_0, p_e) = 0.0;
+        rhs[p_0] = rhs[p_0];
+
+        // east boundary
+        i = nx - 1;
+        p_ww = p_index(i - 2, j, ny);
+        p_w  = p_index(i - 1, j, ny);
+        p_0  = p_index(i    , j, ny);
+        A.coeffRef(p_0,  p_ww) = 1.0;
+        A.coeffRef(p_0,  p_w ) = -2.0;
+        A.coeffRef(p_0,  p_0 ) = 1.0;
+        rhs[p_0] = 0.0;
+
+        i = nx - 2;
+        p_w = p_index(i - 1, j, ny);
+        p_0 = p_index(i    , j, ny);
+        p_e = p_index(i + 1, j, ny);
+        A.coeffRef(p_0, p_w) = 0.0;
+        A.coeffRef(p_0, p_0) = 1.0;
+        A.coeffRef(p_0, p_e) = 0.0;
+        rhs[p_0] = rhs[p_0];
+    }
+    if (m_logging == "matrix_visc")
+    {
+        std::string header_text = "=== Viscosity xi, matrix  =============================";
+        log_file << std::showpos << std::setprecision(3) << std::scientific;
+        print_matrix(A, 1, nx, ny, header_text, log_file);
+        header_text = "=== Viscosity xi, RHS =================================";
+        log_file << std::setprecision(8) << std::scientific;
+        print_vector(rhs, 1, nx, ny, header_text, log_file);
+    }
+
+    Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
+    solver.compute(A);
+    solver.setTolerance(1e-12);
+    solution = solver.solve(rhs);
+    if (m_logging == "matrix_visc")
+    {
+        std::string header_text = "=== Viscosity xi, Solution ============================";
+        log_file << std::setprecision(8) << std::scientific;
+        print_vector(solution, 1, nx, ny, header_text, log_file);
+    }
+
+    for (size_t i = 0; i < nxny; ++i)
+    {
+        psi[i] = solution[i];
+    }
+}
+//------------------------------------------------------------------------------
+void REGULARIZATION::artificial_viscosity_eta(std::vector<double>& psi, 
+    std::vector<double>& h, std::vector<double>& r, std::vector<double>& zb, 
+    double c_psi_in, struct _grid_metric & metric, std::ofstream& log_file)
+{
+    size_t nx = metric.nx;
+    size_t ny = metric.ny;
+    size_t nxny = nx * ny;
+
+    int status = 1; 
+
+    std::vector<double> h_etaeta(nxny, 0.);  // second derivative of total depth in computational space
+    std::vector<double> r_etaeta(nxny, 0.);  // second derivative of flow flux in computational space
+    std::vector<double> s_etaeta(nxny, 0.);  // second derivative of water level: s = h + zb in computational space
+
+    Eigen::SparseMatrix<double, Eigen::RowMajor> A(nxny, nxny);
+    Eigen::VectorXd solution(nxny);           // solution vector 
+    Eigen::VectorXd rhs(nxny);                // RHS vector
+
+    double c_psi = c_psi_in;
+
+    for (size_t i = 0; i < nx; ++i)  // loop also over west and east boundary
+    {
+        for (size_t j = 1; j < ny -1 ; ++j)
+        {
+            size_t p_s = p_index(i, j - 1, ny);
+            size_t p_0 = p_index(i, j    , ny);
+            size_t p_n = p_index(i, j + 1, ny);
+            h_etaeta[p_0] = (h[p_s] - 2. * h[p_0] + h[p_n]);
+            r_etaeta[p_0] = (r[p_s] - 2. * r[p_0] + r[p_n]);
+            s_etaeta[p_0] = ((h[p_s] + zb[p_s]) - 2. * (h[p_0] + zb[p_0]) + (h[p_n] + zb[p_n]));
+        }
+    }
+    for (size_t i = 1; i < nx - 1; ++i)  // loop over south and north boundary
+    {
+        size_t j = 0;
+        size_t p_0  = p_index(i, j    , ny);
+        size_t p_n  = p_index(i, j + 1, ny);
+        size_t p_nn = p_index(i, j + 2, ny);
+        h_etaeta[p_0] = 2. * h_etaeta[p_n] - h_etaeta[p_nn];
+        r_etaeta[p_0] = 2. * r_etaeta[p_n] - r_etaeta[p_nn];
+        s_etaeta[p_0] = 2. * s_etaeta[p_n] - s_etaeta[p_nn];
+
+        j = ny - 1;
+        p_0         = p_index(i, j    , ny);
+        size_t p_s  = p_index(i, j - 1, ny);
+        size_t p_ss = p_index(i, j - 2, ny);
+        h_etaeta[p_0] = 2. * h_etaeta[p_s] - h_etaeta[p_ss];
+        r_etaeta[p_0] = 2. * r_etaeta[p_s] - r_etaeta[p_ss];
+        s_etaeta[p_0] = 2. * s_etaeta[p_s] - s_etaeta[p_ss];
+    }
+
+    // eq. 18
+    double hbar_jm14;
+    double hbar_jp14;
+    double rbar_jm14;
+    double rbar_jp14;
+
+    double c_error = c_psi; // same value as for regularization of given function
+    for (size_t i = 0; i < nx; ++i)
+    {
+        for (size_t j = 1; j < ny - 1; ++j)
+        {
+            size_t p_s = p_index(i, j - 1, ny);
+            size_t p_0 = p_index(i, j    , ny);
+            size_t p_n = p_index(i, j + 1, ny);
+            
+            A.coeffRef(p_0, p_s) = m_mass[0] - c_error;
+            A.coeffRef(p_0, p_0) = m_mass[1] + 2. * c_error;
+            A.coeffRef(p_0, p_n) = m_mass[2] - c_error;
+
+            hbar_jm14 = 0.25 * (h[p_s] + 3. * h[p_0]);
+            hbar_jp14 = 0.25 * (h[p_n] + 3. * h[p_0]);
+            rbar_jm14 = 0.25 * (r[p_s] + 3. * r[p_0]);
+            rbar_jp14 = 0.25 * (r[p_n] + 3. * r[p_0]);
+
+            rhs[p_0] = 32.0 * c_psi * metric.dy_deta[p_0] * (
+                  0.0625 * std::sqrt(m_g / hbar_jm14) * std::abs(s_etaeta[p_0])
+                + 0.0625 * std::sqrt(2.) * (std::abs(r_etaeta[p_0] / hbar_jm14 - rbar_jm14 * h_etaeta[p_0] / (hbar_jm14 * hbar_jm14)))
+                + 0.0625 * std::sqrt(m_g / hbar_jp14) * std::abs(s_etaeta[p_0])
+                + 0.0625 * std::sqrt(2.) * (std::abs(r_etaeta[p_0] / hbar_jp14 - rbar_jp14 * h_etaeta[p_0] / (hbar_jp14 * hbar_jp14)))
+                );
+        }
+    }
+    // eq. 19
+    for (size_t i = 0; i < nx; ++i)  // loop over south and north boundary
+    {
+        size_t j = 0;
+        size_t p_ss;  
+        size_t p_s;  
+        size_t p_0;  
+        size_t p_n;  
+        size_t p_nn; 
+        
+        // south boundary
+        j = 0;
+        p_0  = p_index(i, j    , ny);
+        p_n  = p_index(i, j + 1, ny);
+        p_nn = p_index(i, j + 2, ny);
+        A.coeffRef(p_0, p_0 ) = 1.0;
+        A.coeffRef(p_0, p_n ) = -2.0;
+        A.coeffRef(p_0, p_nn) = 1.0;
+        rhs[p_0] = 0.0;
+
+        j = 1;
+        p_s = p_index(i, j - 1, ny);
+        p_0 = p_index(i, j    , ny);
+        p_n = p_index(i, j + 1, ny);
+        A.coeffRef(p_0, p_s) = 0.0;
+        A.coeffRef(p_0, p_0) = 1.0;
+        A.coeffRef(p_0, p_n) = 0.0;
+        rhs[p_0] = rhs[p_0];
+
+        j = ny - 1;
+        p_0  = p_index(i, j    , ny);
+        p_s  = p_index(i, j - 1, ny);
+        p_ss = p_index(i, j - 2, ny);
+        A.coeffRef(p_0, p_0 ) =  1.0;
+        A.coeffRef(p_0, p_s ) = -2.0;
+        A.coeffRef(p_0, p_ss) =  1.0;
+        rhs[p_0] = 0.0;
+
+        j = ny - 2;
+        p_s = p_index(i, j - 1, ny);
+        p_0 = p_index(i, j    , ny);
+        p_n = p_index(i, j + 1, ny);
+        A.coeffRef(p_0, p_s) = 0.0;
+        A.coeffRef(p_0, p_0) = 1.0;
+        A.coeffRef(p_0, p_n) = 0.0;
+        rhs[p_0] = rhs[p_0];
+    }
+
+    if (m_logging == "matrix_visc")
+    {
+        std::string header_text = "=== Viscosity eta, matrix =============================";
+        log_file << std::showpos << std::setprecision(3) << std::scientific;
+        print_matrix(A, 1, nx, ny, header_text, log_file);
+        header_text = "=== Viscosity eta, RHS ================================";
+        log_file << std::setprecision(8) << std::scientific;
+        print_vector(rhs, 1, nx, ny, header_text, log_file);
+    }
+
+    Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
+    solver.compute(A);
+    solver.setTolerance(1e-12);
+    solution = solver.solve(rhs);
+    if (m_logging == "matrix_visc")
+    {
+        std::string header_text = "=== Viscosity eta, solution ===========================";
+
+        log_file << std::setprecision(8) << std::scientific;
+        print_vector(solution, 1, nx, ny, header_text, log_file);
+    }
+
+    for (size_t i = 0; i < nxny; ++i)
+    {
+        psi[i] = solution[i];
+    }
+}
+//------------------------------------------------------------------------------
 void REGULARIZATION::first_derivative( std::vector<double> & psi, std::vector<double>& eps,  std::vector<double>& u, struct _grid_metric & metric)
 {
     size_t nx = eps.size();
@@ -763,6 +1080,10 @@ std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(struct _grid_met
         eq8->push_back(solution[i]); // / (err_max + 1e-13);  // to prevent division bij zero
     }
     return eq8;
+}
+inline void REGULARIZATION::add_value(double * values, size_t col, double data)
+{ 
+    values[col] += data; 
 }
 size_t REGULARIZATION::p_index(size_t i, size_t j, size_t ny_in)
 {
