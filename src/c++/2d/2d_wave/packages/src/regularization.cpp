@@ -402,7 +402,7 @@ void REGULARIZATION::artificial_viscosity_xi(std::vector<double>& psi,
     double qbar_im14;
     double qbar_ip14;
 
-    double c_error = 1.0; // same value as for regularization of given function
+    double c_error = c_psi; // same value as for regularization of given function
     for (size_t i = 1; i < nx - 1; ++i)
     {
         for (size_t j = 0; j < ny ; ++j)  // loop also over south and north boundary
@@ -476,6 +476,7 @@ void REGULARIZATION::artificial_viscosity_xi(std::vector<double>& psi,
         A.coeffRef(p_0, p_e) = 0.0;
         rhs[p_0] = rhs[p_0];
     }
+
     if (m_logging == "matrix_visc")
     {
         std::string header_text = "=== Viscosity xi, matrix  =============================";
@@ -535,7 +536,7 @@ void REGULARIZATION::artificial_viscosity_eta(std::vector<double>& psi,
             s_etaeta[p_0] = ((h[p_s] + zb[p_s]) - 2. * (h[p_0] + zb[p_0]) + (h[p_n] + zb[p_n]));
         }
     }
-    for (size_t i = 1; i < nx - 1; ++i)  // loop over south and north boundary
+    for (size_t i = 0; i < nx; ++i)  // loop over south and north boundary
     {
         size_t j = 0;
         size_t p_0  = p_index(i, j    , ny);
@@ -587,9 +588,9 @@ void REGULARIZATION::artificial_viscosity_eta(std::vector<double>& psi,
         }
     }
     // eq. 19
+    // south and north boundary
     for (size_t i = 0; i < nx; ++i)  // loop over south and north boundary
     {
-        size_t j = 0;
         size_t p_ss;  
         size_t p_s;  
         size_t p_0;  
@@ -597,7 +598,7 @@ void REGULARIZATION::artificial_viscosity_eta(std::vector<double>& psi,
         size_t p_nn; 
         
         // south boundary
-        j = 0;
+        size_t j = 0;
         p_0  = p_index(i, j    , ny);
         p_n  = p_index(i, j + 1, ny);
         p_nn = p_index(i, j + 2, ny);
@@ -615,6 +616,7 @@ void REGULARIZATION::artificial_viscosity_eta(std::vector<double>& psi,
         A.coeffRef(p_0, p_n) = 0.0;
         rhs[p_0] = rhs[p_0];
 
+        // north boundary
         j = ny - 1;
         p_0  = p_index(i, j    , ny);
         p_s  = p_index(i, j - 1, ny);
