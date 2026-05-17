@@ -105,7 +105,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
 
     // Time
     log_file << std::endl << "[Time]" << std::endl;
-    log_file << "    " << "tunit  = \"" << "s" << "\"" << "  # \"s\", \"m\", \"h\"" << std::endl;
+    log_file << "    " << "tunit  = \"" << "s" << "\"" << "  # \"s\", \"m\", \"h\", \"d\"" << std::endl;
     log_file << "    " << "tstart = " << format_as_double(data.time.tstart) << std::endl;
     log_file << "    " << "tstop  = " << format_as_double(data.time.tstop) << std::endl;
 

@@ -55,6 +55,14 @@ public:
         std::vector<double>& eq8, std::vector<double>& u_giv,
         double c_psi, struct _grid_metric & metric, std::ofstream& log_file);
 
+    void artificial_viscosity_xi (std::vector<double>& psi, 
+        std::vector<double>& h, std::vector<double>& q, std::vector<double>& zb, 
+        double c_psi_in, struct _grid_metric & metric, std::ofstream& log_file);
+
+    void artificial_viscosity_eta(std::vector<double>& psi, 
+        std::vector<double>& h, std::vector<double>& r, std::vector<double>& zb, 
+        double c_psi_in, struct _grid_metric & metric, std::ofstream& log_file);
+
     void artificial_viscosity(std::vector<double>& psi, 
         std::vector<double>& h, std::vector<double>& q, std::vector<double>& r, std::vector<double>& zb, 
         double c_psi_in, struct _grid_metric & metric, std::ofstream& log_file);
@@ -67,6 +75,7 @@ private:
     std::unique_ptr<std::vector<double>> solve_eq8(struct _grid_metric & metric, 
         double c_psi, std::vector<double>& u0, std::vector<double>& u0_xixi, std::vector<double>& u0_etaeta, 
         std::ofstream& log_file);
+    void add_value(double * values, size_t col, double data);
 
     int m_iter_max;
     double m_g;
