@@ -1,4 +1,4 @@
-openfile '.\402x6\output_compatible\2d_wave_map.nc'
+openfile '.\402x6\output_compatible\wave_2d_map.nc'
 selectfield 'WaterLevel'
 hselectiontype '(M,N) point/path'
 editmn '11:7:2811'
@@ -7,7 +7,7 @@ marker '.'
 plotcoordinate 'x coordinate'
 quickview
 
-openfile '.\402x6\output_ana\2d_wave_map.nc'
+openfile '.\402x6\output_ana\wave_2d_map.nc'
 selectfield 'WaterLevel'
 hselectiontype '(M,N) point/path'
 editmn '11:7:2811'
@@ -16,7 +16,7 @@ marker '.'
 plotcoordinate 'x coordinate'
 addtoplot
 
-openfile '.\402x6\output_compatible\2d_wave_map.nc'
+openfile '.\402x6\output_compatible\wave_2d_map.nc'
 selectfield 'sea_water_velocity'
 hselectiontype '(M,N) point/path'
 editmn '11:7:2811'
@@ -25,7 +25,7 @@ marker '.'
 plotcoordinate 'x coordinate'
 quickview
 
-openfile '.\402x6\output_ana\2d_wave_map.nc'
+openfile '.\402x6\output_ana\wave_2d_map.nc'
 selectfield 'sea_water_velocity'
 hselectiontype '(M,N) point/path'
 editmn '11:7:2811'
@@ -34,7 +34,7 @@ marker '.'
 plotcoordinate 'x coordinate'
 addtoplot
 
-openfile '.\402x6\output_compatible\2d_wave_map.nc'
+openfile '.\402x6\output_compatible\wave_2d_map.nc'
 selectfield 'BedLevel'
 hselectiontype '(M,N) point/path'
 editmn '11:7:2811'
@@ -43,7 +43,7 @@ marker '.'
 plotcoordinate 'x coordinate'
 quickview
 
-openfile '.\402x6\output_ana\2d_wave_map.nc'
+openfile '.\402x6\output_ana\wave_2d_map.nc'
 selectfield 'BedLevel'
 hselectiontype '(M,N) point/path'
 editmn '11:7:2811'

@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
         std::cout << "Executable compiled : " << compileDateTime() << std::endl;
         std::cout << "Git commit time/hash: " << getbuildstring_main() << std::endl;
         std::cout << std::endl;
-        std::cout << "usage: 2d_wave.exe --toml <input_file>" << std::endl;
+        std::cout << "usage: wave_2d.exe --toml <input_file>" << std::endl;
         std::cout << "======================================================" << std::endl;
         //std::cin.ignore();
         std::chrono::duration<int, std::milli> timespan(3000);
@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
         input_data.initial.gauss_sigma_y = input_data.initial.gauss_sigma; 
     }
 
-    ss << "2d_wave";
+    ss << "wave_2d";
     out_file = output_dir.string() + ss.str();
     std::string his_filename(out_file + "_his.nc");
     std::string log_filename(out_file + ".log");
