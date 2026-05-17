@@ -165,8 +165,12 @@ We assume that the artificial viscosity $\Psi$ is proportional to the numerical 
 
 To reach suitable velocities the square root is taken from the potential and kinetic energy.
 \begin{align}
-    \mathit{Err}_{\psi} =
-    \mathit{Err} \left( \sqrt{g \hbar} \right)
+    \mathit{Err}_{\psi} &=
+    \mathit{Err} \left( \sqrt{g h} \right)
+    + \mathit{Err} \left( \sqrt{ \half \left( \frac{q^2}{h^2} + \frac{r^2}{h^2} \right) } \right)
+    \\
+    & \leq
+    \mathit{Err} \left( \sqrt{g h} \right)
     + \mathit{Err} \left( \sqrt{ \half \frac{q^2}{h^2} } \right)
     + \mathit{Err} \left( \sqrt{ \half \frac{r^2}{h^2} } \right)
 \end{align}
@@ -247,8 +251,10 @@ Because $\lpdiff[2]{z_b}{x}$ is negligible, due to the regularization of the bed
 
 %--------------------------------------------------------------------------------
 \paragraph*{Based on kinetic energy}
-Looking to both square roots of the kinetic energy :
+Looking to both square roots of the kinetic energy:
 \begin{align}
+{\mathit Err} \left( \sqrt{\half \frac{\widehat{q}^2}{\widehat{h}^2}}
++ \sqrt{\half \frac{\widehat{r}^2}{\widehat{h}^2}} \right) \leq
  &{\mathit Err} \left( \sqrt{\half \frac{\widehat{q}^2}{\widehat{h}^2}} \right)
     +
     {\mathit Err}\left( \sqrt{\half \frac{\widehat{r}^2}{\widehat{h}^2}} \right)
