@@ -1,0 +1,370 @@
+//
+// Programmer: Jan Mooiman
+// Email     : jan.mooiman@outlook.com
+//
+//    Solving the 1D advection/diffusion equation, fully implicit with delta-formulation and Modified Newton iteration 
+//    Copyright (C) 2025 Jan Mooiman
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------
+//   DESCRIPTION
+//
+//   Regularization of given function in 1 dimension
+//
+//   u_tilde - d\dx psi d\dx u_tilde = u_giv
+// 
+//   Based on article:
+//       From M. Borsboom
+//       Applied Numerical Mathematics 26 (1998)
+//       Borsboom_developerrorminadaptgridmethod_ApplNumerMath1998.pdf
+//
+
+#include "perf_timer.h"
+#include "print_matrix.h"
+#include "regularization.h"
+
+REGULARIZATION::REGULARIZATION()
+{
+    m_iter_max = 100;
+    m_g = 10.0;
+    m_logging = "";
+
+    m_alpha = 1./8.;
+    m_mass.push_back(m_alpha);
+    m_mass.push_back(1.0 - 2. * m_alpha);
+    m_mass.push_back(m_alpha);
+    m_eps_smooth = 1e-12;
+    m_u0_xixi_smooth = 0.0;
+}
+REGULARIZATION::REGULARIZATION(int iter_max, double g, std::string logging) :
+    m_iter_max(iter_max),
+    m_g(g),
+    m_logging(logging)
+{   
+    m_alpha = 1./8.;
+    m_mass.push_back(m_alpha);
+    m_mass.push_back(1.0 - 2. * m_alpha);
+    m_mass.push_back(m_alpha);
+    m_eps_smooth = 1e-12;
+    m_u0_xixi_smooth = 0.0;
+}
+
+void REGULARIZATION::given_function(std::vector<double>& u_tilde, std::vector<double>& psi, std::vector<double>& u_giv_in,
+    double dx, double c_psi, std::ofstream& log_file)
+{
+    double diff_max0 = 0.0;
+    double diff_max1 = 0.0;
+    size_t nx = u_giv_in.size();
+
+    std::vector<double> u_giv(nx, 0.);
+    std::vector<double> u0(nx, 0.);
+    std::vector<double> u1(nx, 0.);
+    std::vector<double> Du0_xixi(nx, 0.);
+    std::vector<double> eq8(nx, 0.);
+    std::vector<double> tmp(nx, 0.);
+
+    const auto [u_giv_in_min, u_giv_in_max] = std::minmax_element(u_giv_in.begin(), u_giv_in.end());
+    double min_range = 0.0001;
+    double u_giv_range = *u_giv_in_max - *u_giv_in_min > min_range ? *u_giv_in_max - *u_giv_in_min : min_range;
+    u_giv_range = 1.0;
+
+    for (size_t i = 0; i < nx; ++i)
+    {
+        // scaling of the input array u_giv_in
+        u0[i] = u_giv_in[i] / u_giv_range;
+        u_giv[i] = u0[i];
+    }
+    for (int iter = 0; iter < m_iter_max; ++iter)
+    {
+        //std::cout << "Iteration: " << iter << std::endl;
+        //std::cout << "Compute second derivative" << std::endl;
+        double Du0_xixi_max = 0.0;
+        for (size_t i = 1; i < nx - 1; ++i)
+        {
+            Du0_xixi[i] = (u0[i - 1] - 2. * u0[i] + u0[i + 1]);
+            Du0_xixi_max = std::max(Du0_xixi_max, std::abs(Du0_xixi[i]));
+        }
+        size_t i = 0;
+        Du0_xixi[i] = Du0_xixi[i + 1];
+        i = nx - 1;
+        Du0_xixi[i] = Du0_xixi[i -1];
+        if (Du0_xixi_max < 1.001 * m_u0_xixi_smooth) { return; }
+
+//------------------------------------------------------------------------------
+        eq8 = *(this->solve_eq8(c_psi, u0, Du0_xixi));
+//------------------------------------------------------------------------------
+
+        for (size_t i = 0; i < nx; ++i)
+        {
+            psi[i] = c_psi * dx * dx * eq8[i];
+        }
+//------------------------------------------------------------------------------
+        u0 = *(this->solve_eq7(dx, psi, u_giv));
+//------------------------------------------------------------------------------
+
+        diff_max1 = 0.0;
+        for (size_t i = 0; i < nx; ++i)
+        {
+            diff_max1 = std::max(diff_max1, std::abs(u0[i] - u_giv[i]));
+        }
+        if (std::abs(diff_max1 - diff_max0) > m_eps_smooth)
+        {
+            diff_max0 = diff_max1;
+        }
+        else
+        {
+            m_u0_xixi_smooth = Du0_xixi_max;
+            break;
+        }
+    }
+    for (size_t i = 0; i < nx; ++i)
+    {
+        u_tilde[i] = u0[i] * u_giv_range;
+    }
+}
+//------------------------------------------------------------------------------
+void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<double>& u, 
+    double c_psi_in, double dx)
+{
+    size_t nx = u.size();
+    std::vector<double> u_xixi(nx, 0.);  // second derivative of u-velocity in computational space
+    std::vector<double> Err_psi(nx, 0.);  //
+
+    Eigen::SparseMatrix<double> A(nx, nx);
+    Eigen::VectorXd solution(nx);               // solution vector 
+    Eigen::VectorXd rhs(nx);                // RHS vector
+
+    double c_psi = c_psi_in;
+
+    for (size_t i = 0; i < nx; ++i)
+    {
+        A.coeffRef(i, i) = 1.0;
+        rhs[i] = 0.0;
+    }
+
+    for (size_t i = 1; i < nx-1; ++i)
+    {
+        u_xixi[i] = (u[i - 1] - 2. * u[i] + u[i + 1]);
+    }
+    size_t i = 0;
+    u_xixi[i] = 2. * u_xixi[i + 1] - u_xixi[i + 2];
+    i = nx - 1;
+    u_xixi[i] = 2. * u_xixi[i - 1] - u_xixi[i - 2];
+    //
+
+    // eq. 18
+    double ubar_im14;
+    double ubar_ip14;
+
+    double c_error = c_psi; //same value as for regularization of given function
+    for (size_t i = 1; i < nx - 1; ++i)
+    {
+        A.coeffRef(i, i - 1) = m_mass[0] - c_error;
+        A.coeffRef(i, i    ) = m_mass[1] + 2. * c_error;
+        A.coeffRef(i, i + 1) = m_mass[2] - c_error;
+
+        ubar_im14 = 0.25 * (u[i - 1] + 3. * u[i]);
+        ubar_ip14 = 0.25 * (u[i + 1] + 3. * u[i]);
+
+        rhs[i] = c_psi * dx * (
+              0.0625 * ubar_im14 * std::abs(u_xixi[i])
+            + 0.0625 * ubar_ip14 * std::abs(u_xixi[i])
+            );
+    }
+    // eq. 19
+    i = 0;
+    A.coeffRef(i, i) = 1.; 
+    A.coeffRef(i, i + 1) = -2.0;
+    A.coeffRef(i, i + 2) = 1.;
+    rhs[i] = 0.0;
+    i = 1;
+    A.coeffRef(i, i - 1) = 0;
+    A.coeffRef(i, i) = 1.;
+    A.coeffRef(i, i + 1) = 0;
+    rhs[i] = rhs[i];
+    i = nx - 1;
+    A.coeffRef(i, i - 2) = 1.;
+    A.coeffRef(i, i - 1) = -2.0;
+    A.coeffRef(i, i) = 1.;
+    rhs[i] = 0.0;
+    i = nx - 2;
+    A.coeffRef(i, i - 1) = 0.0;
+    A.coeffRef(i, i) = 1.0;
+    A.coeffRef(i, i + 1) = 0.0;
+    rhs[i] = rhs[i];
+
+    Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
+    solver.compute(A);
+    solver.setTolerance(1e-12);
+    solution = solver.solve(rhs);
+    for (size_t i = 0; i < nx; ++i)
+    {
+        psi[i] = solution[i];
+    }
+}
+
+void REGULARIZATION::first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx)
+{
+    int nx = (int)eps.size();
+    double peclet = 0.0;
+    double peclet_threshold = 1.9;
+
+    for (size_t i = 0; i < nx; ++i)
+    {
+        peclet = std::abs(u[i] * dx / eps[i]);
+        psi[i] = 1.0;
+        if (peclet > peclet_threshold)
+        { 
+            psi[i] = peclet/ peclet_threshold;
+        }
+    }
+}
+//------------------------------------------------------------------------------
+std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(double dx, std::vector<double> psi, std::vector<double> u_giv)
+{
+    size_t nx = psi.size();
+    auto u = std::make_unique<std::vector<double>> ();
+    std::vector<double> tmp(nx, 0.0);
+
+    Eigen::SparseMatrix<double> B(nx, nx);
+    Eigen::VectorXd solution(nx);           // solution vector u
+    Eigen::VectorXd rhs(nx);                // RHS
+
+    for (size_t i = 1; i < nx - 2; ++i)
+    {
+        double psi_im12 = 0.5 * (psi[i - 1] + psi[i]);
+        double psi_ip12 = 0.5 * (psi[i] + psi[i + 1]);
+        //psi_im12 = 2. * psi[i] * psi[i - 1] / (psi[i] + psi[i - 1]);
+        //psi_ip12 = 2. * psi[i + 1] * psi[i] / (psi[i + 1] + psi[i]);
+
+        //B.coeffRef(i, i - 2) = 0.0;
+        B.coeffRef(i, i - 1) = dx * m_mass[0] - psi_im12 / dx;
+        B.coeffRef(i, i) = dx * m_mass[1] + psi_ip12 / dx + psi_im12 / dx;
+        B.coeffRef(i, i + 1) = dx * m_mass[2] - psi_ip12 / dx;
+        //B.coeffRef(i, i + 2) = 0.0;
+    }
+    for (size_t i = 1; i < nx - 1; ++i)
+    {
+        tmp[i] = dx * (m_mass[0] * u_giv[i - 1] + m_mass[1] * u_giv[i] + m_mass[2] * u_giv[i + 1]);
+        rhs[i] = tmp[i];
+    }
+    size_t i = 0;
+    B.coeffRef(i, i) = 1.0;
+    B.coeffRef(i, i + 1) = -2.0;
+    B.coeffRef(i, i + 2) = 1.0;
+    rhs[i] = 0.0;
+    i = 1;
+    B.coeffRef(i, i - 1) = 0.0;
+    B.coeffRef(i, i    ) = 1.0;
+    B.coeffRef(i, i + 1) = 0.0;
+    tmp[i] = u_giv[i];
+    rhs[i] = tmp[i];
+
+    i = nx - 1;
+    B.coeffRef(i, i - 2) = 1.0;
+    B.coeffRef(i, i - 1) = -2.0;
+    B.coeffRef(i, i) = 1.0;
+    rhs[i] = 0.0;
+    i = nx - 2;
+    B.coeffRef(i, i - 1) = 0.0;
+    B.coeffRef(i, i    ) = 1.0;
+    B.coeffRef(i, i + 1) = 0.0;
+    tmp[i] = u_giv[i];
+    rhs[i] = tmp[i];
+
+    //for (size_t i = 0; i < nx; ++i)
+    //{
+    //    solution[i] = u0[i];
+    //}
+
+    Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solverB;
+    solverB.compute(B);
+    solution = solverB.solve(rhs);
+    //solution = solverB.solveWithGuess(rhs, solution);
+
+    for (size_t i = 0; i < nx; ++i)
+    {
+        u->push_back(solution[i]);
+    }
+
+    return u;
+};
+//------------------------------------------------------------------------------
+std::unique_ptr<std::vector<double>>  REGULARIZATION::solve_eq8(double c_error, std::vector<double> u0, std::vector<double> u0_xixi)
+{
+    size_t nx = u0_xixi.size();
+    auto err = std::make_unique<std::vector<double>> ();
+    std::vector<double> tmp(nx, 0.0);
+
+    Eigen::SparseMatrix<double> A(nx, nx);
+    Eigen::VectorXd solution(nx);           // solution vector u
+    Eigen::VectorXd rhs(nx);                // RHS
+
+    for (size_t i = 1; i < nx - 1; ++i)
+    {
+        //A.coeffRef(i, i - 2) = 0.0;
+        A.coeffRef(i, i - 1) = m_mass[0] - c_error;
+        A.coeffRef(i, i) = m_mass[1] + 2. * c_error;
+        A.coeffRef(i, i + 1) = m_mass[2] - c_error;
+        //A.coeffRef(i, i + 2) = 0.0;
+    }
+    for (size_t i = 1; i < nx - 1; ++i)
+    {
+        tmp[i] = std::abs(u0_xixi[i]);
+        rhs[i] = tmp[i];
+    }
+    size_t i = 0;
+    A.coeffRef(i, i    ) = 1.;
+    A.coeffRef(i, i + 1) = -2.;
+    A.coeffRef(i, i + 2) = 1.;
+    rhs[i] = 0.0;
+    i = 1;
+    A.coeffRef(i, i - 1) = 0.0;
+    A.coeffRef(i, i    ) = 1.0;
+    A.coeffRef(i, i + 1) = 0.0;
+    rhs[i] = rhs[i];
+
+    i = nx - 1;
+    A.coeffRef(i, i - 2) = 1.0;
+    A.coeffRef(i, i - 1) = -2.0;
+    A.coeffRef(i, i    ) = 1.0;
+    rhs[i] = 0.0;
+    i = nx - 2;
+    A.coeffRef(i, i - 1) = 0.0;
+    A.coeffRef(i, i    ) = 1.0;
+    A.coeffRef(i, i + 1) = 0.0;
+    rhs[i] = rhs[i];
+
+    for (size_t i = 0; i < nx; ++i)
+    {
+        solution[i] = u0[i];
+    }
+
+    Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solverA;
+    solverA.compute(A);
+    solution = solverA.solve(rhs);
+    //solution = solverA.solveWithGuess(rhs, solution);
+
+    //const auto [min, max] = std::minmax_element(solution.begin(), solution.end());
+    //double err_max = std::abs(*min) < std::abs(*max) ? std::abs(*max) : std::abs(*min);
+
+    for (size_t i = 0; i < nx; ++i)
+    {
+        err->push_back(solution[i]); // / (err_max + 1e-13);  // to prevent division bij zero
+    }
+    return err;
+}
+
+

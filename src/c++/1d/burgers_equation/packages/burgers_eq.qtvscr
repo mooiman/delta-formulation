@@ -1,0 +1,617 @@
+<FlowDocument xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" FontFamily="Segoe UI" FontSize="12">
+  <FlowDocument.Tag><![CDATA[{
+  "timestamp": "2025-05-29 17:45:19",
+  "files": {
+    "C:\\Users\\janmo\\checkouts\\git\\delta-formulation\\src\\c++\\1d\\1d_advection_diffusion\\packages\\1d_adv_diff.vcxproj": {
+      "before": "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",
+      "after": "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"
+    }
+  }
+}]]></FlowDocument.Tag>
+  <Section Margin="0,24" TextAlignment="Center">
+    <Paragraph FontSize="24" FontWeight="Bold" Margin="12,0">
+      <LineBreak />
+      <Span Foreground="Gray">Qt Visual Studio Tools</Span>
+    </Paragraph>
+    <Paragraph FontSize="42" Margin="12,0" FontWeight="Bold">
+      <Span TextDecorations="Underline">Project Format Conversion</Span>
+    </Paragraph>
+    <Paragraph Margin="12,8" FontSize="18">
+      <Span>Report generated on 2025-05-29 17:45:19</Span>
+    </Paragraph>
+  </Section>
+  <Section>
+    <Paragraph FontSize="32" FontWeight="Bold" Margin="12,0">
+      <Span>Files</Span>
+    </Paragraph>
+    <Paragraph Margin="24,12,0,0">
+      <Span FontFamily="Consolas" FontSize="14" Background="WhiteSmoke"><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj]]></Span>
+      <LineBreak />
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj?before">[Before]</Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj?after">[After]</Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj?diff&amp;before&amp;after">
+                        [Diff before/after]
+                    </Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj?diff&amp;before&amp;current">
+                        [Diff before/current]
+                    </Hyperlink>
+      <Hyperlink NavigateUri="file://C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj?diff&amp;after&amp;current">
+                        [Diff after/current]
+                    </Hyperlink>
+      <LineBreak />
+    </Paragraph>
+  </Section>
+  <Section>
+    <Paragraph FontSize="32" FontWeight="Bold" Margin="12,0">
+      <Span>Changes</Span>
+    </Paragraph>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Converting custom build steps to Qt/MSBuild items]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      ]]></Span><Span Background="LightCoral"><![CDATA[<AdditionalIncludeDirectories>.;.]]></Span><Span><![CDATA[\include;%NETCDF_DIR%;..\..\..\lib\eigen;..\..\..\lib\toml++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      ]]></Span><Span Background="LightGreen"><![CDATA[<AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;.]]></Span><Span><![CDATA[\include;%NETCDF_DIR%;..\..\..\lib\eigen;..\..\..\lib\toml++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      ]]></Span><Span Background="LightCoral"><![CDATA[<AdditionalIncludeDirectories>.;.]]></Span><Span><![CDATA[\include;%NETCDF_DIR%;..\..\..\lib\eigen;..\..\..\lib\toml++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      ]]></Span><Span Background="LightGreen"><![CDATA[<AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;.]]></Span><Span><![CDATA[\include;%NETCDF_DIR%;..\..\..\lib\eigen;..\..\..\lib\toml++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Enabling multi-processor compilation]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[      <MultiProcessorCompilation>true</MultiProcessorCompilation>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[      <MultiProcessorCompilation>true</MultiProcessorCompilation>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Project format version]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[    ]]></Span><Span Background="LightCoral"><![CDATA[<Keyword>Qt4VSv1.0</Keyword>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[    ]]></Span><Span Background="LightGreen"><![CDATA[<Keyword>QtVS_v304</Keyword>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Fallback for QTMSBUILD environment variable]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Default Qt properties]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <Import Project="$(QtMsBuild)\qt_defaults.props" Condition="Exists('$(QtMsBuild)\qt_defaults.props')" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Qt build settings]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Warn if Qt/MSBuild is not found]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') OR !Exists('$(QtMsBuild)\Qt.props')">]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  </Target>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Qt property sheet]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <Import Project="$(QtMsBuild)\Qt.props" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <Import Project="$(QtMsBuild)\Qt.props" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Qt targets]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Copying Qt build reference to QtInstall project property]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)]]></Span><Span Background="LightCoral"><![CDATA['=='Release|x64'" />]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)]]></Span><Span Background="LightGreen"><![CDATA['=='Release|x64'">]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[  ]]></Span><Span Background="LightCoral"><![CDATA[<PropertyGroup Label="QtSettings" Condition="'$]]></Span><Span><![CDATA[(]]></Span><Span Background="LightCoral"><![CDATA[Configuration)|$(Platform]]></Span><Span><![CDATA[)]]></Span><Span Background="LightCoral"><![CDATA['=='Debug|x64'" />]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[    ]]></Span><Span Background="LightGreen"><![CDATA[<QtInstall>$]]></Span><Span><![CDATA[(]]></Span><Span Background="LightGreen"><![CDATA[DefaultQtVersion]]></Span><Span><![CDATA[)]]></Span><Span Background="LightGreen"><![CDATA[</QtInstall>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  </PropertyGroup>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <QtInstall>$(DefaultQtVersion)</QtInstall>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  </PropertyGroup>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Removing Qt module macros from resource compiler properties]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;QT_NO_DEBUG;]]></Span><Span Background="LightCoral"><![CDATA[QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;]]></Span><Span><![CDATA[%(PreprocessorDefinitions)</PreprocessorDefinitions>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;QT_NO_DEBUG;]]></Span><Span><![CDATA[%(PreprocessorDefinitions)</PreprocessorDefinitions>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;]]></Span><Span Background="LightCoral"><![CDATA[QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;]]></Span><Span><![CDATA[_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;]]></Span><Span><![CDATA[_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Adding Qt module names to QtModules project property]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <QtModules>core;gui;widgets;printsupport</QtModules>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <QtModules>core;gui;widgets;printsupport</QtModules>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Removing project user properties (format version 2)]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[C:\Users\janmo\checkouts\git\delta-formulation\src\c++\1d\1d_advection_diffusion\packages\1d_adv_diff.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      <UserProperties ]]></Span><Span Background="LightCoral"><![CDATA[Qt5Version_x0020_x64="$(DefaultQtVersion)" ]]></Span><Span><![CDATA[/>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      <UserProperties ]]></Span><Span><![CDATA[/>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+  </Section>
+  <Section>
+    <Paragraph />
+  </Section>
+</FlowDocument>
+<!--4ax8H2fwQezCdn3WGQx+h6/FAGiwbAk3768isBigC18=-->

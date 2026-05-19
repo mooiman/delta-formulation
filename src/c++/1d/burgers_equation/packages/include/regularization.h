@@ -1,0 +1,61 @@
+//
+// Programmer: Jan Mooiman
+// Email     : jan.mooiman@outlook.com
+//
+//    Solving the 1D advection/diffusion equation, fully implicit with delta-formulation and Modified Newton iteration 
+//    Copyright (C) 2025 Jan Mooiman
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+//------------------------------------------------------------------------------
+
+#ifndef __1D_REGULARIZATION_H__
+#define __1D_REGULARIZATION_H__
+
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <filesystem>
+
+#include <Eigen/IterativeLinearSolvers>
+#include <Eigen/Sparse>
+
+class REGULARIZATION
+{
+public:
+    REGULARIZATION();
+    REGULARIZATION(int iter_max, double g, std::string logging);
+    void given_function(std::vector<double>& u_out, std::vector<double>& psi, std::vector<double>& u_giv_in,
+        double dx, double c_psi, std::ofstream& log_file);
+
+    void artificial_viscosity(std::vector<double>& psi, std::vector<double>& u, double c_psi, double dx);
+
+    void first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx);
+private:
+    std::unique_ptr<std::vector<double>> solve_eq8(double c_psi, std::vector<double> u0, std::vector<double> u0_xixi);
+    std::unique_ptr<std::vector<double>> solve_eq7(double dx, std::vector<double> psi, std::vector<double> u_giv);
+
+    int m_iter_max;
+    double m_alpha;
+    double m_g;
+    std::string m_logging;
+    double m_u0_xixi_smooth;
+    std::ofstream m_log_file;
+    std::vector<double> m_mass;
+    double m_eps_smooth;  // epsilon of regularization process
+};
+
+#endif __1D_REGULARIZATION_H__

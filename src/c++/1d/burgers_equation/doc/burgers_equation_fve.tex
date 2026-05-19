@@ -1,0 +1,143 @@
+\documentclass{mooiman_memo}
+\bibliography{c:/Users/janmo/checkouts/git/examples/references/literature_references.bib}
+
+\usepackage{dutchcal}
+
+\usepackage{bm}
+\renewcommand{\vec}[1]{\mbox{\boldmath ${#1}$} }
+
+\sisetup{mode=math}
+\captionsetup[subfigure]{justification=RaggedRight}
+
+\allowdisplaybreaks[1]
+
+\newcommand{\ii}{{\rm i}}
+\newcommand{\Dx}{\Delta x}
+\newcommand{\Dy}{\Delta y}
+\newcommand{\Dh}{\Delta h}
+\newcommand{\Dq}{\Delta q}
+\newcommand{\Dr}{\Delta r}
+\newcommand{\Dxi}{\Delta \xi}
+\newcommand{\Deta}{\Delta \eta}
+\newcommand{\Dt}{\Delta t}
+\newcommand{\Dtinv}{\Delta t_{\it{inv}}}
+\newcommand{\Du}{\Delta u}
+\newcommand{\vecn}{\mathbcal{n}}  % normal component in eta-direction
+\newcommand{\nx}{\mathcal{n}_x}  % normal component in x-direction
+\newcommand{\ny}{\mathcal{n}_y}  % normal component in y-direction
+\newcommand{\nxi}{\mathcal{n}_\xi}  % normal component in xi-direction
+\newcommand{\neta}{\mathcal{n}_\eta}  % normal component in eta-direction
+
+\newcommand{\mat}[1]{\mbox{\boldmath ${\rm #1}$} }
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\quart}{\frac{1}{4}}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\Fabs}[1]{F_{\it abs}(#1)\xspace}  % Continue function for the absolute value
+\newcommand{\eps}{\varepsilon}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\bunit}[1]{\text{\normalfont [}\textit{\unit{#1}}\text{\normalfont ]}}
+\newcommand{\bqty}[2]{\text{\num{#1}}\ \text{\normalfont [}\textit{\unit{#2}}\text{\normalfont ]}}
+\newcommand{\Pe}{\textit{Pe}\xspace}
+\newcommand{\bPsi}{\boldsymbol{\Psi}}
+
+\newcommand{\utilde}{\widetilde{u}}
+\newcommand{\ubar}{\overline{u}}
+\newcommand{\uhat }{\widehat{u}}
+\newcommand{\htilde}{\widetilde{h}}
+\renewcommand{\hbar}{\overline{h}}  % overrule the Planck constant
+\newcommand{\hhat }{\widehat{h}}
+\newcommand{\qtilde}{\widetilde{q}}
+\newcommand{\qbar}{\overline{q}}
+\newcommand{\qhat }{\widehat{q}}
+\newcommand{\rtilde}{\widetilde{r}}
+\newcommand{\rbar}{\overline{r}}
+\newcommand{\rhat }{\widehat{r}}
+
+\newcommand{\maplesoft}{\textbf{Maplesoft}}
+\newcommand{\deltaformulation}{$\Delta$-formulation\xspace}
+\newcommand{\notyet}{\textbf{Not yet documented}\newline}
+
+\begin{document}
+\memoSubject{Burgers equation}
+\memoDate{\today~\currenttime}
+\memoFrom{Jan Mooiman}
+\memoTo{}
+\memoVersion{001}
+
+\mooimantitle
+%------------------------------------------------------------------------------
+
+\section{Burgers equation}
+The Burgers equation reads (\citet{Debnath2008}):
+\begin{align}
+\boxed{
+\pdiff{u}{t} + u \pdiff{u}{x} - \nu \pdiff[2]{u}{x}= 0
+}
+\end{align}
+Because we will use a finite volume method to solve this equation, it is used in the conservative  form, i.e.:
+\begin{align}
+    \pdiff{u}{t} + \half \pdiff{u^2}{x} - \pdiff{}{x} \left( \nu \pdiff{u}{x} \right) = 0
+\end{align}
+Applying the finite volume approach:
+\begin{align}
+    \int_\Omega \pdiff{u}{t}\, d\Omega + \half \int_\Omega \pdiff{u^2}{x}\, d\Omega \ - \int_\Omega  \pdiff{}{x} \left( \nu \pdiff{u}{x} \right)\, d\Omega = 0
+\end{align}
+and applying Green's theorem yields:
+\begin{align}
+    \int_\Omega \pdiff{u}{t}\, d\Omega + \half \oint_\Gamma u^2\, d\Gamma
+    - \oint_\Gamma  \nu \pdiff{u}{x} \, d\Gamma = 0
+\end{align}
+
+%------------------------------------------------------------------------------
+\section{Discretization in time and space}
+The discretization in space and the discretization in space are discussed in separate sections.
+Due to the applying regularization procedure the viscosity ($\nu$) is increased by an artificial viscosity ($\Psi$), so the the implementation of $\nu + \Psi$ is a function of $x$.
+%------------------------------------------------------------------------------
+\subsection{Discretization in time}
+The used discretization in time reads:
+\begin{align}
+    \int_\Omega \pdiff{u}{t}\, d\Omega \Rightarrow
+    \Dx & \Dt_{inv}  \left(\frac{1}{8} \Delta u^{n+1,p+1}_{i-1} + \frac{6}{8} \Delta u^{n+1,p+1}_{i} + \frac{1}{8} \Delta u^{n+1,p+1}_{i+1}\right) =
+    \nonumber \\*
+    & = - \Dx \Dt_{inv} \left( \frac{1}{8}\left( u^{n+1,p}_{i-1} - u^{n}_{i-1} \right) + \frac{6}{8}\left( u^{n+1,p}_{i} - u^{n}_{i} \right) + \frac{1}{8}\left( u^{n+1,p}_{i+1} - u^{n}_{i+1} \right) \right)
+\end{align}
+\newpage
+%------------------------------------------------------------------------------
+\subsection{Discretization in place}
+%------------------------------------------------------------------------------
+\subsubsection*{Convection-term}
+\begin{align}
+   \half \oint_\Gamma u^2\, d\Gamma & =
+   \half \left. u^2\right|_{i+\half}
+   - \half \left. u^2\right|_{i-\half}
+\end{align}
+with the approximation  $u^2 = (u^{n+\theta, p})^2
++ 2 u^{n+\theta, p} \theta \Delta u$ the discretization reads:
+\begin{align}
+    & \approx
+    u^{n+\theta, p}_{i+\half} \theta \Delta u_{i+\half}
+     - u^{n+\theta, p}_{i-\half} \theta \Delta u_{i-\half}
+    + \half \left(u^{n+\theta, p}_{i+\half}\right)^2
+    - \half \left(u^{n+\theta, p}_{i-\half}\right)^2
+\end{align}
+%------------------------------------------------------------------------------
+\subsubsection*{Viscosity term}
+After linearization of $c^{n+\theta,p+1}$ the discretization and with $\eps = \nu + \Psi$ reads:
+\begin{align}
+     - \oint_\Gamma  \eps \pdiff{u}{x} \, d\Gamma =
+     \left(\eps \pdiff{u}{x}\right)_{i+\half}
+     - \left(\eps \pdiff{u}{x}\right)_{i-\half}
+\end{align}
+
+\begin{align}
+     & \Rightarrow
+    \theta \frac{\eps_{i+\half}}{\Dx} \Delta u^{n+1, p+1}_{i+1}
+    - \theta \left( \frac{\eps_{i+\half}}{\Dx} + \frac{\eps_{i-\half}}{\Dx} \right) \Delta u^{n+1, p+1}_{i} - \theta \frac{\eps_{i-\half}}{\Dx} \Delta u^{n+1, p+1}_{i-1}
+    +
+    \\*
+    &\qquad +\left. \left( \eps_{i+\half} \frac{u^{n+\theta,p}_{i+1} - u^{n+\theta,p}_{i}}{\Dx} - \eps_{i-\half} \frac{u^{n+\theta,p}_{i} - c^{n+\theta,p}_{i-1}}{\Dx}\right) \right\}
+\end{align}
+
+%------------------------------------------------------------------------------
+\printallbibliography
+\end{document}
