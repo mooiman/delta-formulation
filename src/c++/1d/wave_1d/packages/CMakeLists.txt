@@ -1,4 +1,4 @@
-set(exe_name 1d_wave)
+set(exe_name wave_1d)
 
 # include_directories(include)
 set(headers_files
