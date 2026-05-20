@@ -1,4 +1,8 @@
-set(exe_name 1d_adv_diff)
+message("********************************") 
+message("*** Enter packages directory ***") 
+message("********************************") 
+
+set(exe_name burgers_eq)
 
 # include_directories(include)
 set(headers_files
@@ -20,6 +24,9 @@ set(headers_files
     include/ugrid1d.h
 )    
 
+set(no_group_source_files
+    "include/version_number.ini"
+)
 set(source_files
     src/main.cpp
     src/adv_diff_boundary_condition.cpp
@@ -39,6 +46,15 @@ set(source_files
 
 add_executable(${exe_name} ${source_files} ${headers_files})
 
+# Combine the two custom target definitions into one
+add_custom_target(
+    myHeaderTarget
+    COMMAND powershell -ExecutionPolicy Bypass -File "${CMAKE_CURRENT_SOURCE_DIR}\\..\\scripts\\git_insert_hash.ps1" ..\\..\\packages\\include main_version.h
+)
+
+# Ensure myHeaderTarget runs before the executable is built
+add_dependencies(${exe_name} myHeaderTarget)
+
 if (MSVC)
     message("*** MSVC ")
     target_include_directories(${exe_name} PUBLIC
@@ -49,17 +65,17 @@ if (MSVC)
         "$ENV{BOOST_ROOT_DIR}/."
         "$ENV{NETCDF_DIR}/."
         "$ENV{KDTREE_DIR}/."
-        "c:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.40.33807/include/"
-        "c:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/ucrt/"
     )
+    message("--- MSVC ")
 else()
     message("*** UCRT64 ")
     target_include_directories(${exe_name} PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/."
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
-        "c:/msys64/ucrt64/include/Qt6/"
+        "c:/msys64/ucrt64/lib"
         "c:/msys64/ucrt64/include/boost/"
     )
+    message("--- UCRT64 ")
 endif()
 
 if (MSVC)
@@ -69,11 +85,11 @@ else()
     target_link_libraries(${exe_name} PRIVATE netcdf)
 endif()
 
-set_property(TARGET ${exe_name} PROPERTY "/SUBSYSTEM:WINDOWS")
+set_property(TARGET ${exe_name} PROPERTY true)
 
 set(install_dir ${CMAKE_BINARY_DIR})
 set(build_dir ${CMAKE_BINARY_DIR})
-install(TARGETS ${exe_name} RUNTIME DESTINATION bin)
+install(TARGETS ${exe_name} DESTINATION .)
 
 set(netcdf_dlls
     $ENV{NETCDF_DIR}/bin/netcdf.dll
@@ -82,21 +98,3 @@ set(netcdf_dlls
     $ENV{NETCDF_DIR}/bin/hdf5.dll
     $ENV{NETCDF_DIR}/bin/zlib1.dll
 )
-add_custom_command(
-        TARGET ${exe_name}  
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-                ${netcdf_dlls} 
-                ${EXECUTABLE_OUTPUT_PATH}
-)
-add_custom_target(git_version_header
-    COMMAND powershell
-            -NoProfile
-            -ExecutionPolicy Bypass
-            -File "${CMAKE_SOURCE_DIR}/scripts/git_insert_hash.ps1"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include"
-            "main_version.h"
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-)
-
-add_dependencies(${exe_name} git_version_header)

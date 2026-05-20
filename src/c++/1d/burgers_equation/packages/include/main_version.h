@@ -6,12 +6,12 @@
 #define main_major "0"
 #define main_minor "00"
 #define main_revision "000"
-#define main_build "2026-04-29 15:14:05, M-fd829c9"
+#define main_build "2026-05-19 22:26:41, M-69732f7"
 
 #define main_company "Mooiman"
 #define main_company_url "https://www.github.com/mooiman"
 #define main_source_url "https://github.com/mooiman/delta-formulation.git"
-#define main_program "Wave-1D"
+#define main_program "Burger"
 
 /*=================================================== DO NOT MAKE CHANGES BELOW THIS LINE ===================================================================== */
 
