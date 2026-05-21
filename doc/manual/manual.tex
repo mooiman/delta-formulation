@@ -173,6 +173,7 @@ dt\_map & $60.0$ & Time interval to write the history file, \bunit{\second} \\*
 %
 %
 \multicolumn{3}{@{}l}{\textbf{\texttt{[Time]}} } \\*
+tunit & "s" & Unit of the start and stop time. Values seconds "s", minutes "m", hours "h" and days "d" \\*
 start & 0.0 & Start time of the simulation, \bunit{\second} \\*
 stop & 60.0 & Stop time of the simulation, \bunit{\second} \\*
 \midline
@@ -180,7 +181,7 @@ stop & 60.0 & Stop time of the simulation, \bunit{\second} \\*
 \multicolumn{3}{@{}l}{\textbf{\texttt{[[ObservationPoint]]}} } \\*
 {x}    &-& $x$-coordinate of the observation point\\*
 {y}    &-& $y$-coordinate of the observation point\\*
-{name} &-& Name of observation point between double quotes \\
+{name} & "\ldots" & Name of observation point between double quotes \\
 \midline
 
 \end{longtable}
@@ -193,58 +194,59 @@ stop & 60.0 & Stop time of the simulation, \bunit{\second} \\*
 logging = "None"  # "iterations", "matrix", "pattern"
 
 [Boundary]  # north, east, south, west
-bc_type = ["borsboom", "borsboom", "borsboom", "borsboom"]  # Type "neumann", "dirichlet"
-bc_vars = ["zeta", "zeta", "zeta", "zeta"]
+treg         = 150.0  # Regularization time boundary signal
+eps_bc_corr  = 0.01
+bc_type      = ["borsboom", "borsboom", "borsboom", "borsboom"]  # Type "neumann", "dirichlet", "borsboom"
+bc_vars      = ["zeta", "zeta", "zeta", "zeta"]
 bc_absorbing = [true, true, true, true]
-bc_vals = [0.0, 0.0, 0.0, 0.0]
-treg = 150.0  # Regularization time boundary signal
-eps_bc_corr = 0.01
+bc_vals      = [0.0, 0.0, 0.0, 0.0]
 
 [Domain]
-mesh_file = "geometry/62x62_6x6km_net.nc"
+mesh_file      = "geometry/62x62_6x6km_net.nc"
 bed_level_file = "geometry/62x62_6x6km_flat.dep"
 
 [Initial]
-ini_vars = ["zeta", "zeta_gauss_hump"]
-Gauss_amp = 1.0
-Gauss_mu = 0.0
-Gauss_mu_x = 0.0
-Gauss_mu_y = 0.0
-Gauss_sigma = 350.0
+ini_vars      = ["zeta", "zeta_gauss_hump"]
+Gauss_amp     = 1.0
+Gauss_mu      = 0.0
+Gauss_mu_x    = 0.0
+Gauss_mu_y    = 0.0
+Gauss_sigma   = 350.0
 Gauss_sigma_x = 350.0
 Gauss_sigma_y = 350.0
 
 [Numerics]
-dt = 5.0  # Time step size [s], if dt == 0: then stationary problem
-theta = 0.501  # Implicitness factor (0.5 <= theta <= 1.0)
-c_psi = 4.0
-iter_max = 25  # Maximum number of nonlinear iterations
-eps_newton = 1e-12
-eps_bicgstab = 1e-06
-eps_abs_function = 0.01
-linear_solver = "bicgstab"  # "bicgstab", "multigrid"
+dt                  = 5.0  # Time step size [s], if dt == 0: then stationary problem
+theta               = 0.501  # Implicitness factor (0.5 <= theta <= 1.0)
+c_psi               = 4.0
+iter_max            = 25  # Maximum number of nonlinear iterations
+eps_newton          = 1e-12
+eps_bicgstab        = 1e-06
+eps_abs_function    = 0.01
+linear_solver       = "bicgstab"  # "bicgstab", "multigrid"
 regularization_init = false
 regularization_iter = false
 regularization_time = false
 
 [Physics]
-do_linear_waves = true
-do_continuity = true
-do_q_equation = true
-do_r_equation = true
-do_convection = false
+do_linear_waves     = true
+do_continuity       = true
+do_q_equation       = true
+do_r_equation       = true
+do_convection       = false
 do_bed_shear_stress = false
-do_viscosity = false
-chezy_coefficient = 25.0
-viscosity = 100.0
+do_viscosity        = false
+chezy_coefficient   = 25.0
+viscosity           = 100.0
 
 [Output]
 dt_his = 0.01
 dt_map = 30.0
 
 [Time]
+tunit  = "s"
 tstart = 0.0
-tstop = 1800.0
+tstop  = 1800.0
 \end{Verbatim}
 
 \end{document}
