@@ -269,7 +269,8 @@ int main(int argc, char* argv[])
     // Copy input data to loccal data
     std::string logging = input_data.log.logging;
 
-    double Lx = input_data.domain.Lx;
+    double Lx       = input_data.domain.Lx;
+    double x_origin = input_data.domain.x_origin;
 
     double eps_bc_corr = input_data.boundary.eps_bc_corr;
     double treg = input_data.boundary.treg;
@@ -340,7 +341,7 @@ int main(int argc, char* argv[])
     //initialize x-coordinate
     for (int i = 0; i < nx; i++)
     {
-        x[i] = double(i - 1) * dx - Lx / 2;
+        x[i] = double(i - 1) * dx - x_origin;
     }
     //  Create kdtree, needed to locate the observation points
     std::vector<std::vector<double>> xy_points;
@@ -385,13 +386,13 @@ int main(int argc, char* argv[])
     map_file = create_map_file(nc_mapfilename, model_title, x, map_names);
     
     // Put data on map file
+    START_TIMER(Writing map-file);
     int nst_map = 0;
     map_file->put_time(nst_map, time);
     map_file->put_time_variable(map_names[0], nst_map, un);
     map_file->put_time_variable(map_names[1], nst_map, visc);
     map_file->put_time_variable(map_names[2], nst_map, psi);
     map_file->put_time_variable(map_names[3], nst_map, pe);
-
     STOP_TIMER(Writing map-file);
 
     // End define map file
@@ -526,15 +527,15 @@ int main(int argc, char* argv[])
         log_file << std::setprecision(4) << time << std::endl;
 #endif
         std::vector<double> bc(2, 0.0);
-        boundary_condition(bc[BC_EAST ], bc_vals[BC_EAST ], time, treg, bc_signals[BC_EAST], u_initial);
         boundary_condition(bc[BC_WEST ], bc_vals[BC_WEST ], time, treg, bc_signals[BC_WEST], u_initial);
+        boundary_condition(bc[BC_EAST ], bc_vals[BC_EAST ], time, treg, bc_signals[BC_EAST], u_initial);
 
         if (regularization_time)
         {
             START_TIMER(Regularization_time_loop);
             if (do_viscosity)
             {
-                (void)regularization->artificial_viscosity(psi, up, c_psi, dx);
+                regularization->artificial_viscosity(psi, up, c_psi, dx);
                 for (int i = 0; i < nx; ++i)
                 {
                     visc[i] = visc_reg[i] + std::abs(psi[i]);
@@ -561,7 +562,6 @@ int main(int argc, char* argv[])
                     for (int i = 0; i < nx; ++i)
                     {
                         visc[i] = visc_reg[i] + std::abs(psi[i]);
-                        pe[i] = up[i] * dx / visc[i];
                     }
                 }
                 STOP_TIMER(Regularization_iter_loop);
@@ -603,32 +603,34 @@ int main(int argc, char* argv[])
                 A.coeffRef(i, i + 1) = dx * dtinv * mass[2];
                 tmp[i] = -(
                       dx * dtinv * mass[0] * (up[i - 1] - un[i - 1])
-                    + dx * dtinv * mass[1] * (up[i] - un[i])
+                    + dx * dtinv * mass[1] * (up[i    ] - un[i    ])
                     + dx * dtinv * mass[2] * (up[i + 1] - un[i + 1])
                     );
                 rhs[i] = tmp[i];
                 //
-                // dx * 0.5 * d(uu)/dx
+                // 0.5 * d(uu)/dx = 0.5 * uu{i+1/2} - 0.5 uu_{i-1/2}
                 utheta_im12 = 0.5 * (utheta[i - 1] + utheta[i]);
                 utheta_ip12 = 0.5 * (utheta[i] + utheta[i + 1]);
 
                 A.coeffRef(i, i - 1) += - 0.5 * utheta_im12 * theta;
-                A.coeffRef(i, i) += - 0.5 * utheta_im12 * theta + 0.5 * utheta_ip12 * theta;
+                A.coeffRef(i, i)     += - 0.5 * utheta_im12 * theta;
+                A.coeffRef(i, i)     += + 0.5 * utheta_ip12 * theta;
                 A.coeffRef(i, i + 1) += + 0.5 * utheta_ip12 * theta;
                 tmp[i] += -(
                     + 0.5 * utheta_ip12 * utheta_ip12 - 0.5 * utheta_im12 * utheta_im12
                     );
                 rhs[i] = tmp[i];
                 //
-                // dx * d(visc(dc/dx))/dx
+                //  d(visc(du/dx))/dx
                 if (do_viscosity)
                 {
                     double visc_im12 = - 0.5 * (visc[i - 1] + visc[i]);
                     double visc_ip12 = - 0.5 * (visc[i] + visc[i + 1]);
 
-                    A.coeffRef(i, i - 1) += visc_im12 * theta * dxinv;
-                    A.coeffRef(i, i    ) += -visc_im12 * theta * dxinv - visc_ip12 * theta * dxinv;
-                    A.coeffRef(i, i + 1) += +visc_ip12 * theta * dxinv;
+                    A.coeffRef(i, i - 1) += + visc_im12 * theta * dxinv;
+                    A.coeffRef(i, i    ) += - visc_im12 * theta * dxinv;
+                    A.coeffRef(i, i    ) += - visc_ip12 * theta * dxinv;
+                    A.coeffRef(i, i + 1) += + visc_ip12 * theta * dxinv;
                     rhs[i] += -(
                         visc_im12 * dxinv * (utheta[i + 1] - utheta[i]) - visc_ip12 * dxinv * (utheta[i] - utheta[i - 1])
                         );
@@ -730,7 +732,6 @@ int main(int argc, char* argv[])
             solver.setTolerance(eps_bicgstab);
             //solution = solver.solve(rhs);
             solution = solver.solveWithGuess(rhs, solution);
-            START_TIMER(Set solution);
             if (nst == 1 && iter == 0)
             {
                 STOP_TIMER(BiCGstab_initialization);
@@ -795,23 +796,7 @@ int main(int argc, char* argv[])
                          << std::endl;
             }
 
-            STOP_TIMER(Set solution);
             used_lin_solv_iter = std::max(used_lin_solv_iter, (int)solver.iterations());
-            if (regularization_iter)
-            {
-                START_TIMER(Regularization_iter_loop);
-                //for (size_t i = 0; i < nr_nodes; ++i)
-                //{
-                //    u[i] = qp[i] / hp[i];
-                //}
-                //(void)regular->first_derivative(psi, visc_reg, u, dx);
-                STOP_TIMER(Regularization_iter_loop);
-                //for (size_t i = 0; i < nr_nodes; ++i)
-                //{
-                    //visc[i] = visc_reg[i] * std::abs(psi[i]);
-                    //pe[i] = qp[i] / hp[i] * dx / visc[i];
-                //}
-            }
             if (du_max < eps_newton)
             {
                 break;
@@ -856,22 +841,8 @@ int main(int argc, char* argv[])
             un[i] = up[i];
         }
 
-        if (regularization_time)
-        {
-            if (do_viscosity)
-            {
-                START_TIMER(Regularization_time_loop);
-                (void)regularization->artificial_viscosity(psi, up, c_psi, dx);
-                for (size_t i = 0; i < nx; ++i)
-                {
-                    visc[i] = visc_reg[i] + std::abs(psi[i]);
-                }
-                STOP_TIMER(Regularization_time_loop);
-            }
-        }
         if (do_viscosity)
         {
-
             for (int i = 0; i < nx; ++i)
             {
                 pe[i] = up[i] * dx / visc[i];

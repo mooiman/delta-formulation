@@ -53,11 +53,12 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
 
     //Domain
     log_file << std::endl << "[Domain]" << std::endl;
-    log_file << "    Lx = " << format_as_double(data.domain.Lx) << "  # Domain length [m]" << std::endl;
+    log_file << "    Lx       = " << format_as_double(data.domain.Lx) << "  # Domain length [m]" << std::endl;
+    log_file << "    x_origin = " << format_as_double(data.domain.x_origin) << "  # Origin of the x-coordinate [m]" << std::endl;
 
     // Initial
     log_file << std::endl << "[Initial]" << std::endl;
-    log_file << "    u_initial = " << format_as_double(data.initial.u_initial) << "  # location of the top on the gaussian hump [m]" << std::endl;
+    log_file << "    u_initial = " << format_as_double(data.initial.u_initial) << "  # initial velocity [m]" << std::endl;
     log_file << "    ini_vars  = [\"";
     for (int i = 0; i < data.initial.ini_vars.size() - 1; ++i) { log_file << data.initial.ini_vars[i] << "\", \""; }
     log_file << data.initial.ini_vars[data.initial.ini_vars.size() - 1] << "\"]" << std::endl;
@@ -90,7 +91,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
 
     //Time
     log_file << std::endl << "[Time]" << std::endl;
-    log_file << "    tunit  = \"" << "s" << "\"" << "  # \"s\", \"m\", \"h\"" << std::endl;
+    log_file << "    tunit  = \"" << "s" << "\"" << "  # \"s\", \"m\", \"h\", \"d\"" << std::endl;
     log_file << "    tstart = " << format_as_double(data.time.tstart) << std::endl;
     log_file << "    tstop  = " << format_as_double(data.time.tstop) << std::endl;
 

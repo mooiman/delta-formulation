@@ -48,6 +48,7 @@ struct _boundary {
 struct _domain {
     double depth;
     double Lx;
+    double x_origin;
     std::string geometry_type;
     std::string grid_filename;
     std::filesystem::path full_grid_filename;

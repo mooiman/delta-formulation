@@ -140,7 +140,6 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
 {
     size_t nx = u.size();
     std::vector<double> u_xixi(nx, 0.);  // second derivative of u-velocity in computational space
-    std::vector<double> Err_psi(nx, 0.);  //
 
     Eigen::SparseMatrix<double> A(nx, nx);
     Eigen::VectorXd solution(nx);               // solution vector 
@@ -164,7 +163,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     u_xixi[i] = 2. * u_xixi[i - 1] - u_xixi[i - 2];
     //
 
-    // eq. 18
+    // eq. 18 CRC2001
     double ubar_im14;
     double ubar_ip14;
 
@@ -177,31 +176,29 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
 
         ubar_im14 = 0.25 * (u[i - 1] + 3. * u[i]);
         ubar_ip14 = 0.25 * (u[i + 1] + 3. * u[i]);
+        double utmp = 0.5 * (ubar_im14 + ubar_ip14);
 
-        rhs[i] = c_psi * dx * (
-              0.0625 * ubar_im14 * std::abs(u_xixi[i])
-            + 0.0625 * ubar_ip14 * std::abs(u_xixi[i])
-            );
+        rhs[i] = dx * dx * (std::abs(u_xixi[i]));
     }
     // eq. 19
     i = 0;
-    A.coeffRef(i, i) = 1.; 
+    A.coeffRef(i, i    ) = 1.; 
     A.coeffRef(i, i + 1) = -2.0;
     A.coeffRef(i, i + 2) = 1.;
     rhs[i] = 0.0;
     i = 1;
     A.coeffRef(i, i - 1) = 0;
-    A.coeffRef(i, i) = 1.;
+    A.coeffRef(i, i    ) = 1.;
     A.coeffRef(i, i + 1) = 0;
     rhs[i] = rhs[i];
     i = nx - 1;
     A.coeffRef(i, i - 2) = 1.;
     A.coeffRef(i, i - 1) = -2.0;
-    A.coeffRef(i, i) = 1.;
+    A.coeffRef(i, i    ) = 1.;
     rhs[i] = 0.0;
     i = nx - 2;
     A.coeffRef(i, i - 1) = 0.0;
-    A.coeffRef(i, i) = 1.0;
+    A.coeffRef(i, i    ) = 1.0;
     A.coeffRef(i, i + 1) = 0.0;
     rhs[i] = rhs[i];
 

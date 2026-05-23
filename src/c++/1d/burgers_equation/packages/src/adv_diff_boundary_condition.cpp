@@ -44,7 +44,7 @@ void boundary_condition(double& bc0_out, double& bc0_in, double& time, double& t
         //
         // Given value at both sides
         //
-        bc0_out = reg_interp * bc0_in;
+        bc0_out = u_initial + reg_interp * (bc0_in - u_initial);
     }
     else if (bc_signal == "sine")
     {
