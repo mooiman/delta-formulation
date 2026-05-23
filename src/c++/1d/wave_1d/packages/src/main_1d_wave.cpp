@@ -176,6 +176,11 @@ int main(int argc, char* argv[])
             input_data.time.tstart = 3600.0 * input_data.time.tstart;
             input_data.time.tstop  = 3600.0 * input_data.time.tstop;
         }
+        if (input_data.time.tunit == "d")
+        {
+            input_data.time.tstart = 24.0 * 3600.0 * input_data.time.tstart;
+            input_data.time.tstop  = 24.0 * 3600.0 * input_data.time.tstop;
+        }
     }
     if (input_data.numerics.dt == 0.0) { stationary = true;  }
     if (stationary) { 
@@ -237,6 +242,7 @@ int main(int argc, char* argv[])
     double dtinv;                                         // Inverse of dt, if dt==0 then stationary solution [1/s]
     int wrihis;                                           // write interval to his-file
     int wrimap;                                           // write interval to map-file
+
     if (stationary)
     {
         input_data.numerics.dt = 0.0;                                         // Time step size [s]
@@ -1521,7 +1527,7 @@ int main(int argc, char* argv[])
         }
         STOP_TIMER(Newton iteration);
 
-        if (stationary) 
+        if (stationary)
         {
             log_file << "stationary solution " << std::endl;
             log_file << std::setprecision(8) << std::scientific
@@ -1585,6 +1591,7 @@ int main(int argc, char* argv[])
                 pe[i] = qp[i] / hp[i] * dx / visc[i];
             }
         }
+
         // Map-files
         if (std::fmod(nst, wrimap) == 0)
         {
