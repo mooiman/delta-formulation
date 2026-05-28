@@ -54,7 +54,7 @@ def thomas_algorithm_5(a, b, c, d, e, f):
     return f
 
 
-def main(Lx=12., dx=4.):
+def main(Lx=12., dx=2.):
     nx = int(Lx / dx) + 1 + 2  # two extra virtual points
 
     mass = np.zeros(3, dtype=np.float64)
@@ -92,21 +92,21 @@ def main(Lx=12., dx=4.):
         if x_ana[i] < mid:
             u_ana[i] = a_coef*(x_ana[i] - mid + quart) ** 2.
             #u_ana[i] = a_coef*(x_ana[i] - mid + quart) ** 4.
-            u_ana[i] = x_ana[i]
+            #u_ana[i] = x_ana[i]
         else:
             u_ana[i] = -a_coef*(x_ana[i] - mid - quart) ** 2. + 2. * a_coef*(x_ana[refine] - mid + quart)**2.
             #u_ana[i] = -a_coef*(x_ana[i] - mid - quart) ** 4. + 2. * a_coef*(x_ana[0] - mid + quart)**4.
-            u_ana[i] = x_ana[i]
+            #u_ana[i] = x_ana[i]
         #u_ana[i] = np.sin(1.* math.pi * x_ana[i]/Lx) +2.
     for i in range(0, nx):
         if x[i] < mid:
             u0[i] = a_coef*(x[i] - mid + quart) **2.
             #u0[i] = a_coef*(x[i] - mid + quart) **4.
-            u0[i] = x[i]
+            #u0[i] = x[i]
         else:
             u0[i] = -a_coef*(x[i] - mid - quart) ** 2. + 2. * a_coef*(x[1] - mid + quart) **2.
             #u0[i] = -a_coef*(x[i] - mid - quart) ** 4. + 2. * a_coef*(x[0] - mid + quart) **4.
-            u0[i] = x[i]
+            #u0[i] = x[i]
         #u0[i] = np.sin(1. * math.pi * x[i] / Lx) +2.
 
     # integral of the control volumes (xi-1/2, xi+1/2)
