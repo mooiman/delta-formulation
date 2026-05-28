@@ -7,9 +7,6 @@
     <ClCompile Include="src\perf_timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\adv_diff_init_concentration.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\adv_diff_init_velocity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -54,9 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\perf_timer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\adv_diff_init_concentration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\adv_diff_init_velocity.h">

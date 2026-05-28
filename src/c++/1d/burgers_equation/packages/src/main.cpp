@@ -36,7 +36,6 @@
 #include <toml.h>
 
 #include "boundary_condition.h"
-#include "adv_diff_init_concentration.h"
 #include "adv_diff_init_velocity.h"
 #include "adv_diff_linear_operator.h"
 #include "cfts.h"
@@ -131,8 +130,6 @@ int main(int argc, char* argv[])
     START_TIMERN(Main);
     START_TIMER(Writing log-file);
     START_TIMER(Initialization);
-    SHAPE_CONC shape_conc = SHAPE_CONC::NONE;
-    int select_src = 0;  // 0: constant source == 0
 
     std::string out_file;
     std::stringstream ss;
@@ -280,6 +277,7 @@ int main(int argc, char* argv[])
     std::vector<double> bc_vals = input_data.boundary.bc_vals;
 
     double u_initial = input_data.initial.u_initial;
+    std::vector<std::string> ini_vars = input_data.initial.ini_vars;
 
     double dt = input_data.numerics.dt;
     double dx = input_data.numerics.dx;
@@ -296,6 +294,8 @@ int main(int argc, char* argv[])
     double visc_const = input_data.physics.visc_const;
     bool do_convection = input_data.physics.do_convection;
     bool do_viscosity = input_data.physics.do_viscosity;
+    bool do_source =input_data.physics.do_source;
+    std::string src_type = input_data.physics.src_type;
 
     double tstart = input_data.time.tstart;
     double tstop = input_data.time.tstop;
@@ -308,6 +308,7 @@ int main(int argc, char* argv[])
     std::vector<double> psi(nx, 0.);  //
     std::vector<double> delta_u(nx, 0.);
     std::vector<double> pe(nx, 0.);
+    std::vector<double> cfl(nx, 0.);
     std::vector<double> visc_given(nx, visc_const);  // Initial viscosity array with given value
     std::vector<double> visc_reg(nx, visc_const);  // Initial given viscosity array with regularized value
     std::vector<double> visc(nx, visc_const);  // Viscosity array used for computation, adjusted with artificial viscosity
@@ -341,8 +342,9 @@ int main(int argc, char* argv[])
     //initialize x-coordinate
     for (int i = 0; i < nx; i++)
     {
-        x[i] = double(i - 1) * dx - x_origin;
+        x[i] = double(i - 1) * dx + x_origin;
     }
+    adv_diff_init_velocity(un, u_initial, x, ini_vars[0]);
     //  Create kdtree, needed to locate the observation points
     std::vector<std::vector<double>> xy_points;
     for (size_t i = 0; i < x.size(); ++i)
@@ -361,6 +363,10 @@ int main(int argc, char* argv[])
             visc[i] = visc_reg[i] + std::abs(psi[i]);
         }
         STOP_TIMER(Regularization_init);
+    }
+    for (int i = 0; i < nx; ++i)
+    {
+        cfl[i] = up[i] * dt / dx;
     }
     if (do_viscosity)
     {
@@ -383,6 +389,7 @@ int main(int argc, char* argv[])
     map_names.push_back("visc_1d");
     map_names.push_back("psi_1d");
     map_names.push_back("pe_1d");
+    map_names.push_back("cfl_1d");
     map_file = create_map_file(nc_mapfilename, model_title, x, map_names);
     
     // Put data on map file
@@ -393,6 +400,7 @@ int main(int argc, char* argv[])
     map_file->put_time_variable(map_names[1], nst_map, visc);
     map_file->put_time_variable(map_names[2], nst_map, psi);
     map_file->put_time_variable(map_names[3], nst_map, pe);
+    map_file->put_time_variable(map_names[4], nst_map, cfl);
     STOP_TIMER(Writing map-file);
 
     // End define map file
@@ -422,8 +430,10 @@ int main(int argc, char* argv[])
     std::string his_visc_name("his_visc_name");
     std::string his_psi_name("his_psi_name");
     std::string his_peclet_name("his_peclet_name");
+    std::string his_cfl_name("his_cfl_name");
 
     his_file->add_variable(his_u_name, "", "Velocity", "m s-1");
+    his_file->add_variable(his_cfl_name, "", "CFL", "-");
     if (do_viscosity) 
     {
         his_file->add_variable(his_visc_name, "", "Viscosity (used)", "m2 s-1");
@@ -445,6 +455,8 @@ int main(int argc, char* argv[])
     status = set_his_values(input_data.obs_points, un, his_values);
     his_file->put_variable(his_u_name, nst_his, his_values);
 
+    status = set_his_values(input_data.obs_points, cfl, his_values);
+    his_file->put_variable(his_cfl_name, nst_his, his_values);
     if (do_viscosity) 
     {
         status = set_his_values(input_data.obs_points, pe, his_values);
@@ -535,7 +547,10 @@ int main(int argc, char* argv[])
             START_TIMER(Regularization_time_loop);
             if (do_viscosity)
             {
-                regularization->artificial_viscosity(psi, up, c_psi, dx);
+                if (time == 7200){
+                    int a = 1;
+                }
+                regularization->artificial_viscosity(psi, un, c_psi, dx, visc_reg);
                 for (int i = 0; i < nx; ++i)
                 {
                     visc[i] = visc_reg[i] + std::abs(psi[i]);
@@ -558,7 +573,7 @@ int main(int argc, char* argv[])
                 START_TIMER(Regularization_iter_loop);
                 if (do_viscosity)
                 {
-                    regularization->artificial_viscosity(psi, up, c_psi, dx);
+                    regularization->artificial_viscosity(psi, up, c_psi, dx, visc_reg);
                     for (int i = 0; i < nx; ++i)
                     {
                         visc[i] = visc_reg[i] + std::abs(psi[i]);
@@ -633,6 +648,21 @@ int main(int argc, char* argv[])
                     A.coeffRef(i, i + 1) += + visc_ip12 * theta * dxinv;
                     rhs[i] += -(
                         visc_im12 * dxinv * (utheta[i + 1] - utheta[i]) - visc_ip12 * dxinv * (utheta[i] - utheta[i - 1])
+                        );
+                }
+                //
+                // added source term
+                // 
+                if (do_source && src_type == "quadratic")
+                {
+                    A.coeffRef(i, i - 1) += theta * 2.* utheta[i-1] * 1./4.;
+                    A.coeffRef(i, i    ) += theta * 2.* utheta[i  ] * 3./4.;
+                    A.coeffRef(i, i    ) += theta * 2.* utheta[i  ] * 3./4.;
+                    A.coeffRef(i, i + 1) += theta * 2.* utheta[i+1] * 1./4.;
+                    double u_0 = 0.25 * (utheta[i-1] + 3. * utheta[i]);
+                    double u_1 = 0.25 * (utheta[i+1] + 3. * utheta[i]);
+                    rhs[i] += -(
+                        0.5 * dx * (u_0 * u_0 + u_1 * u_1)
                         );
                 }
             }
@@ -841,6 +871,10 @@ int main(int argc, char* argv[])
             un[i] = up[i];
         }
 
+        for (int i = 0; i < nx; ++i)
+        {
+            cfl[i] = up[i] * dt / dx;
+        }
         if (do_viscosity)
         {
             for (int i = 0; i < nx; ++i)
@@ -876,6 +910,7 @@ int main(int argc, char* argv[])
                 map_file->put_time(nst_map, double(nst) * dt);
             }
             map_file->put_time_variable(map_names[0], nst_map, un);
+            map_file->put_time_variable(map_names[4], nst_map, cfl);
             if (do_viscosity)
             {
                 map_file->put_time_variable(map_names[1], nst_map, visc);
@@ -901,6 +936,8 @@ int main(int argc, char* argv[])
             status = set_his_values(input_data.obs_points, un, his_values);
             his_file->put_variable(his_u_name, nst_his, his_values);
 
+            status = set_his_values(input_data.obs_points, cfl, his_values);
+            his_file->put_variable(his_cfl_name, nst_his, his_values);
             if (do_viscosity)
             {
                 status = set_his_values(input_data.obs_points, pe, his_values);

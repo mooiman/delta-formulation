@@ -64,6 +64,8 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
     tbl_chp = *tbl["Initial"].as_table();
     status = get_toml_array(tbl_chp, "ini_vars", data.initial.ini_vars);
     data.initial.u_initial = tbl_chp["u_initial"].value_or(double(0.0));  // location of th gaussian hump
+    status = get_toml_array(tbl_chp, "ini_vars", data.initial.ini_vars);
+
     // Numerics
     tbl_chp = *tbl["Numerics"].as_table();
     data.numerics.dt = tbl_chp["dt"].value_or(double(0.0));  // default stationary simulation
@@ -89,6 +91,8 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
     data.physics.do_convection = tbl_chp["do_convection"].value_or(bool(false));
     data.physics.do_viscosity = tbl_chp["do_viscosity"].value_or(bool(false));
     data.physics.visc_const = tbl_chp["viscosity"].value_or(double(0.0));
+    data.physics.do_source = tbl_chp["do_source"].value_or(bool(false));
+    data.physics.src_type = tbl_chp["src_type"].value_or("none");
 
     // Time
     tbl_chp = *tbl["Time"].as_table();

@@ -88,6 +88,8 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     log_file << "    do_convection = " << bool_value_as_string(data.physics.do_convection) << std::endl;
     log_file << "    do_viscosity  = " << bool_value_as_string(data.physics.do_viscosity) << std::endl;
     log_file << "    viscosity     = " << format_as_double(data.physics.visc_const) << std::endl;
+    log_file << "    do_source     = " << bool_value_as_string(data.physics.do_source) << std::endl;
+    log_file << "    src_type      = " << data.physics.src_type << std::endl;
 
     //Time
     log_file << std::endl << "[Time]" << std::endl;

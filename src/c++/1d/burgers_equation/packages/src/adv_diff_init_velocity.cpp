@@ -26,48 +26,33 @@
 //   L_h C = d/dx (u.C - eps.d(C)/dx)
 //
 
-#include "adv_diff_init_concentration.h"
 #include "adv_diff_init_velocity.h"
 
-void adv_diff_init_velocity(std::vector<double>& u, const double u_const, const double g,  const std::vector<double>& zb, const std::vector<double>& x, SHAPE_CONC shape_conc)
+int adv_diff_init_velocity(std::vector<double>& u, const double u_initial, const std::vector<double>& x, std::string ini_var)
 {
-    switch (shape_conc)
-    {
-    case SHAPE_CONC::Constant:
-    case SHAPE_CONC::Envelope:
-    case SHAPE_CONC::EnvelopePhi:
+    int status = 1;
+    if (ini_var == "constant")
     {
         for (size_t i = 0; i < x.size(); ++i)
         {
-            u[i] = sqrt(g*std::abs(zb[i]));
-            if (u_const > 0.0)
-            {
-                u[i] = u_const;
-            }
+            u[i] = u_initial;
         }
-        break;
+        status = 0;
     }
-    case SHAPE_CONC::NONE:
+    else if (ini_var == "colombo")
     {
-        double umax = 9.01;
+        // u(x,0) = \exp{x} + 0.3 \exp( -200 (x + 0.5)^2)
         for (size_t i = 0; i < x.size(); ++i)
         {
-            if (x[i] < 0.4) {
-                u[i] = x[i] / 0.4 * umax;
-            }
-            else if (x[i] >= 0.4 && x[i] < 0.6) {
-                u[i] = umax;
-            }
-            else {
-                u[i] = (1.0 - x[i]) / 0.4 * umax;
-            }
-            u[i] = 0.50;
+            double mu = -0.5;
+            double sigma = 0.05;
+            u[i] = std::exp(x[i]) + 0.3 * std::exp( - (x[i] - mu) * (x[i] - mu) / (2. * sigma * sigma) );
         }
-        break;
+        status = 0;
     }
-    default:
+    else
     {
-        break;
+        status = 1;
     }
-    }
+    return status;
 }

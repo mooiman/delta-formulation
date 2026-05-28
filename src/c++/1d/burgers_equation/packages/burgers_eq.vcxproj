@@ -182,7 +182,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\adv_diff_boundary_condition.cpp" />
-    <ClCompile Include="src\adv_diff_init_concentration.cpp" />
     <ClCompile Include="src\adv_diff_init_velocity.cpp" />
     <ClCompile Include="src\cfts.cpp" />
     <ClCompile Include="src\definition_map_file.cpp" />
@@ -198,7 +197,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\boundary_condition.h" />
-    <ClInclude Include="include\adv_diff_init_concentration.h" />
     <ClInclude Include="include\adv_diff_init_velocity.h" />
     <ClInclude Include="include\adv_diff_linear_operator.h" />
     <ClInclude Include="include\cfts.h" />

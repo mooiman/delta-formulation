@@ -23,7 +23,7 @@
 //
 //   Regularization of given function in 1 dimension
 //
-//   u_tilde - d\dx psi d\dx u_tilde = u_giv
+//   u_tilde - d\dx ( psi d\dx u_tilde ) = u_giv
 // 
 //   Based on article:
 //       From M. Borsboom
@@ -135,8 +135,14 @@ void REGULARIZATION::given_function(std::vector<double>& u_tilde, std::vector<do
     }
 }
 //------------------------------------------------------------------------------
+//
+//  psi - alpha Dxi d2/dx2(psi) = c_\nu Err_\nu (eq 14)
+// 
+//   Based on article:
+//       Borsboom_development1Derrorminmovingadaptgridmethod_AdaptMethodLinesCRC2001.pdf
+
 void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<double>& u, 
-    double c_psi_in, double dx)
+    double c_psi_in, double dx, std::vector<double> & visc_reg)
 {
     size_t nx = u.size();
     std::vector<double> u_xixi(nx, 0.);  // second derivative of u-velocity in computational space
@@ -153,21 +159,27 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         rhs[i] = 0.0;
     }
 
+    double u_xixi_max = 0.001;
+
     for (size_t i = 1; i < nx-1; ++i)
     {
         u_xixi[i] = (u[i - 1] - 2. * u[i] + u[i + 1]);
+        u_xixi_max = std::max(u_xixi_max, std::abs(u_xixi[i]));
     }
     size_t i = 0;
     u_xixi[i] = 2. * u_xixi[i + 1] - u_xixi[i + 2];
+    u_xixi_max = std::max(u_xixi_max, std::abs(u_xixi[i]));
     i = nx - 1;
     u_xixi[i] = 2. * u_xixi[i - 1] - u_xixi[i - 2];
+    u_xixi_max = std::max(u_xixi_max, std::abs(u_xixi[i]));
     //
 
     // eq. 18 CRC2001
     double ubar_im14;
     double ubar_ip14;
 
-    double c_error = c_psi; //same value as for regularization of given function
+    double c_error = std::pow(c_psi, 4.0); //same value as for regularization of given function
+    //double c_error = c_psi * dx * dx; // std::pow(c_psi, 4.0); //same value as for regularization of given function
     for (size_t i = 1; i < nx - 1; ++i)
     {
         A.coeffRef(i, i - 1) = m_mass[0] - c_error;
@@ -176,11 +188,12 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
 
         ubar_im14 = 0.25 * (u[i - 1] + 3. * u[i]);
         ubar_ip14 = 0.25 * (u[i + 1] + 3. * u[i]);
-        double utmp = 0.5 * (ubar_im14 + ubar_ip14);
+        double utmp = u[i];  // 0.5 * (ubar_im14 + ubar_ip14);
 
-        rhs[i] = dx * dx * (std::abs(u_xixi[i]));
+        rhs[i] = std::pow(c_psi, 2.0) * dx * utmp * std::abs(u_xixi[i])/u_xixi_max;
+        //rhs[i] = c_psi * dx * dx * (dx * utmp * std::abs(u_xixi[i]));
     }
-    // eq. 19
+    // eq. 19   
     i = 0;
     A.coeffRef(i, i    ) = 1.; 
     A.coeffRef(i, i + 1) = -2.0;
@@ -211,7 +224,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         psi[i] = solution[i];
     }
 }
-
+//------------------------------------------------------------------------------
 void REGULARIZATION::first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx)
 {
     int nx = (int)eps.size();

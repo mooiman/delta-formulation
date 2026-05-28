@@ -21,11 +21,12 @@
 #ifndef __ADV_DIFF_INIT_VELOCITY_H__
 #define __ADV_DIFF_INIT_VELOCITY_H__
 
+#include <cmath>
 #include <cstdlib>
+#include <iostream>
 #include <vector>
+#include <string>
 
-#include "adv_diff_init_concentration.h"
-
-void adv_diff_init_velocity(std::vector<double>&, const double, const double, const std::vector<double>&,const std::vector<double>&, SHAPE_CONC);
+int adv_diff_init_velocity(std::vector<double>& un, const double u_initial, const std::vector<double>& x, std::string bc_type);
 
 #endif __ADV_DIFF_INIT_VELOCITY_H__

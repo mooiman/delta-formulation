@@ -91,6 +91,8 @@ struct _physics {
     bool do_linear_waves;
     double chezy_coefficient;
     bool do_viscosity;
+    bool do_source;
+    std::string src_type;
 };
 struct _time {
     std::string tunit;

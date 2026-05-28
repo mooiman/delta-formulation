@@ -74,7 +74,7 @@ The Burgers equation reads (\citet{Debnath2008}):
 \pdiff{u}{t} + u \pdiff{u}{x} - \nu \pdiff[2]{u}{x}= 0, \quad u >0
 }
 \end{align}
-Because we will use a finite volume method to solve this equation, it is used in the conservative  form, i.e.:
+Because we will use a finite volume method to solve this equation, the conservative form will be used, i.e.:
 \begin{align}
     \pdiff{u}{t} + \half \pdiff{u^2}{x} - \pdiff{}{x} \left( \nu \pdiff{u}{x} \right) = 0
 \end{align}
@@ -122,7 +122,7 @@ with the approximation  $u^2 = (u^{n+\theta, p})^2
 \end{align}
 %------------------------------------------------------------------------------
 \subsubsection*{Viscosity term}
-After linearization of $c^{n+\theta,p+1}$ the discretization and with $\eps = \nu + \Psi$ reads:
+With $\eps = \nu + \Psi$ the viscosity term reads:
 \begin{align}
      - \oint_\Gamma  \eps \pdiff{u}{x} \, d\Gamma =
      \left(\eps \pdiff{u}{x}\right)_{i+\half}
@@ -141,17 +141,15 @@ approximated by
 %------------------------------------------------------------------------------
 \section{Energy Equation of the Inviscid Burgers' Equation}
 
-The \textbf{inviscid Burgers' equation} is given by:
+The \textbf{inviscid} Burgers' equation is given by:
 \begin{align}
-\frac{\partial u}{\partial t} + u \frac{\partial u}{\partial x} = 0
+\frac{\partial u}{\partial t} + u \frac{\partial u}{\partial x} = 0.
 \end{align}
-where \(u = u(x,t)\) is the velocity field.
 The kinetic energy per unit mass is:
 \begin{align}
     E = \frac{1}{2} u^2
 \end{align}
-We want an equation governing \(E\).
-Differentiate \(E\) with respect to time
+The time derivative of the energy reads:
 \begin{align}
     \frac{\partial E}{\partial t} = \frac{\partial}{\partial t} \left( \frac{1}{2} u^2 \right) = u \frac{\partial u}{\partial t} =
     u \left(- u \frac{\partial u}{\partial x} \right) = - u^2 \frac{\partial u}{\partial x} =
@@ -161,14 +159,14 @@ So the energy equation becomes:
 \begin{align}
     \frac{\partial E}{\partial t} + \frac{\partial}{\partial x} \left( \frac{1}{3} u^3 \right) = 0
 \end{align}
-The error-function reads:
-\begin{align}
-    {\mathit Err}\left( \sqrt[3]{\frac{1}{3}\uhat^3} \right) & =  \sqrt[3]{\frac{1}{3}}\left( \uhat - \ubar \right) =
-    \\*
-    & = \sqrt[3]{\frac{1}{3}}\left( \ubar + \frac{1}{8}\Dx^2 \pdiff[2]{\ubar}{x} - \ubar \right) =
-    \\*
-    & = \sqrt[3]{\frac{1}{3}}\left(  \frac{1}{8}\Dx^2 \pdiff[2]{\ubar}{x} \right) =
-\end{align}
+%The error-function reads:
+%\begin{align}
+%    {\mathit Err}\left( \sqrt[3]{\frac{1}{3}\uhat^3} \right) & =  \sqrt[3]{\frac{1}{3}}\left( \uhat - \ubar \right) =
+%    \\*
+%    & = \sqrt[3]{\frac{1}{3}}\left( \ubar + \frac{1}{8}\Dx^2 \pdiff[2]{\ubar}{x} - \ubar \right) =
+%    \\*
+%    & = \sqrt[3]{\frac{1}{3}}\left(  \frac{1}{8}\Dx^2 \pdiff[2]{\ubar}{x} \right) =
+%\end{align}
 
 %------------------------------------------------------------------------------
 \section{Boundary}
@@ -181,7 +179,28 @@ This is an inflow boundary ($u>0$).
 \subsection{East boundary}
 This is an outflow boundary ($u>0$).
 
+\section{Numerical experiment}
+\subsection{Standard Burgers equation}
+\subsection{With source term}
+This experiment is taken from \citet{Colombo2026} and read
+\begin{align}
+    \pdiff{u}{t} + u \pdiff{u}{x} - \nu \pdiff[2]{u}{x}= u^2, \quad u >0
+\end{align}
+With initial condition
+\begin{align}
+u(x,0) = \exp{x} + 0.3 \exp( -200 (x + 0.5)^2)
+\end{align}
+and boundary condition at the left side
+\begin{align}
+    u(x_a,t) = \exp(x_a).
+\end{align}
 %------------------------------------------------------------------------------
+\printallbibliography
+\end{document}
+
+
+
+%================================================================================
 \newpage
 \section{Energy Equation of the Inviscid Burgers' Equation}
 

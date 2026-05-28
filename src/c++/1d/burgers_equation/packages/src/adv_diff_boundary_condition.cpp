@@ -24,7 +24,6 @@
 //   Boundary conditions for the Advection-Diffusion equation
 //
 
-#include "adv_diff_init_concentration.h"
 #include "boundary_condition.h"
 
 void boundary_condition(double& bc0_out, double& bc0_in, double& time, double& treg, std::string bc_signal, double u_initial)
@@ -66,6 +65,20 @@ void boundary_condition(double& bc0_out, double& bc0_in, double& time, double& t
         else
         {
             bc0_out =  u_initial + reg_interp * ( -std::cos(M_PI * time / treg) );
+        }
+    }
+    else if (bc_signal == "colombo")
+    {
+        //
+        // constan value at left boundary, dependent on the location of x_origin (assumed to be zero)
+        //
+        if (time < treg)
+        {
+            bc0_out = u_initial + reg_interp * std::exp(-1.);
+        }
+        else
+        {
+            bc0_out =  u_initial + std::exp(-1.);
         }
     }
     else
