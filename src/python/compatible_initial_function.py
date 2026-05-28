@@ -207,14 +207,14 @@ def main(Lx=12., dx=2.):
     tekst2 = '$\overline{u}(x)$'
     tekst3 = 'Compatible $\overline{u}(x)$'
 
-    ax2.plot(x_ana, u_ana, '-', color='b', label=tekst1)
     ax2.plot(x, u0, '-.', color='g', marker = 'o', label=tekst2)
     ax2.plot(x, u1, '-', color='r', marker = 'o', label=tekst3)
+    ax2.plot(x_ana, u_ana, '-', color='b', label=tekst1)
 
     handles, labels = ax2.get_legend_handles_labels()
     ax2.legend(handles, labels, loc='lower left')
 
-    fig.set_size_inches(cm2inch(35.0), cm2inch(12.5))
+    fig.set_size_inches(cm2inch(25.0), cm2inch(12.5))
     figManager = plt.get_current_fig_manager()
     # figManager.window.showMaximized()
     if not os.path.exists('data'):
