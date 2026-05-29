@@ -661,7 +661,7 @@ int main(int argc, char* argv[])
                     A.coeffRef(i, i + 1) += theta * 2.* utheta[i+1] * 1./4.;
                     double u_0 = 0.25 * (utheta[i-1] + 3. * utheta[i]);
                     double u_1 = 0.25 * (utheta[i+1] + 3. * utheta[i]);
-                    rhs[i] += -(
+                    rhs[i] += (
                         0.5 * dx * (u_0 * u_0 + u_1 * u_1)
                         );
                 }
