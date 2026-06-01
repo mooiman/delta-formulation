@@ -672,17 +672,26 @@ int main(int argc, char* argv[])
                 //
                 int i = 0;
 
+                double un_i   = un[i];           // = u^{n+1,p}_{i}
+                double un_ip1 = un[i + 1];       // = u^{n+1,p}_{i+1}
+                double un_ip2 = un[i + 2];       // = u^{n+1,p}_{i+2}
+
                 double up_i   = up[i];           // = u^{n+1,p}_{i}
                 double up_ip1 = up[i + 1];       // = u^{n+1,p}_{i+1}
                 double up_ip2 = up[i + 2];       // = u^{n+1,p}_{i+2}
 
+                double corr_term = 0.0;
                 if (bc_type[BC_WEST] == "dirichlet")
                 {
-                    A.coeffRef(i, i    ) = w_ess[0];
-                    A.coeffRef(i, i + 1) = w_ess[1];
-                    A.coeffRef(i, i + 2) = w_ess[2];
-                    tmp[i] = +bc[BC_WEST] - (w_ess[0] * up_i + w_ess[1] * up_ip1 + w_ess[2] * up_ip2);
-                    rhs[i] = tmp[i];
+                    double un_b = w_ess[0] * un_i + w_ess[1] * un_ip1 + w_ess[2] * un_ip2;
+                    double up_b = w_ess[0] * up_i + w_ess[1] * up_ip1 + w_ess[2] * up_ip2;
+                    double dhdt = dtinv * (up_b - un_b);
+                    double u_bnd = w_ess[0] * up_i + w_ess[1] * up_ip1 + w_ess[2] * up_ip2;
+                    A.coeffRef(i, i    ) = -dtinv * w_ess[0] - eps_bc_corr * theta * w_ess[0];
+                    A.coeffRef(i, i + 1) = -dtinv * w_ess[1] - eps_bc_corr * theta * w_ess[1];
+                    A.coeffRef(i, i + 2) = -dtinv * w_ess[2] - eps_bc_corr * theta * w_ess[2];
+                    corr_term = dhdt - eps_bc_corr * (bc[BC_WEST] - u_bnd);
+                    rhs[i] = corr_term;
                 }
                 else
                 {
@@ -710,10 +719,12 @@ int main(int argc, char* argv[])
 
                 if (bc_type[BC_EAST] == "dirichlet")
                 {
+                    double u_bnd = w_ess[0] * up_i + w_ess[1] * up_im1 + w_ess[2] * up_im2;
+
                     A.coeffRef(i, i) = w_ess[0];
                     A.coeffRef(i, i - 1) = w_ess[1];
                     A.coeffRef(i, i - 2) = w_ess[2];
-                    tmp[i] = +bc[BC_EAST] - (w_ess[0] * up_i + w_ess[1] * up_im1 + w_ess[2] * up_im2);
+                    tmp[i] = +bc[BC_EAST] - u_bnd;
                     rhs[i] = tmp[i];
                 }
                 else if (bc_type[BC_EAST] == "borsboom")
