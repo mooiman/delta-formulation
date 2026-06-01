@@ -1,0 +1,20 @@
+openfile '.\output\burgers_eq_dx5_dt5_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '1'
+editmn '1:1:4003'
+colour [ 0 0 1]
+marker '.'
+linewidth 1.
+plotcoordinate 'x coordinate'
+quickview
+
+selectfield 'Velocity'
+hselectiontype '(M,N) point/path'
+editt '1'
+editmn '1:1:4003'
+colour [ 0 0 1]
+marker '.'
+linewidth 1.
+plotcoordinate 'x coordinate'
+quickview

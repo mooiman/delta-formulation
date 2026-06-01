@@ -1,0 +1,66 @@
+Logging = "None"  # "iterations", "matrix", "pattern"
+
+[Boundary]  # west, east
+    treg        = 1800.0  # Regularization time boundary signal [s]
+    eps_bc_corr = 0.01
+    bc_signals  = ["constant", "constant"]
+    bc_type     = ["dirichlet", "borsboom"]
+    bc_vals     = [2.0, 0.0]
+
+[Domain]
+    Lx       = 20000.0  # Domain length [m]
+    x_origin = 0.0  # Origin of the x-coordinate [m]
+
+[Initial]
+    u_initial = 1.0  # initial velocity [m]
+    ini_vars  = ["u_constant"]
+
+[Numerics]
+    dt                  = 5.0  # Time step size [s], if dt == 0: then stationary problem
+    dx                  = 5.0  # Grid size [m]
+    c_psi               = 4.0
+    theta               = 0.501  # Implicitness factor (0.5 <= theta <= 1.0)
+    iter_max            = 25.0  # Maximum number of non-linear iterations
+    eps_newton          = 1e-12
+    eps_bicgstab        = 1e-12
+    eps_abs_function    = 0.01
+    regularization_init = true
+    regularization_iter = false
+    regularization_time = false
+
+[Output]
+    dt_his    = 1.0
+    dt_map    = 1.0
+    dt_screen = 300.0
+
+[Physics]
+    do_convection = true
+    do_viscosity  = true
+    viscosity     = 0.01
+
+[Time]
+    tunit  = "h"  # "s", "m", "h", "d"
+    tstart = 0.0
+    tstop  = 4.0
+
+# Hard coded observation points are not listed
+
+[[ObservationPoint]]
+    x    = 2500
+    y    = 0
+    name = "_a"
+
+[[ObservationPoint]]
+    x    = 7500
+    y    = 0
+    name = "_b"
+
+[[ObservationPoint]]
+    x    = 12500
+    y    = 0
+    name = "_c"
+
+[[ObservationPoint]]
+    x    = 17500
+    y    = 0
+    name = "_d"
