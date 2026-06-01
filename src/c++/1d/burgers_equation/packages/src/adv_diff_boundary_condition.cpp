@@ -35,14 +35,7 @@ void boundary_condition(double& bc0_out, double& bc0_in, double& time, double& t
     if (time < treg)
     {
         double ttmp = time/treg;
-        if (bc_signal == "constant") 
-        { 
-            reg_factor = -2.0 * ttmp * ttmp * ttmp + 3.0 * ttmp * ttmp; 
-        }
-        if (bc_signal == "sine") 
-        { 
-            reg_factor =  0.5 * (-std::cos(M_PI * ttmp) + 1.0); 
-        }
+        reg_factor =  0.5 * (-std::cos(M_PI * ttmp) + 1.0); 
     }
     reg_interp = reg_a + (reg_b - reg_a) * reg_factor;  // 0 <= reg_factor <= 1
 
