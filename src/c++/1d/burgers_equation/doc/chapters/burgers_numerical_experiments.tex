@@ -1,0 +1,22 @@
+%-------------------------------------------------------------------------------
+\chapter{Numerical experiment}
+%-------------------------------------------------------------------------------
+\section{Constant viscosity}
+%-------------------------------------------------------------------------------
+\section{Including artificial viscosity}
+%-------------------------------------------------------------------------------
+\subsection{Constant viscosity $\nu$}
+%-------------------------------------------------------------------------------
+\subsection{With source term}
+This experiment is taken from \citet{Colombo2026} and read
+\begin{align}
+    \pdiff{u}{t} + u \pdiff{u}{x} - \nu \pdiff[2]{u}{x}= u^2, \quad u >0
+\end{align}
+With initial condition
+\begin{align}
+u(x,0) = \exp{x} + 0.3 \exp( -200 (x + 0.5)^2)
+\end{align}
+and boundary condition at the left side
+\begin{align}
+    u(x_a,t) = \exp(x_a).
+\end{align}
