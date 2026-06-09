@@ -50,7 +50,8 @@ class DFTgui(QMainWindow):
         self.bath_combobox.addItem("Step function", 5)
         self.bath_combobox.addItem("Constant", 6)
         self.bath_combobox.addItem("Boundary layers", 7)
-        self.bath_combobox.setCurrentIndex(2)
+        self.bath_combobox.addItem("Wiggle", 10)
+        self.bath_combobox.setCurrentIndex(10)
 
         self.bath_combobox.setToolTip("Several scalar profiles")
         edit_layout.addWidget(self.bath_label, nrow, 0)
@@ -93,6 +94,9 @@ class DFTgui(QMainWindow):
         if (self.bath_combobox.currentIndex() == 2):
             self.step_left_label.setText('Winterbed:')
             self.step_left_edit.setText("-4.0")
+        if (self.bath_combobox.currentIndex() == 10):
+            self.step_left_label.setText('---')
+            self.step_left_edit.setText("0.0")
 
         nrow += 1
         self.step_right_label = QLabel(self)
@@ -104,6 +108,9 @@ class DFTgui(QMainWindow):
         if (self.bath_combobox.currentIndex() == 2):
             self.step_right_label.setText('Summerbed:')
             self.step_right_edit.setText("-0.5")
+        if (self.bath_combobox.currentIndex() == 10):
+            self.step_right_label.setText('---')
+            self.step_right_edit.setText("0.0")
 
         # layout.addStretch()
         layout.addLayout(edit_layout)

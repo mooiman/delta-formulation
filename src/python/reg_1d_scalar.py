@@ -23,7 +23,7 @@ def cm2inch(cm):
     return cm / 2.54
 
 
-def main(bath_in = 9, Lx_in=500., dx_in=25., c_psi_in= 4.0, left_in = -4.0, right_in = -0.5):  # c_psi paragraph after eq. 10 of article
+def main(bath_in = 10, Lx_in=200., dx_in=10., c_psi_in= 4.0, left_in = -4.0, right_in = -0.5):  # c_psi paragraph after eq. 10 of article
     bathymetry = int(bath_in)
     Lx = float(Lx_in)
     dx = float(dx_in)
@@ -47,11 +47,12 @@ def main(bath_in = 9, Lx_in=500., dx_in=25., c_psi_in= 4.0, left_in = -4.0, righ
     # 7: Step at right boundary of 1.0
     # 8: Interface
     # 9: Summer-winterbed
+    # 10: Wiggle
     #
 
     Psi = c_psi * dx *dx
 
-    refine = 1
+    refine = 32
     x_ana = np.zeros(refine*(nx-1) + 1, dtype=np.float64)
     ugiv_ana = np.zeros(refine * (nx - 1) + 1, dtype=np.float64)
     ubar_ana = np.zeros(refine * (nx - 1) + 1, dtype=np.float64)
@@ -245,6 +246,16 @@ def main(bath_in = 9, Lx_in=500., dx_in=25., c_psi_in= 4.0, left_in = -4.0, righ
             ugiv_ana[i] = step_right  # summerbed
             if x_ana[i] > 0.25 * Lx and x_ana[i] < 0.75 * Lx:
                 ugiv_ana[i] = step_left   # winterbed
+    elif bathymetry == 10:
+        bathymetry_desc = "Wiggle (2 Dx)"
+        for i in range(0, nx):
+            ugiv[i] = (-1)**float(i)
+        for i in range(1, nx):
+            for j in range(0, refine):
+                k = j + (i - 1) * (refine)
+                alpha = j/(refine)
+                ugiv_ana[k] = (1 - alpha) * ugiv[i-1] + alpha * ugiv[i]
+        ugiv_ana[refine * (nx - 1)] = ugiv[nx-1]
     else:
         print("No valid bathymetry option defined, value '%s' is not supported." % bathymetry)
         return(1)
