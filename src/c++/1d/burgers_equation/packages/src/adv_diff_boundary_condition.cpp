@@ -67,11 +67,11 @@ void boundary_condition(double& bc0_out, double& bc0_in, double& time, double& t
         //
         if (time < treg)
         {
-            bc0_out = u_initial + reg_interp * std::exp(-1.);
+            bc0_out = u_initial + reg_interp * std::exp(bc0_in);
         }
         else
         {
-            bc0_out =  u_initial + std::exp(-1.);
+            bc0_out =  u_initial + std::exp(bc0_in);
         }
     }
     else

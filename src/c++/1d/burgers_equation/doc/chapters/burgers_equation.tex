@@ -6,6 +6,7 @@ The Burgers equation reads (\citet{Debnath2008}):
 \pdiff{u}{t} + u \pdiff{u}{x} - \nu \pdiff[2]{u}{x}= 0, \quad u >0
 }
 \end{align}
+with $\nu$ constant in time and space.
 The Burgers equation is written in conservative form, because we will use a finite volume method to solve this equation, it reads:
 \begin{align}
     \pdiff{u}{t} + \half \pdiff{u^2}{x} - \pdiff{}{x} \left( \nu \pdiff{u}{x} \right) = 0
@@ -22,7 +23,7 @@ and after applying Green's theorem it yields:
 
 %------------------------------------------------------------------------------
 \section{Discretization in time and space}
-The discretization in space and the discretization in space are discussed in separate sections.
+The discretization in time and the discretization in space are discussed in separate sections.
 Due to the applying regularization procedure the viscosity ($\nu$) is increased by an artificial viscosity ($\Psi$), so the the implementation of $\nu + \Psi$ is a function of $x$.
 %------------------------------------------------------------------------------
 \subsection{Discretization in time}
@@ -33,9 +34,11 @@ The used discretization in time reads:
     \nonumber \\*
     &+ \Dx \Dt_{inv} \left( \frac{1}{8}\left( u^{n+1,p}_{i-1} - u^{n}_{i-1} \right) + \frac{6}{8}\left( u^{n+1,p}_{i} - u^{n}_{i} \right) + \frac{1}{8}\left( u^{n+1,p}_{i+1} - u^{n}_{i+1} \right) \right)
 \end{align}
+\textbf{Special attention is needed if $\nu$ is time dependent!}
+\todo{What to do with time dependent viscosity}
 \newpage
 %------------------------------------------------------------------------------
-\subsection{Discretization in place}
+\subsection{Discretization in space}
 %------------------------------------------------------------------------------
 \subsubsection*{Convection-term}
 \begin{align}
@@ -53,7 +56,12 @@ with the approximation  $u^2 = (u^{n+\theta, p})^2
     - \half \left(u^{n+\theta, p}_{i-\half}\right)^2
 \end{align}
 %------------------------------------------------------------------------------
-\subsubsection*{Viscosity term}
+\subsubsection*{Artificial viscosity term $\bm \Psi$}
+Discretization of $\Psi(x,t)$ in time and space needed
+
+\notyet
+%------------------------------------------------------------------------------
+\subsubsection*{Viscosity term $\bm \nu + \Psi$}
 With $\eps = \nu + \Psi$ the viscosity term reads:
 \begin{align}
      - \oint_\Gamma  \eps \pdiff{u}{x} \, d\Gamma =
@@ -73,37 +81,40 @@ approximated by
     \\*
     &\qquad -\left\{ \left( \eps_{i+\half} \frac{u^{n+\theta,p}_{i+1} - u^{n+\theta,p}_{i}}{\Dx} - \eps_{i-\half} \frac{u^{n+\theta,p}_{i} - c^{n+\theta,p}_{i-1}}{\Dx}\right) \right\}
 \end{align}
-
 %------------------------------------------------------------------------------
-\section{Energy Equation}
+\subsubsection*{Artificial viscosity term}
+\notyet
 
-The \textbf{inviscid} Burgers' equation is given by:
-\begin{align}
-\frac{\partial u}{\partial t} + u \frac{\partial u}{\partial x} = 0.
-\end{align}
-The kinetic energy per unit mass is:
-\begin{align}
-    E = \frac{1}{2} u^2
-\end{align}
-The time derivative of the energy reads:
-\begin{align}
-    \frac{\partial E}{\partial t} = \frac{\partial}{\partial t} \left( \frac{1}{2} u^2 \right) = u \frac{\partial u}{\partial t} =
-    u \left(- u \frac{\partial u}{\partial x} \right) = - u^2 \frac{\partial u}{\partial x} =
-    - \frac{\partial}{\partial x} \left( \frac{1}{3} u^3 \right)
-\end{align}
-So the energy equation becomes:
-\begin{align}
-    \frac{\partial E}{\partial t} + \frac{\partial}{\partial x} \left( \frac{1}{3} u^3 \right) = 0
-\end{align}
-%The error-function reads:
+%%------------------------------------------------------------------------------
+%\section{Energy Equation}
+%
+%The \textbf{inviscid} Burgers' equation is given by:
 %\begin{align}
-%    {\mathit Err}\left( \sqrt[3]{\frac{1}{3}\uhat^3} \right) & =  \sqrt[3]{\frac{1}{3}}\left( \uhat - \ubar \right) =
-%    \\*
-%    & = \sqrt[3]{\frac{1}{3}}\left( \ubar + \frac{1}{8}\Dx^2 \pdiff[2]{\ubar}{x} - \ubar \right) =
-%    \\*
-%    & = \sqrt[3]{\frac{1}{3}}\left(  \frac{1}{8}\Dx^2 \pdiff[2]{\ubar}{x} \right) =
+%\frac{\partial u}{\partial t} + u \frac{\partial u}{\partial x} = 0.
 %\end{align}
-
+%The kinetic energy per unit mass is:
+%\begin{align}
+%    E = \frac{1}{2} u^2
+%\end{align}
+%The time derivative of the energy reads:
+%\begin{align}
+%    \frac{\partial E}{\partial t} = \frac{\partial}{\partial t} \left( \frac{1}{2} u^2 \right) = u \frac{\partial u}{\partial t} =
+%    u \left(- u \frac{\partial u}{\partial x} \right) = - u^2 \frac{\partial u}{\partial x} =
+%    - \frac{\partial}{\partial x} \left( \frac{1}{3} u^3 \right)
+%\end{align}
+%So the energy equation becomes:
+%\begin{align}
+%    \frac{\partial E}{\partial t} + \frac{\partial}{\partial x} \left( \frac{1}{3} u^3 \right) = 0
+%\end{align}
+%%The error-function reads:
+%%\begin{align}
+%%    {\mathit Err}\left( \sqrt[3]{\frac{1}{3}\uhat^3} \right) & =  \sqrt[3]{\frac{1}{3}}\left( \uhat - \ubar \right) =
+%%    \\*
+%%    & = \sqrt[3]{\frac{1}{3}}\left( \ubar + \frac{1}{8}\Dx^2 \pdiff[2]{\ubar}{x} - \ubar \right) =
+%%    \\*
+%%    & = \sqrt[3]{\frac{1}{3}}\left(  \frac{1}{8}\Dx^2 \pdiff[2]{\ubar}{x} \right) =
+%%\end{align}
+%This shows that energy is conserved in the inviscid Burgers equation.
 %------------------------------------------------------------------------------
 \section{Boundary}
 Because it is a one dimensional equation we have only boundary conditions at the west- and east-side of the domain.
@@ -126,52 +137,4 @@ This is an outflow boundary ($u>0$).
 
 \notyet
 %================================================================================
-
-\section{Energy Equation of inviscid Burgers equation}
-
-The \textbf{inviscid Burgers equation} is given by:
-\begin{align}
-    \frac{\partial u}{\partial t} + u \frac{\partial u}{\partial x} = 0
-\end{align}
-where \(u = u(x,t)\) is the velocity field.
-
-%\subsection*{Step 1: Define the kinetic energy density}
-The kinetic energy per unit mass is:
-\begin{align}
-    E = \frac{1}{2} u^2
-\end{align}
-We want an equation governing \(E\).
-Differentiate \(E\) with respect to time
-\begin{align}
-    \frac{\partial E}{\partial t} = \frac{\partial}{\partial t} \left( \frac{1}{2} u^2 \right) = u \frac{\partial u}{\partial t}
-\end{align}
-%
-%\subsection*{Step 3: Use Burgers' equation}
-%From the Burgers' equation:
-%\begin{align}
-%\frac{\partial u}{\partial t} = - u \frac{\partial u}{\partial x}
-%\end{align}
-%
-%Substitute into the derivative of energy:
-\begin{align}
-    \frac{\partial E}{\partial t} = u \left(- u \frac{\partial u}{\partial x} \right) = - u^2 \frac{\partial u}{\partial x}
-\end{align}
-%
-%\subsection*{Step 4: Write in conservative form}
-%Notice that:
-%\begin{align}
-%\frac{\partial}{\partial x} \left( \frac{1}{3} u^3 \right) = u^2 \frac{\partial u}{\partial x}
-%\end{align}
-So the energy equation becomes:
-\begin{align}
-    \frac{\partial E}{\partial t} + \frac{\partial}{\partial x} \left( \frac{1}{3} u^3 \right) = 0
-\end{align}
-%
-%\subsection*{Final Form}
-%\begin{align}
-%\boxed{\frac{\partial}{\partial t} \left( \frac{1}{2} u^2 \right) + \frac{\partial}{\partial x} \left( \frac{1}{3} u^3 \right) = 0}
-%\end{align}
-%
-This shows that energy is conserved in the inviscid Burgers' equation .
-
 

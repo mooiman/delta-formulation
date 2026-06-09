@@ -647,7 +647,7 @@ int main(int argc, char* argv[])
                     A.coeffRef(i, i    ) += - visc_ip12 * theta * dxinv;
                     A.coeffRef(i, i + 1) += + visc_ip12 * theta * dxinv;
                     rhs[i] += -(
-                        visc_im12 * dxinv * (utheta[i + 1] - utheta[i]) - visc_ip12 * dxinv * (utheta[i] - utheta[i - 1])
+                        visc_ip12 * dxinv * (utheta[i + 1] - utheta[i]) - visc_im12 * dxinv * (utheta[i] - utheta[i - 1])
                         );
                 }
                 //
@@ -739,10 +739,13 @@ int main(int argc, char* argv[])
                     double utheta_im12 = 0.5 * (utheta[i] + utheta[i - 1]);
                     double du2dx = 0.5 * (utheta[i]* utheta[i] - utheta[i - 1] * utheta[i - 1]) * dxinv;
                     double d2udx2 = 0.0;
+                    double visc_im12 = - 0.5 * (visc[i - 1] + visc[i]);
+                    double visc_ip12 = - 0.5 * (visc[i] + visc[i + 1]);
 
                     A.coeffRef(i, i    ) = dtinv * w_nat[0] + theta * dxinv * utheta_im12;
                     A.coeffRef(i, i - 1) = dtinv * w_nat[1] - theta * dxinv * utheta_im12;
                     A.coeffRef(i, i - 2) = dtinv * w_nat[2];
+
                     rhs[i] = - (dudt + du2dx + d2udx2);
                 }
                 else
