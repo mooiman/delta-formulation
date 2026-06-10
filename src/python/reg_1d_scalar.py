@@ -23,7 +23,7 @@ def cm2inch(cm):
     return cm / 2.54
 
 
-def main(bath_in = 10, Lx_in=200., dx_in=10., c_psi_in= 4.0, left_in = -4.0, right_in = -0.5):  # c_psi paragraph after eq. 10 of article
+def main(bath_in = 10, Lx_in=1000., dx_in=20., c_psi_in= 4.0, left_in = -4.0, right_in = -0.5):  # c_psi paragraph after eq. 10 of article
     bathymetry = int(bath_in)
     Lx = float(Lx_in)
     dx = float(dx_in)
@@ -254,7 +254,7 @@ def main(bath_in = 10, Lx_in=200., dx_in=10., c_psi_in= 4.0, left_in = -4.0, rig
             for j in range(0, refine):
                 k = j + (i - 1) * (refine)
                 alpha = j/(refine)
-                ugiv_ana[k] = (1 - alpha) * ugiv[i-1] + alpha * ugiv[i]
+                ugiv_ana[k] = -(-1)**float(i) *np.cos(np.pi * float(j)/float(refine))
         ugiv_ana[refine * (nx - 1)] = ugiv[nx-1]
     else:
         print("No valid bathymetry option defined, value '%s' is not supported." % bathymetry)
@@ -363,6 +363,12 @@ def main(bath_in = 10, Lx_in=200., dx_in=10., c_psi_in= 4.0, left_in = -4.0, rig
             ymax2 = max(ugiv)
             ax1.set_ylim([min(ymin1, ymin2) - u0range*0.05, max(ymax1, ymax2) + u0range*0.05])
             #ax2.set_ylim([max(u0_xx) + u0_xx_range * 0.05, min(u0_xx) - u0_xx_range * 0.05])
+        if bathymetry == 10:
+            ax1.set_xlim([0, Lx])
+            ax2.set_xlim([0, Lx])
+            # ax1.set_xlim([-dx, Lx+dx])
+            # ax2.set_xlim([-dx, Lx+dx])
+            ax1.set_ylim([-0.2, 0.2])
 
         y_formatter = matplotlib.ticker.ScalarFormatter(useOffset=False)
         ax1.yaxis.set_major_formatter(y_formatter)
