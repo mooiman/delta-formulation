@@ -166,7 +166,7 @@ def main(Lx=12., dx=3.0):
 
     if not os.path.exists('figures'):
         os.mkdir('figures')
-    text = ('figures/grid_points_and_cell_centre_lx=%s_dx=%s.pdf' % (str(Lx), str(dx)))
+    text = ('figures/grid_points_and_cell_centre_optimal_lx=%s_dx=%s.pdf' % (str(Lx), str(dx)))
     plt.savefig(text, format='pdf')
     fig1.canvas.manager.set_window_title('Optimal second order function approximation')
     plt.show()
