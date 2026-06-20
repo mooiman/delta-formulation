@@ -133,8 +133,8 @@ UGRID1D * create_map_file(std::string nc_mapfile, std::string model_title, std::
     status = map_file->add_variable(map_names[0], dim_names, "-", "Velocity", "-", "mesh1D", "node");
     status = map_file->add_variable(map_names[1], dim_names, "-", "Viscosity (reg)", "m2 s-1", "mesh1D", "node");
     status = map_file->add_variable(map_names[2], dim_names, "-", "Psi", "m2 s-1", "mesh1D", "node");
-    status = map_file->add_variable(map_names[3], dim_names, "-", "Peclet", "-", "mesh1D", "node");
-    status = map_file->add_variable(map_names[4], dim_names, "-", "CFL", "-", "mesh1D", "node");
+    status = map_file->add_variable(map_names[3], dim_names, "-", "Peclet (u.dx/nu)", "-", "mesh1D", "node");
+    status = map_file->add_variable(map_names[4], dim_names, "-", "CFL (u.dt/dx)", "-", "mesh1D", "node");
 
     return map_file;
 }

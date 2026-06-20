@@ -106,15 +106,19 @@ approximated by
 %\begin{align}
 %    \frac{\partial E}{\partial t} + \frac{\partial}{\partial x} \left( \frac{1}{3} u^3 \right) = 0
 %\end{align}
-%%The error-function reads:
-%%\begin{align}
-%%    {\mathit Err}\left( \sqrt[3]{\frac{1}{3}\uhat^3} \right) & =  \sqrt[3]{\frac{1}{3}}\left( \uhat - \ubar \right) =
-%%    \\*
-%%    & = \sqrt[3]{\frac{1}{3}}\left( \ubar + \frac{1}{8}\Dx^2 \pdiff[2]{\ubar}{x} - \ubar \right) =
-%%    \\*
-%%    & = \sqrt[3]{\frac{1}{3}}\left(  \frac{1}{8}\Dx^2 \pdiff[2]{\ubar}{x} \right) =
-%%\end{align}
 %This shows that energy is conserved in the inviscid Burgers equation.
+%
+%The error-function reads:
+%\begin{align}
+%    {\mathit Err}\left( \sqrt[3]{\frac{1}{3}\uhat^3} \right) & =  \sqrt[3]{\frac{1}{3}}\left( \uhat - \ubar \right) =
+%    \\*
+%    & = \sqrt[3]{\frac{1}{3}}\left( \ubar + \frac{1}{8}\Dx^2 \pdiff[2]{\ubar}{x} - \ubar \right) =
+%    \\*
+%    & = \sqrt[3]{\frac{1}{3}}\left(  \frac{1}{8}\Dx^2 \pdiff[2]{\ubar}{x} \right) \approx
+%    \\*
+%    &\approx 0.69336 \times 0.125 \Dx^2 \pdiff[2]{\ubar}{x} = 0.08667 \Dx^2 \pdiff[2]{\ubar}{x}
+%\end{align}
+
 %------------------------------------------------------------------------------
 \section{Boundary}
 Because it is a one dimensional equation we have only boundary conditions at the west- and east-side of the domain.
