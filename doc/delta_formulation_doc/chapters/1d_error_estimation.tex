@@ -1,13 +1,21 @@
 %--------------------------------------------------------------------------------
 \chapter{Error estimation}\label{sec:error_estimation}
+In this section a derivation of the error estimation is given for the regularized given function $u_{giv}$ and for the artificial viscosity $\Psi$ leading to $\utilde_{giv}$ and $\widetilde{\Psi}$.
+The derivations are performed for constant $\Dx$ and constant artificial viscosity $\Psi$.
+%--------------------------------------------------------------------------------
+\section{Error estimation regularized given function}\label{sec:error_estimation}
 In this section a Fourier mode analysis for constant $\Dx$ and $\Psi$ of \autoref{eq:1d_regularization} is given.
 For convenience the equation is repeated here:
 %
 \begin{align}
-    \widetilde u - \pdiff{}{x}  \Psi \pdiff{\widetilde u}{x} = u_{\mathit{giv}}
+    \widetilde u - \pdiff{}{x}  \Psi \pdiff{\widetilde u}{x} = u_{\mathit{giv}},
+    \qquad \Psi = c_\Psi \Dx^2 E
+    \label{eq:ugiv_easy_problem}
 \end{align}
+this is the so-called '\textit{easy}'-problem of the '\textit{difficult}'-problem: $u = u_{\mathit{giv}}$ which is $C^0$-continue.
+Determination of $c_\Psi$ is given \autoref{sec:determine_factor_c_psi} and determination of $E$  is given in \autoref{sec:estimate_artificial_viscosity}.
 
-The Fourier-mode transform of \autoref{eq:1d_regularization} reads, when $\Dx = \mathit{constant}$ and $\Psi = c_{\Psi} \Dx^2 = \mathit{constant}$:
+The Fourier-mode transform of \autoref{eq:ugiv_easy_problem} reads, when $\Dx = \mathit{constant}$ and $\Psi = c_{\Psi} \Dx^2 = \mathit{constant}$:
 \begin{align}
 \widetilde u \exp(\ii k x) \left( 1 + \Psi k^2 \right) = \mathcal{F}(u_{giv})
 \end{align}
@@ -39,11 +47,11 @@ The discretization of \autoref{eq:disc_regularization} with constant $\Dx$ and $
 
 Substitution of the Fourier modes
 \begin{align}
-\overline u_k =  \overline u_k \exp(\ii k \Dx)\quad \text{and} \quad  u_{giv} = u_{giv,k} \exp(\ii k \Dx)
+\ubar_k = \ubar_k \exp(\ii k \Dx)\quad \text{and} \quad  u_{giv} = u_{giv,k} \exp(\ii k \Dx)
 \end{align}
 in this equation yields:
 \begin{align}
-\overline u_k  \left(  \left( \frac{1}{8} -  c_{\Psi}\right) \exp(-\ii k \Dx) +
+\ubar_k  \left(  \left( \frac{1}{8} -  c_{\Psi}\right) \exp(-\ii k \Dx) +
 \left(\frac{6}{8} + 2c_{\Psi} \right) +
 \left( \frac{1}{8} -  c_{\Psi} \right) \exp(-\ii k \Dx) \right)  = &
 \\
@@ -51,7 +59,7 @@ in this equation yields:
 \end{align}
 $\Rightarrow$
 \begin{multline}
-\overline u_k \left(  \frac{6}{8} + 2c_{\Psi} + \left( \frac{1}{8} -  c_{\Psi} \right)  2 \cos(k\Dx) \right)
+\ubar_k \left(  \frac{6}{8} + 2c_{\Psi} + \left( \frac{1}{8} -  c_{\Psi} \right)  2 \cos(k\Dx) \right)
 =
 \\
 = u_{giv,k} \frac{-\ii (\exp(\frac{\ii}{2} k \Dx) - \exp(\frac{\ii}{2} k \Dx) )}{k\Dx}
@@ -82,7 +90,7 @@ $\Leftrightarrow$
 \caption{Ration between $\widetilde{r} = \abs{\widetilde{u}_k/u_{giv,k}}$ , and $\overline{r} = \abs{\overline{u}_k/u_{giv,k}}$. For different values of $c_{\Psi} = \Psi/\Dx^2$.\label{fig:ratio_func}}
 \end{figure}
 %--------------------------------------------------------------------------------
-\section{Numerical error}
+\subsection{Numerical error}
 Discretization error values are determined when  $\Dx = {\mathit constant} $ and $\Psi = 0$, \autoref{eq:disc_regularization} reduces to:
 \begin{align}
 \frac{1}{8}      u_{i-1}
@@ -106,9 +114,9 @@ With lowest order estimation of (see \citet{funcfitsmoothing_Fouriermodeanalysis
 
 So if the numerical error needs to be smaller then 1\ \%, the number of grid cells per wave length ($\lambda = N\Dx$) is computed as
 \begin{align}
-\frac{1}{24}(k\Dx)^2 < 0.01 \Rightarrow k\Dx < 0.5 \Rightarrow
+\frac{1}{24}(k\Dx)^2 < 0.01 \Rightarrow k\Dx < 0.4899 \Rightarrow
 \\
-\left(\frac{2\pi}{N\Dx}\right)\Dx < 0.5 \Rightarrow N > 4\pi \approx 13
+\left(\frac{2\pi}{N\Dx}\right)\Dx < 0.4899 \Rightarrow N > 12.8254 \approx 13
 \end{align}
 so per wave detail $\approx 7$ grid cells.
 
@@ -121,7 +129,7 @@ Discretization error values are given when  $\Psi = c_{\Psi}\Dx^2 = 0$ (see \aut
 \end{figure}
 
 %-------------------------------------------------------------------------------
-\section{Determining the factor ${c_{\Psi}}$}\label{sec:determine_factor_c_psi}
+\subsection{Determining the factor ${c_{\Psi}}$}\label{sec:determine_factor_c_psi}
 In the limit of $k\Dx \rightarrow \infty$ \autoref{eq:r_tilde} behaves as:
 \begin{align}
 \lim_{k\Dx\to \infty}\frac{1}{1 + c_{\Psi}(k\Dx)^2} = \frac{1}{c_{\Psi}(k\Dx)^2}
@@ -134,7 +142,9 @@ c_{\Psi} = \frac{1}{(k\Dx)^2} \quad \Rightarrow \quad c_{\Psi} = \frac{N^2 }{(2\
 %
 %--- begin light blue table ---
 \begin{longtable}{|>{\bfseries}p{6mm-12pt}|p{\textwidth/3-2mm-12pt}|p{\textwidth/3-2mm-12pt}|p{\textwidth/3-2mm-12pt}|}
-\caption{Several typical values for numerical accuracy, $c_{\psi}$ and number of nodes per wavelength ($N$), the highligthed line is set as default.} \\%
+\caption{Several typical values for numerical accuracy, $c_{\psi}$ and number of nodes per wavelength ($N$), the highligthed line is set as default.
+\label{tab:numerical_accuracy}}
+\\%
  \rowcolor{mgreen1}
 & {\textcolor{white}{\textbf{Accuracy}}}
 & {\textcolor{white}{$\mathbf{c_{\Psi}}$}}
@@ -146,19 +156,19 @@ c_{\Psi} = \frac{1}{(k\Dx)^2} \quad \Rightarrow \quad c_{\Psi} = \frac{N^2 }{(2\
 \endfoot
 \bottomline
 \endlastfoot
-1 & 5\ \%   &  0.5 & 4.5\\
+1 & 5\ \%   &  0.8333  ($\approx$ 1)& 5.7357\\
 \midline
-2 & 2\ \%  & 2    & 8.9 \\
+2 & 2\ \%  & 2.0833 ($\approx$ 2)   & 9.0690\\
 \midline
-\rowcolor{mgreen2} 3 & 1\ \%  &  4   & 12.8 \\
+\rowcolor{mgreen2} 3 & 1\ \%  &  4.1666 ($\approx$ 4)   & 12.8254 \\
 \midline
-4 & 0.5\ \% & 10  & 18.1 \\
+4 & 0.5\ \% & 8.3333 ($\approx$ 8)  & 18.1380 \\
 \end{longtable}
 %--- end light blue table ---
 %
 
 %--------------------------------------------------------------------------------
-\section{$L^1$-norm for the functions $\widetilde{u}$, $\overline{u}$ and $u_{\mathit given}$}
+\subsection{$L^1$-norm for the functions $\widetilde{u}$, $\overline{u}$ and $u_{\mathit given}$}
 The next figures show the $L^1$-norm for the functions
 $\abs{|\widetilde{u} - u_{\mathit giv}|}_{1}$,
 $\abs{|\overline{u}  - u_{\mathit giv}|}_{1}$ and
@@ -208,3 +218,42 @@ As seen from these plot the piecewise linear approximation shown in   \autoref{f
 \caption{Several plots of the piecewise linear approximation ($\overline{u}$) of the Heaviside function compared to the regularized function ($\widetilde{u}$).}
 % Python script: reg_1d_step_less_error_1d_step_function.py
 \end{figure}
+%--------------------------------------------------------------------------------
+\subsection{Error estimation for a regularized artificial viscosity}
+\label{sec:estimate_artificial_viscosity}
+
+In this section a Fourier mode analysis is used
+to regularize the artificial viscosity, see
+\citet[eq.\ 8]{Borsboom1998}, the continues form of that equation reads:
+\begin{align}
+\widetilde{E} - \pdiff{}{\xi}\left(c_\Psi \pdiff{\widetilde{E}}{\xi}\right)
+%= \frac{1}{\Dxi} \int_{i-\half}^{i+\half} \abs{D^{i,x}_{\xi}} d\xi
+= E
+\end{align}
+for constant $\Dx$, constant $c_E$ and constant $\Psi$, and
+\begin{align}
+    E = D^{u,x}_{\xi} = \Dx^2 \pdiff[2]{u}{x}
+\end{align}
+In physical space this equation reads ($\Psi = c_E \Dx^2 E$):
+\begin{align}
+    \widetilde{E} - \Dx^2 \pdiff{}{x}\left(c_\Psi \pdiff{\widetilde{E}}{x}\right)
+    = c_E \Dx^2 \abs{ \Dx^2 \pdiff[2]{u}{x} }
+\end{align}
+When using the Fourier modes analysis, we get as indication for each Fourier mode  the expression of the size of  $E$:
+\begin{align}
+    \widetilde{E} - \Dx^2 \pdiff{}{x}\left(c_\Psi \pdiff{\widetilde{E}}{x}\right)
+    = c_{E}  \Dx^2  (k\Dx)^2 \frac{2A}{\pi}\frac{1}{h_{typ}}
+\end{align}
+with ${2/\pi}$ the ration between the averaged amplitude and maximum amplitude $(A)$ of a Fourier mode, $A=h_{typ}$ for the normalized amplitude.
+
+For a $1$~\% accuracy, see \autoref{tab:numerical_accuracy}, the maximum allowed Fourier modes is $k\Dx < 0.4899$, substitution yields:
+\begin{align}
+    c_\Psi \approx 4 = c_{E} (0.4899)^2 \frac{2}{\pi}  \quad \Rightarrow \quad c_{E} \approx 26.1797
+\end{align}
+
+%
+%Voor 2% nauwkeurigheid moet de waarde van deze uitdrukking voor de voor 2% nauwkeurigheid max. toelaatbare Fourier mode kDx=0.69 gelijk zijn aan Dx^2*c_art \approx 2*Dx^2 . Een en ander invullen geeft c_d * (0.69)^2*(2/pi)*1 \approx 2
+%=> ‎‎‎‎c_d \approx 7‎.
+%Gezien de flodderige afleiding is dit niet meer dan een ruwe indicatie van hoe groot ‎c_d ongeveer moet zijn. NB, ter compensatie van het low-pass filter dat er over d_art gehaald wordt (zie alweer vgl (2) of (7) hieronder) is te verwachten dat een wat grotere waarde van ‎‎c_d nodig zal zijn, bijvoorbeeld (ik noem maar wat 🤣) ‎‎‎c_d = 10.
+
+%In de jaren 90 kwam ik proefondervindelijk tot de goed bruikbare waarden c_E (c_art) = 2 en c_nu (c_d) = 10. Dat gaf een goed c
