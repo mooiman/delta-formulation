@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
         std::cout << "Executable compiled : " << compileDateTime() << std::endl;
         std::cout << "Git commit time/hash: " << getbuildstring_main() << std::endl;
         std::cout << std::endl;
-        std::cout << "usage: wave_1d.exe --toml <input_file>" << std::endl;
+        std::cout << "usage: adv_diff_1d.exe --toml <input_file>" << std::endl;
         std::cout << "======================================================" << std::endl;
         //std::cin.ignore();
         std::chrono::duration<int, std::milli> timespan(3000);
