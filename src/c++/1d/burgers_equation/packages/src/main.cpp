@@ -60,7 +60,7 @@ int get_toml_array(toml::table, std::string, std::vector<bool>&);
 //
 // Solve the linear Burgers equation
 //
-// dc/dt + d(uc)/dx - nu d2(u)dx2 = 0
+// dc/dt + 1/2 d(u^2)/dx - d/dx(nu d(u)dx) = 0
 //
 
 int main(int argc, char* argv[])
@@ -244,7 +244,7 @@ int main(int argc, char* argv[])
     std::string solver_name("bicgstab");
 
     std::string model_title("not defined");
-    if (input_data.physics.do_viscosity) { 
+    if (input_data.physics.do_viscosity) {
         model_title = "Burgers (viscid)";
     }
     else 
@@ -263,7 +263,7 @@ int main(int argc, char* argv[])
     double bc0;
     double bc1;
 
-    // Copy input data to loccal data
+    // Copy input data to local data
     std::string logging = input_data.log.logging;
 
     double Lx       = input_data.domain.Lx;
@@ -401,7 +401,6 @@ int main(int argc, char* argv[])
     map_file->put_time_variable(map_names[3], nst_map, pe);
     map_file->put_time_variable(map_names[4], nst_map, cfl);
     STOP_TIMER(Writing map-file);
-
     // End define map file
     ////////////////////////////////////////////////////////////////////////////
     // Create time history file
@@ -425,11 +424,11 @@ int main(int argc, char* argv[])
 
     his_file->add_time_series();
 
-    std::string his_u_name("u_velocity");
-    std::string his_visc_name("his_visc_name");
-    std::string his_psi_name("his_psi_name");
-    std::string his_peclet_name("his_peclet_name");
-    std::string his_cfl_name("his_cfl_name");
+    std::string his_u_name("un_1d");
+    std::string his_visc_name("visc_1d");
+    std::string his_psi_name("psi_1d");
+    std::string his_peclet_name("pe_1d");
+    std::string his_cfl_name("cfl_1d");
 
     his_file->add_variable(his_u_name, "", "Velocity", "m s-1");
     his_file->add_variable(his_cfl_name, "", "CFL (u.dt/dx)", "-");
@@ -486,6 +485,7 @@ int main(int argc, char* argv[])
         std::this_thread::sleep_for(timespan);
         //std::cin.ignore();
     }
+
     Eigen::SparseMatrix<double> A(nx, nx);
     if (logging == "pattern")
     {
@@ -507,25 +507,15 @@ int main(int argc, char* argv[])
     else { std::cout << "Time dependent simulation" << std::endl; }
     std::cout << std::fixed << std::setprecision(3) << "tstart= " << tstart + time << ";   tstop= " << tstart + tstop << ";   dt= " << dt << ";   dx= " << dx << std::endl;
  
-   // Start time loop
+    // Start time loop
     double du_max = 0.0;
     size_t du_maxi = 0;
 
-    for (int i = 0; i < nx; i++)
+    for (size_t i = 0; i < nx; i++)
     {
         up[i] = un[i];  // place the old solution in the new one, needed for the iteration procedure
     }
 
-    for (int i = 0; i < nx; ++i) 
-    {
-        A.coeffRef(i, i) = 1.0;
-        rhs[i] = solution[i];
-        solution[i] = 0.0;
-    }
-
-
-    double dc_max = 0.0;
-    int dc_maxi = 0;
     STOP_TIMER(Simulation initialization);
     START_TIMER(Time loop);
     for (int nst = 1; nst < total_time_steps; ++nst)
@@ -549,7 +539,7 @@ int main(int argc, char* argv[])
                 if (time == 7200){
                     int a = 1;
                 }
-                regularization->artificial_viscosity(psi, un, c_psi, dx, visc_reg);
+                regularization->artificial_viscosity(psi, un, c_psi, dx, w_ess, w_nat);
                 for (int i = 0; i < nx; ++i)
                 {
                     visc[i] = visc_reg[i] + std::abs(psi[i]);
@@ -572,7 +562,7 @@ int main(int argc, char* argv[])
                 START_TIMER(Regularization_iter_loop);
                 if (do_viscosity)
                 {
-                    regularization->artificial_viscosity(psi, up, c_psi, dx, visc_reg);
+                    regularization->artificial_viscosity(psi, up, c_psi, dx, w_ess, w_nat);
                     for (int i = 0; i < nx; ++i)
                     {
                         visc[i] = visc_reg[i] + std::abs(psi[i]);
@@ -760,6 +750,7 @@ int main(int argc, char* argv[])
 
                     double utheta_im12 = 0.5 * (utheta[i] + utheta[i - 1]);
                     double ududx =  utheta_im12 * (utheta_i - utheta_im1) * dxinv;
+                    // ududx =  0.5 * (utheta_i * utheta_i - utheta_im1 * utheta_im1) * dxinv;
 
                     A.coeffRef(i, i    ) = dtinv * w_nat[0] + theta * dxinv * utheta_im12;
                     A.coeffRef(i, i - 1) = dtinv * w_nat[1] - theta * dxinv * utheta_im12;
@@ -767,15 +758,15 @@ int main(int argc, char* argv[])
                     rhs[i] = - (dudt + ududx);
                 
                     // viscosity contribution
-                    if (do_viscosity)
-                    {
-                        double visc_im12 = -0.5 * (visc[i - 1] + visc[i-1]);
-                        A.coeffRef(i, i - 1) += + visc_im12 * theta * dxinv;
-                        A.coeffRef(i, i    ) += - visc_im12 * theta * dxinv;
-                        rhs[i] += -(
-                            visc_im12 * dxinv * dxinv * (utheta[i] - 2. * utheta[i - 1] + utheta[i - 2])
-                            );
-                    }
+                     // if (do_viscosity)
+                     // {
+                     //     double visc_im12 = -0.5 * (visc[i - 1] + visc[i-1]);
+                     //     A.coeffRef(i, i - 1) += + visc_im12 * theta * dxinv;
+                     //     A.coeffRef(i, i    ) += - visc_im12 * theta * dxinv;
+                     //     rhs[i] += -(
+                     //         visc_im12 * dxinv * dxinv * (utheta[i] - 2. * utheta[i - 1] + utheta[i - 2])
+                     //         );
+                     // }
                 }
                 else
                 {
@@ -822,8 +813,8 @@ int main(int argc, char* argv[])
             }
 
             // The new solution is the previous iterant plus the delta
-            dc_max = 0.0;
-            dc_maxi = 0;
+            du_max = 0.0;
+            du_maxi = 0;
             for (size_t i = 0; i < nx; ++i)
             {
                 up[i] += solution[i];
@@ -844,14 +835,13 @@ int main(int argc, char* argv[])
             }
             if (logging == "matrix")
             {
-                log_file << "=== cn, delta_c, up ===================================" << std::endl;
-                for (int i = 0; i < nx; ++i)
+                log_file << "=== un, delta_u, up ===================================" << std::endl;
+                for (size_t i = 0; i < nx; ++i)
                 {
                     log_file << std::setw(17) << std::setprecision(15) << std::scientific 
                         << un[i] << "  -----  " 
                         << delta_u[i] << "  -----  " 
                         << up[i] << std::endl;
-
                 }
             }
             if (logging == "eigen_values")
@@ -906,15 +896,13 @@ int main(int argc, char* argv[])
             {
                 log_file.setf(std::ios::fixed, std::ios::floatfield);
                 log_file << "    ----    maximum number of iterations reached, probably not converged, at time: " <<  time << " [sec]" << std::endl;
-
             }
         }
         for (size_t i = 0; i < nx; ++i)
         {
             un[i] = up[i];
         }
-
-        for (int i = 0; i < nx; ++i)
+        for (size_t i = 0; i < nx; ++i)
         {
             cfl[i] = up[i] * dt / dx;
         }
@@ -927,7 +915,7 @@ int main(int argc, char* argv[])
         }
         if (logging == "matrix")
         {
-            log_file << "=== up, cn, up-cn =====================================" << std::endl;
+            log_file << "=== up, un, up-un =====================================" << std::endl;
             for (int i = 0; i < nx; ++i)
             {
                 log_file << std::setprecision(15) << std::scientific 

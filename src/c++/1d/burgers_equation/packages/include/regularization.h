@@ -41,7 +41,8 @@ public:
     void given_function(std::vector<double>& u_out, std::vector<double>& psi, std::vector<double>& u_giv_in,
         double dx, double c_psi, std::ofstream& log_file);
 
-    void artificial_viscosity(std::vector<double>& psi, std::vector<double>& u, double c_psi, double dx, std::vector<double> & visc_reg);
+    void artificial_viscosity(std::vector<double>& psi, std::vector<double>& u, double c_psi, double dx, 
+        std::vector<double> w_ess, std::vector<double> w_nat);
 
     void first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx);
 private:

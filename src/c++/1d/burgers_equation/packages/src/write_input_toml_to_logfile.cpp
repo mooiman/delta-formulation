@@ -54,7 +54,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     //Domain
     log_file << std::endl << "[Domain]" << std::endl;
     log_file << "    Lx       = " << format_as_double(data.domain.Lx) << "  # Domain length [m]" << std::endl;
-    log_file << "    x_origin = " << format_as_double(data.domain.x_origin) << "  # Origin of the x-coordinate [m]" << std::endl;
+    log_file << "    x_origin = " << format_as_double(data.domain.x_origin) << "  # Origin of the x-coordinate [m]" <<  std::endl;
 
     // Initial
     log_file << std::endl << "[Initial]" << std::endl;
@@ -72,7 +72,6 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     log_file << "    iter_max            = " << format_as_double(data.numerics.iter_max) << "  # Maximum number of non-linear iterations" << std::endl;
     log_file << "    eps_newton          = " << format_as_double(data.numerics.eps_newton) << std::endl;
     log_file << "    eps_bicgstab        = " << format_as_double(data.numerics.eps_bicgstab) << std::endl;
-    log_file << "    eps_abs_function    = " << format_as_double(data.numerics.eps_abs) << std::endl;
     log_file << "    regularization_init = " << bool_value_as_string(data.numerics.regularization_init) << std::endl;
     log_file << "    regularization_iter = " << bool_value_as_string(data.numerics.regularization_iter) << std::endl;
     log_file << "    regularization_time = " << bool_value_as_string(data.numerics.regularization_time) << std::endl;

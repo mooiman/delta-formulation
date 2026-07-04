@@ -2,7 +2,7 @@
 // Programmer: Jan Mooiman
 // Email     : jan.mooiman@outlook.com
 //
-//    Solving the 1D advection/diffusion equation, fully implicit with delta-formulation and Modified Newton iteration 
+//    Solving the 1D ad/convection-diffusion equation, fully implicit with delta-formulation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -142,7 +142,7 @@ void REGULARIZATION::given_function(std::vector<double>& u_tilde, std::vector<do
 //       Borsboom_development1Derrorminmovingadaptgridmethod_AdaptMethodLinesCRC2001.pdf
 
 void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<double>& u, 
-    double c_psi_in, double dx, std::vector<double> & visc_reg)
+    double c_psi_in, double dx, std::vector<double> w_ess, std::vector<double> w_nat)
 {
     size_t nx = u.size();
     std::vector<double> u_xixi(nx, 0.);  // second derivative of u-velocity in computational space
@@ -161,7 +161,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
 
     double u_xixi_max = 0.001;
 
-    for (size_t i = 1; i < nx-1; ++i)
+    for (size_t i = 1; i < nx - 1; ++i)
     {
         u_xixi[i] = (u[i - 1] - 2. * u[i] + u[i + 1]);
         u_xixi_max = std::max(u_xixi_max, std::abs(u_xixi[i]));
@@ -173,13 +173,11 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     u_xixi[i] = 2. * u_xixi[i - 1] - u_xixi[i - 2];
     u_xixi_max = std::max(u_xixi_max, std::abs(u_xixi[i]));
     //
-
     // eq. 18 CRC2001
     double ubar_im14;
     double ubar_ip14;
 
-    double c_error = 0.0;
-    c_error = c_psi; // std::pow(c_psi, 4.0); //same value as for regularization of given function
+    double c_error = c_psi * dx;
     for (size_t i = 1; i < nx - 1; ++i)
     {
         A.coeffRef(i, i - 1) = m_mass[0] - c_error;
@@ -189,8 +187,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         ubar_im14 = 0.25 * (u[i - 1] + 3. * u[i]);
         ubar_ip14 = 0.25 * (u[i + 1] + 3. * u[i]);
         double utmp = 0.5 * (ubar_im14 + ubar_ip14);
-
-        rhs[i] = dx * dx * utmp * (std::abs(u_xixi[i]));
+        rhs[i] = 7.0 * c_error * dx * ( 0.5 * utmp * std::abs(u_xixi[i]) );
     }
     // eq. 19   
     i = 0;
@@ -199,9 +196,9 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     A.coeffRef(i, i + 2) = 1.;
     rhs[i] = 0.0;
     i = 1;
-    A.coeffRef(i, i - 1) = 0;
-    A.coeffRef(i, i    ) = 1.;
-    A.coeffRef(i, i + 1) = 0;
+    A.coeffRef(i, i - 1) = 0.0;  //  w_ess[0];  // 0.;  // w_ess[0];
+    A.coeffRef(i, i    ) = 1.0;  //  w_ess[1];  // 1.;  // w_ess[1];
+    A.coeffRef(i, i + 1) = 0.0;  //  w_ess[2];  // 0.;  // w_ess[2];
     rhs[i] = rhs[i];
     i = nx - 1;
     A.coeffRef(i, i - 2) = 1.;
@@ -209,9 +206,9 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     A.coeffRef(i, i    ) = 1.;
     rhs[i] = 0.0;
     i = nx - 2;
-    A.coeffRef(i, i - 1) = 0.0;
-    A.coeffRef(i, i    ) = 1.0;
-    A.coeffRef(i, i + 1) = 0.0;
+    A.coeffRef(i, i - 1) = w_nat[2];  // 0.0;  // w_ess[2];
+    A.coeffRef(i, i    ) = w_nat[1];  // 1.0;  // w_ess[1];
+    A.coeffRef(i, i + 1) = w_nat[0];  // 0.0;  // w_ess[0];
     rhs[i] = rhs[i];
 
     Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
