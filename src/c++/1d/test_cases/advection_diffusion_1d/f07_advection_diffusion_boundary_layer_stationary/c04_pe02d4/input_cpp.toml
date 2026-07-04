@@ -1,0 +1,45 @@
+# Logging = "matrix"
+
+[Boundary]  # west, east
+    treg = 600.0                                  # Regularization time on boundary
+    eps_bc_corr = 0.0001
+    bc_signals = ["constant", "constant"]          # Type "constant", "sine" 
+    bc_type = ["dirichlet", "dirichlet"]          # Type "dirichlet", "borsboom" 
+    bc_vals = [0.0, 1.0]                          # The inflow discharge
+
+[Domain]
+    Lx = 1000.0                                  # Domain length [m]
+    x_origin = 0.0  # Origin of the x-coordinate [m]
+        
+[Initial]
+    c_initial = 0.0  # initial constituent [-]
+    ini_vars  = ["constant"] # "constant", "envelope", "envelope_phi"
+
+[Numerics]
+    dt = 0.0                                    # Time step size [s], if dt == 0: then stationary problem
+    dx = 10.0                                     # Grid size [m]
+    c_psi = 4.0                                  
+    theta = 0.501                                # Implicitness factor (0.5 <= theta <= 1.0)
+    iter_max = 50                               # Maximum number of nonlinear iterations
+    eps_newton = 1.0e-12
+    eps_bicgstab = 1.0e-12
+    regularization_init = true
+    regularization_iter = true
+    regularization_time = false
+
+[Output]
+    dt_his = 1.0   # [s]
+    dt_map = 1.0   # [s] 
+    dt_screen = 300.0   # [s] 
+
+[Physics]
+    u_advection = 2.4                  
+    do_advection = true
+    do_viscosity = true
+    viscosity = 10.0
+    
+
+[Time]
+    tunit  = "s"  # "s", "m", "h", "d"
+    tstart = 0.0
+    tstop  = 3600.0

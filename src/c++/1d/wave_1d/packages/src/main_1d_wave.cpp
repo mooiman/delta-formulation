@@ -1036,7 +1036,7 @@ int main(int argc, char* argv[])
                         A.coeffRef(c_eq, ph   ) += -dtinv * w_ess[0] - eps_bc_corr * theta * w_ess[0];
                         A.coeffRef(c_eq, ph_e ) += -dtinv * w_ess[1] - eps_bc_corr * theta * w_ess[1];
                         A.coeffRef(c_eq, ph_ee) += -dtinv * w_ess[2] - eps_bc_corr * theta * w_ess[2];
-                        corr_term =dhdt + eps_bc_corr * ((bc[BC_WEST] - zb_b) - htheta_b);
+                        corr_term = dhdt + eps_bc_corr * ((bc[BC_WEST] - zb_b) - htheta_b);
                         rhs[c_eq] += corr_term;
                     }
                     if (bc_vars[BC_WEST] == "q")

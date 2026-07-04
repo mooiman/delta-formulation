@@ -2,7 +2,7 @@
 // Programmer: Jan Mooiman
 // Email     : jan.mooiman@outlook.com
 //
-//    Solving the 1D wave equation, fully implicit with delta-formulation and Modified Newton iteration 
+//    Solving the 1D advection/diffusion equation, fully implicit with delta-formulation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -135,14 +135,17 @@ void REGULARIZATION::given_function(std::vector<double>& u_tilde, std::vector<do
     }
 }
 //------------------------------------------------------------------------------
-void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<double>& h, std::vector<double>& q, 
-    std::vector<double>& zb, double c_psi_in, double dx)
+//
+//  psi - alpha Dxi d2/dx2(psi) = c_\nu Err_\nu (eq 14)
+// 
+//   Based on article:
+//       Borsboom_development1Derrorminmovingadaptgridmethod_AdaptMethodLinesCRC2001.pdf
+
+void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<double>& u, std::vector<double>& c, double c_psi_in, double dx, 
+    std::vector<double> w_ess, std::vector<double> w_nat)
 {
-    size_t nx = h.size();
-    std::vector<double> h_xixi(nx, 0.);  // second derivative of total depth in computational space
-    std::vector<double> q_xixi(nx, 0.);  // second derivative of flow flux in computational space
-    std::vector<double> s_xixi(nx, 0.);  // second derivative of water level: s = h + zb in computational space
-    std::vector<double> Err_psi(nx, 0.);  //
+    size_t nx = c.size();
+    std::vector<double> c_xixi(nx, 0.);  // second derivative of u-velocity in computational space
 
     Eigen::SparseMatrix<double> A(nx, nx);
     Eigen::VectorXd solution(nx);               // solution vector 
@@ -156,67 +159,56 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         rhs[i] = 0.0;
     }
 
-    for (size_t i = 1; i < nx-1; ++i)
+    double c_xixi_max = 0.001;
+
+    for (size_t i = 1; i < nx - 1; ++i)
     {
-        h_xixi[i] = (h[i - 1] - 2. * h[i] + h[i + 1]);
-        q_xixi[i] = (q[i - 1] - 2. * q[i] + q[i + 1]);
-        s_xixi[i] = ((h[i-1] + zb[i-1]) - 2. * (h[i] + zb[i]) + (h[i + 1] + zb[i + 1]));
+        c_xixi[i] = (c[i - 1] - 2. * c[i] + c[i + 1]);
+        c_xixi_max = std::max(c_xixi_max, std::abs(c_xixi[i]));
     }
     size_t i = 0;
-    h_xixi[i] = 2. * h_xixi[i + 1] - h_xixi[i + 2];
-    q_xixi[i] = 2. * q_xixi[i + 1] - q_xixi[i + 2];
-    s_xixi[i] = 2. * s_xixi[i + 1] - s_xixi[i + 2];
+    c_xixi[i] = 2. * c_xixi[i + 1] - c_xixi[i + 2];
+    c_xixi_max = std::max(c_xixi_max, std::abs(c_xixi[i]));
     i = nx - 1;
-    h_xixi[i] = 2. * h_xixi[i - 1] - h_xixi[i - 2];
-    q_xixi[i] = 2. * q_xixi[i - 1] - q_xixi[i - 2];
-    s_xixi[i] = 2. * s_xixi[i - 1] - s_xixi[i - 2];
+    c_xixi[i] = 2. * c_xixi[i - 1] - c_xixi[i - 2];
+    c_xixi_max = std::max(c_xixi_max, std::abs(c_xixi[i]));
     //
+    // eq. 18 CRC2001
+    double ubar_im14;
+    double ubar_ip14;
 
-    // eq. 18
-    double hbar_im14;
-    double hbar_ip14;
-    double qbar_im14;
-    double qbar_ip14;
-
-    double c_error = c_psi; //same value as for regularization of given function
+    double c_error = c_psi * dx;
     for (size_t i = 1; i < nx - 1; ++i)
     {
         A.coeffRef(i, i - 1) = m_mass[0] - c_error;
         A.coeffRef(i, i    ) = m_mass[1] + 2. * c_error;
         A.coeffRef(i, i + 1) = m_mass[2] - c_error;
 
-        hbar_im14 = 0.25 * (h[i - 1] + 3. * h[i]);
-        hbar_ip14 = 0.25 * (h[i + 1] + 3. * h[i]);
-        qbar_im14 = 0.25 * (q[i - 1] + 3. * q[i]);
-        qbar_ip14 = 0.25 * (q[i + 1] + 3. * q[i]);
-
-        rhs[i] = 32.0 * c_psi * dx * (
-              0.0625 * std::sqrt(m_g / hbar_im14) * std::abs(s_xixi[i])
-            + 0.0625 * std::sqrt(2.) * (std::abs(q_xixi[i] / hbar_im14 - qbar_im14 * h_xixi[i] / (hbar_im14 * hbar_im14)))
-            + 0.0625 * std::sqrt(m_g / hbar_ip14) * std::abs(s_xixi[i])
-            + 0.0625 * std::sqrt(2.) * (std::abs(q_xixi[i] / hbar_ip14 - qbar_ip14 * h_xixi[i] / (hbar_ip14 * hbar_ip14)))
-            );
+        ubar_im14 = 0.25 * (u[i - 1] + 3. * u[i]);
+        ubar_ip14 = 0.25 * (u[i + 1] + 3. * u[i]);
+        double utmp = 0.5 * (ubar_im14 + ubar_ip14);
+        rhs[i] = 7.0 * c_error * dx * ( 0.5 * utmp * std::abs(c_xixi[i]) );
     }
-    // eq. 19
+    // eq. 19   
     i = 0;
-    A.coeffRef(i, i) = 1.; 
+    A.coeffRef(i, i    ) = 1.; 
     A.coeffRef(i, i + 1) = -2.0;
     A.coeffRef(i, i + 2) = 1.;
     rhs[i] = 0.0;
     i = 1;
-    A.coeffRef(i, i - 1) = 0;
-    A.coeffRef(i, i) = 1.;
-    A.coeffRef(i, i + 1) = 0;
+    A.coeffRef(i, i - 1) = 0.0;
+    A.coeffRef(i, i    ) = 1.0;
+    A.coeffRef(i, i + 1) = 0.0;
     rhs[i] = rhs[i];
     i = nx - 1;
     A.coeffRef(i, i - 2) = 1.;
     A.coeffRef(i, i - 1) = -2.0;
-    A.coeffRef(i, i) = 1.;
+    A.coeffRef(i, i    ) = 1.;
     rhs[i] = 0.0;
     i = nx - 2;
-    A.coeffRef(i, i - 1) = 0.0;
-    A.coeffRef(i, i) = 1.0;
-    A.coeffRef(i, i + 1) = 0.0;
+    A.coeffRef(i, i - 1) = w_nat[2];
+    A.coeffRef(i, i    ) = w_nat[1];
+    A.coeffRef(i, i + 1) = w_nat[0];
     rhs[i] = rhs[i];
 
     Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
@@ -228,7 +220,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         psi[i] = solution[i];
     }
 }
-
+//------------------------------------------------------------------------------
 void REGULARIZATION::first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx)
 {
     int nx = (int)eps.size();

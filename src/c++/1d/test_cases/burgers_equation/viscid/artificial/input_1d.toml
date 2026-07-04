@@ -1,8 +1,8 @@
 Logging = "None"  # "iterations", "matrix", "pattern"
 
 [Boundary]  # west, east
-    treg        = 1800.0  # Regularization time boundary signal [s]
-    eps_bc_corr = 0.01
+    treg        = 900.0  # Regularization time boundary signal [s]
+    eps_bc_corr = 0.02
     bc_signals  = ["constant", "constant"]
     bc_type     = ["dirichlet", "borsboom"]
     bc_vals     = [2.0, 0.0]
@@ -16,8 +16,8 @@ Logging = "None"  # "iterations", "matrix", "pattern"
     ini_vars  = ["u_constant"]
 
 [Numerics]
-    dt                  = 5.0  # Time step size [s], if dt == 0: then stationary problem
-    dx                  = 5.0  # Grid size [m]
+    dt                  = 60.0  # Time step size [s], if dt == 0: then stationary problem
+    dx                  = 100.0  # Grid size [m]
     c_psi               = 4.0
     theta               = 0.501  # Implicitness factor (0.5 <= theta <= 1.0)
     iter_max            = 25.0  # Maximum number of non-linear iterations
@@ -36,7 +36,8 @@ Logging = "None"  # "iterations", "matrix", "pattern"
 [Physics]
     do_convection = true
     do_viscosity  = true
-    viscosity     = 0.01
+    viscosity     = 5.0
+    do_source     = false
 
 [Time]
     tunit  = "h"  # "s", "m", "h", "d"

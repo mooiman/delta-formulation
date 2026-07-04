@@ -1,8 +1,8 @@
-openfile '.\output\burgers_eq_dx5_dt5_map.nc'
+openfile '.\output\burgers_eq_dx100_dt60_map.nc'
 selectfield 'Psi'
 hselectiontype '(M,N) point/path'
 editt '1'
-editmn '1:1:4003'
+editmn '1:1:203'
 colour [ 0 0 1]
 marker '.'
 linewidth 1.
@@ -12,7 +12,7 @@ quickview
 selectfield 'Velocity'
 hselectiontype '(M,N) point/path'
 editt '1'
-editmn '1:1:4003'
+editmn '1:1:203'
 colour [ 0 0 1]
 marker '.'
 linewidth 1.
