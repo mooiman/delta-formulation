@@ -17,9 +17,9 @@
 
 [Numerics]
     dt = 0.0                                    # Time step size [s], if dt == 0: then stationary problem
-    dx = 10.0                                     # Grid size [m]
+    dx = 10.0                                   # Grid size [m]
     c_psi = 4.0                                  
-    theta = 0.501                                # Implicitness factor (0.5 <= theta <= 1.0)
+    theta = 0.501                               # Implicitness factor (0.5 <= theta <= 1.0)
     iter_max = 50                               # Maximum number of nonlinear iterations
     eps_newton = 1.0e-12
     eps_bicgstab = 1.0e-12

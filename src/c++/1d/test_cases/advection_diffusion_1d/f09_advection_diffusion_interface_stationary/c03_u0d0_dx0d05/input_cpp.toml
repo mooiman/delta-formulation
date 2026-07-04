@@ -1,34 +1,25 @@
 # Logging = "matrix"
 
+[Boundary]  # west, east
+    treg = 600.0                                  # Regularization time on boundary
+    eps_bc_corr = 0.0001
+    bc_signals = ["constant", "constant"]          # Type "constant", "sine" 
+    bc_type = ["dirichlet", "dirichlet"]          # Type "dirichlet", "borsboom" 
+    bc_vals = [0.0, 1.0]                          # The inflow discharge
+
 [Domain]
     Lx = 1.0                                  # Domain length [m]
-    depth = 1.0                                  # bathymetry below reference level [m]
-
-[Time]
-    tstart = 0.0                                 # Start time [s]
-    tstop = 360000.0                                # End time [s]
-        
+    x_origin = 0.0  # Origin of the x-coordinate [m]
+    
 [Initial]
-    shape = "Interface"                                 # "Constant", "Envelope", "Interface"
-    
-[Boundary]
-    bc_type = ["dirichlet", "dirichlet"]          # Type "dirichlet", "borsboom" 
-    bc_signal = ["constant", "constant"]          # Type "constant", "sine" 
-    bc_vals = [0.0, 1.0]                          # The inflow discharge
-    treg = 600.0                                  # Regularization time on boundary
-
-[Physics]
-    g = 1.0                              # acceleration due to gravity            
-    u_const = 0.0                   
-    momentum_viscosity = true                     # include viscosity
-    viscosity = 1.0
-    
+    c_initial = 0.0  # initial constituent [-]
+    ini_vars  = ["constant"] # "constant", "envelope", "envelope_phi"
+   
 [Numerics]
     dt = 0.0                                    # Time step size [s], if dt == 0: then stationary problem
-    dx = 0.05                                     # Grid size [m]
+    dx = 0.05                                  # Grid size [m]
     c_psi = 4.0                                  
-    theta = 0.501                                # Implicitness factor (0.5 <= theta <= 1.0)
-    alpha = 0.125                                # Linear (spatial) interpolation coefficient
+    theta = 0.501                               # Implicitness factor (0.5 <= theta <= 1.0)
     iter_max = 50                               # Maximum number of nonlinear iterations
     eps_newton = 1.0e-12
     eps_bicgstab = 1.0e-12
@@ -39,3 +30,16 @@
 [Output]
     dt_his = 1.0   # [s]
     dt_map = 1.0   # [s] 
+    dt_screen = 300.0   # [s] 
+
+[Physics]
+    u_advection = 0.0                   
+    do_advection = true
+    do_viscosity = true
+    viscosity = 1.0
+    visc_shape = "interface"  # "constant", "interface"
+
+[Time]
+    tunit  = "s"  # "s", "m", "h", "d"
+    tstart = 0.0
+    tstop  = 3600.0

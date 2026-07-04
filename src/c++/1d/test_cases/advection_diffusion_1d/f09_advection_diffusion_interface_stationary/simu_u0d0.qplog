@@ -1,4 +1,4 @@
-openfile '.\c01_u0d0_dx0d001\output\advection_diffusion_map.nc'
+openfile '.\c01_u0d0_dx0d001\output\adv_diff_eq_dx0.001_dt0_map.nc'
 selectfield 'Constituent'
 hselectiontype '(M,N) point/path'
 editt '2'
@@ -8,7 +8,7 @@ marker 'none'
 plotcoordinate 'x coordinate'
 quickview
 
-openfile '.\c02_u0d0_dx0d01\output\advection_diffusion_map.nc'
+openfile '.\c02_u0d0_dx0d01\output\adv_diff_eq_dx0.01_dt0_map.nc'
 selectfield 'Constituent'
 hselectiontype '(M,N) point/path'
 editt '2'
@@ -18,7 +18,7 @@ marker '.'
 plotcoordinate 'x coordinate'
 addtoplot
 
-openfile '.\c03_u0d0_dx0d05\output\advection_diffusion_map.nc'
+openfile '.\c03_u0d0_dx0d05\output\adv_diff_eq_dx0.05_dt0_map.nc'
 selectfield 'Constituent'
 hselectiontype '(M,N) point/path'
 editt '2'
@@ -28,7 +28,7 @@ marker '.'
 plotcoordinate 'x coordinate'
 addtoplot
 
-openfile '.\c04_u0d0_dx0d10\output\advection_diffusion_map.nc'
+openfile '.\c04_u0d0_dx0d10\output\adv_diff_eq_dx0.1_dt0_map.nc'
 selectfield 'Constituent'
 hselectiontype '(M,N) point/path'
 editt '2'
@@ -40,7 +40,7 @@ addtoplot
 
 #===================================================================
 
-openfile '.\c01_u0d0_dx0d001\output\advection_diffusion_map.nc'
+openfile '.\c01_u0d0_dx0d001\output\adv_diff_eq_dx0.001_dt0_map.nc'
 selectfield 'Peclet'
 hselectiontype '(M,N) point/path'
 editt '2'
@@ -50,7 +50,7 @@ marker 'none'
 plotcoordinate 'x coordinate'
 quickview
 
-openfile '.\c02_u0d0_dx0d01\output\advection_diffusion_map.nc'
+openfile '.\c02_u0d0_dx0d01\output\adv_diff_eq_dx0.01_dt0_map.nc'
 selectfield 'Peclet'
 hselectiontype '(M,N) point/path'
 editt '2'
@@ -60,7 +60,7 @@ marker '.'
 plotcoordinate 'x coordinate'
 addtoplot
 
-openfile '.\c03_u0d0_dx0d05\output\advection_diffusion_map.nc'
+openfile '.\c03_u0d0_dx0d05\output\adv_diff_eq_dx0.05_dt0_map.nc'
 selectfield 'Peclet'
 hselectiontype '(M,N) point/path'
 editt '2'
@@ -70,7 +70,7 @@ marker '.'
 plotcoordinate 'x coordinate'
 addtoplot
 
-openfile '.\c04_u0d0_dx0d10\output\advection_diffusion_map.nc'
+openfile '.\c04_u0d0_dx0d10\output\adv_diff_eq_dx0.1_dt0_map.nc'
 selectfield 'Peclet'
 hselectiontype '(M,N) point/path'
 editt '2'
@@ -82,7 +82,49 @@ addtoplot
 
 #===================================================================
 
-openfile '.\c01_u0d0_dx0d001\output\advection_diffusion_map.nc'
+openfile '.\c01_u0d0_dx0d001\output\adv_diff_eq_dx0.001_dt0_map.nc'
+selectfield 'Viscosity (reg)'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '1:1:1003'
+colour [ 0 0 0 ]
+marker 'none'
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\c02_u0d0_dx0d01\output\adv_diff_eq_dx0.01_dt0_map.nc'
+selectfield 'Viscosity (reg)'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '1:1:103'
+colour [ 0 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c03_u0d0_dx0d05\output\adv_diff_eq_dx0.05_dt0_map.nc'
+selectfield 'Viscosity (reg)'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '1:1:23'
+colour [ 1 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c04_u0d0_dx0d10\output\adv_diff_eq_dx0.1_dt0_map.nc'
+selectfield 'Viscosity (reg)'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '1:1:13'
+colour [ 1 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+#===================================================================
+
+openfile '.\c01_u0d0_dx0d001\output\adv_diff_eq_dx0.001_dt0_map.nc'
 selectfield 'Psi'
 hselectiontype '(M,N) point/path'
 editt '2'
@@ -92,7 +134,7 @@ marker 'none'
 plotcoordinate 'x coordinate'
 quickview
 
-openfile '.\c02_u0d0_dx0d01\output\advection_diffusion_map.nc'
+openfile '.\c02_u0d0_dx0d01\output\adv_diff_eq_dx0.01_dt0_map.nc'
 selectfield 'Psi'
 hselectiontype '(M,N) point/path'
 editt '2'
@@ -102,7 +144,7 @@ marker '.'
 plotcoordinate 'x coordinate'
 addtoplot
 
-openfile '.\c03_u0d0_dx0d05\output\advection_diffusion_map.nc'
+openfile '.\c03_u0d0_dx0d05\output\adv_diff_eq_dx0.05_dt0_map.nc'
 selectfield 'Psi'
 hselectiontype '(M,N) point/path'
 editt '2'
@@ -112,7 +154,7 @@ marker '.'
 plotcoordinate 'x coordinate'
 addtoplot
 
-openfile '.\c04_u0d0_dx0d10\output\advection_diffusion_map.nc'
+openfile '.\c04_u0d0_dx0d10\output\adv_diff_eq_dx0.1_dt0_map.nc'
 selectfield 'Psi'
 hselectiontype '(M,N) point/path'
 editt '2'
@@ -121,3 +163,6 @@ colour [ 1 0 1 ]
 marker '.'
 plotcoordinate 'x coordinate'
 addtoplot
+
+
+
