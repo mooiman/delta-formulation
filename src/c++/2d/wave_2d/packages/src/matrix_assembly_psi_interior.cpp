@@ -198,7 +198,7 @@ int reg_interior_matrix_psi(double* values, size_t row, size_t c_eq,
     add_value(values, col_n , fac * n_xi *  1./4.);
     add_value(values, col_nw, fac * n_xi * -1./4.);
 
-    c_psi_org = c_psi;
+    c_psi = c_psi_org;
     return 0;
 }
 //------------------------------------------------------------------------------
