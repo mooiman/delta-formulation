@@ -2,15 +2,22 @@ set(exe_name adv_diff_1d)
 
 # include_directories(include)
 set(headers_files
-    include/adv_diff_boundary_condition.h
     include/adv_diff_init_concentration.h
     include/adv_diff_init_velocity.h
     include/adv_diff_linear_operator.h
     include/adv_diff_regularization.h
     include/adv_diff_source.h
+    include/boundary_condition.h
     include/cfts.h
+    include/compatible_function.h
+    include/compile_date_and_time.h
+    include/data_input_struct.h
     include/definition_map_file.h
+    include/main_version.h
+    include/observation_stations.h
     include/perf_timer.h
+    include/print_matrix.h
+    include/read_input_toml_file.h
     include/regularization.h
     include/ugrid1d.h
 )    
@@ -23,10 +30,16 @@ set(source_files
     src/adv_diff_regularization.cpp
     src/adv_diff_source.cpp
     src/cfts.cpp
+    src/compatible_initial_condition.cpp
     src/definition_map_file.cpp
+    src/main_version.cpp
+    src/observation_stations.cpp
     src/perf_timer.cpp
+    src/print_matrix.cpp
+    src/read_input_toml_file.cpp
     src/regularization.cpp
     src/ugrid1d.cpp
+    src/write_input_toml_file_to_logfile.cpp
 )
 
 add_executable(${exe_name} ${source_files} ${headers_files})
