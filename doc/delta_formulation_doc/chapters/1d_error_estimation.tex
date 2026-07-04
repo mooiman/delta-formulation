@@ -230,18 +230,18 @@ to regularize the artificial viscosity, see
 %= \frac{1}{\Dxi} \int_{i-\half}^{i+\half} \abs{D^{i,x}_{\xi}} d\xi
 = E
 \end{align}
-for constant $\Dx$, constant $c_E$ and constant $\Psi$, and
+for constant $\Dx$ and constant $c_\Psi$ (see \autoref{tab:numerical_accuracy})
 \begin{align}
     E = D^{u,x}_{\xi} = \Dx^2 \pdiff[2]{u}{x}
 \end{align}
-In physical space this equation reads ($\Psi = c_E \Dx^2 E$):
+In physical space this equation reads ($\Psi = c_\Psi \Dx^2 E$):
 \begin{align}
-    \widetilde{E} - \Dx^2 \pdiff{}{x}\left(c_\Psi \pdiff{\widetilde{E}}{x}\right)
+    \widetilde{E} - c_\Psi \Dx^2 \pdiff[2]{\widetilde{E}}{x}
     = c_E \Dx^2 \abs{ \Dx^2 \pdiff[2]{u}{x} }
 \end{align}
 When using the Fourier modes analysis, we get as indication for each Fourier mode  the expression of the size of  $E$:
 \begin{align}
-    \widetilde{E} - \Dx^2 \pdiff{}{x}\left(c_\Psi \pdiff{\widetilde{E}}{x}\right)
+    \widetilde{E} - c_\Psi \Dx^2 \pdiff[2]{\widetilde{E}}{x}
     = c_{E}  \Dx^2  (k\Dx)^2 \frac{2A}{\pi}\frac{1}{h_{typ}}
 \end{align}
 with ${2/\pi}$ the ration between the averaged amplitude and maximum amplitude $(A)$ of a Fourier mode, $A=h_{typ}$ for the normalized amplitude.
