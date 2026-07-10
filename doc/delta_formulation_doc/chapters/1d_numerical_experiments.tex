@@ -515,6 +515,117 @@ Map results are presented for the constituent $c$ and the artificial diffusion $
     \caption{Map results for different values of the P\'eclet number.}
 \end{figure}
 %--------------------------------------------------------------------------------
+\section{Burgers equation}\label{sec:1d_numerical_burgers_experiment}
+In this section we will show the resuls of the viscid Burgers equation with  a Dirichlet boundary conditions at the left/west side of the domain and an outflow boundary at the rigth/east side of the domain.
+
+The considered Burgers equation reads:
+\begin{align}
+    \pdiff{u}{t} + \half \pdiff{u^2}{x} - \pdiff{}{x}\left( (\nu+\Psi) \pdiff{u}{x}\right)= 0, \qquad u>0. \label{eq:1d_advection_art_diff}
+\end{align}
+where
+\begin{symbollist}
+    \item[$u$] Convected velocity, $\bunit{\metre\per\second}$.
+    \item[$\nu$] Constant viscosity coefficient, $\bunit{\square\metre\per\second}$.
+    \item[$\Psi$] Artificial viscosity coefficient, $\bunit{\square\metre\per\second}$.
+\end{symbollist}
+The prescribed inflow boundary condition for the velocity reads
+% reg_factor = 0.5 * (std::cos(M_PI * (treg - double(nst) * dt) / treg) + 1.0);
+\begin{align}
+    u(0,t) = u_{\it given}(t)
+    \begin{cases}
+        \half \left(\cos\left(\pi \frac{t_{reg} - t}{t_{reg}} \right) + 1\right) &\quad \text{if } t < t_{reg},
+        \\
+        1 &\quad \text{if } t \geq t_{reg},
+    \end{cases}
+    \label{eq:1d_burgers_boundary_condition}
+\end{align}
+where
+\begin{symbollist}
+    \item[$t_{reg}$] The regularization time for the given time-series, [\si{\second}]
+    \nomenclature{$t_{reg}$}{\si{\second}}{The regularization time for the given time-series}
+    \item[$u_{\it given}(t)$] Prescribed (given) time-series at the boundary.
+\end{symbollist}
+%--------------------------------------------------------------------------------
+\paragraph*{Numerical experiment}
+The numerical experiment is performed with the following parameters:
+\begin{itemize}
+    \item Length of the domain, $L_x = \bqty{20000}{\metre}$
+    \item Grid size, $\Dx = \bqty{10}{\metre}$
+    \item Start time, $t_{start} = \bqty{0}{\second}$
+    \item End time, $t_{stop} = \bqty{4}{\hour}$
+    \item Timestep, $\Dt = \bqty{10}{\second}$
+    \item Regularization time for time-series, $t_{\it reg} = \bqty{1800}{\second}$
+    \item Prescribed initial velocity, $u_{\it initial}(x,0) = \bqty{1}{\metre\per\second}$
+    \item Prescribed velocity on boundary at $x=0$ is given by \autoref{eq:1d_burgers_boundary_condition}, with $u_{\it given} = \bqty{2}{\metre\per\second}$.
+    \item No boundary is prescribed at $x=\bqty{20000}{\metre}$, free outflow.
+\end{itemize}
+The speed of the fully developed shock wave for the Burgers equation is $u_{\it shock} =\bqty{1.5}{\metre\per\second}$, see \citet[eq.\ 8.1.67]{Debnath2008}, \citet[eq.\ 11.23]{LeVeque2002}.
+%--------------------------------------------------------------------------------
+\subsection{Results of the numerical experiments}
+%----------------------------------------------------------
+\subsubsection[Experiment with viscosity of 10 m2/s]{Experiment with viscosity of \bqty{10}{\metre\square\per\second}}
+\vspace{1.0\baselineskip}
+\begin{figure}[H]
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{figures/nu10d0_velocity.png}
+        \caption{Velocity along channel at $\bqty{2}{\hour}$.
+            The blue line, without artificial viscosity and the red line with artificial velocity.\newline \phantom{text} }
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{figures/nu10d0_velocity_psi.png}
+        \caption{Used artificial viscosity $\Psi$ along channel at $\bqty{2}{\hour}$. The blue line, no artificial viscosity ($\Psi = 0$) and the red line the used artificial viscosity.}
+    \end{subfigure}
+    \caption{Transect for velocity $\nu = \bqty{10}{\square\meter\per\second}$}
+\end{figure}
+
+\begin{figure}[H]
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{figures/20260709_213744.pdf}
+        \caption{Time histories of the velocity for the observation point  at the centre of the domain, $x=\bqty{10000}{\metre}$.
+        The blue line, without artificial viscosity and the red line with artificial velocity.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{figures/20260709_214125.pdf}
+        \caption{Time histories of the artificial viscosity $\Psi$ for the observation point at the centre of the domain, $x=\bqty{10000}{\metre}$.
+        The blue line, without artificial viscosity and the red line with artificial velocity.}
+    \end{subfigure}
+    \caption{Time histories for $\nu = \bqty{10}{\square\meter\per\second}$}
+\end{figure}
+The shock wave has a speed of $u_{\it shock} = \bqty{1.5152}{\metre\per\second}$ for both cases, without and with artificial viscosity.
+%--------------------------------------------------------------------------------
+\subsubsection[Experiment with viscosity of 0.1 m2/s]{Experiment with viscosity of \bqty{0.1}{\metre\square\per\second}}
+\vspace{1.0\baselineskip}
+\begin{figure}[H]
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{figures/nu00d1_velocity.png}
+        \caption{Velocity along channel at $\bqty{2}{\hour}$.
+            The blue line, without artificial viscosity and the red line with artificial velocity.\newline \phantom{text} }
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{figures/nu00d1_velocity_psi.png}
+        \caption{Used artificial viscosity $\Psi$ along channel at $\bqty{2}{\hour}$. The blue line, no artificial viscosity ($\Psi = 0$) and the red line the used artificial viscosity.}
+    \end{subfigure}
+    \caption{Transect for velocity $\nu = \bqty{0.1}{\square\meter\per\second}$}
+\end{figure}
+\begin{figure}[H]
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{figures/20260709_223603_no_psi.pdf}
+        \caption{Time histories of the velocity for the observation point  at the centre of the domain, $x=\bqty{10000}{\metre}$.
+        The blue line, without artificial viscosity and the red line with artificial velocity.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{figures/20260709_223946_psi.pdf}
+        \caption{Time histories of the artificial viscosity $\Psi$ for the observation point at the centre of the domain, $x=\bqty{10000}{\metre}$.
+        The blue line, without artificial viscosity and the red line with artificial velocity.}
+    \end{subfigure}
+    \caption{Time histories for $\nu = \bqty{0.1}{\square\meter\per\second}$}
+\end{figure}
+The shock wave has a speed of $u_{\it shock} = \bqty{1.4881}{\metre\per\second}$ without and $u_{\it shock} = \bqty{1.5152}{\metre\per\second}$ with artificial viscosity.
+%--------------------------------------------------------------------------------
 \section{1-D Wave equation}
 %--------------------------------------------------------------------------------
 \subsection{Gaussian hump}\label{sec:numerical_experiment}
