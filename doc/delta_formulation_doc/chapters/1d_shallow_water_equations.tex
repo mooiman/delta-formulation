@@ -389,6 +389,86 @@ The considered advection-diffusion equation than reads:
 \paragraph*{Discretization at boundaries}
 \notyet
 %------------------------------------------------------------------------------
+\section{1-D Burgers equation}
+The Burgers equation in conservative form reads:
+\begin{align}
+    \pdiff{u}{t} + \half \pdiff{u^2}{x} - \pdiff{}{x} \left( \nu \pdiff{u}{x} \right) = 0 \label{eq:1d_burgers}
+\end{align}
+Applying the finite volume approach:
+\begin{align}
+    \int_\Omega \pdiff{u}{t}\, d\Omega + \half \int_\Omega \pdiff{u^2}{x}\, d\Omega \ - \int_\Omega  \pdiff{}{x} \left( \nu \pdiff{u}{x} \right)\, d\Omega = 0
+\end{align}
+and after applying Green's theorem it yields:
+\begin{align}
+    \int_\Omega \pdiff{u}{t}\, d\Omega + \half \oint_\Gamma u^2\, d\Gamma
+    - \oint_\Gamma  \nu \pdiff{u}{x} \, d\Gamma = 0
+\end{align}
+
+
+The velocity $u>0$ is convected from the left to the right with its own velocity $u\, \bunit{\meter\per\second}$.
+The Burgers equation is discretised on the grid
+\begin{figure}[H]
+    \centering
+    \begin{center}
+        \resizebox{0.8\textwidth}{!}{
+            \input{figures/water_body_fve_bc_at_node.pdf_tex}
+        }
+    \end{center}
+    \caption[Definition of the grid to solve the 1D-advection equation]{Water body (blue area), finite volumes (green boxes), computational points (open dots), virtual computational points (black dots), boundary points are at $x_{1}$ (inflow/west boundary) and $x_{I+\half}$ (outflow/east boundary).}\label{fig:water_body_fve_bc_at_node_1}
+\end{figure}
+The finite volume approach for control volume $\Dx_{i+\half}$ of \autoref{eq:1d_burgers} reads:
+\begin{align}
+    \int^{x_{i+\half}}_{x_{i-\half}} \pdiff{u}{t}\, dx
+    + \half\int^{x_{i+\half}}_{x_{i-\half}} \pdiff{u^2}{x} \, dx
+    - \int^{x_{i+\half}}_{x_{i-\half}} \pdiff{}{x}\left( \nu\pdiff{c}{x} \right)\, dx &= 0
+    \\
+    \int^{x_{i+\half}}_{x_{i-\half}} \pdiff{u}{t}\, dx
+    + \half \left( \left. u^2 \right|_{i+\half} - \left. u^2 \right|_{i-\half} \right)
+    -  \left(
+    \left. \nu\pdiff{u}{x}\right|_{i+\half} -
+    \left. \nu\pdiff{u}{x}\right|_{i-\half}
+    \right) & = 0
+\end{align}
+%------------------------------------------------------------------------------
+\paragraph*{Discretization interior}
+The discretization in \deltaformulation in the interior of domain $\Omega$ and
+for equidistant grid and the mass-matrix as given in \autoref{eq:definition_mass_matrix} reads
+\begin{align}
+    & \Dx \Dt_{inv} \left(\frac{1}{8} \Delta u^{n+1,p+1}_{i-1} + \frac{6}{8} \Delta u^{n+1,p+1}_{i} + \frac{1}{8} \Delta u^{n+1,p+1}_{i+1}\right)  +
+    \nonumber \\*
+    &
+    + \left\{ \Dx \Dt_{inv} \left( \frac{1}{8}\left( u^{n+1,p}_{i-1} - u^{n}_{i-1} \right) + \frac{6}{8}\left( u^{n+1,p}_{i} - u^{n}_{i} \right) + \frac{1}{8}\left( u^{n+1,p}_{i+1} - u^{n}_{i+1} \right) \right)  \right\} +
+    \nonumber \\*
+    &\quad  + \half  \left(
+    \left( \half (u^{n+\theta, p+1}_{i} + u^{n+\theta,p+1}_{i+1}) \right)^2 -
+    \left( \half (u^{n+\theta, p+1}_{i-1} + u^{n+\theta,p+1}_{i}) \right)^2
+    \right) +
+    \nonumber \\*
+    &\quad - \left( \nu_{i+\half} \frac{u^{n+\theta, p+1}_{i+1} - u^{n+\theta, p+1}_{i}}{\Dx} - \nu_{i-\half} \frac{u^{n+\theta, p+1}_{i} - u^{n+\theta, p+1}_{i-1}}{\Dx}\right) = 0
+\end{align}
+After linearization of $u^{n+\theta,p+1}$ the discretization reads:
+%
+\begin{align}
+    \Dx & \Dt_{inv}  \left(\frac{1}{8} \Delta u^{n+1,p+1}_{i-1} + \frac{6}{8} \Delta u^{n+1,p+1}_{i} + \frac{1}{8} \Delta u^{n+1,p+1}_{i+1}\right)
+    \nonumber \\*
+    & \half \theta \left( u^{n+1,p}_{i+\half} \Delta u^{n+1,p+1}_{i} + u^{n+1,p}_{i+\half} \Delta u^{n+1,p+1}_{i+1}
+    - \left( u^{n+1,p}_{i-\half}\Delta u^{n+1,p+1}_{i-1} + u^{n+1,p}_{i-\half} \Delta u^{n+1,p+1}_{i}  \right)\right) +
+    \nonumber \\*
+    & - \theta \frac{\nu_{i+\half}}{\Dx} \Delta u^{n+1, p+1}_{i+1}
+    + \theta \left( \frac{\nu_{i+\half}}{\Dx} + \frac{\nu_{i-\half}}{\Dx} \right) \Delta u^{n+1, p+1}_{i} - \theta \frac{\nu_{i-\half}}{\Dx} \Delta u^{n+1, p+1}_{i-1}
+    =
+    \nonumber \\*
+    & = -\left\{ \Dx \Dt_{inv} \left( \frac{1}{8}\left( u^{n+1,p}_{i-1} - u^{n}_{i-1} \right) + \frac{6}{8}\left( u^{n+1,p}_{i} - u^{n}_{i} \right) + \frac{1}{8}\left( u^{n+1,p}_{i+1} - u^{n}_{i+1} \right)\right) + \right.
+    \nonumber \\*
+    & \qquad + \half \left((u^{n+\theta, p}_{i} + u^{n+\theta,p}_{i+1})^2 -  (u^{n+\theta, p}_{i-1} +u^{n+\theta,p}_{i})^2 \right) +
+    \nonumber \\*
+    &\qquad - \left. \left( \nu_{i+\half} \frac{u^{n+\theta,p}_{i+1} - u^{n+\theta,p}_{i}}{\Dx} - \nu_{i-\half} \frac{u^{n+\theta,p}_{i} - u^{n+\theta,p}_{i-1}}{\Dx}\right) \right\}
+\end{align}
+
+%------------------------------------------------------------------------------
+\paragraph*{Discretization at boundaries}
+\notyet
+%------------------------------------------------------------------------------
 \section{1-D Wave equation}
 
 The hyperbolic part of the one dimensional shallow water equations (assuming that the viscosity term vanish) are diagonalized to separate the left and right going wave.
