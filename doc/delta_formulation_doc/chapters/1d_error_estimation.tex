@@ -160,7 +160,7 @@ c_{\Psi} = \frac{1}{(k\Dx)^2} \quad \Rightarrow \quad c_{\Psi} = \frac{N^2 }{(2\
 \midline
 2 & 2\ \%  & 2.0833 ($\approx$ 2)   & 9.0690\\
 \midline
-\rowcolor{mgreen2} 3 & 1\ \%  &  4.1666 ($\approx$ 4)   & 12.8254 \\
+\rowcolor{mgreen2} 3 & 1\ \%  &  4.1667 ($\approx$ 4)   & 12.8255 \\
 \midline
 4 & 0.5\ \% & 8.3333 ($\approx$ 8)  & 18.1380 \\
 \end{longtable}
@@ -245,12 +245,42 @@ When using the Fourier modes analysis, we get as indication for each Fourier mod
     = c_{E}  \Dx^2  (k\Dx)^2 \frac{2A}{\pi}\frac{1}{h_{typ}}
 \end{align}
 with ${2/\pi}$ the ration between the averaged amplitude and maximum amplitude $(A)$ of a Fourier mode, $A=h_{typ}$ for the normalized amplitude.
-
-For a $1$~\% accuracy, see \autoref{tab:numerical_accuracy}, the maximum allowed Fourier modes is $k\Dx < 0.4899$, substitution yields:
 \begin{align}
-    c_\Psi \approx 4 = c_{E} (0.4899)^2 \frac{2}{\pi}  \quad \Rightarrow \quad c_{E} \approx 26.1797
+    c_\Psi \Dx^2  \approx  c_{E}  \Dx^2  (k\Dx)^2 \frac{2}{\pi}
+    \quad \Rightarrow \quad
+    c_{E} \approx c_\Psi \frac{1}{(k\Dx)^2}\frac{\pi}{2}
 \end{align}
-
+For a $1$~\% accuracy, $c_\psi =4$ see \autoref{tab:numerical_accuracy}, the maximum allowed Fourier modes is $k\Dx < 0.4899$, substitution yields:
+\begin{align}
+    c_E \approx 4.1667 \frac{1}{0.24} \frac{\pi}{2}  \quad \Rightarrow \quad c_{E} \approx 27.2708
+\end{align}
+%
+%--- begin light blue table ---
+\begin{longtable}{|>{\bfseries}p{6mm-12pt}|p{\textwidth/3-2mm-12pt}|p{\textwidth/3-2mm-12pt}|p{\textwidth/3-2mm-12pt}|}
+    \caption{Several typical values for numerical accuracy, $c_{\psi}$ and number $c_E$, the highligthed line is set as default.
+        \label{tab:numerical_accuracy}}
+    \\%
+\rowcolor{mgreen1}
+& {\textcolor{white}{\textbf{Accuracy}}}
+& {\textcolor{white}{$\mathbf{c_{\Psi}}$}}
+& {\textcolor{white}{$\mathbf{c_E}$}}
+\\
+\topline
+\endfirsthead
+\endhead
+\endfoot
+\bottomline
+\endlastfoot
+1 & 5\ \%   &  0.8333  ($\approx$ 1)&  1.0908 ($\approx$ 1) \\
+\midline
+2 & 2\ \%  & 2.0833 ($\approx$ 2)   &  6.8177 ($\approx$ 10)\\
+\midline
+\rowcolor{mgreen2} 3 & 1\ \%  &  4.1667 ($\approx 4$)   & 27.2708 ($\approx$ 32) \\
+\midline
+4 & 0.5\ \% & 8.3333 ($\approx$ 8)  &  109.0831 ($\approx$ 110)\\
+\end{longtable}
+%--- end light blue table ---
+%
 %
 %Voor 2% nauwkeurigheid moet de waarde van deze uitdrukking voor de voor 2% nauwkeurigheid max. toelaatbare Fourier mode kDx=0.69 gelijk zijn aan Dx^2*c_art \approx 2*Dx^2 . Een en ander invullen geeft c_d * (0.69)^2*(2/pi)*1 \approx 2
 %=> ‎‎‎‎c_d \approx 7‎.
