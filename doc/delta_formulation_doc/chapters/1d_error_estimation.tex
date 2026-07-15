@@ -112,7 +112,7 @@ With lowest order estimation of (see \citet{funcfitsmoothing_Fouriermodeanalysis
 -\frac{1}{24} (k\Dx)^2 - \frac{7}{960} (k\Dx)^4 + O(\Dx^6) % Computed with MapleSoft
 \end{align}
 
-So if the numerical error needs to be smaller then 1\ \%, the number of grid cells per wave length ($\lambda = N\Dx$) is computed as
+So if the numerical error needs to be smaller then 1\ \%, the number of grid cells per wavelength ($\lambda = N\Dx$) is computed as
 \begin{align}
 \frac{1}{24}(k\Dx)^2 < 0.01 \Rightarrow k\Dx < 0.4899 \Rightarrow
 \\
@@ -135,18 +135,20 @@ In the limit of $k\Dx \rightarrow \infty$ \autoref{eq:r_tilde} behaves as:
 \lim_{k\Dx\to \infty}\frac{1}{1 + c_{\Psi}(k\Dx)^2} = \frac{1}{c_{\Psi}(k\Dx)^2}
 \end{align}
 The cut-off frequency is determined by $1 = 1/(c_{\Psi} (k\Dx)^2)$, hence filter parameter $c_{\Psi} = 1/(k\Dx)^2$ gives cut-off frequency $k$, or $k\Dx =\sqrt{1/c_{\Psi}}$ is obtained with filter parameter $c_{\Psi}$.
-Given the wave length from the required numerical error (1\ \%, $N = 13$), the coefficient $c_{\Psi}$ reads:
+Given the wavelength from the required numerical error (1\ \%, $N = 13$), the coefficient $c_{\Psi}$ reads:
 \begin{align}
 c_{\Psi} = \frac{1}{(k\Dx)^2} \quad \Rightarrow \quad c_{\Psi} = \frac{N^2 }{(2\pi)^2} \approx 4
 \end{align}
 %
 %--- begin light blue table ---
-\begin{longtable}{|>{\bfseries}p{6mm-12pt}|p{\textwidth/3-2mm-12pt}|p{\textwidth/3-2mm-12pt}|p{\textwidth/3-2mm-12pt}|}
+\begin{longtable}{|>{\bfseries}p{6mm-12pt}|p{\textwidth/4-6mm-12pt}|p{\textwidth/4-0mm-12pt}|p{\textwidth/4-0mm-12pt}|p{\textwidth/4-0mm-12pt}|}
 \caption{Several typical values for numerical accuracy, $c_{\psi}$ and number of nodes per wavelength ($N$), the highligthed line is set as default.
-\label{tab:numerical_accuracy}}
+\label{tab:numerical_accuracy_N}}
+% Python: accuracy_table.py
 \\%
  \rowcolor{mgreen1}
 & {\textcolor{white}{\textbf{Accuracy}}}
+& {\textcolor{white}{$\mathbf{(k\Dx)^2}$}}
 & {\textcolor{white}{$\mathbf{c_{\Psi}}$}}
 & {\textcolor{white}{$\mathbf{N}$}}
 \\
@@ -156,13 +158,14 @@ c_{\Psi} = \frac{1}{(k\Dx)^2} \quad \Rightarrow \quad c_{\Psi} = \frac{N^2 }{(2\
 \endfoot
 \bottomline
 \endlastfoot
-1 & 5\ \%   &  0.8333  ($\approx$ 1)& 5.7357\\
+1 & 5\ \%   & 1.20 &  0.8333  ($\approx$ 1)& 5.7357  ($\approx$ 6)\\
 \midline
-2 & 2\ \%  & 2.0833 ($\approx$ 2)   & 9.0690\\
+2 & 2\ \%  & 0.48 & 2.0833 ($\approx$ 2)   & 9.0690  ($\approx$ 10)\\
 \midline
-\rowcolor{mgreen2} 3 & 1\ \%  &  4.1667 ($\approx$ 4)   & 12.8255 \\
+\rowcolor{mgreen2}
+3 & 1\ \%  & 0.24 &  4.1667 ($\approx$ 4)   & 12.8255  ($\approx$ 13)\\
 \midline
-4 & 0.5\ \% & 8.3333 ($\approx$ 8)  & 18.1380 \\
+4 & 0.5\ \% & 0.12 & 8.3333 ($\approx$ 8)  & 18.1380  ($\approx$ 20)\\
 \end{longtable}
 %--- end light blue table ---
 %
@@ -230,38 +233,43 @@ to regularize the artificial viscosity, see
 %= \frac{1}{\Dxi} \int_{i-\half}^{i+\half} \abs{D^{i,x}_{\xi}} d\xi
 = E
 \end{align}
-for constant $\Dx$ and constant $c_\Psi$ (see \autoref{tab:numerical_accuracy})
+for constant $\Dx$ and constant $c_\Psi$ (see \autoref{tab:numerical_accuracy_c_error})
 \begin{align}
-    E = D^{u,x}_{\xi} = \Dx^2 \pdiff[2]{u}{x}
+    E = D^{u,x}_{\xi} = \Dx^2 \pdiff[2]{u}{x},
 \end{align}
+thus $E$ and $u$ do have the same dimension.
+
 In physical space this equation reads ($\Psi = c_\Psi \Dx^2 E$):
 \begin{align}
     \widetilde{E} - c_\Psi \Dx^2 \pdiff[2]{\widetilde{E}}{x}
     = c_E \Dx^2 \abs{ \Dx^2 \pdiff[2]{u}{x} }
 \end{align}
 When using the Fourier modes analysis, we get as indication for each Fourier mode  the expression of the size of  $E$:
+
 \begin{align}
     \widetilde{E} - c_\Psi \Dx^2 \pdiff[2]{\widetilde{E}}{x}
     = c_{E}  \Dx^2  (k\Dx)^2 \frac{2A}{\pi}\frac{1}{h_{typ}}
 \end{align}
 with ${2/\pi}$ the ration between the averaged amplitude and maximum amplitude $(A)$ of a Fourier mode, $A=h_{typ}$ for the normalized amplitude.
 \begin{align}
-    c_\Psi \Dx^2  \approx  c_{E}  \Dx^2  (k\Dx)^2 \frac{2}{\pi}
+    c_\Psi \Dx^2  =  c_{E}  \Dx^2  (k\Dx)^2 \frac{2}{\pi}
     \quad \Rightarrow \quad
-    c_{E} \approx c_\Psi \frac{1}{(k\Dx)^2}\frac{\pi}{2}
+    c_{E} = c_\Psi \frac{1}{(k\Dx)^2}\frac{\pi}{2}
 \end{align}
-For a $1$~\% accuracy, $c_\psi =4$ see \autoref{tab:numerical_accuracy}, the maximum allowed Fourier modes is $k\Dx < 0.4899$, substitution yields:
+For a $1$~\% accuracy, $c_\psi = 4$ see \autoref{tab:numerical_accuracy_c_error}, the maximum allowed Fourier modes is $k\Dx < 0.4899$, substitution yields:
 \begin{align}
-    c_E \approx 4.1667 \frac{1}{0.24} \frac{\pi}{2}  \quad \Rightarrow \quad c_{E} \approx 27.2708
+    c_E = c_\Psi \frac{1}{(k\Dx)^2}\frac{\pi}{2} \approx 4.1667 \frac{1}{0.24} \frac{\pi}{2}  \quad \Rightarrow \quad c_{E} \approx 27.2708
 \end{align}
 %
 %--- begin light blue table ---
-\begin{longtable}{|>{\bfseries}p{6mm-12pt}|p{\textwidth/3-2mm-12pt}|p{\textwidth/3-2mm-12pt}|p{\textwidth/3-2mm-12pt}|}
-    \caption{Several typical values for numerical accuracy, $c_{\psi}$ and number $c_E$, the highligthed line is set as default.
-        \label{tab:numerical_accuracy}}
-    \\%
+\begin{longtable}{|>{\bfseries}p{6mm-12pt}|p{\textwidth/4-6mm-12pt}|p{\textwidth/4-0mm-12pt}|p{\textwidth/4-0mm-12pt}|p{\textwidth/4-0mm-12pt}|}
+\caption{Several typical values for numerical accuracy, $c_{\psi}$ and number $c_E$, the highligthed line is set as default.
+    \label{tab:numerical_accuracy_c_error}}
+% Python: accuracy_table.py
+\\%
 \rowcolor{mgreen1}
 & {\textcolor{white}{\textbf{Accuracy}}}
+& {\textcolor{white}{$\mathbf{(k\Dx)^2}$}}
 & {\textcolor{white}{$\mathbf{c_{\Psi}}$}}
 & {\textcolor{white}{$\mathbf{c_E}$}}
 \\
@@ -271,13 +279,14 @@ For a $1$~\% accuracy, $c_\psi =4$ see \autoref{tab:numerical_accuracy}, the max
 \endfoot
 \bottomline
 \endlastfoot
-1 & 5\ \%   &  0.8333  ($\approx$ 1)&  1.0908 ($\approx$ 1) \\
+1 & 5\ \%   &  1.20 & 0.8333  ($\approx$ 1)&  1.0908 ($\approx$ 1) \\
 \midline
-2 & 2\ \%  & 2.0833 ($\approx$ 2)   &  6.8177 ($\approx$ 10)\\
+2 & 2\ \%  & 0.48 & 2.0833 ($\approx$ 2)   &  6.8177 ($\approx$ 10)\\
 \midline
-\rowcolor{mgreen2} 3 & 1\ \%  &  4.1667 ($\approx 4$)   & 27.2708 ($\approx$ 32) \\
+\rowcolor{mgreen2}
+3 & 1\ \%  & 0.24 &  4.1667 ($\approx 4$)   & 27.2708 ($\approx$ 32) \\
 \midline
-4 & 0.5\ \% & 8.3333 ($\approx$ 8)  &  109.0831 ($\approx$ 110)\\
+4 & 0.5\ \% & 0.12 & 8.3333 ($\approx$ 8)  &  109.0831 ($\approx$ 110)\\
 \end{longtable}
 %--- end light blue table ---
 %
