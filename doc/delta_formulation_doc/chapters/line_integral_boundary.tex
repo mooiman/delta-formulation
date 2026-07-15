@@ -82,14 +82,14 @@ for the term between square brackets see \autoref{eq:full_curvilinear_mass_flux}
 %------------------------------------------------------------------------------
 \subsubsection{Convection}
 %------------------------------------------------------------------------------
-\paragraph*{$q$-momentum}
+\paragraph*{$\bm q$-momentum equation}
 The convection term in the $q$-momentum equation can be transformed as:
 \begin{align}
      \int_\Gamma \textit{convection}\, dS &= \half \sqrt{g_{\eta\eta}} \left[\frac{1}{J} \pdiff{}{\xi}\left(y_{\eta} \frac{q^2}{h} - x_{\eta} \frac{qr}{h} \right) + \frac{1}{J} \pdiff{}{\eta}\left(-y_{\xi} \frac{q^2}{h} + x_{\xi} \frac{qr}{h} \right) \right].
 \end{align}
 for the term between square brackets see \autoref{eq:xi_convection_term}.
 %------------------------------------------------------------------------------
-\paragraph*{$q$-momentum}
+\paragraph*{$\bm r$-momentum equation}
 The convection term in the $r$-momentum equation can be transformed as:
 \begin{align}
      \int_\Gamma \textit{convection} \, dS &= \half \sqrt{g_{\eta\eta}} \left[\frac{1}{J} \pdiff{}{\xi}\left(y_{\eta} \frac{rq}{h} - x_{\eta} \frac{r^2}{h} \right) + \frac{1}{J} \pdiff{}{\eta}\left(-y_{\xi} \frac{rq}{h} + x_{\xi} \frac{r^2}{h} \right) \right].
@@ -98,14 +98,14 @@ for the term between square brackets see \autoref{eq:eta_convection_term}.
 %------------------------------------------------------------------------------
 \subsubsection{Bed shear stress}
 %------------------------------------------------------------------------------
-\paragraph*{$q$-momentum}
+\paragraph*{$\bm q$-momentum equation}
 The bed shear stress term in the $q$-momentum equation can be transformed as:
 \begin{align}
     \int_\Gamma \textit{bed\_shear\_stress} \, dS &= \half \sqrt{g_{\eta\eta}} \left[ c_f \left( \frac{q\abs{\widetilde{\vec{q}}}}{h^2} \right) \right].
 \end{align}
 for the term between square brackets see \autoref{eq:xi_bed_shear_stress_term} divided by $J$.
 %------------------------------------------------------------------------------
-\paragraph*{$r$-momentum}
+\paragraph*{$\bm r$-momentum equation}
 The bed shear stress term in the $r$-momentum equation can be transformed as:
 \begin{align}
     \int_\Gamma \textit{bed\_shear\_stress} \, dS &= \half \sqrt{g_{\eta\eta}} \left[ c_f \left( \frac{r\abs{\widetilde{\vec{q}}}}{h^2} \right) \right].
@@ -114,7 +114,7 @@ for the term between square brackets see \autoref{eq:eta_bed_shear_stress_term} 
 %------------------------------------------------------------------------------
 \subsubsection{Viscosity}
 %------------------------------------------------------------------------------
-\paragraph*{$q$-momentum}
+\paragraph*{$\bm q$-momentum equation}
 \vspace{-1\baselineskip}
 \begin{align}
 \int_\Gamma \textit{viscosity} \, dS & = \half \sqrt{g_{\eta\eta}} \Bigg[
@@ -174,7 +174,7 @@ y_{\xi}y_{\eta} \pdiff{(r/h)}{\xi}
 \end{align}
 for the term between the outer square brackets see \autoref{eq:xi_viscous_term}.
 %------------------------------------------------------------------------------
-\paragraph*{$r$-momentum}
+\paragraph*{$\bm r$-momentum equation}
 \vspace{-1\baselineskip}
 \begin{align}
 \int_\Gamma \textit{viscosity} \, dS & = \half \sqrt{g_{\eta\eta}} \Bigg[

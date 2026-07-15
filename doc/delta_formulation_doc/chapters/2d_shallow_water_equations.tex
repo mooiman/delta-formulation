@@ -6,7 +6,7 @@ Consider the non-linear shallow water equation
 %    \begin{align}
 %        \pdiff{h}{t} + \nabla \dotp \vec{q} & = 0,
 %        \\
-%        \pdiff{\vec{q}}{t} +  \nabla \dotp \left( \frac{\vec{q}\vec{q}^T}{h} \right) + \half g \nabla h^2 + gh\nabla z_b +   c_f \left( \frac{\vec{q}\abs{\vec{q}}}{h^2} \right) & = 0,
+%        \pdiff{\vec{q}}{t} +  \nabla \dotp \left( \frac{\vec{q}\,\vec{q}^T}{h} \right) + \half g \nabla h^2 + gh\nabla z_b +   c_f \left( \frac{\vec{q}\abs{\vec{q}}}{h^2} \right) & = 0,
 %    \end{align}
 %\end{subequations}
 %or
@@ -14,7 +14,7 @@ Consider the non-linear shallow water equation
     \begin{align}
     \pdiff{h}{t} & + \nabla \dotp \vec{q}  = 0,
     \\
-    \pdiff{\vec{q}}{t} & + \nabla \dotp \left( \frac{\vec{q}\vec{q}^T}{h} \right) + gh \nabla \zeta +
+    \pdiff{\vec{q}}{t} & + \nabla \dotp \left( \frac{\vec{q}\,\vec{q}^T}{h} \right) + gh \nabla \zeta +
     \nonumber \\
     & + c_f \left( \frac{\vec{q}\abs{\vec{q}}}{h^2} \right)
     - \nabla \dotp \left( \nu h \left(  \nabla \vec{q}/h + \nabla \vec{q}^T/h \right) \right) = 0,
@@ -69,7 +69,7 @@ Integrating the equations over a finite volume $\Omega$ yields:
 %        + \int_\Omega \nabla \dotp \vec{q}\, d\omega & = 0,
 %        \label{eq:pressure_dependent_on_h_a} \\
 %        \int_\Omega \pdiff{\vec{q}}{t}\, d\omega
-%        + \int_\Omega \nabla \dotp \left( \frac{\vec{q}\vec{q}^T}{h} \right)\, d\omega
+%        + \int_\Omega \nabla \dotp \left( \frac{\vec{q}\,\vec{q}^T}{h} \right)\, d\omega
 %        + \int_\Omega \half  \nabla \left( g h^2 \right) \, d\omega
 %        + \int_\Omega gh\nabla z_b\, d\omega + \int_\Omega c_f \left( \frac{\vec{q}\abs{\vec{q}}}{h^2} \right)\, d\omega & = 0,
 %        \label{eq:pressure_dependent_on_h_b}
@@ -84,7 +84,7 @@ Integrating the equations over a finite volume $\Omega$ yields:
     \label{eq:pressure_dependent_on_zeta_a}
     \\
     \int_\Omega \pdiff{\vec{q}}{t}\, d\omega &
-    + \int_\Omega \nabla \dotp \left( \frac{\vec{q}\vec{q}^T}{h} \right)\, d\omega
+    + \int_\Omega \nabla \dotp \left( \frac{\vec{q}\,\vec{q}^T}{h} \right)\, d\omega
     + \int_\Omega gh \nabla \zeta\, d\omega +
     \nonumber \\
     & + \int_\Omega c_f \left( \frac{\vec{q}\abs{\vec{q}}}{h^2} \right)\, d\omega
@@ -1182,7 +1182,7 @@ Written in linear terms for the $\xi$-derivative they (similar for the $\eta$-de
     \\*
     \pdiff{(rr/h)}{\xi} &= \frac{2r}{h}\pdiff{r}{\xi} -\frac{r^2}{h^2} \pdiff{h}{\xi}
 \end{align}
-\paragraph*{$q$-momentum equation}
+\paragraph*{$\bm q$-momentum equation}
 The approximated at the quadrature point $qp$ and at time level ${n+\theta, p}$ by
 {\small
 \begin{align}
@@ -1261,7 +1261,7 @@ Gradients of $\Dh$, $\Dq$ and $\Dr$
  and where $\cal{A}$, $\cal{B}$, $\cal{C}$ and $\cal{D}$ multiplied by $\half\sqrt{g_{\eta\eta}} \Jinv \theta$  and gradients supply the coefficients in the matrix of the \deltaformulation,
 all these terms evaluated at the quadrature point $qp$.
 
-\paragraph*{$r$-momentum equation}
+\paragraph*{$\bm r$-momentum equation}
 The approximated at the quadrature point $qp$ and at time level ${n+\theta, p}$ by
 {\small
 \begin{align}
