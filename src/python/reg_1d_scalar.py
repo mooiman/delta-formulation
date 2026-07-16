@@ -23,7 +23,7 @@ def cm2inch(cm):
     return cm / 2.54
 
 
-def main(bath_in = 10, Lx_in=1000., dx_in=20., c_psi_in= 4.0, left_in = -4.0, right_in = -0.5):  # c_psi paragraph after eq. 10 of article
+def main(bath_in = 7, Lx_in=1000., dx_in=20., c_psi_in= 4.0, left_in = -4.0, right_in = -0.5):  # c_psi paragraph after eq. 10 of article
     bathymetry = int(bath_in)
     Lx = float(Lx_in)
     dx = float(dx_in)
@@ -344,7 +344,7 @@ def main(bath_in = 10, Lx_in=1000., dx_in=20., c_psi_in= 4.0, left_in = -4.0, ri
         if bathymetry == 4:
             ax1.set_xlim([-dx, Lx+dx])
             ax2.set_xlim([-dx, Lx+dx])
-            ax1.set_ylim([-12.5, 0.0])
+            ax1.set_ylim([-12.5, 0.5])
         if bathymetry == 5:
             ax1.set_xlim([0.5 * Lx - x_offset, 0.5 * Lx + x_offset])
             ax2.set_xlim([0.5 * Lx - x_offset, 0.5 * Lx + x_offset])

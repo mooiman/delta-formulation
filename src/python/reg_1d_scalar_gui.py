@@ -40,18 +40,18 @@ class DFTgui(QMainWindow):
         self.bath_label = QLabel(self)
         self.bath_label.setText('Bathymetry:')
         self.bath_combobox = QComboBox(self)
-        self.bath_combobox.addItem("tanh + step", 0)
-        self.bath_combobox.addItem("tanh + step (deeper)", 1)
-        self.bath_combobox.addItem("Summer-winterbed", 9)
-        self.bath_combobox.addItem("Frank Platzek", 2)
-        self.bath_combobox.addItem("Interface problem", 8)
-        self.bath_combobox.addItem("shoal: -10 [m] to -2.5 [m]", 3)
-        self.bath_combobox.addItem("Weir", 4)
-        self.bath_combobox.addItem("Step function", 5)
-        self.bath_combobox.addItem("Constant", 6)
-        self.bath_combobox.addItem("Boundary layers", 7)
-        self.bath_combobox.addItem("Wiggle", 10)
-        self.bath_combobox.setCurrentIndex(10)
+        self.bath_combobox.addItem("tanh + step", 0)  # current = 0
+        self.bath_combobox.addItem("tanh + step (deeper)", 1)  # current = 1
+        self.bath_combobox.addItem("Summer-winterbed", 9)  # current = 2
+        self.bath_combobox.addItem("Frank Platzek", 2)  # current = 3
+        self.bath_combobox.addItem("Interface problem", 8)  # current = 4
+        self.bath_combobox.addItem("shoal: -10 [m] to -2.5 [m]", 3)  # current = 5
+        self.bath_combobox.addItem("Weir", 4)  # current = 6
+        self.bath_combobox.addItem("Step function", 5)  # current = 7
+        self.bath_combobox.addItem("Constant", 6)  # current = 8
+        self.bath_combobox.addItem("Boundary layers", 7)  # curent = 9
+        self.bath_combobox.addItem("Wiggle", 10)  # current = 10
+        self.bath_combobox.setCurrentIndex(9)
 
         self.bath_combobox.setToolTip("Several scalar profiles")
         edit_layout.addWidget(self.bath_label, nrow, 0)
