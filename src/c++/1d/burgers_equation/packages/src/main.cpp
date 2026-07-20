@@ -742,18 +742,16 @@ int main(int argc, char* argv[])
              
                 
                     // Outflow boundary (natural boundary)
-                    double dudt = dtinv * (
-                        w_nat[0] * (up_i   - un_i) +
-                        w_nat[1] * (up_im1 - un_im1) +
-                        w_nat[2] * (up_im2 - un_im2)
-                        );
+                    double utheta_bnd = w_nat[0] * utheta_i + w_nat[1] * utheta_im1 + w_nat[2] * utheta_im2;
+                    double up_bnd = w_nat[0] * up_i + w_nat[1] * up_im1 + w_nat[2] * up_im2;
+                    double un_bnd = w_nat[0] * un_i + w_nat[1] * un_im1 + w_nat[2] * un_im2;
+                    double dudt = dtinv * (up_bnd - un_bnd);
 
-                    double utheta_im12 = 0.5 * (utheta[i] + utheta[i - 1]);
-                    double ududx =  utheta_im12 * (utheta_i - utheta_im1) * dxinv;
+                    double ududx =  utheta_bnd * (utheta_i - utheta_im1) * dxinv;
                     // ududx =  0.5 * (utheta_i * utheta_i - utheta_im1 * utheta_im1) * dxinv;
 
-                    A.coeffRef(i, i    ) = dtinv * w_nat[0] + theta * dxinv * utheta_im12;
-                    A.coeffRef(i, i - 1) = dtinv * w_nat[1] - theta * dxinv * utheta_im12;
+                    A.coeffRef(i, i    ) = dtinv * w_nat[0] + theta * dxinv * utheta_i;
+                    A.coeffRef(i, i - 1) = dtinv * w_nat[1] - theta * dxinv * utheta_im1;
                     A.coeffRef(i, i - 2) = dtinv * w_nat[2];
                     rhs[i] = - (dudt + ududx);
                 
