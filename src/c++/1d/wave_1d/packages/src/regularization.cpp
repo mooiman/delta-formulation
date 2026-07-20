@@ -178,7 +178,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     double qbar_im14;
     double qbar_ip14;
 
-    double c_error = c_psi; //same value as for regularization of given function
+    double c_error = c_psi * dx; //same value as for regularization of given function
     for (size_t i = 1; i < nx - 1; ++i)
     {
         A.coeffRef(i, i - 1) = m_mass[0] - c_error;
@@ -190,7 +190,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         qbar_im14 = 0.25 * (q[i - 1] + 3. * q[i]);
         qbar_ip14 = 0.25 * (q[i + 1] + 3. * q[i]);
 
-        rhs[i] = 32.0 * c_psi * dx * (
+        rhs[i] = 7.0 * c_error * dx * (
               0.0625 * std::sqrt(m_g / hbar_im14) * std::abs(s_xixi[i])
             + 0.0625 * std::sqrt(2.) * (std::abs(q_xixi[i] / hbar_im14 - qbar_im14 * h_xixi[i] / (hbar_im14 * hbar_im14)))
             + 0.0625 * std::sqrt(m_g / hbar_ip14) * std::abs(s_xixi[i])
