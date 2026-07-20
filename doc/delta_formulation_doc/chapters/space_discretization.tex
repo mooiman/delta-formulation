@@ -120,26 +120,26 @@ Another possible quadratic fit is the one through Cell-Centered values:
     \left( \xi - \left(\xi - \half\right)^2  \right) c_1  +
     \left(   \half \left(\xi - \half\right)^2\right) c_2       \label{eq:20231214-5}
 \end{align}
-The parabolic fit that gives neither underspecification nor overspecification of
+The parabolic fit that gives neither under- nor over-specification of
 imposed values at boundaries is a combination of \autoref{eq:20231214-1} and \eqref{eq:20231214-5}.
 It is easy to show that the optimal combination consists of $1/3$ times \autoref{eq:20231214-1} plus $2/3$ times \autoref{eq:20231214-5}, which yields:
 \begin{align}
     c_{opt}(\xi) & = \left( \frac{13}{12} - \frac{3}{2}\xi - \half \xi^2 \right) c_0 +
     \left( -\frac{1}{6} + 2 \xi - \xi^2 \right) c_1  +
-    \left( \frac{1}{12} - \half \xi +  \half \xi^2  \right) c_2
+    \left( \frac{1}{12} - \half \xi +  \half \xi^2  \right) c_2.
 \end{align}
-\todo{It is easy to show: $(1-\gamma) \uhat_{gp} + \gamma \uhat_{cc}$ with $\gamma = 2/3$, not for me! See also eq.\ 31--33, BorsboomCRC2001}
 Which give the following interpolation values for $\xi=\half$ and $\xi=1$:
 \begin{align}
-    c_{opt}\left(\textstyle\frac{1}{2}\right) & = \frac{11}{24} c_0 + \frac{14}{24} c_1 - \frac{1}{24} c_2 \label{eq:stencil_nat}
+    c_{opt}\left(\textstyle\frac{1}{2}\right) & = \frac{11}{24} c_0 + \frac{14}{24} c_1 - \frac{1}{24} c_2 \label{eq:stencil_nat},
     \\
-    c_{opt}\left(1\right)  & = \frac{1}{12} c_0 + \frac{10}{12} c_1 + \frac{1}{12}c_2 \label{eq:stencil_ess}
+    c_{opt}\left(1\right)  & = \frac{1}{12} c_0 + \frac{10}{12} c_1 + \frac{1}{12}c_2 \label{eq:stencil_ess}.
 \end{align}
+the weight coefficient before $c_0$, $c_1$ and $c_2$ are called $w^{\it ess}_0$, $w^{\it ess}_1$ and $w^{\it ess}_2$.
 Where \autoref{eq:stencil_nat} will be used for the essential boundary condition as it is located at the boundary of a finite volume and \autoref{eq:stencil_ess} will be used for the essential boundary condition as it is located on a node.
 
 Verification of its correctness by means of integration over the outermost finite volume yields:
 \begin{align}
-\int_{{\half}}^{{\frac{3}{2}}} c_{opt}(\xi)\, d\xi = \frac{1}{8} c_0 + \frac{3}{4} c_1 + \frac{1}{8} c_2
+\int_{{\half}}^{{\frac{3}{2}}} c_{opt}(\xi)\, d\xi = \frac{1}{8} c_0 + \frac{6}{8} c_1 + \frac{1}{8} c_2
 \end{align}
 In the right-hand side we see the weights of the mass matrix of the piecewise linear FVE
 method, i.e.\ averaged over the left outermost finite volume the quadratic function $c_{opt}$

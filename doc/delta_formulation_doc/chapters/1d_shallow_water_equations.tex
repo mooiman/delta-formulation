@@ -467,7 +467,87 @@ After linearization of $u^{n+\theta,p+1}$ the discretization reads:
 
 %------------------------------------------------------------------------------
 \paragraph*{Discretization at boundaries}
-\notyet
+An \textbf{essential} boundary condition at the inflow boundary is needed, left side of the domain.
+And, at the right side an outflow boundary 'condition' is required for numerical reasons (called  a \textbf{natural} boundary condition), i.e.\ a discretization of the model equation at the outflow boundary.
+The natural boundary conditions is fully determined by the outgoing signal and therefor we use the equation of the outgoing signal, i.e.\ \autoref{eq:left_right_going_equations}.
+For the 1-D Burgers equation when omitting the viscosity term it reads:
+\begin{align}
+    \pdiff{u}{t} + \half\pdiff{u^2}{x}  = 0, \qquad u>0. \label{eq:1d_burgers_nat_boundary}
+\end{align}
+
+The \textbf{essential} boundary condition at the inflow boundary reads:
+\begin{align}
+    u(0,t) = u_{\it given}(t), \quad t > 0 \qquad \text{(essential boundary)}
+\end{align}
+The essential boundary condition is supplied at $x_1$ with the following discretization (\autoref{eq:stencil_ess})
+\begin{align}
+    & w^{\it ess}_0 \left(\frac{1}{\Dt} + \theta \right) \Delta u^{n+1,p+1}_0 +
+    w^{\it ess}_1 \left(\frac{1}{\Dt} + \theta \right) \Delta u^{n+1,p+1}_1 +
+    w^{\it ess}_2 \left(\frac{1}{\Dt} + \theta \right) \Delta u^{n+1,p+1}_2
+=
+    \nonumber \\*
+    &\qquad = \pdiff{u^{n+1,p}}{t} - \eps \left( u_{\it given}(t) - \left(
+      w^{\it ess}_0 u^{n+1,p}_0
+    + w^{\it ess}_1 u^{n+1,p}_1
+    + w^{\it ess}_2 u^{n+1,p}_2 \right) \right)
+\end{align}
+with
+\begin{align}
+    \pdiff{u^{n+1,p}}{t} & = \frac{u^{n+1,p}_{bnd} - u^{n}_{bnd}}{\Dt}
+\end{align}
+and
+\begin{align}
+    u^{n+1,p}_{bnd} & = w^{\it ess}_0 u^{n+1,p}_0
+    + w^{\it ess}_1 u^{n+1,p}_1
+    + w^{\it ess}_2 u^{n+1,p}_2,
+    \\
+    u^{n}_{bnd} & = w^{\it ess}_0 u^{n}_0
+    + w^{\it ess}_1 u^{n}_1
+    + w^{\it ess}_2 u^{n}_2.
+\end{align}
+%
+The \textbf{natural} is chosen in that way that as less as possible left going spurious numerical waves are generated at the outflow boundary, i.e.\ nearly no reflection.
+The natural boundary condition is supplied at $x_I$ with the discretization constants as determined by \autoref{eq:stencil_nat} and boundary condition \autoref{eq:1d_burgers_nat_boundary} which yields:
+\begin{align}
+    &\left( \frac{w^{\it nat}_0}{\Dt} + \theta \frac{u^{n+1,p}_{I+1}}{\Dx} \right) \Delta u^{n+1,p+1}_{I+1} +
+    \left( \frac{w^{\it nat}_1}{\Dt} - \theta \frac{u^{n+1,p}_{I}}{\Dx} \right) \Delta u^{n+1,p+1}_I +
+    \frac{w^{\it nat}_2}{\Dt}  \Delta u^{n+1,p+1}_{I-1}  =
+    \nonumber \\
+    & = - \left\{\pdiff{u^{n+1,p}_{bnd}}{t} +
+    \frac{u^{n+\theta,p}_{bnd}}{\Dx} \left(u^{n+\theta,p}_{I+1} - u^{n+\theta,p}_{I} \right)
+    \right\}
+\end{align}
+with
+\begin{align}
+    \pdiff{u^{n+1,p}_{bnd}}{t} & = \frac{u^{n+1,p}_{bnd} - u^{n}_{bnd}}{\Dt}
+\end{align}
+and
+\begin{align}
+u^{n+\theta,p}_{bnd} &
+= w^{\it nat}_0 u^{n+\theta,p}_{I+1}
++ w^{\it nat}_1 u^{n+\theta,p}_{I  }
++ w^{\it nat}_2 u^{n+\theta,p}_{I-1},
+\\
+u^{n+1,p}_{bnd} &
+= w^{\it nat}_0 u^{n+1,p}_{I+1}
++ w^{\it nat}_1 u^{n+1,p}_{I  }
++ w^{\it nat}_2 u^{n+1,p}_{I-1},
+\\
+u^{n}_{bnd} &
+= w^{\it nat}_0 u^{n}_{I+1}
++ w^{\it nat}_1 u^{n}_{I  }
++ w^{\it nat}_2 u^{n}_{I-1}.
+\end{align}
+where
+\begin{align}
+    w^{\it nat}_0 & = (1+\alpha_{\mathit bnd})/2 = \frac{3}{8}
+    \\
+    w^{\it nat}_1 & = (1 - 2\alpha_{\mathit bnd})/2 = \frac{6}{8}
+    \\
+    w^{\it nat}_2 & = (\alpha_{\mathit bnd})/2 = -\frac{1}{8}
+\end{align}
+with $\alpha_{\mathit bnd} = 2\alpha -\half$ ($\alpha_{\mathit bnd} = -\quart$ when $\alpha = \frac{1}{8}$).
+
 %------------------------------------------------------------------------------
 \section{1-D Wave equation}
 
