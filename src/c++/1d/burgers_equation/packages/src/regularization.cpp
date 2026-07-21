@@ -196,9 +196,9 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     A.coeffRef(i, i + 2) = 1.;
     rhs[i] = 0.0;
     i = 1;
-    A.coeffRef(i, i - 1) = 0.0;  //  w_ess[0];  // 0.;  // w_ess[0];
-    A.coeffRef(i, i    ) = 1.0;  //  w_ess[1];  // 1.;  // w_ess[1];
-    A.coeffRef(i, i + 1) = 0.0;  //  w_ess[2];  // 0.;  // w_ess[2];
+    A.coeffRef(i, i - 1) = 0.0;  //  w_ess[0];  // ;
+    A.coeffRef(i, i    ) = 1.0;  //  w_ess[1];  // ;
+    A.coeffRef(i, i + 1) = 0.0;  //  w_ess[2];  // ;
     rhs[i] = rhs[i];
     i = nx - 1;
     A.coeffRef(i, i - 2) = 1.;
@@ -206,9 +206,9 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     A.coeffRef(i, i    ) = 1.;
     rhs[i] = 0.0;
     i = nx - 2;
-    A.coeffRef(i, i - 1) = w_nat[2];  // 0.0;  // w_ess[2];
-    A.coeffRef(i, i    ) = w_nat[1];  // 1.0;  // w_ess[1];
-    A.coeffRef(i, i + 1) = w_nat[0];  // 0.0;  // w_ess[0];
+    A.coeffRef(i, i - 1) =  0.0;  //  -1.0/24.;  // w_nat[2];  // 0.0;  // w_ess[2];
+    A.coeffRef(i, i    ) =  1.0;  //  14.0/24.;  // w_nat[1];  // 1.0;  // w_ess[1];
+    A.coeffRef(i, i + 1) =  0.0;  //  11.0/24.;  // w_nat[0];  // 0.0;  // w_ess[0];
     rhs[i] = rhs[i];
 
     Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
