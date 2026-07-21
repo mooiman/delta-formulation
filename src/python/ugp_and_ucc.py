@@ -135,7 +135,7 @@ def main(Lx=12., dx=3.0):
         os.mkdir('figures')
     text = ('figures/ugp_and_ucc_lx=%s_dx=%s.pdf' % (str(Lx), str(dx)))
     plt.savefig(text, format='pdf')
-    fig.canvas.manager.set_window_title('Compatible initialization')
+    fig.canvas.manager.set_window_title('ugp_and_ucc')
     plt.show()
 
     return 0
