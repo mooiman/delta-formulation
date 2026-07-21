@@ -475,59 +475,40 @@ For the 1-D Burgers equation when omitting the viscosity term it reads:
     \pdiff{u}{t} + \half\pdiff{u^2}{x}  = 0, \qquad u>0. \label{eq:1d_burgers_nat_boundary}
 \end{align}
 
-The \textbf{essential} boundary condition at the inflow boundary reads:
+The \textbf{essential} boundary condition at the inflow boundary (left/west-side) reads:
 \begin{align}
     u(0,t) = u_{\it given}(t), \quad t > 0 \qquad \text{(essential boundary)}
 \end{align}
 The essential boundary condition is supplied at $x_1$ with the following discretization (\autoref{eq:stencil_ess})
 \begin{align}
-    & w^{\it ess}_0 \left(\frac{1}{\Dt} + \theta \right) \Delta u^{n+1,p+1}_0 +
-    w^{\it ess}_1 \left(\frac{1}{\Dt} + \theta \right) \Delta u^{n+1,p+1}_1 +
-    w^{\it ess}_2 \left(\frac{1}{\Dt} + \theta \right) \Delta u^{n+1,p+1}_2
-=
-    \nonumber \\*
-    &\qquad = \pdiff{u^{n+1,p}}{t} - \eps \left( u_{\it given}(t) - \left(
-      w^{\it ess}_0 u^{n+1,p}_0
-    + w^{\it ess}_1 u^{n+1,p}_1
-    + w^{\it ess}_2 u^{n+1,p}_2 \right) \right)
+    & w^{\it ess}_0 \theta  \Delta u^{n+1,p+1}_0 +
+    w^{\it ess}_1 \theta  \Delta u^{n+1,p+1}_1 +
+    w^{\it ess}_2 \theta  \Delta u^{n+1,p+1}_2
+    =  u_{\it given}(t) - u^{n+1,p}_{bnd}
 \end{align}
 with
-\begin{align}
-    \pdiff{u^{n+1,p}}{t} & = \frac{u^{n+1,p}_{bnd} - u^{n}_{bnd}}{\Dt}
-\end{align}
-and
 \begin{align}
     u^{n+1,p}_{bnd} & = w^{\it ess}_0 u^{n+1,p}_0
     + w^{\it ess}_1 u^{n+1,p}_1
     + w^{\it ess}_2 u^{n+1,p}_2,
-    \\
-    u^{n}_{bnd} & = w^{\it ess}_0 u^{n}_0
-    + w^{\it ess}_1 u^{n}_1
-    + w^{\it ess}_2 u^{n}_2.
 \end{align}
 %
 The \textbf{natural} is chosen in that way that as less as possible left going spurious numerical waves are generated at the outflow boundary, i.e.\ nearly no reflection.
-The natural boundary condition is supplied at $x_I$ with the discretization constants as determined by \autoref{eq:stencil_nat} and boundary condition \autoref{eq:1d_burgers_nat_boundary} which yields:
+The natural boundary condition (right/east-side) is supplied at $x_I$ with the discretization constants as determined by \autoref{eq:stencil_nat} and boundary condition \autoref{eq:1d_burgers_nat_boundary} which yields:
 \begin{align}
     &\left( \frac{w^{\it nat}_0}{\Dt} + \theta \frac{u^{n+1,p}_{I+1}}{\Dx} \right) \Delta u^{n+1,p+1}_{I+1} +
     \left( \frac{w^{\it nat}_1}{\Dt} - \theta \frac{u^{n+1,p}_{I}}{\Dx} \right) \Delta u^{n+1,p+1}_I +
     \frac{w^{\it nat}_2}{\Dt}  \Delta u^{n+1,p+1}_{I-1}  =
     \nonumber \\
-    & = - \left\{\pdiff{u^{n+1,p}_{bnd}}{t} +
-    \frac{u^{n+\theta,p}_{bnd}}{\Dx} \left(u^{n+\theta,p}_{I+1} - u^{n+\theta,p}_{I} \right)
+    & = - \left\{
+    \frac{u^{n+1,p}_{bnd} - u^{n}_{bnd}}{\Dt} +
+    \frac{1}{\Dx}
+    \frac{u^{n+\theta,p}_{I+1} + u^{n+\theta,p}_{I}}{2}
+    \left(u^{n+\theta,p}_{I+1} - u^{n+\theta,p}_{I} \right)
     \right\}
 \end{align}
 with
 \begin{align}
-    \pdiff{u^{n+1,p}_{bnd}}{t} & = \frac{u^{n+1,p}_{bnd} - u^{n}_{bnd}}{\Dt}
-\end{align}
-and
-\begin{align}
-u^{n+\theta,p}_{bnd} &
-= w^{\it nat}_0 u^{n+\theta,p}_{I+1}
-+ w^{\it nat}_1 u^{n+\theta,p}_{I  }
-+ w^{\it nat}_2 u^{n+\theta,p}_{I-1},
-\\
 u^{n+1,p}_{bnd} &
 = w^{\it nat}_0 u^{n+1,p}_{I+1}
 + w^{\it nat}_1 u^{n+1,p}_{I  }
