@@ -1,20 +1,32 @@
-openfile '.\output\burgers_eq_dx100_dt60_map.nc'
-selectfield 'Psi'
+openfile '.\output\burgers_eq_dx10_dt10_map.nc'
+selectfield 'Velocity'
 hselectiontype '(M,N) point/path'
-editt '1'
-editmn '1:1:203'
-colour [ 0 0 1]
-marker '.'
+editt '61'
+editmn '1500:1:2003'
+colour [ 0 0 0]
+# marker '.'
 linewidth 1.
 plotcoordinate 'x coordinate'
 quickview
 
+openfile '.\output_01\burgers_eq_dx10_dt10_map.nc'
 selectfield 'Velocity'
 hselectiontype '(M,N) point/path'
-editt '1'
-editmn '1:1:203'
+editt '61'
+editmn '1500:1:2003'
 colour [ 0 0 1]
-marker '.'
+# marker '.'
 linewidth 1.
 plotcoordinate 'x coordinate'
-quickview
+addtoplot
+
+openfile '.\output_02\burgers_eq_dx10_dt10_map.nc'
+selectfield 'Velocity'
+hselectiontype '(M,N) point/path'
+editt '61'
+editmn '1500:1:2003'
+colour [ 1 0 0]
+# marker '.'
+linewidth 1.
+plotcoordinate 'x coordinate'
+addtoplot
