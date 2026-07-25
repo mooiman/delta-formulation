@@ -187,7 +187,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         ubar_im14 = 0.25 * (u[i - 1] + 3. * u[i]);
         ubar_ip14 = 0.25 * (u[i + 1] + 3. * u[i]);
         double utmp = 0.5 * (ubar_im14 + ubar_ip14);
-        rhs[i] = 7.0 * c_error * dx * ( 0.5 * utmp * std::abs(u_xixi[i]) );
+        rhs[i] = 7.0 * c_error * ( 0.5 * dx * utmp * std::abs(u_xixi[i]) );
     }
     // eq. 19   
     i = 0;
