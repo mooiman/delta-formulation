@@ -141,7 +141,7 @@ c_{\Psi} = \frac{1}{(k\Dx)^2} \quad \Rightarrow \quad c_{\Psi} = \frac{N^2 }{(2\
 \end{align}
 %
 %--- begin light blue table ---
-\begin{longtable}{|>{\bfseries}p{6mm-12pt}|p{\textwidth/4-6mm-12pt}|p{\textwidth/4-0mm-12pt}|p{\textwidth/4-0mm-12pt}|p{\textwidth/4-0mm-12pt}|}
+\begin{longtable}{|>{\bfseries}p{6mm-12pt}|p{\textwidth/4-6mm-12pt}|p{\textwidth/4-6mm-12pt}|p{\textwidth/4+3mm-12pt}|p{\textwidth/4+3mm-12pt}|}
 \caption{Several typical values for numerical accuracy, $c_{\psi}$ and number of nodes per wavelength ($N$), the highligthed line is set as default.
 \label{tab:numerical_accuracy_N}}
 % Python: accuracy_table.py
@@ -262,7 +262,7 @@ For a $1$~\% accuracy, $c_\psi = 4$ see \autoref{tab:numerical_accuracy_c_error}
 \end{align}
 %
 %--- begin light blue table ---
-\begin{longtable}{|>{\bfseries}p{6mm-12pt}|p{\textwidth/4-6mm-12pt}|p{\textwidth/4-0mm-12pt}|p{\textwidth/4-0mm-12pt}|p{\textwidth/4-0mm-12pt}|}
+\begin{longtable}{|>{\bfseries}p{6mm-12pt}|p{\textwidth/4-6mm-12pt}|p{\textwidth/4-6mm-12pt}|p{\textwidth/4+3mm-12pt}|p{\textwidth/4+3mm-12pt}|}
 \caption{Several typical values for numerical accuracy, $c_{\psi}$ and number $c_E$, the highligthed line is set as default.
     \label{tab:numerical_accuracy_c_error}}
 % Python: accuracy_table.py
@@ -279,14 +279,14 @@ For a $1$~\% accuracy, $c_\psi = 4$ see \autoref{tab:numerical_accuracy_c_error}
 \endfoot
 \bottomline
 \endlastfoot
-1 & 5\ \%   &  1.20 & 0.8333  ($\approx$ 1)&  1.0908 ($\approx$ 1) \\
+1 & 5\ \%   &  1.20 & 0.8333  ($\approx$ 1)&  1.0908 ($\lesssim$  2  $c_\Psi)$ \\
 \midline
-2 & 2\ \%  & 0.48 & 2.0833 ($\approx$ 2)   &  6.8177 ($\approx$ 10)\\
+2 & 2\ \%  & 0.48 & 2.0833 ($\approx$ 2)   &  6.8177 ($\lesssim$  4 $c_\Psi)$ \\
 \midline
 \rowcolor{mgreen2}
-3 & 1\ \%  & 0.24 &  4.1667 ($\approx 4$)   & 27.2708 ($\approx$ 32) \\
+3 & 1\ \%  & 0.24 &  4.1667 ($\approx 4$)   & 27.2708 ($\lesssim$  7  $c_\Psi)$ \\
 \midline
-4 & 0.5\ \% & 0.12 & 8.3333 ($\approx$ 8)  &  109.0831 ($\approx$ 110)\\
+4 & 0.5\ \% & 0.12 & 8.3333 ($\approx$ 8)  &  109.0831 ($\lesssim$  14 $c_\Psi)$ \\
 \end{longtable}
 %--- end light blue table ---
 %
