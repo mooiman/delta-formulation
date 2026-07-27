@@ -135,7 +135,7 @@ int CFTS::add_time_series(void)
     status = set_attribute(std::string("time"), std::string("units"), m_time_units);
     return status;
 }
-int CFTS::add_variable(std::string var_name, std::string std_name, std::string long_name, std::string unit)
+int CFTS::add_variable(std::string var_name, std::string std_name, std::string long_name, std::string unit, std::string comment)
 {
     int dim_id;
     int i_var;
@@ -152,6 +152,7 @@ int CFTS::add_variable(std::string var_name, std::string std_name, std::string l
     status = set_attribute(var_name, std::string("standard_name"), std_name);
     status = set_attribute(var_name, std::string("long_name"), long_name);
     status = set_attribute(var_name, std::string("units"), unit);
+    if (comment.size() != 0) { status = set_attribute(var_name, std::string("comment"), comment); }
     return status;
 }
 int CFTS::add_variable_without_location(std::string var_name, std::string std_name, std::string long_name, std::string unit)

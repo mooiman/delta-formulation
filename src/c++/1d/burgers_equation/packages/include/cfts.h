@@ -40,7 +40,7 @@ public:
     int close();
     int add_stations(std::vector<std::string>, std::vector<double>, std::vector<double>);
     int add_time_series(void);
-    int add_variable(std::string var_name, std::string std_name, std::string long_name, std::string unit);
+    int add_variable(std::string var_name, std::string std_name, std::string long_name, std::string unit, std::string comment);
     int add_variable_without_location(std::string var_name, std::string std_name, std::string long_name, std::string unit);
     int put_time(int i, double time);
     int put_variable(std::string var_name, int i_time, std::vector<double> values);

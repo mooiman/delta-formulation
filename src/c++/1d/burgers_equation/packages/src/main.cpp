@@ -309,6 +309,7 @@ int main(int argc, char* argv[])
     std::vector<double> delta_u(nx, 0.);
     std::vector<double> pe(nx, 0.);
     std::vector<double> cfl(nx, 0.);
+    std::vector<double> fo(nx, 0.);  // Fourier number D dt/dx^2
     std::vector<double> visc_given(nx, visc_const);  // Initial viscosity array with given value
     std::vector<double> visc_reg(nx, visc_const);  // Initial given viscosity array with regularized value
     std::vector<double> visc(nx, visc_const);  // Viscosity array used for computation, adjusted with artificial viscosity
@@ -373,6 +374,7 @@ int main(int argc, char* argv[])
         for (int i = 0; i < nx; ++i)
         {
             pe[i] = up[i] * dx / visc[i];
+            fo[i] = visc[i] * dt / (dx * dx);
         }
     }
 
@@ -389,6 +391,7 @@ int main(int argc, char* argv[])
     map_names.push_back("psi_1d");
     map_names.push_back("pe_1d");
     map_names.push_back("cfl_1d");
+    map_names.push_back("fo_1d");
     map_file = create_map_file(nc_mapfilename, model_title, x, map_names);
     
     // Put data on map file
@@ -400,6 +403,7 @@ int main(int argc, char* argv[])
     map_file->put_time_variable(map_names[2], nst_map, psi);
     map_file->put_time_variable(map_names[3], nst_map, pe);
     map_file->put_time_variable(map_names[4], nst_map, cfl);
+    map_file->put_time_variable(map_names[5], nst_map, fo);
     STOP_TIMER(Writing map-file);
     // End define map file
     ////////////////////////////////////////////////////////////////////////////
@@ -429,14 +433,16 @@ int main(int argc, char* argv[])
     std::string his_psi_name("psi_1d");
     std::string his_peclet_name("pe_1d");
     std::string his_cfl_name("cfl_1d");
+    std::string his_fo_name("fo_1d");
 
-    his_file->add_variable(his_u_name, "", "Velocity", "m s-1");
-    his_file->add_variable(his_cfl_name, "", "CFL (u.dt/dx)", "-");
+    his_file->add_variable(his_u_name, "", "Velocity", "m s-1", "Velocity");
+    his_file->add_variable(his_cfl_name, "", "CFL (u.dt/dx)", "-", "Courant-Friedrichs-Lewy number (u.dt/dx)");
     if (do_viscosity) 
     {
-        his_file->add_variable(his_visc_name, "", "Viscosity (used)", "m2 s-1");
-        his_file->add_variable(his_psi_name, "", "Psi", "m2 s-1");
-        his_file->add_variable(his_peclet_name, "", "Peclet (u.dx/nu)", "-");
+        his_file->add_variable(his_visc_name, "", "Viscosity (used)", "m2 s-1", "Viscosity, including the artificial viscosity Psi");
+        his_file->add_variable(his_psi_name, "", "Psi", "m2 s-1", "Artificial viscosity");
+        his_file->add_variable(his_peclet_name, "", "Peclet (u.dx/nu)", "-", "Cell Peclet number (u.dx/nu)");
+        his_file->add_variable(his_fo_name, "", "Fourier number (nu.dt/dx^2)", "-", "Fourier number (nu.dt/dx^2)");
     }
 
     std::string his_newton_iter_name("newton_iterations");
@@ -463,6 +469,8 @@ int main(int argc, char* argv[])
         his_file->put_variable(his_visc_name, nst_his, his_values);
         status = set_his_values(input_data.obs_points, psi, his_values);
         his_file->put_variable(his_psi_name, nst_his, his_values);
+        status = set_his_values(input_data.obs_points, fo, his_values);
+        his_file->put_variable(his_fo_name, nst_his, his_values);
     }
 
     his_values.clear();
@@ -536,14 +544,16 @@ int main(int argc, char* argv[])
             START_TIMER(Regularization_time_loop);
             if (do_viscosity)
             {
+                std::string logging_org = logging;
                 if (time == 7200){
-                    int a = 1;
+                    //logging = "matrix";
                 }
-                regularization->artificial_viscosity(psi, un, c_psi, dx, w_ess, w_nat);
+                regularization->artificial_viscosity(psi, un, c_psi, dx, w_ess, w_nat, log_file, logging);
                 for (int i = 0; i < nx; ++i)
                 {
                     visc[i] = visc_reg[i] + std::abs(psi[i]);
                 }
+                logging = logging_org;
             }
             STOP_TIMER(Regularization_time_loop);
         }
@@ -562,7 +572,7 @@ int main(int argc, char* argv[])
                 START_TIMER(Regularization_iter_loop);
                 if (do_viscosity)
                 {
-                    regularization->artificial_viscosity(psi, up, c_psi, dx, w_ess, w_nat);
+                    regularization->artificial_viscosity(psi, up, c_psi, dx, w_ess, w_nat, log_file, logging);
                     for (int i = 0; i < nx; ++i)
                     {
                         visc[i] = visc_reg[i] + std::abs(psi[i]);
@@ -886,6 +896,7 @@ int main(int argc, char* argv[])
             for (int i = 0; i < nx; ++i)
             {
                 pe[i] = up[i] * dx / visc[i];
+                fo[i] = visc[i] * dt / (dx * dx);
             }
         }
         if (logging == "matrix")
@@ -922,6 +933,7 @@ int main(int argc, char* argv[])
                 map_file->put_time_variable(map_names[1], nst_map, visc);
                 map_file->put_time_variable(map_names[2], nst_map, psi);
                 map_file->put_time_variable(map_names[3], nst_map, pe);
+                map_file->put_time_variable(map_names[5], nst_map, fo);
             }
             STOP_TIMER(Writing map-file);
         }
@@ -952,7 +964,9 @@ int main(int argc, char* argv[])
                 his_file->put_variable(his_visc_name, nst_his, his_values);
                 status = set_his_values(input_data.obs_points, psi, his_values);
                 his_file->put_variable(his_psi_name, nst_his, his_values);
-            }
+                status = set_his_values(input_data.obs_points, fo, his_values);
+                his_file->put_variable(his_fo_name, nst_his, his_values);
+        }
 
             his_values.clear();
             his_values = { double(used_newton_iter) };
