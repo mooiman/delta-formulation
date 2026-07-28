@@ -22,6 +22,7 @@
 
 #ifndef __1D_REGULARIZATION_H__
 #define __1D_REGULARIZATION_H__
+#define _USE_MATH_DEFINES
 
 #include <cstdlib>
 #include <fstream>
@@ -29,6 +30,7 @@
 #include <iomanip>
 #include <vector>
 #include <filesystem>
+#include <numbers>
 
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
@@ -42,7 +44,8 @@ public:
         double dx, double c_psi, std::ofstream& log_file);
 
     void artificial_viscosity(std::vector<double>& psi, std::vector<double>& u, double c_psi, double dx, 
-        std::vector<double> w_ess, std::vector<double> w_nat);
+        std::vector<double> w_ess, std::vector<double> w_nat,
+        std::ofstream& log_file, std::string logging);
 
     void first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx);
 private:

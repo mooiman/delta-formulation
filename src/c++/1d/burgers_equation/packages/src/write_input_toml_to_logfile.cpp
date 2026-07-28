@@ -54,7 +54,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     //Domain
     log_file << std::endl << "[Domain]" << std::endl;
     log_file << "    Lx       = " << format_as_double(data.domain.Lx) << "  # Domain length [m]" << std::endl;
-    log_file << "    x_origin = " << format_as_double(data.domain.x_origin) << "  # Origin of the x-coordinate [m]" <<  std::endl;
+    log_file << "    x_origin = " << format_as_double(data.domain.x_origin) << "  # Origin of the x-coordinate [m]" << std::endl;
 
     // Initial
     log_file << std::endl << "[Initial]" << std::endl;
@@ -78,9 +78,9 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
 
     // Output
     log_file << std::endl << "[Output]" << std::endl;
-    log_file << "    dt_his    = " << format_as_double(data.output.dt_his) << std::endl;
-    log_file << "    dt_map    = " << format_as_double(data.output.dt_map) << std::endl;
-    log_file << "    dt_screen = " << format_as_double(data.output.dt_screen) << std::endl;
+    log_file << "    dt_his    = " << format_as_double(data.output.dt_his) << "  # [s]" << std::endl;
+    log_file << "    dt_map    = " << format_as_double(data.output.dt_map) << "  # [s]" << std::endl;
+    log_file << "    dt_screen = " << format_as_double(data.output.dt_screen) << "  # [s]" << std::endl;
 
     // Physics
     log_file << std::endl << "[Physics]" << std::endl;
