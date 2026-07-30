@@ -1,0 +1,113 @@
+# Plot after 15 min, ie 0.25 * 3600
+
+openfile '.\c01_dx100d0\output\adv_diff_eq_dx100_dt20_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '46'
+editmn '1:1:103'
+colour [ 0 1 0 ]
+linewidth 1.
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\c02_dx050d0\output\adv_diff_eq_dx50_dt10_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '91'
+editmn '1:1:203'
+colour [ 0 0 1 ]
+linewidth 1.
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c03_dx025d0\output\adv_diff_eq_dx25_dt5_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '181'
+editmn '1:1:403'
+colour [ 1 0 0 ]
+linewidth 1.
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c04_dx010d0\output\adv_diff_eq_dx10_dt2_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '451'
+editmn '1:1:1003'
+colour [ 1 0 1 ]
+linewidth 1.
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c05_dx005d0\output\adv_diff_eq_dx5_dt1_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '901'
+editmn '1:1:2003'
+colour [ 0 0 0 ]
+linewidth 1.
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+#===============================================================================
+
+openfile '.\c01_dx100d0\output\adv_diff_eq_dx100_dt20_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '46'
+editmn '1:1:103'
+colour [ 0 1 0 ]
+linewidth 1.
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\c02_dx050d0\output\adv_diff_eq_dx50_dt10_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '91'
+editmn '1:1:203'
+colour [ 0 0 1 ]
+linewidth 1.
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c03_dx025d0\output\adv_diff_eq_dx25_dt5_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '181'
+editmn '1:1:403'
+colour [ 1 0 0 ]
+linewidth 1.
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c04_dx010d0\output\adv_diff_eq_dx10_dt2_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '451'
+editmn '1:1:1003'
+colour [ 1 0 1 ]
+linewidth 1.
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c05_dx005d0\output\adv_diff_eq_dx5_dt1_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '901'
+editmn '1:1:2003'
+colour [ 0 0 0 ]
+linewidth 1.
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot

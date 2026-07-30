@@ -1,0 +1,10 @@
+openfile '.\c04_dx010d0\output\adv_diff_eq_dx10_dt2_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '451'
+editmn '1:1:1003'
+colour [ 0 0 0 ]
+# marker '.'
+linewidth 1.
+plotcoordinate 'x coordinate'
+quickview

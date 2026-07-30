@@ -7,7 +7,7 @@ editt '46'
 editmn '1:1:103'
 colour [ 0 1 0 ]
 linewidth 1.
-marker '.'
+# marker '.'
 plotcoordinate 'x coordinate'
 quickview
 
@@ -18,7 +18,7 @@ editt '91'
 editmn '1:1:203'
 colour [ 0 0 1 ]
 linewidth 1.
-marker '.'
+# marker '.'
 plotcoordinate 'x coordinate'
 addtoplot
 
@@ -29,7 +29,7 @@ editt '181'
 editmn '1:1:403'
 colour [ 1 0 0 ]
 linewidth 1.
-marker '.'
+# marker '*'
 plotcoordinate 'x coordinate'
 addtoplot
 
@@ -40,7 +40,7 @@ editt '451'
 editmn '1:1:1003'
 colour [ 1 0 1 ]
 linewidth 1.
-marker '.'
+# marker '*'
 plotcoordinate 'x coordinate'
 addtoplot
 
@@ -51,6 +51,6 @@ editt '901'
 editmn '1:1:2003'
 colour [ 0 0 0 ]
 linewidth 1.
-marker '.'
+# marker '*'
 plotcoordinate 'x coordinate'
 addtoplot
