@@ -133,9 +133,9 @@ UGRID1D * create_map_file(std::string nc_mapfile, std::string model_title, std::
     status = map_file->add_variable(map_names[0], dim_names, "-", "Velocity", "m s-1", "mesh1D", "node", "Velocity");
     status = map_file->add_variable(map_names[1], dim_names, "-", "Viscosity (used)", "m2 s-1", "mesh1D", "node", "Viscosity, including the artificial viscosity Psi");
     status = map_file->add_variable(map_names[2], dim_names, "-", "Psi", "m2 s-1", "mesh1D", "node", "Artificial viscosity");
-    status = map_file->add_variable(map_names[3], dim_names, "-", "Peclet (u.dx/nu)", "-", "mesh1D", "node", "Cell Peclet number (u.dx/nu)");
-    status = map_file->add_variable(map_names[4], dim_names, "-", "CFL (u.dt/dx)", "-", "mesh1D", "node", "Courant–Friedrichs–Lewy number (u.dt/dx)");
-    status = map_file->add_variable(map_names[5], dim_names, "-", "Fourier number (nu.dt/dx^2)", "-", "mesh1D", "node", "Fourier number (nu.dt/dx^2)");
+    status = map_file->add_variable(map_names[3], dim_names, "-", "Peclet (u.dx/nu)", "-", "mesh1D", "node", "Cell Peclet number, u.dx/nu");
+    status = map_file->add_variable(map_names[4], dim_names, "-", "CFL (u.dt/dx)", "-", "mesh1D", "node", "Courantâ€“Friedrichsâ€“Lewy number, u.dt/dx");
+    status = map_file->add_variable(map_names[5], dim_names, "-", "Fourier number (nu.dt/dx^2)", "-", "mesh1D", "node", "Fourier number, nu.dt/dx^2");
 
     return map_file;
 }

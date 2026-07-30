@@ -199,9 +199,9 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     A.coeffRef(i, i + 2) = 0.;
     rhs[i] = 0.0;
     i = 1;
-    A.coeffRef(i, i - 1) = w_ess[0];  // 0.0;  //  w_ess[0];  // ;
-    A.coeffRef(i, i    ) = w_ess[1];  // 1.0;  //  w_ess[1];  // ;
-    A.coeffRef(i, i + 1) = w_ess[2];  // 0.0;  //  w_ess[2];  // ;
+    A.coeffRef(i, i - 1) = 0.0;  //w_ess[0];  //   w_ess[0];  // ;
+    A.coeffRef(i, i    ) = 1.0;  //w_ess[1];  //   w_ess[1];  // ;
+    A.coeffRef(i, i + 1) = 0.0;  //w_ess[2];  //   w_ess[2];  // ;
     rhs[i] = rhs[i];
     i = nx - 1;
     A.coeffRef(i, i - 2) = 0.;
@@ -218,7 +218,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     {
         //log_file << "=== Matrix Regularization =============================" << std::endl;
         //log_file << std::setprecision(4) << std::scientific << Eigen::MatrixXd(A) << std::endl;
-        log_file << "=== U_xixi Regularization ===========================" << std::endl;
+        log_file << "=== u_xixi Regularization ===========================" << std::endl;
         log_file << std::setprecision(8) << std::scientific << rhs << std::endl;
         log_file << "=== RHS Regularization ================================" << std::endl;
         log_file << std::setprecision(8) << std::scientific << rhs << std::endl;

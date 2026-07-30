@@ -436,13 +436,13 @@ int main(int argc, char* argv[])
     std::string his_fo_name("fo_1d");
 
     his_file->add_variable(his_u_name, "", "Velocity", "m s-1", "Velocity");
-    his_file->add_variable(his_cfl_name, "", "CFL (u.dt/dx)", "-", "Courant-Friedrichs-Lewy number (u.dt/dx)");
+    his_file->add_variable(his_cfl_name, "", "CFL (u.dt/dx)", "-", "Courant-Friedrichs-Lewy number, u.dt/dx");
     if (do_viscosity) 
     {
         his_file->add_variable(his_visc_name, "", "Viscosity (used)", "m2 s-1", "Viscosity, including the artificial viscosity Psi");
         his_file->add_variable(his_psi_name, "", "Psi", "m2 s-1", "Artificial viscosity");
-        his_file->add_variable(his_peclet_name, "", "Peclet (u.dx/nu)", "-", "Cell Peclet number (u.dx/nu)");
-        his_file->add_variable(his_fo_name, "", "Fourier number (nu.dt/dx^2)", "-", "Fourier number (nu.dt/dx^2)");
+        his_file->add_variable(his_peclet_name, "", "Peclet (u.dx/nu)", "-", "Cell Peclet number, u.dx/nu");
+        his_file->add_variable(his_fo_name, "", "Fourier number (nu.dt/dx^2)", "-", "Fourier number, nu.dt/dx^2");
     }
 
     std::string his_newton_iter_name("newton_iterations");
