@@ -42,14 +42,7 @@ void boundary_condition(double& bc0_out, double& bc0_in, double& time, double& t
         //
         // Given value at both sides
         //
-        if (time < treg)
-        {
-            bc0_out = u_initial + reg_factor * (bc0_in - u_initial);
-        }
-        else
-        {
-            bc0_out = bc0_in;
-        }
+        bc0_out = u_initial + reg_factor * (bc0_in - u_initial);
     }
     else if (bc_signal == "sine")
     {
@@ -58,11 +51,18 @@ void boundary_condition(double& bc0_out, double& bc0_in, double& time, double& t
         //
         if (time < treg)
         {
-            bc0_out = u_initial + reg_factor * (bc0_in - u_initial);
+            double reg_a = 0.0;
+            double reg_b = 1.0;
+            double reg_interp = 0.0;
+
+            double ttmp = time/treg;
+            reg_factor = 0.5 * (-std::cos(M_PI * ttmp) + 1.0);
+            reg_interp = reg_a + (reg_b - reg_a) * reg_factor;  // 0 <= reg_factor <= 1
+            bc0_out = u_initial + reg_interp;
         }
         else
         {
-            bc0_out =  u_initial + reg_interp * ( -std::cos(M_PI * time / treg) );
+            bc0_out =  u_initial + ( -std::cos(M_PI * time / treg) );
         }
     }
     else if (bc_signal == "colombo")
