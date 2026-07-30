@@ -48,7 +48,7 @@ void boundary_condition(double& bc0_out, double& bc0_in, double& time, double& t
     {
         //
         // given sine function at left boundary
-        //        
+        //
         if (time < treg)
         {
             double reg_a = 0.0;
