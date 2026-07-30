@@ -90,7 +90,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     log_file << "    do_viscosity  = " << bool_value_as_string(data.physics.do_viscosity) << std::endl;
     log_file << "    viscosity     = " << format_as_double(data.physics.visc_const) << std::endl;
     log_file << "    do_source     = " << bool_value_as_string(data.physics.do_source) << std::endl;
-    log_file << "    src_type      = " << data.physics.src_type << std::endl;
+    log_file << "    src_type      = \"" << data.physics.src_type << "\"" << std::endl;
     log_file << "    visc_shape    = \"" << data.physics.visc_shape << "\" # \"constant\", \"interface\"" << std::endl;
 
     //Time

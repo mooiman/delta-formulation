@@ -141,11 +141,12 @@ void REGULARIZATION::given_function(std::vector<double>& u_tilde, std::vector<do
 //   Based on article:
 //       Borsboom_development1Derrorminmovingadaptgridmethod_AdaptMethodLinesCRC2001.pdf
 
-void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<double>& u, std::vector<double>& c, double c_psi_in, double dx, 
-    std::vector<double> w_ess, std::vector<double> w_nat)
+void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<double>& u, std::vector<double>& c, 
+    double c_psi_in, double dx, std::vector<double> w_ess, std::vector<double> w_nat,
+    std::ofstream& log_file, std::string logging)
 {
     size_t nx = c.size();
-    std::vector<double> c_xixi(nx, 0.);  // second derivative of u-velocity in computational space
+    std::vector<double> c_xixi(nx, 0.);  // second derivative of constituent in computational space
 
     Eigen::SparseMatrix<double> A(nx, nx);
     Eigen::VectorXd solution(nx);               // solution vector 
@@ -177,7 +178,8 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     double ubar_im14;
     double ubar_ip14;
 
-    double c_error = c_psi * dx;
+    double c_error = c_psi;
+    double c_E = c_psi * c_psi * std::numbers::pi/2.0;
     for (size_t i = 1; i < nx - 1; ++i)
     {
         A.coeffRef(i, i - 1) = m_mass[0] - c_error;
@@ -187,29 +189,40 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         ubar_im14 = 0.25 * (u[i - 1] + 3. * u[i]);
         ubar_ip14 = 0.25 * (u[i + 1] + 3. * u[i]);
         double utmp = 0.5 * (ubar_im14 + ubar_ip14);
-        rhs[i] = 7.0 * c_error * dx * ( 0.5 * utmp * std::abs(c_xixi[i]) );
+        utmp = u[i];
+        rhs[i] = c_E * ( 0.5 * dx * utmp * std::abs(c_xixi[i]) );
     }
     // eq. 19   
     i = 0;
-    A.coeffRef(i, i    ) = 1.; 
-    A.coeffRef(i, i + 1) = -2.0;
-    A.coeffRef(i, i + 2) = 1.;
+    A.coeffRef(i, i    ) = -1.; 
+    A.coeffRef(i, i + 1) = 1.0;
+    A.coeffRef(i, i + 2) = 0.;
     rhs[i] = 0.0;
     i = 1;
-    A.coeffRef(i, i - 1) = 0.0;
-    A.coeffRef(i, i    ) = 1.0;
-    A.coeffRef(i, i + 1) = 0.0;
+    A.coeffRef(i, i - 1) = 0.0;  //w_ess[0];  //   w_ess[0];  // ;
+    A.coeffRef(i, i    ) = 1.0;  //w_ess[1];  //   w_ess[1];  // ;
+    A.coeffRef(i, i + 1) = 0.0;  //w_ess[2];  //   w_ess[2];  // ;
     rhs[i] = rhs[i];
     i = nx - 1;
-    A.coeffRef(i, i - 2) = 1.;
-    A.coeffRef(i, i - 1) = -2.0;
+    A.coeffRef(i, i - 2) = 0.;
+    A.coeffRef(i, i - 1) = -1.0;
     A.coeffRef(i, i    ) = 1.;
     rhs[i] = 0.0;
     i = nx - 2;
-    A.coeffRef(i, i - 1) = w_nat[2];
-    A.coeffRef(i, i    ) = w_nat[1];
-    A.coeffRef(i, i + 1) = w_nat[0];
+    A.coeffRef(i, i - 1) = 0.0;  //   -1.0/24.;  // w_nat[2];  // 0.0;  // w_ess[2];
+    A.coeffRef(i, i    ) = 1.0;  //   14.0/24.;  // w_nat[1];  // 1.0;  // w_ess[1];
+    A.coeffRef(i, i + 1) = 0.0;  //   11.0/24.;  // w_nat[0];  // 0.0;  // w_ess[0];
     rhs[i] = rhs[i];
+
+    if (logging == "matrix")
+    {
+        //log_file << "=== Matrix Regularization =============================" << std::endl;
+        //log_file << std::setprecision(4) << std::scientific << Eigen::MatrixXd(A) << std::endl;
+        log_file << "=== c_xixi Regularization ===========================" << std::endl;
+        log_file << std::setprecision(8) << std::scientific << rhs << std::endl;
+        log_file << "=== RHS Regularization ================================" << std::endl;
+        log_file << std::setprecision(8) << std::scientific << rhs << std::endl;
+    }
 
     Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
     solver.compute(A);
