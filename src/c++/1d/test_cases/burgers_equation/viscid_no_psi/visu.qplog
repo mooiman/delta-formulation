@@ -1,0 +1,183 @@
+openfile '.\dx05_dt05_nu00d1\output\burgers_eq_dx5_dt5_map.nc'
+selectfield 'Velocity'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '1:1:4003'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\dx10_dt05_nu00d1\output\burgers_eq_dx10_dt5_map.nc'
+selectfield 'Velocity'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '1:1:2003'
+colour [ 0 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\dx10_dt10_nu00d1\output\burgers_eq_dx10_dt10_map.nc'
+selectfield 'Velocity'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '1:1:2003'
+colour [ 1 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\dx05_dt05_nu10d0\output\burgers_eq_dx5_dt5_map.nc'
+selectfield 'Velocity'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '1:1:4003'
+colour [ 0 0 0 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\dx10_dt05_nu10d0\output\burgers_eq_dx10_dt5_map.nc'
+selectfield 'Velocity'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '1:1:2003'
+colour [ 0 0 1 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\dx10_dt10_nu10d0\output\burgers_eq_dx10_dt10_map.nc'
+selectfield 'Velocity'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '1:1:2003'
+colour [ 1 0 1 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
+
+#===================================================================
+
+openfile '.\dx05_dt05_nu00d1\output\burgers_eq_dx5_dt5_map.nc'
+selectfield 'Peclet (u.dx/nu)'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '1:1:4003'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\dx10_dt05_nu00d1\output\burgers_eq_dx10_dt5_map.nc'
+selectfield 'Peclet (u.dx/nu)'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '1:1:2003'
+colour [ 0 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\dx10_dt10_nu00d1\output\burgers_eq_dx10_dt10_map.nc'
+selectfield 'Peclet (u.dx/nu)'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '1:1:2003'
+colour [ 1 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\dx05_dt05_nu10d0\output\burgers_eq_dx5_dt5_map.nc'
+selectfield 'Peclet (u.dx/nu)'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '1:1:4003'
+colour [ 0 0 0 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\dx10_dt05_nu10d0\output\burgers_eq_dx10_dt5_map.nc'
+selectfield 'Peclet (u.dx/nu)'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '1:1:2003'
+colour [ 0 0 1 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\dx10_dt10_nu10d0\output\burgers_eq_dx10_dt10_map.nc'
+selectfield 'Peclet (u.dx/nu)'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '1:1:2003'
+colour [ 1 0 1 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
+
+#===================================================================
+
+openfile '.\dx05_dt05_nu00d1\output\burgers_eq_dx5_dt5_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '1:1:4003'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\dx10_dt05_nu00d1\output\burgers_eq_dx10_dt5_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '1:1:2003'
+colour [ 0 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\dx10_dt10_nu00d1\output\burgers_eq_dx10_dt10_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '1:1:2003'
+colour [ 1 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\dx05_dt05_nu10d0\output\burgers_eq_dx5_dt5_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '1:1:4003'
+colour [ 0 0 0 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\dx10_dt05_nu10d0\output\burgers_eq_dx10_dt5_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '1:1:2003'
+colour [ 0 0 1 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\dx10_dt10_nu10d0\output\burgers_eq_dx10_dt10_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '1:1:2003'
+colour [ 1 0 1 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
