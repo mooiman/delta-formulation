@@ -573,18 +573,18 @@ int main(int argc, char* argv[])
     std::string his_visc_rhs_name("his_visc_rhs_name");
     std::string his_riemann_pos_name("Riemann_right_going");
     std::string his_riemann_neg_name("Riemann_left_going");
-    his_file->add_variable(his_h_name, "", "Water depth", "m");
-    his_file->add_variable(his_q_name, "", "Water flux", "m2 s-1");
-    his_file->add_variable(his_s_name, "", "Water level", "m");
-    his_file->add_variable(his_u_name, "", "Water velocity", "m s-1");
-    his_file->add_variable(his_zb_name, "", "Bed level", "m");
-    his_file->add_variable(his_froude_name, "", "Froude", "-");
+    his_file->add_variable(his_h_name, "", "Water depth", "m", "Total water depth, i.e. zeta - z_b");
+    his_file->add_variable(his_q_name, "", "Water flux", "m2 s-1", "");
+    his_file->add_variable(his_s_name, "", "Water level", "m", "");
+    his_file->add_variable(his_u_name, "", "Water velocity", "m s-1", "");
+    his_file->add_variable(his_zb_name, "", "Bed level", "m", "");
+    his_file->add_variable(his_froude_name, "", "Froude", "-", "Froude number, u/sqrt(gh)");
     if (do_viscosity)
     {
-        his_file->add_variable(his_peclet_name, "", "Peclet", "-");
-        his_file->add_variable(his_visc_name, "", "Viscosity (used)", "m2 s-1");
-        his_file->add_variable(his_psi_name, "", "Psi", "m2 s-1");
-        his_file->add_variable(his_visc_rhs_name, "", "Viscosity (rhs)", "m2 s-1");
+        his_file->add_variable(his_peclet_name, "", "Peclet", "-", "Cell Peclet number, u.dx/nu");
+        his_file->add_variable(his_visc_name, "", "Viscosity (used)", "m2 s-1", "Viscosity, including the artificial viscosity Psi");
+        his_file->add_variable(his_psi_name, "", "Psi", "m2 s-1", "Artificial viscosity");
+        his_file->add_variable(his_visc_rhs_name, "", "Viscosity (rhs)", "m2 s-1", "Viscosity term, d/dx(visc(du/dx))");
     }
 
     //his_file->add_variable(his_riemann_pos_name, "", "Rieman(+)", "m2 s-1");
@@ -735,7 +735,7 @@ int main(int argc, char* argv[])
                 START_TIMER(Regularization_iter_loop);
                 if (do_viscosity)
                 {
-                    regularization->artificial_viscosity(psi, hp, qp, zb, c_psi, dx);
+                    regularization->artificial_viscosity(psi, hp, qp, zb, c_psi, dx, w_ess, w_nat, log_file, logging);
                     for (int i = 0; i < nx; ++i)
                     {
                         visc[i] = visc_reg[i] + std::abs(psi[i]);
@@ -1572,7 +1572,7 @@ int main(int argc, char* argv[])
             if (do_viscosity)
             {
                 START_TIMER(Regularization_time_loop);
-                (void)regularization->artificial_viscosity(psi, hp, qp, zb, c_psi, dx);
+                (void)regularization->artificial_viscosity(psi, hp, qp, zb, c_psi, dx, w_ess, w_nat, log_file, logging);
                 for (size_t i = 0; i < nx; ++i)
                 {
                     visc[i] = visc_reg[i] + std::abs(psi[i]);

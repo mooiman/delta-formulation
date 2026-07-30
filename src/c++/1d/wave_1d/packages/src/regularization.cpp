@@ -136,7 +136,8 @@ void REGULARIZATION::given_function(std::vector<double>& u_tilde, std::vector<do
 }
 //------------------------------------------------------------------------------
 void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<double>& h, std::vector<double>& q, 
-    std::vector<double>& zb, double c_psi_in, double dx)
+    std::vector<double>& zb, double c_psi_in, double dx, std::vector<double> w_ess, std::vector<double> w_nat,
+    std::ofstream& log_file, std::string logging)
 {
     size_t nx = h.size();
     std::vector<double> h_xixi(nx, 0.);  // second derivative of total depth in computational space
@@ -178,7 +179,9 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     double qbar_im14;
     double qbar_ip14;
 
-    double c_error = c_psi * dx; //same value as for regularization of given function
+    double c_error = c_psi;
+    double c_E = c_psi * c_psi * std::numbers::pi/2.0;
+
     for (size_t i = 1; i < nx - 1; ++i)
     {
         A.coeffRef(i, i - 1) = m_mass[0] - c_error;
@@ -190,7 +193,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         qbar_im14 = 0.25 * (q[i - 1] + 3. * q[i]);
         qbar_ip14 = 0.25 * (q[i + 1] + 3. * q[i]);
 
-        rhs[i] = 7.0 * c_error * dx * (
+        rhs[i] = c_E * dx * (
               0.0625 * std::sqrt(m_g / hbar_im14) * std::abs(s_xixi[i])
             + 0.0625 * std::sqrt(2.) * (std::abs(q_xixi[i] / hbar_im14 - qbar_im14 * h_xixi[i] / (hbar_im14 * hbar_im14)))
             + 0.0625 * std::sqrt(m_g / hbar_ip14) * std::abs(s_xixi[i])
@@ -199,23 +202,23 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     }
     // eq. 19
     i = 0;
-    A.coeffRef(i, i) = 1.; 
-    A.coeffRef(i, i + 1) = -2.0;
-    A.coeffRef(i, i + 2) = 1.;
-    rhs[i] = 0.0;
+    A.coeffRef(i, i    ) = -1.; 
+    A.coeffRef(i, i + 1) = 1.0;
+    A.coeffRef(i, i + 2) = 0.;
+ 
     i = 1;
-    A.coeffRef(i, i - 1) = 0;
-    A.coeffRef(i, i) = 1.;
-    A.coeffRef(i, i + 1) = 0;
+    A.coeffRef(i, i - 1) = w_ess[0];  // 0.0;  //  w_ess[0];  // ;
+    A.coeffRef(i, i    ) = w_ess[1];  // 1.0;  //  w_ess[1];  // ;
+    A.coeffRef(i, i + 1) = w_ess[2];  // 0.0;  //  w_ess[2];  // ;
     rhs[i] = rhs[i];
     i = nx - 1;
-    A.coeffRef(i, i - 2) = 1.;
-    A.coeffRef(i, i - 1) = -2.0;
-    A.coeffRef(i, i) = 1.;
+    A.coeffRef(i, i - 2) = 0.;
+    A.coeffRef(i, i - 1) = -1.0;
+    A.coeffRef(i, i    ) = 1.;
     rhs[i] = 0.0;
     i = nx - 2;
     A.coeffRef(i, i - 1) = 0.0;
-    A.coeffRef(i, i) = 1.0;
+    A.coeffRef(i, i    ) = 1.0;
     A.coeffRef(i, i + 1) = 0.0;
     rhs[i] = rhs[i];
 
@@ -228,7 +231,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         psi[i] = solution[i];
     }
 }
-
+//------------------------------------------------------------------------------
 void REGULARIZATION::first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx)
 {
     int nx = (int)eps.size();

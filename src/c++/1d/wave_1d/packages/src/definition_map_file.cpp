@@ -133,21 +133,21 @@ UGRID1D * create_map_file(std::string nc_mapfile, std::string model_title, std::
     dim_names.push_back("time");
     dim_names.push_back("nMesh1DNodes");
 
-    status = map_file->add_variable(map_names[0], dim_names, "sea_floor_depth_below_sea_surface", "Water depth", "m", "mesh1D", "node");
-    status = map_file->add_variable(map_names[1], dim_names, "", "Water flux", "m2 s-1", "mesh1D", "node");
-    status = map_file->add_variable(map_names[2], dim_names, "", "WaterLevel", "m", "mesh1D", "node");
-    status = map_file->add_variable(map_names[3], dim_names, "", "Water velocity", "m s-1", "mesh1D", "node");
-    status = map_file->add_variable(map_names[4], dim_names, "", "BadLevel", "m", "mesh1D", "node");
-    status = map_file->add_variable(map_names[5], dim_names, "", "Delta h^{n+1,p+1}", "m", "mesh1D", "node");
-    status = map_file->add_variable(map_names[6], dim_names, "", "Delta q^{n+1,p+1}", "m2 s-1", "mesh1D", "node");
-    status = map_file->add_variable(map_names[10], dim_names, "-", "Froude", "-", "mesh1D", "node");
+    status = map_file->add_variable(map_names[0], dim_names, "sea_floor_depth_below_sea_surface", "Water depth", "m", "mesh1D", "node", "Total water depth, i.e. zeta - z_b");
+    status = map_file->add_variable(map_names[1], dim_names, "", "Water flux", "m2 s-1", "mesh1D", "node", "");
+    status = map_file->add_variable(map_names[2], dim_names, "", "WaterLevel", "m", "mesh1D", "node", "");
+    status = map_file->add_variable(map_names[3], dim_names, "", "Water velocity", "m s-1", "mesh1D", "node", "");
+    status = map_file->add_variable(map_names[4], dim_names, "", "BadLevel", "m", "mesh1D", "node", "Bed level");
+    status = map_file->add_variable(map_names[5], dim_names, "", "Delta h^{n+1,p+1}", "m", "mesh1D", "node", "");
+    status = map_file->add_variable(map_names[6], dim_names, "", "Delta q^{n+1,p+1}", "m2 s-1", "mesh1D", "node", "");
+    status = map_file->add_variable(map_names[10], dim_names, "-", "Froude", "-", "mesh1D", "node", "");
     if (do_viscosity)
     {
-        status = map_file->add_variable(map_names[7], dim_names, "-", "Viscosity (reg)", "m2 s-1", "mesh1D", "node");
-        status = map_file->add_variable(map_names[8], dim_names, "-", "Viscosity (used)", "m2 s-1", "mesh1D", "node");
-        status = map_file->add_variable(map_names[9], dim_names, "-", "Psi", "m2 s-1", "mesh1D", "node");
-        status = map_file->add_variable(map_names[11], dim_names, "-", "Peclet (u.dx/nu)", "-", "mesh1D", "node");
-        status = map_file->add_variable(map_names[12], dim_names, "-", "Viscosity (rhs)", "m2 s-1", "mesh1D", "node");
+        status = map_file->add_variable(map_names[7], dim_names, "-", "Viscosity (reg)", "m2 s-1", "mesh1D", "node", "Regularized initial viscosity");
+        status = map_file->add_variable(map_names[8], dim_names, "-", "Viscosity (used)", "m2 s-1", "mesh1D", "node", "Viscosity, including the artificial viscosity Psi");
+        status = map_file->add_variable(map_names[9], dim_names, "-", "Psi", "m2 s-1", "mesh1D", "node", "Artificial viscosity");
+        status = map_file->add_variable(map_names[11], dim_names, "-", "Peclet (u.dx/nu)", "-", "mesh1D", "node", "Cell Peclet number, u.dx/nu");
+        status = map_file->add_variable(map_names[12], dim_names, "-", "Viscosity (rhs)", "m2 s-1", "mesh1D", "node", "Viscosity term, d/dx(visc(du/dx)");
     }
 
     return map_file;

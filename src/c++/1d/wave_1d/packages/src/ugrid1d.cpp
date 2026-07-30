@@ -153,7 +153,8 @@ int UGRID1D::add_variable(std::string var_name, std::vector<std::string> dim_nam
 
     return status;
 }
-int UGRID1D::add_variable(std::string var_name, std::vector<std::string> dim_names, std::string std_name, std::string long_name, std::string unit, std::string mesh, std::string location)
+int UGRID1D::add_variable(std::string var_name, std::vector<std::string> dim_names, std::string std_name, std::string long_name, 
+    std::string unit, std::string mesh, std::string location, std::string comment)
 {
     int dim_id;
     int i_var;
@@ -172,6 +173,8 @@ int UGRID1D::add_variable(std::string var_name, std::vector<std::string> dim_nam
     status = set_attribute(var_name, std::string("standard_name"), std_name);
     status = set_attribute(var_name, std::string("long_name"), long_name);
     status = set_attribute(var_name, std::string("units"), unit);
+    if (comment.size() != 0) { status = set_attribute(var_name, std::string("comment"), comment); }
+
     return status;
 }
 int UGRID1D::add_ntw_edge_nodes(std::string var_name, std::vector<std::string> dim_names, std::string cf_role, std::string long_name)
