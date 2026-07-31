@@ -190,7 +190,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         ubar_ip14 = 0.25 * (u[i + 1] + 3. * u[i]);
         double utmp = 0.5 * (ubar_im14 + ubar_ip14);
         utmp = u[i];
-        rhs[i] = c_E * ( 0.5 * dx * utmp * std::abs(u_xixi[i]) );
+        rhs[i] = c_E * ( 0.5 * dx * std::abs(u_xixi[i]) );
     }
     // eq. 19   
     i = 0;
@@ -209,9 +209,9 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     A.coeffRef(i, i    ) = 1.;
     rhs[i] = 0.0;
     i = nx - 2;
-    A.coeffRef(i, i - 1) = 0.0;  //   -1.0/24.;  // w_nat[2];  // 0.0;  // w_ess[2];
-    A.coeffRef(i, i    ) = 1.0;  //   14.0/24.;  // w_nat[1];  // 1.0;  // w_ess[1];
-    A.coeffRef(i, i + 1) = 0.0;  //   11.0/24.;  // w_nat[0];  // 0.0;  // w_ess[0];
+    A.coeffRef(i, i - 1) = 0.0;  //    w_nat[2];  // 0.0;  // w_ess[2];
+    A.coeffRef(i, i    ) = 1.0;  //    w_nat[1];  // 1.0;  // w_ess[1];
+    A.coeffRef(i, i + 1) = 0.0;  //    w_nat[0];  // 0.0;  // w_ess[0];
     rhs[i] = rhs[i];
 
     if (logging == "matrix")

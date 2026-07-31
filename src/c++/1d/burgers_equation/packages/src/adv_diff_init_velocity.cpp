@@ -28,14 +28,25 @@
 
 #include "adv_diff_init_velocity.h"
 
-int adv_diff_init_velocity(std::vector<double>& u, const double u_initial, const std::vector<double>& x, std::string ini_var)
+int adv_diff_init_velocity(std::vector<double>& u, const std::vector<double>& ini_u_bnd, const std::vector<double>& x, std::string ini_var)
 {
     int status = 1;
     if (ini_var == "constant")
     {
         for (size_t i = 0; i < x.size(); ++i)
         {
-            u[i] = u_initial;
+            u[i] = ini_u_bnd[0];
+        }
+        status = 0;
+    }
+    else if (ini_var == "linear")
+    {
+        for (size_t i = 0; i < x.size(); ++i)
+        {
+            double x_begin = x[1];
+            double x_end = x[x.size() - 2];
+            double alpha = (x[i] - x_begin) / (x_end - x_begin);
+            u[i] = (1. - alpha) * ini_u_bnd[0] + alpha * ini_u_bnd[1];
         }
         status = 0;
     }

@@ -56,7 +56,6 @@ struct _domain {
     std::filesystem::path full_bed_level_filename;
 };
 struct _initial {
-    double u_initial;
     double gauss_amp;
     double gauss_mu;
     double gauss_mu_x;
@@ -65,6 +64,7 @@ struct _initial {
     double gauss_sigma_x;
     double gauss_sigma_y;
     std::vector<std::string> ini_vars;
+    std::vector<double> ini_vals;
 };
 struct _numerics {
     double dt;

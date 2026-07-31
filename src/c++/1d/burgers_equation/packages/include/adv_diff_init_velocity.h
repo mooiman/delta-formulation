@@ -27,6 +27,6 @@
 #include <vector>
 #include <string>
 
-int adv_diff_init_velocity(std::vector<double>& un, const double u_initial, const std::vector<double>& x, std::string bc_type);
+int adv_diff_init_velocity(std::vector<double>& un, const std::vector<double>& ini_u_bnd, const std::vector<double>& x, std::string bc_type);
 
 #endif __ADV_DIFF_INIT_VELOCITY_H__

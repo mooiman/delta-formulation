@@ -276,8 +276,8 @@ int main(int argc, char* argv[])
     std::vector<std::string> bc_signals = input_data.boundary.bc_signals;
     std::vector<double> bc_vals = input_data.boundary.bc_vals;
 
-    double u_initial = input_data.initial.u_initial;
     std::vector<std::string> ini_vars = input_data.initial.ini_vars;
+    std::vector<double> ini_vals = input_data.initial.ini_vals;
 
     double dt = input_data.numerics.dt;
     double dx = input_data.numerics.dx;
@@ -302,7 +302,7 @@ int main(int argc, char* argv[])
 
     std::vector<double> x(nx, 0.);  // x-coordinate
     std::vector<double> y(nx, 0.);  // y-coordinate
-    std::vector<double> un(nx, u_initial);  // velocity [m s-1]
+    std::vector<double> un(nx, 0.0);  // velocity [m s-1]
     std::vector<double> up(nx, 0.0);  // velocity [m s-1]
     std::vector<double> utheta(nx, 0.0);  // velocity at time level theta [(1-theta) * un + theta * up] [m s-1]
     std::vector<double> psi(nx, 0.);  //
@@ -345,7 +345,7 @@ int main(int argc, char* argv[])
     {
         x[i] = double(i - 1) * dx + x_origin;
     }
-    adv_diff_init_velocity(un, u_initial, x, ini_vars[0]);
+    adv_diff_init_velocity(un, ini_vals, x, ini_vars[0]);
     //  Create kdtree, needed to locate the observation points
     std::vector<std::vector<double>> xy_points;
     for (size_t i = 0; i < x.size(); ++i)
@@ -536,8 +536,8 @@ int main(int argc, char* argv[])
         log_file << std::setprecision(4) << time << std::endl;
 #endif
         std::vector<double> bc(2, 0.0);
-        boundary_condition(bc[BC_WEST ], bc_vals[BC_WEST ], time, treg, bc_signals[BC_WEST], u_initial);
-        boundary_condition(bc[BC_EAST ], bc_vals[BC_EAST ], time, treg, bc_signals[BC_EAST], u_initial);
+        boundary_condition(bc[BC_WEST ], bc_vals[BC_WEST ], time, treg, bc_signals[BC_WEST], ini_vals[BC_WEST]);
+        boundary_condition(bc[BC_EAST ], bc_vals[BC_EAST ], time, treg, bc_signals[BC_EAST], ini_vals[BC_EAST]);
 
         if (regularization_time)
         {
@@ -719,12 +719,12 @@ int main(int argc, char* argv[])
                 double corr_term = 0.0;
                 if (bc_type[BC_EAST] == "dirichlet")
                 {
-                    double up_b = w_nat[0] * up_i + w_nat[1] * up_im1 + w_nat[2] * up_im2;
+                    double u_bnd = w_ess[0] * up_i + w_ess[1] * up_im1 + w_ess[2] * up_im2;
 
-                    A.coeffRef(i, i    ) = theta * w_nat[0];
-                    A.coeffRef(i, i - 1) = theta * w_nat[1];
-                    A.coeffRef(i, i - 2) = theta * w_nat[2];
-                    corr_term = bc[BC_EAST] - up_b;
+                    A.coeffRef(i, i    ) = theta * w_ess[0];
+                    A.coeffRef(i, i - 1) = theta * w_ess[1];
+                    A.coeffRef(i, i - 2) = theta * w_ess[2];
+                    corr_term = bc[BC_EAST] - u_bnd;
                     rhs[i] = corr_term;
                 }
                 else if (bc_type[BC_EAST] == "borsboom")
