@@ -336,9 +336,9 @@ int main(int argc, char* argv[])
     w_ess[0] = 1./12.;
     w_ess[1] = 10./12.;
     w_ess[2] = 1./12.;
-    w_ess[0] = 11./24.;
-    w_ess[1] = 14./24.;
-    w_ess[2] = -1./24.;
+    //w_ess[0] = 11./24.;
+    //w_ess[1] = 14./24.;
+    //w_ess[2] = -1./24.;
 
     //initialize x-coordinate
     for (int i = 0; i < nx; i++)
@@ -682,12 +682,19 @@ int main(int argc, char* argv[])
                 double corr_term = 0.0;
                 if (bc_type[BC_WEST] == "dirichlet")
                 {
+                    A.coeffRef(i, i    ) = -1.0;
+                    A.coeffRef(i, i + 1) = 1.0;
+                    A.coeffRef(i, i + 2) = .0;
+                    rhs[i] = 0.0;
+
+                    ++i;
                     double u_bnd = w_ess[0] * up_i + w_ess[1] * up_ip1 + w_ess[2] * up_ip2;
-                    A.coeffRef(i, i    ) = w_ess[0];
-                    A.coeffRef(i, i + 1) = w_ess[1];
-                    A.coeffRef(i, i + 2) = w_ess[2];
-                    tmp[i] = +bc[BC_WEST] - u_bnd;
-                    rhs[i] = tmp[i];
+                    u_bnd = up_ip1;
+                    A.coeffRef(i, i - 1) = .0; w_ess[0];
+                    A.coeffRef(i, i    ) = 1.0; w_ess[1];
+                    A.coeffRef(i, i + 1) = .0; w_ess[2];
+                    corr_term = +bc[BC_WEST] - u_bnd;
+                    rhs[i] = corr_term;
                 }
                 else
                 {
@@ -719,11 +726,18 @@ int main(int argc, char* argv[])
                 double corr_term = 0.0;
                 if (bc_type[BC_EAST] == "dirichlet")
                 {
-                    double u_bnd = w_ess[0] * up_i + w_ess[1] * up_im1 + w_ess[2] * up_im2;
+                    A.coeffRef(i, i    ) = 1.0;
+                    A.coeffRef(i, i - 1) = -1.0;
+                    A.coeffRef(i, i - 2) = .0;
+                    corr_term = 0;
+                    rhs[i] = corr_term;
 
-                    A.coeffRef(i, i    ) = theta * w_ess[0];
-                    A.coeffRef(i, i - 1) = theta * w_ess[1];
-                    A.coeffRef(i, i - 2) = theta * w_ess[2];
+                    --i;
+                    double u_bnd = w_ess[0] * up_i + w_ess[1] * up_im1 + w_ess[2] * up_im2;
+                    u_bnd = up_im1;
+                    A.coeffRef(i, i - 1) = .0; w_ess[0];
+                    A.coeffRef(i, i    ) = 1.0; w_ess[1];
+                    A.coeffRef(i, i + 1) = .0; w_ess[2];
                     corr_term = bc[BC_EAST] - u_bnd;
                     rhs[i] = corr_term;
                 }

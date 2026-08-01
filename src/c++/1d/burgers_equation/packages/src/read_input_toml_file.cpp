@@ -64,6 +64,11 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
     tbl_chp = *tbl["Initial"].as_table();
     status = get_toml_array(tbl_chp, "ini_vars", data.initial.ini_vars);
     status = get_toml_array(tbl_chp, "ini_vals", data.initial.ini_vals);
+    if ( data.initial.ini_vals.size() == 1)
+    {
+        data.initial.ini_vals.resize(2);
+        data.initial.ini_vals[1] =  data.initial.ini_vals[0];
+    }
 
     // Numerics
     tbl_chp = *tbl["Numerics"].as_table();

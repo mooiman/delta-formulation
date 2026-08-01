@@ -1,0 +1,21 @@
+openfile '.\output\burgers_eq_dx10_dt10_map.nc'
+selectfield 'Velocity'
+hselectiontype '(M,N) point/path'
+editt '49'
+# editmn '1:1:2003'
+editmn '982:1:1022'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+
+selectfield 'Velocity'
+hselectiontype '(M,N) point/path'
+editt '73'
+# editmn '1:1:2003'
+editmn '982:1:1022'
+colour [ 1 0 0 ]
+marker 'o'
+plotcoordinate 'x coordinate'
+addtoplot
