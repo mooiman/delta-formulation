@@ -684,15 +684,15 @@ int main(int argc, char* argv[])
                 {
                     A.coeffRef(i, i    ) = -1.0;
                     A.coeffRef(i, i + 1) = 1.0;
-                    A.coeffRef(i, i + 2) = .0;
-                    rhs[i] = 0.0;
+                    A.coeffRef(i, i + 2) = 0.0;
+                    rhs[i] = -(up_ip1 - up_i);
 
                     ++i;
                     double u_bnd = w_ess[0] * up_i + w_ess[1] * up_ip1 + w_ess[2] * up_ip2;
                     u_bnd = up_ip1;
-                    A.coeffRef(i, i - 1) = .0; w_ess[0];
-                    A.coeffRef(i, i    ) = 1.0; w_ess[1];
-                    A.coeffRef(i, i + 1) = .0; w_ess[2];
+                    A.coeffRef(i, i - 1) = 0.0;  //  w_ess[0];
+                    A.coeffRef(i, i    ) = 1.0;  //  w_ess[1];
+                    A.coeffRef(i, i + 1) = 0.0;  //  w_ess[2];
                     corr_term = +bc[BC_WEST] - u_bnd;
                     rhs[i] = corr_term;
                 }
@@ -729,15 +729,15 @@ int main(int argc, char* argv[])
                     A.coeffRef(i, i    ) = 1.0;
                     A.coeffRef(i, i - 1) = -1.0;
                     A.coeffRef(i, i - 2) = .0;
-                    corr_term = 0;
+                    corr_term = -(up_i - up_im1);
                     rhs[i] = corr_term;
 
                     --i;
                     double u_bnd = w_ess[0] * up_i + w_ess[1] * up_im1 + w_ess[2] * up_im2;
                     u_bnd = up_im1;
-                    A.coeffRef(i, i - 1) = .0; w_ess[0];
-                    A.coeffRef(i, i    ) = 1.0; w_ess[1];
-                    A.coeffRef(i, i + 1) = .0; w_ess[2];
+                    A.coeffRef(i, i - 1) = 0.0;  //  w_ess[0];
+                    A.coeffRef(i, i    ) = 1.0;  //  w_ess[1];
+                    A.coeffRef(i, i + 1) = 0.0;  //  w_ess[2];
                     corr_term = bc[BC_EAST] - u_bnd;
                     rhs[i] = corr_term;
                 }
@@ -793,8 +793,8 @@ int main(int argc, char* argv[])
             Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
             solver.compute(A);
             solver.setTolerance(eps_bicgstab);
-            //solution = solver.solve(rhs);
-            solution = solver.solveWithGuess(rhs, solution);
+            solution = solver.solve(rhs);
+            //solution = solver.solveWithGuess(rhs, solution);
             if (nst == 1 && iter == 0)
             {
                 STOP_TIMER(BiCGstab_initialization);

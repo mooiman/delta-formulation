@@ -199,9 +199,9 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     A.coeffRef(i, i + 2) = 0.;
     rhs[i] = 0.0;
     i = 1;
-    A.coeffRef(i, i - 1) = 0.0;  //w_ess[0];  //   w_ess[0];  // ;
-    A.coeffRef(i, i    ) = 1.0;  //w_ess[1];  //   w_ess[1];  // ;
-    A.coeffRef(i, i + 1) = 0.0;  //w_ess[2];  //   w_ess[2];  // ;
+    A.coeffRef(i, i - 1) = w_ess[0];  // 0.0;  //  w_ess[0];  // ;
+    A.coeffRef(i, i    ) = w_ess[1];  // 1.0;  //  w_ess[1];  // ;
+    A.coeffRef(i, i + 1) = w_ess[2];  // 0.0;  //  w_ess[2];  // ;
     rhs[i] = rhs[i];
     i = nx - 1;
     A.coeffRef(i, i - 2) = 0.;
@@ -209,9 +209,9 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     A.coeffRef(i, i    ) = 1.;
     rhs[i] = 0.0;
     i = nx - 2;
-    A.coeffRef(i, i - 1) = 0.0;  //    w_nat[2];  // 0.0;  // w_ess[2];
-    A.coeffRef(i, i    ) = 1.0;  //    w_nat[1];  // 1.0;  // w_ess[1];
-    A.coeffRef(i, i + 1) = 0.0;  //    w_nat[0];  // 0.0;  // w_ess[0];
+    A.coeffRef(i, i - 1) = w_ess[2]; // 0.0;  //    w_nat[2];  // 0.0;  // 
+    A.coeffRef(i, i    ) = w_ess[1]; // 1.0;  //    w_nat[1];  // 1.0;  // 
+    A.coeffRef(i, i + 1) = w_ess[0]; // 0.0;  //    w_nat[0];  // 0.0;  // 
     rhs[i] = rhs[i];
 
     if (logging == "matrix")
@@ -228,6 +228,8 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     solver.compute(A);
     solver.setTolerance(1e-12);
     solution = solver.solve(rhs);
+    //solution = solver.solveWithGuess(rhs, solution);
+
     for (size_t i = 0; i < nx; ++i)
     {
         psi[i] = solution[i];
