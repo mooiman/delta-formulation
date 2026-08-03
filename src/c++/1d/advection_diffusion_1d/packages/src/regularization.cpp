@@ -160,19 +160,14 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         rhs[i] = 0.0;
     }
 
-    double c_xixi_max = 0.001;
-
     for (size_t i = 1; i < nx - 1; ++i)
     {
         c_xixi[i] = (c[i - 1] - 2. * c[i] + c[i + 1]);
-        c_xixi_max = std::max(c_xixi_max, std::abs(c_xixi[i]));
     }
     size_t i = 0;
     c_xixi[i] = 2. * c_xixi[i + 1] - c_xixi[i + 2];
-    c_xixi_max = std::max(c_xixi_max, std::abs(c_xixi[i]));
     i = nx - 1;
     c_xixi[i] = 2. * c_xixi[i - 1] - c_xixi[i - 2];
-    c_xixi_max = std::max(c_xixi_max, std::abs(c_xixi[i]));
     //
     // eq. 18 CRC2001
     double ubar_im14;
@@ -199,9 +194,9 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     A.coeffRef(i, i + 2) = 0.;
     rhs[i] = 0.0;
     i = 1;
-    A.coeffRef(i, i - 1) = 0.0;  //w_ess[0];  //   w_ess[0];  // ;
-    A.coeffRef(i, i    ) = 1.0;  //w_ess[1];  //   w_ess[1];  // ;
-    A.coeffRef(i, i + 1) = 0.0;  //w_ess[2];  //   w_ess[2];  // ;
+    A.coeffRef(i, i - 1) = w_ess[0];  // 0.0;  //  w_ess[0];  // ;
+    A.coeffRef(i, i    ) = w_ess[1];  // 1.0;  //  w_ess[1];  // ;
+    A.coeffRef(i, i + 1) = w_ess[2];  // 0.0;  //  w_ess[2];  // ;
     rhs[i] = rhs[i];
     i = nx - 1;
     A.coeffRef(i, i - 2) = 0.;
@@ -209,9 +204,9 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     A.coeffRef(i, i    ) = 1.;
     rhs[i] = 0.0;
     i = nx - 2;
-    A.coeffRef(i, i - 1) = 0.0;  //   -1.0/24.;  // w_nat[2];  // 0.0;  // w_ess[2];
-    A.coeffRef(i, i    ) = 1.0;  //   14.0/24.;  // w_nat[1];  // 1.0;  // w_ess[1];
-    A.coeffRef(i, i + 1) = 0.0;  //   11.0/24.;  // w_nat[0];  // 0.0;  // w_ess[0];
+    A.coeffRef(i, i - 1) = w_ess[2]; // 0.0;  //    w_nat[2];  // 0.0;  // 
+    A.coeffRef(i, i    ) = w_ess[1]; // 1.0;  //    w_nat[1];  // 1.0;  // 
+    A.coeffRef(i, i + 1) = w_ess[0]; // 0.0;  //    w_nat[0];  // 0.0;  // 
     rhs[i] = rhs[i];
 
     if (logging == "matrix")

@@ -347,9 +347,9 @@ int main(int argc, char* argv[])
     w_ess[0] = 1./12.;
     w_ess[1] = 10./12.;
     w_ess[2] = 1./12.;
-    w_ess[0] = 11./24.;
-    w_ess[1] = 14./24.;
-    w_ess[2] = -1./24.;
+    //w_ess[0] = 11./24.;
+    //w_ess[1] = 14./24.;
+    //w_ess[2] = -1./24.;
 
     //initialize x-coordinate
     for (int i = 0; i < nx; i++)
