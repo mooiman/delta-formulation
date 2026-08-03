@@ -12,8 +12,8 @@ Logging = "None"  # "iterations", "matrix", "pattern"
     x_origin = 0.0  # Origin of the x-coordinate [m]
 
 [Initial]
-    u_initial = 1.0  # initial velocity [m]
-    ini_vars  = ["u_constant"]
+    ini_vals = [1.0]
+    ini_vars = ["constant"]
 
 [Numerics]
     dt                  = 5.0  # Time step size [s], if dt == 0: then stationary problem
