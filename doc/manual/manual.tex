@@ -16,42 +16,6 @@
 
 \allowdisplaybreaks[1]
 
-\newcommand{\ii}{{\rm i}}
-\newcommand{\Dx}{\Delta x}
-\newcommand{\Dy}{\Delta y}
-\newcommand{\Dh}{\Delta h}
-\newcommand{\Dq}{\Delta q}
-\newcommand{\Dr}{\Delta r}
-\newcommand{\Dxi}{\Delta \xi}
-\newcommand{\Deta}{\Delta \eta}
-\newcommand{\Dt}{\Delta t}
-\newcommand{\Dtinv}{\Delta t_{\it{inv}}}
-
-\newcommand{\mat}[1]{\mbox{\boldmath ${\rm #1}$} }
-\newcommand{\half}{\frac{1}{2}}
-\newcommand{\quart}{\frac{1}{4}}
-\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
-\newcommand{\Fabs}[1]{F_{\it abs}(#1)\xspace}  % Continue function for the absolute value
-\newcommand{\eps}{\varepsilon}
-\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
-\newcommand{\bunit}[1]{\text{\normalfont [}{\unit{#1}}\text{\normalfont ]}}
-\newcommand{\bqty}[2]{\text{\num{#1}}\ \text{\normalfont [}{\unit{#2}}\text{\normalfont ]}}
-\newcommand{\Pe}{{Pe}\xspace}
-\newcommand{\bPsi}{\boldsymbol{\Psi}}
-
-\newcommand{\utilde}{\widetilde{u}}
-\newcommand{\ubar}{\overline{u}}
-\newcommand{\uhat }{\widehat{u}}
-\newcommand{\htilde}{\widetilde{h}}
-\renewcommand{\hbar}{\overline{h}}  % overrule the Planck constant
-\newcommand{\hhat }{\widehat{h}}
-\newcommand{\qtilde}{\widetilde{q}}
-\newcommand{\qbar}{\overline{q}}
-\newcommand{\qhat }{\widehat{q}}
-
-\newcommand{\maplesoft}{\textbf{Maplesoft}}
-\newcommand{\deltaformulation}{$\Delta$-formulation\xspace}
-\newcommand{\notyet}{\textbf{Not yet documented}\newline}
 
 \newcommand{\red}[1]{\textcolor{red}{#1}}
 \newcommand{\white}[1]{\textcolor{white}{#1}}
@@ -75,7 +39,175 @@
 \mooimantitle
 %\deltarestitle
 %------------------------------------------------------------------------------
-\chapter{Description of input file}
+\chapter{Description of 1D input file}
+%------------------------------------------------------------------------------
+Five observation points are hard coded in the software, these are located at:
+\begin{enumerate}
+    \item the centre of the grid.
+    \item at the west boundary.
+    \item at the east boundary.
+    \item halfway to the west boundary.
+    \item halfway to the east boundary.
+\end{enumerate}
+Extra observation points can be specified in the input file according the description in \autoref{sec:file_description}
+%------------------------------------------------------------------------------
+\section{File description\newline Burgers \& Advection-diffusion} \label{sec:file_description}
+Items in the color red are only to be used in the development stage of the software.
+An example input file is given in \autoref{sec:example_input_2d}.
+{{\small%\setlength{\tabcolsep}{1pt}
+\begin{longtable}{p{35mm} p{20mm} p{\textwidth-55mm-36pt}}
+    \caption{Standard input-file with default settings.\label{tab:appmdudefaults}} \\ \topline
+    \rowcolor{mgreen1}
+    \white{\textbf{Keyword}}   &  \white{\textbf{Default}}  &  \white{\textbf{Description}}   \\ \hline
+    \endfirsthead
+    \multicolumn{3}{@{}l}{\textsl{(continued from previous page)}} \\
+    \topline
+    \rowcolor{mgreen1}
+    \white{\textbf{Keyword}}   &  \white{\textbf{Default}}  &  \white{\textbf{Description}}   \\
+    \topline
+    \endhead
+    \multicolumn{3}{@{}l}{\textsl{(continued on next page)}} \\  % no horizontal lines, they should only be written by the table itself
+    \endfoot
+    \bottomline
+    \endlastfoot
+    %
+    logging & "None" & "iterations" | "matrix" | "pattern" \\*
+    \midline
+    %
+    \textbf{\texttt{[Boundary]}} & & \\*
+    treg         & 150.0 & Regularization time boundary signal \\*
+    eps\_bc\_corr  & 0.01  & Boundary correction term to force the boundary value to the given boundary value \\*
+    bc\_signals   & [\ $\cdot$\ , $\cdot$\ ] &  ["constant" | "sine"] \\*
+    bc\_type      & [\ $\cdot$\ , $\cdot$\ ] &  ["dirichlet" | "borsboom"] \\*
+    bc\_vals      & [\ $\cdot$\ , $\cdot$\ ] &  [Real value] \\*
+    \midline
+    %
+    \textbf{\texttt{[Domain]}} & & \\*
+    Lx    &-& Length of the domain \\*
+    x\_origin         &-& $x$ location of the origin \\*
+    \midline
+    %
+    \textbf{\texttt{[Initial]}}  && \\*
+    ini\_vals & \ [$\cdot$\ [, $\cdot$\ ]]  & [ real value, real value]\newline If one value is given it is assumed constant over the whole domain \\*
+    ini\_vars & "constant & ["constant", "linear"]  \\*
+    \midline
+    %
+    \multicolumn{3}{@{}l}{\textbf{\texttt{[Numerics]}} } \\*
+    dt & 5.0  & Time step size [s], if dt == 0: then stationary simulation \\*
+    theta & 0.5  & Implicitness factor (0.5 <= theta <= 1.0) \\*
+    c\_psi & 4.0 & Smoothness factor used for regularization \\*
+    iter\_max & 25  & Maximum number of nonlinear iterations \\*
+    eps\_newton & 1e-12 & Accuracy of the Newton solver (non-linear)\\*
+    eps\_bicgstab & 1e-12 & Accuracy of the linear solver\\*
+    eps\_abs\_function & 0.01 & Smoothing factor for the absolute-function\\*
+    linear\_solver & "bicgstab" & Type of linear solver "bicgstab", {\color{red} "multigrid" } \\*
+    regularization\_init & false & true, false \\*
+    regularization\_iter & false & true, false \\*
+    regularization\_time & false & true, false \\*
+    \midline
+    %
+    \multicolumn{3}{@{}l}{\textbf{\texttt{[Output]}} } \\*
+    dt\_his & dt & Time interval to write the history file, \bunit{\second}\\*
+    dt\_map & $60.0$ & Time interval to write the map file, \bunit{\second} \\*
+    \midline
+    %
+    \multicolumn{3}{@{}l}{\textbf{\texttt{[Physics]}} } \\*
+    do\_convection & false & true, false \\*
+    do\_viscosity & false & true, false \\*
+    viscosity & 0.01 & Diffusion/Viscosity coefficient\\*
+    do\_source & false & true, false \\*
+    src\_type & "none" & "none", "quadratic" \\*
+    \midline
+    %
+    %
+    \multicolumn{3}{@{}l}{\textbf{\texttt{[Time]}} } \\*
+    tunit & "s" & Unit of the start and stop time. Values seconds "s", minutes "m", hours "h" and days "d" \\*
+    start & 0.0 & Start time of the simulation, [\texttt{tunit}] \\*
+    stop & 60.0 & Stop time of the simulation, [\texttt{tunit}] \\*
+    \midline
+    %
+    \multicolumn{3}{@{}l}{\textbf{\texttt{[[ObservationPoint]]}} } \\*
+    {x}    &-& $x$-coordinate of the observation point\\*
+    {y}    &-& $y$-coordinate of the observation point\\*
+    {name} & "\ldots" & Name of observation point between double quotes \\
+    \midline
+\end{longtable}
+}}
+
+\section{Example input 1D file\newline Advection-diffusion}\label{sec:example_input_1d}
+\begin{Verbatim}[fontsize=\scriptsize]
+
+Logging = "None"  # "iterations", "matrix", "pattern"
+
+[Boundary]  # west, east
+treg        = 1800.0  # Regularization time boundary signal [s]
+eps_bc_corr = 0.01
+bc_signals  = ["constant", "constant"]
+bc_type     = ["dirichlet", "borsboom"]
+bc_vals     = [2.0, 0.0]
+
+[Domain]
+Lx       = 20000.0  # Domain length [m]
+x_origin = 0.0  # Origin of the x-coordinate [m]
+
+[Initial]
+ini_vals  = [1.0]
+ini_vars  = ["constant"]
+
+[Numerics]
+dt                  = 1.0  # Time step size [s], if dt == 0: then stationary problem
+dx                  = 1.0  # Grid size [m]
+c_psi               = 4.0
+theta               = 0.50  # Implicitness factor (0.5 <= theta <= 1.0)
+iter_max            = 25.0  # Maximum number of non-linear iterations
+eps_newton          = 1e-12
+eps_bicgstab        = 1e-12
+eps_abs_function    = 0.01
+regularization_init = true
+regularization_iter = false
+regularization_time = true
+
+[Output]
+dt_his    = 1.0
+dt_map    = 300.0
+dt_screen = 300.0
+
+[Physics]
+do_convection = true
+do_viscosity  = true
+viscosity     = 0.1
+do_source     = false
+src_type      = "none"
+
+[Time]
+tunit  = "s"  # "s", "m", "h", "d"
+tstart = 0.0
+tstop  = 14400.0
+
+# Hard coded observation points are not listed
+
+[[ObservationPoint]]
+x    = 2500
+y    = 0
+name = "_a"
+
+[[ObservationPoint]]
+x    = 7500
+y    = 0
+name = "_b"
+
+[[ObservationPoint]]
+x    = 12500
+y    = 0
+name = "_c"
+
+[[ObservationPoint]]
+x    = 17500
+y    = 0
+name = "_d"
+\end{Verbatim}
+%------------------------------------------------------------------------------
+\chapter{Description of 2D input file}
 Nine observation points are hard coded in the software, these are located at:
 \begin{enumerate}
     \item the centre of the grid.
@@ -88,11 +220,11 @@ Nine observation points are hard coded in the software, these are located at:
     \item in the South-West corner of the grid.
     \item in the North-West corner of the grid.
 \end{enumerate}
-Extra observation points can be specified in the input file according the description in \autoref{sec:file_description}
+Extra observation points can be specified in the input file according the description in \autoref{sec:file_description}.
 %------------------------------------------------------------------------------
 \section{File description} \label{sec:file_description}
 Items in the color red are only to be used in the development stage of the software.
-An example input file is given in \autoref{sec:example_input}.
+An example input file is given in \autoref{sec:example_input_2d}.
 %------------------------------------------------------------------------------
 {{\small%\setlength{\tabcolsep}{1pt}
 \begin{longtable}{p{35mm} p{20mm} p{\textwidth-55mm-36pt}}
@@ -117,10 +249,9 @@ logging & "None" & "iterations" | "matrix" | "pattern" \\*
 \textbf{\texttt{[Boundary]}} & & \\*
 treg         & 150.0 & Regularization time boundary signal \\*
 eps\_bc\_corr  & 0.01  & Boundary correction term to force the boundary value to the given boundary value \\*
-bc\_type      & [\ ,\ ,\ ,\ ] &  ["free-slip" | "no-slip" | "borsboom" | "mooiman" ] \\*
-bc\_vars      & [\ ,\ ,\ ,\ ] & ["-" | "zeta" | "q"] \\*
-bc\_vals      & [\ ,\ ,\ ,\ ] & [Real value] \\*
-bc\_absorbing & [\ ,\ ,\ ,\ ] & [Boolean value] \\*
+bc\_type      & [\ $\cdot$\ , $\cdot$\ , $\cdot$\ , $\cdot$\ ] &  ["free-slip" | "no-slip" | "borsboom" | "mooiman" ] \\*
+bc\_vars      & [\ $\cdot$\ , $\cdot$\ , $\cdot$\ , $\cdot$\ ] & ["-" | "zeta" | "q"] \\*
+bc\_vals      & [\ $\cdot$\ , $\cdot$\ , $\cdot$\ , $\cdot$\ ] & [Real value] \\*
 \midline
 %
 \textbf{\texttt{[Domain]}} & & \\*
@@ -183,13 +314,12 @@ stop & 60.0 & Stop time of the simulation, \bunit{\second} \\*
 {y}    &-& $y$-coordinate of the observation point\\*
 {name} & "\ldots" & Name of observation point between double quotes \\
 \midline
-
 \end{longtable}
-
+}}
 %
 %================================================================================
 \newpage
-\section{Example input file}\label{sec:example_input}
+\section{Example input 2D file}\label{sec:example_input_2d}
 \begin{Verbatim}[fontsize=\scriptsize]
 logging = "None"  # "iterations", "matrix", "pattern"
 
