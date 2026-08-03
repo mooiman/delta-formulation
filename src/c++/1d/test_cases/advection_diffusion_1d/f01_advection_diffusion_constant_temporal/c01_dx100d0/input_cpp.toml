@@ -1,4 +1,4 @@
-Logging = "none"  # "iterations", "matrix", "pattern"
+    Logging = "none"  # "iterations", "matrix", "pattern"
 
 [Boundary]
     treg = 600.0                                  # Regularization time on boundary
@@ -29,7 +29,7 @@ Logging = "none"  # "iterations", "matrix", "pattern"
 [Output]
     dt_his = 1.0   # [s]
     dt_map = 1.0   # [s] 
-    dt_screen = 120.0   # [s] 
+    dt_screen = 300.0   # [s] 
     
 [Physics]
     u_advection = 10.0  # initial velocity [m]
