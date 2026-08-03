@@ -16,7 +16,7 @@ Logging = "None"  # "iterations", "matrix", "pattern"
     ini_vars  = ["linear"]
 
 [Numerics]
-    dt                  = 10.0  # Time step size [s], if dt == 0: then stationary problem
+    dt                  = 2.0  # Time step size [s], if dt == 0: then stationary problem
     dx                  = 10.0  # Grid size [m]
     c_psi               = 4.0
     theta               = 0.5   # Implicitness factor (0.5 <= theta <= 1.0)

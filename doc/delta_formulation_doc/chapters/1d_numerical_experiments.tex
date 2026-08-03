@@ -166,20 +166,22 @@ and with a prescribed boundary condition at the left side of the domain
 %--------------------------------------------------------------------------------
 \subsection{Transport of a constant constituent at the boundary} \label{sec:numerical_experiment_1d_adv_constant_boundary}
 The prescribed boundary condition for the constituent reads
-% reg_factor = 0.5 * (std::cos(M_PI * (treg - double(nst) * dt) / treg) + 1.0);
 \begin{align}
-    c(0,t) = c_{\mathit given}
+    c(0,t) = c_{\it given}(t)
     \begin{cases}
-        \half \left(\cos\left(\pi \frac{t_{reg} - t}{t_{reg}} \right) + 1\right) &\quad \text{if } t < t_{reg},
+        \frac{\exp(-1/\tau) }{ \exp(-1/\tau) + \exp(-1 / (1 - \tau))},
+        &\quad \text{if\ }0 \leq \tau \leq 1,
         \\
-        1 &\quad \text{if } t \geq t_{reg},
+        1 &\quad \text{if\ }\tau > 1,
     \end{cases}
-    \label{eq:1d_adv_boundary_condition}
+    \label{eq:1d_burgers_boundary_condition}
 \end{align}
 where
 \begin{symbollist}
     \item[$t_{reg}$] The regularization time for the given time-series, [\si{\second}]
     \nomenclature{$t_{reg}$}{\si{\second}}{The regularization time for the given time-series}
+    \item[$\tau$] Relative time to prescribe the transition from initial condition to boundary condition, $\tau = t/t_{reg}$.
+    \item[$c_{\it given}(t)$] Prescribed (given) time-series at the boundary.
 \end{symbollist}
 %--------------------------------------------------------------------------------
 \paragraph*{Numerical experiment}
@@ -343,17 +345,21 @@ With initial condition for the velocity $u_{\mathit given} = \bqty{10}{\metre\pe
 \end{align}
 and with a prescribed boundary condition for the constituent $c$ at the left side of the domain
 \begin{align}
-    c(0,t) = c_{\mathit given}
+    c(0,t) = c_{\it given}(t)
     \begin{cases}
-        \half \cos\left(\pi \left(\frac{t_{reg} - t}{t_{reg}}\right)+ 1\right) &\quad \text{if } t < t_{reg},
+        \frac{\exp(-1/\tau) }{ \exp(-1/\tau) + \exp(-1 / (1 - \tau))},
+        &\quad \text{if\ }0 \leq \tau \leq 1,
         \\
-        1 &\quad \text{if } t \geq t_{reg},
+        1 &\quad \text{if\ }\tau > 1,
     \end{cases}
+    \label{eq:1d_burgers_boundary_condition}
 \end{align}
 where
 \begin{symbollist}
     \item[$t_{reg}$] The regularization time for the given time-series, [\si{\second}]
     \nomenclature{$t_{reg}$}{\si{\second}}{The regularization time for the given time-series}
+    \item[$\tau$] Relative time to prescribe the transition from initial condition to boundary condition, $\tau = t/t_{reg}$.
+    \item[$c_{\it given}(t)$] Prescribed (given) time-series at the boundary.
 \end{symbollist}
 A value of $c(0,t)=0$ is estimated by:
 \begin{align}
@@ -529,13 +535,15 @@ where
     \item[$\Psi$] Artificial viscosity coefficient, $\bunit{\square\metre\per\second}$.
 \end{symbollist}
 The prescribed inflow boundary condition for the velocity reads
-% reg_factor = 0.5 * (std::cos(M_PI * (treg - double(nst) * dt) / treg) + 1.0);
 \begin{align}
     u(0,t) = u_{\it given}(t)
     \begin{cases}
-        \half \left(\cos\left(\pi \frac{t_{reg} - t}{t_{reg}} \right) + 1\right) &\quad \text{if } t < t_{reg},
+%         0 & \quad \text{if } \tau  < 0,
+%         \\
+           \frac{\exp(-1/\tau) }{ \exp(-1/\tau) + \exp(-1 / (1 - \tau))},
+&\quad \text{if\ }0 \leq \tau \leq 1,
         \\
-        1 &\quad \text{if } t \geq t_{reg},
+        1 &\quad \text{if\ }\tau > 1,
     \end{cases}
     \label{eq:1d_burgers_boundary_condition}
 \end{align}
@@ -543,8 +551,72 @@ where
 \begin{symbollist}
     \item[$t_{reg}$] The regularization time for the given time-series, [\si{\second}]
     \nomenclature{$t_{reg}$}{\si{\second}}{The regularization time for the given time-series}
+    \item[$\tau$] Relative time to prescribe the transition from initial condition to boundary condition, $\tau = t/t_{reg}$.
     \item[$u_{\it given}(t)$] Prescribed (given) time-series at the boundary.
 \end{symbollist}
+%--------------------------------------------------------------------------------
+\subsection{Linear initial condition, standing shock wave}
+The linear initial condition has no numerical error because it is a second order method and the boundary conditions are chosen to generate a standing shock wave at the middle of the domain.
+%--------------------------------------------------------------------------------
+\paragraph*{Numerical experiment}
+The numerical experiment is performed with the following parameters:
+\begin{itemize}
+    \item Length of the domain, $L_x = \bqty{20000}{\metre}$
+    \item Grid size, $\Dx \in \{5, 10, 25, 50, 100, 250\}$\ $\bunit{\metre}$
+    \item Start time, $t_{start} = \bqty{0}{\second}$
+    \item End time, $t_{stop} = \bqty{6}{\hour}$
+    \item Timestep, $\Dt \in \{1, 2, 5, 10, 20, 60\}$ $\bunit{\second}$
+    \item Regularization time for time-series, $t_{\it reg} = \bqty{1800}{\second}$
+    \item Prescribed initial velocity, linear velocity profile between $u(0,t) = \bqty{1}{\metre\per\second}$ and $x=L_x$ by $u(L_x,t) = \bqty{-1}{\metre\per\second}$.
+    \item Prescribed velocity on boundary at $x=0$ is given by $u(0,t) = \bqty{1}{\metre\per\second}$ and $x=L_x$ by $u(L_x,t) = \bqty{-1}{\metre\per\second}$.
+    \item Viscosity coefficient $\nu = \bqty{0.1}{\metre\square\per\second}$.
+\end{itemize}
+%--------------------------------------------------------------------------------
+\subsubsection{Results of the numerical experiments}
+Results are presented for different $\Dx$ and different $\Dt$.
+The results are stationary over the time interval $t\in[4, 6]$ hour.
+\begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\textwidth]{figures/standing_shock_wave_time_series.pdf}
+        \caption{Time history for a simulation with
+        $\Dx =\bqty{5}{\metre}, \Dt=\bqty{1}{\second}$ and
+        $\Dx = \bqty{250}{\metre}, \Dt=\bqty{60}{\second}$
+        }
+\end{figure}
+Influence of $\Dt$ on results
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/standing_shock_wave_time_series_dt60_dt30_dt15.pdf}
+    \caption{Time histories for simulations with
+        $\Dx =\bqty{250}{\metre}, \Dt=\bqty{15}{\second}$,
+        $\Dx =\bqty{250}{\metre}, \Dt=\bqty{30}{\second}$ and
+        $\Dx = \bqty{250}{\metre}, \Dt=\bqty{60}{\second}$ at location $\bqty{7500}{\metre}$ from the origin
+    }
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/standing_shock_wave_velocity.png}
+    \caption{Shock wave around $x=\bqty{10000}{\metre}$ for simulations with:
+        black line $\Dx =\bqty{5}{\metre}, \Dt=\bqty{1}{\second}$;
+        blue line $\Dx =\bqty{10}{\metre}, \Dt=\bqty{2}{\second}$;
+        cyan line $\Dx =\bqty{25}{\metre}, \Dt=\bqty{5}{\second}$;
+        red line $\Dx =\bqty{50}{\metre}, \Dt=\bqty{10}{\second}$;
+        green line $\Dx =\bqty{100}{\metre}, \Dt=\bqty{20}{\second}$;
+        blue line $\Dx =\bqty{250}{\metre}, \Dt=\bqty{60}{\second}$.}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/standing_shock_wave_psi.png}
+    \caption{Used artificial viscosity $\Psi$  around $x=\bqty{10000}{\metre}$ for simulations with:
+        black line $\Dx =\bqty{5}{\metre}, \Dt=\bqty{1}{\second}$;
+        blue line $\Dx =\bqty{10}{\metre}, \Dt=\bqty{2}{\second}$;
+        cyan line $\Dx =\bqty{25}{\metre}, \Dt=\bqty{5}{\second}$;
+        red line $\Dx =\bqty{50}{\metre}, \Dt=\bqty{10}{\second}$;
+        green line $\Dx =\bqty{100}{\metre}, \Dt=\bqty{20}{\second}$;
+        blue line $\Dx =\bqty{250}{\metre}, \Dt=\bqty{60}{\second}$.}
+\end{figure}
+%--------------------------------------------------------------------------------
+\subsection{Moving shock wave}
 %--------------------------------------------------------------------------------
 \paragraph*{Numerical experiment}
 The numerical experiment is performed with the following parameters:
@@ -556,14 +628,14 @@ The numerical experiment is performed with the following parameters:
     \item Timestep, $\Dt = \bqty{10}{\second}$
     \item Regularization time for time-series, $t_{\it reg} = \bqty{1800}{\second}$
     \item Prescribed initial velocity, $u_{\it initial}(x,0) = \bqty{1}{\metre\per\second}$
-    \item Prescribed velocity on boundary at $x=0$ is given by \autoref{eq:1d_burgers_boundary_condition}, with $u_{\it given} = \bqty{2}{\metre\per\second}$.
+    \item Prescribed velocity on boundary at $x=0$ is given by \autoref{eq:1d_burgers_boundary_condition}, with $u(0,t) = \bqty{2}{\metre\per\second}$.
     \item No boundary is prescribed at $x=\bqty{20000}{\metre}$, free outflow.
 \end{itemize}
 The speed of the fully developed shock wave for the Burgers equation is $u_{\it shock} =\bqty{1.5}{\metre\per\second}$, see \citet[eq.\ 8.1.67]{Debnath2008}, \citet[eq.\ 11.23]{LeVeque2002}.
 %--------------------------------------------------------------------------------
-\subsection{Results of the numerical experiments}
+\subsubsection{Results of the numerical experiments}
 %----------------------------------------------------------
-\subsubsection[Experiment with viscosity of 10 m2/s]{Experiment with viscosity of \bqty{10}{\metre\square\per\second}}
+\subparagraph*[Experiment with viscosity of 10 m2/s]{Experiment with viscosity of \bqty{10}{\metre\square\per\second}}
 \vspace{1.0\baselineskip}
 \begin{figure}[H]
     \begin{subfigure}{0.49\textwidth}
@@ -595,7 +667,7 @@ The speed of the fully developed shock wave for the Burgers equation is $u_{\it 
 \end{figure}
 The shock wave has a speed of $u_{\it shock} = \bqty{1.5152}{\metre\per\second}$ for both cases, without and with artificial viscosity.
 %--------------------------------------------------------------------------------
-\subsubsection[Experiment with viscosity of 0.1 m2/s]{Experiment with viscosity of \bqty{0.1}{\metre\square\per\second}}
+\subparagraph*[Experiment with viscosity of 0.1 m2/s]{Experiment with viscosity of \bqty{0.1}{\metre\square\per\second}}
 \vspace{1.0\baselineskip}
 \begin{figure}[H]
     \begin{subfigure}{0.49\textwidth}
