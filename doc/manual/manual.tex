@@ -3,7 +3,7 @@
 {
     pdfauthor   = {Mooiman},
 }
-\addbibresource{./common/literature_references.bib}
+\addbibresource{../common/literature_references.bib}
 
 \usepackage{empheq}
 \usepackage{cancel}
@@ -51,12 +51,91 @@ Five observation points are hard coded in the software, these are located at:
 \end{enumerate}
 Extra observation points can be specified in the input file according the description in \autoref{sec:file_description}
 %------------------------------------------------------------------------------
-\section{File description\newline Burgers \& Advection-diffusion} \label{sec:file_description}
-Items in the color red are only to be used in the development stage of the software.
-An example input file is given in \autoref{sec:example_input_2d}.
+\section{File description\newline Burgers \& Advection-diffusion} \label{sec:file_description_burgers}
+An example input file is given in \autoref{sec:example_input_adv_diff_1d}.
 {{\small%\setlength{\tabcolsep}{1pt}
 \begin{longtable}{p{35mm} p{20mm} p{\textwidth-55mm-36pt}}
-    \caption{Standard input-file with default settings.\label{tab:appmdudefaults}} \\ \topline
+\caption{Standard input-file for Burgers and advection-diffusion equation with default settings.\label{tab:appmdudefaults}} \\ \topline
+\rowcolor{mgreen1}
+\white{\textbf{Keyword}}   &  \white{\textbf{Default}}  &  \white{\textbf{Description}}   \\ \hline
+\endfirsthead
+\multicolumn{3}{@{}l}{\textsl{(continued from previous page)}} \\
+\topline
+\rowcolor{mgreen1}
+\white{\textbf{Keyword}}   &  \white{\textbf{Default}}  &  \white{\textbf{Description}}   \\
+\topline
+\endhead
+\multicolumn{3}{@{}l}{\textsl{(continued on next page)}} \\  % no horizontal lines, they should only be written by the table itself
+\endfoot
+\bottomline
+\endlastfoot
+%
+logging & "None" & "iterations" | "matrix" | "pattern" \\*
+\midline
+%
+\textbf{\texttt{[Boundary]}} & & \\*
+treg         & 150.0 & Regularization time boundary signal \\*
+eps\_bc\_corr  & 0.01  & Boundary correction term to force the boundary value to the given boundary value \\*
+bc\_signals   & [\ $\cdot$\ , $\cdot$\ ] &  ["constant" | "sine"] \\*
+bc\_type      & [\ $\cdot$\ , $\cdot$\ ] &  ["dirichlet" | "borsboom"] \\*
+bc\_vals      & [\ $\cdot$\ , $\cdot$\ ] &  [Real value] \\*
+\midline
+%
+\textbf{\texttt{[Domain]}} & & \\*
+Lx    &-& Length of the domain \\*
+x\_origin         &-& $x$ location of the origin \\*
+\midline
+%
+\textbf{\texttt{[Initial]}}  && \\*
+ini\_vals & \ [$\cdot$\ [, $\cdot$\ ]]  & [ real value, real value]\newline If one value is given it is assumed constant over the whole domain \\*
+ini\_vars & "constant & ["constant", "linear"]  \\*
+\midline
+%
+\multicolumn{3}{@{}l}{\textbf{\texttt{[Numerics]}} } \\*
+dt & 5.0  & Time step size [s], if dt == 0: then stationary simulation \\*
+theta & 0.5  & Implicitness factor (0.5 <= theta <= 1.0) \\*
+c\_psi & 4.0 & Smoothness factor used for regularization \\*
+iter\_max & 25  & Maximum number of nonlinear iterations \\*
+eps\_newton & 1e-12 & Accuracy of the Newton solver (non-linear)\\*
+eps\_bicgstab & 1e-12 & Accuracy of the linear solver\\*
+eps\_abs\_function & 0.01 & Smoothing factor for the absolute-function\\*
+linear\_solver & "bicgstab" & Type of linear solver "bicgstab", {\color{red} "multigrid" } \\*
+regularization\_init & false & true, false \\*
+regularization\_iter & false & true, false \\*
+regularization\_time & false & true, false \\*
+\midline
+%
+\multicolumn{3}{@{}l}{\textbf{\texttt{[Output]}} } \\*
+dt\_his & dt & Time interval to write the history file, \bunit{\second}\\*
+dt\_map & $60.0$ & Time interval to write the map file, \bunit{\second} \\*
+dt\_screen & $60.0$ & Time interval to write the time step to the screen, \bunit{\second} \\*    \midline
+%
+\multicolumn{3}{@{}l}{\textbf{\texttt{[Physics]}} } \\*
+do\_convection & false & true, false \\*
+do\_viscosity & false & true, false \\*
+viscosity & 0.01 & Diffusion/Viscosity coefficient\\*
+\midline
+%
+%
+\multicolumn{3}{@{}l}{\textbf{\texttt{[Time]}} } \\*
+tunit & "s" & Unit of the start and stop time. Values seconds "s", minutes "m", hours "h" and days "d" \\*
+start & 0.0 & Start time of the simulation, [\texttt{tunit}] \\*
+stop & 60.0 & Stop time of the simulation, [\texttt{tunit}] \\*
+\midline
+%
+\multicolumn{3}{@{}l}{\textbf{\texttt{[[ObservationPoint]]}} } \\*
+{x}    &-& $x$-coordinate of the observation point\\*
+{y}    &-& $y$-coordinate of the observation point\\*
+{name} & "\ldots" & Name of observation point between double quotes \\
+\midline
+\end{longtable}
+}}
+%------------------------------------------------------------------------------
+\section{File description\newline Wave 1D} \label{sec:file_description_wave_1d}
+An example input file is given in \autoref{sec:example_input_wave_1d}.
+{{\small%\setlength{\tabcolsep}{1pt}
+\begin{longtable}{p{35mm} p{20mm} p{\textwidth-55mm-36pt}}
+    \caption{Standard input-file for wave-1d equation with default settings.\label{tab:appmdudefaults}} \\ \topline
     \rowcolor{mgreen1}
     \white{\textbf{Keyword}}   &  \white{\textbf{Default}}  &  \white{\textbf{Description}}   \\ \hline
     \endfirsthead
@@ -77,23 +156,34 @@ An example input file is given in \autoref{sec:example_input_2d}.
     \textbf{\texttt{[Boundary]}} & & \\*
     treg         & 150.0 & Regularization time boundary signal \\*
     eps\_bc\_corr  & 0.01  & Boundary correction term to force the boundary value to the given boundary value \\*
-    bc\_signals   & [\ $\cdot$\ , $\cdot$\ ] &  ["constant" | "sine"] \\*
-    bc\_type      & [\ $\cdot$\ , $\cdot$\ ] &  ["dirichlet" | "borsboom"] \\*
-    bc\_vals      & [\ $\cdot$\ , $\cdot$\ ] &  [Real value] \\*
+    bc\_type      & [\ $\cdot$\ , $\cdot$\ ] &  ["borsboom" | "mooiman"] \\*
+    bc\_vals      & [\ $\cdot$\ , $\cdot$\ ] &  [Real values] \\*
+    bc\_vars      & [\ $\cdot$\ , $\cdot$\ ] &  ["zeta" | "q"] \\*
     \midline
     %
     \textbf{\texttt{[Domain]}} & & \\*
-    Lx    &-& Length of the domain \\*
-    x\_origin         &-& $x$ location of the origin \\*
+    Lx    &-& Length of the domain, \bunit{\metre} \\*
+    depth         & 10.0 & Bathymetry below reference level [m] \\*
+    geomtry\_type & [\ $\cdot$\ ] &
+    "\texttt{UniformGeometry}"\newline \phantom{mm}Uniform depth profile\newline
+    "\texttt{WavyBedGeometry}" \newline \phantom{mm}Wavy bed geometry \newline
+    "\texttt{SlopedBedGeometry}" \newline \phantom{mm}Sloped bed geometry (Ch\'ezy flow) \newline
+    "\texttt{SlopedWavyBedGeometry}" \newline \phantom{mm}Sloped wavy bed geometry\newline
+    "\texttt{WeirBorsboom2000Geometry}" \newline \phantom{mm}Profile of a weir\newline
+    "\texttt{Shoal}" \newline \phantom{mm}Profile of a shoal
+    \\*
     \midline
     %
     \textbf{\texttt{[Initial]}}  && \\*
-    ini\_vals & \ [$\cdot$\ [, $\cdot$\ ]]  & [ real value, real value]\newline If one value is given it is assumed constant over the whole domain \\*
-    ini\_vars & "constant & ["constant", "linear"]  \\*
+    ini\_vars & "-" & ["zeta\_gauss\_hump"]  \\*
+    gauss\_app   & "-" & Twice the amplitude of the Gaussian hump at the boundary  \\*
+    gauss\_mu    & "-" & Location of the top of the Gaussian hump         \\*
+    gauss\_sigma & "-" & Width of the Gaussian hump  \\*
     \midline
     %
     \multicolumn{3}{@{}l}{\textbf{\texttt{[Numerics]}} } \\*
-    dt & 5.0  & Time step size [s], if dt == 0: then stationary simulation \\*
+    dt & -  & Time step size \bunit{\second}, if dt == 0: then stationary simulation \\*
+    dx & -  & Grid size, \bunit{\metre}\\*
     theta & 0.5  & Implicitness factor (0.5 <= theta <= 1.0) \\*
     c\_psi & 4.0 & Smoothness factor used for regularization \\*
     iter\_max & 25  & Maximum number of nonlinear iterations \\*
@@ -109,6 +199,7 @@ An example input file is given in \autoref{sec:example_input_2d}.
     \multicolumn{3}{@{}l}{\textbf{\texttt{[Output]}} } \\*
     dt\_his & dt & Time interval to write the history file, \bunit{\second}\\*
     dt\_map & $60.0$ & Time interval to write the map file, \bunit{\second} \\*
+    dt\_screen & $60.0$ & Time interval to write the time step to the screen, \bunit{\second} \\*
     \midline
     %
     \multicolumn{3}{@{}l}{\textbf{\texttt{[Physics]}} } \\*
@@ -134,78 +225,6 @@ An example input file is given in \autoref{sec:example_input_2d}.
 \end{longtable}
 }}
 
-\section{Example input 1D file\newline Advection-diffusion}\label{sec:example_input_1d}
-\begin{Verbatim}[fontsize=\scriptsize]
-
-Logging = "None"  # "iterations", "matrix", "pattern"
-
-[Boundary]  # west, east
-treg        = 1800.0  # Regularization time boundary signal [s]
-eps_bc_corr = 0.01
-bc_signals  = ["constant", "constant"]
-bc_type     = ["dirichlet", "borsboom"]
-bc_vals     = [2.0, 0.0]
-
-[Domain]
-Lx       = 20000.0  # Domain length [m]
-x_origin = 0.0  # Origin of the x-coordinate [m]
-
-[Initial]
-ini_vals  = [1.0]
-ini_vars  = ["constant"]
-
-[Numerics]
-dt                  = 1.0  # Time step size [s], if dt == 0: then stationary problem
-dx                  = 1.0  # Grid size [m]
-c_psi               = 4.0
-theta               = 0.50  # Implicitness factor (0.5 <= theta <= 1.0)
-iter_max            = 25.0  # Maximum number of non-linear iterations
-eps_newton          = 1e-12
-eps_bicgstab        = 1e-12
-eps_abs_function    = 0.01
-regularization_init = true
-regularization_iter = false
-regularization_time = true
-
-[Output]
-dt_his    = 1.0
-dt_map    = 300.0
-dt_screen = 300.0
-
-[Physics]
-do_convection = true
-do_viscosity  = true
-viscosity     = 0.1
-do_source     = false
-src_type      = "none"
-
-[Time]
-tunit  = "s"  # "s", "m", "h", "d"
-tstart = 0.0
-tstop  = 14400.0
-
-# Hard coded observation points are not listed
-
-[[ObservationPoint]]
-x    = 2500
-y    = 0
-name = "_a"
-
-[[ObservationPoint]]
-x    = 7500
-y    = 0
-name = "_b"
-
-[[ObservationPoint]]
-x    = 12500
-y    = 0
-name = "_c"
-
-[[ObservationPoint]]
-x    = 17500
-y    = 0
-name = "_d"
-\end{Verbatim}
 %------------------------------------------------------------------------------
 \chapter{Description of 2D input file}
 Nine observation points are hard coded in the software, these are located at:
@@ -221,6 +240,7 @@ Nine observation points are hard coded in the software, these are located at:
     \item in the North-West corner of the grid.
 \end{enumerate}
 Extra observation points can be specified in the input file according the description in \autoref{sec:file_description}.
+
 %------------------------------------------------------------------------------
 \section{File description} \label{sec:file_description}
 Items in the color red are only to be used in the development stage of the software.
@@ -300,6 +320,7 @@ viscosity & 0.01 & Diffusity coefficient\\*
 \multicolumn{3}{@{}l}{\textbf{\texttt{[Output]}} } \\*
 dt\_his & dt & Time interval to write the history file, \bunit{\second}\\*
 dt\_map & $60.0$ & Time interval to write the history file, \bunit{\second} \\*
+dt\_screen & $60.0$ & Time interval to write the time step to the screen, \bunit{\second} \\*
 \midline
 %
 %
@@ -319,6 +340,123 @@ stop & 60.0 & Stop time of the simulation, \bunit{\second} \\*
 %
 %================================================================================
 \newpage
+%--------------------------------------------------------------------------------
+\section{Example input 1D file\newline Advection-diffusion}\label{sec:example_input_adv_diff_1d}
+\begin{Verbatim}[fontsize=\scriptsize]
+
+    Logging = "None"  # "iterations", "matrix", "pattern"
+
+    [Boundary]  # west, east
+    treg        = 1800.0  # Regularization time boundary signal [s]
+    eps_bc_corr = 0.01
+    bc_signals  = ["constant", "constant"]
+    bc_type     = ["dirichlet", "borsboom"]
+    bc_vals     = [2.0, 0.0]
+
+    [Domain]
+    Lx       = 20000.0  # Domain length [m]
+    x_origin = 0.0  # Origin of the x-coordinate [m]
+
+    [Initial]
+    ini_vals  = [1.0]
+    ini_vars  = ["constant"]
+
+    [Numerics]
+    dt                  = 1.0  # Time step size [s], if dt == 0: then stationary problem
+    dx                  = 1.0  # Grid size [m]
+    c_psi               = 4.0
+    theta               = 0.50  # Implicitness factor (0.5 <= theta <= 1.0)
+    iter_max            = 25.0  # Maximum number of non-linear iterations
+    eps_newton          = 1e-12
+    eps_bicgstab        = 1e-12
+    eps_abs_function    = 0.01
+    regularization_init = true
+    regularization_iter = false
+    regularization_time = true
+
+    [Output]
+    dt_his    = 1.0
+    dt_map    = 300.0
+    dt_screen = 300.0
+
+    [Physics]
+    do_convection = true
+    do_viscosity  = true
+    viscosity     = 0.1
+    do_source     = false
+    src_type      = "none"
+
+    [Time]
+    tunit  = "s"  # "s", "m", "h", "d"
+    tstart = 0.0
+    tstop  = 14400.0
+
+    # Hard coded observation points are not listed
+
+    [[ObservationPoint]]
+    x    = 2500
+    y    = 0
+    name = "_a"
+
+    [[ObservationPoint]]
+    x    = 7500
+    y    = 0
+    name = "_b"
+
+    [[ObservationPoint]]
+    x    = 12500
+    y    = 0
+    name = "_c"
+
+    [[ObservationPoint]]
+    x    = 17500
+    y    = 0
+    name = "_d"
+\end{Verbatim}
+%--------------------------------------------------------------------------------
+\section{Example input 1D file\newline Wave 1D}
+\label{sec:example_input_wave_1d}
+\begin{Verbatim}[fontsize=\scriptsize]
+[Boundary]
+bc\_type = ["borsboom", "borsboom"]  # Type "mooiman", "borsboom"
+bc\_vars = ["q", "zeta"]             # Incoming signal "q" or "zeta"
+bc\_vals = [0.0, 0.0]                # The inflow discharge
+treg = 600.0                         # Regularization time on boundary
+eps\_bc\_corr = 1.0e-2
+
+[Domain]
+Lx = 36000.0    # Domain length [m]
+depth = 10.0    # bathymetry below reference level [m]
+geometry\_type = "UniformGeometry"
+
+[Initial]
+ini\_vars = ["zeta\_gauss\_hump"]
+gauss\_mu = 9000.0    # location of the top of the gaussian hump
+gauss\_sigma = 700.0  # location of the top of the gaussian hump
+gauss\_amp = 0.02     # twice the amplitude of the gaussian hump at the boundary
+
+[Numerics]
+dt = 10.0              # Time step size [s], if dt == 0: then stationary problem
+dx = 10.0              # Grid size [m]
+iter_max = 25          # Maximum number of nonlinear iterations
+theta = 0.501          # Implicitness factor (0.5 <= theta <= 1.0)
+eps\_newton = 1.0e-12
+eps\_bicgstab = 1.0e-12
+
+[Output]
+dt\_his = 10.0      # [s]
+dt\_map = 1200.0    # [s]
+dt\_screen = 300.0  # [s]
+
+[Physics]
+g = 10.0              # Gravitational acceleration
+do\_convection = false # Include momentum convection term
+
+[Time]
+tstart = 0.0          # Start time [s]
+tstop = 43200.0       # End time [s]
+\end{Verbatim}
+%--------------------------------------------------------------------------------
 \section{Example input 2D file}\label{sec:example_input_2d}
 \begin{Verbatim}[fontsize=\scriptsize]
 logging = "None"  # "iterations", "matrix", "pattern"
@@ -378,5 +516,6 @@ tunit  = "s"
 tstart = 0.0
 tstop  = 1800.0
 \end{Verbatim}
-
+%--------------------------------------------------------------------------------
+\printallbibliography
 \end{document}
