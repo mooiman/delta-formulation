@@ -682,19 +682,34 @@ int main(int argc, char* argv[])
                 double corr_term = 0.0;
                 if (bc_type[BC_WEST] == "dirichlet")
                 {
-                    A.coeffRef(i, i    ) = -1.0;
-                    A.coeffRef(i, i + 1) = 1.0;
-                    A.coeffRef(i, i + 2) = 0.0;
-                    rhs[i] = -(up_ip1 - up_i);
-
                     ++i;
                     double u_bnd = w_ess[0] * up_i + w_ess[1] * up_ip1 + w_ess[2] * up_ip2;
                     u_bnd = up_ip1;
-                    A.coeffRef(i, i - 1) = 0.0;  //  w_ess[0];
-                    A.coeffRef(i, i    ) = 1.0;  //  w_ess[1];
-                    A.coeffRef(i, i + 1) = 0.0;  //  w_ess[2];
+                    A.coeffRef(i - 1, i - 1) = 0.0;  //  w_ess[0];
+                    A.coeffRef(i - 1, i    ) = 1.0;  //  w_ess[1];
+                    A.coeffRef(i - 1, i + 1) = 0.0;  //  w_ess[2];
                     corr_term = +bc[BC_WEST] - u_bnd;
-                    rhs[i] = corr_term;
+                    rhs[i - 1] = corr_term;
+
+                    A.coeffRef(i, i - 1) = -1.0;
+                    A.coeffRef(i, i    ) = 1.0;
+                    A.coeffRef(i, i + 1) = 0.0;
+                    rhs[i] = -(up[i] - up[i-1]);
+
+                    if (do_viscosity)
+                    {
+                        double visc_im12 = - 0.5 * (visc[i - 1] + visc[i]);
+                        double visc_ip12 = - 0.5 * (visc[i] + visc[i + 1]);
+
+                        A.coeffRef(i, i - 1) += + visc_im12 * theta * dxinv;
+                        A.coeffRef(i, i    ) += - visc_im12 * theta * dxinv;
+                        A.coeffRef(i, i    ) += - visc_ip12 * theta * dxinv;
+                        A.coeffRef(i, i + 1) += + visc_ip12 * theta * dxinv;
+                        rhs[i] += -(
+                            visc_ip12 * dxinv * (utheta[i + 1] - utheta[i]) - visc_im12 * dxinv * (utheta[i] - utheta[i - 1])
+                            );
+                    }
+
                 }
                 else
                 {
@@ -719,27 +734,36 @@ int main(int argc, char* argv[])
                 double up_im1 = up[i - 1];         // = u^{n+1,p}_{i-1}
                 double up_im2 = up[i - 2];         // = u^{n+1,p}_{i-2}
 
-                double utheta_i = utheta[i];
-                double utheta_im1 = utheta[i - 1];
-                double utheta_im2 = utheta[i - 2];
-
                 double corr_term = 0.0;
                 if (bc_type[BC_EAST] == "dirichlet")
                 {
-                    A.coeffRef(i, i    ) = 1.0;
-                    A.coeffRef(i, i - 1) = -1.0;
-                    A.coeffRef(i, i - 2) = .0;
-                    corr_term = -(up_i - up_im1);
-                    rhs[i] = corr_term;
-
                     --i;
                     double u_bnd = w_ess[0] * up_i + w_ess[1] * up_im1 + w_ess[2] * up_im2;
                     u_bnd = up_im1;
-                    A.coeffRef(i, i - 1) = 0.0;  //  w_ess[0];
-                    A.coeffRef(i, i    ) = 1.0;  //  w_ess[1];
-                    A.coeffRef(i, i + 1) = 0.0;  //  w_ess[2];
+                    A.coeffRef(i + 1, i - 1) = 0.0;  //  w_ess[0];
+                    A.coeffRef(i + 1, i    ) = 1.0;  //  w_ess[1];
+                    A.coeffRef(i + 1, i + 1) = 0.0;  //  w_ess[2];
                     corr_term = bc[BC_EAST] - u_bnd;
-                    rhs[i] = corr_term;
+                    rhs[i + 1] = corr_term;
+
+                    A.coeffRef(i, i - 1) = 0.0;
+                    A.coeffRef(i, i    ) = -1.0;
+                    A.coeffRef(i, i + 1) = 1.0;
+                    rhs[i] = -(up[i + 1] - up[i]);
+
+                    if (do_viscosity)
+                    {
+                        double visc_im12 = - 0.5 * (visc[i - 1] + visc[i]);
+                        double visc_ip12 = - 0.5 * (visc[i] + visc[i + 1]);
+                    
+                        A.coeffRef(i, i - 1) += + visc_im12 * theta * dxinv;
+                        A.coeffRef(i, i    ) += - visc_im12 * theta * dxinv;
+                        A.coeffRef(i, i    ) += - visc_ip12 * theta * dxinv;
+                        A.coeffRef(i, i + 1) += + visc_ip12 * theta * dxinv;
+                        rhs[i] += -(
+                            visc_ip12 * dxinv * (utheta[i + 1] - utheta[i]) - visc_im12 * dxinv * (utheta[i] - utheta[i - 1])
+                            );
+                    }
                 }
                 else if (bc_type[BC_EAST] == "borsboom")
                 {           
@@ -748,10 +772,10 @@ int main(int argc, char* argv[])
                     double un_bnd = w_nat[0] * un_i + w_nat[1] * un_im1 + w_nat[2] * un_im2;
                     double dudt = dtinv * (up_bnd - un_bnd);
                     
-                    double ududx =  0.5 * (utheta_i + utheta_im1) * (utheta_i - utheta_im1) * dxinv;
+                    double ududx =  0.5 * (utheta[i] + utheta[i - 1]) * (utheta[i] - utheta[i - 1]) * dxinv;
                     
-                    A.coeffRef(i, i    ) = dtinv * w_nat[0] + theta * dxinv * utheta_i;
-                    A.coeffRef(i, i - 1) = dtinv * w_nat[1] - theta * dxinv * utheta_im1;
+                    A.coeffRef(i, i    ) = dtinv * w_nat[0] + theta * dxinv * utheta[i];
+                    A.coeffRef(i, i - 1) = dtinv * w_nat[1] - theta * dxinv * utheta[i - 1];
                     A.coeffRef(i, i - 2) = dtinv * w_nat[2];
                     rhs[i] = - (dudt + ududx);
                 
