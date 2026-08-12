@@ -49,11 +49,11 @@ int adv_diff_init_velocity(std::vector<double>& u, const std::vector<double>& in
             double phi_x = std::exp(-1. / xtmp);
             u[i] = ini_u_bnd[0] + (ini_u_bnd[1] - ini_u_bnd[0]) * phi_x / (phi_x + std::exp(-1. / (1. - xtmp)));      
         }
-        // u_init = a - (a+b)*phi(1/2+(x-x_c)/alpha) / ( phi(1/2+(x-x_c)/alpha) + phi(1/2-(x-x_c)/alpha) )
+        // u_init = a - (a+b)*phi(1/2+(x - x_c)/alpha) / ( phi(1/2+(x - x_c)/alpha) + phi(1/2 - (x - x_c)/alpha) )
         // 
         // Met phi de bekende functie phi(x) = exp(-1/x), x > 0; = 0, x <= 0, met a, b > 0, 
         // met alpha (in meters) de parameter waarmee je de steilheid van de overgang tussen a en -b regelt 
-        // (typisch (een fractie van) de lengte van het domein), en met x_c de positie van die overgang. 
+        // (typisch (een fractie van) de lengte van het domein), en met x_c de positie van die overgang.
     }
     else if (ini_var == "linear")
     {
