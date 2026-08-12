@@ -39,14 +39,39 @@ int adv_diff_init_velocity(std::vector<double>& u, const std::vector<double>& in
         }
         status = 0;
     }
+    else if (ini_var == "smoothstep")
+    {
+        // smooth stepfunction between boundary values ini_u_bnd[0] and ini_u_bnd[1] at the left and right boundary of the domain x
+        for (size_t i = 1; i < x.size() - 1; ++i)
+        {
+            double Lx = x[x.size() - 2] - x[1]; 
+            double xtmp= x[i]/Lx;
+            double phi_x = std::exp(-1. / xtmp);
+            u[i] = ini_u_bnd[0] + (ini_u_bnd[1] - ini_u_bnd[0]) * phi_x / (phi_x + std::exp(-1. / (1. - xtmp)));      
+        }
+        // u_init = a - (a+b)*phi(1/2+(x-x_c)/alpha) / ( phi(1/2+(x-x_c)/alpha) + phi(1/2-(x-x_c)/alpha) )
+        // 
+        // Met phi de bekende functie phi(x) = exp(-1/x), x > 0; = 0, x <= 0, met a, b > 0, 
+        // met alpha (in meters) de parameter waarmee je de steilheid van de overgang tussen a en -b regelt 
+        // (typisch (een fractie van) de lengte van het domein), en met x_c de positie van die overgang. 
+    }
     else if (ini_var == "linear")
     {
-        for (size_t i = 0; i < x.size(); ++i)
+        size_t shift = 1;
+        for (size_t i = 0; i < shift; ++i)
         {
-            double x_begin = x[1];
-            double x_end = x[x.size() - 2];
+           u[i] = ini_u_bnd[0];
+        }
+        for (size_t i = shift; i < x.size() - shift; ++i)
+        {
+            double x_begin = x[shift];
+            double x_end = x[x.size() - 1 - shift];
             double alpha = (x[i] - x_begin) / (x_end - x_begin);
             u[i] = (1. - alpha) * ini_u_bnd[0] + alpha * ini_u_bnd[1];
+        }
+        for (size_t i = x.size()-shift; i < x.size(); ++i)
+        {
+           u[i] = ini_u_bnd[1];
         }
         status = 0;
     }
