@@ -31,9 +31,11 @@
 int adv_diff_init_velocity(std::vector<double>& u, const std::vector<double>& ini_u_bnd, const std::vector<double>& x, std::string ini_var)
 {
     int status = 1;
+    size_t nx = x.size();
+
     if (ini_var == "constant")
     {
-        for (size_t i = 0; i < x.size(); ++i)
+        for (size_t i = 0; i < nx; ++i)
         {
             u[i] = ini_u_bnd[0];
         }
@@ -42,13 +44,16 @@ int adv_diff_init_velocity(std::vector<double>& u, const std::vector<double>& in
     else if (ini_var == "smoothstep")
     {
         // smooth stepfunction between boundary values ini_u_bnd[0] and ini_u_bnd[1] at the left and right boundary of the domain x
-        for (size_t i = 1; i < x.size() - 1; ++i)
+        for (size_t i = 1; i <nx - 1; ++i)
         {
-            double Lx = x[x.size() - 2] - x[1]; 
+            double Lx = x[nx - 2] - x[1]; 
             double xtmp= x[i]/Lx;
             double phi_x = std::exp(-1. / xtmp);
             u[i] = ini_u_bnd[0] + (ini_u_bnd[1] - ini_u_bnd[0]) * phi_x / (phi_x + std::exp(-1. / (1. - xtmp)));      
         }
+        u[0] = ini_u_bnd[0];
+        u[nx - 1] = ini_u_bnd[1];
+        //
         // u_init = a - (a+b)*phi(1/2+(x - x_c)/alpha) / ( phi(1/2+(x - x_c)/alpha) + phi(1/2 - (x - x_c)/alpha) )
         // 
         // Met phi de bekende functie phi(x) = exp(-1/x), x > 0; = 0, x <= 0, met a, b > 0, 
@@ -62,14 +67,14 @@ int adv_diff_init_velocity(std::vector<double>& u, const std::vector<double>& in
         {
            u[i] = ini_u_bnd[0];
         }
-        for (size_t i = shift; i < x.size() - shift; ++i)
+        for (size_t i = shift; i < nx - shift; ++i)
         {
             double x_begin = x[shift];
-            double x_end = x[x.size() - 1 - shift];
+            double x_end = x[nx - 1 - shift];
             double alpha = (x[i] - x_begin) / (x_end - x_begin);
             u[i] = (1. - alpha) * ini_u_bnd[0] + alpha * ini_u_bnd[1];
         }
-        for (size_t i = x.size()-shift; i < x.size(); ++i)
+        for (size_t i = nx - shift; i < nx; ++i)
         {
            u[i] = ini_u_bnd[1];
         }
@@ -78,7 +83,7 @@ int adv_diff_init_velocity(std::vector<double>& u, const std::vector<double>& in
     else if (ini_var == "colombo")
     {
         // u(x,0) = \exp{x} + 0.3 \exp( -200 (x + 0.5)^2)
-        for (size_t i = 0; i < x.size(); ++i)
+        for (size_t i = 0; i < nx; ++i)
         {
             double mu = -0.5;
             double sigma = 0.05;
