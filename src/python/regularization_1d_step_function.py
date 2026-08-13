@@ -98,7 +98,7 @@ def main(Lx=2000., dx=100., c_psi = 0.125):
 
     xc = 1./2. * Lx  # - 0.50 * dx
     jc = int(xc/dx)
-    step_at = 0.00
+    step_at = 0.3
     xc = x[jc] + step_at * dx
 
     for i in range(0, refine*(imax-1) + 1):

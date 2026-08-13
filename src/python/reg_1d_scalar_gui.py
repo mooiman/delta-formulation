@@ -49,8 +49,9 @@ class DFTgui(QMainWindow):
         self.bath_combobox.addItem("Weir", 4)  # current = 6
         self.bath_combobox.addItem("Step function", 5)  # current = 7
         self.bath_combobox.addItem("Constant", 6)  # current = 8
-        self.bath_combobox.addItem("Boundary layers", 7)  # curent = 9
+        self.bath_combobox.addItem("Boundary layers", 7)  # current = 9
         self.bath_combobox.addItem("Wiggle", 10)  # current = 10
+        self.bath_combobox.addItem("Smooth step", 11)  # current = 11
         self.bath_combobox.setCurrentIndex(9)
 
         self.bath_combobox.setToolTip("Several scalar profiles")
@@ -74,6 +75,8 @@ class DFTgui(QMainWindow):
         edit_layout.addWidget(self.dx_label, nrow, 0)
         edit_layout.addWidget(self.dx_edit, nrow, 1)
         self.dx_edit.setText("20.")
+        if (self.bath_combobox.currentIndex() == 9):
+            self.dx_edit.setText("40.")
 
         nrow += 1
         self.cpsi_label = QLabel(self)
@@ -97,6 +100,9 @@ class DFTgui(QMainWindow):
         if (self.bath_combobox.currentIndex() == 10):
             self.step_left_label.setText('---')
             self.step_left_edit.setText("0.0")
+        if (self.bath_combobox.currentIndex() == 11):
+            self.step_left_label.setText('Left:')
+            self.step_left_edit.setText("0.0")
 
         nrow += 1
         self.step_right_label = QLabel(self)
@@ -111,6 +117,9 @@ class DFTgui(QMainWindow):
         if (self.bath_combobox.currentIndex() == 10):
             self.step_right_label.setText('---')
             self.step_right_edit.setText("0.0")
+        if (self.bath_combobox.currentIndex() == 11):
+            self.step_right_label.setText('Right:')
+            self.step_right_edit.setText("1.0")
 
         # layout.addStretch()
         layout.addLayout(edit_layout)
@@ -146,6 +155,10 @@ class DFTgui(QMainWindow):
             self.lx_edit.setText("500.")
             self.dx_edit.setText("5.")
             self.step_left_edit.setText("0.0")
+        if (self.bath_combobox.itemData(self.bath_combobox.currentIndex()) == 7):
+            self.lx_edit.setText("1000.")
+            self.dx_edit.setText("40.")
+            self.step_left_edit.setText("0.0")
         if (self.bath_combobox.itemData(self.bath_combobox.currentIndex()) == 8):
             self.lx_edit.setText("1.")
             self.dx_edit.setText("0.04")
@@ -157,6 +170,13 @@ class DFTgui(QMainWindow):
             self.dx_edit.setText("20.")
             self.step_left_edit.setText("-4.0")
             self.step_right_edit.setText("-0.5")
+        if (self.bath_combobox.itemData(self.bath_combobox.currentIndex()) == 11):
+            self.step_left_label.setText('Left:')
+            self.step_right_label.setText('Right:')
+            self.lx_edit.setText("1000.")
+            self.dx_edit.setText("20.")
+            self.step_left_edit.setText("0.0")
+            self.step_right_edit.setText("1.0")
 
     def run(self):
         lx = self.lx_edit.text()
