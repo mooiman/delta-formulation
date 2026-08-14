@@ -205,7 +205,6 @@ int main(int argc, char* argv[])
     double dxinv = 1./input_data.numerics.dx;                                 // invers grid size [m]
     size_t nx = int(input_data.domain.Lx * dxinv) + 1 + 2 ;                    // number of nodes; including 2 virtual points
     size_t ny = 1; 
-    size_t nxny = nx * ny; 
 
     int total_time_steps = int((input_data.time.tstop - input_data.time.tstart) / input_data.numerics.dt) + 1;  // Number of time steps [-]
     double dtinv;                                         // Inverse of dt, if dt==0 then stationary solution [1/s]
@@ -260,13 +259,10 @@ int main(int argc, char* argv[])
     status = write_used_input(input_data, log_file);
     log_file << "=======================================================" << std::endl;
 
-    double bc0;
-    double bc1;
-
     // Copy input data to local data
     std::string logging = input_data.log.logging;
 
-    double Lx       = input_data.domain.Lx;
+    //double Lx       = input_data.domain.Lx;
     double x_origin = input_data.domain.x_origin;
 
     double eps_bc_corr = input_data.boundary.eps_bc_corr;
@@ -305,7 +301,8 @@ int main(int argc, char* argv[])
     std::vector<double> un(nx, 0.0);  // velocity [m s-1]
     std::vector<double> up(nx, 0.0);  // velocity [m s-1]
     std::vector<double> utheta(nx, 0.0);  // velocity at time level theta [(1-theta) * un + theta * up] [m s-1]
-    std::vector<double> psi(nx, 0.);  //
+    std::vector<double> u_init(nx, 0.0); // initial velocity [m s-1]
+    std::vector<double> psi(nx, 0.);  //    
     std::vector<double> delta_u(nx, 0.);
     std::vector<double> pe(nx, 0.);
     std::vector<double> cfl(nx, 0.);
@@ -345,7 +342,7 @@ int main(int argc, char* argv[])
     {
         x[i] = double(i - 1) * dx + x_origin;
     }
-    adv_diff_init_velocity(un, ini_vals, x, ini_vars[0]);
+    adv_diff_init_velocity(u_init, ini_vals, x, ini_vars[0]);
     //  Create kdtree, needed to locate the observation points
     std::vector<std::vector<double>> xy_points;
     for (size_t i = 0; i < x.size(); ++i)
@@ -358,6 +355,7 @@ int main(int argc, char* argv[])
     if (regularization_init)
     {
         START_TIMER(Regularization_init);
+        regularization->given_function(un, psi, u_init, dx, c_psi, log_file);
         regularization->given_function(visc_reg, psi, visc_given, dx, c_psi, log_file);
         for (size_t i = 0; i < nx; ++i)
         {
@@ -365,15 +363,23 @@ int main(int argc, char* argv[])
         }
         STOP_TIMER(Regularization_init);
     }
+    else
+    {
+        for (size_t i = 0; i < nx; ++i)
+        {
+            un[i] = u_init[i];
+            visc[i] = visc_given[i];
+        }
+    }
     for (int i = 0; i < nx; ++i)
     {
-        cfl[i] = up[i] * dt / dx;
+        cfl[i] = un[i] * dt / dx;
     }
     if (do_viscosity)
     {
         for (int i = 0; i < nx; ++i)
         {
-            pe[i] = up[i] * dx / visc[i];
+            pe[i] = un[i] * dx / visc[i];
             fo[i] = visc[i] * dt / (dx * dx);
         }
     }
@@ -539,21 +545,22 @@ int main(int argc, char* argv[])
         boundary_condition(bc[BC_WEST ], bc_vals[BC_WEST ], time, treg, bc_signals[BC_WEST], ini_vals[BC_WEST]);
         boundary_condition(bc[BC_EAST ], bc_vals[BC_EAST ], time, treg, bc_signals[BC_EAST], ini_vals[BC_EAST]);
 
+        std::string logging_org = logging;
+        if (time == 14400.0 || nst == 1 || nst == 2){
+            logging = "matrix";
+        }
+        regularization->artificial_viscosity(psi, un, c_psi, dx, w_ess, w_nat, log_file, logging);
+        logging = logging_org;
+
         if (regularization_time)
         {
             START_TIMER(Regularization_time_loop);
             if (do_viscosity)
             {
-                std::string logging_org = logging;
-                if (time == 7200){
-                    //logging = "matrix";
-                }
-                regularization->artificial_viscosity(psi, un, c_psi, dx, w_ess, w_nat, log_file, logging);
                 for (int i = 0; i < nx; ++i)
                 {
                     visc[i] = visc_reg[i] + std::abs(psi[i]);
                 }
-                logging = logging_org;
             }
             STOP_TIMER(Regularization_time_loop);
         }
@@ -595,19 +602,6 @@ int main(int argc, char* argv[])
             //
             for (int i = 1; i < nx - 1; ++i)
             {
-                double un_i   = un[i];
-                double un_im1 = un[i - 1];
-                double un_ip1 = un[i + 1];
-                double up_i   = up[i];
-                double up_im1 = up[i - 1];
-                double up_ip1 = up[i + 1];
-
-                double un_im12 = 0.5 * (un[i - 1] + un[i]);
-                double un_ip12 = 0.5 * (un[i] + un[i + 1]);
-
-                double up_im12 = 0.5 * (up[i - 1] + up[i]);
-                double up_ip12 = 0.5 * (up[i] + up[i + 1]);
-
                 double utheta_im12 = 0.5 * ( utheta[i - 1] + utheta[i] );
                 double utheta_ip12 = 0.5 * ( utheta[i] + utheta[i + 1] );
 
@@ -621,19 +615,22 @@ int main(int argc, char* argv[])
                     + dx * dtinv * mass[2] * (up[i + 1] - un[i + 1])
                     );
                 rhs[i] = tmp[i];
-                //
-                // 0.5 * d(uu)/dx = 0.5 * (uu)_{i+1/2} - 0.5 (uu)_{i-1/2}
-                utheta_im12 = 0.5 * (utheta[i - 1] + utheta[i]);
-                utheta_ip12 = 0.5 * (utheta[i] + utheta[i + 1]);
+                if (do_convection)
+                {
+                    //
+                    // 0.5 * d(uu)/dx = 0.5 * (uu)_{i+1/2} - 0.5 (uu)_{i-1/2}
+                    utheta_im12 = 0.5 * (utheta[i - 1] + utheta[i]);
+                    utheta_ip12 = 0.5 * (utheta[i] + utheta[i + 1]);
 
-                A.coeffRef(i, i - 1) += - 0.5 * utheta_im12 * theta;
-                A.coeffRef(i, i)     += - 0.5 * utheta_im12 * theta;
-                A.coeffRef(i, i)     += + 0.5 * utheta_ip12 * theta;
-                A.coeffRef(i, i + 1) += + 0.5 * utheta_ip12 * theta;
-                tmp[i] += -(
-                    + 0.5 * ( utheta_ip12 - utheta_im12) * (utheta_ip12 + utheta_im12)
-                    );
-                rhs[i] = tmp[i];
+                    A.coeffRef(i, i - 1) += - 0.5 * utheta_im12 * theta;
+                    A.coeffRef(i, i)     += - 0.5 * utheta_im12 * theta;
+                    A.coeffRef(i, i)     += + 0.5 * utheta_ip12 * theta;
+                    A.coeffRef(i, i + 1) += + 0.5 * utheta_ip12 * theta;
+                    tmp[i] += -(
+                        + 0.5 * ( utheta_ip12 - utheta_im12) * (utheta_ip12 + utheta_im12)
+                        );
+                    rhs[i] = tmp[i];
+                }
                 //
                 //  d(visc(du/dx))/dx
                 if (do_viscosity)
@@ -669,47 +666,42 @@ int main(int argc, char* argv[])
                 //
                 // wwest boundary (u>0; essential boundary)
                 //
-                int i = 0;
-
-                double un_i   = un[i];           // = u^{n}_{i}
-                double un_ip1 = un[i + 1];       // = u^{n}_{i+1}
-                double un_ip2 = un[i + 2];       // = u^{n}_{i+2}
-
-                double up_i   = up[i];           // = u^{n+1,p}_{i}
-                double up_ip1 = up[i + 1];       // = u^{n+1,p}_{i+1}
-                double up_ip2 = up[i + 2];       // = u^{n+1,p}_{i+2}
 
                 double corr_term = 0.0;
                 if (bc_type[BC_WEST] == "dirichlet")
                 {
-                    ++i;
-                    double u_bnd = w_ess[0] * up_i + w_ess[1] * up_ip1 + w_ess[2] * up_ip2;
-                    u_bnd = up_ip1;
-                    A.coeffRef(i - 1, i - 1) = 0.0;  //  w_ess[0];
-                    A.coeffRef(i - 1, i    ) = 1.0;  //  w_ess[1];
-                    A.coeffRef(i - 1, i + 1) = 0.0;  //  w_ess[2];
-                    corr_term = +bc[BC_WEST] - u_bnd;
-                    rhs[i - 1] = corr_term;
+                    int i = 0;
+                    double un_bnd = w_ess[0] * un[i] + w_ess[1] * un[i+1] + w_ess[2] * un[i+2];
+                    double up_bnd = w_ess[0] * up[i] + w_ess[1] * up[i+1] + w_ess[2] * up[i+2];
+                    un_bnd = un[i+1];
+                    up_bnd = up[i+1];
+                    double dhdt = dtinv * (up_bnd - un_bnd);
 
+                    A.coeffRef(i, i    ) = 0.0;  //  w_ess[0];
+                    A.coeffRef(i, i + 1) = 1.0;  //  w_ess[1];
+                    A.coeffRef(i, i + 2) = 0.0;  //  w_ess[2];
+                    corr_term = (bc[BC_WEST] - up_bnd);
+                    rhs[i] = corr_term;
+
+                    i = 1;
                     A.coeffRef(i, i - 1) = -1.0;
                     A.coeffRef(i, i    ) = 1.0;
                     A.coeffRef(i, i + 1) = 0.0;
-                    rhs[i] = -(up[i] - up[i-1]);
-
-                    if (do_viscosity)
-                    {
-                        double visc_im12 = - 0.5 * (visc[i - 1] + visc[i]);
-                        double visc_ip12 = - 0.5 * (visc[i] + visc[i + 1]);
-
-                        A.coeffRef(i, i - 1) += + visc_im12 * theta * dxinv;
-                        A.coeffRef(i, i    ) += - visc_im12 * theta * dxinv;
-                        A.coeffRef(i, i    ) += - visc_ip12 * theta * dxinv;
-                        A.coeffRef(i, i + 1) += + visc_ip12 * theta * dxinv;
-                        rhs[i] += -(
-                            visc_ip12 * dxinv * (utheta[i + 1] - utheta[i]) - visc_im12 * dxinv * (utheta[i] - utheta[i - 1])
-                            );
-                    }
-
+                    rhs[i] = -(up[i] - up[i - 1]);  // gradient is zero
+                    //
+                    //if (do_viscosity)
+                    //{
+                    //    double visc_im12 = - 0.5 * (visc[i - 1] + visc[i]);
+                    //    double visc_ip12 = - 0.5 * (visc[i] + visc[i + 1]);
+                    //
+                    //    A.coeffRef(i, i - 1) += + visc_im12 * dxinv;
+                    //    A.coeffRef(i, i    ) += - visc_im12 * dxinv;
+                    //    A.coeffRef(i, i    ) += - visc_ip12 * dxinv;
+                    //    A.coeffRef(i, i + 1) += + visc_ip12 * dxinv;
+                    //    rhs[i] += -(
+                    //        visc_ip12 * dxinv * (up[i + 1] - up[i]) - visc_im12 * dxinv * (up[i] - up[i - 1])
+                    //        );
+                    //}
                 }
                 else
                 {
@@ -724,52 +716,53 @@ int main(int argc, char* argv[])
                 //
                 // eeast boundary (u>0; natural boundary)
                 //
-                int i = nx - 1;
-
-                double un_i   = un[i];             // = u^{n}_{i}
-                double un_im1 = un[i - 1];         // = u^{n}_{i-1}
-                double un_im2 = un[i - 2];         // = u^{n}_{i-2}
-
-                double up_i   = up[i];             // = u^{n+1,p}_{i}
-                double up_im1 = up[i - 1];         // = u^{n+1,p}_{i-1}
-                double up_im2 = up[i - 2];         // = u^{n+1,p}_{i-2}
+                //double utheta_i = utheta[i];
+                //double utheta_im1 = utheta[i - 1];
+                //double utheta_im2 = utheta[i - 2];
 
                 double corr_term = 0.0;
                 if (bc_type[BC_EAST] == "dirichlet")
                 {
-                    --i;
-                    double u_bnd = w_ess[0] * up_i + w_ess[1] * up_im1 + w_ess[2] * up_im2;
-                    u_bnd = up_im1;
-                    A.coeffRef(i + 1, i - 1) = 0.0;  //  w_ess[0];
-                    A.coeffRef(i + 1, i    ) = 1.0;  //  w_ess[1];
-                    A.coeffRef(i + 1, i + 1) = 0.0;  //  w_ess[2];
-                    corr_term = bc[BC_EAST] - u_bnd;
-                    rhs[i + 1] = corr_term;
+                    size_t i = nx - 1;
+                    double un_bnd = w_ess[0] * un[i] + w_ess[1] * un[i - 1] + w_ess[2] * un[i - 2];
+                    double up_bnd = w_ess[0] * up[i] + w_ess[1] * up[i - 1] + w_ess[2] * up[i - 2];
+                    un_bnd = un[i - 1];
+                    up_bnd = up[i - 1];
+                    double dhdt = dtinv * (up_bnd - un_bnd);
 
+                    A.coeffRef(i, i    ) = 0.0;  //  w_ess[0];
+                    A.coeffRef(i, i - 1) = 1.0;  //  w_ess[1];
+                    A.coeffRef(i, i - 2) = 0.0;  //  w_ess[2];
+                    corr_term = -((bc[BC_EAST] - up_bnd));
+                    rhs[i] = corr_term;
+
+                    i = nx - 2;
                     A.coeffRef(i, i - 1) = 0.0;
-                    A.coeffRef(i, i    ) = -1.0;
+                    A.coeffRef(i, i   ) = -1.0;
                     A.coeffRef(i, i + 1) = 1.0;
-                    rhs[i] = -(up[i + 1] - up[i]);
-
-                    if (do_viscosity)
-                    {
-                        double visc_im12 = - 0.5 * (visc[i - 1] + visc[i]);
-                        double visc_ip12 = - 0.5 * (visc[i] + visc[i + 1]);
-                    
-                        A.coeffRef(i, i - 1) += + visc_im12 * theta * dxinv;
-                        A.coeffRef(i, i    ) += - visc_im12 * theta * dxinv;
-                        A.coeffRef(i, i    ) += - visc_ip12 * theta * dxinv;
-                        A.coeffRef(i, i + 1) += + visc_ip12 * theta * dxinv;
-                        rhs[i] += -(
-                            visc_ip12 * dxinv * (utheta[i + 1] - utheta[i]) - visc_im12 * dxinv * (utheta[i] - utheta[i - 1])
-                            );
-                    }
+                    rhs[i] = - (up[i + 1] - up[i]);  // gradinet is zero
+                    //
+                    //if (do_viscosity)
+                    //{
+                    //    double visc_im12 = - 0.5 * (visc[i - 1] + visc[i]);
+                    //    double visc_ip12 = - 0.5 * (visc[i] + visc[i + 1]);
+                    //
+                    //    A.coeffRef(i , i - 1) += + visc_im12 * dxinv;
+                    //    A.coeffRef(i , i    ) += - visc_im12 * dxinv;
+                    //    A.coeffRef(i , i    ) += - visc_ip12 * dxinv;
+                    //    A.coeffRef(i , i + 1) += + visc_ip12 * dxinv;
+                    //    rhs[i] += -(
+                    //        visc_ip12 * dxinv * (up[i + 1] - up[i]) - visc_im12 * dxinv * (up[i] - up[i - 1])
+                    //        );
+                    //}
                 }
                 else if (bc_type[BC_EAST] == "borsboom")
                 {           
                     // Outflow boundary (natural boundary)
-                    double up_bnd = w_nat[0] * up_i + w_nat[1] * up_im1 + w_nat[2] * up_im2;
-                    double un_bnd = w_nat[0] * un_i + w_nat[1] * un_im1 + w_nat[2] * un_im2;
+                    size_t i = nx - 1;
+
+                    double up_bnd = w_nat[0] * up[i] + w_nat[1] * up[i - 1] + w_nat[2] * up[i - 2];
+                    double un_bnd = w_nat[0] * un[i] + w_nat[1] * un[i - 1] + w_nat[2] * un[i - 2];
                     double dudt = dtinv * (up_bnd - un_bnd);
                     
                     double ududx =  0.5 * (utheta[i] + utheta[i - 1]) * (utheta[i] - utheta[i - 1]) * dxinv;
