@@ -740,7 +740,7 @@ int main(int argc, char* argv[])
                     A.coeffRef(i, i - 1) = 0.0;
                     A.coeffRef(i, i   ) = -1.0;
                     A.coeffRef(i, i + 1) = 1.0;
-                    rhs[i] = - (up[i + 1] - up[i]);  // gradinet is zero
+                    rhs[i] = - (up[i + 1] - up[i]);  // gradient is zero
                     //
                     //if (do_viscosity)
                     //{
