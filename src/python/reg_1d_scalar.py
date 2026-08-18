@@ -48,6 +48,7 @@ def main(bath_in = 11, Lx_in=1000., dx_in=50.0, c_psi_in= 4.0, left_in = 0.0, ri
     # 8: Interface
     # 9: Summer-winterbed
     # 10: Wiggle
+    # 11: Smooth step
     #
 
     Psi = c_psi * dx *dx
