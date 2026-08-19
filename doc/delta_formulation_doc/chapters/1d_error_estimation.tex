@@ -8,7 +8,7 @@ In this section a Fourier mode analysis for constant $\Dx$ and $\Psi$ of \autore
 For convenience the equation is repeated here:
 %
 \begin{align}
-    \widetilde u - \pdiff{}{x}  \Psi \pdiff{\widetilde u}{x} = u_{\mathit{giv}},
+    \widetilde u - \pdiff{}{x} \left( \Psi \pdiff{\widetilde u}{x} \right) = u_{\mathit{giv}},
     \qquad \Psi = c_\Psi \Dx^2 E
     \label{eq:ugiv_easy_problem}
 \end{align}
@@ -138,6 +138,7 @@ The cut-off frequency is determined by $1 = 1/(c_{\Psi} (k\Dx)^2)$, hence filter
 Given the wavelength from the required numerical error (1\ \%, $N = 13$), the coefficient $c_{\Psi}$ reads:
 \begin{align}
 c_{\Psi} = \frac{1}{(k\Dx)^2} \quad \Rightarrow \quad c_{\Psi} = \frac{N^2 }{(2\pi)^2} \approx 4
+\label{eq:c_psi_kdx_squared}
 \end{align}
 %
 %--- begin light blue table ---
@@ -237,7 +238,7 @@ for constant $\Dx$ and constant $c_\Psi$ (see \autoref{tab:numerical_accuracy_c_
 \begin{align}
     E = D^{u,x}_{\xi} = \Dx^2 \pdiff[2]{u}{x},
 \end{align}
-thus $E$ and $u$ do have the same dimension.
+so $E$ and $u$ do have the same dimension.
 
 In physical space this equation reads ($\Psi = c_\Psi \Dx^2 E$):
 \begin{align}
@@ -249,16 +250,20 @@ When using the Fourier modes analysis, we get as indication for each Fourier mod
 \begin{align}
     \widetilde{E} - c_\Psi \Dx^2 \pdiff[2]{\widetilde{E}}{x}
     = c_{E}  \Dx^2  (k\Dx)^2 \frac{2A}{\pi}\frac{1}{h_{typ}}
+    \label{eq:c_E}
 \end{align}
 with ${2/\pi}$ the ration between the averaged amplitude and maximum amplitude $(A)$ of a Fourier mode, $A=h_{typ}$ for the normalized amplitude.
 \begin{align}
     c_\Psi \Dx^2  =  c_{E}  \Dx^2  (k\Dx)^2 \frac{2}{\pi}
     \quad \Rightarrow \quad
-    c_{E} = c_\Psi \frac{1}{(k\Dx)^2}\frac{\pi}{2}
+    c_{E} = c_\Psi \frac{1}{(k\Dx)^2}\frac{\pi}{2} = c_\Psi^2 \frac{\pi}{2}
 \end{align}
+where \autoref{eq:c_psi_kdx_squared} is used.
 For a $1$~\% accuracy, $c_\psi = 4$ see \autoref{tab:numerical_accuracy_c_error}, the maximum allowed Fourier modes is $k\Dx < 0.4899$, substitution yields:
 \begin{align}
-    c_E = c_\Psi \frac{1}{(k\Dx)^2}\frac{\pi}{2} \approx 4.1667 \frac{1}{0.24} \frac{\pi}{2}  \quad \Rightarrow \quad c_{E} \approx 27.2708
+    c_E = c_\Psi \frac{1}{(k\Dx)^2}\frac{\pi}{2}
+    \quad \Rightarrow \quad
+    c_{E} \approx 27.2708
 \end{align}
 %
 %--- begin light blue table ---

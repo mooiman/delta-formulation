@@ -430,7 +430,7 @@ The finite volume approach for control volume $\Dx_{i+\half}$ of \autoref{eq:1d_
     \right) & = 0
 \end{align}
 %------------------------------------------------------------------------------
-\paragraph*{Discretization interior}
+\subsection{Discretization interior}
 The discretization in \deltaformulation in the interior of domain $\Omega$ and
 for equidistant grid and the mass-matrix as given in \autoref{eq:definition_mass_matrix} reads
 \begin{align}
@@ -466,15 +466,51 @@ After linearization of $u^{n+\theta,p+1}$ the discretization reads:
 \end{align}
 
 %------------------------------------------------------------------------------
-\paragraph*{Discretization at boundaries}
+\paragraph*{Artificial viscosity $\Psi$}
+To constant viscosity $\nu$ in the Burgers equation will be add an artificial viscosity $\Psi(x,t)$ which is space and time dependent.
+The adjusted Burgers equation (the \textit{'easy'}-problem) reads then
+\begin{align}
+    \pdiff{u}{t} + \half \pdiff{u^2}{x} - \pdiff{}{x} \left( \left(\nu + \Psi \right) \pdiff{u}{x} \right) = 0. \label{eq:1d_burgers_easy}
+\end{align}
+
+An estimation of the artificial viscosity $\Psi$ is computed as follows (
+see \autoref{sec:estimate_artificial_viscosity} and
+\autoref{eq:c_E}).
+\begin{align}
+    c_E = c_\psi^2 \frac{\pi}{2} , \qquad  c_{\it error} = c_\Psi.
+\end{align}
+%
+The follow system of equations need to be solved, based on \citet[eq.\ 18]{Borsboom2001}:
+\begin{align}
+    &\Psi - c_{\it error}\Dx^2\pdiff[2]{\Psi}{x} = c_E \Dx  \int^{\xi_{i+\half}}_{\xi_{i-\half}} \abs{\pdiff[2]{u}{\xi}} \, d\xi
+\end{align}
+
+The follow system of equations need to be solved:
+\begin{align}
+    &\left(\frac{1}{8} - c_{\it error}\right)\Psi_{i-1} +
+    \left(\frac{6}{8} + 2 c_{\it error}\right) \Psi_i +
+    \left(\frac{1}{8} - c_{\it error}\right)\Psi_{i+1} =
+    \\*
+    & = c_E  \left[
+    \frac{\Dx}{2} \left( \quart\left( \abs{\pdiff[2]{u}{\xi}}^{n+1,p}_{i-1} + 3 \abs{\pdiff[2]{u}{\xi}}^{n+1,p}_i \right)\right) +
+    \frac{\Dx}{2} \left( \quart\left( 3 \abs{\pdiff[2]{u}{\xi}}^{n+1,p}_{i} + \abs{\pdiff[2]{u}{\xi}}^{n+1,p}_{i+1} \right)\right)
+    \right]
+\end{align}
+with
+\begin{align}
+    \left.\pdiff[2]{u}{\xi}\right|_i = \frac{u_{i-1} - 2 u_i + u_{i+1} }{\Dxi^2}
+\end{align}
+%------------------------------------------------------------------------------
+\subsection{Discretization at boundaries}
 An \textbf{essential} boundary condition at the inflow boundary is needed, left side of the domain.
 And, at the right side an outflow boundary 'condition' is required for numerical reasons (called  a \textbf{natural} boundary condition), i.e.\ a discretization of the model equation at the outflow boundary.
 The natural boundary conditions is fully determined by the outgoing signal and therefor we use the equation of the outgoing signal, i.e.\ \autoref{eq:left_right_going_equations}.
 For the 1-D Burgers equation when omitting the viscosity term it reads:
 \begin{align}
-    \pdiff{u}{t} + \half\pdiff{u^2}{x}  = 0, \qquad u>0. \label{eq:1d_burgers_nat_boundary}
+    \pdiff{u}{t} + \half\pdiff{u^2}{x} - \pdiff{}{x} \left( (\nu + \Psi)  \pdiff{u}{x} \right) = 0. \label{eq:1d_burgers}
 \end{align}
-
+%--------------------------------------------------------------------------------
+\paragraph*{Inflow boundary}
 The \textbf{essential} boundary condition at the inflow boundary (left/west-side) reads:
 \begin{align}
     u(0,t) = u_{\it given}(t), \quad t > 0 \qquad \text{(essential boundary)}
@@ -492,9 +528,12 @@ with
     + w^{\it ess}_1 u^{n+1,p}_1
     + w^{\it ess}_2 u^{n+1,p}_2,
 \end{align}
+Similar if an essential boundary condition is given at the right/east-side of the domain.
 %
+%--------------------------------------------------------------------------------
+\paragraph*{Outflow boundary}
 The \textbf{natural} is chosen in that way that as less as possible left going spurious numerical waves are generated at the outflow boundary, i.e.\ nearly no reflection.
-The natural boundary condition (right/east-side) is supplied at $x_I$ with the discretization constants as determined by \autoref{eq:stencil_nat} and boundary condition \autoref{eq:1d_burgers_nat_boundary} which yields:
+The natural boundary condition (right/east-side) is supplied at $x_I$ with the discretization constants as determined by \autoref{eq:stencil_nat} and boundary condition \autoref{eq:1d_burgers} which yields:
 \begin{align}
     &\left( \frac{w^{\it nat}_0}{\Dt} + \theta \frac{u^{n+1,p}_{I+1}}{\Dx} \right) \Delta u^{n+1,p+1}_{I+1} +
     \left( \frac{w^{\it nat}_1}{\Dt} - \theta \frac{u^{n+1,p}_{I}}{\Dx} \right) \Delta u^{n+1,p+1}_I +
@@ -528,6 +567,8 @@ where
     w^{\it nat}_2 & = (\alpha_{\mathit bnd})/2 = -\frac{1}{8}
 \end{align}
 with $\alpha_{\mathit bnd} = 2\alpha -\half$ ($\alpha_{\mathit bnd} = -\quart$ when $\alpha = \frac{1}{8}$).
+
+Similar if an natural boundary condition is given at the left/west-side of the domain.
 
 %------------------------------------------------------------------------------
 \section{1-D Wave equation}
