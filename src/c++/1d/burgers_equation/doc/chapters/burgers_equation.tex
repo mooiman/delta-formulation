@@ -128,11 +128,23 @@ We consider only a flow direction in positive $x$-direction, so $u>0$.
 \subsection{West boundary}
 This is an inflow boundary ($u>0$).
 \begin{align}
-    u^{n+1} &= f(t)
+    u^{n+1}_{bnd} &= f(t)
     \\
-    u^{n+\theta, p} + \theta \Delta u  &= f(t)
+    u^{n+\theta, p}_{bnd} + \theta \Delta u_{bnd}  &= f(t)
     \\
-    \theta \Delta u & = f(t) - u^{n+\theta, p}
+    \theta \Delta u_{bnd} & = f(t) - u^{n+\theta, p}_{bnd}
+\end{align}
+with
+\begin{align}
+    \Delta u_{bnd} & =
+     w^{\it ess}_0 \Delta u^{n+1,p+1}_0
++ w^{\it ess}_1 \Delta u^{n+1,p+1}_1
++ w^{\it ess}_2 \Delta u^{n+1,p+1}_2,
+    \\
+    u^{n+\theta, p}_{bnd} & =
+     w^{\it ess}_0 u^{n+1,p}_0
+    + w^{\it ess}_1 u^{n+1,p}_1
+    + w^{\it ess}_2 u^{n+1,p}_2,
 \end{align}
 
 %------------------------------------------------------------------------------
