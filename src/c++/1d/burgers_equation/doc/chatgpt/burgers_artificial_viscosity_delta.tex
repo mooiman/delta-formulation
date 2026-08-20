@@ -1,0 +1,152 @@
+% Burgers equation with viscous/artificial-viscosity shock
+% Compiled from the discussion
+
+\documentclass{mooiman_memo}
+
+\memoSubject{Burgers Equation with Viscous and Artificial-Viscosity Shock}
+\memoFrom{Jan Mooiman}
+\memoDate{\today~\currenttime}
+\memoTo{}
+
+\begin{document}
+
+\mooimantitle
+
+\subsubsection*{Burgers Equation with Viscous and Artificial-Viscosity Shock}
+
+That changes the interpretation substantially. With a delta formulation + Newton iteration, we can write down the discrete nonlinear problem much more precisely.
+
+Suppose at time level n+1 you solve
+\begin{align}
+\mat{R}(\vec{u}^{n+1})=0
+\end{align}
+by Newton iteration.
+At Newton iteration k,
+\begin{align}
+\mat{J}(\vec{u}(k))\delta \vec{u}=-\mat{R}(\vec{u}(k)),
+\end{align}
+followed by
+\begin{align}
+\vec{u}^{(k+1)}=\vec{u}^{(k)}+\delta \vec{u}.
+\end{align}
+Your matrix A is therefore the Newton Jacobian, not necessarily the physical diffusion operator itself. This is the important distinction that was missing in the previous derivation.
+
+\subparagraph*{Your artificial-viscosity Jacobian}
+
+You have
+\begin{align}
+A_{i,i - 1} & = \frac{1}{8} - c_{\Psi},
+\\
+A_{i,i} & = \frac{6}{8} + 2 c_{\Psi},
+\\
+A_{i,i+1} & = \frac{1}{8} - c_{\Psi}.
+\end{align}
+%
+The artificial part of the Jacobian is
+\begin{align}
+c_{\Psi} [-1, 2, -1].
+\end{align}
+For the \textbf{delta variable},
+\begin{align}
+\delta u_{i-1} -2 \delta u_{i} + \delta u_{i+1}
+=\Dx^2 \pdiff{\delta u}{x} + \frac{1}{12} \Dx^4 \pdiff[4]{\delta u}{x}.
+\end{align}
+Therefore the artificial-viscosity contribution to the Newton system is
+\begin{align}
+    \boxed{
+    -c_{\Psi} \Dx^2 \pdiff{\delta u}{x} - \frac{c_{\Psi}}{12} \Dx^4 \pdiff[4]{\delta u}{x} + \ldots.
+}
+\end{align}
+%
+and this is a contribution to the \textbf{Jacobian}, not directly $\nu_{art}u_{xx}$.
+
+\subparagraph*{The crucial point about your $c_E$}
+
+You have
+\begin{align}
+    c_E = \frac{\pi}{2}c_\Psi^2
+\end{align}
+and
+\begin{align}
+    rhs_i = \frac{\pi}{4} c_\Psi^2 \Dx^2 \abs{u_{xx}}
+\end{align}
+%
+Because this appears in the \textbf{Newton residual/RHS}, it represents a nonlinear residual contribution.
+%
+If the residual contains
+\begin{align}
+    \mat{R}_\Psi(\vec{u}) = \frac{\pi}{4} c_\Psi^2 \Dx^2 \abs{u_{xx}}
+\end{align}
+
+then its Newton linearisation is
+\begin{align}
+    \delta \mat{R}_\Psi = \frac{\pi}{4} c_\Psi^2 \Dx^2 {\rm sign}(u_{xx})\delta u_{xx}
+\end{align}
+
+
+Thus the Jacobian contribution associated with this term should be proportional to
+\begin{align}
+    \boxed{
+    \frac{\pi}{4} c_\Psi^2 \Dx^2 {\rm sign}(u_{xx})\delta u_{xx}
+    }
+\end{align}
+
+%
+This is quite different from a conventional constant viscosity.
+
+\subparagraph*{What your scheme is effectively doing}
+
+Ignoring higher-order terms, your Newton equation contains artificial terms of the form
+\begin{align}
+    -c_{\Psi} \Dx^2 \delta u_{xx}
+    + \frac{\pi}{4} c_\Psi^2 \Dx^2 {\rm sign}(u_{xx})\delta u_{xx}
+\end{align}
+%
+Therefore the effective coefficient associated with the second derivative is approximately
+\begin{align}
+    \boxed{
+    \nu_{\it eff} \propto    c_{\Psi} \Dx^2
+    - \frac{\pi}{4} c_\Psi^2 \Dx^2 {\rm sign}(u_{xx})
+    }
+\end{align}
+%
+\textbf{up to the sign convention of your residual.}
+
+That sign convention is important: depending on whether you define
+\begin{align}
+    R = F(u) - rhs
+\end{align}
+or
+\begin{align}
+    R = rhs - F(u)
+\end{align}
+the signs reverse.
+
+So I would \textbf{not yet use this formula to choose $c_psi$.}
+
+\subparagraph*{What I now need}
+
+Since you have told me that the method is a delta/Newton formulation, the missing piece is very small. Please give me the actual Newton equation, something like
+\begin{align}
+\mat{A}  \delta = rhs;
+\end{align}
+and preferably the definition of $rhs$ immediately before this.
+%
+Then I can derive exactly:
+\begin{align}
+    &\boxed{
+        R(u)
+    }
+    \qquad
+    \boxed{
+    J(u) = \pdiff{R(u)}{u}
+    }
+\end{align}
+%
+and consequently the continuous modified equation
+\begin{align}
+    u_u + uu_x = \nu_{\it eff}(u, u_x, u_{xx}) u_{xx} + HOT
+\end{align}
+%
+That will also let us determine whether your current $c_E$ term is\textbf{ actually adding viscosity or inadvertently reducing it}, which is particularly relevant to the wiggles you observed for $a=1$, $b=-1$.
+\end{document}

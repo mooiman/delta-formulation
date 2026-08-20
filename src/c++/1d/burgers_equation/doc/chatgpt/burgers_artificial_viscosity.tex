@@ -1,0 +1,617 @@
+% Burgers equation with viscous/artificial-viscosity shock
+% Compiled from the discussion
+
+\documentclass{mooiman_memo}
+
+
+\usepackage{listings}
+
+\memoSubject{Burgers Equation with Viscous and Artificial-Viscosity Shock}
+\memoFrom{Jan Mooiman}
+\memoDate{\today~\currenttime}
+\memoTo{}
+
+
+\begin{document}
+
+\maketitle
+
+\section{Problem}
+
+Consider the inviscid Burgers equation
+%
+\begin{equation}
+    \frac{\partial u}{\partial t}
+    +u\frac{\partial u}{\partial x}=0,
+    \qquad 0<x<L_x,
+\end{equation}
+%
+with boundary conditions
+%
+\begin{equation}
+    u(0,t)=a,
+    \qquad
+    u(L_x,t)=b.
+\end{equation}
+%
+For the time-dependent problem, an initial condition
+\begin{equation}
+    u(x,0)=u_0(x)
+\end{equation}
+is also required.
+%
+The equation can be written in conservation form as
+%
+\begin{equation}
+    u_t+\left(\frac{u^2}{2}\right)_x=0.
+\end{equation}
+%
+\section{Characteristics}
+%
+Along a characteristic,
+%
+\begin{equation}
+    \frac{dx}{dt}=u,
+    \qquad
+    \frac{du}{dt}=0.
+\end{equation}
+%
+Thus a constant value $u_0$ propagates with speed $u_0$:
+%
+\begin{equation}
+    x=x_0+u_0t.
+\end{equation}
+5
+\section{Shock solution}
+%
+For a shock connecting a left state $a$ to a right state $b$, the
+Rankine--Hugoniot shock speed is
+%
+\begin{equation}
+    s=
+    \frac{f(a)-f(b)}{a-b},
+    \qquad
+    f(u)=\frac{u^2}{2}.
+\end{equation}
+%
+Consequently,
+%
+\begin{equation}
+    \boxed{
+    s=\frac{a+b}{2}.
+    }
+\end{equation}
+%
+The shock position is therefore
+%
+\begin{equation}
+    x_s(t)=x_s(0)+\frac{a+b}{2}t.
+\end{equation}
+%
+A stationary shock requires
+%
+\begin{equation}
+    \boxed{a+b=0}
+\end{equation}
+%
+or
+%
+\begin{equation}
+    \boxed{b=-a}.
+\end{equation}
+%
+For this case, the inviscid stationary solution is
+%
+\begin{equation}
+    u(x)=
+    \begin{cases}
+        a, & 0\leq x<x_s,\\
+        b, & x_s<x\leq L_x.
+    \end{cases}
+\end{equation}
+%
+The inviscid equation alone does not determine $x_s$ when $b=-a$;
+any shock location inside the domain satisfies the stationary
+Rankine--Hugoniot condition.
+
+For the frequently used case
+%
+\begin{equation}
+    a=1,\qquad b=-1,
+\end{equation}
+5
+the shock speed is
+%
+\begin{equation}
+    s=0.
+\end{equation}
+%
+\section{Viscous Burgers equation}
+5
+Introduce a constant viscosity,
+%
+\begin{equation}
+    \boxed{
+    u_t+u u_x=\nu_{\rm art}u_{xx}.
+    }
+\end{equation}
+%
+For a stationary shock,
+%
+\begin{equation}
+    u u_x=\nu_{\rm art}u_{xx}.
+\end{equation}
+%
+Integrating once gives
+%
+\begin{equation}
+    \nu_{\rm art}u_x
+    =
+    \frac{u^2}{2}+C.
+\end{equation}
+%
+For the symmetric case $a>0$, $b=-a$,
+%
+\begin{equation}
+    C=-\frac{a^2}{2},
+\end{equation}
+%
+so
+%
+\begin{equation}
+    \nu_{\rm art}u_x
+    =
+    \frac12(a^2-u^2).
+\end{equation}
+%
+The viscous shock solution connecting $a$ on the left to $-a$ on the
+right is
+%
+\begin{equation}
+    \boxed{
+    u(x)=
+    -a\tanh\left[
+        \frac{a}{2\nu_{\rm art}}(x-x_s)
+    \right].
+    }
+\end{equation}
+%
+For $a=1$,
+%
+\begin{equation}
+    \boxed{
+    u(x)=
+    -\tanh\left[
+        \frac{x-x_s}{2\nu_{\rm art}}
+    \right].
+    }
+\end{equation}
+%
+The characteristic shock length scale is approximately
+%
+\begin{equation}
+    \ell_s\sim 2\nu_{\rm art}
+\end{equation}
+%
+for $a=1$, and more generally
+%
+\begin{equation}
+    \ell_s\sim\frac{2\nu_{\rm art}}{a}.
+\end{equation}
+%
+\section{General viscous travelling shock}
+%
+For arbitrary left and right states $a>b$, the travelling viscous
+profile is approximately
+%
+\begin{equation}
+    \boxed{
+    u(x,t)=
+    \frac{a+b}{2}
+    -
+    \frac{a-b}{2}
+    \tanh\left[
+        \frac{a-b}{4\nu_{\rm art}}
+        \left(x-x_s(t)\right)
+    \right],
+    }
+\end{equation}
+%
+where
+%
+\begin{equation}
+    x_s(t)=x_s(0)+\frac{a+b}{2}t.
+\end{equation}
+%
+For $a=1$, $b=-1$, this reduces to
+%
+\begin{equation}
+    u(x)=
+    -\tanh\left[
+        \frac{x-x_s}{2\nu_{\rm art}}
+    \right].
+\end{equation}
+%
+\section{Artificial-viscosity discretisation}
+%
+The artificial-viscosity matrix contribution used in the numerical
+scheme is
+%
+\begin{equation}
+    c_\psi
+    \begin{bmatrix}
+        -1 & 2 & -1
+    \end{bmatrix}.
+\end{equation}
+%
+Its action on the solution is
+%
+\begin{equation}
+    -c_\psi u_{i-1}
+    +2c_\psi u_i
+    -c_\psi u_{i+1}.
+\end{equation}
+%
+Using the Taylor expansion
+%
+\begin{align}
+    u_{i-1}-2u_i+u_{i+1}
+    &=
+    \Delta x^2u_{xx}
+    +\frac{\Delta x^4}{12}u_{xxxx}
+    +O(\Delta x^6),
+\end{align}
+%
+the artificial-viscosity contribution becomes
+%
+\begin{equation}
+    \boxed{
+    -c_\psi\Delta x^2u_{xx}
+    -\frac{c_\psi\Delta x^4}{12}u_{xxxx}
+    +O(\Delta x^6).
+    }
+\end{equation}
+%
+If the matrix is normalized so that this term represents a standard
+diffusion term, the leading coefficient is associated with
+%
+\begin{equation}
+    \nu_{\rm art}\sim c_\psi\Delta x^2.
+\end{equation}
+%
+However, the complete scheme contains an additional right-hand-side
+term and therefore this identification should not be made without
+considering the complete discrete equation.
+%
+\section{Mass matrix used in the scheme}
+%
+The mass stencil is
+%
+\begin{equation}
+    m_{\rm mass}
+    =
+    \left[
+        \frac18,\frac68,\frac18
+    \right].
+\end{equation}
+%
+Thus the mass contribution is
+%
+\begin{equation}
+    \frac18u_{i-1}
+    +\frac68u_i
+    +\frac18u_{i+1}.
+\end{equation}
+%
+Its Taylor expansion is
+%
+\begin{equation}
+    \boxed{
+    \frac18u_{i-1}
+    +\frac68u_i
+    +\frac18u_{i+1}
+    =
+    u_i
+    +\frac18\Delta x^2u_{xx}
+    +\frac1{96}\Delta x^4u_{xxxx}
+    +O(\Delta x^6).
+    }
+\end{equation}
+%
+Combining this with the artificial-viscosity matrix gives
+%
+\begin{align}
+    Au
+    &=
+    u
+    +\left(\frac18-c_\psi\right)
+      \Delta x^2u_{xx}
+    \nonumber\\
+    &\quad
+    +\left(\frac1{96}-\frac{c_\psi}{12}\right)
+      \Delta x^4u_{xxxx}
+    +O(\Delta x^6).
+\end{align}
+%
+Hence
+%
+\begin{equation}
+    \boxed{
+    Au=
+    u+
+    \left(\frac18-c_\psi\right)\Delta x^2u_{xx}
+    +O(\Delta x^4).
+    }
+\end{equation}
+%
+This shows that the artificial-viscosity operator competes with the
+second-derivative contribution already present in the mass stencil.
+%
+\section{Additional $c_E$ contribution}
+%
+The numerical scheme uses
+%
+\begin{equation}
+    c_E=
+    c_\psi^2\frac{\pi}{2}.
+\end{equation}
+%
+The right-hand side is
+%
+\begin{equation}
+    {\rm rhs}_i
+    =
+    c_E
+    \left(
+        \frac12\Delta x\,|u_{xx}|
+    \right).
+\end{equation}
+%
+Consequently,
+%
+\begin{equation}
+    \boxed{
+    {\rm rhs}_i=
+    \frac{\pi}{4}
+    c_\psi^2\Delta x\,|u_{xx}|.
+    }
+\end{equation}
+%
+This means that the complete artificial-viscosity mechanism is not
+equivalent to a simple constant-viscosity Burgers equation. It is
+solution dependent because it contains $|u_{xx}|$.
+
+An effective viscosity estimate based on interpreting this correction
+as a diffusive flux can be written schematically as
+%
+\begin{equation}
+    \nu_{\rm eff}(x)
+    \sim
+    \frac{\pi}{4}
+    c_\psi^2\Delta x
+    \frac{|u_{xx}|}{|u_x|},
+\end{equation}
+%
+where this relation is an interpretation rather than an exact
+identification unless the complete time-stepping equation is specified.
+%
+\section{Shock-width estimate}
+%
+If one interprets the $c_E$ contribution as producing an effective
+viscosity
+%
+\begin{equation}
+    \nu_{\rm eff}
+    \approx
+    \frac{\pi}{4}c_\psi^2\Delta x,
+\end{equation}
+%
+then for $a=1$ the characteristic shock length is approximately
+%
+\begin{equation}
+    \delta
+    \approx
+    2\nu_{\rm eff}
+    =
+    \frac{\pi}{2}c_\psi^2\Delta x.
+\end{equation}
+%
+In terms of grid cells,
+%
+\begin{equation}
+    N_s=\frac{\delta}{\Delta x},
+\end{equation}
+%
+so
+%
+\begin{equation}
+    \boxed{
+    N_s\approx\frac{\pi}{2}c_\psi^2.
+    }
+\end{equation}
+%
+Solving for $c_\psi$ gives
+%
+\begin{equation}
+    \boxed{
+    c_\psi\approx
+    \sqrt{\frac{2N_s}{\pi}}.
+    }
+\end{equation}
+%
+Some example values are
+%
+\begin{center}
+\begin{tabular}{cc}
+\toprule
+Desired shock width & $c_\psi$\\
+\midrule
+2 cells & 1.13\\
+3 cells & 1.38\\
+4 cells & 1.60\\
+5 cells & 1.78\\
+6 cells & 1.95\\
+\bottomrule
+\end{tabular}
+\end{center}
+%
+Thus a reasonable starting value for a shock of about four grid cells
+is
+%
+\begin{equation}
+    \boxed{c_\psi\approx1.6}.
+\end{equation}
+%
+These values are estimates because the exact effective viscosity
+depends on how the matrix $A$ and the right-hand side are used in the
+time-stepping equation.
+%
+\newpage
+\section{Original C++ artificial-viscosity code}
+%
+The relevant code discussed was
+%
+{{\small
+\begin{lstlisting}[language=C++]
+double c_error = c_psi;
+double c_E = c_psi * c_psi * std::numbers::pi / 2.0;
+
+for (size_t i = 1; i < nx - 1; ++i)
+{
+    A.coeffRef(i, i - 1) = m_mass[0] - c_error;
+    A.coeffRef(i, i    ) = m_mass[1] + 2. * c_error;
+    A.coeffRef(i, i + 1) = m_mass[2] - c_error;
+
+    rhs[i] = c_E * (0.5 * dx * std::abs(u_xixi[i]));
+}
+\end{lstlisting}
+}}
+%
+with
+%
+\begin{equation}
+    m_{\rm mass}
+    =
+    \left[
+        \frac18,\frac68,\frac18
+    \right].
+\end{equation}
+%
+The exact effective viscosity cannot be determined uniquely from
+these lines alone. The remaining required information is the complete
+equation in which $A$ and ${\rm rhs}$ are used, particularly the
+Eigen solve and the time-stepping terms.
+%
+\section{Recommended interpretation}
+%
+For a controlled numerical shock in Burgers' equation, a useful target
+is a shock spanning approximately $3$--$5$ grid cells. The artificial
+viscosity should be strong near the shock and weak in smooth regions.
+
+A common form is
+%
+\begin{equation}
+    u_t+u u_x
+    =
+    \frac{\partial}{\partial x}
+    \left(
+        \nu_{\rm art}u_x
+    \right),
+\end{equation}
+%
+with a solution-dependent viscosity such as
+%
+\begin{equation}
+    \nu_{\rm art}
+    =
+    C_\nu\Delta x\,|u|
+\end{equation}
+%
+or a shock detector based on the local gradient or curvature.
+%
+For the stationary shock
+%
+\[
+a=1,\qquad b=-1,
+\]
+%
+the ideal reference solution remains
+%
+\begin{equation}
+    u(x)=
+    -\tanh\left[
+        \frac{x-x_s}{2\nu_{\rm art}}
+    \right].
+\end{equation}
+%
+The numerical solution can be compared against this profile to
+quantify shock width and wiggles.
+%
+\section{Conclusion}
+%
+For
+%
+\[
+u_t+uu_x=0,
+\qquad
+u(0,t)=a,
+\qquad
+u(L_x,t)=b,
+\]
+%
+the inviscid shock speed is
+%
+\begin{equation}
+    \boxed{s=\frac{a+b}{2}}.
+\end{equation}
+%
+A stationary shock requires
+%
+\begin{equation}
+    \boxed{b=-a}.
+\end{equation}
+%
+With constant viscosity, the stationary viscous shock for $a>0$ and
+$b=-a$ is
+%
+\begin{equation}
+    \boxed{
+    u(x)=
+    -a\tanh\left[
+        \frac{a(x-x_s)}{2\nu_{\rm art}}
+    \right].
+    }
+\end{equation}
+%
+For the numerical scheme discussed here,
+%
+\[
+m_{\rm mass}
+=
+\left[
+\frac18,\frac68,\frac18
+\right],
+\]
+%
+and the artificial-viscosity stencil is
+%
+\[
+c_\psi[-1,2,-1].
+\]
+%
+Its leading Taylor contribution is proportional to
+%
+\[
+-c_\psi\Delta x^2u_{xx},
+\]
+%
+while the additional right-hand-side correction is
+%
+\[
+\frac{\pi}{4}c_\psi^2\Delta x|u_{xx}|.
+\]
+%
+The exact continuous equation represented by the complete numerical
+scheme requires the remaining time-stepping/linear-system equations.
+
+\end{document}
