@@ -466,7 +466,7 @@ After linearization of $u^{n+\theta,p+1}$ the discretization reads:
 \end{align}
 
 %------------------------------------------------------------------------------
-\paragraph*{Artificial viscosity $\Psi$}
+\subsection{Artificial viscosity $\Psi$}
 To constant viscosity $\nu$ in the Burgers equation will be add an artificial viscosity $\Psi(x,t)$ which is space and time dependent.
 The adjusted Burgers equation (the \textit{'easy'}-problem) reads then
 \begin{align}
@@ -510,7 +510,7 @@ For the 1-D Burgers equation when omitting the viscosity term it reads:
     \pdiff{u}{t} + \half\pdiff{u^2}{x} - \pdiff{}{x} \left( (\nu + \Psi)  \pdiff{u}{x} \right) = 0. \label{eq:1d_burgers}
 \end{align}
 %--------------------------------------------------------------------------------
-\paragraph*{Inflow boundary}
+\subsubsection{Inflow boundary}
 The \textbf{essential} boundary condition at the inflow boundary (left/west-side) reads:
 \begin{align}
     u(0,t) = u_{\it given}(t), \quad t > 0 \qquad \text{(essential boundary)}
@@ -531,7 +531,7 @@ with
 Similar if an essential boundary condition is given at the right/east-side of the domain.
 %
 %--------------------------------------------------------------------------------
-\paragraph*{Outflow boundary}
+\subsubsection{Outflow boundary}
 The \textbf{natural} is chosen in that way that as less as possible left going spurious numerical waves are generated at the outflow boundary, i.e.\ nearly no reflection.
 The natural boundary condition (right/east-side) is supplied at $x_I$ with the discretization constants as determined by \autoref{eq:stencil_nat} and boundary condition \autoref{eq:1d_burgers} which yields:
 \begin{align}
