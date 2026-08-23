@@ -379,7 +379,7 @@ int main(int argc, char* argv[])
     {
         for (int i = 0; i < nx; ++i)
         {
-            pe[i] = un[i] * dx / visc[i];
+            pe[i] = std::abs(un[i] * dx / visc[i]);
             fo[i] = visc[i] * dt / (dx * dx);
         }
     }
@@ -626,17 +626,17 @@ int main(int argc, char* argv[])
                     A.coeffRef(i, i)     += - 0.5 * utheta_im12 * theta;
                     A.coeffRef(i, i)     += + 0.5 * utheta_ip12 * theta;
                     A.coeffRef(i, i + 1) += + 0.5 * utheta_ip12 * theta;
-                    tmp[i] += -(
-                        + 0.5 * ( utheta_ip12 - utheta_im12) * (utheta_ip12 + utheta_im12)
-                        );
-                    rhs[i] = tmp[i];
+                    tmp[i] = -( + 0.5 * ( utheta_ip12 + utheta_im12) * (utheta_ip12 - utheta_im12) );
+                    //tmp[i] = -( + utheta[i] * (utheta_ip12 - utheta_im12) );
+                    //tmp[i] = -( + 0.5 * ( utheta_ip12 * utheta_ip12 - utheta_im12 * utheta_im12) );
+                   rhs[i] += tmp[i];
                 }
                 //
                 //  d(visc(du/dx))/dx
                 if (do_viscosity)
                 {
                     double visc_im12 = - 0.5 * (visc[i - 1] + visc[i]);
-                    double visc_ip12 = - 0.5 * (visc[i] + visc[i + 1]);
+                    double visc_ip12 = - 0.5 * (visc[i + 1] + visc[i]);
 
                     A.coeffRef(i, i - 1) += + visc_im12 * theta * dxinv;
                     A.coeffRef(i, i    ) += - visc_im12 * theta * dxinv;
@@ -733,7 +733,7 @@ int main(int argc, char* argv[])
                     A.coeffRef(i, i    ) = 0.0;  //  w_ess[0];
                     A.coeffRef(i, i - 1) = 1.0;  //  w_ess[1];
                     A.coeffRef(i, i - 2) = 0.0;  //  w_ess[2];
-                    corr_term = -((bc[BC_EAST] - up_bnd));
+                    corr_term = -(bc[BC_EAST] - up_bnd);
                     rhs[i] = corr_term;
 
                     i = nx - 2;
@@ -926,7 +926,7 @@ int main(int argc, char* argv[])
         {
             for (int i = 0; i < nx; ++i)
             {
-                pe[i] = up[i] * dx / visc[i];
+                pe[i] = std::abs(up[i] * dx / visc[i]);
                 fo[i] = visc[i] * dt / (dx * dx);
             }
         }
