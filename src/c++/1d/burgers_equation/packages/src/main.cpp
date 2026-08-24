@@ -58,9 +58,9 @@ int get_toml_array(toml::table, std::string, std::vector<std::string>&);
 int get_toml_array(toml::table, std::string, std::vector<double>&);
 int get_toml_array(toml::table, std::string, std::vector<bool>&);
 //
-// Solve the linear Burgers equation
+// Solve the Burgers equation
 //
-// dc/dt + 1/2 d(u^2)/dx - d/dx(nu d(u)dx) = 0
+// du/dt + 1/2 d(u^2)/dx - d/dx(nu d(u)dx) = 0
 //
 
 int main(int argc, char* argv[])
@@ -114,6 +114,7 @@ int main(int argc, char* argv[])
         std::this_thread::sleep_for(timespan);
         exit(1);
     }
+
     const std::chrono::zoned_time now{ std::chrono::current_zone(), std::chrono::system_clock::now() };
     auto start_date_time = std::format("{:%F %H:%M:%OS %Oz}", now);
     std::cout << std::endl;
