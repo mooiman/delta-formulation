@@ -105,6 +105,7 @@
       <UseFullPaths>false</UseFullPaths>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalHeaderUnitDependencies>%(AdditionalHeaderUnitDependencies)</AdditionalHeaderUnitDependencies>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%KDTREE_DIR%\lib\kdtree.lib;%NETCDF_DIR%\lib\netcdf.lib;%(AdditionalDependencies)</AdditionalDependencies>

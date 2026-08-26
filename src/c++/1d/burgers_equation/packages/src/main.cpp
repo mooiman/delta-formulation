@@ -105,7 +105,9 @@ int main(int argc, char* argv[])
     {
         std::cout << "======================================================" << std::endl;
         std::cout << "Executable compiled : " << compileDateTime() << std::endl;
-        std::cout << "Git commit time/hash: " << getbuildstring_main() << std::endl;
+        std::cout << "Git commit time/hash: " << getgitbuildstring_main() << std::endl;
+        std::cout << "Git branch          : " << getgitbranchstring_main() << std::endl;
+        std::cout << "Git repository URL  : " << getgiturlstring_main() << std::endl;
         std::cout << std::endl;
         std::cout << "usage: burgers_eq.exe --toml <input_file>" << std::endl;
         std::cout << "======================================================" << std::endl;
@@ -121,7 +123,8 @@ int main(int argc, char* argv[])
     std::cout << "======================================================" << std::endl;
     std::cout << "Start time          : " << start_date_time << std::endl;
     std::cout << "Executable compiled : " << compileDateTime() << std::endl;
-    std::cout << "Git commit time/hash: " << getbuildstring_main() << std::endl;
+    std::cout << "Git branch          : " << getgitbranchstring_main() << std::endl;
+    std::cout << "Git repository URL  : " << getgiturlstring_main() << std::endl;
     std::cout << "======================================================" << std::endl;
     std::cout << "Executable directory: " << exec_dir << std::endl;
     std::cout << "Start directory     : " << start_dir << std::endl;
@@ -194,7 +197,8 @@ int main(int argc, char* argv[])
     log_file << "======================================================" << std::endl;
     log_file << "Start time          : " << start_date_time << std::endl;
     log_file << "Executable compiled : " << compileDateTime() << std::endl;
-    log_file << "Git commit time/hash: " << getbuildstring_main() << std::endl;
+    log_file << "Git branch          : " << getgitbranchstring_main() << std::endl;
+    log_file << "Git repository URL  : " << getgiturlstring_main() << std::endl;
     log_file << "=== Input file =======================================" << std::endl;
     log_file << toml_file_name << std::endl;
 

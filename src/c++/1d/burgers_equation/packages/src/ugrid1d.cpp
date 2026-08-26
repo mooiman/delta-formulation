@@ -20,6 +20,7 @@
 //
 
 #include "ugrid1d.h"
+#include "main_version.h"
 #include "include/netcdf.h"
 
 UGRID1D::UGRID1D()
@@ -44,7 +45,10 @@ int UGRID1D::open(std::string ncfile, std::string model_title)
     status = set_global_attribute("Model", "Delta-Formulation 1D, C++");
     status = set_global_attribute("Conventions", "CF-1.8 UGRID-1.0");
     status = set_global_attribute("file_created", date_time);
-    status = set_global_attribute("reference", "https://www.github.com/mooiman");
+    status = set_global_attribute("reference", std::string(getgiturlstring_main()));
+    status = set_global_attribute("GIT Branch", std::string(getgitbranchstring_main()));
+    status = set_global_attribute("GIT Hash", std::string(getgitbuildstring_main()));
+    status = set_global_attribute("GIT Date", std::string(getgitdatestring_main()));
 
     int var_id;
     status = nc_def_var(m_ncid, "projected_coordinate_system", NC_INT, 0, nullptr, &var_id);

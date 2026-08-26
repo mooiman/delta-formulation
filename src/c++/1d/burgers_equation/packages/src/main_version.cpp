@@ -34,17 +34,17 @@
 
 #if defined(LINUX64)
 static char main_version[] = {main_major "." main_minor "." main_revision " (Linux64)"};
-static char main_version_id[] = {"@(#)Mooiman, "main_program" Version "main_major "." main_minor "." main_revision "." main_build" (Linux64), "__DATE__", "__TIME__""};
+static char main_version_id[] = {"@(#)Mooiman, "main_program" Version "main_major "." main_minor "." main_revision "." main_git_build" (Linux64), "__DATE__", "__TIME__""};
 #elif defined(UCRT64)
-static char main_version[] = { main_major "." main_minor "." main_revision " (Win64)" };
-static char main_version_id[] = {"@(#)Mooiman, " main_program " Version " main_major "." main_minor "." main_revision "." main_build " (Win64), " __DATE__ ", " __TIME__ "" };
+static char main_version[] = { main_major "." main_minor "." main_revision " (UCRT64)" };
+static char main_version_id[] = {"@(#)Mooiman, " main_program " Version " main_major "." main_minor "." main_revision "." main_git_build " (Win64), " __DATE__ ", " __TIME__ "" };
 #elif defined(WIN32) || defined(WIN64)
-static char main_build_string[] = { main_build };
+static char main_build_string[] = { main_git_build };
 static char main_version[] = { main_major "." main_minor "." main_revision " (Win64)" };
-static char main_version_id[] = {"@(#)Mooiman, " main_program " Version " main_major "." main_minor "." main_revision "." main_build " (Win64), " __DATE__ ", " __TIME__ ""};
+static char main_version_id[] = {"@(#)Mooiman, " main_program " Version " main_major "." main_minor "." main_revision "." main_git_build " (Win64), " __DATE__ ", " __TIME__ ""};
 #else
 static char main_version[] = {main_major "." main_minor "." main_revision " (Unknown)"};
-static char main_version_id[] = {"@(#)Mooiman, "main_program" Version "main_major "." main_minor "." main_revision "." main_build" (Unknown), "__DATE__", "__TIME__""};
+static char main_version_id[] = {"@(#)Mooiman, "main_program" Version "main_major "." main_minor "." main_revision "." main_git_build" (Unknown), "__DATE__", "__TIME__""};
 #endif
 static char main_company_name[] = {"Mooiman"};
 static char main_program_name[] = { main_program };
@@ -65,11 +65,19 @@ char * getprogramstring_main(void)
 {
     return strdup(main_program_name);
 };
-char * getsourceurlstring_main(void)
+char * getgitbranchstring_main(void)
 {
-    return strdup(main_source_url);
+    return strdup(main_git_branch);
 };
-char * getbuildstring_main(void)
+char * getgiturlstring_main(void)
 {
-    return strdup(main_build_string);
+    return strdup(main_git_source_url);
+};
+char * getgitbuildstring_main(void)
+{
+    return strdup(main_git_build);
+};
+char * getgitdatestring_main(void)
+{
+    return strdup(main_git_date);
 };
