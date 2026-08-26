@@ -555,8 +555,40 @@ where
     \item[$u_{\it given}(t)$] Prescribed (given) time-series at the boundary.
 \end{symbollist}
 %--------------------------------------------------------------------------------
-\subsection{Linear initial condition, standing shock wave}
-The linear initial condition has no numerical error because it is a second order method and the boundary conditions are chosen to generate a standing shock wave at the middle of the domain.
+\subsection{Smooth step initial condition, standing shock wave}
+The smooth step initial condition has less numerical error on the boudnaries because derivatives at the boundaries are zero and the boundary conditions are chosen to generate a standing shock wave at the middle of the domain.
+The smooth step intial condition reads:
+\begin{align}
+    u(x^*,0) &= u_1 +
+    (u_2 - u_1) \frac{\phi(x^*) }{ \phi(x^*) + \phi(1-x^*)}
+\\
+\phi(x^*) &= \exp(-1 / x^* ) \quad \text{with} \quad x^* = \frac{x}{L_x}
+\end{align}
+with
+\begin{symbollist}
+    \item[$x^*$] Normalized length with respect to $L_x$, \bunit{-}.
+        \nomenclature{$x^*$}{\si{-}}{Normalized coordinate, $0 \leq x^* \leq 1$}
+    \item[$L_x$] Length of the domain, \bunit{\metre}.
+    \item[$u_1$] Boundary condition at left/west boundary of the domain, \bunit{\metre\per\second}.
+    \item[$u_2$] Boundary condition at right/east boundary of the domain, \bunit{\metre\per\second}.
+\end{symbollist}
+
+%--------------------------------------------------------------------------------
+\paragraph*{Analytic solution of standing shock wave}
+The analytic solution for a fully developed standing shock wave reads (\citet[eq.\ 4.23]{Whitham1999}:
+\begin{align}
+    u(x,t) = u_2 + (u_1 - u_2)/
+    \left(1 + \exp\left(\frac{(bc_1 - bc_2)}{2\nu}(x-U_{s}t)\right)\right)
+\end{align}
+with
+\begin{symbollist}
+    \item[$u_1$] Boundary condition at left/west boundary of the domain, \bunit{\metre\per\second}.
+    \item[$u_2$] Boundary condition at right/east boundary of the domain, \bunit{\metre\per\second}.
+    \item[$U_{s}$] Velocity of the shock wave, i.e.\ $U_{shock} = (bc_1 + bc_2)/2$, \bunit{\metre\per\second}
+    \nomenclature{$U_{s}$}{\si{\metre\per\second}}{Velocity of the shock wave which appears in Burgers equation}
+\end{symbollist}
+A standing shock wave at $x=0$ will appear if $U_s = 0$, so $u_1 = -u_2$.
+An transformation of the $x$-coordinate is applied to get the shock wave in the middle of the domain>
 %--------------------------------------------------------------------------------
 \paragraph*{Numerical experiment}
 The numerical experiment is performed with the following parameters:
@@ -568,36 +600,36 @@ The numerical experiment is performed with the following parameters:
     \item Timestep, $\Dt \in \{1, 2, 5, 10, 20, 60\}$ $\bunit{\second}$
     \item Regularization time for time-series, $t_{\it reg} = \bqty{1800}{\second}$
     \item Prescribed initial velocity, linear velocity profile between $u(0,t) = \bqty{1}{\metre\per\second}$ and $x=L_x$ by $u(L_x,t) = \bqty{-1}{\metre\per\second}$.
-    \item Prescribed velocity on boundary at $x=0$ is given by $u(0,t) = \bqty{1}{\metre\per\second}$ and $x=L_x$ by $u(L_x,t) = \bqty{-1}{\metre\per\second}$.
+    \item Prescribed velocity at boundary on $x=0$ is given by $u(0,t) = \bqty{1}{\metre\per\second}$ and $x=L_x$ by $u(L_x,t) = \bqty{-1}{\metre\per\second}$.
     \item Viscosity coefficient $\nu = \bqty{0.1}{\metre\square\per\second}$.
 \end{itemize}
 %--------------------------------------------------------------------------------
 \subsubsection{Results of the numerical experiments}
 Results are presented for different $\Dx$ and different $\Dt$.
-The results are stationary over the time interval $t\in[4, 6]$ hour.
+The results are more the less stationary over the time interval $t\in[3, 6]$ hour.
 \begin{figure}[H]
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/standing_shock_wave_time_series.pdf}
+        \includegraphics[width=0.95\textwidth]{figures/standing_shock_wave_time_series.pdf}
         \caption{Time history for a simulation with
         $\Dx =\bqty{5}{\metre}, \Dt=\bqty{1}{\second}$ and
-        $\Dx = \bqty{250}{\metre}, \Dt=\bqty{60}{\second}$
+        $\Dx = \bqty{250}{\metre}, \Dt=\bqty{60}{\second}$.
         }
 \end{figure}
 Influence of $\Dt$ on results
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/standing_shock_wave_time_series_dt60_dt30_dt15.pdf}
+    \includegraphics[width=0.95\textwidth]{figures/standing_shock_wave_time_series_dt60_dt30_dt15.pdf}
     \caption{Time histories for simulations with
         $\Dx =\bqty{250}{\metre}, \Dt=\bqty{15}{\second}$,
         $\Dx =\bqty{250}{\metre}, \Dt=\bqty{30}{\second}$ and
-        $\Dx = \bqty{250}{\metre}, \Dt=\bqty{60}{\second}$ at location $\bqty{7500}{\metre}$ from the origin
+        $\Dx = \bqty{250}{\metre}, \Dt=\bqty{60}{\second}$ at location $\bqty{7500}{\metre}$ from the origin.
     }
 \end{figure}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/standing_shock_wave_velocity.png}
-    \caption{Shock wave around $x=\bqty{10000}{\metre}$ for simulations with:
-        black line $\Dx =\bqty{5}{\metre}, \Dt=\bqty{1}{\second}$;
+    \includegraphics[width=0.95\textwidth]{figures/standing_shock_wave_velocity.png}
+    \caption{Shock wave around $x=\bqty{10000}{\metre}$ with  analytic solution (blackline) and for simulations with:
+        gray line $\Dx =\bqty{5}{\metre}, \Dt=\bqty{1}{\second}$;
         blue line $\Dx =\bqty{10}{\metre}, \Dt=\bqty{2}{\second}$;
         cyan line $\Dx =\bqty{25}{\metre}, \Dt=\bqty{5}{\second}$;
         red line $\Dx =\bqty{50}{\metre}, \Dt=\bqty{10}{\second}$;
@@ -606,9 +638,9 @@ Influence of $\Dt$ on results
 \end{figure}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/standing_shock_wave_psi.png}
+    \includegraphics[width=0.95\textwidth]{figures/standing_shock_wave_psi.png}
     \caption{Used artificial viscosity $\Psi$  around $x=\bqty{10000}{\metre}$ for simulations with:
-        black line $\Dx =\bqty{5}{\metre}, \Dt=\bqty{1}{\second}$;
+        gray line $\Dx =\bqty{5}{\metre}, \Dt=\bqty{1}{\second}$;
         blue line $\Dx =\bqty{10}{\metre}, \Dt=\bqty{2}{\second}$;
         cyan line $\Dx =\bqty{25}{\metre}, \Dt=\bqty{5}{\second}$;
         red line $\Dx =\bqty{50}{\metre}, \Dt=\bqty{10}{\second}$;
