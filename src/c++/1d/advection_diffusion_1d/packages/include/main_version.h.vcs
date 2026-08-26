@@ -6,11 +6,13 @@
 #define main_major "VN_MAJOR"
 #define main_minor "VN_MINOR"
 #define main_revision "VN_REVISION"
-#define main_build "VCS_BUILD_HASH"
+#define main_git_build "VCS_BUILD_HASH"
+#define main_git_branch "VCS_BRANCH"
+#define main_git_date "VCS_DATE"
 
 #define main_company "Mooiman"
-#define main_company_url "https://www.github.com/mooiman"
-#define main_source_url "VCS_SOURCE_URL"
+#define main_company_url "https://github.com/mooiman"
+#define main_git_source_url "VCS_SOURCE_URL"
 #define main_program "Adv-Diff"
 
 /*=================================================== DO NOT MAKE CHANGES BELOW THIS LINE ===================================================================== */
@@ -20,8 +22,10 @@ extern "C" {
     extern char * getfullversionstring_main(void);
     extern char * getprogramstring_main(void);
     extern char * getversionstring_main(void);
-    extern char * getsourceurlstring_main(void);
-    extern char * getbuildstring_main(void);
+    extern char * getgitbranchstring_main(void);
+    extern char * getgiturlstring_main(void);
+    extern char * getgitbuildstring_main(void);
+    extern char * getgitdatestring_main(void);
 }
 
 #endif // __main_VERSION_H__

@@ -19,8 +19,8 @@
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
 
-#include "include/netcdf.h"
 #include "definition_map_file.h"
+#include "include/netcdf.h"
 
 UGRID1D * create_map_file(std::string nc_mapfile, std::string model_title, std::vector<double> & x, std::vector<std::string>& map_names)
 {
