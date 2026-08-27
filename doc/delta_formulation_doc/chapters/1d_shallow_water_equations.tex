@@ -491,11 +491,18 @@ The follow system of equations need to be solved:
     \left(\frac{6}{8} + 2 c_{\it error}\right) \Psi_i +
     \left(\frac{1}{8} - c_{\it error}\right)\Psi_{i+1} =
     \\*
-    & = c_E  \left[
-    \frac{\Dx}{2} \left( \quart\left( \abs{\pdiff[2]{u}{\xi}}^{n+1,p}_{i-1} + 3 \abs{\pdiff[2]{u}{\xi}}^{n+1,p}_i \right)\right) +
-    \frac{\Dx}{2} \left( \quart\left( 3 \abs{\pdiff[2]{u}{\xi}}^{n+1,p}_{i} + \abs{\pdiff[2]{u}{\xi}}^{n+1,p}_{i+1} \right)\right)
-    \right]
+    & = c_E \Dx \abs{\pdiff[2]{u}{\xi}}^{n+1,p}_{i}
 \end{align}
+%\begin{align}
+%    &\left(\frac{1}{8} - c_{\it error}\right)\Psi_{i-1} +
+%    \left(\frac{6}{8} + 2 c_{\it error}\right) \Psi_i +
+%    \left(\frac{1}{8} - c_{\it error}\right)\Psi_{i+1} =
+%    \\*
+%    & = c_E  \left[
+%    \frac{\Dx}{2} \left( \quart\left( \abs{\pdiff[2]{u}{\xi}}^{n+1,p}_{i-1} + 3 \abs{\pdiff[2]{u}{\xi}}^{n+1,p}_i \right)\right) +
+%    \frac{\Dx}{2} \left( \quart\left( 3 \abs{\pdiff[2]{u}{\xi}}^{n+1,p}_{i} + \abs{\pdiff[2]{u}{\xi}}^{n+1,p}_{i+1} \right)\right)
+%    \right]
+%\end{align}
 with
 \begin{align}
     \left.\pdiff[2]{u}{\xi}\right|_i = \frac{u_{i-1} - 2 u_i + u_{i+1} }{\Dxi^2}

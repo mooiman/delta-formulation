@@ -536,31 +536,37 @@ where
 \end{symbollist}
 The prescribed inflow boundary condition for the velocity reads
 \begin{align}
-    u(0,t) = u_{\it given}(t)
+    u(0,t)& = u_{\it given}(t)
     \begin{cases}
 %         0 & \quad \text{if } \tau  < 0,
 %         \\
-           \frac{\exp(-1/\tau) }{ \exp(-1/\tau) + \exp(-1 / (1 - \tau))},
+           \frac{\phi(\tau) }{ \phi(\tau) + \phi(1-\tau)},
 &\quad \text{if\ }0 \leq \tau \leq 1,
         \\
         1 &\quad \text{if\ }\tau > 1,
     \end{cases}
+\\
+    \phi(\tau) &= \exp(-1 / \tau ) \quad \text{with} \quad \tau = \frac{t}{t_{reg}}
     \label{eq:1d_burgers_boundary_condition}
 \end{align}
 where
 \begin{symbollist}
     \item[$t_{reg}$] The regularization time for the given time-series, [\si{\second}]
-    \nomenclature{$t_{reg}$}{\si{\second}}{The regularization time for the given time-series}
-    \item[$\tau$] Relative time to prescribe the transition from initial condition to boundary condition, $\tau = t/t_{reg}$.
-    \item[$u_{\it given}(t)$] Prescribed (given) time-series at the boundary.
+\nomenclature{$t_{reg}$}{\si{\second}}{The regularization time for the given time-series}
+    \item[$\tau$] Normalized time to prescribe the transition from initial condition to boundary conditionn \bunit{-}.
+    \nomenclature{$\tau$}{\si{-}}{Normalized time to prescribe the transition from initial condition to boundary condition, i.e.\ $t_{reg}$, $0 \leq \tau \leq 1$}
+     \item[$u_{\it given}(t)$] Prescribed (given) time-series at the boundary, \bunit{\metre\per\second}.
 \end{symbollist}
+
+
 %--------------------------------------------------------------------------------
 \subsection{Smooth step initial condition, standing shock wave}
 The smooth step initial condition has less numerical error on the boudnaries because derivatives at the boundaries are zero and the boundary conditions are chosen to generate a standing shock wave at the middle of the domain.
 The smooth step intial condition reads:
 \begin{align}
-    u(x^*,0) &= u_1 +
-    (u_2 - u_1) \frac{\phi(x^*) }{ \phi(x^*) + \phi(1-x^*)}
+    u(x^*,0) &= u_l +
+    (u_r - u_l) \frac{\phi(x^*) }{ \phi(x^*) + \phi(1-x^*)}
+\label{eq:smoothstep}
 \\
 \phi(x^*) &= \exp(-1 / x^* ) \quad \text{with} \quad x^* = \frac{x}{L_x}
 \end{align}
@@ -569,26 +575,26 @@ with
     \item[$x^*$] Normalized length with respect to $L_x$, \bunit{-}.
         \nomenclature{$x^*$}{\si{-}}{Normalized coordinate, $0 \leq x^* \leq 1$}
     \item[$L_x$] Length of the domain, \bunit{\metre}.
-    \item[$u_1$] Boundary condition at left/west boundary of the domain, \bunit{\metre\per\second}.
-    \item[$u_2$] Boundary condition at right/east boundary of the domain, \bunit{\metre\per\second}.
+    \item[$u_l$] Boundary condition at left/west boundary of the domain, \bunit{\metre\per\second}.
+    \item[$u_r$] Boundary condition at right/east boundary of the domain, \bunit{\metre\per\second}.
 \end{symbollist}
 
 %--------------------------------------------------------------------------------
 \paragraph*{Analytic solution of standing shock wave}
 The analytic solution for a fully developed standing shock wave reads (\citet[eq.\ 4.23]{Whitham1999}:
 \begin{align}
-    u(x,t) = u_2 + (u_1 - u_2)/
-    \left(1 + \exp\left(\frac{(bc_1 - bc_2)}{2\nu}(x-U_{s}t)\right)\right)
+    u(x,t) = u_r + (u_l - u_r)/
+    \left(1 + \exp\left(\frac{(u_l - u_r)}{2\nu}(x-U_{s}t)\right)\right)
 \end{align}
 with
 \begin{symbollist}
-    \item[$u_1$] Boundary condition at left/west boundary of the domain, \bunit{\metre\per\second}.
-    \item[$u_2$] Boundary condition at right/east boundary of the domain, \bunit{\metre\per\second}.
-    \item[$U_{s}$] Velocity of the shock wave, i.e.\ $U_{shock} = (bc_1 + bc_2)/2$, \bunit{\metre\per\second}
+    \item[$u_l$] Boundary condition at left/west boundary of the domain, \bunit{\metre\per\second}.
+    \item[$u_r$] Boundary condition at right/east boundary of the domain, \bunit{\metre\per\second}.
+    \item[$U_{s}$] Velocity of the shock wave, i.e.\ $U_{s} = (u_l + u_r)/2$, \bunit{\metre\per\second}
     \nomenclature{$U_{s}$}{\si{\metre\per\second}}{Velocity of the shock wave which appears in Burgers equation}
 \end{symbollist}
-A standing shock wave at $x=0$ will appear if $U_s = 0$, so $u_1 = -u_2$.
-An transformation of the $x$-coordinate is applied to get the shock wave in the middle of the domain>
+A standing shock wave at $x=0$ will appear if $U_s = 0$, thus $u_l = -u_r$.
+A transformation of the $x$-coordinate is applied to get the shock wave in the middle of the domain.
 %--------------------------------------------------------------------------------
 \paragraph*{Numerical experiment}
 The numerical experiment is performed with the following parameters:
@@ -599,7 +605,7 @@ The numerical experiment is performed with the following parameters:
     \item End time, $t_{stop} = \bqty{6}{\hour}$
     \item Timestep, $\Dt \in \{1, 2, 5, 10, 20, 60\}$ $\bunit{\second}$
     \item Regularization time for time-series, $t_{\it reg} = \bqty{1800}{\second}$
-    \item Prescribed initial velocity, linear velocity profile between $u(0,t) = \bqty{1}{\metre\per\second}$ and $x=L_x$ by $u(L_x,t) = \bqty{-1}{\metre\per\second}$.
+    \item Prescribed initial velocity  (\autoref{eq:smoothstep}), smooth step velocity profile between $u(0,t) = \bqty{1}{\metre\per\second}$ and $x=L_x$ by $u(L_x,t) = \bqty{-1}{\metre\per\second}$.
     \item Prescribed velocity at boundary on $x=0$ is given by $u(0,t) = \bqty{1}{\metre\per\second}$ and $x=L_x$ by $u(L_x,t) = \bqty{-1}{\metre\per\second}$.
     \item Viscosity coefficient $\nu = \bqty{0.1}{\metre\square\per\second}$.
 \end{itemize}
