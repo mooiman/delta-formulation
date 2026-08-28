@@ -170,7 +170,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     u_xixi[i] = 2. * u_xixi[i - 1] - u_xixi[i - 2];
     //
     // based on eq. 18 CRC2001
-    double rhside = 0.0;
+    //
     double c_error = c_psi;
     double c_E = c_psi * c_psi * std::numbers::pi/2.0;  // delta_formulation_content.pdf eq. B.26 (dd 2026-08-19)
     for (size_t i = 1; i < nx - 1; ++i)
@@ -179,9 +179,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         A.coeffRef(i, i    ) = m_mass[1] + 2. * c_error;
         A.coeffRef(i, i + 1) = m_mass[2] - c_error;
 
-        rhside = 0.125 * ( std::abs(u_xixi[i - 1]) + 3. * std::abs(u_xixi[i])) +
-                 0.125 * ( std::abs(u_xixi[i + 1]) + 3. * std::abs(u_xixi[i]));
-        rhs[i] = c_E * ( dx * rhside );
+        rhs[i] = c_E * ( dx * std::abs(u_xixi[i]) );
     }
     // eq. 19   
     i = 0;
