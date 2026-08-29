@@ -127,6 +127,7 @@ int main(int argc, char* argv[])
     std::cout << "======================================================" << std::endl;
     std::cout << "Start time          : " << start_date_time << std::endl;
     std::cout << "Executable compiled : " << compileDateTime() << std::endl;
+    std::cout << "Git commit time/hash: " << getgitbuildstring_main() << std::endl;
     std::cout << "Git branch          : " << getgitbranchstring_main() << std::endl;
     std::cout << "Git repository URL  : " << getgiturlstring_main() << std::endl;
     std::cout << "======================================================" << std::endl;
@@ -202,6 +203,7 @@ int main(int argc, char* argv[])
     log_file << "======================================================" << std::endl;
     log_file << "Start time          : " << start_date_time << std::endl;
     log_file << "Executable compiled : " << compileDateTime() << std::endl;
+    log_file << "Git commit time/hash: " << getgitbuildstring_main() << std::endl;
     log_file << "Git branch          : " << getgitbranchstring_main() << std::endl;
     log_file << "Git repository URL  : " << getgiturlstring_main() << std::endl;
     log_file << "=== Input file =======================================" << std::endl;
@@ -463,12 +465,12 @@ int main(int argc, char* argv[])
 
     his_file->add_time_series();
 
-    std::string his_c_name("constituent");
-    std::string his_visc_name("his_visc_name");
-    std::string his_psi_name("his_psi_name");
-    std::string his_peclet_name("his_peclet_name");
-    std::string his_cfl_name("his_cfl_name");
-    std::string his_fo_name("his_fo_name");
+    std::string his_c_name("cn_1d");
+    std::string his_visc_name("vsic_1d");
+    std::string his_psi_name("psi_1d");
+    std::string his_peclet_name("pe_1d");
+    std::string his_cfl_name("cfl_1d");
+    std::string his_fo_name("fo_1d");
 
     his_file->add_variable(his_c_name, "", "Constituent", "-", "");
     his_file->add_variable(his_cfl_name, "", "CFL (u.dt/dx)", "-", "Courant-Friedrichs-Lewy number (u.dt/dx)");
