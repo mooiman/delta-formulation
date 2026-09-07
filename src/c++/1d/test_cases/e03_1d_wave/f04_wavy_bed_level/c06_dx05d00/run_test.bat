@@ -5,5 +5,5 @@ mkdir .\output_01
 xcopy /s /y .\output  .\output_01
 
 del /q .\output\*.*
-%exe_dir%\wave_1d.exe --toml .\input_cpp.toml
+%exe_dir%\wave_1d.exe --toml .\input_1d.toml
 
