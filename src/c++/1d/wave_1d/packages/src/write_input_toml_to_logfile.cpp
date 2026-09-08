@@ -29,7 +29,6 @@
 std::string bool_value_as_string(bool value);
 std::string format_as_double(double value);
 
-
 int write_used_input(struct _data_input data, std::ofstream & log_file){
 
     log_file << "Logging = \"" << data.log.logging << "\"  # \"iterations\", \"matrix\", \"pattern\"" << std::endl;
@@ -39,32 +38,52 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     log_file << "    " << "treg         = " << format_as_double(data.boundary.treg) << "  # Regularization time boundary signal [s]" << std::endl;
     log_file << "    " << "eps_bc_corr  = " << format_as_double(data.boundary.eps_bc_corr) << std::endl;
 
+    log_file << "    " << "bc_signals   = [\"";
+    for (int i = 0; i < data.boundary.bc_signals.size() - 1; ++i) { log_file << data.boundary.bc_signals[i] << "\", \""; }
+    log_file << data.boundary.bc_signals[data.boundary.bc_signals.size() - 1] << "\"]" 
+        << "  # Incoming signal \"constant\" or \"sine\""<< std::endl;
+
     log_file << "    " << "bc_type      = [\"";
     for (int i = 0; i < data.boundary.bc_type.size() - 1; ++i) { log_file << data.boundary.bc_type[i] << "\", \""; }
-    log_file << data.boundary.bc_type[data.boundary.bc_type.size() - 1] << "\"]  # Type \"free_slip\", \"no_slip\", \"borsboom\", \"mooiman\"  " << std::endl;
-
-    log_file << "    " << "bc_vars      = [\"";
-    for (int i = 0; i < data.boundary.bc_vars.size() - 1; ++i) { log_file << data.boundary.bc_vars[i] << "\", \""; }
-    log_file << data.boundary.bc_vars[data.boundary.bc_vars.size() - 1] << "\"]  # incoming signal" << std::endl;
+    log_file << data.boundary.bc_type[data.boundary.bc_type.size() - 1] << "\"]" 
+        << "  # Type \"free_slip\", \"no_slip\", \"borsboom\", \"mooiman\"  " << std::endl;
 
     log_file << "    " << "bc_vals      = [";
     for (int i = 0; i < data.boundary.bc_vals.size() - 1; ++i) { log_file << format_as_double(data.boundary.bc_vals[i]) << ", "; }
-    log_file << format_as_double(data.boundary.bc_vals[data.boundary.bc_vals.size() - 1]) << "]" << std::endl;
+    log_file << format_as_double(data.boundary.bc_vals[data.boundary.bc_vals.size() - 1]) << "]" 
+        << "  # The in/out flow values" << std::endl;
+
+    log_file << "    " << "bc_vars      = [";
+    for (int i = 0; i < data.boundary.bc_vars.size() - 1; ++i) { log_file << "\"" << data.boundary.bc_vars[i] << "\", "; }
+    log_file << "\"" << data.boundary.bc_vars[data.boundary.bc_vars.size() - 1] << "\"]" 
+        << "  # Incoming signal \"q\" or \"zeta\"" << std::endl;
 
     //Domain
     log_file << std::endl << "[Domain]" << std::endl;
-    log_file << "    Lx            = " << format_as_double(data.domain.Lx) << "  # Domain length [m]" << std::endl;
-    log_file << "    depth         = " << format_as_double(data.domain.depth) << "  # bathymetry below reference level [m]" << std::endl;
+    log_file << "    Lx            = " << format_as_double(data.domain.Lx) 
+        << "  # Domain length [m]" << std::endl;
+    log_file << "    x_begin       = " << format_as_double(data.domain.x_begin) 
+        << "  # Begin coordinate of the domain" << std::endl;
+    log_file << "    depth         = " << format_as_double(data.domain.depth) 
+        << "  # bathymetry below reference plane [m]" << std::endl;
     log_file << "    geometry_type = \"" << data.domain.geometry_type << "\"" << std::endl;
 
     // Initial
     log_file << std::endl << "[Initial]" << std::endl;
-    log_file << "    gauss_mu    = " << format_as_double(data.initial.gauss_mu) << "  # location of the top on the gaussian hump [m]" << std::endl;
-    log_file << "    gauss_sigma = " << format_as_double(data.initial.gauss_sigma) << "  # width of the gaussian hump [m]" << std::endl;
-    log_file << "    gauss_amp   = " << format_as_double(data.initial.gauss_amp) << "  # twice the amplitude of the guassian hump [m]" << std::endl;
+    log_file << "    gauss_mu    = " << format_as_double(data.initial.gauss_mu) 
+        << "  # location of the top on the gaussian hump [m]" << std::endl;
+    log_file << "    gauss_sigma = " << format_as_double(data.initial.gauss_sigma) 
+        << "  # width of the gaussian hump [m]" << std::endl;
+    log_file << "    gauss_amp   = " << format_as_double(data.initial.gauss_amp) 
+        << "  # twice the amplitude of the guassian hump [m]" << std::endl;
     log_file << "    ini_vars    = [\"";
     for (int i = 0; i < data.initial.ini_vars.size() - 1; ++i) { log_file << data.initial.ini_vars[i] << "\", \""; }
     log_file << data.initial.ini_vars[data.initial.ini_vars.size() - 1] << "\"]" << std::endl;
+
+    log_file << "    ini_vals    = [";
+    for (int i = 0; i < data.initial.ini_vals.size() - 1; ++i) { log_file << format_as_double(data.initial.ini_vals[i]) << ", "; }
+    log_file << format_as_double(data.initial.ini_vals[data.initial.ini_vals.size() - 1]) << "]" 
+        << "  # Initial values needed at west and east boundary" << std::endl;
 
     // Numerics
     log_file << std::endl << "[Numerics]" << std::endl;
@@ -82,9 +101,9 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
 
     // Output
     log_file << std::endl << "[Output]" << std::endl;
-    log_file << "    dt_his    = " << format_as_double(data.output.dt_his) << std::endl;
-    log_file << "    dt_map    = " << format_as_double(data.output.dt_map) << std::endl;
-    log_file << "    dt_screen = " << format_as_double(data.output.dt_screen) << std::endl;
+    log_file << "    dt_his    = " << format_as_double(data.output.dt_his) << "  # [s]" << std::endl;
+    log_file << "    dt_map    = " << format_as_double(data.output.dt_map) << "  # [s]" << std::endl;
+    log_file << "    dt_screen = " << format_as_double(data.output.dt_screen) << "  # [s]" << std::endl;
 
     // Physics
     log_file << std::endl << "[Physics]" << std::endl;
@@ -98,7 +117,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
 
     //Time
     log_file << std::endl << "[Time]" << std::endl;
-    log_file << "    tunit  = \"" << "s" << "\"" << "  # \"s\", \"m\", \"h\"" << std::endl;
+    log_file << "    tunit  = \"" << "s" << "\"" << "  # \"s\", \"m\", \"h\", \"d\"" << std::endl;
     log_file << "    tstart = " << format_as_double(data.time.tstart) << std::endl;
     log_file << "    tstop  = " << format_as_double(data.time.tstop) << std::endl;
 

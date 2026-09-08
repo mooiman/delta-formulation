@@ -24,24 +24,35 @@ if (-not (Test-Path $InTextFile)) {
 Push-Location $IncludeDir
 
 # --- Constants ---
-$SEARCHTEXT       = "VCS_BUILD_HASH"
-$SEARCHSOURCEURL  = "VCS_SOURCE_URL"
+$SEARCHTEXT         = "VCS_BUILD_HASH"
+$SEARCHGITURL       = "VCS_SOURCE_URL"
+$SEARCHSOURCEBRANCH = "VCS_BRANCH"
+$SEARCHSOURCEDATE   = "VCS_DATE"
+
+$GitRemoteURL = git config --get remote.origin.url
+Write-Host "GIT Remote: $GitRemoteURL"
+$GitBranch = git branch --show-current
+Write-Host "GIT Branch: $GitBranch"
 
 # --- Git state ---
 $GitModified = ""
-if (git diff --stat origin/main) {
+if (git diff --stat origin/$GitBranch) {
     $GitModified = "M-"
 }
-
 $GitHash = git rev-parse --short HEAD
+$GitModifiedHash = "$GitModified$GitHash"
+
 $GitDate = git show -s --format="%cd" --date=format:"%Y-%m-%d %H:%M:%S" HEAD
 
-$FullHash = "$GitDate, $GitModified$GitHash"
-Write-Host "GIT DATE/HASH: $FullHash"
+Write-Host "GIT Date  : $GitDate"
+Write-Host "GIT Hash  : $GitModifiedHash"
+
+$FullHash = "$GitDate, $GitModifiedHash"
+Write-Host "GIT Full  : $FullHash"
 
 # --- Source URL ---
-$SourceUrl = git ls-remote --get-url
-if (-not $SourceUrl) {
+$GitUrl = git ls-remote --get-url
+if (-not $GitUrl) {
     throw "SOURCE_URL not found (git not available?)"
 }
 
@@ -59,11 +70,13 @@ Write-Host "Version: $VN_MAJOR.$VN_MINOR.$VN_REVISION"
 # --- Transform file ---
 $content = Get-Content $InTextFile -Raw
 
-$content = $content -replace $SEARCHTEXT,       $FullHash
-$content = $content -replace $SEARCHSOURCEURL,  $SourceUrl
-$content = $content -replace "VN_MAJOR",        $VN_MAJOR
-$content = $content -replace "VN_MINOR",        $VN_MINOR
-$content = $content -replace "VN_REVISION",     $VN_REVISION
+$content = $content -replace $SEARCHTEXT,          $GitModifiedHash
+$content = $content -replace $SEARCHGITURL,        $GitUrl
+$content = $content -replace $SEARCHSOURCEBRANCH,  $GitBranch
+$content = $content -replace $SEARCHSOURCEDATE,    $GitDate
+$content = $content -replace "VN_MAJOR",           $VN_MAJOR
+$content = $content -replace "VN_MINOR",           $VN_MINOR
+$content = $content -replace "VN_REVISION",        $VN_REVISION
 
 # --- Write temp file ---
 Set-Content -Path $TempTextFile -Value $content -NoNewline

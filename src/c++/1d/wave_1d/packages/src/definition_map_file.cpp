@@ -140,7 +140,7 @@ UGRID1D * create_map_file(std::string nc_mapfile, std::string model_title, std::
     status = map_file->add_variable(map_names[4], dim_names, "", "BadLevel", "m", "mesh1D", "node", "Bed level");
     status = map_file->add_variable(map_names[5], dim_names, "", "Delta h^{n+1,p+1}", "m", "mesh1D", "node", "");
     status = map_file->add_variable(map_names[6], dim_names, "", "Delta q^{n+1,p+1}", "m2 s-1", "mesh1D", "node", "");
-    status = map_file->add_variable(map_names[10], dim_names, "-", "Froude", "-", "mesh1D", "node", "");
+    status = map_file->add_variable(map_names[10], dim_names, "-", "Froude (u/sqrt(gh))", "-", "mesh1D", "node", "");
     if (do_viscosity)
     {
         status = map_file->add_variable(map_names[7], dim_names, "-", "Viscosity (reg)", "m2 s-1", "mesh1D", "node", "Regularized initial viscosity");
@@ -149,6 +149,8 @@ UGRID1D * create_map_file(std::string nc_mapfile, std::string model_title, std::
         status = map_file->add_variable(map_names[11], dim_names, "-", "Peclet (u.dx/nu)", "-", "mesh1D", "node", "Cell Peclet number, u.dx/nu");
         status = map_file->add_variable(map_names[12], dim_names, "-", "Viscosity (rhs)", "m2 s-1", "mesh1D", "node", "Viscosity term, d/dx(visc(du/dx)");
     }
+    status = map_file->add_variable(map_names[13], dim_names, "-", "CFL (u.dt/dx)", "-", "mesh1D", "node", "Courant–Friedrichs–Lewy number, u.dt/dx");
+    status = map_file->add_variable(map_names[14], dim_names, "-", "Fourier number (nu.dt/dx^2)", "-", "mesh1D", "node", "Fourier number, nu.dt/dx^2");
 
     return map_file;
 }

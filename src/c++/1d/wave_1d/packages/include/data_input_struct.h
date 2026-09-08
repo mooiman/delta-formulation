@@ -43,10 +43,12 @@ struct _boundary {
     std::vector<double> bc_vals;
     std::vector<std::string> bc_type;
     std::vector<std::string> bc_vars;
+    std::vector<std::string> bc_signals;
 };
 struct _domain {
     double depth;
     double Lx;
+    double x_begin;
     std::string geometry_type;
     std::string grid_filename;
     std::filesystem::path full_grid_filename;
@@ -62,6 +64,7 @@ struct _initial {
     double gauss_sigma_x;
     double gauss_sigma_y;
     std::vector<std::string> ini_vars;
+    std::vector<double> ini_vals;
 };
 struct _numerics {
     double dt;
@@ -88,6 +91,8 @@ struct _physics {
     bool do_linear_waves;
     double chezy_coefficient;
     bool do_viscosity;
+    bool do_source;
+    std::string src_type;
 };
 struct _time {
     std::string tunit;

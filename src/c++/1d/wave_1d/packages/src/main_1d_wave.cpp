@@ -29,12 +29,12 @@
 #include <format>
 #include <string_view>
 
-#include <include/KDtree.hpp>
-#include <toml.h>
-#include <include/KDtree.hpp>
+
 // for BiCGstab  solver
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
+#include <include/KDtree.hpp>
+#include <toml.h>
 
 #include "bed_level.h"
 #include "bed_shear_stress.h"
@@ -118,7 +118,10 @@ int main(int argc, char* argv[])
     {
         std::cout << "======================================================" << std::endl;
         std::cout << "Executable compiled : " << compileDateTime() << std::endl;
-        std::cout << "Git commit time/hash: " << getbuildstring_main() << std::endl;
+        std::cout << "Git commit time     : " << getgitdatestring_main() << std::endl;
+        std::cout << "Git commit hash     : " << getgitbuildstring_main() << std::endl;
+        std::cout << "Git branch          : " << getgitbranchstring_main() << std::endl;
+        std::cout << "Git repository URL  : " << getgiturlstring_main() << std::endl;
         std::cout << std::endl;
         std::cout << "usage: wave_1d.exe --toml <input_file>" << std::endl;
         std::cout << "======================================================" << std::endl;
@@ -127,13 +130,17 @@ int main(int argc, char* argv[])
         std::this_thread::sleep_for(timespan);
         exit(1);
     }
+
     const std::chrono::zoned_time now{ std::chrono::current_zone(), std::chrono::system_clock::now() };
     auto start_date_time = std::format("{:%F %H:%M:%OS %Oz}", now);
     std::cout << std::endl;
     std::cout << "======================================================" << std::endl;
     std::cout << "Start time          : " << start_date_time << std::endl;
     std::cout << "Executable compiled : " << compileDateTime() << std::endl;
-    std::cout << "Git commit time/hash: " << getbuildstring_main() << std::endl;
+    std::cout << "Git commit time     : " << getgitdatestring_main() << std::endl;
+    std::cout << "Git commit hash     : " << getgitbuildstring_main() << std::endl;
+    std::cout << "Git branch          : " << getgitbranchstring_main() << std::endl;
+    std::cout << "Git repository URL  : " << getgiturlstring_main() << std::endl;
     std::cout << "======================================================" << std::endl;
     std::cout << "Executable directory: " << exec_dir << std::endl;
     std::cout << "Start directory     : " << start_dir << std::endl;
@@ -229,7 +236,10 @@ int main(int argc, char* argv[])
     log_file << "======================================================" << std::endl;
     log_file << "Start time          : " << start_date_time << std::endl;
     log_file << "Executable compiled : " << compileDateTime() << std::endl;
-    log_file << "Git commit time/hash: " << getbuildstring_main() << std::endl;
+    log_file << "Git commit time     : " << getgitdatestring_main() << std::endl;
+    log_file << "Git commit hash     : " << getgitbuildstring_main() << std::endl;
+    log_file << "Git branch          : " << getgitbranchstring_main() << std::endl;
+    log_file << "Git repository URL  : " << getgiturlstring_main() << std::endl;
     log_file << "=== Input file =======================================" << std::endl;
     log_file << toml_file_name << std::endl;
 
@@ -252,7 +262,7 @@ int main(int argc, char* argv[])
         input_data.numerics.theta = 1.0;                                      // Stationary solution
         input_data.time.tstop = 1.;
         total_time_steps = 2;                             // initial step (step 1), stationary result (step 2)
-        input_data.boundary.treg = 0.0;                                       // Thatcher-Harleman return time [s], when zero supply boundary value immediately
+        input_data.boundary.treg = 0.0;                   // Thatcher-Harleman return time [s], when zero supply boundary value immediately
         wrihis = 1;                                       // write interval to his-file
         wrimap = 1;                                       // write interval to map-file
     }
@@ -310,11 +320,13 @@ int main(int argc, char* argv[])
     std::string logging = input_data.log.logging;
 
     double Lx = input_data.domain.Lx;
+    double x_begin = input_data.domain.x_begin;
     double depth = input_data.domain.depth;
 
     double eps_bc_corr = input_data.boundary.eps_bc_corr;
     double treg = input_data.boundary.treg;
     std::vector<std::string> bc_type = input_data.boundary.bc_type;
+    std::vector<std::string> bc_signals = input_data.boundary.bc_signals;
     std::vector<std::string> bc_vars = input_data.boundary.bc_vars;
     std::vector<double> bc_vals = input_data.boundary.bc_vals;
 
@@ -326,6 +338,7 @@ int main(int argc, char* argv[])
     double gauss_sigma_x = input_data.initial.gauss_sigma_x;
     double gauss_sigma_y = input_data.initial.gauss_sigma_y;
     std::vector<std::string> ini_vars = input_data.initial.ini_vars;
+    std::vector<double> ini_vals = input_data.initial.ini_vals;
 
     double dt = input_data.numerics.dt;
     double dx = input_data.numerics.dx;
@@ -378,9 +391,11 @@ int main(int argc, char* argv[])
     std::vector<double> visc_given(nx, visc_const);  // Initialize viscosity array with given value
     std::vector<double> visc_reg(nx, visc_const);  // Initialize given viscosity array with regularized value
     std::vector<double> visc(nx, visc_const);  // Viscosity array used for computation
-    std::vector<double> pe(nx, 0.);  // peclet number [-]
-    std::vector<double> psi(nx, 0.);  //
-    std::vector<double> froude(nx, 0.);  //
+    std::vector<double> fo(nx, 0.);  // Fourier number D.dt/dx^2 [-]
+    std::vector<double> pe(nx, 0.);  // peclet number u.dx/D [-]
+    std::vector<double> psi(nx, 0.);  // [m2/s]
+    std::vector<double> cfl(nx, 0.);  // u.dt/dx [-]
+    std::vector<double> froude(nx, 0.);  //  u/sqrt(gh) [-]
 
     std::vector<double> htheta(nx, 0.);
     std::vector<double> qtheta(nx, 0.);
@@ -418,7 +433,7 @@ int main(int argc, char* argv[])
     //initialize x-coordinate
     for (int i = 0; i < nx; i++)
     {
-        x[i] = double(i - 1) * dx - Lx / 2;
+        x[i] = double(i - 1) * dx + x_begin;
     }
     //  Create kdtree, needed to locate the observation points
     std::vector<std::vector<double>> xy_points;
@@ -446,7 +461,7 @@ int main(int argc, char* argv[])
         exit(1);
     }
 
-    initial_conditions(x, nx, s_given, u_given, ini_vars, 
+    initial_conditions(x, nx, s_given, u_given, ini_vars, ini_vals, 
         gauss_amp, gauss_mu_x, gauss_sigma_x);
 
     status = bed->initialize_bed_level(bed_level_type, x, zb_given, model_title, depth);
@@ -469,11 +484,6 @@ int main(int argc, char* argv[])
             zb[i] = zb_given[i];
         }
     }
-    for (int i = 0; i < nx; ++i)
-    {
-        froude[i] = qp[i] / hp[i] / std::sqrt(g * hp[i]);
-        pe[i] = qp[i] / hp[i] * dx / visc[i];
-    }
 
     for (size_t k = 0; k < zb_given.size(); k++)
     {
@@ -491,8 +501,21 @@ int main(int argc, char* argv[])
         s[i] = hn[i] + zb[i];
         u[i] = qn[i] / hn[i];
     }
+    for (int i = 0; i < nx; ++i)
+    {
+        froude[i] = u[i] / std::sqrt(g * hp[i]);
+        cfl[i] = u[i] * dt / dx;
+    }
+    if (do_viscosity)
+    {
+        for (int i = 0; i < nx; ++i)
+        {
+            pe[i] = std::abs(u[i] * dx / visc[i]);
+            fo[i] = visc[i] * dt / (dx * dx);
+        }
+    }
 
-    double time = double(0) * dt;
+    double time = tstart + dt * double(0);
     ////////////////////////////////////////////////////////////////////////////
     // Create map file 
     std::cout << "    Create map-file" << std::endl;
@@ -513,6 +536,8 @@ int main(int argc, char* argv[])
     map_names.push_back("froude_1d");
     map_names.push_back("pe_1d");
     map_names.push_back("visc_rhs");
+    map_names.push_back("cfl_1d");
+    map_names.push_back("fo_1d");
 
     map_file = create_map_file(nc_mapfilename, model_title, x, map_names, do_viscosity);
 
@@ -528,6 +553,7 @@ int main(int argc, char* argv[])
     map_file->put_time_variable(map_names[5], nst_map, delta_h);
     map_file->put_time_variable(map_names[6], nst_map, delta_q);
     map_file->put_time_variable(map_names[10], nst_map, froude);
+    map_file->put_time_variable(map_names[13], nst_map, cfl);
     if (do_viscosity)
     {
         map_file->put_time_variable(map_names[7], nst_map, visc_reg);
@@ -535,9 +561,9 @@ int main(int argc, char* argv[])
         map_file->put_time_variable(map_names[9], nst_map, psi);
         map_file->put_time_variable(map_names[11], nst_map, pe);
         map_file->put_time_variable(map_names[12], nst_map, rhs_viscosity);
+        map_file->put_time_variable(map_names[14], nst_map, fo);
     }
     STOP_TIMER(Writing map-file);
-
     // End define map file
     ////////////////////////////////////////////////////////////////////////////
     // Create time history file
@@ -567,24 +593,29 @@ int main(int argc, char* argv[])
     std::string his_u_name("u_velocity");
     std::string his_zb_name("bed_level");
     std::string his_froude_name("froude");
-    std::string his_peclet_name("his_peclet_name");
-    std::string his_visc_name("his_visc_name");
-    std::string his_psi_name("his_psi_name");
-    std::string his_visc_rhs_name("his_visc_rhs_name");
+    std::string his_peclet_name("peclet");
+    std::string his_cfl_name("cfl_1d");
+    std::string his_fo_name("fo_1d");
+    std::string his_visc_name("visc");
+    std::string his_psi_name("psi");
+    std::string his_visc_rhs_name("visc_rhs");
     std::string his_riemann_pos_name("Riemann_right_going");
     std::string his_riemann_neg_name("Riemann_left_going");
+
     his_file->add_variable(his_h_name, "", "Water depth", "m", "Total water depth, i.e. zeta - z_b");
     his_file->add_variable(his_q_name, "", "Water flux", "m2 s-1", "");
     his_file->add_variable(his_s_name, "", "Water level", "m", "");
     his_file->add_variable(his_u_name, "", "Water velocity", "m s-1", "");
     his_file->add_variable(his_zb_name, "", "Bed level", "m", "");
-    his_file->add_variable(his_froude_name, "", "Froude", "-", "Froude number, u/sqrt(gh)");
+    his_file->add_variable(his_cfl_name, "", "CFL (u.dt/dx)", "-", "Courant-Friedrichs-Lewy number, u.dt/dx");
+    his_file->add_variable(his_froude_name, "", "Froude (u/sqrt(gh))", "-", "Froude number, u/sqrt(gh)");
     if (do_viscosity)
     {
-        his_file->add_variable(his_peclet_name, "", "Peclet", "-", "Cell Peclet number, u.dx/nu");
+        his_file->add_variable(his_peclet_name, "", "Peclet (u.dx/nu)", "-", "Cell Peclet number, u.dx/nu");
         his_file->add_variable(his_visc_name, "", "Viscosity (used)", "m2 s-1", "Viscosity, including the artificial viscosity Psi");
         his_file->add_variable(his_psi_name, "", "Psi", "m2 s-1", "Artificial viscosity");
         his_file->add_variable(his_visc_rhs_name, "", "Viscosity (rhs)", "m2 s-1", "Viscosity term, d/dx(visc(du/dx))");
+        his_file->add_variable(his_fo_name, "", "Fourier number (nu.dt/dx^2)", "-", "Fourier number, nu.dt/dx^2");
     }
 
     //his_file->add_variable(his_riemann_pos_name, "", "Rieman(+)", "m2 s-1");
@@ -592,10 +623,10 @@ int main(int argc, char* argv[])
 
     std::string his_newton_iter_name("newton_iterations");
     his_file->add_variable_without_location(his_newton_iter_name, "", "Newton iterations", "-");
-    std::string his_LinSolver_iter_name("his_LinSolver_iterations");
-    his_file->add_variable_without_location(his_LinSolver_iter_name, "iterations", "LinSolver iterations", "-");
-    std::string his_LinSolver_iter_error_name("LinSolver_iteration_error");
-    his_file->add_variable_without_location(his_LinSolver_iter_error_name, "iteration_error", "LinSolver iteration error", "-");
+    std::string his_lin_solv_iter_name("linenar_solver_iterations");
+    his_file->add_variable_without_location(his_lin_solv_iter_name, "iterations", "LinSolver iterations", "-");
+    std::string his_lin_solv_iter_error_name("linenar_solver_iteration_error");
+    his_file->add_variable_without_location(his_lin_solv_iter_error_name, "iteration_error", "LinSolver iteration error", "-");
 
     // Put data on time history file
     START_TIMER(Writing his-file);
@@ -621,6 +652,9 @@ int main(int argc, char* argv[])
     status = set_his_values(input_data.obs_points, froude, his_values);
     his_file->put_variable(his_froude_name, nst_his, his_values);
 
+    status = set_his_values(input_data.obs_points, cfl, his_values);
+    his_file->put_variable(his_cfl_name, nst_his, his_values);
+
     if (do_viscosity)
     {
         status = set_his_values(input_data.obs_points, pe, his_values);
@@ -631,6 +665,8 @@ int main(int argc, char* argv[])
         his_file->put_variable(his_psi_name, nst_his, his_values);
         status = set_his_values(input_data.obs_points, rhs_viscosity, his_values);
         his_file->put_variable(his_visc_rhs_name, nst_his, his_values);
+        status = set_his_values(input_data.obs_points, fo, his_values);
+        his_file->put_variable(his_fo_name, nst_his, his_values);
     }
 
     //his_values = { riemann_pos[p_a], riemann_pos[p_b], riemann_pos[p_c], riemann_pos[p_d], riemann_pos[p_e] };
@@ -644,11 +680,11 @@ int main(int argc, char* argv[])
 
     his_values.clear();
     his_values = { 0.0 };
-    his_file->put_variable(his_LinSolver_iter_name, nst_his, his_values);
+    his_file->put_variable(his_lin_solv_iter_name, nst_his, his_values);
 
     his_values.clear();
     his_values = { 0.0 };
-    his_file->put_variable(his_LinSolver_iter_error_name, nst_his, his_values);
+    his_file->put_variable(his_lin_solv_iter_error_name, nst_his, his_values);
 
     STOP_TIMER(Writing his-file);
     // End define history file
@@ -662,6 +698,7 @@ int main(int argc, char* argv[])
         std::this_thread::sleep_for(timespan);
         //std::cin.ignore();
     }
+
     Eigen::SparseMatrix<double> A(2 * nx, 2 * nx);
     if (logging == "pattern")
     {
@@ -671,19 +708,18 @@ int main(int argc, char* argv[])
 
     STOP_TIMER(Initialization);
 
-    for (int i = 0; i < 2 * nx; ++i) 
+    for (size_t i = 0; i < 2 * nx; ++i) 
     {
         A.coeffRef(i, i) = 1.0;
         rhs[i] = solution[i];
     }
 
+    // start time loop
     std::cout << "Start time-loop" << std::endl;
     if (stationary) { std::cout << "Stationary solution" << std::endl; }
     else { std::cout << "Time dependent simulation" << std::endl; }
-    std::cout << std::fixed << std::setprecision(3) << "tstart= " << tstart + time << ";   tstop= " << tstart + tstop << ";   dt= " << dt << std::endl;
+    std::cout << std::fixed << std::setprecision(3) << "tstart= " << tstart + time << ";   tstop= " << tstart + tstop << ";   dt= " << dt << ";   dx= " << dx << std::endl;
  
-   // Start time loop
-
     START_TIMER(Time loop);
     double dh_max = 0.0;
     double dq_max = 0.0;
@@ -694,10 +730,9 @@ int main(int argc, char* argv[])
     {
         time = dt * double(nst);
 
-        int select = 1;  // Constant boundary condition
         std::vector<double> bc(2, 0.0);
-        boundary_condition(bc[BC_EAST ], bc_vals[BC_EAST ], time, treg, select);
-        boundary_condition(bc[BC_WEST ], bc_vals[BC_WEST ], time, treg, select);
+        boundary_condition(bc[BC_WEST ], bc_vals[BC_WEST ], time, treg, bc_signals[BC_WEST], ini_vals[BC_WEST]);
+        boundary_condition(bc[BC_EAST ], bc_vals[BC_EAST ], time, treg, bc_signals[BC_EAST], ini_vals[BC_EAST]);
 
         // Set the right-hand side (rhs) of the equations (at t = nst*dt)
         //std::cout << std::setprecision(5) << "Time: " << dt*double(nst) << std::endl;
@@ -1150,6 +1185,8 @@ int main(int argc, char* argv[])
                     double d2hdx2 = dxinv * dxinv * (htheta_0 - 2. * htheta_ip1 + htheta_ip2);
                     double viscos = (
                         dviscdx * (dqdx - qtheta_b / htheta_b * dhdx)
+                        //+ visc_b * 1.0 / htheta_b * dhdx * (dqdx - qtheta_b / htheta_b * dhdx)
+                        //- visc_b * 1.0 / htheta_b * dhdx * dqdx 
                         + visc_b * d2qdx2 
                         - visc_b * 1.0 / htheta_b * dhdx * dqdx
                         + visc_b * qtheta_b / (htheta_b * htheta_b) * dhdx * dhdx 
@@ -1408,6 +1445,8 @@ int main(int argc, char* argv[])
 
                     double viscos = (
                         dviscdx * (dqdx - qtheta_b / htheta_b * dhdx)
+                        //+ visc_b * 1.0 / htheta_b * dhdx * (dqdx - qtheta_b / htheta_b * dhdx)
+                        //- visc_b * 1.0 / htheta_b * dhdx * dqdx 
                         + visc_b * d2qdx2 
                         - visc_b * 1.0 / htheta_b * dhdx * dqdx
                         + visc_b * qtheta_b / (htheta_b * htheta_b) * dhdx * dhdx 
@@ -1434,11 +1473,11 @@ int main(int argc, char* argv[])
             }
             if (nst == 1 && iter == 0)
             {
-                START_TIMER(BiCGStab_initialization);
+                START_TIMER(BiCGstab_initialization);
             }
             else
             {
-                START_TIMER(BiCGStab);
+                START_TIMER(BiCGstab);
             }
             if (logging == "matrix" && (nst == 1 || nst == total_time_steps-1) && iter == 0)
             {
@@ -1454,18 +1493,18 @@ int main(int argc, char* argv[])
             //solution = solver.solveWithGuess(rhs, solution);
             if (nst == 1 && iter == 0)
             {
-                STOP_TIMER(BiCGStab_initialization);
+                STOP_TIMER(BiCGstab_initialization);
             }
             else
             {
-                STOP_TIMER(BiCGStab);
+                STOP_TIMER(BiCGstab);
             }
             if (logging == "iterations" || logging == "matrix")
             {
                 log_file << "time [sec]: " << std::setprecision(2) << std::scientific << time
-                    << "    BiCGstab iterations: " << solver.iterations()
-                    << "    estimated error:" << solver.error()
-                    << std::endl;
+                         << "    BiCGstab iterations: " << solver.iterations()
+                         << "    estimated error:" << solver.error()
+                         << std::endl;
             }
             // 
             // The new solution is the previous iterant plus the delta
@@ -1554,6 +1593,7 @@ int main(int argc, char* argv[])
         {
             if (dh_max > eps_newton || dq_max > eps_newton)
             {
+                log_file.setf(std::ios::fixed, std::ios::floatfield);
                 log_file << "    ----    maximum number of iterations reached, probably not converged, at time: " <<  time << " [sec]" << std::endl;
             }
         }
@@ -1582,13 +1622,15 @@ int main(int argc, char* argv[])
         }
         for (int i = 0; i < nx; ++i)
         {
-            froude[i] = qp[i] / hp[i] / std::sqrt(g * hp[i]);
+            cfl[i] = u[i] * dt / dx;
+            froude[i] = u[i] / std::sqrt(g * hp[i]);
         }
         if (do_viscosity)
         {
             for (int i = 0; i < nx; ++i)
             {
-                pe[i] = qp[i] / hp[i] * dx / visc[i];
+                pe[i] = std::abs( u[i] * dx / visc[i] );
+                fo[i] = visc[i] * dt / (dx * dx);
             }
         }
 
@@ -1614,6 +1656,7 @@ int main(int argc, char* argv[])
             map_file->put_time_variable(map_names[5], nst_map, delta_h);
             map_file->put_time_variable(map_names[6], nst_map, delta_q);
             map_file->put_time_variable(map_names[10], nst_map, froude);
+            map_file->put_time_variable(map_names[13], nst_map, cfl);
             if (do_viscosity)
             {
                 map_file->put_time_variable(map_names[7], nst_map, visc_reg);
@@ -1621,6 +1664,7 @@ int main(int argc, char* argv[])
                 map_file->put_time_variable(map_names[9], nst_map, psi);
                 map_file->put_time_variable(map_names[11], nst_map, pe);
                 map_file->put_time_variable(map_names[12], nst_map, rhs_viscosity);
+                map_file->put_time_variable(map_names[14], nst_map, fo);
             }
             STOP_TIMER(Writing map-file);
         }
@@ -1657,6 +1701,9 @@ int main(int argc, char* argv[])
             status = set_his_values(input_data.obs_points, froude, his_values);
             his_file->put_variable(his_froude_name, nst_his, his_values);
 
+            status = set_his_values(input_data.obs_points, cfl, his_values);
+            his_file->put_variable(his_cfl_name, nst_his, his_values);
+
             if (do_viscosity)
             {
                 status = set_his_values(input_data.obs_points, pe, his_values);
@@ -1667,6 +1714,8 @@ int main(int argc, char* argv[])
                 his_file->put_variable(his_psi_name, nst_his, his_values);
                 status = set_his_values(input_data.obs_points, rhs_viscosity, his_values);
                 his_file->put_variable(his_visc_rhs_name, nst_his, his_values);
+                status = set_his_values(input_data.obs_points, fo, his_values);
+                his_file->put_variable(his_fo_name, nst_his, his_values);
             }
 
             //his_values = { riemann_pos[p_a], riemann_pos[p_b], riemann_pos[p_c], riemann_pos[p_d], riemann_pos[p_e] };
@@ -1679,10 +1728,10 @@ int main(int argc, char* argv[])
             his_file->put_variable(his_newton_iter_name, nst_his, his_values);
             his_values.clear();
             his_values = { double(solver.iterations()) };
-            his_file->put_variable(his_LinSolver_iter_name, nst_his, his_values);
+            his_file->put_variable(his_lin_solv_iter_name, nst_his, his_values);
             his_values.clear();
             his_values = { solver.error() };
-            his_file->put_variable(his_LinSolver_iter_error_name, nst_his, his_values);
+            his_file->put_variable(his_lin_solv_iter_error_name, nst_his, his_values);
 
             STOP_TIMER(Writing his-file);
         }

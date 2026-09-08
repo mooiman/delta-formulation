@@ -33,7 +33,7 @@
 #include <thread>
 
 void initial_conditions(std::vector<double>& x, size_t nx, 
-    std::vector<double>& s, std::vector<double>& u, 
-    std::vector<std::string>& ini_vars, double gauss_amp, double gauss_mu_x, double gauss_sigma_x);
+    std::vector<double>& s, std::vector<double>& u, std::vector<std::string> & ini_vars, std::vector<double>& ini_vals,
+    double gauss_amp, double gauss_mu_x, double gauss_sigma_x);
 
 #endif __INITIAL_CONDITIONS_H__

@@ -26,38 +26,49 @@
 
 #include "boundary_condition.h"
 
-void boundary_condition(double& bc0, double& bc0_in, double& time, double& treg, int select)
+void boundary_condition(double& bc0_out, double& bc0_in, double& time, double& treg, std::string bc_signal, double u_initial)
 {
-    double reg_a = 0.0;
-    double reg_b = 1.0;
     double reg_factor = 1.0;
-    double reg_interp = 0.0;
     if (time < treg)
     {
-        reg_factor = 0.5 * (std::cos(M_PI * (treg - time) / treg) + 1.0);
+        double ttmp = time/treg;
+        reg_factor = std::exp(-1. / ttmp) / (std::exp(-1. / ttmp) + std::exp(-1. / (1. - ttmp)));  // smoothstep function   
     }
-    reg_interp = reg_a + (reg_b - reg_a) * reg_factor;  // 0 <= reg_factor <= 1
 
-    switch (select)
+    if (bc_signal == "constant")
     {
-    case 1:
         //
-        // Given value at both sides
+        // Given value for both sides
         //
-        bc0 = reg_interp * bc0_in;
-        break;
-    case 2:
+        bc0_out = u_initial + reg_factor * (bc0_in - u_initial);
+    }
+    else if (bc_signal == "sine")
+    {
         //
         // given sine function at left boundary
         //
-        if (time < treg) 
+        if (time < treg)
         {
-            bc0 = reg_interp;
+            double reg_a = 0.0;
+            double reg_b = 1.0;
+            double reg_interp = 0.0;
+
+            double ttmp = time/treg;
+            reg_factor = 0.5 * (-std::cos(M_PI * ttmp) + 1.0);
+            reg_interp = reg_a + (reg_b - reg_a) * reg_factor;  // 0 <= reg_factor <= 1
+            bc0_out = u_initial + reg_interp;
         }
         else
         {
-            bc0 = -std::cos(M_PI * (time) / treg);
+            bc0_out =  u_initial + ( -std::cos(M_PI * time / treg) );
         }
-        break;
+    }
+    else
+    {
+        std::cout << "----------------------------" << std::endl;
+        std::cout << "Boundary signal \"" << bc_signal << "\" not supported" << std::endl;
+        std::cout << "Press Enter to finish";
+        std::cin.ignore();
+        exit(1);
     }
 }
