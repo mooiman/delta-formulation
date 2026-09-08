@@ -18,10 +18,10 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
-//---------------------------------------------------------------
+//------------------------------------------------------------------------------
 //   DESCRIPTION
 //
-//   Boundary conditions for the Advection-Diffusion equation
+//   Boundary conditions for the Burgers equation
 //
 
 #include "boundary_condition.h"
@@ -32,8 +32,7 @@ void boundary_condition(double& bc0_out, double& bc0_in, double& time, double& t
     if (time < treg)
     {
         double ttmp = time/treg;
-        //reg_factor = 0.5 * (-std::cos(M_PI * ttmp) + 1.0);
-        //reg_factor = 3.0 * ttmp * ttmp - 2.0 * ttmp * ttmp * ttmp;  // cubic interpolation
+         //reg_factor = 3.0 * ttmp * ttmp - 2.0 * ttmp * ttmp * ttmp;  // cubic interpolation
         reg_factor = std::exp(-1. / ttmp) / (std::exp(-1. / ttmp) + std::exp(-1. / (1. - ttmp)));  // smoothstep function   
     }
 
@@ -68,7 +67,7 @@ void boundary_condition(double& bc0_out, double& bc0_in, double& time, double& t
     else if (bc_signal == "colombo")
     {
         //
-        // constan value at left boundary, dependent on the location of x_origin (assumed to be zero)
+        // constant value at left boundary, dependent on the location of x_begin (assumed to be zero)
         //
         if (time < treg)
         {

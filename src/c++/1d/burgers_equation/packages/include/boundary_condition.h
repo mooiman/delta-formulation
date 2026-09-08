@@ -26,6 +26,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+#include <string>
 
 void boundary_condition(double&, double&, double&, double&, std::string bnd_type, double u_initial);
 

@@ -54,10 +54,10 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
     // Domain
     tbl_chp = *tbl["Domain"].as_table();
     data.domain.Lx = tbl_chp["Lx"].value_or(double(12000.));
-    data.domain.x_origin = tbl_chp["x_origin"].value_or(double(-INFINITY));
-    if (data.domain.x_origin == -INFINITY) 
+    data.domain.x_begin = tbl_chp["x_begin"].value_or(double(-INFINITY));
+    if (data.domain.x_begin == -INFINITY) 
     { 
-        data.domain.x_origin = -0.5 * data.domain.Lx; 
+        data.domain.x_begin = -0.5 * data.domain.Lx; 
     }
 
     // Initial

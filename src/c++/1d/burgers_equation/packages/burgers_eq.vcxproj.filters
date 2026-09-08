@@ -10,9 +10,6 @@
     <ClCompile Include="src\adv_diff_init_velocity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\adv_diff_boundary_condition.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\definition_map_file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -40,6 +37,9 @@
     <ClCompile Include="src\main_version.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\boundary_condition.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -57,9 +57,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\boundary_condition.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\adv_diff_linear_operator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\ugrid1d.h">

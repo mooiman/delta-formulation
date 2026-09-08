@@ -54,7 +54,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     //Domain
     log_file << std::endl << "[Domain]" << std::endl;
     log_file << "    Lx       = " << format_as_double(data.domain.Lx) << "  # Domain length [m]" << std::endl;
-    log_file << "    x_origin = " << format_as_double(data.domain.x_origin) << "  # Origin of the x-coordinate [m]" << std::endl;
+    log_file << "    x_begin  = " << format_as_double(data.domain.x_begin) << "  # Origin of the x-coordinate [m]" << std::endl;
 
     // Initial
     log_file << std::endl << "[Initial]" << std::endl;

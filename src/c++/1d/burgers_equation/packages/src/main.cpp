@@ -37,7 +37,6 @@
 
 #include "boundary_condition.h"
 #include "adv_diff_init_velocity.h"
-#include "adv_diff_linear_operator.h"
 #include "cfts.h"
 #include "compile_date_and_time.h"
 #include "data_input_struct.h"
@@ -273,7 +272,7 @@ int main(int argc, char* argv[])
     std::string logging = input_data.log.logging;
 
     //double Lx       = input_data.domain.Lx;
-    double x_origin = input_data.domain.x_origin;
+    double x_begin  = input_data.domain.x_begin ;
 
     double eps_bc_corr = input_data.boundary.eps_bc_corr;
     double treg = input_data.boundary.treg;
@@ -350,7 +349,7 @@ int main(int argc, char* argv[])
     //initialize x-coordinate
     for (int i = 0; i < nx; i++)
     {
-        x[i] = double(i - 1) * dx + x_origin;
+        x[i] = double(i - 1) * dx + x_begin ;
     }
     adv_diff_init_velocity(u_init, ini_vals, x, ini_vars[0]);
     //  Create kdtree, needed to locate the observation points
@@ -477,6 +476,7 @@ int main(int argc, char* argv[])
 
     status = set_his_values(input_data.obs_points, cfl, his_values);
     his_file->put_variable(his_cfl_name, nst_his, his_values);
+
     if (do_viscosity) 
     {
         status = set_his_values(input_data.obs_points, pe, his_values);
@@ -530,8 +530,7 @@ int main(int argc, char* argv[])
     if (stationary) { std::cout << "Stationary solution" << std::endl; }
     else { std::cout << "Time dependent simulation" << std::endl; }
     std::cout << std::fixed << std::setprecision(3) << "tstart= " << tstart + time << ";   tstop= " << tstart + tstop << ";   dt= " << dt << ";   dx= " << dx << std::endl;
- 
-    // Start time loop
+
     double du_max = 0.0;
     size_t du_maxi = 0;
 
@@ -544,8 +543,6 @@ int main(int argc, char* argv[])
     START_TIMER(Time loop);
     for (int nst = 1; nst < total_time_steps; ++nst)
     {
-        int used_newton_iter = 0;
-        int used_lin_solv_iter = 0;
         time = dt * double(nst);
 #if defined(DEBUG)
         log_file << "=== Start time step ===================================" << std::endl;
@@ -575,6 +572,8 @@ int main(int argc, char* argv[])
             STOP_TIMER(Regularization_time_loop);
         }
 
+        int used_newton_iter = 0;
+        int used_lin_solv_iter = 0;
         START_TIMER(Newton iteration);
         Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
         for (int iter = 0; iter < iter_max; ++iter)
@@ -834,11 +833,12 @@ int main(int argc, char* argv[])
             {
                 log_file << "time [sec]: " << std::setprecision(2) << std::scientific << time
                          << "    BiCGstab iterations: " << solver.iterations()
-                         << "    estimated error:" << solver.error() 
+                         << "    estimated error:" << solver.error()
                          << std::endl;
             }
-
+            //
             // The new solution is the previous iterant plus the delta
+            //
             du_max = 0.0;
             du_maxi = 0;
             for (size_t i = 0; i < nx; ++i)
@@ -997,6 +997,7 @@ int main(int argc, char* argv[])
 
             status = set_his_values(input_data.obs_points, cfl, his_values);
             his_file->put_variable(his_cfl_name, nst_his, his_values);
+
             if (do_viscosity)
             {
                 status = set_his_values(input_data.obs_points, pe, his_values);
@@ -1015,6 +1016,7 @@ int main(int argc, char* argv[])
             his_values.clear();
             his_values = { double(used_lin_solv_iter) };
             his_file->put_variable(his_lin_solv_iter_name, nst_his, his_values);
+
             STOP_TIMER(Writing his-file);
         }
     } // End of the time loop
