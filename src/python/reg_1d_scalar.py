@@ -23,7 +23,7 @@ def cm2inch(cm):
     return cm / 2.54
 
 
-def main(bath_in = 11, Lx_in=1000., dx_in=50.0, c_psi_in= 4.0, left_in = 0.0, right_in = 1.0):  # c_psi paragraph after eq. 10 of article
+def main(bath_in = 12, Lx_in=1000., dx_in=50.0, c_psi_in= 2., left_in = 0.0, right_in = 1.0):  # c_psi paragraph after eq. 10 of article
     bathymetry = int(bath_in)
     Lx = float(Lx_in)
     dx = float(dx_in)
@@ -49,7 +49,7 @@ def main(bath_in = 11, Lx_in=1000., dx_in=50.0, c_psi_in= 4.0, left_in = 0.0, ri
     # 9: Summer-winterbed
     # 10: Wiggle
     # 11: Smooth step
-    #
+    # 12: Dike
 
     Psi = c_psi * dx *dx
 
@@ -278,6 +278,19 @@ def main(bath_in = 11, Lx_in=1000., dx_in=50.0, c_psi_in= 4.0, left_in = 0.0, ri
             x_sc = (x_ana[i]+dx) / Lx
             ugiv_ana[i] = step_left + (step_right - step_left) * np.exp(-1./x_sc) / (np.exp(-1./x_sc) + np.exp(-1./((x[nx-1] + dx)/Lx - x_sc)))
         ugiv_ana[0] = step_left
+    elif bathymetry == 12:
+        bathymetry_desc = "0.4 * Lx > x < 0.6 * Lx; f(x) = Dike height"
+        bed_level = -4.0
+        dike_height = bed_level + 2.0
+        for i in range(0, nx):
+            ugiv[i] = bed_level
+            if x[i] > 0.4 * Lx and x[i] < 0.6 * Lx:
+                ugiv[i] = dike_height  # winterbed
+        for i in range(0, refine * (nx - 1) + 1):
+            ugiv_ana[i] = bed_level
+            if x_ana[i] > 0.4 * Lx and x_ana[i] < 0.6 * Lx:
+                ugiv_ana[i] = dike_height  # winterbed
+
     else:
         print("No valid bathymetry option defined, value '%s' is not supported." % bathymetry)
         return(1)
@@ -448,7 +461,7 @@ def main(bath_in = 11, Lx_in=1000., dx_in=50.0, c_psi_in= 4.0, left_in = 0.0, ri
         handles, labels = ax2.get_legend_handles_labels()
         ax2.legend(handles, labels, prop={"size": 12}, loc='center right')
 
-        tekst = ('$c_{\Psi}$ = %.1f; $\Delta x$ = %.3f [m]; ${\Psi = c_{\Psi}\Delta x^2}$ = %.3f' % (c_psi, dx, Psi))
+        tekst = ('$c_{\Psi}$ = %.3f; $\Delta x$ = %.3f [m]; ${\Psi = c_{\Psi}\Delta x^2}$ = %.3f' % (c_psi, dx, Psi))
         fig1.text(0.125, 0.90, tekst, fontsize=10)
         tekst = ('max|$\overline{u}$ - $u_{giv}$|= %.5e; Sum|$\overline{u}$ - $u_{giv}$|= %.5e' % (max_ubar_ugiv, delta_ubar_ugiv))
         fig1.text(0.125, 0.95, tekst, fontsize=10)
@@ -474,7 +487,8 @@ def main(bath_in = 11, Lx_in=1000., dx_in=50.0, c_psi_in= 4.0, left_in = 0.0, ri
         if not os.path.exists('data'):
             os.mkdir('data')
 
-        with open("data/bed_level_regularized.tek", "w") as logfile:
+        text = ('data/bed_level_dx%s_cpsi%s.tek' % (str(dx), str(c_psi)))
+        with open(text, "w") as logfile:
             logfile.write('* %s\n' % bathymetry_desc)
             logfile.write('* Regularized\n')
             logfile.write('* column 1: x-coordinate\n')
@@ -486,7 +500,8 @@ def main(bath_in = 11, Lx_in=1000., dx_in=50.0, c_psi_in= 4.0, left_in = 0.0, ri
                 tekst = ('%.8f %.8f\n' % (x[i], ubar[i]))
                 logfile.write( tekst )
             logfile.close()
-        with open("data/bed_level_ugiv.tek", "w") as logfile:
+        text = ('data/bed_level_ugiv_dx%s.tek' % (str(dx)))
+        with open(text, "w") as logfile:
             logfile.write('* %s\n' % bathymetry_desc)
             logfile.write('* u_given\n')
             logfile.write('* column 1: x-coordinate\n')
@@ -502,7 +517,8 @@ def main(bath_in = 11, Lx_in=1000., dx_in=50.0, c_psi_in= 4.0, left_in = 0.0, ri
         text = ('figures/regul_1_1d_scalar_dx%s_cpsi%s.pdf' % (str(dx), str(c_psi)))
         fig1.savefig(text, format='pdf')
         text = ('figures/regul_2_1d_scalar_dx%s_cpsi%s.pdf' % (str(dx), str(c_psi)))
-        fig2.savefig(text, format='pdf')
+        # fig2.savefig(text, format='pdf')
+        plt.close(fig2)
         plt.show()
 
     return 0
