@@ -623,9 +623,9 @@ int main(int argc, char* argv[])
 
     std::string his_newton_iter_name("newton_iterations");
     his_file->add_variable_without_location(his_newton_iter_name, "", "Newton iterations", "-");
-    std::string his_lin_solv_iter_name("linenar_solver_iterations");
+    std::string his_lin_solv_iter_name("linear_solver_iterations");
     his_file->add_variable_without_location(his_lin_solv_iter_name, "iterations", "LinSolver iterations", "-");
-    std::string his_lin_solv_iter_error_name("linenar_solver_iteration_error");
+    std::string his_lin_solv_iter_error_name("linear_solver_iteration_error");
     his_file->add_variable_without_location(his_lin_solv_iter_error_name, "iteration_error", "LinSolver iteration error", "-");
 
     // Put data on time history file
