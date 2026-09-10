@@ -1,41 +1,33 @@
-# Logging = "iterations" # "iterations", "matrix" 
-
-[Domain]
-    Lx = 500.0                                    # Domain length [m]
-    geometry_type = "WeirBorsboom2000Geometry"
-
-[Time]
-    tstart = 0.0                                  # Start time [s]
-    tstop = 7200.0                               # End time [s]
- 
-[Initial]
-    ini_vars = ["zeta_gauss_hump"]
-    gauss_mu = 0.0                                # location of the top of the gaussian hump
-    gauss_sigma = 700.0                           # width of the gaussian hump
-    gauss_amp = 0.0                                      # amplitude of the gaussian hump at the boundary
-
 [Boundary]
+    treg = 600.0                                  # Regularization time on boundary
+    eps_bc_corr = 1.0e-2
+    bc_signals  = ["constant", "constant"]
     bc_type = ["borsboom", "borsboom"]            # Type "mooiman", "borsboom"
     bc_vars = ["q", "zeta"]                       # Incoming signal  
     bc_vals = [19.8656, -3.0]                     # The inflow discharge
-    treg = 300.0                                  # Regularization time on boundary
-    eps_bc_corr = 1.0e-02
 
- [Physics]
+[Domain]
+    Lx = 500.0                                   # Domain length [m]
+    x_begin = 0.0
+    geometry_type = "WeirBorsboom2000Geometry"
+
+[Initial]
+    ini_vals = [0.0, 0.0]
+    ini_vars = ["zeta_constant", "u_constant"]
+    
+[Physics]
     g = 10.0                                      # Gravitational acceleration
     do_convection = true                    # Include momentum convection term
-    do_bed_shear_stress = false             # Include bed shear stress
-    do_viscosity = true                     # Include bed shear stress
+    do_bed_shear_stress = false              # Include bed shear stress
+    do_viscosity = true                       # Include viscosity
     chezy_coefficient = 50.0                      # Chezy coefficient
     viscosity = 0.01
 
 [Numerics]
     dt = 4.0                                      # Time step size [s], if dt == 0: then stationary problem
     dx = 20.0                                      # Grid size [m]
-    c_psi = 4.0
     iter_max = 50                                 # Maximum number of nonlinear iterations
-    theta = 0.501                                 # Implicitness factor (0.5 <= theta <= 1.0)
-    use_eq8 = true
+    theta = 0.5                                   # Implicitness factor (0.5 <= theta <= 1.0)
     regularization_init = true
     regularization_iter = false
     regularization_time = true
@@ -43,6 +35,11 @@
     eps_bicgstab = 1.0e-12
 
 [Output]
-    dt_his = 0.01    # [s]
-    dt_map = 1.00   # [s] 
-    dt_screen = 300.0  # [s] 
+    dt_his = 1.0   # [s]
+    dt_map = 1.0  # [s] 
+    dt_screen = 300.0  # [s]
+
+[Time]
+    tunit  = "h"  # "s", "m", "h", "d"
+    tstart = 0.0
+    tstop  = 2.0

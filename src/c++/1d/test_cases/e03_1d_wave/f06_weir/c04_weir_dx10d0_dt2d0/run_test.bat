@@ -6,3 +6,5 @@ xcopy /s /y .\output  .\output_01
 
 del /q .\output\*.*
 %exe_dir%\wave_1d.exe --toml .\input_1d.toml
+
+rem call water_level.qplog

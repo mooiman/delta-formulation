@@ -1,25 +1,21 @@
-[Domain]
-    Lx = 1000.0    # Domain length [m]
-    depth = 4.0    # bathymetry below reference level [m]
-    geometry_type = "SlopedWavyBedGeometry"
-
-[Time]
-    tstart = 0.0                                  # Start time [s]
-    tstop = 21600.0                               # End time [s]
-        
-[Initial]
-    ini_vars = ["zeta_gauss_hump"]
-    gauss_mu = 0.0    # location of the top of the gaussian hump
-    gauss_sigma = 700.0    # width of the gaussian hump
-    gauss_amp = 0.0 # twice the amplitude of the gaussian hump at the boundary
-
 [Boundary]
+    treg = 600.0                                  # Regularization time on boundary
+    eps_bc_corr = 1.0e-2
+    bc_signals  = ["constant", "constant"]
     bc_type = ["borsboom", "borsboom"]            # Type "mooiman", "borsboom"
     bc_vars = ["q", "zeta"]                       # Incoming signal  
     bc_vals = [4.0, 0.0]                          # The inflow discharge q should be 4.0
-    treg = 600.0                                  # Regularization time on boundary
-    eps_bc_corr = 1.0e-2
 
+[Domain]
+    Lx = 1000.0                                   # Domain length [m]
+    depth = 4.0    # bathymetry below reference level [m]
+    x_begin = 0.0
+    geometry_type = "SlopedWavyBedGeometry"
+
+[Initial]
+    ini_vals = [0.0, 0.0]
+    ini_vars = ["zeta_constant", "u_constant"]
+    
 [Physics]
     g = 10.0                                      # Gravitational acceleration
     do_convection = true                    # Include momentum convection term
@@ -32,7 +28,7 @@
     dt = 5.0                                      # Time step size [s], if dt == 0: then stationary problem
     dx = 5.0                                      # Grid size [m]
     iter_max = 25                                 # Maximum number of nonlinear iterations
-    theta = 0.501                                 # Implicitness factor (0.5 <= theta <= 1.0)
+    theta = 0.5                                   # Implicitness factor (0.5 <= theta <= 1.0)
     regularization_init = true
     regularization_iter = false
     regularization_time = false
@@ -41,5 +37,10 @@
 
 [Output]
     dt_his = 5.0   # [s]
-    dt_map = 0.0  # [s] 
-    dt_screen = 300.0  # [s] 
+    dt_map = 15.0  # [s] 
+    dt_screen = 900.0  # [s]
+
+[Time]
+    tunit  = "h"  # "s", "m", "h", "d"
+    tstart = 0.0
+    tstop  = 6.0
