@@ -179,8 +179,8 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     double qbar_im14;
     double qbar_ip14;
 
-    double c_error = dx * c_psi;
-    double c_E = dx * c_psi * c_psi * std::numbers::pi/2.0;
+    double c_error = c_psi;
+    double c_E = c_psi * c_psi * std::numbers::pi/2.0;
 
     for (size_t i = 1; i < nx - 1; ++i)
     {
