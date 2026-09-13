@@ -28,7 +28,7 @@ CFTS::CFTS()
 {
     m_ncid = -1;
     m_times = -1;
-    m_time_units = "seconds since 2007-01-01 00:00:00";
+    m_time_units = "seconds since 2026-01-01 00:00:00";
 }
 CFTS::~CFTS()
 {

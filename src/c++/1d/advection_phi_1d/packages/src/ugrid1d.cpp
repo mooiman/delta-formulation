@@ -25,7 +25,7 @@ UGRID1D::UGRID1D()
 {
     m_ncid = -1;
     m_times = -1;
-    m_time_units = "seconds since 2023-01-01 00:00:00";
+    m_time_units = "seconds since 2026-01-01 00:00:00";
 }
 UGRID1D::~UGRID1D()
 {
