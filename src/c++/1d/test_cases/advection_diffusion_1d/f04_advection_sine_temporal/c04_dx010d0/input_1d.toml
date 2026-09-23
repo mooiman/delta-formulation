@@ -11,7 +11,7 @@ Logging = "None"  # "iterations", "matrix", "pattern"
     x_origin = 0.0  # Origin of the x-coordinate [m]
 
 [Initial]
-    c_initial = 0.0  # initial constituent [-]
+    c_initial = 1.5  # initial constituent [-]
     ini_vars  = ["constant"] # "constant", "envelope"
     
 [Numerics]
@@ -29,7 +29,7 @@ Logging = "None"  # "iterations", "matrix", "pattern"
 [Output]
     dt_his = 1.0   # [s]
     dt_map = 1.0   # [s] 
-    dt_screen = 120.0   # [s] 
+    dt_screen = 300.0   # [s] 
     
 [Physics]
     u_advection = 10.0  # initial velocity [m]

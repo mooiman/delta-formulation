@@ -37,7 +37,7 @@ static char main_version[] = {main_major "." main_minor "." main_revision " (Lin
 static char main_version_id[] = {"@(#)Mooiman, "main_program" Version "main_major "." main_minor "." main_revision "." main_git_build" (Linux64), "__DATE__", "__TIME__""};
 #elif defined(UCRT64)
 static char main_version[] = { main_major "." main_minor "." main_revision " (UCRT64)" };
-static char main_version_id[] = {"@(#)Mooiman, " main_program " Version " main_major "." main_minor "." main_revision "." main_git_build " (Win64), " __DATE__ ", " __TIME__ "" };
+static char main_version_id[] = {"@(#)Mooiman, " main_program " Version " main_major "." main_minor "." main_revision "." main_git_build " (UCRT64), " __DATE__ ", " __TIME__ "" };
 #elif defined(WIN32) || defined(WIN64)
 static char main_build_string[] = { main_git_build };
 static char main_version[] = { main_major "." main_minor "." main_revision " (Win64)" };

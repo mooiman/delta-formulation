@@ -51,14 +51,9 @@ void boundary_condition(double& bc0_out, double& bc0_in, double& time, double& t
         //
         if (time < treg)
         {
-            double reg_a = 0.0;
-            double reg_b = 1.0;
-            double reg_interp = 0.0;
-
             double ttmp = time/treg;
             reg_factor = 0.5 * (-std::cos(M_PI * ttmp) + 1.0);
-            reg_interp = reg_a + (reg_b - reg_a) * reg_factor;  // 0 <= reg_factor <= 1
-            bc0_out = u_initial + reg_interp;
+            bc0_out = u_initial + reg_factor * 0.5 * (-std::cos(M_PI * time / treg) + 1.0);
         }
         else
         {
