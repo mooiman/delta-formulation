@@ -24,11 +24,13 @@
 #define __BOUNDARY_CONDITION_H__
 
 #define _USE_MATH_DEFINES
-#include <cstdlib>
-#include <vector>
 #include <cmath>
+#include <cstdlib>
+#include <iostream>
+#include <vector>
 #include <string>
 
-void boundary_condition(double&, double&, double&, double&, int);
+void boundary_condition(double& bc0_out, double& bc0_in, std::string bc_vars, std::string bc_signal,
+    double& time, double& treg, double& h, std::vector<double>& ini_vals);
 
 #endif __BOUNDARY_CONDITION_H__

@@ -71,12 +71,13 @@ AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 #include "grid.h"
 #include "initial_conditions.h"
 #include "interpolations.h"
-#include "perf_timer.h"
+
 #include "main_version.h"
 #include "matrix_assembly_boundaries.h"
 #include "matrix_assembly_corners.h"
 #include "matrix_assembly_interior.h"
 #include "observation_stations.h"
+#include "perf_timer.h"
 #include "print_matrix.h"
 #include "read_input_toml_file.h"
 #include "regularization.h"
@@ -84,14 +85,9 @@ AMGCL_USE_EIGEN_VECTORS_WITH_BUILTIN_BACKEND()
 #include "viscosity.h"
 
 void GetArguments(long argc, char** argv, std::filesystem::path & file_name);
-int set_his_values(std::vector<_ObservationPoint>& obs_points, std::vector<double> & array, std::vector<double>& his_values);
-int write_used_input(struct _data_input data, std::ofstream & log_file);
 inline size_t main_idx(size_t i, size_t j, size_t ny);
-
-// Solve the linear wave equation
-// Continuity equation: d(h)/dt + d(q)/dx = 0
-// Momentum equation  : d(q)/dt + gh d(zeta)/dx + convection + bed_shear_stress - diffusivity = 0
-// Momentum equation  : d(r)/dt + gh d(zeta)/dy + convection + bed_shear_stress - diffusivity = 0
+int write_used_input(struct _data_input data, std::ofstream & log_file);
+int set_his_values(std::vector<_ObservationPoint>& obs_points, std::vector<double> & array, std::vector<double>& his_values);
 
 std::string compileDateTime()
 {
@@ -106,6 +102,13 @@ std::string compileDateTime()
     }
     return str1 + "-" + str2 + "-" + str3 + " " + __TIME__;
 }
+
+
+// Solve the linear wave equation
+// Continuity equation: d(h)/dt + d(q)/dx = 0
+// Momentum equation  : d(q)/dt + gh d(zeta)/dx + convection + bed_shear_stress - diffusivity = 0
+// Momentum equation  : d(r)/dt + gh d(zeta)/dy + convection + bed_shear_stress - diffusivity = 0
+
 int main(int argc, char *argv[])
 {
     bool stationary = false;
@@ -150,7 +153,10 @@ int main(int argc, char *argv[])
     {
         std::cout << "======================================================" << std::endl;
         std::cout << "Executable compiled : " << compileDateTime() << std::endl;
-        std::cout << "Git commit time/hash: " << getbuildstring_main() << std::endl;
+        std::cout << "Git commit time     : " << getgitdatestring_main() << std::endl;
+        std::cout << "Git commit hash     : " << getgitbuildstring_main() << std::endl;
+        std::cout << "Git branch          : " << getgitbranchstring_main() << std::endl;
+        std::cout << "Git repository URL  : " << getgiturlstring_main() << std::endl;
         std::cout << std::endl;
         std::cout << "usage: wave_2d.exe --toml <input_file>" << std::endl;
         std::cout << "======================================================" << std::endl;
@@ -159,13 +165,17 @@ int main(int argc, char *argv[])
         std::this_thread::sleep_for(timespan);
         exit(1);
     }
+
     const std::chrono::zoned_time now{ std::chrono::current_zone(), std::chrono::system_clock::now() };
     auto start_date_time = std::format("{:%F %H:%M:%OS %Oz}", now);
     std::cout << std::endl;
     std::cout << "======================================================" << std::endl;
     std::cout << "Start time          : " << start_date_time << std::endl;
     std::cout << "Executable compiled : " << compileDateTime() << std::endl;
-    std::cout << "Git commit time/hash: " << getbuildstring_main() << std::endl;
+    std::cout << "Git commit time     : " << getgitdatestring_main() << std::endl;
+    std::cout << "Git commit hash     : " << getgitbuildstring_main() << std::endl;
+    std::cout << "Git branch          : " << getgitbranchstring_main() << std::endl;
+    std::cout << "Git repository URL  : " << getgiturlstring_main() << std::endl;
     std::cout << "======================================================" << std::endl;
     std::cout << "Executable directory: " << exec_dir << std::endl;
     std::cout << "Start directory     : " << start_dir << std::endl;
@@ -189,7 +199,7 @@ int main(int argc, char *argv[])
         std::cout << "\n+++++++++++++++++++++\nTOML parse error\n"
                   << err 
                   << "\n+++++++++++++++++++++\n\n";
-        std::chrono::duration<int, std::milli> timespan(3000);
+        std::chrono::duration<int, std::milli> timespan(5000);
         std::this_thread::sleep_for(timespan);
         exit(1);
     }
@@ -246,7 +256,10 @@ int main(int argc, char *argv[])
     log_file << "======================================================" << std::endl;
     log_file << "Start time          : " << start_date_time << std::endl;
     log_file << "Executable compiled : " << compileDateTime() << std::endl;
-    log_file << "Git commit time/hash: " << getbuildstring_main() << std::endl;
+    log_file << "Git commit time     : " << getgitdatestring_main() << std::endl;
+    log_file << "Git commit hash     : " << getgitbuildstring_main() << std::endl;
+    log_file << "Git branch          : " << getgitbranchstring_main() << std::endl;
+    log_file << "Git repository URL  : " << getgiturlstring_main() << std::endl;
     log_file << "=== Input file =======================================" << std::endl;
     log_file << toml_file_name << std::endl;
 
@@ -328,6 +341,7 @@ int main(int argc, char *argv[])
     // double dtpseuinv = 0.0;                               // Inverse of dtpseu
     int wrihis;                                           // write interval to his-file
     int wrimap;                                           // write interval to map-file
+
     if (stationary)
     {
         input_data.numerics.dt = 0.0;                                         // Time step size [s]
@@ -337,7 +351,7 @@ int main(int argc, char *argv[])
         input_data.numerics.theta = 1.0;                                      // Stationary solution
         input_data.time.tstop = 1.;
         total_time_steps = 2;                             // initial step (step 1), stationary result (step 2)
-        input_data.boundary.treg = 0.0;                                       // Thatcher-Harleman return time [s], when zero supply boundary value immediately
+        input_data.boundary.treg = 0.0;                   // Thatcher-Harleman return time [s], when zero supply boundary value immediately
         wrihis = 1;                                       // write interval to his-file
         wrimap = 1;                                       // write interval to map-file
     }
@@ -411,6 +425,7 @@ int main(int argc, char *argv[])
     double eps_bc_corr = input_data.boundary.eps_bc_corr;
     double treg = input_data.boundary.treg;
     std::vector<std::string> bc_type = input_data.boundary.bc_type;
+    std::vector<std::string> bc_signals = input_data.boundary.bc_signals;
     std::vector<std::string> bc_vars = input_data.boundary.bc_vars;
     std::vector<double> bc_vals = input_data.boundary.bc_vals;
 
@@ -420,11 +435,13 @@ int main(int argc, char *argv[])
     double gauss_sigma_x = input_data.initial.gauss_sigma_x;
     double gauss_sigma_y = input_data.initial.gauss_sigma_y;
     std::vector<std::string> ini_vars = input_data.initial.ini_vars;
+    std::vector<double> ini_vals = input_data.initial.ini_vals;
 
     double dt = input_data.numerics.dt;
     double c_psi = input_data.numerics.c_psi;
     double eps_bicgstab = input_data.numerics.eps_bicgstab;
     double eps_newton = input_data.numerics.eps_newton;
+    double eps_abs = input_data.numerics.eps_abs;
     double theta = input_data.numerics.theta;
     int iter_max = input_data.numerics.iter_max;
     std::string linear_solver = input_data.numerics.linear_solver;
@@ -456,9 +473,9 @@ int main(int argc, char *argv[])
     std::vector<double> dh(nxny, 0.);                     // delta for water depth
     std::vector<double> dq(nxny, 0.);                     // delta for q-flux
     std::vector<double> dr(nxny, 0.);                     // delta for r-flux
-    std::vector<double> s_giv(nxny, 0.);                  // water level, given
-    std::vector<double> u_giv(nxny, 0.);                  // u-velocity, given
-    std::vector<double> v_giv(nxny, 0.);                  // v-velocity, given
+    std::vector<double> s_given(nxny, 0.);                  // water level, given
+    std::vector<double> u_given(nxny, 0.);                  // u-velocity, given
+    std::vector<double> v_given(nxny, 0.);                  // v-velocity, given
     std::vector<double> s(nxny, 0.);                      // water level, needed for post-processing
     std::vector<double> u(nxny, 0.);                      // u-velocity, needed for post-processing
     std::vector<double> v(nxny, 0.);                      // v-velocity, needed for post-processing
@@ -518,9 +535,10 @@ int main(int argc, char *argv[])
     solution.setZero(); // Delta h, Delta q and Delta r
     rhs.setZero();
 
-    double cf = g / (chezy_coefficient * chezy_coefficient);  // bed friction coefficient
-    double alpha = 1. / 8.;                                   // Linear (spatial) interpolation coefficient
+    double cf_given = g / (chezy_coefficient * chezy_coefficient);  // bed friction coefficient
+    std::vector<double> cf(nxny, cf_given);  // Bed shear stress coefficient
 
+    double alpha = 1. / 8.;                                   // Linear (spatial) interpolation coefficient
     mass[0] = alpha;
     mass[1] = 1.0 - 2. * alpha;
     mass[2] = alpha;
@@ -537,9 +555,6 @@ int main(int argc, char *argv[])
     w_ess[0] = 11./24.;
     w_ess[1] = 14./24.;
     w_ess[2] = -1./24.;
-    //w_ess[0] = w_nat[0];
-    //w_ess[1] = w_nat[1];
-    //w_ess[2] = w_nat[2];
 
     //initialize water level
     std::cout << "Initialisation" << std::endl;
@@ -551,7 +566,7 @@ int main(int argc, char *argv[])
     log_file << "Volumes : " << (nx - 2) << "x" << (ny - 2) << "=" << (nx - 2) * (ny - 2) << std::endl;
     log_file << "nxny    : " << nx << "x" << ny << "=" << nxny << std::endl;
     log_file << "=======================================================" << std::endl;
-    std::cout << "    nxny: " << nx << "x" << ny << "=" << nxny << std::endl;
+    std::cout << "    Nodes: " << nx << "x" << ny << "=" << nxny << std::endl;
     std::cout << "======================================================" << std::endl;
 
     STOP_TIMER(Writing log-file);  // but two write statements are not timed
@@ -561,8 +576,8 @@ int main(int argc, char *argv[])
     }
 
     (void) initial_conditions(x, y, nx, ny,
-        s_giv, u_giv, v_giv, 
-        ini_vars, gauss_amp, gauss_mu_x, gauss_mu_y, gauss_sigma_x, gauss_sigma_y);
+        s_given, u_given, v_given, ini_vars, ini_vals, 
+        gauss_amp, gauss_mu_x, gauss_mu_y, gauss_sigma_x, gauss_sigma_y);
 
     if (regularization_init)
     {
@@ -571,8 +586,8 @@ int main(int argc, char *argv[])
         regularization->given_function(visc_reg, psi_visc_11, psi_visc_22, eq8_visc, visc_given, c_psi, metric, log_file);
         for (size_t i = 0; i < visc_reg.size(); ++i)
         {
-            visc_11[i] = visc_reg[i];
-            visc_22[i] = visc_reg[i];
+            visc_11[i] = visc_given[i] + visc_reg[i];
+            visc_22[i] = visc_given[i] + visc_reg[i];
         }
 
         STOP_TIMER(Regularization_init);
@@ -589,23 +604,38 @@ int main(int argc, char *argv[])
     }
     for (size_t k = 0; k < zb_given.size(); ++k)
     {
-        hn[k] = s_giv[k] - zb[k];  // Initial water depth
-        qn[k] = hn[k] * u_giv[k];  // Initial q=hu -velocity
-        rn[k] = hn[k] * v_giv[k];  // Initial r=hv -velocity
+        hn[k] = s_given[k] - zb[k];  // Initial water depth
+        qn[k] = hn[k] * u_given[k];  // Initial q=hu
+        rn[k] = hn[k] * v_given[k];  // Initial r=hv
         // 
-        hp[k] = hn[k]; 
+        hp[k] = hn[k]; // initial water depth
         qp[k] = qn[k]; 
         rp[k] = rn[k]; 
     }
 
-    for (size_t i = 0; i < nx*ny; ++i)
+    for (size_t i = 0; i < nxny; ++i)
     {
         s[i] = hn[i] + zb[i];
         u[i] = qn[i] / hn[i];
         v[i] = rn[i] / hn[i];
     }
+    for (size_t i = 0; i < nxny; ++i)
+    {
+        u_speed[i] = u[i] * u[i] + v[i] * v[i];
+        froude[i] = std::sqrt(u_speed[i] / g * hp[i]);
+    }
+    if (do_viscosity)
+    {
+        for (int i = 0; i < nxny; ++i)
+        {
+            u_speed[i] = std::sqrt(u[i] * u[i] + v[i] * v[i]);
+            double dx = std::sqrt(metric.dx_dxi[i] * metric.dx_dxi[i] + metric.dy_deta[i] * metric.dy_deta[i]);
+            // pe[i] = u_speed[i] * dx / visc_11[i]);
+            // fo[i] = visc[i] * dt / (dx);
+        }
+    }
 
-    double time = double(0) * dt;
+    double time = tstart + dt * double(0);
     ////////////////////////////////////////////////////////////////////////////
     // Create map file 
     std::cout << "    Create map-file" << std::endl;
@@ -723,11 +753,6 @@ int main(int argc, char *argv[])
     map_file->put_time_variable(map_v_name, nst_map, v);
     map_file->put_time_variable(map_zb_name, nst_map, zb_given);
 
-    for (size_t i = 0; i < u.size(); ++i)
-    {
-        u_speed[i] = u[i] * u[i] + v[i] * v[i];
-        froude[i] = std::sqrt(u_speed[i] / g * hp[i]);
-    }
     map_file->put_time_variable(map_umag_name, nst_map, u_speed);
     map_file->put_time_variable(map_froude_name, nst_map, froude);
 
@@ -796,7 +821,7 @@ int main(int argc, char *argv[])
 
     std::vector<std::string> obs_station_names;
     status = def_observation_stations(obs_station_names, input_data.obs_points, xy_tree, x, y, nx, ny);
-    
+
     std::vector<double> x_obs;
     std::vector<double> y_obs;
     for (size_t i = 0; i < input_data.obs_points.size(); ++i)
@@ -806,7 +831,7 @@ int main(int argc, char *argv[])
         y_obs.push_back(obs.y);
     }
     his_file->add_stations(obs_station_names, x_obs, y_obs);
-    
+
     his_file->add_time_series();
 
     std::string his_h_name("hn_2d");
@@ -824,22 +849,22 @@ int main(int argc, char *argv[])
     std::string his_psi_11_name("psi_11");
     std::string his_psi_22_name("psi_22");
 
-    his_file->add_variable(his_h_name, "sea_floor_depth_below_sea_surface", "Water depth", "m");
-    his_file->add_variable(his_q_name, "", "Water flux (x)", "m2 s-1");
-    his_file->add_variable(his_r_name, "", "Water flux (y)", "m2 s-1");
-    his_file->add_variable(his_s_name, "sea_surface_height", "Water level", "m");
-    his_file->add_variable(his_u_name, "sea_water_x_velocity", "Velocity (x)", "m s-1");
-    his_file->add_variable(his_v_name, "sea_water_y_velocity", "Velocity (y)", "m s-1");
-    his_file->add_variable(his_umag_name, "sea_water_speed", "Velocity magnitude", "m s-1");
-    his_file->add_variable(his_froude_name, "", "Froude", "-");
+    his_file->add_variable(his_h_name, "sea_floor_depth_below_sea_surface", "Water depth", "m", "Total water depth, i.e. zeta - z_b");
+    his_file->add_variable(his_q_name, "", "Water flux (x)", "m2 s-1", "");
+    his_file->add_variable(his_r_name, "", "Water flux (y)", "m2 s-1", "");
+    his_file->add_variable(his_s_name, "sea_surface_height", "Water level", "m", "");
+    his_file->add_variable(his_u_name, "sea_water_x_velocity", "Velocity (x)", "m s-1", "");
+    his_file->add_variable(his_v_name, "sea_water_y_velocity", "Velocity (y)", "m s-1", "");
+    his_file->add_variable(his_umag_name, "sea_water_speed", "Velocity magnitude", "m s-1", "");
+    his_file->add_variable(his_froude_name, "", "Froude", "-", "");
     if (do_viscosity)
     {
-        his_file->add_variable(his_peclet_xi_name, "", "Peclet (xi)", "-");
-        his_file->add_variable(his_peclet_eta_name, "", "Peclet (eta)", "-");
-        his_file->add_variable(his_visc_11_name, "", "Viscosity (xi)", "m2 s-1");
-        his_file->add_variable(his_visc_22_name, "", "Viscosity (eta)", "m2 s-1");
-        his_file->add_variable(his_psi_11_name, "", "Viscosity artificial (xi)", "m2 s-1");
-        his_file->add_variable(his_psi_22_name, "", "Viscosity artificial (eta)", "m2 s-1");
+        his_file->add_variable(his_peclet_xi_name, "", "Peclet (xi)", "-", "");
+        his_file->add_variable(his_peclet_eta_name, "", "Peclet (eta)", "-", "");
+        his_file->add_variable(his_visc_11_name, "", "Viscosity (xi)", "m2 s-1", "");
+        his_file->add_variable(his_visc_22_name, "", "Viscosity (eta)", "m2 s-1", "");
+        his_file->add_variable(his_psi_11_name, "", "Viscosity artificial (xi)", "m2 s-1", "");
+        his_file->add_variable(his_psi_22_name, "", "Viscosity artificial (eta)", "m2 s-1", "");
     }
 
     // Put data on time history file
@@ -930,17 +955,17 @@ int main(int argc, char *argv[])
     his_values = { 0.0 };
     his_file->put_variable(his_newton_iter_name, nst_his, his_values);
 
-    std::string his_LinSolver_iter_name("his_LinSolver_iterations");
-    his_file->add_variable_without_location(his_LinSolver_iter_name, "iterations", "LinSolver iteration", "-");
+    std::string his_lin_solv_iter_name("his_LinSolver_iterations");
+    his_file->add_variable_without_location(his_lin_solv_iter_name, "iterations", "LinSolver iteration", "-");
     his_values.clear();
     his_values = { 0.0 };
-    his_file->put_variable(his_LinSolver_iter_name, nst_his, his_values);
+    his_file->put_variable(his_lin_solv_iter_name, nst_his, his_values);
 
-    std::string his_LinSolver_iter_error_name("LinSolver_iteration_error");
-    his_file->add_variable_without_location(his_LinSolver_iter_error_name, "iteration_error", "LinSolver iteration error", "-");
+    std::string his_lin_solv_iter_error_name("LinSolver_iteration_error");
+    his_file->add_variable_without_location(his_lin_solv_iter_error_name, "iteration_error", "LinSolver iteration error", "-");
     his_values.clear();
     his_values = { 0.0 };
-    his_file->put_variable(his_LinSolver_iter_error_name, nst_his, his_values);
+    his_file->put_variable(his_lin_solv_iter_error_name, nst_his, his_values);
 
     STOP_TIMER(Writing his-file);
     // End define history file
@@ -1001,12 +1026,41 @@ int main(int argc, char *argv[])
     {
         time = dt * double(nst);
 
-        int select = 1;  // Constant boundary condition
+        // Constant boundary condition over whole boundary
         std::vector<double> bc(4, 0.0);
-        boundary_condition(bc[BC_NORTH], bc_vals[BC_NORTH], time, treg, select);
-        boundary_condition(bc[BC_EAST ], bc_vals[BC_EAST ], time, treg, select);
-        boundary_condition(bc[BC_SOUTH], bc_vals[BC_SOUTH], time, treg, select);
-        boundary_condition(bc[BC_WEST ], bc_vals[BC_WEST ], time, treg, select);
+        double h_north = 0.5 * (hn[main_idx(1, ny-1, ny)] + hn[main_idx(nx-1, ny-1, ny)]);
+        double h_east  = 0.5 * (hn[main_idx(nx-1, 1, ny)] + hn[main_idx(nx-1, ny-1, ny)]);
+        double h_south = 0.5 * (hn[main_idx(1, 1, ny)] + hn[main_idx(nx-1, 1, ny)]);
+        double h_west  = 0.5 * (hn[main_idx(1, 1, ny)] + hn[main_idx(1, ny-1, ny)]);
+        boundary_condition(bc[BC_NORTH], bc_vals[BC_NORTH], bc_vars[BC_NORTH], bc_signals[BC_NORTH], time, treg, h_north, ini_vals);
+        boundary_condition(bc[BC_EAST ], bc_vals[BC_EAST ], bc_vars[BC_EAST ], bc_signals[BC_EAST] , time, treg, h_east , ini_vals);
+        boundary_condition(bc[BC_SOUTH], bc_vals[BC_SOUTH], bc_vars[BC_SOUTH], bc_signals[BC_SOUTH], time, treg, h_south, ini_vals);
+        boundary_condition(bc[BC_WEST ], bc_vals[BC_WEST ], bc_vars[BC_WEST ], bc_signals[BC_WEST] , time, treg, h_west , ini_vals);
+
+        if (regularization_time)
+        {
+            if (do_viscosity)
+            {
+                START_TIMER(Regularization_time_loop);
+                regularization->artificial_viscosity_xi (psi_visc_11, hp, qp, zb, c_psi, metric, log_file);
+                regularization->artificial_viscosity_eta(psi_visc_22, hp, rp, zb, c_psi, metric, log_file);
+
+                //regularization->artificial_viscosity(psi_visc_11, hp, qp, rp, zb, c_psi, metric, log_file);
+                //regularization->artificial_viscosity(psi_visc_22, hp, qp, rp, zb, c_psi, metric, log_file);
+                for (size_t i = 0; i < nxny; ++i)
+                {
+                    visc_11[i] = visc_reg[i] + psi_visc_11[i];
+                    visc_22[i] = visc_reg[i] + psi_visc_22[i];
+                }
+                //regularization->given_function(tmp, psi_visc_11, psi_visc_22, eq8_zb, hp, c_psi, metric, log_file);  
+                //for (size_t i = 0; i < tmp.size(); ++i) { hp[i] = tmp[i]; }
+                //regularization->given_function(tmp, psi_visc_11, psi_visc_22, eq8_zb, qp, c_psi, metric, log_file);  
+                //for (size_t i = 0; i < tmp.size(); ++i) { qp[i] = tmp[i]; }
+                //regularization->given_function(tmp, psi_visc_11, psi_visc_22, eq8_zb, rp, c_psi, metric, log_file);  
+                //for (size_t i = 0; i < tmp.size(); ++i) { rp[i] = tmp[i]; }
+                STOP_TIMER(Regularization_time_loop);
+            }
+        }
 
         int used_newton_iter = 0;
         int used_lin_solv_iter = 0;
@@ -1021,9 +1075,9 @@ int main(int argc, char *argv[])
             }
             if (regularization_iter)
             {
+                START_TIMER(Regularization_iter_loop);
                 if (do_viscosity)
                 {
-                    START_TIMER(Regularization_time_loop);
                     //regularization->artificial_viscosity_xi (psi_visc_11, hp, qp, zb, c_psi, metric, log_file);
                     //regularization->artificial_viscosity_eta(psi_visc_22, hp, rp, zb, c_psi, metric, log_file);
 
@@ -1040,8 +1094,8 @@ int main(int argc, char *argv[])
                     //for (size_t i = 0; i < tmp.size(); ++i) { qp[i] = tmp[i]; }
                     //regularization->given_function(tmp, psi_visc_11, psi_visc_22, eq8_zb, rp, c_psi, metric, log_file);  
                     //for (size_t i = 0; i < tmp.size(); ++i) { rp[i] = tmp[i]; }
-                    STOP_TIMER(Regularization_time_loop);
                 }
+                STOP_TIMER(Regularization_iter_loop);
             }
 
             //
@@ -1420,7 +1474,7 @@ int main(int argc, char *argv[])
                 }
                 log_file << "=======================================================" << std::endl;
             }
-            used_lin_solv_iter = std::max(used_lin_solv_iter, (int) solver_iterations);
+            used_lin_solv_iter = std::max(used_lin_solv_iter, (int)solver.iterations());
             if (regularization_iter)
             {
                 START_TIMER(Regularization_iter_loop);
@@ -1485,30 +1539,6 @@ int main(int argc, char *argv[])
             v[k] = rn[k] / hn[k];
         }
 
-        if (regularization_time)
-        {
-            if (do_viscosity)
-            {
-                START_TIMER(Regularization_time_loop);
-                regularization->artificial_viscosity_xi (psi_visc_11, hp, qp, zb, c_psi, metric, log_file);
-                regularization->artificial_viscosity_eta(psi_visc_22, hp, rp, zb, c_psi, metric, log_file);
-
-                //regularization->artificial_viscosity(psi_visc_11, hp, qp, rp, zb, c_psi, metric, log_file);
-                //regularization->artificial_viscosity(psi_visc_22, hp, qp, rp, zb, c_psi, metric, log_file);
-                for (size_t i = 0; i < nxny; ++i)
-                {
-                    visc_11[i] = visc_reg[i] + psi_visc_11[i];
-                    visc_22[i] = visc_reg[i] + psi_visc_22[i];
-                }
-                //regularization->given_function(tmp, psi_visc_11, psi_visc_22, eq8_zb, hp, c_psi, metric, log_file);  
-                //for (size_t i = 0; i < tmp.size(); ++i) { hp[i] = tmp[i]; }
-                //regularization->given_function(tmp, psi_visc_11, psi_visc_22, eq8_zb, qp, c_psi, metric, log_file);  
-                //for (size_t i = 0; i < tmp.size(); ++i) { qp[i] = tmp[i]; }
-                //regularization->given_function(tmp, psi_visc_11, psi_visc_22, eq8_zb, rp, c_psi, metric, log_file);  
-                //for (size_t i = 0; i < tmp.size(); ++i) { rp[i] = tmp[i]; }
-                STOP_TIMER(Regularization_time_loop);
-            }
-        }
 
         // Map-files
         if (std::fmod(nst, wrimap) == 0)
@@ -1611,7 +1641,6 @@ int main(int argc, char *argv[])
             {
                 his_file->put_time(nst_his, double(nst) * dt);
             }
-            his_file->put_time(nst_his, time);
 
             status = set_his_values(input_data.obs_points, hn, his_values);
             his_file->put_variable(his_h_name, nst_his, his_values);
@@ -1693,10 +1722,11 @@ int main(int argc, char *argv[])
             his_file->put_variable(his_newton_iter_name, nst_his, his_values);
             his_values.clear();
             his_values = { double(solver.iterations()) };
-            his_file->put_variable(his_LinSolver_iter_name, nst_his, his_values);
+            his_file->put_variable(his_lin_solv_iter_name, nst_his, his_values);
             his_values.clear();
             his_values = { solver.error() };
-            his_file->put_variable(his_LinSolver_iter_error_name, nst_his, his_values);
+            his_file->put_variable(his_lin_solv_iter_error_name, nst_his, his_values);
+
             STOP_TIMER(Writing his-file);
         }
     } // End of the time loop
@@ -1714,6 +1744,10 @@ int main(int argc, char *argv[])
     std::chrono::duration<int, std::milli> timespan(1000);
     std::this_thread::sleep_for(timespan);
     return 0;
+}
+inline size_t main_idx(size_t i, size_t j, size_t ny)
+{
+    return i * ny + j;
 }
 
 //------------------------------------------------------------------------------
@@ -1752,8 +1786,4 @@ void GetArguments(long argc,   /* I Number of command line arguments */
         i = i + 1;
     }
     return;
-}
-inline size_t main_idx(size_t i, size_t j, size_t ny)
-{
-    return i * ny + j;
 }

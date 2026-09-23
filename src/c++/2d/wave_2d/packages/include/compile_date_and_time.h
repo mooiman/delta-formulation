@@ -1,5 +1,7 @@
 #ifndef __COMPILE_DATE_AND_TIME__
 #define __COMPILE_DATE_AND_TIME__
+#include <string_view>
+#include <string>
 
 constexpr std::string_view getMonthNumber(std::string_view month) {
     return month == "Jan" ? "01" :

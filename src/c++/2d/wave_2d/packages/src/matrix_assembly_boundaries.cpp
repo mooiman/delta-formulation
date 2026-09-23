@@ -55,7 +55,7 @@ int boundary_north(double* values, size_t row, size_t c_eq, size_t q_eq, size_t 
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    std::vector<double>& zb, double cf,
+    std::vector<double>& zb, std::vector<double>& cf,
     std::vector<std::string> bc_type, std::vector<std::string> bc_vars, size_t BC_NORTH, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
@@ -235,7 +235,7 @@ int boundary_north(double* values, size_t row, size_t c_eq, size_t q_eq, size_t 
             {
                 rhs[row] += - 0.5 * (dx_dxi_0 + dx_dxi_1) * 2. * c_wave * bc[BC_NORTH];
             }
-            if (bc_vars[BC_NORTH] == "q")
+            if (bc_vars[BC_NORTH] == "r")
             {
                 rhs[row] += - 0.5 * (dx_dxi_0 + dx_dxi_1) * 2. * bc[BC_NORTH];
             }
@@ -374,7 +374,7 @@ int boundary_north(double* values, size_t row, size_t c_eq, size_t q_eq, size_t 
                               );
                 rhs[row] += corr_term;
             }
-            if (bc_vars[BC_NORTH] == "q")
+            if (bc_vars[BC_NORTH] == "r")
             {
                 // face 0
                 face_fac = 0.5 * dx_dxi_0;
@@ -626,9 +626,9 @@ int boundary_north(double* values, size_t row, size_t c_eq, size_t q_eq, size_t 
         {
             // North boundary bed shear stress
 
-            double cf_w = cf;
-            double cf_b = cf;
-            double cf_e = cf;
+            double cf_w = cf[p_5];
+            double cf_b = cf[p_4];
+            double cf_e = cf[p_3];
             // Contribution Delta h
             // face 0
             double face_fac = 0.5 * dy_deta_0;
@@ -759,7 +759,7 @@ int boundary_east(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    std::vector<double>& zb, double cf,
+    std::vector<double>& zb, std::vector<double>& cf,
     std::vector<std::string> bc_type, std::vector<std::string> bc_vars, size_t BC_EAST, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
@@ -1302,9 +1302,9 @@ int boundary_east(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r
         {
             // East boundary bed shear stress
 
-            double cf_n = cf;
-            double cf_b = cf;
-            double cf_s = cf;
+            double cf_n = cf[p_7];
+            double cf_b = cf[p_4];
+            double cf_s = cf[p_1];
             // Contribution Delta h
             // face 0
             double face_fac = 0.5 * dx_dxi_0;
@@ -1464,7 +1464,7 @@ int boundary_south(double* values, size_t row, size_t c_eq, size_t q_eq, size_t 
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    std::vector<double>& zb, double cf, 
+    std::vector<double>& zb, std::vector<double>& cf, 
     std::vector<std::string> bc_type, std::vector<std::string> bc_vars, size_t BC_SOUTH, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
@@ -1643,7 +1643,7 @@ int boundary_south(double* values, size_t row, size_t c_eq, size_t q_eq, size_t 
             {
                 rhs[row] += 0.5 * (dx_dxi_0 + dx_dxi_1) * 2. * c_wave * bc[BC_SOUTH];
             }
-            if (bc_vars[BC_SOUTH] == "q")
+            if (bc_vars[BC_SOUTH] == "r")
             {
                 rhs[row] += 0.5 * (dx_dxi_0 + dx_dxi_1) * 2. * bc[BC_SOUTH];
             }
@@ -1782,7 +1782,7 @@ int boundary_south(double* values, size_t row, size_t c_eq, size_t q_eq, size_t 
                             );
                 rhs[row] += corr_term;
             }
-            if (bc_vars[BC_SOUTH] == "q")
+            if (bc_vars[BC_SOUTH] == "r")
             {
                 // face 0
                 face_fac = 0.5 * dx_dxi_0;
@@ -2035,9 +2035,9 @@ int boundary_south(double* values, size_t row, size_t c_eq, size_t q_eq, size_t 
         {
             // South boundary bed shear stress
 
-            double cf_w = cf;
-            double cf_b = cf;
-            double cf_e = cf;
+            double cf_w = cf[p_1];
+            double cf_b = cf[p_4];
+            double cf_e = cf[p_7];
             // Contribution Delta h
             // face 0
             double face_fac = 0.5 * dy_deta_0;
@@ -2169,7 +2169,7 @@ int boundary_west(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    std::vector<double>& zb, double cf,
+    std::vector<double>& zb, std::vector<double>& cf,
     std::vector<std::string> bc_type, std::vector<std::string> bc_vars, size_t BC_WEST, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess)
 {
@@ -2713,9 +2713,9 @@ int boundary_west(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r
         {
             // West boundary bed shear stress 
 
-            double cf_s = cf;
-            double cf_b = cf;
-            double cf_n = cf;
+            double cf_s = cf[p_3];
+            double cf_b = cf[p_4];
+            double cf_n = cf[p_5];
             // Contribution Delta h
             // face 0
             double face_fac = 0.5 * dx_dxi_0;

@@ -25,6 +25,7 @@
 
 #include <string>
 #include <filesystem>
+#include <vector>
 
 // data structures needed to store input data from the master input file (ie toml-file)
 
@@ -43,6 +44,7 @@ struct _boundary {
     std::vector<double> bc_vals;
     std::vector<std::string> bc_type;
     std::vector<std::string> bc_vars;
+    std::vector<std::string> bc_signals;
 };
 struct _domain {
     std::string grid_filename;
@@ -59,6 +61,7 @@ struct _initial {
     double gauss_sigma_x;
     double gauss_sigma_y;
     std::vector<std::string> ini_vars;
+    std::vector<double> ini_vals;
 };
 struct _numerics {
     double dt;

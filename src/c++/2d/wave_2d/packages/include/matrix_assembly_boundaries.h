@@ -44,7 +44,7 @@ int boundary_north(double* values, size_t row, size_t c_eq, size_t q_eq, size_t 
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    std::vector<double>& zb, double cf,
+    std::vector<double>& zb, std::vector<double>& cf,
     std::vector<std::string> bc_type, std::vector<std::string> bc_vars, size_t BC_NORTH, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess);
 
@@ -56,7 +56,7 @@ int boundary_east(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    std::vector<double>& zb, double cf,
+    std::vector<double>& zb, std::vector<double>& cf,
     std::vector<std::string> bc_type, std::vector<std::string> bc_vars, size_t BC_EAST, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess);
 
@@ -68,7 +68,7 @@ int boundary_south(double* values, size_t row, size_t c_eq, size_t q_eq, size_t 
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    std::vector<double>& zb, double cf,
+    std::vector<double>& zb, std::vector<double>& cf,
     std::vector<std::string> bc_type, std::vector<std::string> bc_vars, size_t BC_SOUTH, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess);
 
@@ -80,7 +80,7 @@ int boundary_west(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r
     std::vector<double>& hn, std::vector<double>& qn, std::vector<double>& rn,
     std::vector<double>& hp, std::vector<double>& qp, std::vector<double>& rp,
     std::vector<double>& htheta, std::vector<double>& qtheta, std::vector<double>& rtheta,
-    std::vector<double>& zb, double cf,
+    std::vector<double>& zb, std::vector<double>& cf,
     std::vector<std::string> bc_type, std::vector<std::string> bc_vars, size_t BC_WEST, std::vector<double> bc,
     std::vector<double>& w_nat, std::vector<double>& w_ess);
 

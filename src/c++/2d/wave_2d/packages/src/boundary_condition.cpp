@@ -26,38 +26,70 @@
 
 #include "boundary_condition.h"
 
-void boundary_condition(double& bc0, double& bc0_in, double& time, double& treg, int select)
+void boundary_condition(double& bc0_out, double& bc0_in, std::string bc_var, std::string bc_signal, 
+    double& time, double& treg, double& h, std::vector<double>& ini_vals)
 {
-    double reg_a = 0.0;
-    double reg_b = 1.0;
+    double ini_value = 0.0;
     double reg_factor = 1.0;
-    double reg_interp = 0.0;
     if (time < treg)
     {
-        reg_factor = 0.5 * (std::cos(M_PI * (treg - time) / treg) + 1.0);
+        double ttmp = time/treg;
+        reg_factor = std::exp(-1. / ttmp) / (std::exp(-1. / ttmp) + std::exp(-1. / (1. - ttmp)));  // smoothstep function   
     }
-    reg_interp = reg_a + (reg_b - reg_a) * reg_factor;  // 0 <= reg_factor <= 1
-
-    switch (select)
+    //
+    // Order of ini_vals: zeta, u, v
+    //
+    if (bc_var == "zeta")
     {
-    case 1:
+        ini_value = ini_vals[0];
+    }
+    else if (bc_var == "q")
+    {
+        ini_value = h * ini_vals[1];
+    }
+    else if (bc_var == "r")
+    {
+        ini_value = h *  ini_vals[2];
+    }
+    else
+    {
+        std::cout << "----------------------------" << std::endl;
+        std::cout << "Boundary variable \"" << bc_var << "\" not supported" << std::endl;
+        std::cout << "Press Enter to finish";
+        std::cin.ignore();
+        exit(1);
+    }
+    if (bc_signal == "constant")
+    {
+        bc0_out = ini_value + reg_factor * (bc0_in - ini_value);
+    }
+    else if (bc_signal == "sine")
+    {
         //
-        // Given value at both sides
+        // given sine function at boundary
         //
-        bc0 = reg_interp * bc0_in;
-        break;
-    case 2:
-        //
-        // given sine function at left boundary
-        //
-        if (time < treg) 
+        if (time < treg)
         {
-            bc0 = reg_interp;
+            double reg_a = 0.0;
+            double reg_b = 1.0;
+            double reg_interp = 0.0;
+
+            double ttmp = time/treg;
+            reg_factor = 0.5 * (-std::cos(M_PI * ttmp) + 1.0);
+            reg_interp = reg_a + (reg_b - reg_a) * reg_factor;  // 0 <= reg_factor <= 1
+            bc0_out = ini_value + reg_interp;
         }
         else
         {
-            bc0 = -std::cos(M_PI * (time) / treg);
+            bc0_out = ini_value + ( -std::cos(M_PI * time / treg) );
         }
-        break;
+    }
+    else
+    {
+        std::cout << "----------------------------" << std::endl;
+        std::cout << "Boundary signal \"" << bc_signal << "\" not supported" << std::endl;
+        std::cout << "Press Enter to finish";
+        std::cin.ignore();
+        exit(1);
     }
 }

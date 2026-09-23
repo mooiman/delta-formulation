@@ -209,6 +209,8 @@ int reg_interior_rhs_psi( size_t row, size_t c_eq, Eigen::VectorXd& rhs,
     size_t nx = metric.nx;
     size_t ny = metric.ny;
     size_t nxny = nx * ny;
+    std::vector<double> dx_dxi = metric.dx_dxi;  
+    std::vector<double> dy_deta = metric.dy_deta;  
     std::vector<double> Err_psi(nxny, 0.0);
 
     std::vector<double> d2h_dxi2(nxny, 0.0);
@@ -242,25 +244,26 @@ int reg_interior_rhs_psi( size_t row, size_t c_eq, Eigen::VectorXd& rhs,
     //
     //   \sqrt{g \widehat{h}}
     // 
+    double c_E = c_psi * c_psi * std::numbers::pi/2.0;
 
-    double f1_h = F1(h, p, metric);
+    double f1_h = dx_dxi[row] * F1(h, p, metric);
     double f2_h = 0.0;  // = F2(h, p, metric);
-    double f3_h = F3(h, p, metric);
-    rhs[row] = c_psi * std::sqrt( g/h[row] ) * std::abs(
+    double f3_h = dy_deta[row] * F3(h, p, metric);
+    rhs[row] = c_E * std::sqrt( g/h[row] ) * std::abs(
         1.0/16.0 * f1_h + 1.0/8.0 * f2_h + 1.0/16.0 * f3_h
         );
-    //double f1_q = F1(q, p, metric);
-    //double f2_q = 0.0;  // = F2(q, p, metric);
-    //double f3_q = F3(q, p, metric);
-    //rhs[row] += c_psi * 0.5 * std::sqrt(2.0) / (q[p[4]] * h[p[4]]) 
-    //    * std::abs( 1.0/8.0 * f1_q + 1.0/4.0 * f2_q + 1.0/8.0 * f3_q )
-    //    * std::abs( 1.0/8.0 * f1_h - 1.0/4.0 * f2_h - 1.0/8.0 * f3_h );
-    //double f1_r = F1(r, p, metric);
-    //double f2_r = 0.0;  // = F2(r, p, metric);
-    //double f3_r = F3(r, p, metric);
-    //rhs[row] += c_psi * 0.5 * std::sqrt(2.0) / (r[p[4]] * h[p[4]]) 
-    //    * std::abs( 1.0/8.0 * f1_r + 1.0/4.0 * f2_r + 1.0/8.0 * f3_r )
-    //    * std::abs( 1.0/8.0 * f1_h - 1.0/4.0 * f2_h - 1.0/8.0 * f3_h );
+    double f1_q = dx_dxi[row] * F1(q, p, metric);
+    double f2_q = 0.0;  // = F2(q, p, metric);
+    double f3_q = dx_dxi[row] *F3(q, p, metric);
+    rhs[row] += c_psi * 0.5 * std::sqrt(2.0) / (q[p[4]] * h[p[4]]) 
+        * std::abs( 1.0/8.0 * f1_q + 1.0/4.0 * f2_q + 1.0/8.0 * f3_q )
+        * std::abs( 1.0/8.0 * f1_h - 1.0/4.0 * f2_h - 1.0/8.0 * f3_h );
+    double f1_r = dx_dxi[row] * F1(r, p, metric);
+    double f2_r = 0.0;  // = F2(r, p, metric);
+    double f3_r = dy_deta[row] * F3(r, p, metric);
+    rhs[row] += c_psi * 0.5 * std::sqrt(2.0) / (r[p[4]] * h[p[4]]) 
+        * std::abs( 1.0/8.0 * f1_r + 1.0/4.0 * f2_r + 1.0/8.0 * f3_r )
+        * std::abs( 1.0/8.0 * f1_h - 1.0/4.0 * f2_h - 1.0/8.0 * f3_h );
     return 0;
 }
 

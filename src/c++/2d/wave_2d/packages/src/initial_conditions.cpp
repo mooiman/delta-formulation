@@ -28,7 +28,8 @@
 
 void initial_conditions(std::vector<double>& x, std::vector<double>& y, size_t nx, size_t ny,
     std::vector<double>& s, std::vector<double>& u, std::vector<double>& v,
-    std::vector<std::string> & ini_vars, double amp, double gauss_mu_x, double gauss_mu_y, double gauss_sigma_x, double gauss_sigma_y)
+    std::vector<std::string> & ini_vars, std::vector<double> & ini_vals,
+    double amp, double gauss_mu_x, double gauss_mu_y, double gauss_sigma_x, double gauss_sigma_y)
 {
     // 
     //initialize h, q and r
@@ -49,7 +50,7 @@ void initial_conditions(std::vector<double>& x, std::vector<double>& y, size_t n
                 k = p_idx(i, j, ny);
                 if (ini_vars[var_i] == "zeta_constant")
                 {
-                    s_giv = amp;  // initial water level
+                    s_giv = ini_vals[0];  // initial water level
                 }
                 else if (ini_vars[var_i] == "zeta_linear_y")
                 {
@@ -80,11 +81,11 @@ void initial_conditions(std::vector<double>& x, std::vector<double>& y, size_t n
                 }
                 else if (ini_vars[var_i] == "u_constant")
                 {
-                    u_giv = amp;  // initial water level
+                    u_giv = ini_vals[1];  // Initial u-velocity
                 }
                 else if (ini_vars[var_i] == "v_constant")
                 {
-                    v_giv = amp;  // initial water level
+                    v_giv = ini_vals[2];  // Initial v-velocity
                 }
                 else
                 {
@@ -97,9 +98,9 @@ void initial_conditions(std::vector<double>& x, std::vector<double>& y, size_t n
                     std::this_thread::sleep_for(timespan);
                     exit(1);
                 }
-                s[k] = s_giv;
-                u[k] = u_giv;  // Initial q=hu -velocity
-                v[k] = v_giv;  // Initial r=hv -velocity
+                s[k] = s_giv;  // Initial water level
+                u[k] = u_giv;  // Initial u-velocity
+                v[k] = v_giv;  // Initial v-velocity
             }
         }
     }
