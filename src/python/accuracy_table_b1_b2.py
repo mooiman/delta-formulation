@@ -33,15 +33,11 @@ def main():
         N[i] = (2.0 * np.pi)/np.sqrt(k2dx2[i])
         c_error[i] = c_psi[i] * np.pi/2. * 1./k2dx2[i]
 
-
+    print()
+    print('Table B.1 and B.2')
+    print('acc [%]; (kdx)^2; c_psi; N; c_error')
     for i in range(0,nx):
-        print('acc [%]; c_psi; c_error; N; (kdx)^2')
-        print(f"{acc[i]*100.:.1f}")
-        print(f"{c_psi[i]:.4f}")
-        print(f"{c_error[i]:.4f}")
-        print(f"{N[i]:.4f}")
-        print(f"{k2dx2[i]:.4f}")
-        print()
+        print(f"{acc[i]*100.:.1f}; {k2dx2[i]:.4f}; {c_psi[i]:.4f}; {N[i]:7.4f}; {c_error[i]:8.4f}")
 
     return acc
 # ------------------------------------------------------------------------------
