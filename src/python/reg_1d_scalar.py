@@ -279,17 +279,25 @@ def main(bath_in = 12, Lx_in=1000., dx_in=50.0, c_psi_in= 2., left_in = 0.0, rig
             ugiv_ana[i] = step_left + (step_right - step_left) * np.exp(-1./x_sc) / (np.exp(-1./x_sc) + np.exp(-1./((x[nx-1] + dx)/Lx - x_sc)))
         ugiv_ana[0] = step_left
     elif bathymetry == 12:
-        bathymetry_desc = "0.4 * Lx > x < 0.6 * Lx; f(x) = Dike height"
-        bed_level = -4.0
-        dike_height = bed_level + 2.0
+        bathymetry_desc = "0.25 * Lx > x < 0.35 * Lx; f(x) = Summer dike"
+        bed_level = -4.0 # winterbed
+        dike_height = bed_level + 3.0
         for i in range(0, nx):
-            ugiv[i] = bed_level
-            if x[i] > 0.4 * Lx and x[i] < 0.6 * Lx:
-                ugiv[i] = dike_height  # winterbed
+            ugiv[i] = bed_level # winterbed
+            if x[i] > 0.3 * Lx and x[i] < 0.5 * Lx:
+                ugiv[i] = dike_height
+            if x[i] >= 0.5 * Lx:
+                ugiv[i] = dike_height - 1.0
+            if x[i] >= 0.9 * Lx:
+                ugiv[i] = dike_height + 1.0  # winterdike
         for i in range(0, refine * (nx - 1) + 1):
             ugiv_ana[i] = bed_level
-            if x_ana[i] > 0.4 * Lx and x_ana[i] < 0.6 * Lx:
-                ugiv_ana[i] = dike_height  # winterbed
+            if x_ana[i] > 0.3 * Lx and x_ana[i] < 0.5 * Lx:
+                ugiv_ana[i] = dike_height 
+            if x_ana[i] >= 0.5 * Lx:
+                ugiv_ana[i] = dike_height - 1 # summerbed
+            if x_ana[i] >= 0.9 * Lx:
+                ugiv_ana[i] = dike_height + 1  # winterdike
 
     else:
         print("No valid bathymetry option defined, value '%s' is not supported." % bathymetry)
