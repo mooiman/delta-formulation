@@ -583,23 +583,23 @@ int main(int argc, char* argv[])
             {
                 log_file << "Iteration: " << used_newton_iter << std::endl;
             }
+            for (size_t k = 0; k < nx; ++k)
+            {
+                utheta[k] = theta * up[k] + (1.0 - theta) * un[k];
+            }
+
             if (regularization_iter)
             {
                 START_TIMER(Regularization_iter_loop);
                 if (do_viscosity)
                 {
-                    regularization->artificial_viscosity(psi, up, c_psi, dx, w_ess, w_nat, log_file, logging);
+                    regularization->artificial_viscosity(psi, utheta, c_psi, dx, w_ess, w_nat, log_file, logging);
                     for (int i = 0; i < nx; ++i)
                     {
                         visc[i] = visc_reg[i] + std::abs(psi[i]);
                     }
                 }
                 STOP_TIMER(Regularization_iter_loop);
-            }
-
-            for (size_t k = 0; k < nx; ++k)
-            {
-                utheta[k] = theta * up[k] + (1.0 - theta) * un[k];
             }
 
             if (nst == 1 && iter == 0)

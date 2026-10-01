@@ -68,23 +68,16 @@ void REGULARIZATION::given_function(std::vector<double>& u_tilde, std::vector<do
     double diff_max1 = 0.0;
     size_t nx = u_giv_in.size();
 
-    std::vector<double> u_giv(nx, 0.);
     std::vector<double> u0(nx, 0.);
     std::vector<double> u1(nx, 0.);
     std::vector<double> Du0_xixi(nx, 0.);
     std::vector<double> eq8(nx, 0.);
     std::vector<double> tmp(nx, 0.);
 
-    const auto [u_giv_in_min, u_giv_in_max] = std::minmax_element(u_giv_in.begin(), u_giv_in.end());
-    double min_range = 0.0001;
-    double u_giv_range = *u_giv_in_max - *u_giv_in_min > min_range ? *u_giv_in_max - *u_giv_in_min : min_range;
-    u_giv_range = 1.0;
-
     for (size_t i = 0; i < nx; ++i)
     {
         // scaling of the input array u_giv_in
-        u0[i] = u_giv_in[i] / u_giv_range;
-        u_giv[i] = u0[i];
+        u0[i] = u_giv_in[i];
     }
     for (int iter = 0; iter < m_iter_max; ++iter)
     {
@@ -111,13 +104,13 @@ void REGULARIZATION::given_function(std::vector<double>& u_tilde, std::vector<do
             psi[i] = c_psi * dx * dx * eq8[i];
         }
 //------------------------------------------------------------------------------
-        u0 = *(this->solve_eq7(dx, psi, u_giv));
+        u0 = *(this->solve_eq7(dx, psi, u_giv_in));
 //------------------------------------------------------------------------------
 
         diff_max1 = 0.0;
         for (size_t i = 0; i < nx; ++i)
         {
-            diff_max1 = std::max(diff_max1, std::abs(u0[i] - u_giv[i]));
+            diff_max1 = std::max(diff_max1, std::abs(u0[i] - u_giv_in[i]));
         }
         if (std::abs(diff_max1 - diff_max0) > m_eps_smooth)
         {
@@ -131,7 +124,7 @@ void REGULARIZATION::given_function(std::vector<double>& u_tilde, std::vector<do
     }
     for (size_t i = 0; i < nx; ++i)
     {
-        u_tilde[i] = u0[i] * u_giv_range;
+        u_tilde[i] = u0[i];
     }
 }
 //------------------------------------------------------------------------------
@@ -171,8 +164,8 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     //
     // based on eq. 18 CRC2001
     //
-    double c_error = c_psi;
-    double c_E = c_psi * c_psi * std::numbers::pi/2.0;  // delta_formulation_content.pdf eq. B.26 (dd 2026-08-19)
+    double c_error = c_psi * dx * dx;  // delta_formulation_content.pdf eq. B.26 (dd 2026-08-19)
+    double c_E = c_psi * c_psi * dx * std::numbers::pi/2.0;  // delta_formulation_content.pdf eq. B.26 (dd 2026-08-19)
     for (size_t i = 1; i < nx - 1; ++i)
     {
         A.coeffRef(i, i - 1) = m_mass[0] - c_error;
