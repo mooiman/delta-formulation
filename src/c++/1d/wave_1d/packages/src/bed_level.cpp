@@ -31,6 +31,16 @@ BED_LEVEL::~BED_LEVEL()
 {
 }
 //------------------------------------------------------------------------------
+long BED_LEVEL::open(std::string filename)
+{
+    long status = 1;
+    m_fname.open(filename);
+    if (m_fname.is_open()) {
+        status = 0;
+    }
+    return status;
+}
+//------------------------------------------------------------------------------
 // set bed level type
 int BED_LEVEL::set_bed_level_type(std::string geometry_type, BED_LEVEL_ENUM& bed_level_type)
 {
@@ -40,9 +50,63 @@ int BED_LEVEL::set_bed_level_type(std::string geometry_type, BED_LEVEL_ENUM& bed
     else if (geometry_type == "UniformGeometry") {bed_level_type = BED_LEVEL_ENUM::FLAT; }
     else if (geometry_type == "WeirBorsboom2000Geometry") { bed_level_type = BED_LEVEL_ENUM::WEIR; }
     else if (geometry_type == "Shoal") { bed_level_type = BED_LEVEL_ENUM::SHOAL; }
+    else if (geometry_type == "File") { bed_level_type = BED_LEVEL_ENUM::FILE; }
     else { bed_level_type = BED_LEVEL_ENUM::NONE; }
 
     return 0;
+}
+//------------------------------------------------------------------------------
+std::vector<double> BED_LEVEL::get_bed_level()
+{
+     return m_bed_given;
+}
+//------------------------------------------------------------------------------
+int BED_LEVEL::read(size_t nx)
+{
+    long status = -1;
+    std::istringstream iss;
+    double missing_value = -999.0;  // used by quickin
+
+    m_bed_given.resize(nx);
+#ifdef NATIVE_C
+    fprintf(stderr, "BED_LEVEL::read(nx, ny); Start reading\n");
+#endif    
+
+    size_t k = 0;
+    std::string token;
+    std::string line;
+    std::getline(m_fname, line);
+    iss.clear();
+    iss.str(line);
+    for (;;)
+    {
+        while (iss >> token)
+        {
+            if (missing_value != stod(token))
+            {
+                m_bed_given[k] = stod(token);
+                ++k;
+            }
+        }
+        std::getline(m_fname, line);
+        iss.clear();
+        iss.str(line);
+        if ((k) % (nx) == 0) { break; }
+        if (line.size() == 0) 
+        {
+            status = 1;
+            break;
+        }
+    }
+    if (k == nx)
+    {
+        status = 0;
+    }
+    m_fname.close();
+#ifdef NATIVE_C
+    fprintf(stderr, "BED_LEVEL::read(nx, ny); Stop reading\n");
+#endif    
+    return status;
 }
 
 int BED_LEVEL::initialize_bed_level(BED_LEVEL_ENUM& bed_type, std::vector<double>& x, std::vector<double>& zb, std::string & model_title, double depth)

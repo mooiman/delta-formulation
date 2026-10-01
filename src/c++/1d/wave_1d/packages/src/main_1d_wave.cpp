@@ -58,7 +58,6 @@ inline size_t p_index(size_t i, size_t j, size_t nx);
 int write_used_input(struct _data_input data, std::ofstream & log_file);
 int set_his_values(std::vector<_ObservationPoint>& obs_points, std::vector<double> & array, std::vector<double>& his_values);
 
-int read_bed_level(std::string filename, std::vector<double> & value);
 int initialize_scalar(double, std::vector<double>&, std::vector<double>&);
 double scv(double, double);
 
@@ -80,6 +79,7 @@ int main(int argc, char* argv[])
     bed_level_name[BED_LEVEL_ENUM::WAVY] = "wavy";
     bed_level_name[BED_LEVEL_ENUM::WAVY_SLOPED] = "wavy_sloped";
     bed_level_name[BED_LEVEL_ENUM::WEIR] = "weir";
+    bed_level_name[BED_LEVEL_ENUM::FILE] = "file";
 
     int status = -1;
 
@@ -211,15 +211,27 @@ int main(int argc, char* argv[])
     std::string geometry_type = input_data.domain.geometry_type;
     BED_LEVEL * bed = new BED_LEVEL();
     status = bed->set_bed_level_type(geometry_type, bed_level_type);
-    if (bed_level_type == BED_LEVEL_ENUM::FLAT)
+    if (bed_level_type == BED_LEVEL_ENUM::FILE)
     {
-        std::stringstream depth_strm;
-        depth_strm << std::fixed << std::setprecision(0) << input_data.domain.depth;
-        bed_level_name[BED_LEVEL_ENUM::FLAT] = "flat" + depth_strm.str();
+        status = bed->open(input_data.domain.full_bed_level_filename.string());
+        if (status !=0)
+        {
+            std::cout << "Error: Bed level file \'" << input_data.domain.full_bed_level_filename.string() << "\' can not be opened." << std::endl;
+            std::chrono::duration<int, std::milli> timespan(3000);
+            std::this_thread::sleep_for(timespan);
+            exit(1);
+        }
     }
-
+    else
+    {
+        if (bed_level_type == BED_LEVEL_ENUM::FLAT)
+        {
+            std::stringstream depth_strm;
+            depth_strm << std::fixed << std::setprecision(0) << input_data.domain.depth;
+            bed_level_name[BED_LEVEL_ENUM::FLAT] = "flat" + depth_strm.str();
+        }
+    }
     std::string inp_bed = "bed_level_" + bed_level_name[bed_level_type];
-
     out_file = output_dir.string() + inp_bed + ss.str();
     std::string his_filename(out_file + "_his.nc");
     std::string log_filename(out_file + ".log");
@@ -464,7 +476,21 @@ int main(int argc, char* argv[])
     initial_conditions(x, nx, s_given, u_given, ini_vars, ini_vals, 
         gauss_amp, gauss_mu_x, gauss_sigma_x);
 
-    status = bed->initialize_bed_level(bed_level_type, x, zb_given, model_title, depth);
+    if (bed_level_type == BED_LEVEL_ENUM::FILE)
+    {
+        status = bed->read(nx);
+        if (status != 0)
+        {
+            log_file << "Error reading bed level file: " << input_data.domain.full_bed_level_filename.string() << std::endl;
+            log_file.close();
+            exit(1);
+        }
+        zb_given = bed->get_bed_level();
+    }
+    else
+    {
+        status = bed->initialize_bed_level(bed_level_type, x, zb_given, model_title, depth);
+    }
 
     if (regularization_init)
     {
@@ -770,11 +796,11 @@ int main(int argc, char* argv[])
                 START_TIMER(Regularization_iter_loop);
                 if (do_viscosity)
                 {
-                    regularization->artificial_viscosity(psi, hp, qp, zb, c_psi, dx, w_ess, w_nat, log_file, logging);
+                    regularization->artificial_viscosity(psi, htheta, qtheta, zb, c_psi, dx, w_ess, w_nat, log_file, logging);
                     for (int i = 0; i < nx; ++i)
                     {
                         visc[i] = visc_reg[i] + std::abs(psi[i]);
-                        pe[i] = qp[i] / hp[i] * dx / visc[i];
+                        pe[i] = qtheta[i] / htheta[i] * dx / visc[i];
                     }
                 }
                 STOP_TIMER(Regularization_iter_loop);
@@ -1797,42 +1823,6 @@ int initialize_scalar(double alpha, std::vector<double>& value_in, std::vector<d
     {
         value_out[i] = solution[i]; // h, continuity-eq
     }
-    return 0;
-}
-
-int read_bed_level(std::string filename, std::vector<double> & value)
-{
-    int nrow, ncol;
-    double dummy;
-    std::string record;
-
-    size_t nx = (size_t) value.size();
-    std::ifstream input_file;
-
-    input_file.open(filename);
-    if (!input_file.is_open())
-    {
-        std::cout << "Cannot open input stream: " << filename << std::endl;
-        exit(0);
-    }
-    for (std::string record; std::getline(input_file, record); )
-    {
-        if (record[0] != '*') 
-        {
-            break;
-        }
-    }
-    input_file >> nrow >> ncol;
-    if (nrow != (int)nx)
-    {
-        std::cout << "Dimension of bed_filename does not match;  " << nrow << " != " << nx << std::endl;
-        return 1;
-    }
-    for (size_t k = 0; k < nx; ++k)
-    {
-        input_file >> dummy >> value[k];
-    }
-    input_file.close();
     return 0;
 }
 

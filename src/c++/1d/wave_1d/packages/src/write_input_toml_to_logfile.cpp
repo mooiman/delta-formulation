@@ -60,13 +60,16 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
 
     //Domain
     log_file << std::endl << "[Domain]" << std::endl;
-    log_file << "    Lx            = " << format_as_double(data.domain.Lx) 
+    log_file << "    " << "Lx            = " << format_as_double(data.domain.Lx) 
         << "  # Domain length [m]" << std::endl;
-    log_file << "    x_begin       = " << format_as_double(data.domain.x_begin) 
+    log_file << "    " << "x_begin       = " << format_as_double(data.domain.x_begin) 
         << "  # Begin coordinate of the domain" << std::endl;
-    log_file << "    depth         = " << format_as_double(data.domain.depth) 
+    log_file << "    " << "depth         = " << format_as_double(data.domain.depth) 
         << "  # bathymetry below reference plane [m]" << std::endl;
-    log_file << "    geometry_type = \"" << data.domain.geometry_type << "\"" << std::endl;
+    log_file << "    " << "geometry_type = \"" << data.domain.geometry_type << "\"" << std::endl;
+    log_file << "    " << "bed_level_file = \"" << data.domain.bed_level_filename << "\"" << std::endl;
+    log_file << "    " << "mesh_file      = \"" << data.domain.grid_filename << "\"" << std::endl;
+
 
     // Initial
     log_file << std::endl << "[Initial]" << std::endl;

@@ -32,7 +32,6 @@ int get_toml_array(toml::table, std::string, std::vector<double>&);
 int get_toml_array(toml::table, std::string, std::vector<bool>&);
 
 _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::path & toml_file_name){
-    input_dir = input_dir;  // needed if a file is given as input variable
     int status;
     toml::table tbl;
     toml::table tbl_chp;  // table for a chapter
@@ -53,15 +52,38 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
     status = get_toml_array(tbl_chp, "bc_vars", data.boundary.bc_vars);
 
     // Domain
-    tbl_chp = *tbl["Domain"].as_table();
-    data.domain.Lx = tbl_chp["Lx"].value_or(double(12000.));
-    data.domain.x_begin = tbl_chp["x_begin"].value_or(double(-INFINITY));
-    if (data.domain.x_begin == -INFINITY) 
-    { 
-        data.domain.x_begin = -0.5 * data.domain.Lx; 
-    }
-    data.domain.geometry_type = tbl_chp["geometry_type"].value_or("flat");
-    data.domain.depth = tbl_chp["depth"].value_or(double(10.));
+    if (auto* tbl_chp = tbl["Domain"].as_table())
+    {
+        data.domain.Lx = (*tbl_chp)["Lx"].value_or(double(12000.));
+        data.domain.x_begin = (*tbl_chp)["x_begin"].value_or(double(-INFINITY));
+        if (data.domain.x_begin == -INFINITY) 
+        { 
+            data.domain.x_begin = -0.5 * data.domain.Lx; 
+        }
+        data.domain.geometry_type = (*tbl_chp)["geometry_type"].value_or("flat");
+        data.domain.depth = (*tbl_chp)["depth"].value_or(double(10.));
+
+        std::string bed_level_filename = (*tbl_chp)["bed_level_file"].value_or("--none--");
+        std::filesystem::path full_bed_level_filename = input_dir;
+        full_bed_level_filename += bed_level_filename;
+        data.domain.bed_level_filename = bed_level_filename;
+        data.domain.full_bed_level_filename = full_bed_level_filename;
+        if (data.domain.bed_level_filename != "--none--")
+        {
+            data.domain.geometry_type = "File";
+            data.domain.depth = -INFINITY;
+        }
+
+        std::string grid_filename = (*tbl_chp)["mesh_file"].value_or("--none--");
+        std::filesystem::path full_grid_filename = input_dir;
+        full_grid_filename += grid_filename;
+        data.domain.grid_filename = grid_filename;
+        data.domain.full_grid_filename = full_grid_filename;
+        if (data.domain.grid_filename != "--none--")
+        {
+            data.domain.x_begin = -INFINITY;
+        }
+    } 
 
     // Initial
     tbl_chp = *tbl["Initial"].as_table();

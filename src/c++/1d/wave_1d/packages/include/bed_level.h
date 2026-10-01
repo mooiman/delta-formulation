@@ -41,6 +41,7 @@ enum class BED_LEVEL_ENUM
     WAVY,
     WAVY_SLOPED,
     WEIR,
+    FILE,
     NR_BED_LEVELS
 };
 
@@ -49,17 +50,17 @@ class BED_LEVEL
 public:
     BED_LEVEL();
     ~BED_LEVEL();
+    long open(std::string filename);
+    int read(size_t nx);
     int set_bed_level_type(std::string geometry_type, BED_LEVEL_ENUM& bed_level_type);
     int initialize_bed_level(BED_LEVEL_ENUM& bed_type, std::vector<double>& x, std::vector<double>& zb, std::string & model_title, double depth);
-//    long open(std::string filename);
-//    long read(size_t nx, size_t ny);
-//    std::vector<double> get_bed_level();
 
-//private:
-//    void transpose(std::vector<double>& x, size_t nx, size_t ny);
-//
-//    std::ifstream m_fname;
-//    std::vector<double> m_bed_given;
+    std::vector<double> get_bed_level();
+
+private:
+    //void transpose(std::vector<double>& x, size_t nx, size_t ny);
+    std::ifstream m_fname;
+    std::vector<double> m_bed_given;
 };
 
 #endif  // __BED_LEVEL_H__
