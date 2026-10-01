@@ -52,7 +52,7 @@ long BED_LEVEL::read(size_t nx, size_t ny)
     fprintf(stderr, "BED_LEVEL::read(nx, ny); Start reading\n");
 #endif    
 
-    size_t k = size_t(-1);
+    size_t k = 0;
     std::string token;
     std::string line;
     std::getline(m_fname, line);
@@ -64,21 +64,21 @@ long BED_LEVEL::read(size_t nx, size_t ny)
         {
             if (missing_value != stod(token))
             {
-                ++k;
                 m_bed_given[k] = stod(token);
+                ++k;
             }
         }
         std::getline(m_fname, line);
         iss.clear();
         iss.str(line);
-        if ((k + 1) % (nx*ny) == 0) { break; }
+        if ((k) % (nx*ny) == 0) { break; }
         if (line.size() == 0) 
         {
             status = 1;
             break;
         }
     }
-    if (k + 1 == nx * ny)
+    if (k == nx * ny)
     {
         status = 0;
     }
@@ -88,7 +88,6 @@ long BED_LEVEL::read(size_t nx, size_t ny)
     fprintf(stderr, "BED_LEVEL::read(nx, ny); Stop reading\n");
 #endif    
     return status;
-
 }
 //------------------------------------------------------------------------------
 std::vector<double> BED_LEVEL::get_bed_level()
