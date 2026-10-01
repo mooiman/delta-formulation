@@ -467,31 +467,29 @@ After linearization of $u^{n+\theta,p+1}$ the discretization reads:
 
 %------------------------------------------------------------------------------
 \subsection{Artificial viscosity $\Psi$}
-To constant viscosity $\nu$ in the Burgers equation will be add an artificial viscosity $\Psi(x,t)$ which is space and time dependent.
+To the constant viscosity $\nu$ in the Burgers equation an artificial viscosity $\Psi(x,t)$ is added, this artificial viscosity is space and time dependent.
 The adjusted Burgers equation (the \textit{'easy'}-problem) reads then
 \begin{align}
     \pdiff{u}{t} + \half \pdiff{u^2}{x} - \pdiff{}{x} \left( \left(\nu + \Psi \right) \pdiff{u}{x} \right) = 0. \label{eq:1d_burgers_easy}
 \end{align}
 %
-An estimation of the artificial viscosity $\Psi$ is computed as follows (
-see \autoref{sec:estimate_artificial_viscosity} and
-\autoref{eq:c_E}).
+To estimate the regularized artificial viscosity $\Psi$ the follow equation need to be solved, based on \citet[eq.\ 18]{Borsboom2001}:
 \begin{align}
-    c_E = c_\psi^2 \frac{\pi}{2} , \qquad  c_{\it error} = c_\Psi.
+    &\Psi^{n+\theta,p} - c_{\it error}\pdiff[2]{\Psi^{n+\theta,p}}{\xi} = c_E \int^{\xi_{i+\half}}_{\xi_{i-\half}} \abs{\pdiff[2]{u}{\xi}}^{n+\theta,p} \, d\xi
+\end{align}
+An estimation of $c_{\it error}$ and $c_E$ is given by (see \autoref{sec:estimate_artificial_viscosity} and
+\autoref{eq:E}).
+\begin{align}
+    c_{\it error} = c_\Psi \Dx^2, \qquad c_E = c_\psi^2 \frac{\pi}{2} \Dx^2.
 \end{align}
 %
-The follow system of equations need to be solved, based on \citet[eq.\ 18]{Borsboom2001}:
-\begin{align}
-    &\Psi^{n+\theta,p} - c_{\it error}\Dx^2\pdiff[2]{\Psi^{n+\theta,p}}{x} = c_E \Dx  \int^{\xi_{i+\half}}_{\xi_{i-\half}} \abs{\pdiff[2]{u}{\xi}}^{n+\theta,p} \, d\xi
-\end{align}
-%
-The follow system of equations need to be solved:
+So follow discrete system of equations need to be solved:
 \begin{align}
     &\left(\frac{1}{8} -  c_{\it error}\right) \Psi^{n+\theta,p}_{i-1} +
     \left(\frac{6}{8} + 2 c_{\it error}\right) \Psi^{n+\theta,p}_i +
     \left(\frac{1}{8} -   c_{\it error}\right) \Psi^{n+\theta,p}_{i+1} =
     \\*
-    & = c_E \Dx \abs{\pdiff[2]{u}{\xi}}^{n+\theta,p}_{i}
+    & = c_E \abs{\pdiff[2]{u}{\xi}}^{n+\theta,p}_{i}
 \end{align}
 with
 \begin{align}
