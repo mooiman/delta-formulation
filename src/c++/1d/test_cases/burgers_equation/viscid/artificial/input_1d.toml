@@ -9,7 +9,7 @@ Logging = "None"  # "iterations", "matrix", "pattern"
 
 [Domain]
     Lx       = 20000.0  # Domain length [m]
-    x_origin = 0.0  # Origin of the x-coordinate [m]
+    x_begin  = 0.0  # Origin of the x-coordinate [m]
 
 [Initial]
     ini_vals  = [1.0]
@@ -25,7 +25,7 @@ Logging = "None"  # "iterations", "matrix", "pattern"
     eps_bicgstab        = 1e-12
     eps_abs_function    = 0.01
     regularization_init = true
-    regularization_iter = false
+    regularization_iter = true 
     regularization_time = true
 
 [Output]
