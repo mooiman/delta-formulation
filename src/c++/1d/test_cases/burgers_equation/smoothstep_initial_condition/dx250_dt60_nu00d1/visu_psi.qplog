@@ -1,0 +1,10 @@
+
+openfile '.\output\burgers_eq_dx250_dt60_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '1:1:83'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview

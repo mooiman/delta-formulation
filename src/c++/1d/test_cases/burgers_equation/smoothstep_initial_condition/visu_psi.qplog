@@ -1,0 +1,71 @@
+openfile '.\dx005_dt01_nu00d1\output\burgers_eq_dx5_dt1_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '49'
+# editmn '1:1:2003'
+editmn '1802:1:2202'
+colour [ 0.5 0.5 0.5 ]
+marker '.'
+linewidth 1.
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\dx010_dt02_nu00d1\output\burgers_eq_dx10_dt2_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '49'
+# editmn '1:1:2003'
+editmn '902:1:1102'
+colour [ 0 0 1 ]
+marker '.'
+linewidth 1.
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\dx025_dt05_nu00d1\output\burgers_eq_dx25_dt5_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '49'
+# editmn '1:1:2003'
+editmn '362:1:442'
+colour [ 1 0 1 ]
+marker '.'
+linewidth 1.
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\dx050_dt10_nu00d1\output\burgers_eq_dx50_dt10_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '49'
+# editmn '1:1:2003'
+editmn '182:1:222'
+colour [ 1 0 0 ]
+marker 'o'
+linewidth 1.
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\dx100_dt20_nu00d1\output\burgers_eq_dx100_dt20_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '49'
+# editmn '1:1:2003'
+editmn '92:1:112'
+colour [ 0 1 0 ]
+marker 'o'
+linewidth 1.
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\dx250_dt60_nu00d1\output\burgers_eq_dx250_dt60_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '49'
+# editmn '1:1:2003'
+editmn '38:1:46'
+colour [ 0 0 1 ]
+marker 'o'
+linewidth 1.
+plotcoordinate 'x coordinate'
+addtoplot

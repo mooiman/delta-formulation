@@ -1,0 +1,9 @@
+openfile '.\dx01_dt01_nu00d1\output\burgers_eq_dx1_dt1_map.nc'
+selectfield 'Peclet (u.dx/nu)'
+hselectiontype '(M,N) point/path'
+editt '25'
+editmn '2:1:20002'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview

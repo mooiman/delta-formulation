@@ -1,0 +1,56 @@
+openfile '.\output\burgers_eq_dx250_dt60_map.nc'
+selectfield 'Velocity'
+hselectiontype '(M,N) point/path'
+editt '181'
+editmn '1:1:83'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+selectfield 'Velocity'
+hselectiontype '(M,N) point/path'
+editt '361'
+editmn '1:1:83'
+colour [ 1 0 0 ]
+marker 'o'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\output\burgers_eq_dx250_dt60_map.nc'
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '181'
+editmn '1:1:83'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+selectfield 'Psi'
+hselectiontype '(M,N) point/path'
+editt '361'
+editmn '1:1:83'
+colour [ 1 0 0 ]
+marker 'o'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\output\burgers_eq_dx250_dt60_map.nc'
+selectfield 'Peclet (u.dx/nu)'
+hselectiontype '(M,N) point/path'
+editt '181'
+editmn '1:1:83'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+selectfield 'Peclet (u.dx/nu)'
+hselectiontype '(M,N) point/path'
+editt '361'
+editmn '1:1:83'
+colour [ 1 0 0 ]
+marker 'o'
+plotcoordinate 'x coordinate'
+addtoplot

@@ -1,7 +1,7 @@
 Logging = "None"  # "iterations", "matrix", "pattern"
 
 [Boundary]  # west, east
-    treg        = 900.0  # Regularization time boundary signal [s]
+    treg        = 1800.0  # Regularization time boundary signal [s]
     eps_bc_corr = 0.01
     bc_signals  = ["constant", "constant"]
     bc_type     = ["dirichlet", "borsboom"]
@@ -26,7 +26,7 @@ Logging = "None"  # "iterations", "matrix", "pattern"
     eps_abs_function    = 0.01
     regularization_init = true
     regularization_iter = true 
-    regularization_time = true
+    regularization_time = false
 
 [Output]
     dt_his    = 1.0
@@ -41,9 +41,9 @@ Logging = "None"  # "iterations", "matrix", "pattern"
     src_type      = "none"
 
 [Time]
-    tunit  = "h"  # "s", "m", "h", "d"
+    tunit  = "s"  # "s", "m", "h", "d"
     tstart = 0.0
-    tstop  = 5.0
+    tstop  = 14400.0
 
 # Hard coded observation points are not listed
 
