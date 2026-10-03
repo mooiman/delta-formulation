@@ -2,7 +2,7 @@ openfile '.\dx10_dt10_nu00d1\output\burgers_eq_dx10_dt10_map.nc'
 selectfield 'Velocity'
 hselectiontype '(M,N) point/path'
 editt '25'
-editmn '850:1:1000'
+editmn '862:1:1021'
 colour [ 1 0 0 ]
 marker '.'
 plotcoordinate 'x coordinate'
@@ -12,7 +12,7 @@ openfile '.\dx10_dt10_nu00d1_no_psi\output\burgers_eq_dx10_dt10_map.nc'
 selectfield 'Velocity'
 hselectiontype '(M,N) point/path'
 editt '25'
-editmn '850:1:1000'
+editmn '862:1:1021'
 colour [ 0 0 1 ]
 marker '.'
 plotcoordinate 'x coordinate'
@@ -21,20 +21,20 @@ addtoplot
 #==================================================================
 
 openfile '.\dx10_dt10_nu00d1\output\burgers_eq_dx10_dt10_map.nc'
-selectfield 'Psi'
+selectfield 'Viscosity (used)'
 hselectiontype '(M,N) point/path'
 editt '25'
-editmn '850:1:1000'
+editmn '862:1:1021'
 colour [ 1 0 0 ]
 marker '.'
 plotcoordinate 'x coordinate'
 quickview
 
 openfile '.\dx10_dt10_nu00d1_no_psi\output\burgers_eq_dx10_dt10_map.nc'
-selectfield 'Psi'
+selectfield 'Viscosity (used)'
 hselectiontype '(M,N) point/path'
 editt '25'
-editmn '850:1:1000'
+editmn '862:1:1021'
 colour [ 0 0 1 ]
 marker '.'
 plotcoordinate 'x coordinate'
@@ -46,7 +46,7 @@ openfile '.\dx10_dt10_nu10d0\output\burgers_eq_dx10_dt10_map.nc'
 selectfield 'Velocity'
 hselectiontype '(M,N) point/path'
 editt '25'
-editmn '850:1:1000'
+editmn '862:1:1021'
 colour [ 1 0 0 ]
 marker '.'
 plotcoordinate 'x coordinate'
@@ -56,7 +56,7 @@ openfile '.\dx10_dt10_nu10d0_no_psi\output\burgers_eq_dx10_dt10_map.nc'
 selectfield 'Velocity'
 hselectiontype '(M,N) point/path'
 editt '25'
-editmn '850:1:1000'
+editmn '862:1:1021'
 colour [ 0 0 1 ]
 marker '.'
 plotcoordinate 'x coordinate'
@@ -65,20 +65,20 @@ addtoplot
 #==================================================================
 
 openfile '.\dx10_dt10_nu10d0\output\burgers_eq_dx10_dt10_map.nc'
-selectfield 'Psi'
+selectfield 'Viscosity (used)'
 hselectiontype '(M,N) point/path'
 editt '25'
-editmn '850:1:1000'
+editmn '862:1:1021'
 colour [ 1 0 0 ]
 marker '.'
 plotcoordinate 'x coordinate'
 quickview
 
 openfile '.\dx10_dt10_nu10d0_no_psi\output\burgers_eq_dx10_dt10_map.nc'
-selectfield 'Psi'
+selectfield 'Viscosity (used)'
 hselectiontype '(M,N) point/path'
 editt '25'
-editmn '850:1:1000'
+editmn '862:1:1021'
 colour [ 0 0 1 ]
 marker '.'
 plotcoordinate 'x coordinate'

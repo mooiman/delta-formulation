@@ -5,11 +5,11 @@ Logging = "None"  # "iterations", "matrix", "pattern"
     eps_bc_corr = 0.01
     bc_signals  = ["constant", "constant"]
     bc_type     = ["dirichlet", "borsboom"]
-    bc_vals     = [2.0, 0.0]
+    bc_vals     = [2.0, 1.0]
 
 [Domain]
-    Lx       = 20000.0  # Domain length [m]
-    x_begin  = 0.0  # Origin of the x-coordinate [m]
+    Lx      = 20000.0  # Domain length [m]
+    x_begin = 0.0  # Origin of the x-coordinate [m]
 
 [Initial]
     ini_vals  = [1.0]
@@ -19,13 +19,13 @@ Logging = "None"  # "iterations", "matrix", "pattern"
     dt                  = 5.0  # Time step size [s], if dt == 0: then stationary problem
     dx                  = 10.0  # Grid size [m]
     c_psi               = 4.0
-    theta               = 0.501  # Implicitness factor (0.5 <= theta <= 1.0)
-    iter_max            = 25.0  # Maximum number of non-linear iterations
+    theta               = 0.5    # Implicitness factor (0.5 <= theta <= 1.0)
+    iter_max            = 25    # Maximum number of non-linear iterations
     eps_newton          = 1e-12
     eps_bicgstab        = 1e-12
     eps_abs_function    = 0.01
     regularization_init = true
-    regularization_iter = true 
+    regularization_iter = false 
     regularization_time = false
 
 [Output]

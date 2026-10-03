@@ -41,7 +41,7 @@ editt '49'
 # editmn '1:1:2003'
 editmn '182:1:222'
 colour [ 1 0 0 ]
-marker 'o'
+marker '.'
 linewidth 1.
 plotcoordinate 'x coordinate'
 addtoplot
@@ -53,7 +53,7 @@ editt '49'
 # editmn '1:1:2003'
 editmn '92:1:112'
 colour [ 0 1 0 ]
-marker 'o'
+marker '.'
 linewidth 1.
 plotcoordinate 'x coordinate'
 addtoplot
@@ -65,7 +65,7 @@ editt '49'
 # editmn '1:1:2003'
 editmn '38:1:46'
 colour [ 0 0 1 ]
-marker 'o'
+marker '.'
 linewidth 1.
 plotcoordinate 'x coordinate'
 addtoplot
