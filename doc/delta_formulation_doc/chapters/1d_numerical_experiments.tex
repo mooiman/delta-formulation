@@ -534,6 +534,8 @@ where
     \item[$\nu$] Constant viscosity coefficient, $\bunit{\square\metre\per\second}$.
     \item[$\Psi$] Artificial viscosity coefficient, $\bunit{\square\metre\per\second}$.
 \end{symbollist}
+%--------------------------------------------------------------------------------
+\paragraph*{Transition boundary time-series}
 The prescribed inflow boundary condition for the velocity reads
 \begin{align}
     u(0,t)& = u_{\it given}(t)
@@ -557,34 +559,33 @@ where
     \nomenclature{$\tau$}{\si{-}}{Normalized time to prescribe the transition from initial condition to boundary condition, i.e.\ $t_{reg}$, $0 \leq \tau \leq 1$}
      \item[$u_{\it given}(t)$] Prescribed (given) time-series at the boundary, \bunit{\metre\per\second}.
 \end{symbollist}
-
-
 %--------------------------------------------------------------------------------
-\subsection{Smooth step initial condition, standing shock wave}
-The smooth step initial condition has less numerical error on the boudnaries because derivatives at the boundaries are zero and the boundary conditions are chosen to generate a standing shock wave at the middle of the domain.
+\paragraph*{Smooth step initialization}
+The smooth step initial condition has less numerical error on the boundaries because derivatives at the boundaries are zero and the boundary conditions are chosen to generate a standing shock wave at the middle of the domain.
 The smooth step intial condition reads:
 \begin{align}
     u(x^*,0) &= u_l +
     (u_r - u_l) \frac{\phi(x^*) }{ \phi(x^*) + \phi(1-x^*)}
-\label{eq:smoothstep}
-\\
-\phi(x^*) &= \exp(-1 / x^* ) \quad \text{with} \quad x^* = \frac{x}{L_x}
+    \label{eq:smoothstep}
+    \\
+    \phi(x^*) &= \exp(-1 / x^* ) \quad \text{with} \quad x^* = \frac{x}{L_x}
 \end{align}
 with
 \begin{symbollist}
     \item[$x^*$] Normalized length with respect to $L_x$, \bunit{-}.
-        \nomenclature{$x^*$}{\si{-}}{Normalized coordinate, $0 \leq x^* \leq 1$}
+    \nomenclature{$x^*$}{\si{-}}{Normalized coordinate, $0 \leq x^* \leq 1$}
     \item[$L_x$] Length of the domain, \bunit{\metre}.
     \item[$u_l$] Boundary condition at left/west boundary of the domain, \bunit{\metre\per\second}.
     \item[$u_r$] Boundary condition at right/east boundary of the domain, \bunit{\metre\per\second}.
 \end{symbollist}
 
 %--------------------------------------------------------------------------------
-\paragraph*{Analytic solution of standing shock wave}
+\subsection{Analytic solution}
 The analytic solution for a fully developed standing shock wave reads (\citet[eq.\ 4.23]{Whitham1999}:
 \begin{align}
     u(x,t) = u_r + (u_l - u_r)/
     \left(1 + \exp\left(\frac{(u_l - u_r)}{2\nu}(x-U_{s}t)\right)\right)
+    \label{eq:burgers_analytic_solution}
 \end{align}
 with
 \begin{symbollist}
@@ -593,8 +594,12 @@ with
     \item[$U_{s}$] Velocity of the shock wave, i.e.\ $U_{s} = (u_l + u_r)/2$, \bunit{\metre\per\second}
     \nomenclature{$U_{s}$}{\si{\metre\per\second}}{Velocity of the shock wave which appears in Burgers equation}
 \end{symbollist}
+%--------------------------------------------------------------------------------
+\subsection{Standing shock wave}
+
 A standing shock wave at $x=0$ will appear if $U_s = 0$, thus $u_l = -u_r$.
 A transformation of the $x$-coordinate is applied to get the shock wave in the middle of the domain.
+
 %--------------------------------------------------------------------------------
 \paragraph*{Numerical experiment}
 The numerical experiment is performed with the following parameters:
@@ -602,7 +607,7 @@ The numerical experiment is performed with the following parameters:
     \item Length of the domain, $L_x = \bqty{20000}{\metre}$
     \item Grid size, $\Dx \in \{5, 10, 25, 50, 100, 250\}$\ $\bunit{\metre}$
     \item Start time, $t_{start} = \bqty{0}{\second}$
-    \item End time, $t_{stop} = \bqty{6}{\hour}$
+    \item End time, $t_{stop} = \bqty{4}{\hour}$
     \item Timestep, $\Dt \in \{1, 2, 5, 10, 20, 60\}$ $\bunit{\second}$
     \item Regularization time for time-series, $t_{\it reg} = \bqty{1800}{\second}$
     \item Prescribed initial velocity  (\autoref{eq:smoothstep}), smooth step velocity profile between $u(0,t) = \bqty{1}{\metre\per\second}$ and $x=L_x$ by $u(L_x,t) = \bqty{-1}{\metre\per\second}$.
@@ -612,25 +617,18 @@ The numerical experiment is performed with the following parameters:
 %--------------------------------------------------------------------------------
 \subsubsection{Results of the numerical experiments}
 Results are presented for different $\Dx$ and different $\Dt$.
-The results are more the less stationary over the time interval $t\in[3, 6]$ hour.
 \begin{figure}[H]
         \centering
         \includegraphics[width=0.95\textwidth]{figures/standing_shock_wave_time_series.pdf}
+        %\includegraphics[width=0.95\textwidth]{figures/maze.pdf}
         \caption{Time history for a simulation with
-        $\Dx =\bqty{5}{\metre}, \Dt=\bqty{1}{\second}$ and
-        $\Dx = \bqty{250}{\metre}, \Dt=\bqty{60}{\second}$.
+         A: $\Dx =\bqty{5}{\metre}, \Dt=\bqty{1}{\second}$ and
+         B: $\Dx = \bqty{250}{\metre}, \Dt=\bqty{60}{\second}$.
         }
 \end{figure}
-Influence of $\Dt$ on results
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.95\textwidth]{figures/standing_shock_wave_time_series_dt60_dt30_dt15.pdf}
-    \caption{Time histories for simulations with
-        $\Dx =\bqty{250}{\metre}, \Dt=\bqty{15}{\second}$,
-        $\Dx =\bqty{250}{\metre}, \Dt=\bqty{30}{\second}$ and
-        $\Dx = \bqty{250}{\metre}, \Dt=\bqty{60}{\second}$ at location $\bqty{7500}{\metre}$ from the origin.
-    }
-\end{figure}
+The results are stationary and equal over the time interval $t\in[2, 4]$ hour for the simulations A and B.
+
+The following two figures present the velocity and artificial viscosity $\Psi$ along the $x$-axis for several $\Dx$ and $\Dt$.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth]{figures/standing_shock_wave_velocity.png}
@@ -652,9 +650,13 @@ Influence of $\Dt$ on results
         red line $\Dx =\bqty{50}{\metre}, \Dt=\bqty{10}{\second}$;
         green line $\Dx =\bqty{100}{\metre}, \Dt=\bqty{20}{\second}$;
         blue line $\Dx =\bqty{250}{\metre}, \Dt=\bqty{60}{\second}$.}
+        \label{fig:standing_psi}
 \end{figure}
+As seen from \autoref{fig:standing_psi} the artificial viscosity is grid size dependent and give the user information on the used artificial viscosity.
+And judge which $\Dx$ is suitable for the simulation.
 %--------------------------------------------------------------------------------
 \subsection{Moving shock wave}
+A moving shock wave will appear in the domain and travels with a velocity of at $U_s = (u_l + u_r)/2$, according \autoref{eq:burgers_analytic_solution}.
 %--------------------------------------------------------------------------------
 \paragraph*{Numerical experiment}
 The numerical experiment is performed with the following parameters:
@@ -669,7 +671,7 @@ The numerical experiment is performed with the following parameters:
     \item Prescribed velocity on boundary at $x=0$ is given by \autoref{eq:1d_burgers_boundary_condition}, with $u(0,t) = \bqty{2}{\metre\per\second}$.
     \item No boundary is prescribed at $x=\bqty{20000}{\metre}$, free outflow.
 \end{itemize}
-The speed of the fully developed shock wave for the Burgers equation is $u_{\it shock} =\bqty{1.5}{\metre\per\second}$, see \citet[eq.\ 8.1.67]{Debnath2008}, \citet[eq.\ 11.23]{LeVeque2002}.
+The speed of the fully developed shock wave for the Burgers equation is $U_{s} =\bqty{1.5}{\metre\per\second}$, see \citet[eq.\ 8.1.67]{Debnath2008}, \citet[eq.\ 11.23]{LeVeque2002}.
 %--------------------------------------------------------------------------------
 \subsubsection{Results of the numerical experiments}
 %----------------------------------------------------------
@@ -677,27 +679,29 @@ The speed of the fully developed shock wave for the Burgers equation is $u_{\it 
 \vspace{1.0\baselineskip}
 \begin{figure}[H]
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{figures/nu10d0_velocity.png}
+        \includegraphics[width=\textwidth]{figures/moving_shock_wave_velocity_nu10d0.png}
         \caption{Velocity along channel at $\bqty{2}{\hour}$.
             The blue line, without artificial viscosity and the red line with artificial velocity.\newline \phantom{text} }
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{figures/nu10d0_velocity_psi.png}
-        \caption{Used artificial viscosity $\Psi$ along channel at $\bqty{2}{\hour}$. The blue line, no artificial viscosity ($\Psi = 0$) and the red line the used artificial viscosity.}
+        \includegraphics[width=\textwidth]{figures/moving_shock_wave_viscosity_nu10d0.png}
+        \caption{Used artificial viscosity $\Psi$ along channel at $\bqty{2}{\hour}$. The blue line, no artificial viscosity ($\nu + \Psi = 10$) and the red line the used artificial viscosity.}
     \end{subfigure}
-    \caption{Transect for velocity $\nu = \bqty{10}{\square\meter\per\second}$}
+    \caption{Transect for velocity with $\nu = \bqty{10}{\square\meter\per\second}$ with and without regularization}
 \end{figure}
 
 \begin{figure}[H]
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{figures/20260709_213744.pdf}
+        %\includegraphics[width=\textwidth]{figures/20260709_213744.pdf}
+        \includegraphics[width=\textwidth]{figures/maze.pdf}
         \caption{Time histories of the velocity for the observation point  at the centre of the domain, $x=\bqty{10000}{\metre}$.
         The blue line, without artificial viscosity and the red line with artificial velocity.}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{figures/20260709_214125.pdf}
+        %\includegraphics[width=\textwidth]{figures/20260709_214125.pdf}
+        \includegraphics[width=\textwidth]{figures/maze.pdf}
         \caption{Time histories of the artificial viscosity $\Psi$ for the observation point at the centre of the domain, $x=\bqty{10000}{\metre}$.
         The blue line, without artificial viscosity and the red line with artificial velocity.}
     \end{subfigure}
@@ -709,26 +713,28 @@ The shock wave has a speed of $u_{\it shock} = \bqty{1.5152}{\metre\per\second}$
 \vspace{1.0\baselineskip}
 \begin{figure}[H]
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{figures/nu00d1_velocity.png}
+        \includegraphics[width=\textwidth]{figures/moving_shock_wave_velocity_nu00d1.png}
         \caption{Velocity along channel at $\bqty{2}{\hour}$.
             The blue line, without artificial viscosity and the red line with artificial velocity.\newline \phantom{text} }
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{figures/nu00d1_velocity_psi.png}
-        \caption{Used artificial viscosity $\Psi$ along channel at $\bqty{2}{\hour}$. The blue line, no artificial viscosity ($\Psi = 0$) and the red line the used artificial viscosity.}
+        \includegraphics[width=\textwidth]{figures/moving_shock_wave_viscosity_nu00d1.png}
+        \caption{Used artificial viscosity $\Psi$ along channel at $\bqty{2}{\hour}$.The blue line, no artificial viscosity ($\nu + \Psi = 10$) and the red line the used artificial viscosity.}
     \end{subfigure}
-    \caption{Transect for velocity $\nu = \bqty{0.1}{\square\meter\per\second}$}
+    \caption{Transect for velocity $\nu = \bqty{0.1}{\square\meter\per\second}$ with and without regularization}
 \end{figure}
 \begin{figure}[H]
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{figures/20260709_223603_no_psi.pdf}
+        %\includegraphics[width=\textwidth]{figures/20260709_223603_no_psi.pdf}
+        \includegraphics[width=\textwidth]{figures/maze.pdf}
         \caption{Time histories of the velocity for the observation point  at the centre of the domain, $x=\bqty{10000}{\metre}$.
         The blue line, without artificial viscosity and the red line with artificial velocity.}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{figures/20260709_223946_psi.pdf}
+        %\includegraphics[width=\textwidth]{figures/20260709_223946_psi.pdf}
+        \includegraphics[width=\textwidth]{figures/maze.pdf}
         \caption{Time histories of the artificial viscosity $\Psi$ for the observation point at the centre of the domain, $x=\bqty{10000}{\metre}$.
         The blue line, without artificial viscosity and the red line with artificial velocity.}
     \end{subfigure}
