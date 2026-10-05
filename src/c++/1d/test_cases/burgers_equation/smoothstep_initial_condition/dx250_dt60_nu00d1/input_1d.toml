@@ -43,7 +43,7 @@ Logging = "none"  # "iterations", "matrix", "pattern"
 [Time]
     tunit  = "h"  # "s", "m", "h", "d"
     tstart = 0.0
-    tstop  = 6.0
+    tstop  = 4.0
 
 # Hard coded observation points are not listed
 
