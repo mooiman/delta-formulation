@@ -9,13 +9,13 @@
 \usepackage{cancel}
 
 \usepackage{bm}
+\usepackage{mooiman_macros}
 \renewcommand{\vec}[1]{\mbox{\boldmath ${#1}$} }
 
 \sisetup{mode=math}
 \captionsetup[subfigure]{justification=RaggedRight}
 
 \allowdisplaybreaks[1]
-
 
 \newcommand{\red}[1]{\textcolor{red}{#1}}
 \newcommand{\white}[1]{\textcolor{white}{#1}}
@@ -51,7 +51,7 @@ Five observation points are hard coded in the software, these are located at:
 \end{enumerate}
 Extra observation points can be specified in the input file according the description in \autoref{sec:file_description}
 %------------------------------------------------------------------------------
-\section{File description\newline Burgers \& Advection-diffusion} \label{sec:file_description_burgers}
+\subsection{File description\newline Burgers \& Advection-diffusion} \label{sec:file_description_burgers}
 An example input file is given in \autoref{sec:example_input_adv_diff_1d}.
 {{\small%\setlength{\tabcolsep}{1pt}
 \begin{longtable}{p{35mm} p{20mm} p{\textwidth-55mm-36pt}}
@@ -83,12 +83,13 @@ bc\_vals      & [\ $\cdot$\ , $\cdot$\ ] &  [Real value] \\*
 %
 \textbf{\texttt{[Domain]}} & & \\*
 Lx    &-& Length of the domain \\*
-x\_origin         &-& $x$ location of the origin \\*
+x\_begin         &-& Most left $x$-coordinate  \\*
 \midline
 %
 \textbf{\texttt{[Initial]}}  && \\*
-ini\_vals & \ [$\cdot$\ [, $\cdot$\ ]]  & [ real value, real value]\newline If one value is given it is assumed constant over the whole domain \\*
-ini\_vars & "constant & ["constant", "linear"]  \\*
+ini\_vals & \ [$\cdot$\ , $\cdot$\ ]  & [ real value, real value]\newline
+initial values at west and east boundary \\*
+ini\_vars & "linear" & ["linear", "smoothstep"]  \\*
 \midline
 %
 \multicolumn{3}{@{}l}{\textbf{\texttt{[Numerics]}} } \\*
@@ -107,10 +108,11 @@ regularization\_time & false & true, false \\*
 %
 \multicolumn{3}{@{}l}{\textbf{\texttt{[Output]}} } \\*
 dt\_his & dt & Time interval to write the history file, \bunit{\second}\\*
-dt\_map & $60.0$ & Time interval to write the map file, \bunit{\second} \\*
-dt\_screen & $60.0$ & Time interval to write the time step to the screen, \bunit{\second} \\*    \midline
+dt\_map & 60.0 & Time interval to write the map file, \bunit{\second} \\*
+dt\_screen & 60.0 & Time interval to write the time step to the screen, \bunit{\second} \\*    \midline
 %
 \multicolumn{3}{@{}l}{\textbf{\texttt{[Physics]}} } \\*
+u\_advection & 0.0 & Advection velocity, \bunit{\metre\per\second} \\*
 do\_convection & false & true, false \\*
 do\_viscosity & false & true, false \\*
 viscosity & 0.01 & Diffusion/Viscosity coefficient\\*
@@ -126,12 +128,11 @@ stop & 60.0 & Stop time of the simulation, [\texttt{tunit}] \\*
 \multicolumn{3}{@{}l}{\textbf{\texttt{[[ObservationPoint]]}} } \\*
 {x}    &-& $x$-coordinate of the observation point\\*
 {y}    &-& $y$-coordinate of the observation point\\*
-{name} & "\ldots" & Name of observation point between double quotes \\
-\midline
+{name} & "\textit{<name>}" & Name of observation point between double quotes \\*
 \end{longtable}
 }}
 %------------------------------------------------------------------------------
-\section{File description\newline Wave 1D} \label{sec:file_description_wave_1d}
+\subsection{File description\newline Wave 1D} \label{sec:file_description_wave_1d}
 An example input file is given in \autoref{sec:example_input_wave_1d}.
 {{\small%\setlength{\tabcolsep}{1pt}
 \begin{longtable}{p{35mm} p{20mm} p{\textwidth-55mm-36pt}}
@@ -163,8 +164,9 @@ An example input file is given in \autoref{sec:example_input_wave_1d}.
     %
     \textbf{\texttt{[Domain]}} & & \\*
     Lx    &-& Length of the domain, \bunit{\metre} \\*
-    depth         & 10.0 & Bathymetry below reference level [m] \\*
-    geomtry\_type & [\ $\cdot$\ ] &
+    depth         & 10.0 & Overruled by the keyword \texttt{bed\_level\_file} \newline
+    Bathymetry below reference level [m] \\*
+    geometry\_type & "\textit{<name>}" & Overruled by the keyword \texttt{bed\_level\_file} \newline
     "\texttt{UniformGeometry}"\newline \phantom{mm}Uniform depth profile\newline
     "\texttt{WavyBedGeometry}" \newline \phantom{mm}Wavy bed geometry \newline
     "\texttt{SlopedBedGeometry}" \newline \phantom{mm}Sloped bed geometry (Ch\'ezy flow) \newline
@@ -172,7 +174,8 @@ An example input file is given in \autoref{sec:example_input_wave_1d}.
     "\texttt{WeirBorsboom2000Geometry}" \newline \phantom{mm}Profile of a weir\newline
     "\texttt{Shoal}" \newline \phantom{mm}Profile of a shoal
     \\*
-    \midline
+    bed\_level\_file    & "\textit{<name>}" & Overrules keywords \texttt{depth} and \texttt{geometry\_type} \newline
+    Name of bed-level-file between double quotes \\* \\*    \midline
     %
     \textbf{\texttt{[Initial]}}  && \\*
     ini\_vars & "-" & ["zeta\_gauss\_hump"]  \\*
@@ -182,7 +185,7 @@ An example input file is given in \autoref{sec:example_input_wave_1d}.
     \midline
     %
     \multicolumn{3}{@{}l}{\textbf{\texttt{[Numerics]}} } \\*
-    dt & -  & Time step size \bunit{\second}, if dt == 0: then stationary simulation \\*
+    dt & -  & Time step size \bunit{\second}, if dt==0 then stationary simulation \\*
     dx & -  & Grid size, \bunit{\metre}\\*
     theta & 0.5  & Implicitness factor (0.5 <= theta <= 1.0) \\*
     c\_psi & 4.0 & Smoothness factor used for regularization \\*
@@ -198,8 +201,8 @@ An example input file is given in \autoref{sec:example_input_wave_1d}.
     %
     \multicolumn{3}{@{}l}{\textbf{\texttt{[Output]}} } \\*
     dt\_his & dt & Time interval to write the history file, \bunit{\second}\\*
-    dt\_map & $60.0$ & Time interval to write the map file, \bunit{\second} \\*
-    dt\_screen & $60.0$ & Time interval to write the time step to the screen, \bunit{\second} \\*
+    dt\_map & 60.0 & Time interval to write the map file, \bunit{\second} \\*
+    dt\_screen & 60.0 & Time interval to write the time step to the screen, \bunit{\second} \\*
     \midline
     %
     \multicolumn{3}{@{}l}{\textbf{\texttt{[Physics]}} } \\*
@@ -220,7 +223,7 @@ An example input file is given in \autoref{sec:example_input_wave_1d}.
     \multicolumn{3}{@{}l}{\textbf{\texttt{[[ObservationPoint]]}} } \\*
     {x}    &-& $x$-coordinate of the observation point\\*
     {y}    &-& $y$-coordinate of the observation point\\*
-    {name} & "\ldots" & Name of observation point between double quotes \\
+    {name} & "\textit{<name>}" & Name of observation point between double quotes \\
     \midline
 \end{longtable}
 }}
@@ -239,10 +242,10 @@ Nine observation points are hard coded in the software, these are located at:
     \item in the South-West corner of the grid.
     \item in the North-West corner of the grid.
 \end{enumerate}
-Extra observation points can be specified in the input file according the description in \autoref{sec:file_description}.
+Extra observation points can be specified in the input file according the description in section \nameref{sec:file_description}.
 
 %------------------------------------------------------------------------------
-\section{File description} \label{sec:file_description}
+\section*{File description} \label{sec:file_description}
 Items in the color red are only to be used in the development stage of the software.
 An example input file is given in \autoref{sec:example_input_2d}.
 %------------------------------------------------------------------------------
@@ -275,8 +278,8 @@ bc\_vals      & [\ $\cdot$\ , $\cdot$\ , $\cdot$\ , $\cdot$\ ] & [Real value] \\
 \midline
 %
 \textbf{\texttt{[Domain]}} & & \\*
-bed-level-file    &-& Name of bed-level-file between  double quotes \\*
-mesh-file         &-& Name of mesh file point between double quotes \\*
+bed\_level\_file  &"\textit{<name>}"& Name of bed-level-file between double quotes \\*
+mesh\_file        &"\textit{<name>}"& Name of mesh file point between double quotes \\*
 \midline
 %
 \textbf{\texttt{[Initial]}}  && \\*
@@ -291,8 +294,8 @@ gauss\_sigma\_y & 350.0 & Optional if "gauss\_sigma" is not specified \\
 \midline
 %
 \multicolumn{3}{@{}l}{\textbf{\texttt{[Numerics]}} } \\*
-dt & 5.0  & Time step size [s], if dt == 0: then stationary simulation \\*
-theta & 0.501  & Implicitness factor (0.5 <= theta <= 1.0) \\*
+dt & 5.0  & Time step size [s], if dt==0 then stationary simulation \\*
+theta & 0.5  & Implicitness factor (0.5 <= theta <= 1.0) \\*
 c\_psi & 4.0 & Smoothness factor used for regularization \\*
 iter\_max & 25  & Maximum number of nonlinear iterations \\*
 eps\_newton & 1e-12 & Accuracy of the Newton solver (non-linear)\\*
@@ -333,7 +336,7 @@ stop & 60.0 & Stop time of the simulation, \bunit{\second} \\*
 \multicolumn{3}{@{}l}{\textbf{\texttt{[[ObservationPoint]]}} } \\*
 {x}    &-& $x$-coordinate of the observation point\\*
 {y}    &-& $y$-coordinate of the observation point\\*
-{name} & "\ldots" & Name of observation point between double quotes \\
+{name} & "\textit{<name>}" & Name of observation point between double quotes \\
 \midline
 \end{longtable}
 }}
