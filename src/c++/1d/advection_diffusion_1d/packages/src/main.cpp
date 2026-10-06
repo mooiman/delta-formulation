@@ -280,8 +280,8 @@ int main(int argc, char* argv[])
     // Copy input data to local data
     std::string logging = input_data.log.logging;
 
-    double Lx       = input_data.domain.Lx;
-    double x_origin = input_data.domain.x_origin;
+    double Lx      = input_data.domain.Lx;
+    double x_begin = input_data.domain.x_begin;
 
     double eps_bc_corr = input_data.boundary.eps_bc_corr;
     double treg = input_data.boundary.treg;
@@ -357,14 +357,14 @@ int main(int argc, char* argv[])
     w_ess[0] = 1./12.;
     w_ess[1] = 10./12.;
     w_ess[2] = 1./12.;
-    //w_ess[0] = 11./24.;
-    //w_ess[1] = 14./24.;
-    //w_ess[2] = -1./24.;
+    w_ess[0] = 11./24.;
+    w_ess[1] = 14./24.;
+    w_ess[2] = -1./24.;
 
     //initialize x-coordinate
     for (int i = 0; i < nx; i++)
     {
-        x[i] = double(i - 1) * dx + x_origin;
+        x[i] = double(i - 1) * dx + x_begin;
     }
     //  Create kdtree, needed to locate the observation points
     std::vector<std::vector<double>> xy_points;
@@ -588,7 +588,7 @@ int main(int argc, char* argv[])
             START_TIMER(Regularization_time_loop);
             if (do_viscosity)
             {
-                regularization->artificial_viscosity(psi, u, cp, c_psi, dx, w_ess, w_nat, log_file, logging);
+                regularization->artificial_viscosity(psi, u, cn, c_psi, dx, w_ess, w_nat, log_file, logging);
                 for (int i = 0; i < nx; ++i)
                 {
                     visc[i] = visc_reg[i] + std::abs(psi[i]);
@@ -606,23 +606,24 @@ int main(int argc, char* argv[])
             {
                 log_file << "Iteration: " << used_newton_iter << std::endl;
             }
+
+            for (size_t k = 0; k < nx; ++k)
+            {
+                ctheta[k] = theta * cp[k] + (1.0 - theta) * cn[k];
+            }
+
             if (regularization_iter)
             {
                 START_TIMER(Regularization_iter_loop);
                 if (do_viscosity)
                 {
-                    regularization->artificial_viscosity(psi, u, cp, c_psi, dx, w_ess, w_nat, log_file, logging);
+                    regularization->artificial_viscosity(psi, u, ctheta, c_psi, dx, w_ess, w_nat, log_file, logging);
                     for (int i = 0; i < nx; ++i)
                     {
                         visc[i] = visc_reg[i] + std::abs(psi[i]);
                     }
                 }
                 STOP_TIMER(Regularization_iter_loop);
-            }
-
-            for (size_t k = 0; k < nx; ++k)
-            {
-                ctheta[k] = theta * cp[k] + (1.0 - theta) * cn[k];
             }
 
             if (nst == 1 && iter == 0)
@@ -685,22 +686,12 @@ int main(int argc, char* argv[])
                 //
                 size_t i = 0;
 
-                double cp_i   = cp[i];           // = c^{n+1,p}_{i}
-                double cp_ip1 = cp[i + 1];       // = c^{n+1,p}_{i+1}
-                double cp_ip2 = cp[i + 2];       // = c^{n+1,p}_{i+2}
-
                 if (bc_type[BC_WEST] == "dirichlet")
                 {
-                    w_ess[0] = 11. / 24.;
-                    w_ess[1] = 14. / 24.;
-                    w_ess[2] = -1. / 24.;
-                    //w_ess[0] = 1. / 12.;
-                    //w_ess[1] = 10. / 12.;
-                    //w_ess[2] = 1. / 12.;
                     A.coeffRef(i, i    ) = w_ess[0];
                     A.coeffRef(i, i + 1) = w_ess[1];
                     A.coeffRef(i, i + 2) = w_ess[2];
-                    tmp[i] = +bc[BC_WEST] - (w_ess[0] * cp_i + w_ess[1] * cp_ip1 + w_ess[2] * cp_ip2);
+                    tmp[i] = +bc[BC_WEST] - (w_ess[0] * ctheta[i] + w_ess[1] * ctheta[i + 1] + w_ess[2] * ctheta[i + 2]);
                     rhs[i] = tmp[i];
                 }
                 else
@@ -718,42 +709,25 @@ int main(int argc, char* argv[])
                 //
                 size_t i = nx - 1;
 
-                double cn_i   = cn[i];           // = c^{n}_{i}
-                double cn_im1 = cn[i - 1];       // = c^{n}_{i-1}
-                double cn_im2 = cn[i - 2];       // = c^{n}_{i-2}
-
-                double cp_i = cp[i];             // = c^{n+1,p}_{i}
-                double cp_im1 = cp[i - 1];       // = c^{n+1,p}_{i-1}
-                double cp_im2 = cp[i - 2];       // = c^{n+1,p}_{i-2}
-
-                double ctheta_i = ctheta[i];
-                double ctheta_im1 = ctheta[i - 1];
-
                 if (bc_type[BC_EAST] == "dirichlet")
                 {
-                    w_ess[0] = 11. / 24.;
-                    w_ess[1] = 14. / 24.;
-                    w_ess[2] = -1. / 24.;
-                    //w_ess[0] = 1. / 12.;
-                    //w_ess[1] = 10. / 12.;
-                    //w_ess[2] = 1. / 12.;
                     A.coeffRef(i, i) = w_ess[0];
                     A.coeffRef(i, i - 1) = w_ess[1];
                     A.coeffRef(i, i - 2) = w_ess[2];
-                    tmp[i] = +bc[BC_EAST] - (w_nat[0] * cp_i + w_nat[1] * cp_im1 + w_nat[2] * cp_im2);
+                    tmp[i] = +bc[BC_EAST] - (w_ess[0] * ctheta[i] + w_ess[1] * ctheta[i - 1] + w_ess[2] * ctheta[i - 2]);
                     rhs[i] = tmp[i];
                 }
                 else if (bc_type[BC_EAST] == "borsboom")
                 {
                     // Outflow boundary (natural boundary)
                     double dcdt = dtinv * (
-                        w_nat[0] * (cp_i - cn_i) +
-                        w_nat[1] * (cp_im1 - cn_im1) +
-                        w_nat[2] * (cp_im2 - cn_im2)
+                        w_nat[0] * (cp[i] - cn[i]) +
+                        w_nat[1] * (cp[i - 1] - cn[i - 1]) +
+                        w_nat[2] * (cp[i - 2] - cn[i - 2])
                         );
 
                     double u_im12 = 0.5 * (u[i] + u[i - 1]);
-                    double udcdx =  u_im12 * (ctheta_i - ctheta_im1) * dxinv;
+                    double udcdx =  u_im12 * (ctheta[i] - ctheta[i - 1]) * dxinv;
 
                     A.coeffRef(i, i    ) = dtinv * w_nat[0] + theta * dxinv * u_im12;
                     A.coeffRef(i, i - 1) = dtinv * w_nat[1] - theta * dxinv * u_im12;
