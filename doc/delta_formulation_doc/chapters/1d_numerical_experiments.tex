@@ -601,7 +601,7 @@ A standing shock wave at $x=0$ will appear if $U_s = 0$, thus $u_l = -u_r$.
 A transformation of the $x$-coordinate is applied to get the shock wave in the middle of the domain.
 
 %--------------------------------------------------------------------------------
-\paragraph*{Numerical experiment}
+\paragraph*{Parameters numerical experiment}
 The numerical experiment is performed with the following parameters:
 \begin{itemize}
     \item Length of the domain, $L_x = \bqty{20000}{\metre}$
@@ -615,7 +615,7 @@ The numerical experiment is performed with the following parameters:
     \item Viscosity coefficient $\nu = \bqty{0.1}{\metre\square\per\second}$.
 \end{itemize}
 %--------------------------------------------------------------------------------
-\subsubsection{Results of the numerical experiments}
+\subsubsection{Numerical experiments}
 Results are presented for different $\Dx$ and different $\Dt$.
 \begin{figure}[H]
         \centering
@@ -658,7 +658,7 @@ And judge which $\Dx$ is suitable for the simulation.
 \subsection{Moving shock wave}
 A moving shock wave will appear in the domain and travels with a velocity of at $U_s = (u_l + u_r)/2$, according \autoref{eq:burgers_analytic_solution}.
 %--------------------------------------------------------------------------------
-\paragraph*{Numerical experiment}
+\paragraph*{Parameters numerical experiment}
 The numerical experiment is performed with the following parameters:
 \begin{itemize}
     \item Length of the domain, $L_x = \bqty{20000}{\metre}$
@@ -672,10 +672,8 @@ The numerical experiment is performed with the following parameters:
     \item No boundary is prescribed at $x=\bqty{20000}{\metre}$, free outflow.
 \end{itemize}
 The speed of the fully developed shock wave for the Burgers equation is $U_{s} =\bqty{1.5}{\metre\per\second}$, see \citet[eq.\ 8.1.67]{Debnath2008}, \citet[eq.\ 11.23]{LeVeque2002}.
-%--------------------------------------------------------------------------------
-\subsubsection{Results of the numerical experiments}
 %----------------------------------------------------------
-\subparagraph*[Experiment with viscosity of 10 m2/s]{Experiment with viscosity of \bqty{10}{\metre\square\per\second}}
+\subsubsection[Numerical experiment with viscosity of 10 m2/s]{Numerical experiment with viscosity of \bqty{10}{\metre\square\per\second}}
 \vspace{1.0\baselineskip}
 \begin{figure}[H]
     \begin{subfigure}{0.49\textwidth}
@@ -688,7 +686,7 @@ The speed of the fully developed shock wave for the Burgers equation is $U_{s} =
         \includegraphics[width=\textwidth]{figures/moving_shock_wave_viscosity_nu10d0.png}
         \caption{Used artificial viscosity $\Psi$ along channel at $\bqty{2}{\hour}$. The blue line, no artificial viscosity ($\nu + \Psi = 10$) and the red line the used artificial viscosity.}
     \end{subfigure}
-    \caption{Transect for velocity with $\nu = \bqty{10}{\square\meter\per\second}$ with and without regularization}
+    \caption{Transect for velocity with $\nu = \bqty{10}{\square\meter\per\second}$ with and without regularization.}
 \end{figure}
 
 \begin{figure}[H]
@@ -703,12 +701,12 @@ The speed of the fully developed shock wave for the Burgers equation is $U_{s} =
         \caption{Time histories of the artificial viscosity $\Psi$ for the observation point at the centre of the domain, $x=\bqty{10000}{\metre}$.
         The blue line, without artificial viscosity and the red line with artificial velocity.}
     \end{subfigure}
-    \caption{Time histories for $\nu = \bqty{10}{\square\meter\per\second}$}
+    \caption{Time histories for $\nu = \bqty{10}{\square\meter\per\second}$ with and without regularization.}
 \end{figure}
 The shock wave has a speed of $U_s = \bqty{1.4970}{\metre\per\second}$ for both cases, without and with artificial viscosity.
 Where the arrival time of the shock wave is taken when the velocity is closest to the value of $\bqty{1.5}{\metre\per\second}$.
 %--------------------------------------------------------------------------------
-\subparagraph*[Experiment with viscosity of 0.1 m2/s]{Experiment with viscosity of \bqty{0.1}{\metre\square\per\second}}
+\subsubsection[Numerical eperiment with viscosity of 0.1 m2/s]{Numerical experiment with viscosity of \bqty{0.1}{\metre\square\per\second}}
 \vspace{1.0\baselineskip}
 \begin{figure}[H]
     \begin{subfigure}{0.49\textwidth}
@@ -719,9 +717,9 @@ Where the arrival time of the shock wave is taken when the velocity is closest t
     \hfill
     \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{figures/moving_shock_wave_viscosity_nu00d1.png}
-        \caption{Used artificial viscosity $\Psi$ along channel at $\bqty{2}{\hour}$.The blue line, no artificial viscosity ($\nu + \Psi = 10$) and the red line the used artificial viscosity.}
+        \caption{Used viscosity $\nu + \Psi$ along channel at $\bqty{2}{\hour}$.The blue line, no artificial viscosity ($\nu + \Psi = 10$) and the red line the used viscosity.}
     \end{subfigure}
-    \caption{Transect for velocity $\nu = \bqty{0.1}{\square\meter\per\second}$ with and without regularization}
+    \caption{Transect for velocity $\nu = \bqty{0.1}{\square\meter\per\second}$ with and without regularization.}
 \end{figure}
 \begin{figure}[H]
     \begin{subfigure}{0.49\textwidth}
@@ -732,10 +730,10 @@ Where the arrival time of the shock wave is taken when the velocity is closest t
     \hfill
     \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{figures/burgers_moving_shock_viscosity_nu00d1.pdf}
-        \caption{Time histories of the artificial viscosity $\Psi$ for the observation point at the centre of the domain, $x=\bqty{10000}{\metre}$.
-        The blue line, without artificial viscosity and the red line with artificial velocity.}
+        \caption{Time histories of the viscosity $\nu + \Psi$ for the observation point at the centre of the domain, $x=\bqty{10000}{\metre}$.
+        The blue line, without artificial viscosity ($\nu + \Psi = 10$) and the red line with artificial velocity.}
     \end{subfigure}
-    \caption{Time histories for $\nu = \bqty{0.1}{\square\meter\per\second}$}
+    \caption{Time histories for $\nu = \bqty{0.1}{\square\meter\per\second}$ with and without regularization.}
 \end{figure}
 The shock wave has a speed of $U_s = \bqty{1.4970}{\metre\per\second}$ for both cases, without and with artificial viscosity.
 Where the arrival time of the shock wave is taken when the velocity is closest to the value of $\bqty{1.5}{\metre\per\second}$.

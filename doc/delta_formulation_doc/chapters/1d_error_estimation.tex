@@ -44,7 +44,7 @@ The discretization of \autoref{eq:disc_regularization} with constant $\Dx$ and $
 %     \\
 %     & = \frac{1}{\Dx}\int_{x_{i-1/2}}^{x_{i+\half}} u_{giv}\, dx
 %\end{align}
-
+%
 Substitution of the Fourier modes
 \begin{align}
 \ubar_k = \ubar_k \exp(\ii k \Dx)\quad \text{and} \quad  u_{giv} = u_{giv,k} \exp(\ii k \Dx)
@@ -83,7 +83,7 @@ $\Leftrightarrow$
 \begin{align}
 \overline{r} = \abs{  \frac{\overline u_k}{ u_{giv,k}} } & = \abs{ \frac{8 \sin(\half k \Dx)}{k\Dx\left( 3 + \cos(k\Dx) + 8c_{\Psi} ( 1 - \cos(k\Dx))\right) } }
 \end{align}
-
+%
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.99\textwidth]{figures/ratio_u_u_giv.pdf}
@@ -98,7 +98,7 @@ Discretization error values are determined when  $\Dx = {\mathit constant} $ and
 + \frac{1}{8}   u_{i+1}  = \frac{1}{\Dx} \int_{x_{i-1/2}}^{x_{i+\half}} u_{giv}\, dx
 \label{eq:disc_regularization_psi_0}
 \end{align}
-
+%
 Numerical error as discretized between grid pints
 \begin{align}
 {\text{errorFVEgridpoint}}(k\Dx) = \abs{  1- \frac{8 \sin(\half  k\Dx)}{k\Dx  (3 + \cos(k\Dx))}}
@@ -111,7 +111,7 @@ With lowest order estimation of (see \citet{funcfitsmoothing_Fouriermodeanalysis
 \begin{align}
 -\frac{1}{24} (k\Dx)^2 - \frac{7}{960} (k\Dx)^4 + O(\Dx^6) % Computed with MapleSoft
 \end{align}
-
+%
 So if the numerical error needs to be smaller then 1\ \%, the number of grid cells per wavelength ($\lambda = N\Dx$) is computed as
 \begin{align}
 \frac{1}{24}(k\Dx)^2 < 0.01 \Rightarrow k\Dx < 0.4899 \Rightarrow
@@ -253,6 +253,8 @@ When using the Fourier modes analysis, we get as indication for each Fourier mod
     \label{eq:c_E}
 \end{align}
 with ${2/\pi}$ the ration between the averaged amplitude and maximum amplitude $(A)$ of a Fourier mode, $A=h_{typ}$ for the normalized amplitude.
+For the accuracy determined by $c_\Psi$ the right handside of \autoref{eq:c_E} should be comparable with $c_\Psi \Dx^2$ for the maximum feasible Fourier mode.
+To get an estimation for $c_E$ we use therefore:
 \begin{align}
     c_\Psi \Dx^2  =  c_{E}  \Dx^2  (k\Dx)^2 \frac{2}{\pi}
     \quad \Rightarrow \quad
