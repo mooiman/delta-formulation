@@ -31,6 +31,7 @@ int get_toml_array(toml::table, std::string, std::vector<bool>&);
 
 enum class TIME_INTEGRATOR
 {
+    NONE,
     EULER_EXPLICIT,
     RUNGE_KUTTA_4,
     FULLY_IMPLICIT,
@@ -118,7 +119,7 @@ int main(int argc, char* argv[]) {
     log_file << "tstop = " << tstop << std::endl;
 
     // Numerics
-    enum TIME_INTEGRATOR time_integration_type;
+    enum TIME_INTEGRATOR time_integration_type = TIME_INTEGRATOR::NONE;
     log_file << std::endl << "[Numerics]" << std::endl;
     tbl_chp = *tbl["Numerics"].as_table();
     double dt = tbl_chp["dt"].value_or(double(0.0));  // default stationary
