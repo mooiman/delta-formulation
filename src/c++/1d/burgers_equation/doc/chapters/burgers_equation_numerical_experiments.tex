@@ -144,18 +144,18 @@ The wave front has a speed of $u_{\it shock} = \bqty{1.5}{\metre\per\second}$ fo
 %\subsection{Constant viscosity $\nu$}
 %-------------------------------------------------------------------------------
 \section{Experiment with non linear source term}
-This experiment is taken from \citet{Colombo2026} and read
+This experiment is taken from \citet{ColomboEtAl2026} and read
 \begin{align}
     \pdiff{u}{t} + u \pdiff{u}{x} - \nu \pdiff[2]{u}{x}= u^2, \quad u >0
 \end{align}
 With viscosity coefficient $\nu = \bqty{0.0}{\square\metre\per\second}$ and initial condition
 \begin{align}
-u(x,0) = \exp(x) + 0.3 \exp( -200 (x + 0.5)^2), \quad x\in = [-1,1]
+u(x,0) = \exp(x) + 0.3 \exp( -200 (x + 0.5)^2), \quad x \in [-1,1]
 \end{align}
 and boundary condition at the left side
 \begin{align}
     u(-1,t) = \exp(-1).
 \end{align}
-
+\todo{The expectation is that 2-point Gauss integration is needed.}
 
 \notyet

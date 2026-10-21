@@ -271,7 +271,6 @@ int main(int argc, char* argv[])
     // Copy input data to local data
     std::string logging = input_data.log.logging;
 
-    //double Lx       = input_data.domain.Lx;
     double x_begin  = input_data.domain.x_begin ;
 
     double eps_bc_corr = input_data.boundary.eps_bc_corr;
@@ -301,6 +300,14 @@ int main(int argc, char* argv[])
     bool do_viscosity = input_data.physics.do_viscosity;
     bool do_source =input_data.physics.do_source;
     std::string src_type = input_data.physics.src_type;
+
+    double dt_his = input_data.output.dt_his;
+    double dt_map = input_data.output.dt_map;
+    double dt_screen = input_data.output.dt_screen;
+
+    int nst_to_his = std::max(1, int(dt_his/dt));
+    int nst_to_map = std::max(1, int(dt_map/dt));
+    int nst_to_screen = std::max(1, int(dt_screen/dt));
 
     double tstart = input_data.time.tstart;
     double tstop = input_data.time.tstop;
@@ -638,7 +645,7 @@ int main(int argc, char* argv[])
                     tmp[i] = -( + 0.5 * ( utheta_ip12 + utheta_im12) * (utheta_ip12 - utheta_im12) );
                     //tmp[i] = -( + utheta[i] * (utheta_ip12 - utheta_im12) );
                     //tmp[i] = -( + 0.5 * ( utheta_ip12 * utheta_ip12 - utheta_im12 * utheta_im12) );
-                   rhs[i] += tmp[i];
+                    rhs[i] += tmp[i];
                 }
                 //
                 //  d(visc(du/dx))/dx
@@ -660,15 +667,16 @@ int main(int argc, char* argv[])
                 // 
                 if (do_source && src_type == "quadratic")
                 {
-                    A.coeffRef(i, i - 1) += theta * 2.* utheta[i-1] * 1./4.;
-                    A.coeffRef(i, i    ) += theta * 2.* utheta[i  ] * 3./4.;
-                    A.coeffRef(i, i    ) += theta * 2.* utheta[i  ] * 3./4.;
-                    A.coeffRef(i, i + 1) += theta * 2.* utheta[i+1] * 1./4.;
-                    double u_0 = 0.25 * (utheta[i-1] + 3. * utheta[i]);
-                    double u_1 = 0.25 * (utheta[i+1] + 3. * utheta[i]);
+                    A.coeffRef(i, i - 1) += theta * 2.* utheta[i - 1] * 1./4.;
+                    A.coeffRef(i, i    ) += theta * 2.* utheta[i    ] * 3./4.;
+                    A.coeffRef(i, i    ) += theta * 2.* utheta[i    ] * 3./4.;
+                    A.coeffRef(i, i + 1) += theta * 2.* utheta[i + 1] * 1./4.;
+                    double u_0 = 0.25 * (utheta[i - 1] + 3. * utheta[i]);
+                    double u_1 = 0.25 * (utheta[i + 1] + 3. * utheta[i]);
                     rhs[i] += (
                         0.5 * dx * (u_0 * u_0 + u_1 * u_1)
                         );
+                        //0.25 * dx * (u_0 + u_1) * (u_0 + u_1)
                 }
             }
             {
@@ -780,7 +788,7 @@ int main(int argc, char* argv[])
                     A.coeffRef(i, i - 1) = dtinv * w_nat[1] - theta * dxinv * utheta[i - 1];
                     A.coeffRef(i, i - 2) = dtinv * w_nat[2];
                     rhs[i] = - (dudt + ududx);
-                
+
                     // viscosity contribution
                     //if (do_viscosity)
                     //{
@@ -903,9 +911,9 @@ int main(int argc, char* argv[])
         }
         else
         {
-            if (std::fmod(time, input_data.output.dt_screen) == 0)
+            if (nst % nst_to_screen == 0)
             {
-                std::cout << std::fixed << std::setprecision(2) << tstart + time << ";   " << tstart + tstop << std::endl;
+                std::cout << std::fixed << std::setprecision(3) << tstart + time << ";   " << tstart + tstop << std::endl;
             }
             if (logging == "iterations" || logging == "matrix")
             {
@@ -954,7 +962,7 @@ int main(int argc, char* argv[])
         }
 
         // Map-files
-        if (std::fmod(nst, wrimap) == 0)
+        if (nst % nst_to_map == 0)
         {
             // Put data on time map file
             START_TIMER(Writing map-file);
@@ -980,7 +988,7 @@ int main(int argc, char* argv[])
         }
 
         // His-files
-        if (std::fmod(nst, wrihis) == 0)
+        if (nst % nst_to_his == 0)
         {
             START_TIMER(Writing his-file);
             nst_his++;
