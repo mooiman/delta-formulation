@@ -404,7 +404,6 @@ and after applying Green's theorem it yields:
     - \oint_\Gamma  \nu \pdiff{u}{x} \, d\Gamma = 0
 \end{align}
 
-
 The velocity $u>0$ is convected from the left to the right with its own velocity $u\, \bunit{\meter\per\second}$.
 The Burgers equation is discretised on the grid
 \begin{figure}[H]
@@ -414,7 +413,7 @@ The Burgers equation is discretised on the grid
             \input{figures/water_body_fve_bc_at_node.pdf_tex}
         }
     \end{center}
-    \caption[Definition of the grid to solve the 1D-advection equation]{Water body (blue area), finite volumes (green boxes), computational points (open dots), virtual computational points (black dots), boundary points are at $x_{1}$ (inflow/west boundary) and $x_{I+\half}$ (outflow/east boundary).}\label{fig:water_body_fve_bc_at_node_1}
+    \caption[Definition of the grid to solve the 1D-Burgers equation]{Definition of the grid to solve the 1D-Burgers equation. \newline Water body (blue area), finite volumes (green boxes), computational points (open dots), virtual computational points (black dots), boundary points are at $x_{1}$ (inflow/west boundary) and $x_{I+\half}$ (outflow/east boundary).}\label{fig:water_body_fve_bc_at_node_1}
 \end{figure}
 The finite volume approach for control volume $\Dx_{i+\half}$ of \autoref{eq:1d_burgers} reads:
 \begin{align}

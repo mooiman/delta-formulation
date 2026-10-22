@@ -65,7 +65,7 @@ In this section the difference is graphical shown between integration over a fin
         \resizebox{0.9\textwidth}{!}{
             \import{figures}{1d-integration_1_points_gauss.pdf_tex}
         }
-    \end{center}
+        \end{center}
     \caption{Quadratic function approximated by 1-point Gauss.} \label{fig:1d_integration_1points_gauss}
     \end{subfigure}
 \hfill
@@ -340,12 +340,13 @@ The function is initially defined as:
         1, & \text{if} \quad 1000\ [m] < x \leq 2000 \ [m],
     \end{cases}
 \end{align}
-For illustration, the step is chosen to be exactly on a grid point (in the middle of a control volume at $1000\ [m]$) and at the finite volume boundary, i.e.\ a half $\Dx$ shifted to the right.
+For illustration, the step is chosen to be exactly on a grid point (in the middle of a control volume at $\bqty{1000}{\metre}$).
 \begin{figure}[H]
     \centering
     \includegraphics[width=1.0\textwidth]{figures/1d_step_function_dx100.pdf}
     \caption{Step function to be estimated. The thin green vertical lines indicate the  borders of the finite volumes.\label{fig:ex_step_function}}
 \end{figure}
+For the next two figures the step is chosen at a grid point and at the finite volume boundary.
 A straight forward piecewise approximation is shown in \autoref{fig:straight_forward_discretization}.
 Both figures does show the same discretization function (cyan colored) but the step is at a different location.
 %
@@ -354,13 +355,13 @@ Both figures does show the same discretization function (cyan colored) but the s
     \begin{subfigure}[t]{0.49\textwidth}
         \centering
         \includegraphics[width=1.0\textwidth]{figures/regul_1_1d_scalar_dx100.pdf}
-        \caption{Step at grid node, $x = 1000\ [m]$}
+        \caption{Step at grid node, $x =\bqty{1000}{\metre}$}.
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.49\textwidth}
         \centering
         \includegraphics[width=1.0\textwidth]{figures/regul_2_1d_scalar_dx100.pdf}
-        \caption{Step at boundary of a finite volume, $x = 1050\ [m]$}
+        \caption{Step at boundary of a finite volume, $x = \bqty{1050}{\metre}$}.
     \end{subfigure}
     \caption{As seen from this figures the function defined on the grid nodes does not see the exact location of the step. Both functions through the grid nodes have the same profile, but the step is at another location. \label{fig:straight_forward_discretization}}
 \end{figure}
