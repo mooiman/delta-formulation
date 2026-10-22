@@ -25,3 +25,5 @@ cd ..
 cd c07_pe05d0
 call run_test.bat
 cd ..
+
+call visu_Lx.qplog

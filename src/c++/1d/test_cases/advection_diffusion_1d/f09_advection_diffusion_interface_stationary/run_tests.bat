@@ -29,3 +29,5 @@ cd ..
 cd c08_u0d9_dx0d10
 call run_test.bat
 cd ..
+
+call visu_u0d9.qplog

@@ -8,7 +8,7 @@ Logging = "None"  # "iterations", "matrix", "pattern"
 
 [Domain]
     Lx = 10000.0                                  # Domain length [m]
-    x_origin = 0.0  # Origin of the x-coordinate [m]
+    x_begin = 0.0  # Origin of the x-coordinate [m]
 
 [Initial]
     c_initial = 0.0  # initial constituent [-]
@@ -29,7 +29,7 @@ Logging = "None"  # "iterations", "matrix", "pattern"
 [Output]
     dt_his = 1.0   # [s]
     dt_map = 1.0   # [s] 
-    dt_screen = 120.0   # [s] 
+    dt_screen = 900.0   # [s] 
     
 [Physics]
     u_advection = 10.0  # initial velocity [m]
