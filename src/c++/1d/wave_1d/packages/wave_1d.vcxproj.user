@@ -8,6 +8,9 @@
     <LocalDebuggerCommandArguments>--toml c:\Users\janmo\checkouts\git\delta-formulation-main\src\c++\1d\test_cases\e03_1d_wave\f01_gaussian_hump\c04_symmetric_bb_zz\input_1d.toml</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup>
+    <ShowAllFiles>true</ShowAllFiles>
+  </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QtTouchProperty>
     </QtTouchProperty>
