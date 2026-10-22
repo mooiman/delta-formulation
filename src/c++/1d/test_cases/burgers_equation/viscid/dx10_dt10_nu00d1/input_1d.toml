@@ -48,21 +48,47 @@ Logging = "None"  # "iterations", "matrix", "pattern"
 # Hard coded observation points are not listed
 
 [[ObservationPoint]]
+    x    = 0
+    y    = 0
+    name = "obs_a"
+    
+[[ObservationPoint]]
     x    = 2500
     y    = 0
-    name = "_a"
+    name = "obs_b"
+
+[[ObservationPoint]]
+    x    = 5000
+    y    = 0
+    name = "obs_c"
 
 [[ObservationPoint]]
     x    = 7500
     y    = 0
-    name = "_b"
+    name = "obs_d"
+
+[[ObservationPoint]]
+    x    = 10000
+    y    = 0
+    name = "obs_e"
 
 [[ObservationPoint]]
     x    = 12500
     y    = 0
-    name = "_c"
+    name = "obs_f"
+
+[[ObservationPoint]]
+    x    = 15000
+    y    = 0
+    name = "obs_g"
 
 [[ObservationPoint]]
     x    = 17500
     y    = 0
-    name = "_d"
+    name = "obs_h"
+
+[[ObservationPoint]]
+    x    = 20000
+    y    = 0
+    name = "obs_i"
+
