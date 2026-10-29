@@ -53,9 +53,6 @@ void GetArguments(long argc, char** argv, std::filesystem::path & file_name);
 int write_used_input(struct _data_input data, std::ofstream & log_file);
 int set_his_values(std::vector<_ObservationPoint>& obs_points, std::vector<double> & array, std::vector<double>& his_values);
 std::vector<double> bc_val(double x_loc);
-int get_toml_array(toml::table, std::string, std::vector<std::string>&);
-int get_toml_array(toml::table, std::string, std::vector<double>&);
-int get_toml_array(toml::table, std::string, std::vector<bool>&);
 //
 // Solve the Burgers equation
 //
@@ -356,7 +353,7 @@ int main(int argc, char* argv[])
     //initialize x-coordinate
     for (int i = 0; i < nx; i++)
     {
-        x[i] = double(i - 1) * dx + x_begin ;
+        x[i] = double(i - 1) * dx + x_begin;
     }
     adv_diff_init_velocity(u_init, ini_vals, x, ini_vars[0]);
     //  Create kdtree, needed to locate the observation points
@@ -581,6 +578,7 @@ int main(int argc, char* argv[])
 
         int used_newton_iter = 0;
         int used_lin_solv_iter = 0;
+
         START_TIMER(Newton iteration);
         Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
         for (int iter = 0; iter < iter_max; ++iter)
@@ -590,6 +588,7 @@ int main(int argc, char* argv[])
             {
                 log_file << "Iteration: " << used_newton_iter << std::endl;
             }
+
             for (size_t k = 0; k < nx; ++k)
             {
                 utheta[k] = theta * up[k] + (1.0 - theta) * un[k];
@@ -651,8 +650,8 @@ int main(int argc, char* argv[])
                 //  d(visc(du/dx))/dx
                 if (do_viscosity)
                 {
-                    double visc_im12 = - 0.5 * (visc[i - 1] + visc[i]);
-                    double visc_ip12 = - 0.5 * (visc[i + 1] + visc[i]);
+                    double visc_im12 = -0.5 * (visc[i - 1] + visc[i]);
+                    double visc_ip12 = -0.5 * (visc[i + 1] + visc[i]);
 
                     A.coeffRef(i, i - 1) += + visc_im12 * theta * dxinv;
                     A.coeffRef(i, i    ) += - visc_im12 * theta * dxinv;
@@ -774,7 +773,7 @@ int main(int argc, char* argv[])
                     //}
                 }
                 else if (bc_type[BC_EAST] == "borsboom")
-                {           
+                {
                     // Outflow boundary (natural boundary)
                     size_t i = nx - 1;
 
@@ -1016,7 +1015,7 @@ int main(int argc, char* argv[])
                 his_file->put_variable(his_psi_name, nst_his, his_values);
                 status = set_his_values(input_data.obs_points, fo, his_values);
                 his_file->put_variable(his_fo_name, nst_his, his_values);
-        }
+            }
 
             his_values.clear();
             his_values = { double(used_newton_iter) };

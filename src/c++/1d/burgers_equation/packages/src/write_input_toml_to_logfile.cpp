@@ -2,7 +2,7 @@
 // Programmer: Jan Mooiman
 // Email     : jan.mooiman@outlook.com
 //
-//    Solving the 1D shallow water equations, fully implicit with delta-formulation and Modified Newton iteration 
+//    Solving the 1D Burgers equation, fully implicit with delta-formulation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -41,26 +41,26 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
 
     log_file << "    " << "bc_signals  = [\"";
     for (int i = 0; i < data.boundary.bc_signals.size() - 1; ++i) { log_file << data.boundary.bc_signals[i] << "\", \""; }
-    log_file << data.boundary.bc_signals[data.boundary.bc_signals.size() - 1] << "\"]"  << std::endl;
+    log_file << data.boundary.bc_signals[data.boundary.bc_signals.size() - 1] << "\"]"  << " # Type \"constant\", \"sine\"" << std::endl;
 
     log_file << "    " << "bc_type     = [\"";
     for (int i = 0; i < data.boundary.bc_type.size() - 1; ++i) { log_file << data.boundary.bc_type[i] << "\", \""; }
-    log_file << data.boundary.bc_type[data.boundary.bc_type.size() - 1] << "\"]"  << std::endl;
+    log_file << data.boundary.bc_type[data.boundary.bc_type.size() - 1] << "\"]"  << " # Type \"dirichlet\", \"borsboom\"" << std::endl;
 
     log_file << "    " << "bc_vals     = [";
     for (int i = 0; i < data.boundary.bc_vals.size() - 1; ++i) { log_file << format_as_double(data.boundary.bc_vals[i]) << ", "; }
-    log_file << format_as_double(data.boundary.bc_vals[data.boundary.bc_vals.size() - 1]) << "]" << std::endl;
+    log_file << format_as_double(data.boundary.bc_vals[data.boundary.bc_vals.size() - 1]) << "]" << " # The inflow constituent" << std::endl;
 
     //Domain
     log_file << std::endl << "[Domain]" << std::endl;
-    log_file << "    Lx       = " << format_as_double(data.domain.Lx) << "  # Domain length [m]" << std::endl;
-    log_file << "    x_begin  = " << format_as_double(data.domain.x_begin) << "  # Origin of the x-coordinate [m]" << std::endl;
+    log_file << "    Lx      = " << format_as_double(data.domain.Lx) << "  # Domain length [m]" << std::endl;
+    log_file << "    x_begin = " << format_as_double(data.domain.x_begin) << "  # Origin of the x-coordinate [m]" << std::endl;
 
     // Initial
     log_file << std::endl << "[Initial]" << std::endl;
     log_file << "    ini_vars  = [\"";
     for (int i = 0; i < data.initial.ini_vars.size() - 1; ++i) { log_file << data.initial.ini_vars[i] << "\", \""; }
-    log_file << data.initial.ini_vars[data.initial.ini_vars.size() - 1] << "\"]" << std::endl;
+    log_file << data.initial.ini_vars[data.initial.ini_vars.size() - 1] << "\"]" << " # \"constant\", \"envelope\", \"envelope_phi\"" << std::endl;
 
     log_file << "    ini_vals  = [";
     for (int i = 0; i < data.initial.ini_vals.size() - 1; ++i) { log_file << format_as_double(data.initial.ini_vals[i]) << ", "; }
