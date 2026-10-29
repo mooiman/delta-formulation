@@ -54,7 +54,6 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
     // Domain
     tbl_chp = *tbl["Domain"].as_table();
     data.domain.Lx = tbl_chp["Lx"].value_or(double(12000.));
-    data.domain.depth = tbl_chp["depth"].value_or(double(10.));
     data.domain.x_begin = tbl_chp["x_begin"].value_or(double(-INFINITY));
     if (data.domain.x_begin == -INFINITY) 
     { 
@@ -64,8 +63,12 @@ _data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::p
     // Initial
     tbl_chp = *tbl["Initial"].as_table();
     status = get_toml_array(tbl_chp, "ini_vars", data.initial.ini_vars);
-    data.initial.c_initial = tbl_chp["c_initial"].value_or(double(0.0));  
-    status = get_toml_array(tbl_chp, "ini_vars", data.initial.ini_vars);
+    status = get_toml_array(tbl_chp, "ini_vals", data.initial.ini_vals);
+    if ( data.initial.ini_vals.size() == 1)
+    {
+        data.initial.ini_vals.resize(2);
+        data.initial.ini_vals[1] =  data.initial.ini_vals[0];
+    }
 
     // Numerics
     tbl_chp = *tbl["Numerics"].as_table();

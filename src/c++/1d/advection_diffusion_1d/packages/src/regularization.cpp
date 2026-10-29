@@ -68,23 +68,16 @@ void REGULARIZATION::given_function(std::vector<double>& u_tilde, std::vector<do
     double diff_max1 = 0.0;
     size_t nx = u_giv_in.size();
 
-    std::vector<double> u_giv(nx, 0.);
     std::vector<double> u0(nx, 0.);
     std::vector<double> u1(nx, 0.);
     std::vector<double> Du0_xixi(nx, 0.);
     std::vector<double> eq8(nx, 0.);
     std::vector<double> tmp(nx, 0.);
 
-    const auto [u_giv_in_min, u_giv_in_max] = std::minmax_element(u_giv_in.begin(), u_giv_in.end());
-    double min_range = 0.0001;
-    double u_giv_range = *u_giv_in_max - *u_giv_in_min > min_range ? *u_giv_in_max - *u_giv_in_min : min_range;
-    u_giv_range = 1.0;
-
     for (size_t i = 0; i < nx; ++i)
     {
         // scaling of the input array u_giv_in
-        u0[i] = u_giv_in[i] / u_giv_range;
-        u_giv[i] = u0[i];
+        u0[i] = u_giv_in[i];
     }
     for (int iter = 0; iter < m_iter_max; ++iter)
     {
@@ -111,13 +104,13 @@ void REGULARIZATION::given_function(std::vector<double>& u_tilde, std::vector<do
             psi[i] = c_psi * dx * dx * eq8[i];
         }
 //------------------------------------------------------------------------------
-        u0 = *(this->solve_eq7(dx, psi, u_giv));
+        u0 = *(this->solve_eq7(dx, psi, u_giv_in));
 //------------------------------------------------------------------------------
 
         diff_max1 = 0.0;
         for (size_t i = 0; i < nx; ++i)
         {
-            diff_max1 = std::max(diff_max1, std::abs(u0[i] - u_giv[i]));
+            diff_max1 = std::max(diff_max1, std::abs(u0[i] - u_giv_in[i]));
         }
         if (std::abs(diff_max1 - diff_max0) > m_eps_smooth)
         {
@@ -131,7 +124,7 @@ void REGULARIZATION::given_function(std::vector<double>& u_tilde, std::vector<do
     }
     for (size_t i = 0; i < nx; ++i)
     {
-        u_tilde[i] = u0[i] * u_giv_range;
+        u_tilde[i] = u0[i];
     }
 }
 //------------------------------------------------------------------------------
@@ -169,12 +162,13 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     i = nx - 1;
     c_xixi[i] = 2. * c_xixi[i - 1] - c_xixi[i - 2];
     //
-    // eq. 18 CRC2001
+    // based on eq. 18 CRC2001
+    //
+    double c_error = c_psi * dx * dx;
+    double c_E = c_psi * c_psi * std::numbers::pi/2.0 * dx * dx;
+
     double ubar_im14;
     double ubar_ip14;
-
-    double c_error = c_psi;
-    double c_E = c_psi * c_psi * std::numbers::pi/2.0 * dx;
     for (size_t i = 1; i < nx - 1; ++i)
     {
         A.coeffRef(i, i - 1) = m_mass[0] - c_error;
@@ -185,23 +179,24 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         ubar_ip14 = 0.25 * (u[i + 1] + 3. * u[i]);
         double utmp = 0.5 * (ubar_im14 + ubar_ip14);
         utmp = u[i];
-        rhs[i] = c_E * utmp * std::abs(c_xixi[i]);
+        rhs[i] = c_E * std::abs(c_xixi[i]);
     }
     // eq. 19   
     i = 0;
-    A.coeffRef(i, i    ) = -1.; 
-    A.coeffRef(i, i + 1) = 1.0;
-    A.coeffRef(i, i + 2) = 0.;
+    A.coeffRef(i, i    ) = -1.0; 
+    A.coeffRef(i, i + 1) =  1.0;
+    A.coeffRef(i, i + 2) =  0.0;
     rhs[i] = 0.0;
     i = 1;
     A.coeffRef(i, i - 1) = 11./24.;  // w_ess[0];
     A.coeffRef(i, i    ) = 14./24.;  // w_ess[1];
     A.coeffRef(i, i + 1) = -1./24.;  // w_ess[2];
     rhs[i] = rhs[i];
+
     i = nx - 1;
-    A.coeffRef(i, i - 2) = 0.;
+    A.coeffRef(i, i - 2) =  0.0;
     A.coeffRef(i, i - 1) = -1.0;
-    A.coeffRef(i, i    ) = 1.;
+    A.coeffRef(i, i    ) =  1.0;
     rhs[i] = 0.0;
     i = nx - 2;
     A.coeffRef(i, i - 1) = -1./24.;  // w_ess[2]; 
@@ -223,6 +218,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     solver.compute(A);
     solver.setTolerance(1e-12);
     solution = solver.solve(rhs);
+
     for (size_t i = 0; i < nx; ++i)
     {
         psi[i] = solution[i];

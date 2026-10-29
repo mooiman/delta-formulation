@@ -58,10 +58,13 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
 
     // Initial
     log_file << std::endl << "[Initial]" << std::endl;
-    log_file << "    c_initial = " << format_as_double(data.initial.c_initial) << "  # initial constituent [-]" << std::endl;
     log_file << "    ini_vars  = [\"";
     for (int i = 0; i < data.initial.ini_vars.size() - 1; ++i) { log_file << data.initial.ini_vars[i] << "\", \""; }
     log_file << data.initial.ini_vars[data.initial.ini_vars.size() - 1] << "\"]" << " # \"constant\", \"envelope\", \"envelope_phi\"" << std::endl;
+
+    log_file << "    ini_vals  = [";
+    for (int i = 0; i < data.initial.ini_vals.size() - 1; ++i) { log_file << format_as_double(data.initial.ini_vals[i]) << ", "; }
+    log_file << format_as_double(data.initial.ini_vals[data.initial.ini_vals.size() - 1]) << "]" << "  # Initial values at west and east boundary" << std::endl;
 
     // Numerics
     log_file << std::endl << "[Numerics]" << std::endl;
@@ -72,7 +75,6 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     log_file << "    iter_max            = " << format_as_double(data.numerics.iter_max) << "  # Maximum number of non-linear iterations" << std::endl;
     log_file << "    eps_newton          = " << format_as_double(data.numerics.eps_newton) << std::endl;
     log_file << "    eps_bicgstab        = " << format_as_double(data.numerics.eps_bicgstab) << std::endl;
-    log_file << "    eps_abs_function    = " << format_as_double(data.numerics.eps_abs) << std::endl;
     log_file << "    regularization_init = " << bool_value_as_string(data.numerics.regularization_init) << std::endl;
     log_file << "    regularization_iter = " << bool_value_as_string(data.numerics.regularization_iter) << std::endl;
     log_file << "    regularization_time = " << bool_value_as_string(data.numerics.regularization_time) << std::endl;

@@ -18,9 +18,6 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
-//
-// Advection equation: dc/dt + d(uc)/dx = 0
-//
 #define _USE_MATH_DEFINES
 #include <cstdlib>
 #include <vector>
@@ -65,7 +62,6 @@ std::vector<double> hermite_interpolation_1d(std::vector<double> x_gp, std::vect
 //
 // dc/dt + d(uc)/dx - d/dx(nu d(u)dx) = 0
 //
-
 
 int main(int argc, char* argv[])
 {
@@ -274,9 +270,6 @@ int main(int argc, char* argv[])
     status = write_used_input(input_data, log_file);
     log_file << "=======================================================" << std::endl;
 
-    double bc0;
-    double bc1;
-
     // Copy input data to local data
     std::string logging = input_data.log.logging;
 
@@ -290,9 +283,9 @@ int main(int argc, char* argv[])
     std::vector<std::string> bc_signals = input_data.boundary.bc_signals;
     std::vector<double> bc_vals = input_data.boundary.bc_vals;
 
-    double c_initial = input_data.initial.c_initial;
     double u_advection = input_data.physics.u_advection;
     std::vector<std::string> ini_vars = input_data.initial.ini_vars;
+    std::vector<double> ini_vals = input_data.initial.ini_vals;
 
     double dt = input_data.numerics.dt;
     double dx = input_data.numerics.dx;
@@ -307,23 +300,28 @@ int main(int argc, char* argv[])
     bool regularization_time = input_data.numerics.regularization_time;
 
     double visc_const = input_data.physics.visc_const;
-    double g = input_data.physics.g;
     bool do_advection= input_data.physics.do_advection;
     bool do_viscosity = input_data.physics.do_viscosity;
     bool do_source =input_data.physics.do_source;
     std::string src_type = input_data.physics.src_type;
     std::string visc_shape = input_data.physics.visc_shape;
 
+    double dt_his = input_data.output.dt_his;
+    double dt_map = input_data.output.dt_map;
+    double dt_screen = input_data.output.dt_screen;
+
+    int nst_to_his = std::max(1, int(dt_his/dt));
+    int nst_to_map = std::max(1, int(dt_map/dt));
+    int nst_to_screen = std::max(1, int(dt_screen/dt));
+
     double tstart = input_data.time.tstart;
     double tstop = input_data.time.tstop;
 
     std::vector<double> x(nx, 0.);  // x-coordinate
     std::vector<double> y(nx, 0.);  // y-coordinate
-    std::vector<double> cn(nx, c_initial);  // constituent [-]
+    std::vector<double> cn(nx, 0.0);  // constituent [-]
     std::vector<double> cp(nx, 0.0);  // constituent [-]
     std::vector<double> ctheta(nx, 0.0);  // constituent at time level theta [(1-theta) * un + theta * up] [-]
-    std::vector<double> zb(nx, -10.0);                  // regularized bed level
-    std::vector<double> zb_given(nx, -10.0);              // initial bed level
     std::vector<double> q(nx, 0.);  // source
     std::vector<double> u(nx, u_advection);  // advection velocity [m s-1], adv_diff_init_velocity
     std::vector<double> psi(nx, 0.);  //
@@ -357,9 +355,9 @@ int main(int argc, char* argv[])
     w_ess[0] = 1./12.;
     w_ess[1] = 10./12.;
     w_ess[2] = 1./12.;
-    w_ess[0] = 11./24.;
-    w_ess[1] = 14./24.;
-    w_ess[2] = -1./24.;
+    //w_ess[0] = 11./24.;
+    //w_ess[1] = 14./24.;
+    //w_ess[2] = -1./24.;
 
     //initialize x-coordinate
     for (int i = 0; i < nx; i++)
@@ -376,7 +374,7 @@ int main(int argc, char* argv[])
     KDTree xy_tree(xy_points);
 
     // initial concentration
-    adv_diff_init_concentration(mass, x, Lx, c_initial, ini_vars[0], cn);
+    adv_diff_init_concentration(mass, x, Lx, ini_vals[0], ini_vars[0], cn);
     if (visc_shape == "interface")
     {
         for (int i = 0; i < nx; i++)
@@ -395,7 +393,6 @@ int main(int argc, char* argv[])
     if (regularization_init)
     {
         START_TIMER(Regularization_init);
-        regularization->given_function(zb, psi, zb_given, dx, c_psi, log_file);
         regularization->given_function(visc_reg, psi, visc_given, dx, c_psi, log_file);
         for (size_t i = 0; i < nx; ++i)
         {
@@ -411,7 +408,7 @@ int main(int argc, char* argv[])
     {
         for (int i = 0; i < nx; ++i)
         {
-            pe[i] = u[i] * dx / visc[i];
+            pe[i] = std::abs(u[i] * dx / visc[i]);
             fo[i] = visc[i] * dt / (dx * dx);
         }
     }
@@ -444,6 +441,7 @@ int main(int argc, char* argv[])
     map_file->put_time_variable(map_names[4], nst_map, pe);
     map_file->put_time_variable(map_names[5], nst_map, cfl);
     map_file->put_time_variable(map_names[6], nst_map, fo);
+
     STOP_TIMER(Writing map-file);
     // End define map file
     ////////////////////////////////////////////////////////////////////////////
@@ -469,14 +467,14 @@ int main(int argc, char* argv[])
     his_file->add_time_series();
 
     std::string his_c_name("cn_1d");
-    std::string his_visc_name("vsic_1d");
+    std::string his_visc_name("visc_1d");
     std::string his_psi_name("psi_1d");
     std::string his_peclet_name("pe_1d");
     std::string his_cfl_name("cfl_1d");
     std::string his_fo_name("fo_1d");
 
     his_file->add_variable(his_c_name, "", "Constituent", "-", "");
-    his_file->add_variable(his_cfl_name, "", "CFL (u.dt/dx)", "-", "Courant-Friedrichs-Lewy number (u.dt/dx)");
+    his_file->add_variable(his_cfl_name, "", "CFL (u.dt/dx)", "-", "Courant-Friedrichs-Lewy number, u.dt/dx");
     if (do_viscosity) 
     {
         his_file->add_variable(his_visc_name, "", "Viscosity (used)", "m2 s-1", "Viscosity, including the artificial viscosity Psi");
@@ -501,6 +499,7 @@ int main(int argc, char* argv[])
 
     status = set_his_values(input_data.obs_points, cfl, his_values);
     his_file->put_variable(his_cfl_name, nst_his, his_values);
+
     if (do_viscosity) 
     {
         status = set_his_values(input_data.obs_points, pe, his_values);
@@ -555,9 +554,8 @@ int main(int argc, char* argv[])
     else { std::cout << "Time dependent simulation" << std::endl; }
     std::cout << std::fixed << std::setprecision(3) << "tstart= " << tstart + time << ";   tstop= " << tstart + tstop << ";   dt= " << dt << ";   dx= " << dx << std::endl;
 
-    // Start time loop
     double dc_max = 0.0;
-    int dc_maxi = 0;
+    size_t dc_maxi = 0;
 
     if (do_source)
     {
@@ -573,22 +571,27 @@ int main(int argc, char* argv[])
     START_TIMER(Time loop);
     for (int nst = 1; nst < total_time_steps; ++nst)
     {
-        int used_newton_iter = 0;
-        int used_lin_solv_iter = 0;
         time = dt * double(nst);
 #if defined(DEBUG)
-        log_file << "=== Start time step (debug): " << std::setprecision(4) << time << std::endl;
+        log_file << "=== Start time step ===================================" << std::endl;
+        log_file << std::setprecision(4) << time << std::endl;
 #endif
         std::vector<double> bc(2, 0.0);
-        boundary_condition(bc[BC_WEST ], bc_vals[BC_WEST ], time, treg, bc_signals[BC_WEST], c_initial);
-        boundary_condition(bc[BC_EAST ], bc_vals[BC_EAST ], time, treg, bc_signals[BC_EAST], c_initial);
+        boundary_condition(bc[BC_WEST ], bc_vals[BC_WEST ], time, treg, bc_signals[BC_WEST], ini_vals[BC_WEST]);
+        boundary_condition(bc[BC_EAST ], bc_vals[BC_EAST ], time, treg, bc_signals[BC_EAST], ini_vals[BC_EAST]);
+
+        std::string logging_org = logging;
+        if (time == 14400.0 || nst == 1 || nst == 2){
+            logging = "matrix";
+        }
+        regularization->artificial_viscosity(psi, u, cn, c_psi, dx, w_ess, w_nat, log_file, logging);        logging = logging_org;
+        logging = logging_org;
 
         if (regularization_time)
         {
             START_TIMER(Regularization_time_loop);
             if (do_viscosity)
             {
-                regularization->artificial_viscosity(psi, u, cn, c_psi, dx, w_ess, w_nat, log_file, logging);
                 for (int i = 0; i < nx; ++i)
                 {
                     visc[i] = visc_reg[i] + std::abs(psi[i]);
@@ -596,6 +599,9 @@ int main(int argc, char* argv[])
             }
             STOP_TIMER(Regularization_time_loop);
         }
+
+        int used_newton_iter = 0;
+        int used_lin_solv_iter = 0;
 
         START_TIMER(Newton iteration);
         Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
@@ -635,9 +641,6 @@ int main(int argc, char* argv[])
             //
             for (int i = 1; i < nx - 1; ++i)
             {
-                double ctheta_i   = ctheta[i];
-                double ctheta_im1 = ctheta[i - 1];
-                double ctheta_ip1 = ctheta[i + 1];  
                 double ctheta_im12 = 0.5 * ( ctheta[i - 1] + ctheta[i] );
                 double ctheta_ip12 = 0.5 * ( ctheta[i] + ctheta[i + 1] );
 
@@ -660,23 +663,23 @@ int main(int argc, char* argv[])
                 A.coeffRef(i, i    ) += - 0.5 * u_im12 * theta;
                 A.coeffRef(i, i    ) += + 0.5 * u_ip12 * theta;
                 A.coeffRef(i, i + 1) += + 0.5 * u_ip12 * theta;
-                tmp[i] += -(
+                tmp[i] = -(
                     + u_ip12 * ctheta_ip12 - u_im12 * ctheta_im12
                     );
-                rhs[i] = tmp[i];
+                rhs[i] += tmp[i];
                 //
                 // dx * d(visc(dc/dx))/dx
                 if (do_viscosity)
                 {
-                    double visc_im12 = 0.5 * (visc[i - 1] + visc[i]);
-                    double visc_ip12 = 0.5 * (visc[i] + visc[i + 1]);
+                    double visc_im12 = -0.5 * (visc[i - 1] + visc[i]);
+                    double visc_ip12 = -0.5 * (visc[i + 1] + visc[i]);
 
-                    A.coeffRef(i, i - 1) += - visc_im12 * theta * dxinv;
-                    A.coeffRef(i, i    ) += + visc_im12 * theta * dxinv;
-                    A.coeffRef(i, i    ) += + visc_ip12 * theta * dxinv;
-                    A.coeffRef(i, i + 1) += - visc_ip12 * theta * dxinv;
+                    A.coeffRef(i, i - 1) += + visc_im12 * theta * dxinv;
+                    A.coeffRef(i, i    ) += - visc_im12 * theta * dxinv;
+                    A.coeffRef(i, i    ) += - visc_ip12 * theta * dxinv;
+                    A.coeffRef(i, i + 1) += + visc_ip12 * theta * dxinv;
                     rhs[i] += -(
-                        visc_im12 * dxinv * (ctheta_i - ctheta_im1) - visc_ip12 * dxinv * (ctheta_ip1 - ctheta_i)
+                        visc_ip12 * dxinv * (ctheta[i + 1] - ctheta[i]) - visc_im12 * dxinv * (ctheta[i] - ctheta[i - 1])
                         );
                 }
             }
@@ -684,15 +687,27 @@ int main(int argc, char* argv[])
                 //
                 // wwest boundary (u>0; essential boundary)
                 //
-                size_t i = 0;
 
                 if (bc_type[BC_WEST] == "dirichlet")
                 {
+                    int i = 0;
+                    double cn_bnd = w_ess[0] * cn[i] + w_ess[1] * cn[i + 1] + w_ess[2] * cn[i +2];
+                    double cp_bnd = w_ess[0] * cp[i] + w_ess[1] * cp[i + 1] + w_ess[2] * cp[i + 2];
+                    double ctheta_bnd = w_ess[0] * ctheta[i] + w_ess[1] * ctheta[i + 1] + w_ess[2] * ctheta[i + 2];
+
+                    // 
                     A.coeffRef(i, i    ) = w_ess[0];
                     A.coeffRef(i, i + 1) = w_ess[1];
                     A.coeffRef(i, i + 2) = w_ess[2];
-                    tmp[i] = +bc[BC_WEST] - (w_ess[0] * ctheta[i] + w_ess[1] * ctheta[i + 1] + w_ess[2] * ctheta[i + 2]);
-                    rhs[i] = tmp[i];
+                    double corr_term = bc[BC_WEST] - cp_bnd;
+                    rhs[i] = corr_term;
+
+                    i = 1;
+                    A.coeffRef(i, i - 1) = -1.0;
+                    A.coeffRef(i, i    ) =  1.0;
+                    A.coeffRef(i, i + 1) =  0.0;
+                    rhs[i] = -(cp[i] - cp[i - 1]);  // gradient is zero
+
                 }
                 else
                 {
@@ -707,19 +722,30 @@ int main(int argc, char* argv[])
                 //
                 // eeast boundary (u>0; natural boundary)
                 //
-                size_t i = nx - 1;
 
                 if (bc_type[BC_EAST] == "dirichlet")
                 {
-                    A.coeffRef(i, i) = w_ess[0];
+                    size_t i = nx - 1;
+                    double cn_bnd = w_ess[0] * cn[i] + w_ess[1] * cn[i - 1] + w_ess[2] * cn[i - 2];
+                    double cp_bnd = w_ess[0] * cp[i] + w_ess[1] * cp[i - 1] + w_ess[2] * cp[i - 2];
+                    double ctheta_bnd = w_ess[0] * ctheta[i] + w_ess[1] * ctheta[i - 1] + w_ess[2] * ctheta[i - 2];
+
+                    A.coeffRef(i, i    ) = w_ess[0];
                     A.coeffRef(i, i - 1) = w_ess[1];
                     A.coeffRef(i, i - 2) = w_ess[2];
-                    tmp[i] = +bc[BC_EAST] - (w_ess[0] * ctheta[i] + w_ess[1] * ctheta[i - 1] + w_ess[2] * ctheta[i - 2]);
-                    rhs[i] = tmp[i];
+                    double corr_term = bc[BC_EAST] - cp_bnd;
+                    rhs[i] = corr_term;
+
+                    i = nx - 2;
+                    A.coeffRef(i, i - 1) =  0.0;
+                    A.coeffRef(i, i    ) = -1.0;
+                    A.coeffRef(i, i + 1) =  1.0;
+                    rhs[i] = -(cp[i + 1] - cp[i]);  // gradient is zero
                 }
                 else if (bc_type[BC_EAST] == "borsboom")
                 {
                     // Outflow boundary (natural boundary)
+                    size_t i = nx - 1;
                     double dcdt = dtinv * (
                         w_nat[0] * (cp[i] - cn[i]) +
                         w_nat[1] * (cp[i - 1] - cn[i - 1]) +
@@ -774,10 +800,10 @@ int main(int argc, char* argv[])
             {
                 log_file << "time [sec]: " << std::setprecision(2) << std::scientific << time
                          << "    BiCGstab iterations: " << solver.iterations()
-                         << "    estimated error:" << solver.error() 
+                         << "    estimated error:" << solver.error()
                          << std::endl;
             }
-
+            //
             // The new solution is the previous iterant plus the delta
             dc_max = 0.0;
             dc_maxi = 0;
@@ -843,9 +869,9 @@ int main(int argc, char* argv[])
         }
         else
         {
-            if (std::fmod(time, input_data.output.dt_screen) == 0)
+            if (nst % nst_to_screen == 0)
             {
-                std::cout << std::fixed << std::setprecision(2) << tstart + time << ";   " << tstart + tstop << std::endl;
+                std::cout << std::fixed << std::setprecision(3) << tstart + time << ";   " << tstart + tstop << std::endl;
             }
             if (logging == "iterations" || logging == "matrix")
             {
@@ -876,7 +902,7 @@ int main(int argc, char* argv[])
         {
             for (int i = 0; i < nx; ++i)
             {
-                pe[i] = u[i] * dx / visc[i];
+                pe[i] = std::abs(u[i] * dx / visc[i]);
                 fo[i] = visc[i] * dt / (dx * dx);
             }
         }
@@ -894,7 +920,7 @@ int main(int argc, char* argv[])
         }
 
         // Map-files
-        if (std::fmod(nst, wrimap) == 0)
+        if (nst % nst_to_map == 0)
         {
             // Put data on time map file
             START_TIMER(Writing map-file);
@@ -921,7 +947,7 @@ int main(int argc, char* argv[])
         }
 
         // His-files
-        if (std::fmod(nst, wrihis) == 0)
+        if (nst % nst_to_his == 0)
         {
             START_TIMER(Writing his-file);
             nst_his++;
@@ -938,6 +964,7 @@ int main(int argc, char* argv[])
 
             status = set_his_values(input_data.obs_points, cfl, his_values);
             his_file->put_variable(his_cfl_name, nst_his, his_values);
+
             if (do_viscosity)
             {
                 status = set_his_values(input_data.obs_points, pe, his_values);
@@ -956,6 +983,7 @@ int main(int argc, char* argv[])
             his_values.clear();
             his_values = { double(used_lin_solv_iter) };
             his_file->put_variable(his_lin_solv_iter_name, nst_his, his_values);
+
             STOP_TIMER(Writing his-file);
         }
     } // End of the time loop
@@ -1000,7 +1028,7 @@ std::vector<double> bc_val(double xi)
 }
 std::vector<double> quadratic_interpolation_1d(std::vector<double> x, std::vector<double> f, int bc_east_west, double x_loc)
 {
-    int BC_WEST, BC_EAST;
+    int BC_WEST = 0, BC_EAST = 1;
     std::vector<double> x_gp(3, 0.0);
     std::vector<double> f_gp(3, 0.0);
     if (bc_east_west == BC_WEST)
@@ -1041,7 +1069,7 @@ std::vector<double> quadratic_interpolation_1d(std::vector<double> x, std::vecto
 }
 std::vector<double> hermite_interpolation_1d(std::vector<double> x, std::vector<double> f, int bc_east_west, double x_loc)
 {
-    int BC_WEST, BC_EAST;
+    int BC_WEST = 0, BC_EAST = 1;
     std::vector<double> x_gp(3, 0.0);
     std::vector<double> f_gp(3, 0.0);
     if (bc_east_west == BC_WEST)
@@ -1126,4 +1154,3 @@ void GetArguments(long argc,   /* I Number of command line arguments */
     }
     return;
 }
-
