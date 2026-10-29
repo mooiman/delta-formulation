@@ -12,8 +12,8 @@
     x_begin = 0.0  # Origin of the x-coordinate [m]
     
 [Initial]
-    c_initial = 0.0  # initial constituent [-]
-    ini_vars  = ["constant"] # "constant", "envelope", "envelope_phi"
+    ini_vals = [0.0]  # initial constituent [-]
+    ini_vars = ["constant"] # "constant", "envelope", "envelope_phi"
    
 [Numerics]
     dt = 0.0                                    # Time step size [s], if dt == 0: then stationary problem

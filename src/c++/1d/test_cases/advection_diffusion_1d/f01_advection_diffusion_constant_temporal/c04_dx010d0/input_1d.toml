@@ -11,8 +11,8 @@ Logging = "None"  # "iterations", "matrix", "pattern"
     x_begin = 0.0  # Origin of the x-coordinate [m]
 
 [Initial]
-    c_initial = 0.0  # initial constituent [-]
-    ini_vars  = ["constant"] # "constant", "envelope"
+    ini_vals = [0.0]  # initial constituent [-]
+    ini_vars = ["constant"] # "constant", "envelope"
     
 [Numerics]
     dt = 2.0                                    # Time step size [s], if dt == 0: then stationary problem
@@ -23,7 +23,7 @@ Logging = "None"  # "iterations", "matrix", "pattern"
     eps_newton = 1.0e-12
     eps_bicgstab = 1.0e-12
     regularization_init = true
-    regularization_iter = false
+    regularization_iter = true 
     regularization_time = true
     
 [Output]

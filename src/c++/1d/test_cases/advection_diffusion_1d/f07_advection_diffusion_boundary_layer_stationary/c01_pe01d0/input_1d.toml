@@ -10,11 +10,11 @@ Logging = "none"  # "iterations", "matrix", "pattern"
 [Domain]
     Lx = 1000.0                                  # Domain length [m]
     x_begin = 0.0  # Origin of the x-coordinate [m]
-        
+
 [Initial]
-    c_initial = 0.0  # initial constituent [-]
-    ini_vars  = ["constant"] # "constant", "envelope", "envelope_phi"
-    
+    ini_vals = [0.0]  # initial constituent [-]
+    ini_vars = ["constant"] # "constant", "envelope", "envelope_phi"
+
 [Numerics]
     dt = 0.0                                    # Time step size [s], if dt == 0: then stationary problem
     dx = 10.0                                     # Grid size [m]
@@ -33,7 +33,7 @@ Logging = "none"  # "iterations", "matrix", "pattern"
     dt_screen = 300.0   # [s] 
 
 [Physics]
-    u_advection = 1.0                   
+    u_advection = 1.0
     do_advection = true
     do_viscosity = true
     viscosity = 10.0
