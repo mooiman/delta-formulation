@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
         std::cout << "Git branch          : " << getgitbranchstring_main() << std::endl;
         std::cout << "Git repository URL  : " << getgiturlstring_main() << std::endl;
         std::cout << std::endl;
-        std::cout << "usage: air_pollution.exe --toml <input_file>" << std::endl;
+        std::cout << "usage: two_way_chemical_reaction.exe --toml <input_file>" << std::endl;
         std::cout << "======================================================" << std::endl;
         //std::cin.ignore();
         std::chrono::duration<int, std::milli> timespan(3000);
