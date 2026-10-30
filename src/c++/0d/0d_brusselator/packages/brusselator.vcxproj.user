@@ -5,14 +5,14 @@
     <LocalDebuggerEnvironment>
     </LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>--toml .\input_0d.toml</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--toml c:\Users\janmo\checkouts\git\delta-formulation-main\src\c++\0d\test_cases\e01_0d\f02_brusselator\c01_brusselator\input_0d.toml</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>$(SolutionDir)</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerEnvironment>PATH=$(QtDllPath);%PATH%
 $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>--toml .\input_0d.toml</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--toml c:\Users\janmo\checkouts\git\delta-formulation-main\src\c++\0d\test_cases\e01_0d\f02_brusselator\c01_brusselator\input_0d.toml</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>$(SolutionDir)</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

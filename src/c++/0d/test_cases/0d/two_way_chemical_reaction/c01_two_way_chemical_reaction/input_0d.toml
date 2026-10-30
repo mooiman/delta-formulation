@@ -1,0 +1,27 @@
+#
+# Two way chemical reaction
+#
+[Initial]
+    u0 = 0.1
+    u1 = 0.9
+
+[Numerics]
+    dt               = 0.01                  # Time step size [s], if dt == 0: then stationary problem
+    time_integration = "delta_formulation"  # "delta_formulation", "runge_kutta_4"
+    iter_max         = 25                   # Maximum number of nonlinear iterations
+    theta            = 0.5                  # Implicitness factor (0.5 <= theta <= 1.0)
+    eps_newton       = 1.0e-12
+    eps_bicgstab     = 1.0e-12
+
+[Physics]
+    k1 = 1.0                                     
+    k2 = 100.0
+
+[Output]
+    dt_his    = 0.001
+    dt_screen = 60.0
+
+[Time]
+    tunit  = "s"  # "s", "m", "h", "d"
+    tstart = 0.0  # Start time
+    tstop  = 1.0  # End time

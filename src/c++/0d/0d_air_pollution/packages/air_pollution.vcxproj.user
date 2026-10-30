@@ -5,14 +5,14 @@
     <LocalDebuggerEnvironment>PATH=$(QtDllPath);%PATH%
 $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>--toml .\input_cpp.toml</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--toml c:\Users\janmo\checkouts\git\delta-formulation-main\src\c++\0d\test_cases\e01_0d\f01_air_pollution\c01_air_pollution\input_0d.toml</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>$(SolutionDir)</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerEnvironment>PATH=$(QtDllPath);%PATH%
 $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>--toml .\input_cpp.toml</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--toml c:\Users\janmo\checkouts\git\delta-formulation-main\src\c++\0d\test_cases\e01_0d\f01_air_pollution\c01_air_pollution\input_0d.toml</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>$(SolutionDir)</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

@@ -128,8 +128,7 @@
       <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;QT_NO_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>call ..\scripts\git_insert_hash.cmd .\include main_version.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -176,18 +175,27 @@
       <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>call ..\scripts\git_insert_hash.cmd .\include main_version.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\cfts.cpp" />
+    <ClCompile Include="src\main_version.cpp" />
     <ClCompile Include="src\perf_timer.cpp" />
+    <ClCompile Include="src\read_input_toml_file.cpp" />
+    <ClCompile Include="src\write_input_toml_to_logfile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\cfts.h" />
+    <ClInclude Include="include\compile_date_and_time.h" />
+    <ClInclude Include="include\data_input_struct.h" />
+    <ClInclude Include="include\main_version.h" />
     <ClInclude Include="include\perf_timer.h" />
+    <ClInclude Include="include\read_input_toml_file.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="include\main_version.h.vcs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />

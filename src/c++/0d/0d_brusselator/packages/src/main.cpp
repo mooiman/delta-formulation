@@ -6,6 +6,7 @@
 #include <string>
 #include <algorithm>
 #include <filesystem>
+#include <thread>
 
 //
 //
@@ -20,69 +21,121 @@
 #include <toml.h>
 
 #include "cfts.h"
+#include "compile_date_and_time.h"
+#include "data_input_struct.h"
+#include "main_version.h"
 #include "perf_timer.h"
+#include "read_input_toml_file.h"
 
 double rhsfev(int ispecie, const std::vector<double>& u, const std::vector<double>& k);
 void runge_kutta_4(double t0, double& t1, const std::vector<double>& u0, std::vector<double>& u1, const std::vector<double>& k, double dt);
-void GetArguments(long argc, char** argv, std::string* file_name);
-int get_toml_array(toml::table, std::string, std::vector<std::string>&);
-int get_toml_array(toml::table, std::string, std::vector<double>&);
-int get_toml_array(toml::table, std::string, std::vector<bool>&);
+void GetArguments(long argc, char** argv, std::filesystem::path & file_name);
+int write_used_input(struct _data_input data, std::ofstream & log_file);
 
-enum class TIME_INTEGRATOR
-{
-    NONE,
-    EULER_EXPLICIT,
-    RUNGE_KUTTA_4,
-    FULLY_IMPLICIT,
-};
 
 int main(int argc, char* argv[]) {
     int status = -1;
-    std::string toml_file_name("--- not-defined ---");
-    
+    std::filesystem::path toml_file_name("---not-defined---");
+
     std::filesystem::path exec_file;
     std::filesystem::path exec_dir;
     std::filesystem::path start_dir;
     std::filesystem::path output_dir;
+    std::filesystem::path input_dir;
 
     exec_file = argv[0];
     exec_dir = exec_file.parent_path();
     start_dir = std::filesystem::current_path();
 
-    toml::table tbl;
-    toml::table tbl_chp;  // table for a chapter
     if (argc == 3)
     {
-        (void)GetArguments(argc, argv, &toml_file_name);
-        if (!std::filesystem::exists(toml_file_name))
+        (void)GetArguments(argc, argv, toml_file_name);
+        if (!std::filesystem::is_regular_file(toml_file_name))
         {
             std::cout << "----------------------------" << std::endl;
             std::cout << "Input file \'" << toml_file_name << "\' can not be opened." << std::endl;
             std::cout << "Press Enter to finish";
             //std::cin.ignore();
+            std::chrono::duration<int, std::milli> timespan(3000);
+            std::this_thread::sleep_for(timespan);
             exit(1);
         }
-        tbl = toml::parse_file(toml_file_name);
-        std::cout << tbl << "\n";
-        output_dir = start_dir;
-        output_dir += "/output/";
+        input_dir = std::filesystem::absolute(toml_file_name);
+        input_dir.remove_filename();
+        output_dir = input_dir / "output" / "";
+
         std::filesystem::create_directory(output_dir);
     }
     else
     {
-        std::cout << "No \'toml\' file is read." << std::endl;
-        output_dir = ".";
+        std::cout << "======================================================" << std::endl;
+        std::cout << "Executable compiled : " << compileDateTime() << std::endl;
+        std::cout << "Git commit time     : " << getgitdatestring_main() << std::endl;
+        std::cout << "Git commit hash     : " << getgitbuildstring_main() << std::endl;
+        std::cout << "Git branch          : " << getgitbranchstring_main() << std::endl;
+        std::cout << "Git repository URL  : " << getgiturlstring_main() << std::endl;
+        std::cout << std::endl;
+        std::cout << "usage: air_pollution.exe --toml <input_file>" << std::endl;
+        std::cout << "======================================================" << std::endl;
+        //std::cin.ignore();
+        std::chrono::duration<int, std::milli> timespan(3000);
+        std::this_thread::sleep_for(timespan);
+        exit(1);
     }
 
-    std::cout << "----------------------------" << std::endl;
+    const std::chrono::zoned_time now{ std::chrono::current_zone(), std::chrono::system_clock::now() };
+    auto start_date_time = std::format("{:%F %H:%M:%OS %Oz}", now);
+    std::cout << std::endl;
+    std::cout << "======================================================" << std::endl;
+    std::cout << "Start time          : " << start_date_time << std::endl;
+    std::cout << "Executable compiled : " << compileDateTime() << std::endl;
+    std::cout << "Git commit time     : " << getgitdatestring_main() << std::endl;
+    std::cout << "Git commit hash     : " << getgitbuildstring_main() << std::endl;
+    std::cout << "Git branch          : " << getgitbranchstring_main() << std::endl;
+    std::cout << "Git repository URL  : " << getgiturlstring_main() << std::endl;
+    std::cout << "======================================================" << std::endl;
     std::cout << "Executable directory: " << exec_dir << std::endl;
     std::cout << "Start directory     : " << start_dir << std::endl;
+    std::cout << "Input directory     : " << input_dir << std::endl;
     std::cout << "Output directory    : " << output_dir << std::endl;
-    std::cout << "----------------------------" << std::endl;
 
     std::string out_file;
     std::stringstream ss;
+
+    struct _data_input input_data;
+    try
+    {
+        input_data = read_toml_file(input_dir, toml_file_name);
+    }
+    catch (const toml::parse_error& err) 
+    {
+        std::cout << "\n+++++++++++++++++++++\nTOML parse error\n"
+                  << err 
+                  << "\n+++++++++++++++++++++\n\n";
+        std::chrono::duration<int, std::milli> timespan(5000);
+        std::this_thread::sleep_for(timespan);
+        exit(1);
+    }
+    // convert given time to seconds
+    if (input_data.time.tunit != "s")
+    {
+        if (input_data.time.tunit == "m")
+        {
+            input_data.time.tstart = 60.0 * input_data.time.tstart;
+            input_data.time.tstop  = 60.0 * input_data.time.tstop;
+        }
+        if (input_data.time.tunit == "h")
+        {
+            input_data.time.tstart = 3600.0 * input_data.time.tstart;
+            input_data.time.tstop  = 3600.0 * input_data.time.tstop;
+        }
+        if (input_data.time.tunit == "d")
+        {
+            input_data.time.tstart = 24.0 * 3600.0 * input_data.time.tstart;
+            input_data.time.tstop  = 24.0 * 3600.0 * input_data.time.tstop;
+        }
+    }
+
     ss << "brusselator";
     out_file = output_dir.string() + ss.str();
 
@@ -91,61 +144,35 @@ int main(int argc, char* argv[]) {
     std::string timing_filename(out_file + "_timing.log");
     std::string model_title("Two way chemical reaction, <no time integrator specified>");
 
-    Eigen::SparseMatrix<double> A(2, 2);
-    Eigen::VectorXd rhs(2);                // RHS vector [u1, u2, u3, u4]^n
-    Eigen::VectorXd solution(2);           // solution vector [u1, u2, u3, u4]^{n}
-
     std::ofstream log_file;
     log_file.open(log_filename);
-    std::cout << "=== Input file =======================================" << std::endl;
-    std::cout << std::filesystem::absolute(toml_file_name) << std::endl;
-    std::cout << "======================================================" << std::endl;
-    log_file << "======================================================" << std::endl;
-    log_file << "Executable compiled: " << __DATE__ << ", " << __TIME__ << std::endl;
-    log_file << "=== Input file =======================================" << std::endl;
-    log_file << toml_file_name << std::endl;
-    log_file << "=== Copy of the input file ============================" << std::endl;
-    log_file << tbl << "\n";  // Write input TOML file to log_file
-    log_file << "=======================================================" << std::endl;
-    log_file << std::endl;
-    log_file << "=== Used input variables ==============================" << std::endl;
 
-    // Time
-    log_file << "[Time]" << std::endl;
-    tbl_chp = *tbl["Time"].as_table();
-    double tstart = tbl_chp["tstart"].value_or(double(0.0));
-    log_file << "tstart = " << tstart << std::endl;
-    double tstop = tbl_chp["tstop"].value_or(double(300.));  // default 5 minutes
-    log_file << "tstop = " << tstop << std::endl;
+    // Initial
+    double u0_init = input_data.initial.u0_ini;
+    double u1_init = input_data.initial.u1_ini;
 
     // Numerics
-    enum TIME_INTEGRATOR time_integration_type = TIME_INTEGRATOR::NONE;
-    log_file << std::endl << "[Numerics]" << std::endl;
-    tbl_chp = *tbl["Numerics"].as_table();
-    double dt = tbl_chp["dt"].value_or(double(0.0));  // default stationary
-    log_file << "dt = " << dt << std::endl;
-    std::string integration = tbl_chp["integration"].value_or("None");
-    if (integration == "delta_formulation") { time_integration_type = TIME_INTEGRATOR::FULLY_IMPLICIT; }
-    else if (integration == "runge_kutta_4") { time_integration_type = TIME_INTEGRATOR::RUNGE_KUTTA_4; }
-    log_file << "integration = " << integration << std::endl;
-    int iter_max = tbl_chp["iter_max"].value_or(int(50));
-    log_file << "iter_max  = " << iter_max << std::endl;
-    double theta = tbl_chp["theta"].value_or(double(0.501));  // Implicitness factor (0.5 <= theta <= 1.0)
-    log_file << "theta  = " << theta << std::endl;
-    double eps_newton = tbl_chp["eps_newton"].value_or(double(1.0e-12));  // stop criterium for Newton iteration
-    log_file << "eps_newton  = " << eps_newton << std::endl;
-    double eps_bicgstab = tbl_chp["eps_bicgstab"].value_or(double(1.0e-12));  // stop criterium for BiCGStab iteration
-    log_file << "eps_bicgstab  = " << eps_bicgstab << std::endl;
+    double dt = input_data.numerics.dt;
+    std::string time_integration = input_data.numerics.time_integration;
+    int iter_max = input_data.numerics.iter_max;
+    double theta = input_data.numerics.theta;  // Implicitness factor (0.5 <= theta <= 1.0)
+    double eps_newton = input_data.numerics.eps_newton;  // stop criterium for Newton iteration
+    double eps_bicgstab = input_data.numerics.eps_bicgstab;  // stop criterium for BiCGStab iteration
 
     // Physics
-    log_file << std::endl << "[Physics]" << std::endl;
-    tbl_chp = *tbl["Physics"].as_table();
-    double k1 = tbl_chp["k1"].value_or(double(1.0));  // as in Hundsdorfer and Verwer
-    log_file << "k1 = " << k1 << std::endl;
-    double k2 = tbl_chp["k2"].value_or(double(10.));  // as in Hundsdorfer and Verwer 
-    log_file << "k2 = " << k2 << std::endl;
+    double k1 = input_data.physics.k1;
+    double k2 = input_data.physics.k2;
 
-    log_file << "=======================================================" << std::endl;
+    // Output
+    double dt_his = input_data.output.dt_his;
+    double dt_screen = input_data.output.dt_screen;
+
+    int nst_to_his = std::max(1, int(dt_his/dt));
+    int nst_to_screen = std::max(1, int(dt_screen/dt));
+
+    // Time
+    double tstart = input_data.time.tstart;
+    double tstop = input_data.time.tstop;
 
     std::vector<double> un(2, 0.);
     std::vector<double> dundt(2, 0.);
@@ -155,13 +182,28 @@ int main(int argc, char* argv[]) {
     std::vector<double> u_ana(2, 0.);
     std::vector<double> k(2, 0.);
 
-    if (time_integration_type == TIME_INTEGRATOR::RUNGE_KUTTA_4)
+    log_file << "=== Used input variables ==============================" << std::endl;
+    status = write_used_input(input_data, log_file);
+    log_file << "=======================================================" << std::endl;
+
+    if (time_integration == "runge_kutta_4")
     {
         model_title = "Brusselator, Runge-Kutta 4 (RK4)";
     }
-    if (time_integration_type == TIME_INTEGRATOR::FULLY_IMPLICIT)
+    else if (time_integration == "delta_formulation")
     {
         model_title = "Brusselator, Delta formulation";
+    }
+    else
+    {
+        std::cout << "----------------------------" << std::endl;
+        std::cout << "Integration type \'" << time_integration << "\' not supported." << std::endl;
+        log_file << "Integration type \'" << time_integration << "\' not supported." << std::endl;
+        //std::cout << "Press Enter to finish";
+        //std::cin.ignore();
+        std::chrono::duration<int, std::milli> timespan(3000);
+        std::this_thread::sleep_for(timespan);
+        exit(1);
     }
 
     START_TIMERN(Main);
@@ -186,10 +228,9 @@ int main(int argc, char* argv[]) {
     {
         dtinv = 1. / dt;
     }
-    int wrihis = 1; // int(std::max(dt, 1.0 / dt));      // write interval to his-file (every delta t)
 
-    un[0] = 0.0;
-    un[1] = 0.0;
+    un[0] = u0_init;
+    un[1] = u1_init;
     u_ini[0] = un[0];
     u_ini[1] = un[1];
     u_ana[0] = un[0];
@@ -224,7 +265,7 @@ int main(int argc, char* argv[]) {
     std::string his_bicgstab_name("bicgstab");
     his_file->add_variable(his_u1_name, "", "U1", "-");
     his_file->add_variable(his_u2_name, "", "U2", "-");
-    if (time_integration_type == TIME_INTEGRATOR::FULLY_IMPLICIT)
+    if (time_integration == "delta_formulation")
     {
         his_file->add_variable_without_location(his_newton_name, "", "Newton iteration", "-");
         his_file->add_variable_without_location(his_bicgstab_name, "", "BiCGSTab iteration", "-");
@@ -242,7 +283,7 @@ int main(int argc, char* argv[]) {
     his_file->put_variable(his_u1_name, nst_his, his_values);
     his_values[0] = un[1];
     his_file->put_variable(his_u2_name, nst_his, his_values);
-    if (time_integration_type == TIME_INTEGRATOR::FULLY_IMPLICIT)
+    if (time_integration == "delta_formulation")
     {
         his_values[0] = used_newton_iter;
         his_file->put_variable(his_newton_name, nst_his, his_values);
@@ -255,12 +296,16 @@ int main(int argc, char* argv[]) {
         up[i] = un[i];
     }
 
+    Eigen::SparseMatrix<double> A(2, 2);
+    Eigen::VectorXd rhs(2);                // RHS vector [u1, u2]^n
+    Eigen::VectorXd solution(2);           // solution vector [u1, u2]^{n}
+
     START_TIMER(Time loop);
     std::cout << "Start time-loop" << std::endl;
     std::cout << std::setprecision(5) << double(0) * dt << "; " << double(total_time_steps - 1) * dt << std::endl;
 
     for (int nst = 1; nst < total_time_steps; ++nst) {
-        if (fmod(nst, total_time_steps/100) == 0)
+        if (nst % nst_to_screen == 0)
         {
             std::cout << double(nst) * dt << "; " << double(total_time_steps - 1) * dt << std::endl;
         }
@@ -269,12 +314,12 @@ int main(int argc, char* argv[]) {
         u_ana[0] = 0.0;
         u_ana[1] = 0.0;
 
-        if (time_integration_type == TIME_INTEGRATOR::RUNGE_KUTTA_4)
+        if (time_integration == "runge_kutta_4")
         {
             runge_kutta_4(t0, t1, un, up, k, dt);
         }
 
-        if (time_integration_type == TIME_INTEGRATOR::FULLY_IMPLICIT)
+        if (time_integration == "delta_formulation")
         {
             START_TIMER(Newton iteration);
             ////////////////////////////////////////////////////////////////////////////
@@ -310,9 +355,9 @@ int main(int argc, char* argv[]) {
 
                 Eigen::BiCGSTAB< Eigen::SparseMatrix<double> > solver;
                 solver.compute(A);
-                //solution = solver.solve(rhs);
                 solver.setTolerance(eps_bicgstab);
-                solution = solver.solveWithGuess(rhs, solution);  // solution contains u^{n+1,p+1} - u^{n+1,p}
+                solution = solver.solve(rhs);
+                //solution = solver.solveWithGuess(rhs, solution);  // solution contains u^{n+1,p+1} - u^{n+1,p}
                 used_bicgstab_iter += int(solver.iterations());
 
                 dc_max = 0.0;
@@ -336,7 +381,7 @@ int main(int argc, char* argv[]) {
             ////////////////////////////////////////////////////////////////////////////
             STOP_TIMER(Newton iteration);
         }
-        if (std::fmod(nst, wrihis) == 0)
+        if (nst % nst_to_his == 0)
         {
             nst_his++;
             START_TIMER(Writing his-file);
@@ -352,7 +397,7 @@ int main(int argc, char* argv[]) {
             his_file->put_variable(his_u1_name, nst_his, his_values);
             his_values[0] = up[1];
             his_file->put_variable(his_u2_name, nst_his, his_values);
-            if (time_integration_type == TIME_INTEGRATOR::FULLY_IMPLICIT)
+            if (time_integration == "delta_formulation")
             {
                 his_values[0] = used_newton_iter;
                 his_file->put_variable(his_newton_name, nst_his, his_values);
@@ -373,19 +418,19 @@ int main(int argc, char* argv[]) {
 
     (void)his_file->close();
 
-    if (time_integration_type == TIME_INTEGRATOR::EULER_EXPLICIT)
+    if (time_integration == "euler_explicit")
     {
         std::cout << "-------------------------------" << std::endl;
         std::cout << "Time integrator: EULER_EXPLICIT" << std::endl;
         std::cout << "-------------------------------" << std::endl;
     }
-    if (time_integration_type == TIME_INTEGRATOR::RUNGE_KUTTA_4)
+    if (time_integration == "runge_kutta_4")
     {
         std::cout << "------------------------------" << std::endl;
         std::cout << "Time integrator: RUNGE_KUTTA_4" << std::endl;
         std::cout << "------------------------------" << std::endl;
     }
-    if (time_integration_type == TIME_INTEGRATOR::FULLY_IMPLICIT)
+    if (time_integration == "delta_formulation")
     {
         std::cout << "-------------------------------" << std::endl;
         std::cout << "Time integrator: FULLY_IMPLICIT" << std::endl;
@@ -397,6 +442,24 @@ int main(int argc, char* argv[]) {
     //std::cin.ignore();
 
     return 0;
+}
+//------------------------------------------------------------------------------
+void explicit_euler(double t0, double& t1, std::vector<double>& u0, std::vector<double>& u1, std::vector<double>& k, double dt) {
+    double at;
+    std::vector<double> au(4), k1(4), k2(4), k3(4), k4(4);
+
+    at = t0;
+    for (int i = 0; i < 2; ++i) {
+        au[i] = u0[i];
+    }
+    for (int i = 0; i < 2; ++i) {
+        k1[i] = rhsfev(i, au, k); // Assuming rhsfev is defined elsewhere
+    }
+
+    for (int i = 0; i < 2; ++i) {
+        u1[i] = u0[i] + dt * k1[i];
+    }
+    t1 = t0 + dt;
 }
 //------------------------------------------------------------------------------
 void runge_kutta_4(double t0, double& t1, const std::vector<double>& u0, std::vector<double>& u1, const std::vector<double>& k, double dt) {
@@ -453,7 +516,7 @@ double rhsfev(int ispecie, const std::vector<double>& u, const std::vector<doubl
 */
 void GetArguments(long argc,   /* I Number of command line arguments */
     char** argv,
-    std::string* file_name)
+    std::filesystem::path & file_name)
     /* Returns nothing */
 {
     long  i;
@@ -463,7 +526,7 @@ void GetArguments(long argc,   /* I Number of command line arguments */
         if (strcmp(argv[i], "--toml") == 0)
         {
             i = i + 1;
-            if (i < argc) *file_name = std::string(argv[i]);
+            if (i < argc) file_name = std::string(argv[i]);
         }
         else if (i != 0)
         {
