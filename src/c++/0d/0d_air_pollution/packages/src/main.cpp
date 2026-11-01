@@ -11,7 +11,7 @@
 
 //
 // Air pollution:
-//     Hundsdorfer and verwer 2003, pg 7
+//     Hundsdorfer and Verwer 2003, pg 7
 //
 //  du_1/dt = k1 u_3 - k2_u1
 //  du_2/dt = k1 u_3 - k3 u_2 u_4 + sigma_2
@@ -147,10 +147,23 @@ int main(int argc, char* argv[]) {
     std::string his_filename(out_file + "_his.nc");
     std::string log_filename(out_file + ".log");
     std::string timing_filename(out_file + "_timing.log");
-    std::string model_title("Two way chemical reaction, <no time integrator specified>");
 
     std::ofstream log_file;
     log_file.open(log_filename);
+
+    std::cout << "=== Input file =======================================" << std::endl;
+    std::cout << std::filesystem::absolute(toml_file_name) << std::endl;
+    std::cout << "======================================================" << std::endl;
+
+    log_file << "======================================================" << std::endl;
+    log_file << "Start time          : " << start_date_time << std::endl;
+    log_file << "Executable compiled : " << compileDateTime() << std::endl;
+    log_file << "Git commit time     : " << getgitdatestring_main() << std::endl;
+    log_file << "Git commit hash     : " << getgitbuildstring_main() << std::endl;
+    log_file << "Git branch          : " << getgitbranchstring_main() << std::endl;
+    log_file << "Git repository URL  : " << getgiturlstring_main() << std::endl;
+    log_file << "=== Input file =======================================" << std::endl;
+    log_file << toml_file_name << std::endl;
 
     // Initial
     double u0_ini = input_data.initial.u0_ini;  // 0.d0 ! O Zuurstof-molekuul (Oxygen-molecule)
@@ -191,17 +204,18 @@ int main(int argc, char* argv[]) {
     status = write_used_input(input_data, log_file);
     log_file << "=======================================================" << std::endl;
 
+    std::string model_title("Air pollution");
     if (time_integration == "euler_explicit")
     {
-        model_title = "Air pollution, Euler explicit";
+        model_title += ", Euler explicit";
     }
     else if (time_integration == "runge_kutta_4")
     {
-        model_title = "Air pollution, Runge-Kutta 4 (RK4)";
+        model_title += ", Runge-Kutta 4 (RK4)";
     }
     else if (time_integration == "delta_formulation")
     {
-        model_title = "Air pollution, Delta formulation";
+        model_title += ", Delta formulation";
     }
     else
     {
@@ -250,8 +264,8 @@ int main(int argc, char* argv[]) {
     double t1 = t0;
 
     ////////////////////////////////////////////////////////////////////////////
-    // Define time history file
-    std::cout << "    Define his-file" << std::endl;
+    // Create time history file
+    std::cout << "    Create his-file" << std::endl;
     std::string nc_hisfile(his_filename);
     CFTS* his_file = new CFTS();
     status = his_file->open(nc_hisfile, model_title);
@@ -287,9 +301,6 @@ int main(int argc, char* argv[]) {
     int nst_his = 0;
     his_file->put_time(nst_his, double(0) * dt);
 
-    int used_newton_iter = 0;
-    int used_bicgstab_iter = 0;
-
     std::vector<double> his_values(1);
     his_values[0] = un[0];
     his_file->put_variable(his_O_name, nst_his, his_values);
@@ -301,11 +312,12 @@ int main(int argc, char* argv[]) {
     his_file->put_variable(his_O3_name, nst_his, his_values);
     if (time_integration == "delta_formulation")
     {
-        his_values[0] = used_newton_iter;
+        his_values[0] = 0;
         his_file->put_variable(his_newton_name, nst_his, his_values);
-        his_values[0] = used_bicgstab_iter;
+        his_values[0] = 0;
         his_file->put_variable(his_bicgstab_name, nst_his, his_values);
     }
+    ////////////////////////////////////////////////////////////////////////////
 
     for (int i = 0; i < 4; ++i)
     {
@@ -320,6 +332,8 @@ int main(int argc, char* argv[]) {
     std::cout << "Start time-loop" << std::endl;
     std::cout << std::setprecision(5) << double(0) * dt << "; " << double(total_time_steps - 1) * dt << std::endl;
 
+    int used_newton_iter = 0;
+    int used_bicgstab_iter = 0;
     for (int nst = 1; nst < total_time_steps; ++nst) {
         if (nst % nst_to_screen == 0)
         {
@@ -393,9 +407,9 @@ int main(int argc, char* argv[]) {
 
                 Eigen::BiCGSTAB< Eigen::SparseMatrix<double> > solver;
                 solver.compute(A);
-                //solution = solver.solve(rhs);
                 solver.setTolerance(eps_bicgstab);
-                solution = solver.solveWithGuess(rhs, solution);  // solution contains u^{n+1,p+1} - u^{n+1,p}
+                solution = solver.solve(rhs);
+                //solution = solver.solveWithGuess(rhs, solution);  // solution contains u^{n+1,p+1} - u^{n+1,p}
                 used_bicgstab_iter += int(solver.iterations());
 
                 dc_max = 0.0;
@@ -611,52 +625,4 @@ void GetArguments(long argc,   /* I Number of command line arguments */
         i = i + 1;
     }
     return;
-}
-int get_toml_array(toml::table tbl, std::string keyw, std::vector<std::string>& values)
-{
-    int status = 1;
-    toml::array& arr = *tbl.get_as<toml::array>(keyw);
-    if (&arr != nullptr)
-    {
-        values.clear();
-        for (auto&& elem : arr)
-        {
-            auto e = elem.value_or("none");
-            values.emplace_back(e);
-        }
-    }
-    if (&arr != nullptr) status = 0;
-    return status;
-}
-int get_toml_array(toml::table tbl, std::string keyw, std::vector<double>& values)
-{
-    int status = 1;
-    toml::array& arr = *tbl.get_as<toml::array>(keyw);
-    if (&arr != nullptr)
-    {
-        values.clear();
-        for (auto&& elem : arr)
-        {
-            auto e = elem.value_or(0.0);
-            values.emplace_back(e);
-        }
-    }
-    if (&arr != nullptr) status = 0;
-    return status;
-}
-int get_toml_array(toml::table tbl, std::string keyw, std::vector<bool>& values)
-{
-    int status = 1;
-    toml::array& arr = *tbl.get_as<toml::array>(keyw);
-    if (&arr != nullptr)
-    {
-        values.clear();
-        for (auto&& elem : arr)
-        {
-            auto e = elem.value_or(false);
-            values.emplace_back(e);
-        }
-    }
-    if (&arr != nullptr) status = 0;
-    return status;
 }
