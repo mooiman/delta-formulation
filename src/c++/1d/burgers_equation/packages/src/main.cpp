@@ -498,7 +498,7 @@ int main(int argc, char* argv[])
     his_file->put_variable(his_newton_iter_name, nst_his, his_values);
 
     his_values.clear();
-    his_values = { 0.0 };
+    his_values = { 0 };
     his_file->put_variable(his_lin_solv_iter_name, nst_his, his_values);
 
     STOP_TIMER(Writing his-file);
