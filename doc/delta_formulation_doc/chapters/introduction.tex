@@ -42,37 +42,41 @@ The boundary conditions are separated in a strictly outgoing and a strictly ingo
 When selecting a special combination of these signals a weakly-reflective or absorbing boundary condition can be prescribed, including a prescribed ingoing signal.
 
 
-
-
-In \autoref{sec:error_minimizing}: \nameref{sec:error_minimizing}, the error-minimizing integration method is presented.
+In \autoref{sec:error_minimizing}, the error-minimizing integration method is presented.
 The error-minimizing integration method is based on the assumption that a function can be made smooth so that the numerical discretization and the regularized function are so close that the numerical error is negligible for that function.
 
-In \autoref{sec:1d_space_discretization}: \nameref{sec:1d_space_discretization}, the one dimensional space discretization.
+In \autoref{sec:time_integration}, the fully implicit time integration is presented, which is based on Newton iterations.
+Due to the regularization of \textbf{all} the data the Newton iteration converges extremely well, that is second order in also the more complex areas.
+
+In \autoref{sec:0d_discretization}, the discretization of sources and sinks are presented. The \nameref{sec:air_pollution} and \nameref{sec:brusselator} are investigated.
+Numerical results of these test case are presented in \autoref{sec:0d_numerical_experiments}.
+
+In \autoref{sec:1d_space_discretization}, the one dimensional space discretization is presented.
 Which consist of a finite volume method and central discretizations and piecewise linear functions between the nodes.
 Also an estimation of the regularization coefficient for a given function based on the second order of accuracy of the discretization is presented.
 So the user is able to justify the quality of the numerical solution and in that way to judge where to adjust the regularization or adapt the grid in certain regions.
 
-
-In \autoref{sec:time_integration}: \nameref{sec:time_integration}, the fully implicit time integration is based on Newton iteration presented. Due to the regularization of the data the Newton iteration converges extremely well, that is second order in also the more complex areas.
-
-In \autoref{sec:1d_swe}: \nameref{sec:1d_swe}, the fully implicit time integration is presented for one dimensional shallow water equations.
+In \autoref{sec:1d_swe}, the fully implicit time integration is presented for one dimensional shallow water equations.
 We start with the implementation of the 1D advection/transport equation, then with the implementation of the wave equation without convection.
 This 1D wave equation consist of two independent advection/transport equation for a right and left going signal.
 At the boundary these two equations are coupled and will therefor generate reflections in the numerical model.
 We start with 1D advection/transport equation because this equation has the same nature as the right going signal of the wave equation.
 
 
-In \autoref{sec:numerical_experiments}: \nameref{sec:numerical_experiments}, several numerical experiments will be shown.
-Starting with some examples with just a source/sink-term, so only a time integration and without transport and diffusion (\nameref{sec:air_pollution} and \nameref{sec:brusselator}).
-Followed by numerical experiments of the advection-diffusion equation (with and without diffusion), the 1D-wave equation and 2D-wave equation.
+In \autoref{sec:1d_numerical_experiments}, several numerical experiments are presented.
+Numerical experiments for the advection-diffusion equation (with and without artificial diffusion), the Burgers equation (with and without artificial viscosity) and the 1D-wave equation.
 
 In \autoref{sec:1d_numerical_outflow_boundary_layer_experiment}: \nameref{sec:1d_numerical_outflow_boundary_layer_experiment}, the fully implicit time integration is presented for the advection-diffusion equation.
-Showing a flow from left to right with a Dirichlet boundary condition at the outflow side of the domain.
+Showing a flow from left to right with a Dirichlet boundary condition at the inflow and outflow side of the domain.
 The Dirichlet value at the outflow boundary is so chosen that there will appear an outflow boundary layer.
 
 In \autoref{sec:1d_numerical_interface_experiment}: \nameref{sec:1d_numerical_interface_experiment}, the fully implicit time integration is presented for the advection-diffusion equation.
 Showing a flow from left to right with a interface in the diffusion coefficient for the transported constituent.
 
+In \autoref{sec:2d_swe}, the fully implicit time integration is presented for the two dimensional shallow water equations.
+
+In \autoref{sec:2d_numerical_experiments}, several numerical experiments are presented.
+Numerical experiments for a Gaussian hump and some schematic rivers containing: a fully flat bed level, straight summer and within a winterbed and a meandering summerbed within a winterbed.
 
 %\newpage
 %{{\color{gray}

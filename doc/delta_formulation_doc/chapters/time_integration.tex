@@ -88,7 +88,7 @@ After subtitution of \autoref{eq:delta_n_theta} into \autoref{eq:NewtonLineariza
 With Jacobian
 \begin{align}
     \mat{J}^{n+1,p} & = \pdiff{\vec{f}(\vec{u}^{n+\theta,p})}{\vec{u}^{n+1,p}}
-     = \pdiff{\vec{f}(\theta \vec{u^{n+1,p}} + (1 - \theta) \vec{u}^{n})}{\vec{u}^{n+1,p}}
+     = \pdiff{\vec{f}(\theta \vec{u}^{n+1,p} + (1 - \theta) \vec{u}^{n})}{\vec{u}^{n+1,p}}
 \end{align}
 is the approximate linearization of $\vec{f}$ as a
 function of $\theta \vec{u}^{n+1} + (1-\theta)\vec{u}^{n}$ with respect to $\vec{u}^{n+1, p}$.
@@ -97,7 +97,7 @@ The Jacobians needed for the shallow water equations are described in \autoref{s
 
 The whole time integration method read:
 \begin{empheq}[box=\fbox]{align}
-    &\left(\Dt_{inv} \mat{M} + \theta\mat{J}^{n+1,p}\right)  \Delta \mat{u}^{n+1,p+1} =
+    &\left(\Dt_{inv} \mat{M} + \theta\mat{J}^{n+1,p}\right)  \Delta \vec{u}^{n+1,p+1} =
     \nonumber \\
 & \qquad = - \left[ \Dt_{inv} \mat{M} \left( \vec{u}^{n+1,p} - \vec{u}^{n} \right) + \vec{f} \left( \theta \vec{u}^{n+1,p} + (1-\theta) \vec{u}^{n} \right) \right] \label{eq:Ax=b_b}
 \end{empheq}
@@ -131,7 +131,7 @@ But in some cases it is not the case, so we have to assure that the following in
 \end{align}
 Therefor the time integration is extended with a (so called) pseudo timestep method, which read:
 \begin{empheq}[box=\fbox]{align}
-    & \left(\mat{M}_{pseu}\vec{T}^{n+1, p}_{pseu} + \Dt_{inv} \mat{M} + \theta\mat{J}^{n+1,p}\right)  \Delta \mat{u}^{n+1,p+1} =
+    & \left(\mat{M}_{pseu}\vec{T}^{n+1, p}_{pseu} + \Dt_{inv} \mat{M} + \theta\mat{J}^{n+1,p}\right)  \Delta \vec{u}^{n+1,p+1} =
     \nonumber \\
 & \qquad = - \left( \Dt_{inv} \mat{M} \left( \vec{u}^{n+1,p} - \vec{u}^{n} \right) + \vec{f} \left( \theta \vec{u}^{n+1,p} + (1-\theta) \vec{u}^{n} \right) \right)
 \end{empheq}
