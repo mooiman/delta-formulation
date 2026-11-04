@@ -2,120 +2,52 @@
 # marker '.': Peclet is smaller then 2
 # marker '*': Peclet is greater then 2
 #
-openfile '.\c01_pe01d0\output\adv_diff_eq_dx10_dt0_map.nc'
+openfile '.\c00_pe01d0\output\adv_diff_eq_dx0.01_dt0_map.nc'
 selectfield 'Constituent'
 hselectiontype '(M,N) point/path'
 editt '2'
 editmn '2:1:102'
 colour [ 0 0 0 ]
 marker '.'
+linewidth 1.
 plotcoordinate 'x coordinate'
 quickview
 
-openfile '.\c02_pe01d9\output\adv_diff_eq_dx10_dt0_map.nc'
+openfile '.\c01_pe01d0\output\adv_diff_eq_dx0.01_dt0_map.nc'
 selectfield 'Constituent'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '2:1:102'
-colour [ 0 0 1 ]
-marker '.'
-plotcoordinate 'x coordinate'
-addtoplot
-
-openfile '.\c03_pe02d1\output\adv_diff_eq_dx10_dt0_map.nc'
-selectfield 'Constituent'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '2:1:102'
-colour [ 1 0 1 ]
-marker '*'
-plotcoordinate 'x coordinate'
-addtoplot
-
-openfile '.\c04_pe02d4\output\adv_diff_eq_dx10_dt0_map.nc'
-selectfield 'Constituent'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '2:1:102'
-colour [ 1 0 0 ]
-marker '*'
-plotcoordinate 'x coordinate'
-addtoplot
-
-openfile '.\c05_pe02d5\output\adv_diff_eq_dx10_dt0_map.nc'
-selectfield 'Constituent'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '2:1:102'
-colour [ 0 0 1 ]
-marker '*'
-plotcoordinate 'x coordinate'
-addtoplot
-
-openfile '.\c06_pe02d6\output\adv_diff_eq_dx10_dt0_map.nc'
-selectfield 'Constituent'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '2:1:102'
-colour [ 1 0 1 ]
-marker '*'
-plotcoordinate 'x coordinate'
-addtoplot
-
-openfile '.\c07_pe05d0\output\adv_diff_eq_dx10_dt0_map.nc'
-selectfield 'Constituent'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '2:1:102'
-colour [ 1 0 0 ]
-marker '*'
-plotcoordinate 'x coordinate'
-addtoplot
-
-#===================================================================
-
-openfile '.\c01_pe01d0\output\adv_diff_eq_dx10_dt0_map.nc'
-selectfield 'Peclet'
 hselectiontype '(M,N) point/path'
 editt '2'
 editmn '2:1:102'
 colour [ 0 0 0 ]
 marker '.'
+linewidth 1.
 plotcoordinate 'x coordinate'
-quickview
+addtoplot
 
-openfile '.\c02_pe01d9\output\adv_diff_eq_dx10_dt0_map.nc'
-selectfield 'Peclet'
+openfile '.\c02_pe01d9\output\adv_diff_eq_dx0.01_dt0_map.nc'
+selectfield 'Constituent'
 hselectiontype '(M,N) point/path'
 editt '2'
 editmn '2:1:102'
 colour [ 0 0 1 ]
 marker '.'
+linewidth 1.
 plotcoordinate 'x coordinate'
 addtoplot
 
-openfile '.\c03_pe02d1\output\adv_diff_eq_dx10_dt0_map.nc'
-selectfield 'Peclet'
+openfile '.\c03_pe02d1\output\adv_diff_eq_dx0.01_dt0_map.nc'
+selectfield 'Constituent'
 hselectiontype '(M,N) point/path'
 editt '2'
 editmn '2:1:102'
 colour [ 1 0 1 ]
 marker '*'
+linewidth 1.
 plotcoordinate 'x coordinate'
 addtoplot
 
-# openfile '.\c04_pe02d4\output\adv_diff_eq_dx10_dt0_map.nc'
-# selectfield 'Peclet'
-# hselectiontype '(M,N) point/path'
-# editt '2'
-# editmn '2:1:102'
-# colour [ 0 0 1 ]
-# marker '*'
-# plotcoordinate 'x coordinate'
-# addtoplot
-# 
-# openfile '.\c05_pe02d5\output\adv_diff_eq_dx10_dt0_map.nc'
-# selectfield 'Peclet'
+# openfile '.\c04_pe02d4\output\adv_diff_eq_dx0.01_dt0_map.nc'
+# selectfield 'Constituent'
 # hselectiontype '(M,N) point/path'
 # editt '2'
 # editmn '2:1:102'
@@ -124,70 +56,8 @@ addtoplot
 # plotcoordinate 'x coordinate'
 # addtoplot
 # 
-# openfile '.\c06_pe02d6\output\adv_diff_eq_dx10_dt0_map.nc'
-# selectfield 'Peclet'
-# hselectiontype '(M,N) point/path'
-# editt '2'
-# editmn '2:1:102'
-# colour [ 0 0 1 ]
-# marker '*'
-# plotcoordinate 'x coordinate'
-# addtoplot
-
-openfile '.\c07_pe05d0\output\adv_diff_eq_dx10_dt0_map.nc'
-selectfield 'Peclet'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '2:1:102'
-colour [ 1 0 0 ]
-marker '*'
-plotcoordinate 'x coordinate'
-addtoplot
-
-#===================================================================
-
-openfile '.\c01_pe01d0\output\adv_diff_eq_dx10_dt0_map.nc'
-selectfield 'Psi'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '2:1:102'
-colour [ 0 0 0 ]
-marker '.'
-plotcoordinate 'x coordinate'
-quickview
-
-openfile '.\c02_pe01d9\output\adv_diff_eq_dx10_dt0_map.nc'
-selectfield 'Psi'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '2:1:102'
-colour [ 0 0 1 ]
-marker '.'
-plotcoordinate 'x coordinate'
-addtoplot
-
-openfile '.\c03_pe02d1\output\adv_diff_eq_dx10_dt0_map.nc'
-selectfield 'Psi'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '2:1:102'
-colour [ 1 0 1 ]
-marker '*'
-plotcoordinate 'x coordinate'
-addtoplot
-
-# openfile '.\c04_pe02d4\output\adv_diff_eq_dx10_dt0_map.nc'
-# selectfield 'Psi'
-# hselectiontype '(M,N) point/path'
-# editt '2'
-# editmn '2:1:102'
-# colour [ 1 0 0 ]
-# marker '*'
-# plotcoordinate 'x coordinate'
-# addtoplot
-# 
-# openfile '.\c05_pe02d5\output\adv_diff_eq_dx10_dt0_map.nc'
-# selectfield 'Psi'
+# openfile '.\c05_pe02d5\output\adv_diff_eq_dx0.01_dt0_map.nc'
+# selectfield 'Constituent'
 # hselectiontype '(M,N) point/path'
 # editt '2'
 # editmn '2:1:102'
@@ -196,8 +66,8 @@ addtoplot
 # plotcoordinate 'x coordinate'
 # addtoplot
 # 
-# openfile '.\c06_pe02d6\output\adv_diff_eq_dx10_dt0_map.nc'
-# selectfield 'Psi'
+# openfile '.\c06_pe02d6\output\adv_diff_eq_dx0.01_dt0_map.nc'
+# selectfield 'Constituent'
 # hselectiontype '(M,N) point/path'
 # editt '2'
 # editmn '2:1:102'
@@ -206,8 +76,152 @@ addtoplot
 # plotcoordinate 'x coordinate'
 # addtoplot
 
-openfile '.\c07_pe05d0\output\adv_diff_eq_dx10_dt0_map.nc'
-selectfield 'Psi'
+openfile '.\c07_pe05d0\output\adv_diff_eq_dx0.01_dt0_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '2:1:102'
+colour [ 1 0 0 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
+
+#===================================================================
+
+openfile '.\c01_pe01d0\output\adv_diff_eq_dx0.01_dt0_map.nc'
+selectfield 'Peclet'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '2:1:102'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\c02_pe01d9\output\adv_diff_eq_dx0.01_dt0_map.nc'
+selectfield 'Peclet'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '2:1:102'
+colour [ 0 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c03_pe02d1\output\adv_diff_eq_dx0.01_dt0_map.nc'
+selectfield 'Peclet'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '2:1:102'
+colour [ 1 0 1 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
+
+# openfile '.\c04_pe02d4\output\adv_diff_eq_dx0.01_dt0_map.nc'
+# selectfield 'Peclet'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '2:1:102'
+# colour [ 0 0 1 ]
+# marker '*'
+# plotcoordinate 'x coordinate'
+# addtoplot
+# 
+# openfile '.\c05_pe02d5\output\adv_diff_eq_dx0.01_dt0_map.nc'
+# selectfield 'Peclet'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '2:1:102'
+# colour [ 1 0 0 ]
+# marker '*'
+# plotcoordinate 'x coordinate'
+# addtoplot
+# 
+# openfile '.\c06_pe02d6\output\adv_diff_eq_dx0.01_dt0_map.nc'
+# selectfield 'Peclet'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '2:1:102'
+# colour [ 0 0 1 ]
+# marker '*'
+# plotcoordinate 'x coordinate'
+# addtoplot
+
+openfile '.\c07_pe05d0\output\adv_diff_eq_dx0.01_dt0_map.nc'
+selectfield 'Peclet'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '2:1:102'
+colour [ 1 0 0 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
+
+#===================================================================
+
+openfile '.\c01_pe01d0\output\adv_diff_eq_dx0.01_dt0_map.nc'
+selectfield 'Viscosity (used)'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '2:1:102'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\c02_pe01d9\output\adv_diff_eq_dx0.01_dt0_map.nc'
+selectfield 'Viscosity (used)'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '2:1:102'
+colour [ 0 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\c03_pe02d1\output\adv_diff_eq_dx0.01_dt0_map.nc'
+selectfield 'Viscosity (used)'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '2:1:102'
+colour [ 1 0 1 ]
+marker '*'
+plotcoordinate 'x coordinate'
+addtoplot
+
+# openfile '.\c04_pe02d4\output\adv_diff_eq_dx0.01_dt0_map.nc'
+# selectfield 'Viscosity (used)'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '2:1:102'
+# colour [ 1 0 0 ]
+# marker '*'
+# plotcoordinate 'x coordinate'
+# addtoplot
+# 
+# openfile '.\c05_pe02d5\output\adv_diff_eq_dx0.01_dt0_map.nc'
+# selectfield 'Viscosity (used)'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '2:1:102'
+# colour [ 0 0 1 ]
+# marker '*'
+# plotcoordinate 'x coordinate'
+# addtoplot
+# 
+# openfile '.\c06_pe02d6\output\adv_diff_eq_dx0.01_dt0_map.nc'
+# selectfield 'Viscosity (used)'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '2:1:102'
+# colour [ 1 0 1 ]
+# marker '*'
+# plotcoordinate 'x coordinate'
+# addtoplot
+
+openfile '.\c07_pe05d0\output\adv_diff_eq_dx0.01_dt0_map.nc'
+selectfield 'Viscosity (used)'
 hselectiontype '(M,N) point/path'
 editt '2'
 editmn '2:1:102'

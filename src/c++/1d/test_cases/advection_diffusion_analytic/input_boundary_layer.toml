@@ -1,0 +1,23 @@
+Loggin = "None"
+
+[Domain]
+    Lx = 1.0
+
+[Initial]    
+    shape = "Boundary_layer"  # "Constant", "Envelope"
+    
+[Physics]
+    u = [1.0, 1.9, 2.1, 5.0] # constant velocity over the whole domain    
+    diffusion = 0.01    
+
+[Numerics]
+    dt = 0.0   # Time step size [s], if dt == 0: then stationary problem
+    dx = 0.001   # Grid size [m]
+
+[Output]
+    dt_map = 1.0
+
+[Time]
+    tstart = 0.0                                 # Start time [s]
+    tstop = 2.0                                # End time [s]
+    

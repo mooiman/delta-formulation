@@ -8,7 +8,7 @@
     bc_vals = [0.0, 1.0]                          # The inflow discharge
 
 [Domain]
-    Lx = 1000.0                                  # Domain length [m]
+    Lx = 1.0                                  # Domain length [m]
     x_begin = 0.0  # Origin of the x-coordinate [m]
 
 [Initial]
@@ -17,7 +17,7 @@
 
 [Numerics]
     dt = 0.0                                    # Time step size [s], if dt == 0: then stationary problem
-    dx = 10.0                                     # Grid size [m]
+    dx = 0.01                                     # Grid size [m]
     c_psi = 4.0                                  
     theta = 0.5                                  # Implicitness factor (0.5 <= theta <= 1.0)
     iter_max = 50                               # Maximum number of nonlinear iterations
@@ -36,7 +36,7 @@
     u_advection = 2.5
     do_advection = true
     do_viscosity = true
-    viscosity = 10.0
+    viscosity = 0.01
 
 [Time]
     tunit  = "s"  # "s", "m", "h", "d"
