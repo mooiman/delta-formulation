@@ -1,0 +1,48 @@
+#
+# marker '.': Peclet is smaller then 2
+# marker '.': Peclet is greater then 2
+#
+#
+# marker '.': Peclet is smaller then 2
+# marker '.': Peclet is greater then 2
+#
+openfile '.\analytic_boundary_layer\analytic_boundary_layer_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '1'
+editmn '852:1:1002'
+colour [ 0 0 0 ]
+marker 'none'
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\analytic_boundary_layer\analytic_boundary_layer_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '852:1:1002'
+colour [ 0 0 1 ]
+marker 'none'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\analytic_boundary_layer\analytic_boundary_layer_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '3'
+editmn '852:1:1002'
+colour [ 1 0 1 ]
+marker 'none'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\analytic_boundary_layer\analytic_boundary_layer_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '4'
+editmn '852:1:1002'
+colour [ 1 0 0 ]
+marker 'none'
+plotcoordinate 'x coordinate'
+addtoplot
+

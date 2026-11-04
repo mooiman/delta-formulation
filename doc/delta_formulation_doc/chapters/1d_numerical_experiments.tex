@@ -265,29 +265,36 @@ with $\Pe = u L/\eps$.
 \paragraph*{Numerical experiment}
 The numerical experiment is performed with the following parameters:
 \begin{itemize}
-    \item Length of the domain $L = \bqty{1000}{\metre}$.
+    \item Length of the domain $L = \bqty{1}{\metre}$.
     \item Stationary simulation, $\lpdiff{c}{t}=0$.
     \item Prescribed boundary conditions: $c(0,t) = 0$ and $c(L,t) = 1$.
-    \item Grid size $\Dx = \bqty{5}{\metre}$,
-    \item Diffusion coefficient $\eps = \bqty{10}{\square\metre\per\second}$
+    \item Grid size $\Dx = \bqty{0.01}{\metre}$,
+    \item Diffusion coefficient $\eps = \bqty{0.01}{\square\metre\per\second}$
     \item Advection velocities, $\Pe = u\Dx/\eps$:
     \begin{itemize}
-        \item $u = \bqty{2}{\metre\per\second} \rightarrow \Pe = 1.0$
-        \item $u = \bqty{3.8}{\metre\per\second} \rightarrow \Pe = 1.9$
-        \item $u = \bqty{4.2}{\metre\per\second} \rightarrow \Pe = 2.1$
-        \item $u = \bqty{10.0}{\metre\per\second} \rightarrow \Pe = 5.0$
+        \item $u = \bqty{1}{\metre\per\second} \rightarrow \Pe = 1.0$
+        \item $u = \bqty{1.9}{\metre\per\second} \rightarrow \Pe = 1.9$
+        \item $u = \bqty{2.1}{\metre\per\second} \rightarrow \Pe = 2.1$
+        \item $u = \bqty{5.0}{\metre\per\second} \rightarrow \Pe = 5.0$
     \end{itemize}
     \item Smoothing factor, $c_{\Psi} = 4$
     %\item Right hand side to compute artificial viscosity, $\frac{1}{32} c_{\Psi} u \Dx \lpdiff[2]{c}{\xi}$ (educational guess).
 \end{itemize}
 %--------------------------------------------------------------------------------
 \paragraph*{Results of the numerical experiments}
-Map results are presented for the constituent $c$ and the artificial diffusion $\Psi$.
+Map results are presented for the constituent $c$ and the diffusion used  $\eps + \Psi$.
+When performing the  simulation without artificial viscosity the solutions are in good agreement with the analytic solutions if $\Pe < 2$, as shown in \autoref{fig:adv_diff_1d_boundary_layer_ana_num}.
+ \begin{figure}[H]
+     \centering
+     \includegraphics[width=0.9\textwidth]{figures/adv_diff_1d_boundary_layer_ana_num.png}
+     \caption{Comparisong between the analytic solution and the numerical solution for $\Pe = 1.0$. Computation is performed without artificial diffusion. Black analytic solution; Blue with artificial diffusion; Red without artificial diffusion.} \label{fig:adv_diff_1d_boundary_layer_ana_num}
+ \end{figure}
+
 \begin{figure}[H]
     \begin{subfigure}{0.5\textwidth}
     \centering
-    \includegraphics[width=0.7\textwidth]{figures/maze.pdf}
-    %\includegraphics[width=0.9\textwidth]{figures/adv_diff_1d_boundary_layer_ana_constituent.png}
+    %\includegraphics[width=0.7\textwidth]{figures/maze.pdf}
+    \includegraphics[width=0.9\textwidth]{figures/adv_diff_1d_boundary_layer_ana_constituent.png}
     \caption{Analytic solution}
     \end{subfigure}
     \begin{subfigure}{0.5\textwidth}
@@ -295,11 +302,13 @@ Map results are presented for the constituent $c$ and the artificial diffusion $
     \includegraphics[width=0.9\textwidth]{figures/adv_diff_1d_boundary_layer_num_constituent.png}
     \caption{Numerical solution}
     \end{subfigure}
-    \caption{Map results for different values of the advection velocity (thus P\'eclet number). The graphs with an  asterix represent results with a cell P\'eclet number larger then two. Black: $\Pe = 1.0$; Blue: $\Pe = 1.9$, Magenta: $\Pe = 2.1$; REd: $\Pe = 5.0$.}
+    \caption{Map results for different values of the advection velocity (thus P\'eclet number). The graphs with an  asterix represent results with a cell P\'eclet number larger then two. Black: $\Pe = 1.0$; Blue: $\Pe = 1.9$, Magenta: $\Pe = 2.1$; Red: $\Pe = 5.0$.}
 \end{figure}
+The difference between the analytic solution and the numerical solution is completely an artifact of the artificial viscosity $\Psi$.
+%
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/adv_diff_1d_boundary_layer_num_viscosity.png}
+    \includegraphics[width=0.9\textwidth]{figures/adv_diff_1d_boundary_layer_num_diffusion_used.png}
 \caption{Map results for the used viscosity ( $\eps + \Psi$). Black: $\Pe = 1.0$; Blue: $\Pe = 1.9$, Magenta: $\Pe = 2.1$; Red: $\Pe = 5.0$.}
 \end{figure}
 \begin{figure}[H]
