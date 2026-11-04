@@ -24,6 +24,7 @@ void adv_diff_init_concentration(double time, double u_const, double eps, std::v
     std::vector<double> cv(nx, 0.0);
 
     double dx = x[1] - x[0];
+    double Pe = u_const * Lx / eps;
     
     for (size_t i = 0; i < refine * (nx - 1) + 1; ++i)
     {
@@ -44,7 +45,7 @@ void adv_diff_init_concentration(double time, double u_const, double eps, std::v
         fcent = 1. / 2. * L_envelope + shift;
 
         L_envelope = 0.25 * Lx;
-        shift = 0.125 * Lx + u_const*time;
+        shift = 0.125 * Lx + u_const * time;
         fcent = 1. / 2. * L_envelope + shift;
         u_out[0] = 0.0;
         for (int i = 1; i < refine * (nx - 1) + 1; ++i)
@@ -60,14 +61,14 @@ void adv_diff_init_concentration(double time, double u_const, double eps, std::v
     case SHAPE_CONC::Boundary_layer:
         {
             // Analytic solution outflow boundary layer
-            double Pe = u_const * Lx/ eps;
             double a = 0.0;  // boundary value west
             double b = 1.0;  // boundary value east
 
             u_out[0] = 0.0;
             for (int i = 1; i < refine * (nx - 1); ++i)
             {
-                u_out[i] = a + (b - a) *( std::exp(((x_ana[i] - Lx)/Lx) * Pe) - std::exp(-Pe) ) / (1.0 - std::exp(-Pe)); //eq 4.16 Wesseling
+                double x = x_ana[i] / Lx;
+                u_out[i] = a + (b - a) * ( std::exp((x - 1.0) * Pe) - std::exp(-Pe) ) / (1.0 - std::exp(-Pe)); //eq 4.16 Wesseling
             }
             u_out[refine * (nx - 1)] = 2. * u_out[refine * (nx - 1) - 1] - u_out[refine * (nx - 1) - 2];
         }

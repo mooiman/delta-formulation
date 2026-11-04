@@ -108,7 +108,6 @@ int main(int argc, char* argv[])
     tbl_chp = *tbl["Output"].as_table();
     double dt_map = tbl_chp["dt_map"].value_or(double(0.01));
 
-
     std::string out_file;
     std::stringstream ss;
 
@@ -139,8 +138,8 @@ int main(int argc, char* argv[])
     log_file << "Executable compiled: " << __DATE__ << ", " << __TIME__ << std::endl;
     log_file << "=== Input file =======================================" << std::endl;
     log_file << toml_file_name << std::endl;
-    log_file << "=== Copy of the input file ============================" << std::endl;
-    log_file << tbl << "\n";  // Write input TOML file to log_file
+    //log_file << "=== Copy of the input file ============================" << std::endl;
+    //log_file << tbl << "\n";  // Write input TOML file to log_file
     log_file << "=======================================================" << std::endl;
     log_file << std::endl;
 
@@ -177,11 +176,18 @@ int main(int argc, char* argv[])
     log_file << "-------------------------------------------------------" << std::endl;
     log_file << "Nodes  : " << nx << std::endl;
     log_file << "Volumes: " << (nx - 1) << std::endl;
+    log_file << "CFL    : ";
     for (int i = 0; i < u.size() - 1; ++i)
     {
-        log_file << "CFL    : " << u[i] * dt / dx << ", ";
+        log_file << u[i] * dt/dx << ", ";
     }
-    log_file << "CFL    : " << u[u.size()-1] * dt / dx << std::endl;
+    log_file << u[u.size()-1] * dt/dx << std::endl;
+    log_file << "Peclet : " ;
+    for (int i = 0; i < u.size() - 1; ++i)
+    {
+        log_file << u[i] * dx/diffusion << ", ";
+    }
+    log_file << u[u.size()-1] * dx/diffusion << std::endl;
 
     STOP_TIMER(Writing log-file);  // but two write statements are not timed
     if (status != 0) {
