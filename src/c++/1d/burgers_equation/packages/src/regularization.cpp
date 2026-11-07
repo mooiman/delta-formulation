@@ -2,7 +2,7 @@
 // Programmer: Jan Mooiman
 // Email     : jan.mooiman@outlook.com
 //
-//    Solving the 1D ad/convection-diffusion equation, fully implicit with delta-formulation and Modified Newton iteration 
+//    Solving the 1D convection-diffusion equation, fully implicit with delta-formulation and Modified Newton iteration 
 //    Copyright (C) 2025 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -180,22 +180,12 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     A.coeffRef(i, i + 1) =  1.0;
     A.coeffRef(i, i + 2) =  0.0;
     rhs[i] = 0.0;
-    i = 1;
-    A.coeffRef(i, i - 1) = 11./24.;  // w_ess[0];
-    A.coeffRef(i, i    ) = 14./24.;  // w_ess[1];
-    A.coeffRef(i, i + 1) = -1./24.;  // w_ess[2];
-    rhs[i] = rhs[i];
 
     i = nx - 1;
     A.coeffRef(i, i - 2) =  0.0;
     A.coeffRef(i, i - 1) = -1.0;
     A.coeffRef(i, i    ) =  1.0;
     rhs[i] = 0.0;
-    i = nx - 2;
-    A.coeffRef(i, i - 1) = -1./24.;  // w_ess[2]; 
-    A.coeffRef(i, i    ) = 14./24.;  // w_ess[1]; 
-    A.coeffRef(i, i + 1) = 11./24.;  // w_ess[0]; 
-    rhs[i] = rhs[i];
 
     if (logging == "matrix")
     {

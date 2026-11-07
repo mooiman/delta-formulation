@@ -181,22 +181,12 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     A.coeffRef(i, i + 1) =  1.0;
     A.coeffRef(i, i + 2) =  0.0;
     rhs[i] = 0.0;
-    i = 1;
-    A.coeffRef(i, i - 1) = 11./24.;  // w_ess[0];
-    A.coeffRef(i, i    ) = 14./24.;  // w_ess[1];
-    A.coeffRef(i, i + 1) = -1./24.;  // w_ess[2];
-    rhs[i] = rhs[i];
 
     i = nx - 1;
     A.coeffRef(i, i - 2) =  0.0;
     A.coeffRef(i, i - 1) = -1.0;
     A.coeffRef(i, i    ) =  1.0;
     rhs[i] = 0.0;
-    i = nx - 2;
-    A.coeffRef(i, i - 1) = -1./24.;  // w_ess[2]; 
-    A.coeffRef(i, i    ) = 14./24.;  // w_ess[1]; 
-    A.coeffRef(i, i + 1) = 11./24.;  // w_ess[0]; 
-    rhs[i] = rhs[i];
 
     if (logging == "matrix")
     {

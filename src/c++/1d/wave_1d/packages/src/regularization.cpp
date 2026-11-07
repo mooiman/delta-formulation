@@ -157,7 +157,7 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
         rhs[i] = 0.0;
     }
 
-    for (size_t i = 1; i < nx-1; ++i)
+    for (size_t i = 1; i < nx - 1; ++i)
     {
         h_xixi[i] = (h[i - 1] - 2. * h[i] + h[i + 1]);
         q_xixi[i] = (q[i - 1] - 2. * q[i] + q[i + 1]);
@@ -179,9 +179,8 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     double qbar_im14;
     double qbar_ip14;
 
-    double c_error = c_psi;
-    double c_E = c_psi * c_psi * std::numbers::pi/2.0 * dx;
-
+    double c_error = c_psi;  // delta_formulation_content.pdf eq. B.26 (dd 2026-08-19)
+    double c_E = c_psi * c_psi * std::numbers::pi/2.0 * dx;  // delta_formulation_content.pdf eq. B.26 (dd 2026-08-19)
     for (size_t i = 1; i < nx - 1; ++i)
     {
         A.coeffRef(i, i - 1) = m_mass[0] - c_error;
@@ -202,30 +201,22 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     }
     // eq. 19
     i = 0;
-    A.coeffRef(i, i    ) = -1.; 
-    A.coeffRef(i, i + 1) = 1.0;
-    A.coeffRef(i, i + 2) = 0.;
- 
-    i = 1;
-    A.coeffRef(i, i - 1) = 11./24.;  // w_ess[0];  // 0.0;  //  w_ess[0];  // ;
-    A.coeffRef(i, i    ) = 14./24.;  // w_ess[1];  // 1.0;  //  w_ess[1];  // ;
-    A.coeffRef(i, i + 1) = -1./24.;  // w_ess[2];  // 0.0;  //  w_ess[2];  // ;
-    rhs[i] = rhs[i];
-    i = nx - 1;
-    A.coeffRef(i, i - 2) = 0.;
-    A.coeffRef(i, i - 1) = -1.0;
-    A.coeffRef(i, i    ) = 1.;
+    A.coeffRef(i, i    ) = -1.0; 
+    A.coeffRef(i, i + 1) =  1.0;
+    A.coeffRef(i, i + 2) =  0.0;
     rhs[i] = 0.0;
-    i = nx - 2;
-    A.coeffRef(i, i - 1) = -1./24.;  // w_ess[2]; 
-    A.coeffRef(i, i    ) = 14./24.;  // w_ess[1]; 
-    A.coeffRef(i, i + 1) = 11./24.;  // w_ess[0]; 
-    rhs[i] = rhs[i];
+
+    i = nx - 1;
+    A.coeffRef(i, i - 2) =  0.0;
+    A.coeffRef(i, i - 1) = -1.0;
+    A.coeffRef(i, i    ) =  1.0;
+    rhs[i] = 0.0;
 
     Eigen::BiCGSTAB< Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
     solver.compute(A);
     solver.setTolerance(1e-12);
     solution = solver.solve(rhs);
+
     for (size_t i = 0; i < nx; ++i)
     {
         psi[i] = solution[i];
