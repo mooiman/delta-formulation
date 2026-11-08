@@ -1,0 +1,21 @@
+openfile '.\c01_u0d0_dx0d001\output\adv_diff_eq_dx0.001_dt0_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '2:1:1002'
+colour [ 0 0 1 ]
+marker 'none'
+linewidth 1.
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\c05_u0d9_dx0d001\output\adv_diff_eq_dx0.001_dt0_map.nc'
+selectfield 'Constituent'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '2:1:1002'
+colour [ 0 0 0 ]
+marker 'none'
+linewidth 1.
+plotcoordinate 'x coordinate'
+addtoplot

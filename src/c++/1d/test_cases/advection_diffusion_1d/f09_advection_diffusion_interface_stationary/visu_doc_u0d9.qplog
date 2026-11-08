@@ -5,6 +5,7 @@ editt '2'
 editmn '2:1:1002'
 colour [ 0 0 0 ]
 marker 'none'
+linewidth 1.
 plotcoordinate 'x coordinate'
 quickview
 
@@ -15,6 +16,7 @@ editt '2'
 editmn '2:1:102'
 colour [ 0 0 1 ]
 marker '.'
+linewidth 1.
 plotcoordinate 'x coordinate'
 addtoplot
 
@@ -25,18 +27,20 @@ editt '2'
 editmn '2:1:22'
 colour [ 1 0 0 ]
 marker '.'
+linewidth 1.
 plotcoordinate 'x coordinate'
 addtoplot
 
-openfile '.\c08_u0d9_dx0d10\output\adv_diff_eq_dx0.1_dt0_map.nc'
-selectfield 'Constituent'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '2:1:12'
-colour [ 1 0 1 ]
-marker '.'
-plotcoordinate 'x coordinate'
-addtoplot
+# openfile '.\c08_u0d9_dx0d10\output\adv_diff_eq_dx0.1_dt0_map.nc'
+# selectfield 'Constituent'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '2:1:12'
+# colour [ 1 0 1 ]
+# marker '.'
+# linewidth 1.
+# plotcoordinate 'x coordinate'
+# addtoplot
 
 #===================================================================
 
@@ -47,6 +51,7 @@ editt '2'
 editmn '2:1:1002'
 colour [ 0 0 0 ]
 marker 'none'
+linewidth 1.
 plotcoordinate 'x coordinate'
 quickview
 
@@ -57,6 +62,7 @@ editt '2'
 editmn '2:1:102'
 colour [ 0 0 1 ]
 marker '.'
+linewidth 1.
 plotcoordinate 'x coordinate'
 addtoplot
 
@@ -67,18 +73,20 @@ editt '2'
 editmn '2:1:22'
 colour [ 1 0 0 ]
 marker '.'
+linewidth 1.
 plotcoordinate 'x coordinate'
 addtoplot
 
-openfile '.\c08_u0d9_dx0d10\output\adv_diff_eq_dx0.1_dt0_map.nc'
-selectfield 'Peclet (u.dx/nu)'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '2:1:12'
-colour [ 1 0 1 ]
-marker '.'
-plotcoordinate 'x coordinate'
-addtoplot
+# openfile '.\c08_u0d9_dx0d10\output\adv_diff_eq_dx0.1_dt0_map.nc'
+# selectfield 'Peclet (u.dx/nu)'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '2:1:12'
+# colour [ 1 0 1 ]
+# marker '.'
+# linewidth 1.
+# plotcoordinate 'x coordinate'
+# addtoplot
 
 #===================================================================
 
@@ -89,6 +97,7 @@ editt '2'
 editmn '2:1:1002'
 colour [ 0 0 0 ]
 marker 'none'
+linewidth 1.
 plotcoordinate 'x coordinate'
 quickview
 
@@ -99,6 +108,7 @@ editt '2'
 editmn '2:1:102'
 colour [ 0 0 1 ]
 marker '.'
+linewidth 1.
 plotcoordinate 'x coordinate'
 addtoplot
 
@@ -109,18 +119,20 @@ editt '2'
 editmn '2:1:22'
 colour [ 1 0 0 ]
 marker '.'
+linewidth 1.
 plotcoordinate 'x coordinate'
 addtoplot
 
-openfile '.\c08_u0d9_dx0d10\output\adv_diff_eq_dx0.1_dt0_map.nc'
-selectfield 'Viscosity (used)'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '2:1:12'
-colour [ 1 0 1 ]
-marker '.'
-plotcoordinate 'x coordinate'
-addtoplot
+# openfile '.\c08_u0d9_dx0d10\output\adv_diff_eq_dx0.1_dt0_map.nc'
+# selectfield 'Viscosity (used)'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '2:1:12'
+# colour [ 1 0 1 ]
+# marker '.'
+# linewidth 1.
+# plotcoordinate 'x coordinate'
+# addtoplot
 #===================================================================
 
 openfile '.\c05_u0d9_dx0d001\output\adv_diff_eq_dx0.001_dt0_map.nc'
@@ -130,6 +142,7 @@ editt '2'
 editmn '2:1:1002'
 colour [ 0 0 0 ]
 marker 'none'
+linewidth 1.
 plotcoordinate 'x coordinate'
 quickview
 
@@ -140,6 +153,7 @@ editt '2'
 editmn '2:1:102'
 colour [ 0 0 1 ]
 marker '.'
+linewidth 1.
 plotcoordinate 'x coordinate'
 addtoplot
 
@@ -150,15 +164,17 @@ editt '2'
 editmn '2:1:22'
 colour [ 1 0 0 ]
 marker '.'
+linewidth 1.
 plotcoordinate 'x coordinate'
 addtoplot
 
-openfile '.\c08_u0d9_dx0d10\output\adv_diff_eq_dx0.1_dt0_map.nc'
-selectfield 'Psi'
-hselectiontype '(M,N) point/path'
-editt '2'
-editmn '2:1:12'
-colour [ 1 0 1 ]
-marker '.'
-plotcoordinate 'x coordinate'
-addtoplot
+# openfile '.\c08_u0d9_dx0d10\output\adv_diff_eq_dx0.1_dt0_map.nc'
+# selectfield 'Psi'
+# hselectiontype '(M,N) point/path'
+# editt '2'
+# editmn '2:1:12'
+# colour [ 1 0 1 ]
+# marker '.'
+# linewidth 1.
+# plotcoordinate 'x coordinate'
+# addtoplot

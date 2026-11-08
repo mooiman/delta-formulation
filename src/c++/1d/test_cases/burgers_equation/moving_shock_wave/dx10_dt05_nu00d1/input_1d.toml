@@ -19,7 +19,7 @@ Logging = "None"  # "iterations", "matrix", "pattern"
     dt                  = 5.0  # Time step size [s], if dt == 0: then stationary problem
     dx                  = 10.0  # Grid size [m]
     c_psi               = 4.0
-    theta               = 0.5    # Implicitness factor (0.5 <= theta <= 1.0)
+    theta               = 0.5   # Implicitness factor (0.5 <= theta <= 1.0)
     iter_max            = 25    # Maximum number of non-linear iterations
     eps_newton          = 1e-12
     eps_bicgstab        = 1e-12
@@ -29,9 +29,9 @@ Logging = "None"  # "iterations", "matrix", "pattern"
     regularization_time = true
 
 [Output]
-    dt_his    = 1.0
-    dt_map    = 300.0
-    dt_screen = 300.0
+    dt_his    = 1.0  # [s]
+    dt_map    = 300.0  # [s]
+    dt_screen = 900.0  # [s]
 
 [Physics]
     do_convection = true
