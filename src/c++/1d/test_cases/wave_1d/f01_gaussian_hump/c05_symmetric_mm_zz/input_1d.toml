@@ -1,12 +1,12 @@
 Logging = ""  # "iterations", "matrix", "pattern"
 
 [Boundary]
-    treg        = 600.0  # Regularization time boundary signal
+    treg        = 300.0  # Regularization time boundary signal
     eps_bc_corr = 0.01
     bc_signals  = ["constant", "constant"]  # Incoming signal  "q" or "zeta"
     bc_type     = ["mooiman", "mooiman"]  # Type "free_slip", "no_slip", "borsboom", "mooiman"  
     bc_vals     = [0.0, 0.0]
-    bc_vars     = ["q", "zeta"]
+    bc_vars     = ["zeta", "zeta"]
 
 [Domain]
     Lx            = 36000.0
