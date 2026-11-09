@@ -1042,6 +1042,8 @@ int main(int argc, char* argv[])
                 double c_wave = std::sqrt(g * htheta_b);
                 if (bc_type[BC_WEST] == "mooiman")
                 {
+                    double htheta_b = w_ess[0] * htheta_0 + w_ess[1] * htheta_ip1 + w_ess[2] * htheta_ip2;
+                    double qtheta_b = w_ess[0] * qtheta_0 + w_ess[1] * qtheta_ip1 + w_ess[2] * qtheta_ip2;
                     // q
                     A.coeffRef(c_eq, ph + 1) = w_ess[0];
                     A.coeffRef(c_eq, ph_e + 1) = w_ess[1];
@@ -1051,7 +1053,7 @@ int main(int argc, char* argv[])
                     A.coeffRef(c_eq, ph_e) = w_ess[1] * c_wave;
                     A.coeffRef(c_eq, ph_ee) = w_ess[2] * c_wave;
                     //
-                    rhs[c_eq] = -(qp_ip12  + c_wave * (hp_ip12 - h_infty));
+                    rhs[c_eq] = -(qtheta_b  + c_wave * (htheta_b - h_infty));
                     if (bc_vars[BC_WEST] == "zeta" ) { rhs[c_eq] += 2. * c_wave * bc[BC_WEST]; }
                     if (bc_vars[BC_WEST] == "u" ) { rhs[c_eq] += 2. * h_infty * bc[BC_WEST]; }
                     if (bc_vars[BC_WEST] == "q" ) { rhs[c_eq] += 2. * bc[BC_WEST]; }
@@ -1285,6 +1287,7 @@ int main(int argc, char* argv[])
 
                 if (bc_type[BC_EAST] == "mooiman")
                 {
+                    double qtheta_b = w_ess[0] * qtheta_0 + w_ess[1] * qtheta_im1 + w_ess[2] * qtheta_im2;
                     // q
                     A.coeffRef(c_eq, ph + 1) = w_ess[0];
                     A.coeffRef(c_eq, ph_w + 1) = w_ess[1];
@@ -1294,7 +1297,7 @@ int main(int argc, char* argv[])
                     A.coeffRef(c_eq, ph_w) = -w_ess[1] * c_wave;
                     A.coeffRef(c_eq, ph_ww) = -w_ess[2] * c_wave;
                     //
-                    rhs[c_eq] = -(qp_im12 - c_wave * (hp_im12 - h_infty));
+                    rhs[c_eq] = -(qtheta_b - c_wave * (htheta_b - h_infty));
                     if (bc_vars[BC_EAST] == "zeta" ) { rhs[c_eq] -= 2. * c_wave * bc[BC_EAST]; }
                     if (bc_vars[BC_EAST] == "u" ) { rhs[c_eq] -= 2. * h_infty * bc[BC_EAST]; }
                     if (bc_vars[BC_EAST] == "q" ) { rhs[c_eq] -= 2. * bc[BC_EAST]; }
