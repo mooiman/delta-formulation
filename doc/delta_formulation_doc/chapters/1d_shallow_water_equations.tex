@@ -683,7 +683,7 @@ where $\cal{A}$, $\cal{B}$, $\cal{C}$ and $\cal{D}$ multiplied by $\theta$ are c
 For the part at $x_{i-\half}$ a similar expression is feasible.
 
 %------------------------------------------------------------------------------
-\subsection{Discretizations at boundary}
+\subsection{Discretizations at boundary}\label{sec:discretized_boundary_1d}
 For the 1D linear wave equations (\autoref{eq:1d_non_linear_wave2}) at each boundary one boundary condition need to be prescribed, that is the ingoing wave, called \textbf{essential} boundary condition (Dirichlet or Neumann condition).
 And one boundary condition to handle the outgoing wave, called \textbf{natural} boundary condition.
 
@@ -801,6 +801,7 @@ The discretization of  boundary \autoref{eq:essential_bc_q_1d} at $x=i+\half$ re
 The \textbf{natural} boundary condition for the left/west boundary, describing the undisturbed outgoing wave, reads (\autoref{eq:left_right_going_equations}):
 \begin{align}
 - \left(\sqrt{gh} + \frac{q}{h}\right) \underbrace{ \left(\pdiff{h}{t} + \pdiff{q}{x} + \ldots \right) }_{\text{continuity eq.}} + \underbrace{\left(\pdiff{q}{t} + g h \pdiff{\zeta}{x}+\ldots\right)}_{\text{momentum eq.}} = 0
+\label{eq:natural_bc_1d}
 \end{align}
 For the \textbf{natural} boundary the values at the boundary ($x_{i+\half}$ with $i=0$) of $h$ and $q$ are computed as follows:
 %

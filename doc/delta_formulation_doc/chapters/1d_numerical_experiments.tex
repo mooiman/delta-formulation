@@ -617,8 +617,8 @@ Where the arrival time of the shock wave is taken when the velocity is closest t
 %Figure taken from simulation:
 %Git commit hash     : a073b53
 %Git branch          : main
-The shock wave has a speed of $U_s = \bqty{1.4970}{\metre\per\second}$ for both cases, without and with artificial viscosity.
-Where the arrival time of the shock wave is taken when the velocity is closest to the value of $\bqty{1.5}{\metre\per\second}$.
+The shock wave has a speed of $U_s = \bqty{1.4997}{\metre\per\second}$ when using artificial viscosity and a speed of $U_s = \bqty{1.5006}{\metre\per\second}$ without artificial viscosity.
+Where the arrival time of the shock wave is taken when the velocity is closest to the value of $\bqty{1.5}{\metre\per\second}$ with an accuracy of \bqty{1}{\second}.
 %--------------------------------------------------------------------------------
 \subsubsection[Influence dt]{Influence of $\Dt$}
 \Autoref{fig:moving_shock_Wave_dt05_dt10_dt20} shows the influence of $\Dt$ on the solution of the moving shock wave when a $\Dx$ of $\bqty{10}{\metre}$ is used.
@@ -656,34 +656,47 @@ At the boundaries no ingoing signals are prescribed, so outgoing signals are lea
 \paragraph*{Numerical experiment}
 The numerical experiment is performed with the following parameters:
 \begin{itemize}
-    \item Length of the domain, $L_x = \bqty{12000}{\metre}$, ranging from $\bqty{-6000}{\metre}$ to $\bqty{6000}{\metre}$.
+    \item Length of the domain, $L = \bqty{36000}{\metre}$, ranging from $\bqty{-18000}{\metre}$ to $\bqty{18000}{\metre}$.
     \item Bed level, $z_b = \bqty{-10}{\metre}$.
     \item Grid size, $\Dx = \bqty{10}{\metre}$.
     \item Start time, $t_{start} = \bqty{0}{\second}$.
-    \item End time, $t_{stop} = \bqty{3600}{\second}$.
+    \item End time, $t_{stop} = \bqty{6}{\hour}$.
     \item Timestep, $\Dt = \bqty{10}{\second}$.
     \item Regularization time for time-series, $t_{reg} = \bqty{300}{\second}$.
     \item Amplitude of the Gaussian hump at the boundary, $a_0 = \bqty{0.01}{\metre}$.
-    \item Centre of the Gaussian hump, $\mu = \bqty{3000}{\metre}$.
+    \item Centre of the Gaussian hump, $\mu = \bqty{0}{\metre}$.
     \item Spreading of the Gaussian hump, $\sigma = \bqty{700}{\metre}$.
 \end{itemize}
-And a second experiment with given boundary values:
-\begin{itemize}
-    \item Prescribed discharge boundary at $\bqty{-6000}{\metre}$: $q(0,t) = \bqty{0.05}{\square\metre\per\second}$.
-    \item Prescribed water level boundary value at $\bqty{6000}{\metre}$: $\zeta(0,t) = \bqty{0.02}{\metre}$.
-\end{itemize}
-Because the boundary values are constant in time the solution is time-independent.
-Therefore two simulation should be performed:
-\begin{enumerate}
-    \item A stationary computation (with $\Dt = \bqty{0}{\second}$) and
-    \item a temporal computation (with $t_{stop} = \bqty{10800}{\second}$)
-\end{enumerate}
+%And a second experiment with given boundary values:
+%\begin{itemize}
+%    \item Prescribed discharge boundary at $\bqty{-18000}{\metre}$: $q(0,t) = \bqty{0.05}{\square\metre\per\second}$.
+%    \item Prescribed water level boundary value at $\bqty{18000}{\metre}$: $\zeta(0,t) = \bqty{0.02}{\metre}$.
+%\end{itemize}
+%Because the boundary values are constant in time the solution is time-independent.
+%Therefore two simulation should be performed:
+%\begin{enumerate}
+%    \item A stationary computation (with $\Dt = \bqty{0}{\second}$) and
+%    \item a temporal computation (with $t_{stop} = \bqty{6}{\hour}$)
+%\end{enumerate}
 %--------------------------------------------------------------------------------
-\paragraph*{Results of the numerical experiments 1}
-\notyet
+\paragraph*{Results of the numerical experiment 1}
+This numerical experiment uses the boundary description as described in \autoref{sec:discretized_boundary_1d} and using \autoref{eq:essential_bc_zeta_1d} and \autoref{eq:natural_bc_1d}.
+Time histories of the water level will be shown for the centre of the model and the boundaries at the left and right side of the domain (i.e.\ $x=\bqty{-18000}{\metre}$ and $x=\bqty{18000}{\metre}$)
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/wave_1d_gauss_bb_zz.pdf}
+    \caption{Time histories for the observation points at the the centre, left and right boundary}
+\end{figure}
 %--------------------------------------------------------------------------------
-\paragraph*{Results of the numerical experiments 2}
-\notyet
+\paragraph*{Results of numerical experiment 2}
+This numerical experiment uses the zero-order boundary weakly reflective boundary conditions, \autoref{eq:0_order_weakly_reflective}.
+Time histories of the water level will be shown for the centre of the model and the boundaries at the left and right side of the domain (i.e.\ $x=\bqty{-18000}{\metre}$ and $x=\bqty{18000}{\metre}$)
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/wave_1d_gauss_mm_zz.pdf}
+    \caption{Time histories for the observation points at the the centre, left and right boundary, \citet{EngquistAndMajda1977, Mooiman1987}}
+\end{figure}
+
 %--------------------------------------------------------------------------------
 \subsection{Weir}\label{sec:numerical_experiment_weir}
 The model is taken from \citet{Borsboom2001}.
