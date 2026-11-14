@@ -139,7 +139,7 @@ def main(bath_in = 12, Lx_in=1000., dx_in=50.0, c_psi_in= 2., left_in = 0.0, rig
     elif bathymetry == 3:
         bathymetry_desc = "Shoaling bedlevel from -10 [m] to -2.5 [m]"
         slope_begin = 250.
-        slope_end = 350.
+        slope_end = 1250.
         for i in range(0, nx):
             if x[i] < slope_begin:
                 ugiv[i] = -10.0

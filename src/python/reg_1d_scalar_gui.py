@@ -66,6 +66,8 @@ class DFTgui(QMainWindow):
         edit_layout.addWidget(self.lx_label, nrow, 0)
         edit_layout.addWidget(self.lx_edit, nrow, 1)
         self.lx_edit.setText("1000.")
+        if (self.bath_combobox.currentIndex() == 5):
+            self.lx_edit.setText("1500.")
 
         nrow += 1
         self.dx_label = QLabel(self)
@@ -75,6 +77,8 @@ class DFTgui(QMainWindow):
         edit_layout.addWidget(self.dx_label, nrow, 0)
         edit_layout.addWidget(self.dx_edit, nrow, 1)
         self.dx_edit.setText("20.")
+        if (self.bath_combobox.currentIndex() == 5):
+            self.dx_edit.setText("10.")
         if (self.bath_combobox.currentIndex() == 9):
             self.dx_edit.setText("40.")
 
@@ -148,8 +152,8 @@ class DFTgui(QMainWindow):
             self.dx_edit.setText("20.")
             self.step_left_edit.setText("0.0")
         if (self.bath_combobox.itemData(self.bath_combobox.currentIndex()) == 3):
-            self.lx_edit.setText("1000.")
-            self.dx_edit.setText("40.")
+            self.lx_edit.setText("1500.")
+            self.dx_edit.setText("10.")
             self.step_left_edit.setText("0.0")
         if (self.bath_combobox.itemData(self.bath_combobox.currentIndex()) == 4):
             self.lx_edit.setText("500.")
