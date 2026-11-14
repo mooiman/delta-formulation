@@ -60,7 +60,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file){
     log_file << std::endl << "[Initial]" << std::endl;
     log_file << "    ini_vars  = [\"";
     for (int i = 0; i < data.initial.ini_vars.size() - 1; ++i) { log_file << data.initial.ini_vars[i] << "\", \""; }
-    log_file << data.initial.ini_vars[data.initial.ini_vars.size() - 1] << "\"]" << " # \"constant\", \"envelope\", \"envelope_phi\"" << std::endl;
+    log_file << data.initial.ini_vars[data.initial.ini_vars.size() - 1] << "\"]" << " # \"constant\", \"envelope\", \"nwave\", \"envelope_phi\"" << std::endl;
 
     log_file << "    ini_vals  = [";
     for (int i = 0; i < data.initial.ini_vals.size() - 1; ++i) { log_file << format_as_double(data.initial.ini_vals[i]) << ", "; }

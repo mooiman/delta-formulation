@@ -6,8 +6,7 @@ set(exe_name burgers_eq)
 
 # include_directories(include)
 set(headers_files
-    include/adv_diff_init_velocity.h
-    include/adv_diff_linear_operator.h
+    include/init_velocity.h
     include/boundary_condition.h
     include/cfts.h
     include/compile_date_and_time.h
@@ -27,8 +26,8 @@ set(no_group_source_files
 )
 set(source_files
     src/main.cpp
-    src/adv_diff_boundary_condition.cpp
-    src/adv_diff_init_velocity.cpp
+    src/boundary_condition.cpp
+    src/init_velocity.cpp
     src/cfts.cpp
     src/definition_map_file.cpp
     src/main_version.cpp

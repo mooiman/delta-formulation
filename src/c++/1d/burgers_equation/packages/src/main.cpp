@@ -36,7 +36,7 @@
 #include <toml.h>
 
 #include "boundary_condition.h"
-#include "adv_diff_init_velocity.h"
+#include "init_velocity.h"
 #include "cfts.h"
 #include "compile_date_and_time.h"
 #include "data_input_struct.h"
@@ -355,7 +355,7 @@ int main(int argc, char* argv[])
     {
         x[i] = double(i - 1) * dx + x_begin;
     }
-    adv_diff_init_velocity(u_init, ini_vals, x, ini_vars[0]);
+    init_velocity(u_init, ini_vals, x, ini_vars[0]);
     //  Create kdtree, needed to locate the observation points
     std::vector<std::vector<double>> xy_points;
     for (size_t i = 0; i < x.size(); ++i)
@@ -589,6 +589,8 @@ int main(int argc, char* argv[])
                 log_file << "Iteration: " << used_newton_iter << std::endl;
             }
 
+            if (bc_signals[BC_WEST] == "periodic") { bc[BC_WEST] = up[nx - 2]; }
+            if (bc_signals[BC_EAST] == "periodic") { bc[BC_EAST] = up[1]; }
             for (size_t k = 0; k < nx; ++k)
             {
                 utheta[k] = theta * up[k] + (1.0 - theta) * un[k];

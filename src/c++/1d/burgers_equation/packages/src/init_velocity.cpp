@@ -23,9 +23,9 @@
 //
 //   Initial concentration for the Burgers equation
 
-#include "adv_diff_init_velocity.h"
+#include "init_velocity.h"
 
-int adv_diff_init_velocity(std::vector<double>& u, const std::vector<double>& ini_u_bnd, const std::vector<double>& x, std::string ini_var)
+int init_velocity(std::vector<double>& u, const std::vector<double>& ini_u_bnd, const std::vector<double>& x, std::string ini_var)
 {
     int status = 1;
     size_t nx = x.size();
@@ -101,6 +101,26 @@ int adv_diff_init_velocity(std::vector<double>& u, const std::vector<double>& in
             double x_end = x[nx - 1 - shift];
             double alpha = (x[i] - x_begin) / (x_end - x_begin);
             u[i] = (1. - alpha) * ini_u_bnd[0] + alpha * ini_u_bnd[1];
+        }
+        for (size_t i = nx - shift; i < nx; ++i)
+        {
+           u[i] = ini_u_bnd[1];
+        }
+        status = 0;
+    }
+    else if (ini_var == "nwave")
+    {
+        compatible = true;  // fill u[i] with linear function between boundary values ini_u_bnd[0] and ini_u_bnd[1]
+        size_t shift = 1;
+        for (size_t i = 0; i < shift; ++i)
+        {
+           u[i] = ini_u_bnd[0];
+        }
+        for (size_t i = shift; i < nx - shift; ++i)
+        {
+            double x_begin = x[shift];
+            double x_end = x[nx - 1 - shift];
+            u[i] =  std::sin(2. * std::numbers::pi * (x[i] - x_begin) / (x_end - x_begin));
         }
         for (size_t i = nx - shift; i < nx; ++i)
         {

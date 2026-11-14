@@ -7,7 +7,7 @@
     <ClCompile Include="src\perf_timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\adv_diff_init_velocity.cpp">
+    <ClCompile Include="src\init_velocity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\definition_map_file.cpp">
@@ -53,7 +53,7 @@
     <ClInclude Include="include\perf_timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\adv_diff_init_velocity.h">
+    <ClInclude Include="include\init_velocity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\boundary_condition.h">

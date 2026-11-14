@@ -269,7 +269,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(double dx, std::v
         rhs[i] = tmp[i];
     }
     size_t i = 0;
-    B.coeffRef(i, i) = 1.0;
+    B.coeffRef(i, i    ) = 1.0;
     B.coeffRef(i, i + 1) = -2.0;
     B.coeffRef(i, i + 2) = 1.0;
     rhs[i] = 0.0;
@@ -283,7 +283,7 @@ std::unique_ptr<std::vector<double>> REGULARIZATION::solve_eq7(double dx, std::v
     i = nx - 1;
     B.coeffRef(i, i - 2) = 1.0;
     B.coeffRef(i, i - 1) = -2.0;
-    B.coeffRef(i, i) = 1.0;
+    B.coeffRef(i, i    ) = 1.0;
     rhs[i] = 0.0;
     i = nx - 2;
     B.coeffRef(i, i - 1) = 0.0;

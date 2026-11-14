@@ -31,15 +31,22 @@ int  def_observation_stations(std::vector<std::string>& obs_stations, std::vecto
     status = add_hard_coded_observation_points(obs_points, x, y, nx, ny);
 
     int nsig = 0;
+    int ndec = 0;
+    int ndecimal = 1;
+    std::vector<double> rounded_x;
+    std::vector<double> rounded_y;
     for (size_t i = 0; i < obs_points.size(); ++i)
     {
         nsig = std::max(nsig, std::max( (int)std::log10(obs_points[i].x), (int)std::log10(obs_points[i].x) ));
+        rounded_x.push_back(adaptiveRound(obs_points[i].x, 1e-06, ndecimal));
+        ndec = std::max(ndec, ndecimal);
+        rounded_y.push_back(adaptiveRound(obs_points[i].y, 1e-06, ndecimal));
+        ndec = std::max(ndec, ndecimal);
     }
     //nsig += 1;
-    
     for (size_t i = 0; i < obs_points.size(); ++i)
     {
-        obs_stations.push_back(setup_obs_name(obs_points[i].x, obs_points[i].y, nsig, obs_points[i].name));
+        obs_stations.push_back(setup_obs_name(rounded_x[i], rounded_y[i], nsig, ndec, obs_points[i].name));
     }
     
     // Find the index of the observation point
@@ -78,6 +85,7 @@ int add_hard_coded_observation_points(std::vector<_ObservationPoint>& obs_points
 
     return 0;
 }
+
 struct _ObservationPoint add_obs(size_t ptr_obs, double x_obs, double y_obs, std::string obs_name)
 {
     struct _ObservationPoint obs_point; 
@@ -88,25 +96,50 @@ struct _ObservationPoint add_obs(size_t ptr_obs, double x_obs, double y_obs, std
     return obs_point;
 }
 
-std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs_name)
+double adaptiveRound(double value, double tolerance, int& digits)
+{
+    if (value == 0.0)
+    {
+        digits = 1;
+        return 0.0;
+    }
+
+    digits = 1;
+
+    while (digits <= std::numeric_limits<double>::max_digits10)
+    {
+        const double scale = std::pow(
+            10.0,
+            digits - 1 - std::floor(std::log10(std::abs(value)))
+        );
+
+        const double rounded = std::round(value * scale) / scale;
+
+        if (std::abs(value - rounded) <= tolerance)
+            return rounded;
+
+        ++digits;
+    }
+    return value;
+}
+std::string setup_obs_name(double x_obs, double y_obs, int nsig, int ndec, std::string obs_name)
 {
     std::string ss_x;
     //std::string ss_y;
-    ss_x = string_format_with_zeros(x_obs, nsig + 3);
+    ss_x = string_format_with_zeros(x_obs, nsig, ndec);
     //ss_y = string_format_with_zeros(y_obs, nsig + 3);
 
-    //ss_x << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << x_obs;
-    //ss_y << std::setfill('0') << std::setw(nsig + 3) << std::fixed << std::setprecision(2) << y_obs;
     return (obs_name + " (" + ss_x + ") ");
 }
-std::string string_format_with_zeros(double value, int width) 
+
+std::string string_format_with_zeros(double value, int nsig, int ndec) 
 {
     std::ostringstream oss;
     if (value < 0) {
         oss << '-';
-        oss << std::setw(width - 1) << std::setfill('0') << std::fixed << std::setprecision(1) << -value;
+        oss << std::setw(nsig - 1) << std::setfill('0') << std::fixed << std::setprecision(ndec) << -value;
     } else {
-        oss << std::setw(width) << std::setfill('0') << std::fixed << std::setprecision(1) << value;
+        oss << std::setw(nsig) << std::setfill('0') << std::fixed << std::setprecision(ndec) << value;
     }
     return oss.str();
 }

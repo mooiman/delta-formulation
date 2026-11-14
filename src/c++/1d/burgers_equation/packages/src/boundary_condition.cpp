@@ -36,7 +36,8 @@ void boundary_condition(double& bc0_out, double& bc0_in, double& time, double& t
         reg_factor = std::exp(-1. / ttmp) / (std::exp(-1. / ttmp) + std::exp(-1. / (1. - ttmp)));  // smoothstep function   
     }
 
-    if (bc_signal == "constant")
+    if (bc_signal == "constant" ||
+        bc_signal == "periodic" )
     {
         //
         // Given value at both sides
