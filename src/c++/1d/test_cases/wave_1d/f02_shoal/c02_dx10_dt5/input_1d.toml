@@ -33,6 +33,9 @@ Logging = "None"  # "iterations", "matrix", "pattern", "none"
     theta = 0.5                                   # Implicitness factor (0.5 <= theta <= 1.0)
     eps_newton = 1.0e-12
     eps_bicgstab = 1.0e-12
+    regularization_init = true
+    regularization_iter = false
+    regularization_time = false
 
 [Output]
     dt_his = 5.0   # [s]
