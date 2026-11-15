@@ -557,9 +557,9 @@ int main(int argc, char* argv[])
         boundary_condition(bc[BC_EAST ], bc_vals[BC_EAST ], time, treg, bc_signals[BC_EAST], ini_vals[BC_EAST]);
 
         std::string logging_org = logging;
-        if (time == 14400.0 || nst == 1 || nst == 2){
-            logging = "matrix";
-        }
+        //if (time == 14400.0 || nst == 1 || nst == 2){
+        //    logging = "matrix";
+        //}
         regularization->artificial_viscosity(psi, un, c_psi, dx, w_ess, w_nat, log_file, logging);
         logging = logging_org;
 
