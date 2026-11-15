@@ -25,7 +25,7 @@ Logging = "None"  # "iterations", "matrix", "pattern"
     eps_bicgstab        = 1e-12
     eps_abs_function    = 0.01
     regularization_init = true
-    regularization_iter = true 
+    regularization_iter = false 
     regularization_time = true
 
 [Output]
