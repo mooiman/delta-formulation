@@ -45,7 +45,7 @@ The finite volume approach of this equation read:
 
 %--------------------------------------------------------------------------------
 \subsection{Integration of the first term}
-The discretization of first term of \autoref{eq:2d_regularization} read:
+The discretization of first term of \autoref{eq:2d_regularization} in curvilinear coordinates read:
 \begin{align}
     J\, \int_{\Omega}  \utilde\, d\omega
 \end{align}
@@ -93,13 +93,19 @@ Integration of the second term of \autoref{eq:2d_regularization} read:
 \end{align}
 with $\vecn = (\nx, \ny)^T$ the outward normal vector.
 
-The term within the integral:
+The term within the integral
 \begin{align}
     \pdiff{}{x} \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y}  \right) +
     \pdiff{}{y} \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}  \right)
 \end{align}
-can be transformed to\newline
-%\textit{step 1a}
+can be transformed into curvilinear coordinates (by using Green's theorem, assume $x_{\xi\eta} = x_{\eta\xi}$ and $y_{\xi\eta} = y_{\eta\xi}$ and it is multiplied by $J$, i.e.\ because the whole equation is multiplied by $J$).
+%
+%--------------------------------------------------------------------------------
+%\vspace{-1\baselineskip}
+%\begin{quote}
+%{\tiny
+%\color{red}
+%\textbf{\textit{step 1a}}
 %\begin{align}
 %    &\frac{1}{J} \Bigg[
 %    y_n \pdiff{}{\xi} \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right) - y_\xi \pdiff{}{\eta} \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
@@ -109,7 +115,7 @@ can be transformed to\newline
 %    -x_\eta \pdiff{}{\xi} \left(  \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}  \right) + x_\xi \pdiff{}{\eta} \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y}   \right)
 %    \Bigg]
 %\end{align}
-%\textit{step 1b}\newline
+%\textbf{\textit{step 1b}}\newline
 %Assume $x_{\xi\eta} = x_{\eta\xi}$ and $y_{\xi\eta} = y_{\eta\xi}$
 %\begin{align}
 %    &\frac{1}{J} \Bigg[
@@ -135,7 +141,7 @@ can be transformed to\newline
 %    \Bigg]
 %\end{align}
 %Applying Green's theorem, and multiplying with $J$ (because the whole heat equation is multiplied by $J$)\newline
-%\textit{step 2a}:
+%\textbf{\textit{step 2a}:}
 %\begin{align}
 %    &
 %    \left( y_\eta \left( \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
@@ -146,9 +152,13 @@ can be transformed to\newline
 %    + \left( -y_\xi \left(  \Psi_{11} \pdiff{{u}}{x} + \Psi_{12} \pdiff{{u}}{y} \right)
 %    +   x_\xi \left( \Psi_{21} \pdiff{{u}}{x} + \Psi_{22} \pdiff{{u}}{y} \right) \right) \neta
 %\end{align}
-%with $\vecn = (\nxi, \neta)^T$ the outward normal vector.
+%with $\vecn = (\nxi, \neta)^T$ the outward normal vector.\newline
+%\textbf{\textit{step 2b}}:
+%}
+%\end{quote}
+%\vspace{-1\baselineskip}
+%--------------------------------------------------------------------------------
 %
-%\textit{step 2b}:
 \begin{align}
     &
     \frac{1}{J} \Bigg[ y_\eta \left(
