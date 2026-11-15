@@ -1,0 +1,42 @@
+openfile '.\output\burgers_eq_dx0.01_dt0.1_map.nc'
+selectfield 'Velocity'
+hselectiontype '(M,N) point/path'
+editt '1'
+editmn '2:1:102'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\..\dx0d001_dt0d001\output\burgers_eq_dx0.001_dt0.001_map.nc'
+selectfield 'Velocity'
+hselectiontype '(M,N) point/path'
+editt '1'
+editmn '2:1:1002'
+colour [ 0 0 1 ]
+marker 'none'
+plotcoordinate 'x coordinate'
+addtoplot
+
+#-------------------------------------------------------------------------------
+
+openfile '.\output\burgers_eq_dx0.01_dt0.1_map.nc'
+selectfield 'Viscosity (used)'
+hselectiontype '(M,N) point/path'
+editt '1'
+editmn '2:1:102'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\..\dx0d001_dt0d001\output\burgers_eq_dx0.001_dt0.001_map.nc'
+selectfield 'Viscosity (used)'
+hselectiontype '(M,N) point/path'
+editt '1'
+editmn '2:1:1002'
+colour [ 0 0 1 ]
+marker 'none'
+plotcoordinate 'x coordinate'
+addtoplot
+
