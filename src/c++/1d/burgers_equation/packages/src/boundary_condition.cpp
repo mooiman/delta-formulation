@@ -3,7 +3,7 @@
 // Email     : jan.mooiman@outlook.com
 //
 //    Solving the 1D Burgers equation, fully implicit with delta-formulation and Modified Newton iteration 
-//    Copyright (C) 2025 Jan Mooiman
+//    Copyright (C) 2026 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 //------------------------------------------------------------------------------
 //   DESCRIPTION
 //
-//   Boundary conditions for the Burgers equation
+//   Boundary conditions for the 1D Burgers equation
 //
 
 #include "boundary_condition.h"

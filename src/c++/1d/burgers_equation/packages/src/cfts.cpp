@@ -2,8 +2,8 @@
 // Programmer: Jan Mooiman
 // Email     : jan.mooiman@outlook.com
 //
-//    Solving the 1D advection/diffusion equation, fully implicit with delta-formulation and Modified Newton iteration 
-//    Copyright (C) 2025 Jan Mooiman
+//    Solving the 1D Burgers equation, fully implicit with delta-formulation and Modified Newton iteration 
+//    Copyright (C) 2026 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by

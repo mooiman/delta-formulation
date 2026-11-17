@@ -2,8 +2,8 @@
 // Programmer: Jan Mooiman
 // Email     : jan.mooiman@outlook.com
 //
-//    Solving the 2D shallow water equations, fully implicit with delta-formuation and Modified Newton iteration 
-//    Copyright (C) 2025 Jan Mooiman
+//    Solving the 1D Burgers equation, fully implicit with delta-formuation and Modified Newton iteration 
+//    Copyright (C) 2026 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
 //------------------------------------------------------------------------------
+
 #pragma once
 
 #include <fstream>

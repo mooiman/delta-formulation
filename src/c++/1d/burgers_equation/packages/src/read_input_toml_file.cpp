@@ -3,7 +3,7 @@
 // Email     : jan.mooiman@outlook.com
 //
 //    Solving the 1D Burgers equation, fully implicit with delta-formulation and Modified Newton iteration 
-//    Copyright (C) 2025 Jan Mooiman
+//    Copyright (C) 2026 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -31,8 +31,8 @@ int get_toml_array(toml::table, std::string, std::vector<std::string>&);
 int get_toml_array(toml::table, std::string, std::vector<double>&);
 int get_toml_array(toml::table, std::string, std::vector<bool>&);
 
-_data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::path & toml_file_name){
-    input_dir = input_dir;  // needed if a file is given as input variable
+_data_input read_toml_file(std::filesystem::path & input_dir, std::filesystem::path & toml_file_name)
+{
     int status;
     toml::table tbl;
     toml::table tbl_chp;  // table for a chapter

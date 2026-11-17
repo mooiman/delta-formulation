@@ -3,7 +3,7 @@
 // Email     : jan.mooiman@outlook.com
 //
 //    Solving the 1D Burgers equation, fully implicit with delta-formulation and Modified Newton iteration 
-//    Copyright (C) 2025 Jan Mooiman
+//    Copyright (C) 2026 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ int write_used_input(struct _data_input data, std::ofstream & log_file);
 int set_his_values(std::vector<_ObservationPoint>& obs_points, std::vector<double> & array, std::vector<double>& his_values);
 std::vector<double> bc_val(double x_loc);
 //
-// Solve the Burgers equation
+// Solve the 1D Burgers equation
 //
 // du/dt + 1/2 d(u^2)/dx - d/dx(nu d(u)dx) = 0
 //
@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
         std::cout << "Git branch          : " << getgitbranchstring_main() << std::endl;
         std::cout << "Git repository URL  : " << getgiturlstring_main() << std::endl;
         std::cout << std::endl;
-        std::cout << "usage: burgers_eq.exe --toml <input_file>" << std::endl;
+        std::cout << "Usage: burgers_eq.exe --toml <input_file>" << std::endl;
         std::cout << "======================================================" << std::endl;
         //std::cin.ignore();
         std::chrono::duration<int, std::milli> timespan(3000);

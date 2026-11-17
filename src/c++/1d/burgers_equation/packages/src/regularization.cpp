@@ -2,8 +2,8 @@
 // Programmer: Jan Mooiman
 // Email     : jan.mooiman@outlook.com
 //
-//    Solving the 1D convection-diffusion equation, fully implicit with delta-formulation and Modified Newton iteration 
-//    Copyright (C) 2025 Jan Mooiman
+//    Solving the 1D Burgers equation, fully implicit with delta-formulation and Modified Newton iteration 
+//    Copyright (C) 2026 Jan Mooiman
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
-//---------------------------------------------------------------
+//------------------------------------------------------------------------------
 //   DESCRIPTION
 //
 //   Regularization of given function in 1 dimension
@@ -76,7 +76,6 @@ void REGULARIZATION::given_function(std::vector<double>& u_tilde, std::vector<do
 
     for (size_t i = 0; i < nx; ++i)
     {
-        // scaling of the input array u_giv_in
         u0[i] = u_giv_in[i];
     }
     for (int iter = 0; iter < m_iter_max; ++iter)
@@ -205,23 +204,6 @@ void REGULARIZATION::artificial_viscosity(std::vector<double>& psi, std::vector<
     for (size_t i = 0; i < nx; ++i)
     {
         psi[i] = solution[i];
-    }
-}
-//------------------------------------------------------------------------------
-void REGULARIZATION::first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, double dx)
-{
-    int nx = (int)eps.size();
-    double peclet = 0.0;
-    double peclet_threshold = 1.9;
-
-    for (size_t i = 0; i < nx; ++i)
-    {
-        peclet = std::abs(u[i] * dx / eps[i]);
-        psi[i] = 1.0;
-        if (peclet > peclet_threshold)
-        { 
-            psi[i] = peclet/ peclet_threshold;
-        }
     }
 }
 //------------------------------------------------------------------------------
