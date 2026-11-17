@@ -47,9 +47,6 @@ $GitDate = git show -s --format="%cd" --date=format:"%Y-%m-%d %H:%M:%S" HEAD
 Write-Host "GIT Date  : $GitDate"
 Write-Host "GIT Hash  : $GitModifiedHash"
 
-$FullHash = "$GitDate, $GitModifiedHash"
-Write-Host "GIT Full  : $FullHash"
-
 # --- Source URL ---
 $GitUrl = git ls-remote --get-url
 if (-not $GitUrl) {
