@@ -36,8 +36,9 @@ int def_observation_stations(std::vector<std::string>& obs_stations, std::vector
 int add_hard_coded_observation_points(std::vector<_ObservationPoint>& obs_points, std::vector<double> x, std::vector<double> y, 
     size_t nx, size_t ny);
 struct _ObservationPoint add_obs(size_t ptr_obs, double x_obs, double y_obs, std::string obs_name);
-std::string setup_obs_name(double x_obs, double y_obs, int nsig, std::string obs_name);
-std::string string_format_with_zeros(double value, int width);
+double adaptiveRound(double value, double tolerance, int& digits);
+std::string setup_obs_name(double x_obs, double y_obs, int nsig, int ndec, std::string obs_name);
+std::string string_format_with_zeros(double value, int nsig, int ndec);
 inline size_t idx(size_t i, size_t j, size_t ny);
 
 #endif  // __OBSERVATION_STATIONSL_H__
