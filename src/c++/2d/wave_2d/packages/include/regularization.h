@@ -52,7 +52,7 @@ public:
 
     void given_function(
         std::vector<double>& u_out, std::vector<double>& psi_11, std::vector<double>& psi_22, 
-        std::vector<double>& eq8, std::vector<double>& u_giv,
+        std::vector<double>& u_giv,
         double c_psi, struct _grid_metric & metric, std::ofstream& log_file);
 
     void artificial_viscosity_xi (std::vector<double>& psi, 
@@ -66,8 +66,6 @@ public:
     void artificial_viscosity(std::vector<double>& psi, 
         std::vector<double>& h, std::vector<double>& q, std::vector<double>& r, std::vector<double>& zb, 
         double c_psi_in, struct _grid_metric & metric, std::ofstream& log_file);
-
-    void first_derivative(std::vector<double>& psi, std::vector<double>& eps, std::vector<double>& u, struct _grid_metric & metric);
 
 private:
     std::unique_ptr<std::vector<double>> solve_eq7(struct _grid_metric & metric, 

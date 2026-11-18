@@ -326,6 +326,7 @@ int utilde_interior_matrix(double* values, size_t row, size_t c_eq, Eigen::Vecto
 
     return 0;
 }
+//------------------------------------------------------------------------------
 int utilde_interior_rhs(double* values, size_t row, size_t c_eq, Eigen::VectorXd& rhs, 
     std::vector<double>& u_giv, struct _grid_metric & metric)
 {

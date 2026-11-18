@@ -1073,8 +1073,8 @@ int boundary_east(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r
                 double zb_0 = 0.25 * ( 3.0 * zb_b + 1.0 * zb_n);
                 double zb_1 = 0.25 * ( 3.0 * zb_b + 1.0 * zb_s);
 
-                corr_term = - ( 0.5 * dx_dxi_0 * ( dhdt_0 + ( eps_bc_corr * ( (bc[BC_EAST] - zb_0) - htheta_0)) ) 
-                              + 0.5 * dx_dxi_1 * ( dhdt_1 + ( eps_bc_corr * ( (bc[BC_EAST] - zb_1) - htheta_1)) ) 
+                corr_term = - ( 0.5 * dy_deta_0 * ( dhdt_0 + ( eps_bc_corr * ( (bc[BC_EAST] - zb_0) - htheta_0)) ) 
+                              + 0.5 * dy_deta_1 * ( dhdt_1 + ( eps_bc_corr * ( (bc[BC_EAST] - zb_1) - htheta_1)) ) 
                               );
                 rhs[row] += corr_term;
             }
@@ -2511,8 +2511,8 @@ int boundary_west(double* values, size_t row, size_t c_eq, size_t q_eq, size_t r
                 double qtheta_0 = 0.25 * (3.0 * qtheta_b + 1.0 * qtheta_s);
                 double qtheta_1 = 0.25 * (3.0 * qtheta_b + 1.0 * qtheta_n);
 
-                corr_term = ( 0.5 * dy_deta_0 * (- dqdt_0 + eps_bc_corr * (bc[BC_WEST] - qtheta_0)) +
-                              0.5 * dy_deta_1 * (- dqdt_1 + eps_bc_corr * (bc[BC_WEST] - qtheta_1))
+                corr_term = ( 0.5 * dx_dxi_0 * (- dqdt_0 + eps_bc_corr * (bc[BC_WEST] - qtheta_0)) +
+                              0.5 * dx_dxi_1 * (- dqdt_1 + eps_bc_corr * (bc[BC_WEST] - qtheta_1))
                             );
                 rhs[row] += corr_term;
             }
