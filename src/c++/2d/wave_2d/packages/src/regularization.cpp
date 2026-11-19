@@ -400,7 +400,7 @@ void REGULARIZATION::artificial_viscosity_xi(std::vector<double>& psi,
             qbar_im14 = 0.25 * (q[p_w] + 3. * q[p_0]);
             qbar_ip14 = 0.25 * (q[p_e] + 3. * q[p_0]);
 
-            rhs[p_0] = c_E * metric.dy_deta[p_0] * (
+            rhs[p_0] = c_E * metric.dx_dxi[p_0] * (
                   0.0625 * std::sqrt(m_g / hbar_im14) * std::abs(s_xixi[p_0])
                 + 0.0625 * std::sqrt(2.) * (std::abs(q_xixi[p_0] / hbar_im14 - qbar_im14 * h_xixi[p_0] / (hbar_im14 * hbar_im14)))
                 + 0.0625 * std::sqrt(m_g / hbar_ip14) * std::abs(s_xixi[p_0])
@@ -560,7 +560,7 @@ void REGULARIZATION::artificial_viscosity_eta(std::vector<double>& psi,
             rbar_jm14 = 0.25 * (r[p_s] + 3. * r[p_0]);
             rbar_jp14 = 0.25 * (r[p_n] + 3. * r[p_0]);
 
-            rhs[p_0] = c_E * metric.dx_dxi[p_0] * (
+            rhs[p_0] = c_E * metric.dy_deta[p_0] * (
                   0.0625 * std::sqrt(m_g / hbar_jm14) * std::abs(s_etaeta[p_0])
                 + 0.0625 * std::sqrt(2.) * (std::abs(r_etaeta[p_0] / hbar_jm14 - rbar_jm14 * h_etaeta[p_0] / (hbar_jm14 * hbar_jm14)))
                 + 0.0625 * std::sqrt(m_g / hbar_jp14) * std::abs(s_etaeta[p_0])
