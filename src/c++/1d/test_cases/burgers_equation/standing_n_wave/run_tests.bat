@@ -13,3 +13,5 @@ cd ..
 cd dx0d010_dt0d100
 call run.bat
 cd ..
+
+call visu.qplog

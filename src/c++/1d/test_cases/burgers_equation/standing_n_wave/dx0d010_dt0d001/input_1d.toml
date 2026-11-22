@@ -43,4 +43,4 @@ Logging = "None"  # "iterations", "matrix", "pattern"
 [Time]
     tunit  = "s"  # "s", "m", "h", "d"
     tstart = 0.0
-    tstop  = 10.0
+    tstop  = 5.0

@@ -14,7 +14,7 @@ hselectiontype '(M,N) point/path'
 editt '1'
 editmn '2:1:102'
 colour [ 0 0 1 ]
-marker 'o'
+marker '.'
 plotcoordinate 'x coordinate'
 addtoplot
 
@@ -24,7 +24,7 @@ hselectiontype '(M,N) point/path'
 editt '1'
 editmn '2:1:102'
 colour [ 1 0 0 ]
-marker '.'
+marker 'o'
 plotcoordinate 'x coordinate'
 addtoplot
 
@@ -56,7 +56,7 @@ hselectiontype '(M,N) point/path'
 editt '1'
 editmn '2:1:102'
 colour [ 0 0 1 ]
-marker 'o'
+marker '.'
 plotcoordinate 'x coordinate'
 addtoplot
 
@@ -66,16 +66,16 @@ hselectiontype '(M,N) point/path'
 editt '1'
 editmn '2:1:102'
 colour [ 1 0 0 ]
-marker '.'
+marker 'o'
 plotcoordinate 'x coordinate'
 addtoplot
 
-openfile '.\dx0d010_dt0d100\output\burgers_eq_dx0.01_dt0.1_map.nc'
-selectfield 'Viscosity (used)'
-hselectiontype '(M,N) point/path'
-editt '1'
-editmn '2:1:102'
-colour [ 1 0 1 ]
-marker '.'
-plotcoordinate 'x coordinate'
-addtoplot
+# openfile '.\dx0d010_dt0d100\output\burgers_eq_dx0.01_dt0.1_map.nc'
+# selectfield 'Viscosity (used)'
+# hselectiontype '(M,N) point/path'
+# editt '1'
+# editmn '2:1:102'
+# colour [ 1 0 1 ]
+# marker '.'
+# plotcoordinate 'x coordinate'
+# addtoplot
