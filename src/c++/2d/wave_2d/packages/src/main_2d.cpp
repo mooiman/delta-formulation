@@ -518,8 +518,11 @@ int main(int argc, char *argv[])
     {
         psi_zb_11.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
         psi_zb_22.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
-        psi_visc_11.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
-        psi_visc_22.resize(nxny, 0.);  // needed when regularization of given initial function (ie bed level);
+        if (do_viscosity)
+        {
+            psi_visc_11.resize(nxny, 0.);  // needed when regularization of given initial function (ie viscosity);
+            psi_visc_22.resize(nxny, 0.);  // needed when regularization of given initial function (ie viscosity);
+        }
     }
     std::vector<double> htheta(nxny);
     std::vector<double> qtheta(nxny);
@@ -588,13 +591,15 @@ int main(int argc, char *argv[])
     {
         START_TIMER(Regularization_init);
         regularization->given_function(zb, psi_zb_11, psi_zb_22, zb_given, c_psi, metric, log_file);  
-        regularization->given_function(visc_reg, psi_visc_11, psi_visc_22, visc_given, c_psi, metric, log_file);
-        for (size_t i = 0; i < visc_reg.size(); ++i)
+        if (do_viscosity)
         {
-            visc_11[i] = visc_given[i] + visc_reg[i];
-            visc_22[i] = visc_given[i] + visc_reg[i];
+            regularization->given_function(visc_reg, psi_visc_11, psi_visc_22, visc_given, c_psi, metric, log_file);
+            for (size_t i = 0; i < visc_reg.size(); ++i)
+            {
+                visc_11[i] = visc_given[i] + visc_reg[i];
+                visc_22[i] = visc_given[i] + visc_reg[i];
+            }
         }
-
         STOP_TIMER(Regularization_init);
     }
     else
@@ -732,7 +737,7 @@ int main(int argc, char *argv[])
     {
         status = map_file->add_variable(map_psi_zb_11_name, dim_names, "", "Psi_zb_11", "m2 s-1", "mesh2D", "node", "Added artificial viscosity zb (x)");
         status = map_file->add_variable(map_psi_zb_22_name, dim_names, "", "Psi_zb_22", "m2 s-1", "mesh2D", "node", "Added artificial viscosity zb (y)");
-        if (do_viscosity)
+        if (do_viscosity && (regularization_iter || regularization_time))
         {
             status = map_file->add_variable(map_psi_visc_11_name, dim_names, "", "Psi_visc_11", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (x)");
             status = map_file->add_variable(map_psi_visc_22_name, dim_names, "", "Psi_visc_22", "m2 s-1", "mesh2D", "node", "Added artificial viscosity (y)");
@@ -798,7 +803,7 @@ int main(int argc, char *argv[])
     {
         map_file->put_time_variable(map_psi_zb_11_name, nst_map, psi_zb_11);
         map_file->put_time_variable(map_psi_zb_22_name, nst_map, psi_zb_22);
-        if (do_viscosity)
+        if (do_viscosity && (regularization_iter || regularization_time))
         {
             map_file->put_time_variable(map_psi_visc_11_name, nst_map, psi_visc_11);
             map_file->put_time_variable(map_psi_visc_22_name, nst_map, psi_visc_22);
@@ -859,8 +864,11 @@ int main(int argc, char *argv[])
         his_file->add_variable(his_peclet_eta_name, "", "Peclet (eta)", "-", "");
         his_file->add_variable(his_visc_11_name, "", "Viscosity (xi)", "m2 s-1", "");
         his_file->add_variable(his_visc_22_name, "", "Viscosity (eta)", "m2 s-1", "");
-        his_file->add_variable(his_psi_11_name, "", "Viscosity artificial (xi)", "m2 s-1", "");
-        his_file->add_variable(his_psi_22_name, "", "Viscosity artificial (eta)", "m2 s-1", "");
+        if (regularization_iter || regularization_time)
+        {
+            his_file->add_variable(his_psi_11_name, "", "Viscosity artificial (xi)", "m2 s-1", "");
+            his_file->add_variable(his_psi_22_name, "", "Viscosity artificial (eta)", "m2 s-1", "");
+        }
     }
 
     // Put data on time history file
@@ -940,10 +948,13 @@ int main(int argc, char *argv[])
         status = set_his_values(input_data.obs_points, visc_22, his_values);
         his_file->put_variable(his_visc_22_name, nst_his, his_values);
 
-        status = set_his_values(input_data.obs_points, psi_visc_11, his_values);
-        his_file->put_variable(his_psi_11_name, nst_his, his_values);
-        status = set_his_values(input_data.obs_points, psi_visc_22, his_values);
-        his_file->put_variable(his_psi_22_name, nst_his, his_values);
+        if (regularization_iter || regularization_time)
+        {
+            status = set_his_values(input_data.obs_points, psi_visc_11, his_values);
+            his_file->put_variable(his_psi_11_name, nst_his, his_values);
+            status = set_his_values(input_data.obs_points, psi_visc_22, his_values);
+            his_file->put_variable(his_psi_22_name, nst_his, his_values);
+        }
     }
     std::string his_newton_iter_name("his_newton_iterations");
     his_file->add_variable_without_location(his_newton_iter_name, "iterations", "Newton iteration", "-");
@@ -1602,7 +1613,7 @@ int main(int argc, char *argv[])
             {
                 map_file->put_time_variable(map_psi_zb_11_name, nst_map, psi_zb_11);
                 map_file->put_time_variable(map_psi_zb_22_name, nst_map, psi_zb_22);
-                if (do_viscosity)
+                if (do_viscosity && (regularization_iter || regularization_time))
                 {
                     map_file->put_time_variable(map_psi_visc_11_name, nst_map, psi_visc_11);
                     map_file->put_time_variable(map_psi_visc_22_name, nst_map, psi_visc_22);
@@ -1694,11 +1705,13 @@ int main(int argc, char *argv[])
                 his_file->put_variable(his_visc_11_name, nst_his, his_values);
                 status = set_his_values(input_data.obs_points, visc_22, his_values);
                 his_file->put_variable(his_visc_22_name, nst_his, his_values);
-
-                status = set_his_values(input_data.obs_points, psi_visc_11, his_values);
-                his_file->put_variable(his_psi_11_name, nst_his, his_values);
-                status = set_his_values(input_data.obs_points, psi_visc_22, his_values);
-                his_file->put_variable(his_psi_22_name, nst_his, his_values);
+                if (regularization_iter || regularization_time)
+                {
+                    status = set_his_values(input_data.obs_points, psi_visc_11, his_values);
+                    his_file->put_variable(his_psi_11_name, nst_his, his_values);
+                    status = set_his_values(input_data.obs_points, psi_visc_22, his_values);
+                    his_file->put_variable(his_psi_22_name, nst_his, his_values);
+                }
             }
 
             his_values = { double(used_newton_iter) };
