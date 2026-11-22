@@ -1,5 +1,6 @@
 %--------------------------------------------------------------------------------
 \chapter{Error function needed to regularize the artificial viscosity} \label{sec:error_artificial_viscosity}
+%------------------------------------------------------------------------------
 Regularization of the artificial viscosity $\Psi$ is described in \autoref{sec:regularization_artificial_viscosity}.
 \begin{align}
     &\int_{\Omega_{\xi\eta}} \Psi\, d\omega - \alpha_{\psi} \int_{\Omega_{\xi\eta}} \nabla \dotp \nabla \Psi\, d\xi d\eta = \int_{\Omega_{\xi\eta}} \beta_{\psi} \mathit{Err}_{\psi}\, d\omega
@@ -161,7 +162,7 @@ With energy conservation  ($\lpdiff{}{t}=0$) and $q = \textit{Constant}$, $r = \
     + g \zeta \right) = 0
 \end{align}
 %--------------------------------------------------------------------------------
-\subsection{2D Error function $\mathit{Err}_\psi$} \label{sec:err_psi_2d}
+\subsection{2D Error function} \label{sec:err_psi_2d}
 We assume that the artificial viscosity $\Psi$ is proportional to the numerical error of the gradient term of the energy equation.
 
 To reach suitable velocities the square root is taken from the potential and kinetic energy.

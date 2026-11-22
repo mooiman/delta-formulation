@@ -1,5 +1,6 @@
 %------------------------------------------------------------------------------
 \chapter{Towards the shallow water equations}\label{sec:1d_swe}
+%------------------------------------------------------------------------------
 Consider the non-linear wave equation when the pressure gradient is explicitly expressed as the gradient of the water level ($\zeta$):
 \begin{subequations}
     \begin{align}
@@ -86,7 +87,9 @@ Which is discretised on the grid
             \input{figures/water_body_fve_bc_at_node.pdf_tex}
         }
     \end{center}
-    \caption[Definition of the grid to solve the 1D-advection equation]{Water body (blue area), finite volumes (green boxes), computational points (open dots), virtual computational points (black dots), boundary points are at $x_{1}$ (inflow/west boundary) and $x_{I+\half}$ (outflow/east boundary).}\label{fig:water_body_fve_bc_at_node_1}
+    \caption[Definition of the grid to solve the 1D-advection equation]
+    {Water body (blue area), finite volumes (green boxes), computational points (open dots), virtual computational points (black dots), 
+    boundary points are at $x_{1}$ (inflow/west boundary) and $x_{I+\half}$ (outflow/east boundary).}\label{fig:water_body_fve_bc_at_node_1}
 \end{figure}
 The finite volume approach for control volume $\Dx_{i+\half}$ of \autoref{eq:1d_advection} reads:
 \begin{align}
@@ -216,7 +219,9 @@ The Burgers equation is discretised on the grid
             \input{figures/water_body_fve_bc_at_node.pdf_tex}
         }
     \end{center}
-    \caption[Definition of the grid to solve the 1D-Burgers equation]{Definition of the grid to solve the 1D-Burgers equation. \newline Water body (blue area), finite volumes (green boxes), computational points (open dots), virtual computational points (black dots), boundary points are at $x_{1}$ (inflow/west boundary) and $x_{I+\half}$ (outflow/east boundary).}\label{fig:water_body_fve_bc_at_node_1}
+    \caption[Definition of the grid to solve the 1D-Burgers equation]
+    {Definition of the grid to solve the 1D-Burgers equation. \newline Water body (blue area), finite volumes (green boxes), computational points (open dots), 
+    virtual computational points (black dots), boundary points are at $x_{1}$ (inflow/west boundary) and $x_{I+\half}$ (outflow/east boundary).}\label{fig:water_body_fve_bc_at_node_1a}
 \end{figure}
 The finite volume approach for control volume $\Dx_{i+\half}$ of \autoref{eq:1d_burgers} reads:
 \begin{align}
@@ -268,7 +273,7 @@ After linearization of $u^{n+\theta,p+1}$ the discretization reads:
 \end{align}
 
 %------------------------------------------------------------------------------
-\subsection{Artificial viscosity $\Psi$}
+\subsection{Artificial viscosity}
 To the constant viscosity $\nu$ in the Burgers equation an artificial viscosity $\Psi(x,t)$ is added, this artificial viscosity is space and time dependent.
 The adjusted Burgers equation (the \textit{'easy'}-problem) reads then
 \begin{align}
@@ -304,7 +309,7 @@ And, at the right side an outflow boundary 'condition' is required for numerical
 The natural boundary conditions is fully determined by the outgoing signal and therefor we use the equation of the outgoing signal, i.e.\ \autoref{eq:left_right_going_equations}.
 For the 1-D Burgers equation when omitting the viscosity term it reads:
 \begin{align}
-    \pdiff{u}{t} + \half\pdiff{u^2}{x} - \pdiff{}{x} \left( (\nu + \Psi)  \pdiff{u}{x} \right) = 0. \label{eq:1d_burgers}
+    \pdiff{u}{t} + \half\pdiff{u^2}{x} - \pdiff{}{x} \left( (\nu + \Psi)  \pdiff{u}{x} \right) = 0. \label{eq:1d_burgers_a}
 \end{align}
 %--------------------------------------------------------------------------------
 \subsubsection{Inflow boundary}
@@ -330,7 +335,7 @@ Similar if an essential boundary condition is given at the right/east-side of th
 %--------------------------------------------------------------------------------
 \subsubsection{Outflow boundary}
 The \textbf{natural} is chosen in that way that as less as possible left going spurious numerical waves are generated at the outflow boundary, i.e.\ nearly no reflection.
-The natural boundary condition (right/east-side) is supplied at $x_I$ with the discretization constants as determined by \autoref{eq:stencil_nat} and boundary condition \autoref{eq:1d_burgers} which yields:
+The natural boundary condition (right/east-side) is supplied at $x_I$ with the discretization constants as determined by \autoref{eq:stencil_nat} and boundary condition \autoref{eq:1d_burgers_a} which yields:
 \begin{align}
     &\left( \frac{w^{\it nat}_0}{\Dt} + \theta \frac{u^{n+1,p}_{I+1}}{\Dx} \right) \Delta u^{n+1,p+1}_{I+1} +
     \left( \frac{w^{\it nat}_1}{\Dt} - \theta \frac{u^{n+1,p}_{I}}{\Dx} \right) \Delta u^{n+1,p+1}_I +

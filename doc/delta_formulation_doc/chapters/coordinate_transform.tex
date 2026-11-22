@@ -1,4 +1,6 @@
+%------------------------------------------------------------------------------
 \chapter{Curvilinear coordinate transformation}\label{app:CoordinateTransform}
+%--------------------------------------------------------------------------------
 A curvilinear coordinate transformation is employed to enable the calculation of non-rectangular bodies of water.
 Two grids are introduced: a curvilinear $xy$-grid, following the curvature of the shallow water body and a computational/numerical $\xi \eta$-grid, created by mapping the curvilinear $xy$-grid to an orthogonal coordinate system via a coordinate transformation.
 The global Cartesian $xy$-coordinate system is used for reference of the numerical grid.
@@ -666,7 +668,7 @@ $\vecn = (\nxi, \neta)^T$ the outward normal vector, and multiplied with $J$  th
     2 x_{\xi}x_{\eta} h \pdiff{(r/h)}{\xi}
     - 2 x_{\xi}x_{\xi} h \pdiff{(r/h)}{\eta}
     \right)
-    \Bigg] \neta \label{eq:xi_greens_viscous_term}
+    \Bigg] \neta \label{eq:xi_greens_viscous_term_coord}
 \end{align}
 %
 The linear functions in the first derivatives yields:
@@ -860,7 +862,7 @@ and will be used for the discretization of these viscosity terms.
 
 %--------------------------------------------------------------------------------
  \subsubsection*{Cartesian grid}
-On a cartesian grid ($y_\xi = x_\eta = 0$) these viscous terms reduces for the $q$-momentum equation (i.e.\ \autoref{eq:xi_greens_viscous_term}), to:
+On a cartesian grid ($y_\xi = x_\eta = 0$) these viscous terms reduces for the $q$-momentum equation (i.e.\ \autoref{eq:xi_greens_viscous_term_coord}), to:
 %
 \begin{align}
     \Bigg[ &  \frac{\nu_{11}}{J} \left(

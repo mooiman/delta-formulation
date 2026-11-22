@@ -1,3 +1,4 @@
+%------------------------------------------------------------------------------
 \chapter{Numerical experiments}\label{sec:1d_numerical_experiments}
 %--------------------------------------------------------------------------------
 \section{1-D Advection equation}
@@ -24,7 +25,7 @@ The prescribed boundary condition for the constituent reads
         \\
         1 &\quad \text{if\ }\tau > 1,
     \end{cases}
-    \label{eq:1d_burgers_boundary_condition}
+    \label{eq:1d_adv_boundary_condition}
 \end{align}
 where
 \begin{symbollist}
@@ -202,7 +203,7 @@ and with a prescribed boundary condition for the constituent $c$ at the left sid
         \\
         1 &\quad \text{if\ }\tau > 1,
     \end{cases}
-    \label{eq:1d_burgers_boundary_condition}
+    \label{eq:1d_burgers_boundary_condition_a}
 \end{align}
 where
 \begin{symbollist}
@@ -386,7 +387,7 @@ In this section we will show the resuls of the viscid Burgers equation with  a D
 
 The considered Burgers equation reads:
 \begin{align}
-    \pdiff{u}{t} + \half \pdiff{u^2}{x} - \pdiff{}{x}\left( (\nu+\Psi) \pdiff{u}{x}\right)= 0, \qquad u>0. \label{eq:1d_advection_art_diff}
+    \pdiff{u}{t} + \half \pdiff{u^2}{x} - \pdiff{}{x}\left( (\nu+\Psi) \pdiff{u}{x}\right)= 0, \qquad u>0. \label{eq:1d_advection_art_diff_a}
 \end{align}
 where
 \begin{symbollist}
@@ -409,7 +410,7 @@ The prescribed inflow boundary condition for the velocity reads
     \end{cases}
 \\
     \phi(\tau) &= \exp(-1 / \tau ) \quad \text{with} \quad \tau = \frac{t}{t_{reg}}
-    \label{eq:1d_burgers_boundary_condition}
+    \label{eq:1d_burgers_boundary_condition_smoothstep}
 \end{align}
 where
 \begin{symbollist}
@@ -539,7 +540,7 @@ The numerical experiment is performed with the following parameters:
     \item Timestep, $\Dt = \bqty{1}{\second}$
     \item Regularization time for time-series, $t_{\it reg} = \bqty{1800}{\second}$
     \item Prescribed initial velocity, $u_{\it initial}(x,0) = \bqty{1}{\metre\per\second}$
-    \item Prescribed velocity on boundary at $x=0$ is given by \autoref{eq:1d_burgers_boundary_condition}, with $u(0,t) = \bqty{2}{\metre\per\second}$.
+    \item Prescribed velocity on boundary at $x=0$ is given by \autoref{eq:1d_burgers_boundary_condition_smoothstep}, with $u(0,t) = \bqty{2}{\metre\per\second}$.
     \item No boundary is prescribed at $x=\bqty{20000}{\metre}$, free outflow.
 \end{itemize}
 The speed of the fully developed shock wave for the Burgers equation is $U_{s} =\bqty{1.5}{\metre\per\second}$, see \citet[eq.\ 8.1.67]{Debnath2008}, \citet[eq.\ 11.23]{LeVeque2002}.

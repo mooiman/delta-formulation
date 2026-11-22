@@ -1,5 +1,6 @@
 %------------------------------------------------------------------------------
 \chapter{1-D Space discretization}\label{sec:1d_space_discretization}
+%------------------------------------------------------------------------------
 We are looking for a second order central space discretization together with the finite volume approach.
 So the higher order terms in the Taylor series expansion are negligible.
 For this numerical discretization method no dissipation is added, only there is some dispersion for the shorter waves, i.e.\ dependent on the third derivative in the Taylor expansion.
@@ -146,7 +147,7 @@ method, i.e.\ averaged over the left outermost finite volume the quadratic funct
 equals the piecewise linear function used in the FVE scheme.
 %------------------------------------------------------------------------------
 %\newpage
-\section{Regularization of artificial viscosity $\mathbf{\Psi}$}\label{sec:regularization_artificial_viscosity}
+\section{Regularization of artificial viscosity}\label{sec:regularization_artificial_viscosity}
 To get an error-minimizing method we need to regularize all data, as mentioned in \autoref{sec:error_minimizing}.
 Regularization of the artificial viscosity $\Psi$ is performed as described in \citet[eq.\ 14]{Borsboom2001}.
 \begin{align}
@@ -294,7 +295,7 @@ So the discretization of \autoref{eq:1d_regularization} with $\alpha = \frac{1}{
 The boundary conditions to close the three diagonal system are $u_0  = {u_{giv}}(x_{0})$ and $u_{I+1} = {u_{giv}}(x_{I+1})$.
 
 %--------------------------------------------------------------------------------
-\subsection{Determination of artificial smoothing coefficient $\mathbf \Psi$}
+\subsection{Determination of artificial smoothing coefficient}
 \label{sec:determine_psi}
 The artificial smoothing coefficient $\Psi$ ($ = c_{\psi} \Dx^2 E$, \autoref{eq:regularization}) is dependent on error $E$, a smoothing coefficent $c_E$ and the second derivative of the given function $u_{giv}$ \citep[eq.\ 8]{Borsboom1998}.
 The error $E$ will be computed in computational space, meaning that a disturbance is spreaded over an equal number of cells before and after the location of the disturbance:
