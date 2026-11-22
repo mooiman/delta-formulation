@@ -1,0 +1,19 @@
+openfile '.\..\tile_1d\output\bed_level_file_dx100_dt10_map.nc'
+selectfield 'BadLevel'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '1:1:63'
+colour [ 0 0 0 ]
+marker '.'
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\..\x_bar\output\wave_2d_map.nc'
+selectfield 'BedLevel'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '32:63:3938'
+colour [ 0 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot

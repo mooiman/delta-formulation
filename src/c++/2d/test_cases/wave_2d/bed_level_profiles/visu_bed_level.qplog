@@ -1,0 +1,49 @@
+openfile '.\tile_1d\output\bed_level_file_dx100_dt10_map.nc'
+selectfield 'BadLevel'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '2:1:62'
+colour [ 0 0 0 ]
+marker 'none'
+plotcoordinate 'x coordinate'
+quickview
+
+openfile '.\tile\output\wave_2d_map.nc'
+selectfield 'BedLevel'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '95:63:3875'
+colour [ 0 0 1 ]
+marker '.'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\x_bar\output\wave_2d_map.nc'
+selectfield 'BedLevel'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '95:63:3875'
+colour [ 0 0 1 ]
+marker 'o'
+plotcoordinate 'x coordinate'
+addtoplot
+
+openfile '.\tile\output\wave_2d_map.nc'
+selectfield 'BedLevel'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '2018:1:2078'
+colour [ 1 0 0 ]
+marker '.'
+plotcoordinate 'y coordinate'
+addtoplot
+
+openfile '.\y_bar\output\wave_2d_map.nc'
+selectfield 'BedLevel'
+hselectiontype '(M,N) point/path'
+editt '2'
+editmn '2018:1:2078'
+colour [ 1 0 0 ]
+marker 'o'
+plotcoordinate 'y coordinate'
+addtoplot
