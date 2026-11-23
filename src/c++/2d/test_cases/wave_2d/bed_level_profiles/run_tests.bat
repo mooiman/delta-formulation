@@ -7,7 +7,7 @@ call run_2d.bat
 cd ..
 
 cd tile_1d
-call run_2d.bat
+call run_test.bat
 cd ..
 
 cd x_bar

@@ -3,19 +3,15 @@
 [Domain]
     mesh_file = "geometry/802x6_dx01d25_net.nc"
     bed_level_file = "geometry/802x6_dx01d25_wavy.dep"   
-[Time]
-    tstart = 0.0                                  # Start time [s]
-    tstop = 5400.0                                # End time [s]
         
 [Initial]
-    ini_vars = ["zeta_constant"]
-    gauss_amp = 0.0 # amplitude of the gaussian hump
-    gauss_mu = 0.0    # location of the top of the gaussian hump
-    gauss_sigma = 350.0    # width of the gaussian hump
+    ini_vals      = [0.0, 0.0, 0.0]
+    ini_vars      = ["zeta_constant", "u_constant", "v_constant"]
 
 [Boundary] # north, east, south, west
+    bc_signals = ["constant", "constant", "constant", "constant"]
     bc_type = ["free_slip", "borsboom", "free_slip", "borsboom"] # Type "borsboom", "free_slip", "mooiman" 
-    bc_vars = ["-", "zeta", "-", "q"]
+    bc_vars = ["r", "zeta", "r", "q"]
     bc_vals = [0.0, 0.0, 0.0, 4.0]
     treg = 150.0                                  # Regularization time boundary signal
     eps_bc_corr = 1.0e-2
@@ -34,13 +30,19 @@
 [Numerics]
     dt = 0.5                               # Time step size [s], if dt == 0: then stationary problem
     iter_max = 25                          # Maximum number of nonlinear iterations
-    theta = 0.501                          # Implicitness factor (0.5 <= theta <= 1.0)
+    theta = 0.5                            # Implicitness factor (0.5 <= theta <= 1.0)
     regularization_init = true
     regularization_iter = false
     regularization_time = false
     eps_newton = 1.0e-12
-    eps_bicgstab = 1.0e-6
+    eps_bicgstab = 1.0e-12
 
 [Output]
-    dt_his = 0.01   # [s]
-    dt_map = 30.0   # [s]
+    dt_his = 0.01       # [s]
+    dt_map = 30.0       # [s]
+    dt_screen = 120.0   # [s]
+
+[Time]
+    tunit= "s"
+    tstart = 0.0                                  # Start time [s]
+    tstop = 5400.0                                # End time [s]

@@ -4,15 +4,16 @@ Logging = "None"  # "iterations", "matrix", "pattern"
     treg         = 1800.0  # Regularization time boundary signal
     eps_bc_corr  = 0.01
     bc_type      = ["free_slip", "borsboom", "free_slip", "borsboom"]  # Type "free_slip", "no_slip", "borsboom", "mooiman"  
-    bc_vars      = ["q", "zeta", "q", "q"]
+    bc_vars      = ["r", "zeta", "r", "q"]
     bc_vals      = [0.0, 0.0, 0.0, 1.25]
 
 [Domain]
-    bed_level_file = "geometry/160mx080m_111x6_flat0d5.dep"
+    bed_level_file = "geometry/160mx080m_111x6_flat4.dep"
     mesh_file      = "geometry/160mx080m_111x6_net.nc"
 
 [Initial]
-    ini_vars      = ["zeta_constant"]
+    ini_vals      = [0.0, 0.0, 0.0]
+    ini_vars      = ["zeta_constant", "u_constant", "v_constant"]
     gauss_amp     = 0.0
     gauss_mu      = 0.0
     gauss_mu_x    = 0.0
@@ -23,7 +24,7 @@ Logging = "None"  # "iterations", "matrix", "pattern"
 
 [Numerics]
     dt                  = 20.0  # Time step size [s], if dt == 0: then stationary problem
-    theta               = 0.501  # Implicitness factor (0.5 <= theta <= 1.0)
+    theta               = 0.5   # Implicitness factor (0.5 <= theta <= 1.0)
     c_psi               = 4.0
     iter_max            = 25  # Maximum number of nonlinear iterations
     eps_newton          = 1.0e-12
